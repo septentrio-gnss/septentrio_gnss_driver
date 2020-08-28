@@ -1,5 +1,0 @@
-<map id="include/MinROS/communication/communication_core.hpp" name="include/MinROS/communication/communication_core.hpp">
-<area shape="rect" id="node2" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="5,95,192,136"/>
-<area shape="rect" id="node3" href="$minros__node_8hpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="216,95,387,136"/>
-<area shape="rect" id="node4" href="$minros__node_8cpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="228,184,375,225"/>
-</map>

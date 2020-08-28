@@ -1,4 +1,0 @@
-<map id="io_comm_mosaic::CallbackHandlers::handle" name="io_comm_mosaic::CallbackHandlers::handle">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="236,5,463,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#af26df0ec7e396df4bb35c062bb168571" title="Gets the end position in the read buffer. " alt="" coords="511,13,767,39"/>
-</map>

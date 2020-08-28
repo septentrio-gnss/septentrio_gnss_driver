@@ -1,6 +1,0 @@
-<map id="include/MinROS/communication/callbackhandlers.hpp" name="include/MinROS/communication/callbackhandlers.hpp">
-<area shape="rect" id="node2" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="95,95,305,136"/>
-<area shape="rect" id="node3" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="5,184,192,225"/>
-<area shape="rect" id="node4" href="$minros__node_8hpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="216,184,387,225"/>
-<area shape="rect" id="node5" href="$minros__node_8cpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="228,273,375,315"/>
-</map>

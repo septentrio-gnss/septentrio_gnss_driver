@@ -1,6 +1,0 @@
-<map id="found" name="found">
-<area shape="rect" id="node2" href="$class_reader.html#affaeaefe6003df74e3aaf8c96459c8d4" title="Reader::hasType" alt="" coords="114,5,237,32"/>
-<area shape="rect" id="node3" href="$class_reader.html#a62ce6284be43cf58d3ab93dd4b7c0a86" title="Reader::isMessage" alt="" coords="108,56,243,83"/>
-<area shape="rect" id="node4" href="$class_reader.html#ab0d80b8dc20a65bc2f049cb4f4d4dbbf" title="Reader::next" alt="" coords="127,107,224,133"/>
-<area shape="rect" id="node5" href="$class_reader.html#a97a28a344b79f39cf60de29cda5c4f35" title="Reader::read" alt="" coords="127,157,224,184"/>
-</map>
