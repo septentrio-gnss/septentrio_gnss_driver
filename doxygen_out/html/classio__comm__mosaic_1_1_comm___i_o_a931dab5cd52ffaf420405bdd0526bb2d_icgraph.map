@@ -1,0 +1,5 @@
+<map id="io_comm_mosaic::Comm_IO::InitializeSerial" name="io_comm_mosaic::Comm_IO::InitializeSerial">
+<area shape="rect" id="node2" href="$classminros__node_1_1_min_r_o_s_node.html#adbae147b1594bbe98bd84c247faf0d73" title="Initialize the I/O handling. " alt="" coords="224,5,409,47"/>
+<area shape="rect" id="node4" href="$classminros__node_1_1_min_r_o_s_node.html#acf6f02a33834d3da25f6456d5f8ff28f" title="Attempts to (re)connect every reconnect_delay_s_ seconds. " alt="" coords="224,71,409,112"/>
+<area shape="rect" id="node3" href="$classminros__node_1_1_min_r_o_s_node.html#a567317d6e450a66f9bb84b2762c7517b" title="minros_node::MinROSNode\l::MinROSNode" alt="" coords="457,5,643,47"/>
+</map>

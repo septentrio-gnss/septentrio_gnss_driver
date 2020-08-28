@@ -1,0 +1,8 @@
+<map id="string_utilities::ToUInt32" name="string_utilities::ToUInt32">
+<area shape="rect" id="node2" href="$namespaceminros__driver.html#a21c51e0c03efac883159307b8bb429e5" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint16_t, stores its value in &quot;value&quot; and returns whether or not all went well. " alt="" coords="240,5,421,32"/>
+<area shape="rect" id="node3" href="$namespaceminros__driver.html#a0ee929249d8e501a5f741870a51c9050" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint32_t, stores its value in &quot;value&quot; and returns whether or not all went well. " alt="" coords="240,56,421,83"/>
+<area shape="rect" id="node4" href="$namespaceminros__driver.html#adf40be8ae576ba7a8c8c14fa30fa7b6f" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint8_t, stores its value in..." alt="" coords="243,107,418,133"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="217,158,444,199"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="492,125,719,166"/>
+<area shape="rect" id="node7" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="514,190,697,231"/>
+</map>

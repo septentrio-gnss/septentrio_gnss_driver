@@ -1,0 +1,6 @@
+<map id="minros_driver::GpggaParser::ParseASCII" name="minros_driver::GpggaParser::ParseASCII">
+<area shape="rect" id="node2" href="$classminros__driver_1_1_gpgga_parser.html#a634f8177b9ecefc2a8cd327c4c806eb6" title="Constructor of the class GpggaParser. " alt="" coords="259,5,443,47"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="237,71,464,112"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="512,37,739,79"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="534,103,717,144"/>
+</map>
