@@ -1,0 +1,8 @@
+<map id="string_utilities::ToDouble" name="string_utilities::ToDouble">
+<area shape="rect" id="node2" href="$classminros__driver_1_1_gpgga_parser.html#ac7c69d4247abb7cfc766e90afc19a426" title="Parses one GGA message. " alt="" coords="220,39,404,80"/>
+<area shape="rect" id="node7" href="$namespaceminros__driver.html#a2f7be2c2943de6b30d82ed4f0dbd5fa7" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="221,105,403,131"/>
+<area shape="rect" id="node3" href="$classminros__driver_1_1_gpgga_parser.html#a634f8177b9ecefc2a8cd327c4c806eb6" title="Constructor of the class GpggaParser. " alt="" coords="473,5,657,47"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="452,71,679,112"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="727,37,953,79"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="749,103,931,144"/>
+</map>

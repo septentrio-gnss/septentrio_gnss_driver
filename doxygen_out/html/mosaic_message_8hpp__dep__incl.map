@@ -1,0 +1,8 @@
+<map id="include/MinROS/communication/mosaicMessage.hpp" name="include/MinROS/communication/mosaicMessage.hpp">
+<area shape="rect" id="node2" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="5,95,192,136"/>
+<area shape="rect" id="node3" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="217,95,426,136"/>
+<area shape="rect" id="node4" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="287,184,497,225"/>
+<area shape="rect" id="node5" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="197,273,384,315"/>
+<area shape="rect" id="node6" href="$minros__node_8hpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="408,273,579,315"/>
+<area shape="rect" id="node7" href="$minros__node_8cpp.html" title="The heart of the MinROS driver: The ROS node that represents it. " alt="" coords="420,363,567,404"/>
+</map>

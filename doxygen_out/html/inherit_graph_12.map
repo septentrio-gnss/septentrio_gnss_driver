@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classminros__driver_1_1_base_parser.html" title="minros_driver::BaseParser\l\&lt; nmea_msgs::GpggaPtr \&gt;" alt="" coords="5,5,185,47"/>
+<area shape="rect" id="node2" href="$classminros__driver_1_1_gpgga_parser.html" title="Derived class for parsing GGA messages. " alt="" coords="233,13,417,39"/>
+</map>

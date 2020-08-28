@@ -1,0 +1,15 @@
+# Configuration Settings for mosaic-X5, rover
+
+debug: 3
+
+device: /dev/ttyACM0
+
+frame_id: gnss
+
+publish:
+  gpgga: true
+
+serial:
+  baudrate: 115200
+
+reconnect_delay_s: 0.1

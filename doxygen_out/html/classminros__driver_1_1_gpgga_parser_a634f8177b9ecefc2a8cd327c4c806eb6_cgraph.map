@@ -1,0 +1,12 @@
+<map id="minros_driver::GpggaParser::GpggaParser" name="minros_driver::GpggaParser::GpggaParser">
+<area shape="rect" id="node2" href="$classminros__driver_1_1_gpgga_parser.html#ac4f9631e40074edae5f23a58b1036aea" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="237,101,421,142"/>
+<area shape="rect" id="node3" href="$classminros__driver_1_1_gpgga_parser.html#ac7c69d4247abb7cfc766e90afc19a426" title="Parses one GGA message. " alt="" coords="237,166,421,207"/>
+<area shape="rect" id="node11" href="$classminros__driver_1_1_gpgga_parser.html#afba2b9d79cb4779b85c674b4e6f9f781" title="Tells us whether the last GGA message was valid or not. " alt="" coords="237,231,421,273"/>
+<area shape="rect" id="node4" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="485,5,652,32"/>
+<area shape="rect" id="node5" href="$namespaceminros__driver.html#a76b7210e0fd0310bddaac5065a8d9a1e" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="480,57,657,98"/>
+<area shape="rect" id="node6" href="$namespaceminros__driver.html#a1995f68c86860edbdf4a04af619bdea8" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="481,123,656,149"/>
+<area shape="rect" id="node7" href="$namespaceminros__driver.html#adcd27ab3026f810041c1820477f62d94" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="477,173,660,200"/>
+<area shape="rect" id="node8" href="$namespaceminros__driver.html#a3039efae84f4eb36407515c6dfbc159f" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="469,225,668,266"/>
+<area shape="rect" id="node9" href="$namespaceminros__driver.html#adb2da604bcbc9bd0749baca3895d2572" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="478,291,659,317"/>
+<area shape="rect" id="node10" href="$namespaceminros__driver.html#a13cb2105dad482ee26e27ec7dfd09ce1" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="483,341,654,368"/>
+</map>
