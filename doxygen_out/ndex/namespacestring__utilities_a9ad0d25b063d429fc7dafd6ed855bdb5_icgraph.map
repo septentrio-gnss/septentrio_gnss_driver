@@ -1,4 +1,0 @@
-<map id="string_utilities::ToInt32" name="string_utilities::ToInt32">
-<area shape="rect" id="node2" href="$namespaceminros__driver.html#a1794734b5882cbffa4212ca6baee57d9" title="Parses a string containing an integer number into an int16_t. " alt="" coords="208,5,379,32"/>
-<area shape="rect" id="node3" href="$namespaceminros__driver.html#a21e5adea1eb835a87e3f6beda4811dbf" title="Parses a string containing an integer number into an int32_t. " alt="" coords="208,56,379,83"/>
-</map>
