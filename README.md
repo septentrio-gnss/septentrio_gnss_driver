@@ -1,4 +1,4 @@
-# MinROS
+# ROSaic
 
 ## Overview
 This repository aims at keeping track of the 
@@ -12,7 +12,7 @@ Main Features:
 - Supports (as of now) a handful of ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Tested with the mosaic-X5 receiver
 
-Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitHub]%20MinROS) of your success or failure in using the driver with other devices so we can update this page appropriately.
+Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
@@ -26,13 +26,13 @@ or [from source](https://www.doxygen.nl/manual/install.html).
 ## Usage
  To install the binary packages, run the following command in a terminal:<br><br>
 `sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
-Note: The `MinROS/` directory, as is, is not yet a valid ROS package. To achieve that, follow the instructions: Create a C++ file `septentrio_node.cpp` that fits your needs, with a preprocessor directive `#include <septentrio_node.h>` to access the driver functionalities, and move it to somewhere within the `MinROS/` directory. Further, create the header file(s) `serial.h` and/or `tcp.h` featuring the class definition(s) `Serial` and/or `TCP` with public class methods `isOpen`, `write`, `close` and `read`. Lastly, adapt the `MinROS.launch` file in the launch directory and configure it as desired:<br><br>
+Note: Adapt the `rover.launch` file and if necessary the `base.launch` file in the launch directory and configure it as desired:<br><br>
 
 ```cpp
 <?xml version="1.0"?>
 <launch>
-  <node name="MinROS_source"
-    pkg="MinROS" type="MinROS_node"
+  <node name="mosaic_gnss"
+    pkg="rosaic" type="rosaic_node"
     required="true
     output="screen"
     args="standalone septentrio_gnss_driver">
@@ -115,7 +115,7 @@ The following is a list of ROS parameters, which are determined in the ?rover? l
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
     - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
     - default: `true`
-  - `poll_pub_pvt_period`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `MinROS/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html)
+  - `poll_pub_pvt_period`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `rosaic/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html)
     - default: `0.05` (20 Hz)
   - `poll_pub_orientation_period`: desired period in seconds between the polling of two consecutive `AttEuler`, `AttCovEuler` blocks as well as the `HRP` NMEA sentence, and - if published - between the publishing of `AttEuler` and `AttCovEuler`
     - default: `0.05` (20 Hz)
@@ -150,9 +150,9 @@ The following is a list of ROS parameters, which are determined in the ?rover? l
     - default: `true`
   - `publish_gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
     - default: `true`
-  - `publish_pvtcartesian`: `true` to publish `MinROS/PVTCartesian.msg` messages into the topic `/pvtcartesian`
+  - `publish_pvtcartesian`: `true` to publish `rosaic/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     - default: `false`
-  - `publish_poscovcartesian`: `true` to publish `MinROS/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
+  - `publish_poscovcartesian`: `true` to publish `rosaic/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     - default: `false`
   - `publish_orientation`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/orientation`
     - default: `false`
@@ -164,25 +164,25 @@ The following is a list of ROS parameters, which are determined in the ?rover? l
     - default: `false`
   - `publish_bdt`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/bdt`
     - default: `false`
-  - `publish_gpgga`: `true` to publish `MinROS/GPGGA.msg` messages into the topic `/gpgga`
+  - `publish_gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     - default: `false`
-  - `publish_gprmc`: `true` to publish `MinROS/GPRMC.msg` messages into the topic `/gprmc`
+  - `publish_gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     - default: `false`
-  - `publish_gpgsa`: `true` to publish `MinROS/GPGSA.msg` messages into the topic `/gpgsa`
+  - `publish_gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     - default: `false`
-  - `publish_gpgsv`: `true` to publish `MinROS/GPGSV.msg` messages into the topic `/gpgsv`
+  - `publish_gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     - default: `false`
   - `publish_rosdiagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/rosdiagnostics`
     - default: `false`
-  - `publish_receiversetup`: `true` to publish `MinROS/ReceiverSetup.msg` messages into the topic `/receiversetup`
+  - `publish_receiversetup`: `true` to publish `rosaic/ReceiverSetup.msg` messages into the topic `/receiversetup`
     - default: `false`
-  - `publish_inputlink`: `true` to publish `MinROS/InputLink.msg` messages into the topic `/inputlink`
+  - `publish_inputlink`: `true` to publish `rosaic/InputLink.msg` messages into the topic `/inputlink`
     - default: `false`
-  - `publish_basestation`: `true` to publish `MinROS/BaseStation.msg` messages into the topic `/basestation`
+  - `publish_basestation`: `true` to publish `rosaic/BaseStation.msg` messages into the topic `/basestation`
     - default: `false`
-  - `publish_rtcmdatum`: `true` to publish `MinROS/RTCMDatum.msg` messages into the topic `/rtcmdatum`
+  - `publish_rtcmdatum`: `true` to publish `rosaic/RTCMDatum.msg` messages into the topic `/rtcmdatum`
     - default: `false`
-  - `publish_receivertime`: `true` to publish `MinROS/ReceiverTime.msg` messages into the topic `/receivertime`
+  - `publish_receivertime`: `true` to publish `rosaic/ReceiverTime.msg` messages into the topic `/receivertime`
     - default: `false`
 
 ### ROS Topic Publications
@@ -190,13 +190,13 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 - `/navsatfix`: accepts generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic` and `PosCovGeodetic` or from the NMEA sentences GGA and GSA via a covariance estimation algorithm
   - The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
 - `/gpsfix`: accepts generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `SatVisibility`, `ChannelStatus`, `AttEuler` and `AttCovEuler` (or from proprietary NMEA sentence HRP) and `DOP` 
-- `/pvtgeodetic`: accepts custom ROS message `MinROS/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic`
-- `/poscovgeodetic`: accepts custom ROS message `MinROS/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`
-- `/pvtcartesian`: accepts custom ROS message `MinROS/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`
-- `/poscovcartesian`: accepts custom ROS message `MinROS/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian`
+- `/pvtgeodetic`: accepts custom ROS message `rosaic/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic`
+- `/poscovgeodetic`: accepts custom ROS message `rosaic/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`
+- `/pvtcartesian`: accepts custom ROS message `rosaic/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`
+- `/poscovcartesian`: accepts custom ROS message `rosaic/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian`
 - `/orientation`: accepts generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from either SBF blocks `AttEuler` and `AttCovEuler`, or from proprietary NMEA sentence HRP
-- `/atteuler`: accepts custom ROS message `MinROS/AttEuler.msg`, corresponding to SBF block `AttEuler`
-- `/attcoveuler`: accepts custom ROS message `MinROS/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`
+- `/atteuler`: accepts custom ROS message `rosaic/AttEuler.msg`, corresponding to SBF block `AttEuler`
+- `/attcoveuler`: accepts custom ROS message `rosaic/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`
   - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
 - `/gpst` (for GPS Time): accepts generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the SBF block `GPSUtc`
 - `/glonasst` (for GLONASS Time): accepts generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the SBF block `GLOTime`
@@ -206,19 +206,19 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 - `/gprmc`: accepts generic ROS message [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html), converted from the NMEA sentence RMC
 - `/gpgsa`: accepts generic ROS message [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html), converted from the NMEA sentence GSA
 - `/gpgsv`: accepts generic ROS message [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html), converted from the NMEA sentence GSV
-- `/hrp`: accepts custom ROS message `MinROS/HRP.msg`, corresponding to the proprietary NMEA sentence GSV
+- `/hrp`: accepts custom ROS message `rosaic/HRP.msg`, corresponding to the proprietary NMEA sentence GSV
 - `/rosdiagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd` and `ReceiverStatus`
-- `/receiversetup`: accepts custom ROS message `MinROS/ReceiverSetup.msg`, corresponding to the SBF block `ReceiverSetup`
-- `/inputlink`: accepts custom ROS message `MinROS/InputLink.msg`, corresponding to the SBF block `InputLink`
+- `/receiversetup`: accepts custom ROS message `rosaic/ReceiverSetup.msg`, corresponding to the SBF block `ReceiverSetup`
+- `/inputlink`: accepts custom ROS message `rosaic/InputLink.msg`, corresponding to the SBF block `InputLink`
   - This message is useful for reporting statistics on the number of bytes and messages received and accepted on each active connection descriptor.
-- `/receivertime`: accepts custom ROS message `MinROS/ReceiverTime.msg`, corresponding to the SBF block `ReceiverTime`
+- `/receivertime`: accepts custom ROS message `rosaic/ReceiverTime.msg`, corresponding to the SBF block `ReceiverTime`
 
 ## Suggestions for Improvements
 - Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
 - Incorporating PCAP: For PCAP connections the ROS parameter `device` could be generalized to accept the path to the .pcap file. In this case, the node could exit automatically after finishing playback.
-- Publishing the topic `/basestation`: It could accept the custom ROS message `MinROS/BaseStation.msg`, corresponding to the SBF block `BaseStation` (e.g. to know position of base).
-- Publishing the topic `/rtcmdatum`: It could accept the custom ROS message `MinROS/RTCMDatum.msg`, corresponding to the SBF block `RTCMDatum` (whose purpose is to get a datum that is more local).
-- Attention, challenging! Publishing the topic `/measepoch`: It could accept the custom ROS message `MinROS/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
+- Publishing the topic `/basestation`: It could accept the custom ROS message `rosaic/BaseStation.msg`, corresponding to the SBF block `BaseStation` (e.g. to know position of base).
+- Publishing the topic `/rtcmdatum`: It could accept the custom ROS message `rosaic/RTCMDatum.msg`, corresponding to the SBF block `RTCMDatum` (whose purpose is to get a datum that is more local).
+- Attention, challenging! Publishing the topic `/measepoch`: It could accept the custom ROS message `rosaic/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
 - Publishing the topic `/twistwithcovariancestamped`: It could accept the generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic` and some others (which?, where to get angular, i.e. rotational, velocity + covariances from?), or via standardized NMEA sentences (cf. the [NMEA driver](https://wiki.ros.org/nmea_navsat_driver)).
   - The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](https://docs.ros.org/melodic/api/robot_localization/html/index.html) nodes of the ROS navigation stack.
 
