@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#include <MinROS/parsers/string_utilities.h>
-#include <MinROS/parsers/parsing_utilities.hpp>
+#include <rosaic/parsers/string_utilities.h>
+#include <rosaic/parsers/parsing_utilities.hpp>
 #include <limits>
 
 /**
@@ -38,7 +38,7 @@
  * @date 17/08/20 
 */
 
-namespace minros_driver
+namespace rosaic_driver
 {
 
 	/** 

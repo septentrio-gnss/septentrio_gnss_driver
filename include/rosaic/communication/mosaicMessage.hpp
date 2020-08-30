@@ -68,11 +68,11 @@
 #include <cstddef>
 #include <boost/tokenizer.hpp>
 #include <sstream>
-#include <MinROS/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
-#include <MinROS/parsers/string_utilities.h>
-#include <MinROS/parsers/nmea_sentence.hpp>
+#include <rosaic/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
+#include <rosaic/parsers/string_utilities.h>
+#include <rosaic/parsers/nmea_sentence.hpp>
 #include <nmea_msgs/Gpgga.h>
-#include <MinROS/parsers/nmea_parsers/gpgga.hpp>
+#include <rosaic/parsers/nmea_parsers/gpgga.hpp>
 #include <map>
 #include <ros/ros.h>
 #include <boost/call_traits.hpp>
@@ -257,16 +257,16 @@ namespace io_comm_mosaic
 						// create NmeaSentence struct to pass to GpggaParser::ParseAscii
 						body.push_back(*tok_iter);
 					}
-					minros_driver::NMEASentence gga_message(id, body);
+					rosaic_driver::NMEASentence gga_message(id, body);
 					//ROS_DEBUG("First entry of vector is %s", body[0].c_str());
 					// Pass NmeaSentence struct to GGA-Parser
 					nmea_msgs::GpggaPtr gpgga_ros_message_ptr;
-					minros_driver::GpggaParser parser_obj;
+					rosaic_driver::GpggaParser parser_obj;
 					try
 					{
 						gpgga_ros_message_ptr = parser_obj.ParseASCII(gga_message);
 					}
-					catch (minros_driver::ParseException& e)
+					catch (rosaic_driver::ParseException& e)
 					{
 						std::cout << "GGA parsing failed: " << e.what() << "\n";
 					}

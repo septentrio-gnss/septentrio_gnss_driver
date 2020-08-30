@@ -29,10 +29,10 @@
 // *****************************************************************************
 
 
-#ifndef NMEA_MSGS_GPGGA_HPP
-#define NMEA_MSGS_GPGGA_HPP
+#ifndef GPGGA_HPP
+#define GPGGA_HPP
 
-#include <MinROS/parsers/parser_base_class.hpp>
+#include <rosaic/parsers/parser_base_class.hpp>
 #include <nmea_msgs/Gpgga.h>
 
 /**
@@ -42,7 +42,7 @@
  */
 
 extern std::string frame_id;
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	 * @class GpggaParser
@@ -98,4 +98,4 @@ namespace minros_driver
 	};
 }
 
-#endif //NMEA_MSGS_GPGGA_HPP
+#endif //GPGGA_HPP

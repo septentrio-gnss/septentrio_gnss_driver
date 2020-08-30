@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_SBF_BLOCK_HPP
-#define MINROS_DRIVER_SBF_BLOCK_HPP
+#ifndef SBF_BLOCK_HPP
+#define SBF_BLOCK_HPP
 
 #include "sbf_block_header.hpp"
 #include <vector> //C++ header
@@ -40,7 +40,7 @@
  * @date 14/08/20 
  */
 
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	 * @brief Contains the SBF block's header, its raw data bytes, and its CRC
@@ -53,4 +53,4 @@ namespace minros_driver
 	};
 }
 
-#endif //MINROS_DRIVER_SBF_BLOCK_HPP
+#endif //SBF_BLOCK_HPP

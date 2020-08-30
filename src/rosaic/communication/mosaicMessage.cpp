@@ -28,7 +28,7 @@
 //
 // *****************************************************************************
 
-#include <MinROS/communication/mosaicMessage.hpp>
+#include <rosaic/communication/mosaicMessage.hpp>
 
 /**
  * @file mosaicMessage.cpp

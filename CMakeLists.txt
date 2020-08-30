@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(MinROS_2)
+project(rosaic)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -127,7 +127,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/MinROS_2.cpp
+#   src/${PROJECT_NAME}/rosaic.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -138,7 +138,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/MinROS/nodelets/minros_node.cpp src/MinROS/parsers/parsing_utilities.cpp src/MinROS/parsers/string_utilities.cpp src/MinROS/parsers/nmea_parsers/gpgga.cpp src/MinROS/crc/crc.c src/MinROS/communication/communication_core.cpp src/MinROS/communication/mosaicMessage.cpp)
+add_executable(${PROJECT_NAME}_node src/rosaic/nodelets/rosaic_node.cpp src/rosaic/parsers/parsing_utilities.cpp src/rosaic/parsers/string_utilities.cpp src/rosaic/parsers/nmea_parsers/gpgga.cpp src/rosaic/crc/crc.c src/rosaic/communication/communication_core.cpp src/rosaic/communication/mosaicMessage.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -202,7 +202,7 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_MinROS_2.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rosaic.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

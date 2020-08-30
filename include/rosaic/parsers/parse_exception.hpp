@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_PARSE_EXCEPTION_HPP
-#define MINROS_DRIVER_PARSE_EXCEPTION_HPP
+#ifndef PARSE_EXCEPTION_HPP
+#define PARSE_EXCEPTION_HPP
 
 #include <stdexcept>
 // The C++ Standard library provides a base class specifically designed to declare objects to be thrown as exceptions. It is called std::exception and is defined in the <exception> header. This class has a virtual member function called what that returns a null-terminated character sequence (of type char *) and that can be overwritten in derived classes to contain some sort of description of the exception.
@@ -62,7 +62,7 @@ int main () {
  * @date 17/08/20 
  */
  
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	 * @class ParseException
@@ -82,4 +82,4 @@ namespace minros_driver
 	};
 }
 
-#endif //MINROS_DRIVER_PARSE_EXCEPTION_HPP
+#endif //PARSE_EXCEPTION_HPP

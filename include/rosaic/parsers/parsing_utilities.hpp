@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_PARSING_UTILITIES_HPP
-#define MINROS_DRIVER_PARSING_UTILITIES_HPP
+#ifndef PARSING_UTILITIES_HPP
+#define PARSING_UTILITIES_HPP
 
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <string> // C++ header, corresponds to <string.h> in C
@@ -42,7 +42,7 @@
  * @date 17/08/20 
 */
 
-namespace minros_driver
+namespace rosaic_driver
 {
    
 	/**
@@ -172,7 +172,7 @@ namespace minros_driver
 
 }
 
-#endif //MINROS_DRIVER_PARSING_UTILITIES_HPP
+#endif //PARSING_UTILITIES_HPP
 
 
 

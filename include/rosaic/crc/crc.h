@@ -31,8 +31,8 @@
 #ifndef CRC_H
 #define CRC_H
 
-#include <MinROS/packed_structs/ssntypes.hpp>
-#include <MinROS/packed_structs/sbf_structs.hpp>  // imports structures into which Septenrio data is unpacked then shipped to handler functions
+#include <rosaic/packed_structs/ssntypes.hpp>
+#include <rosaic/packed_structs/sbf_structs.hpp>  // imports structures into which Septenrio data is unpacked then shipped to handler functions
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

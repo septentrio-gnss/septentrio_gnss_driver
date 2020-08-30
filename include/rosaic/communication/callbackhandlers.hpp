@@ -82,7 +82,7 @@
 #include <boost/thread/mutex.hpp>
 
 // Other includes
-#include <MinROS/communication/mosaicMessage.hpp> 
+#include <rosaic/communication/mosaicMessage.hpp>
 #include <nmea_msgs/Gpgga.h>
 
 /**
@@ -173,7 +173,7 @@ namespace io_comm_mosaic
 			CallbackHandlers() = default;
 			
 			template <typename T> 
-			//! Insert adds a pair to our multimap, with the message_ID being the key; this method is called by handlers_ in minros_node.cpp
+                        //! Insert adds a pair to our multimap, with the message_ID being the key; this method is called by handlers_ in rosaic_node.cpp
 			//! T would be e.g. PVTGeodetic struct, or nmea_msgs::Gpgga (which is not a struct, maybe internally?)..
 			Callbacks insert(std::string message_ID, typename CallbackHandler_<T>::Callback callback) // typename is not needed here
 			{
@@ -273,7 +273,7 @@ namespace io_comm_mosaic
 				size -= mMessage.pos() - data; // data was never modified
 			}
 			
-			//! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method
+                        //! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method
 			Callbacks callbacks_;
 	 
 		private:
@@ -287,4 +287,4 @@ namespace io_comm_mosaic
 }
 
 
-#endif 
+#endif

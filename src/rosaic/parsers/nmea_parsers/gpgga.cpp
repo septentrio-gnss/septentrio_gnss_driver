@@ -28,9 +28,9 @@
 //
 // *****************************************************************************
 
-#include <MinROS/parsers/nmea_parsers/gpgga.hpp>
+#include <rosaic/parsers/nmea_parsers/gpgga.hpp>
 #include <boost/make_shared.hpp>
-#include <MinROS/parsers/string_utilities.h>
+#include <rosaic/parsers/string_utilities.h>
 #include <ros/ros.h>
 
 /**
@@ -39,18 +39,18 @@
  * @date 17/08/20 
  */
 
-const std::string minros_driver::GpggaParser::MESSAGE_ID = "$GPGGA";
+const std::string rosaic_driver::GpggaParser::MESSAGE_ID = "$GPGGA";
 
-const std::string minros_driver::GpggaParser::GetMessageID() const
+const std::string rosaic_driver::GpggaParser::GetMessageID() const
 {
-	return minros_driver::GpggaParser::MESSAGE_ID;
+	return rosaic_driver::GpggaParser::MESSAGE_ID;
 }
 
 /**
  * Caution: Due to the occurrence of the throw keyword, this method ParseAscii should be called within a try / catch framework...
  * Note: This method assumes that "sentence" does not include the checksum part of the GGA message.
  */
-nmea_msgs::GpggaPtr minros_driver::GpggaParser::ParseASCII(const minros_driver::NMEASentence& sentence) noexcept(false)
+nmea_msgs::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::NMEASentence& sentence) noexcept(false)
 {
 	//ROS_DEBUG("Just testing that first entry is indeed what we expect it to: %s", sentence.get_body()[0].c_str());
 	// Check the length first, which should be 15 elements (if station ID available, otherwise missing field, not empty field) or 14 elements (if station ID not avaiable).
@@ -89,32 +89,32 @@ nmea_msgs::GpggaPtr minros_driver::GpggaParser::ParseASCII(const minros_driver::
 		}
 		else
 		{
-			throw minros_driver::ParseException("Error parsing UTC seconds in GPGGA"); // E.g. if one of the time fields of the string is empty
+			throw rosaic_driver::ParseException("Error parsing UTC seconds in GPGGA"); // E.g. if one of the time fields of the string is empty
 		}
 	}
 
 	bool valid = true;
 
 	double latitude = 0.0;
-	valid = valid && minros_driver::ParseDouble(sentence.get_body()[2], latitude);
+	valid = valid && rosaic_driver::ParseDouble(sentence.get_body()[2], latitude);
 	msg->lat = ConvertDMSToDegrees(latitude);
 
 	double longitude = 0.0;
-	valid = valid && minros_driver::ParseDouble(sentence.get_body()[4], longitude);
+	valid = valid && rosaic_driver::ParseDouble(sentence.get_body()[4], longitude);
 	msg->lon = ConvertDMSToDegrees(longitude);
 
 	msg->lat_dir = sentence.get_body()[3];
 	msg->lon_dir = sentence.get_body()[5];
-	valid = valid && minros_driver::ParseUInt32(sentence.get_body()[6], msg->gps_qual);
-	valid = valid && minros_driver::ParseUInt32(sentence.get_body()[7], msg->num_sats);
+	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[6], msg->gps_qual);
+	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[7], msg->num_sats);
 	//ROS_DEBUG("Valid is %s so far with number of satellites in use being %s", valid ? "true" : "false", sentence.get_body()[7].c_str());
 
-	valid = valid && minros_driver::ParseFloat(sentence.get_body()[8], msg->hdop);
-	valid = valid && minros_driver::ParseFloat(sentence.get_body()[9], msg->alt);
+	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[8], msg->hdop);
+	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[9], msg->alt);
 	msg->altitude_units = sentence.get_body()[10];
-	valid = valid && minros_driver::ParseFloat(sentence.get_body()[11], msg->undulation);
+	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[11], msg->undulation);
 	msg->undulation_units = sentence.get_body()[12];
-	valid = valid && minros_driver::ParseUInt32(sentence.get_body()[13], msg->diff_age);
+	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[13], msg->diff_age);
 	if (sentence.get_body().size() == MAX_LEN)
 	{
 		msg->station_id = sentence.get_body()[14];
@@ -136,7 +136,7 @@ nmea_msgs::GpggaPtr minros_driver::GpggaParser::ParseASCII(const minros_driver::
 	return msg;
 }
 
-bool minros_driver::GpggaParser::WasLastGPGGAValid() const
+bool rosaic_driver::GpggaParser::WasLastGPGGAValid() const
 {
 	return was_last_gpgga_valid_;
 }

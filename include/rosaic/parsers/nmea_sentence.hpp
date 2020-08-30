@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_NMEA_SENTENCE_H
-#define MINROS_DRIVER_NMEA_SENTENCE_H
+#ifndef NMEA_SENTENCE_HPP
+#define NMEA_SENTENCE_HPP
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@
  * @date 13/08/20 
  */
  
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	 * @brief Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings.
@@ -59,4 +59,4 @@ namespace minros_driver
 	};
 }
 
-#endif //MINROS_DRIVER_NMEA_SENTENCE_H
+#endif //NMEA_SENTENCE_HPP
