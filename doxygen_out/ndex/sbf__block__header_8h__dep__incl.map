@@ -1,0 +1,8 @@
+<map id="include/MinROS/parsers/sbf_block_header.h" name="include/MinROS/parsers/sbf_block_header.h">
+<area shape="rect" id="node2" href="$sbf__block_8h.html" title="include/MinROS/parsers\l/sbf_block.h" alt="" coords="121,95,285,136"/>
+<area shape="rect" id="node3" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="121,184,285,225"/>
+<area shape="rect" id="node4" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="130,273,277,315"/>
+<area shape="rect" id="node5" href="$minros_8hpp.html" title="include/MinROS/minros.hpp" alt="" coords="5,363,191,389"/>
+<area shape="rect" id="node7" href="$gpgga_8cpp.html" title="Derived class for parsing GGA messages. " alt="" coords="215,363,402,389"/>
+<area shape="rect" id="node6" href="$minros_8cpp.html" title="src/MinROS/minros.cpp" alt="" coords="17,437,179,464"/>
+</map>

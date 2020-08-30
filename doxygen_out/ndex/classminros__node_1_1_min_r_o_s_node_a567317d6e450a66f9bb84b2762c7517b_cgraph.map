@@ -1,0 +1,21 @@
+<map id="minros_node::MinROSNode::MinROSNode" name="minros_node::MinROSNode::MinROSNode">
+<area shape="rect" id="node2" href="$classminros__node_1_1_min_r_o_s_node.html#a5a7396add1deb9f51f2e7eea6390d52f" title="Get the node parameters from the ROS Parameter Server, parts of which are specified in a YAML file..." alt="" coords="239,126,424,168"/>
+<area shape="rect" id="node5" href="$classminros__node_1_1_min_r_o_s_node.html#adbae147b1594bbe98bd84c247faf0d73" title="Initialize the I/O handling. " alt="" coords="239,192,424,233"/>
+<area shape="rect" id="node17" href="$mosaic_message_8hpp.html#a2eab17bf465172185a0ae925d791b255" title="StringValues_Initialize" alt="" coords="256,258,407,284"/>
+<area shape="rect" id="node18" href="$classminros__node_1_1_min_r_o_s_node.html#ab5c8a5fab5dfedaa9dcf53757705c0f6" title="Subscribe (= read in) to all requested mosaic messages and publish them. " alt="" coords="239,309,424,350"/>
+<area shape="rect" id="node3" href="$namespaceminros__node.html#a6791022300224f5395b99bf830376604" title="Gets an integer or unsigned integer value from the parameter server. " alt="" coords="479,134,648,160"/>
+<area shape="rect" id="node4" href="$namespaceminros__node.html#a8b19b49dded3361f21aaf121e3907a9a" title="Checks whether the parameter is in the given range. " alt="" coords="703,134,880,160"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_comm___i_o.html#a931dab5cd52ffaf420405bdd0526bb2d" title="Initializes the serial port. " alt="" coords="478,192,649,233"/>
+<area shape="rect" id="node7" href="$classio__comm__mosaic_1_1_comm___i_o.html#af12c3542da732768a9f4b719b5f99dec" title="Set the I/O manager. " alt="" coords="706,192,877,233"/>
+<area shape="rect" id="node8" href="$classio__comm__mosaic_1_1_callback_handlers.html#a00d2a33e2b4f41f078649c5d837bfa1b" title="Main callback organizer &quot;on callbackhandlers&#39; thread&quot; (recall: this callback_thread is initialized up..." alt="" coords="928,192,1111,233"/>
+<area shape="rect" id="node9" href="$classio__comm__mosaic_1_1mosaic_message.html#afb8d5ecefbb36a2102c7214e98d1fa91" title="Gets the length of the SBF block. " alt="" coords="1767,45,1993,86"/>
+<area shape="rect" id="node10" href="$classio__comm__mosaic_1_1mosaic_message.html#af26df0ec7e396df4bb35c062bb168571" title="Gets the end position in the read buffer. " alt="" coords="1463,203,1719,230"/>
+<area shape="rect" id="node11" href="$classio__comm__mosaic_1_1mosaic_message.html#a786eb05a5effa4a5ffd9707b24c4a38f" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="1767,224,1993,265"/>
+<area shape="rect" id="node12" href="$classio__comm__mosaic_1_1_callback_handler.html#ace1c7d3eaf5813ef6f6a3bb4db454d35" title="io_comm_mosaic::Callback\lHandler::handle" alt="" coords="1195,192,1378,233"/>
+<area shape="rect" id="node13" href="$classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="1173,257,1400,298"/>
+<area shape="rect" id="node14" href="$classio__comm__mosaic_1_1mosaic_message.html#ad2df33d48c78588616fa92c00d34cdf6" title="Gets the current position in the read buffer. " alt="" coords="1159,323,1415,350"/>
+<area shape="rect" id="node15" href="$classio__comm__mosaic_1_1mosaic_message.html#aea3905f1901c1727e237542e8a95ed2d" title="Searches the buffer for the beginning of the next message (NMEA or SBF) " alt="" coords="1173,74,1400,116"/>
+<area shape="rect" id="node16" href="$classio__comm__mosaic_1_1mosaic_message.html#ace5b0345f7bc987bcdef108b4cb6eb91" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="1477,74,1704,116"/>
+<area shape="rect" id="node19" href="$classio__comm__mosaic_1_1_comm___i_o.html#accdaa8fcccfe32bfd65190da645638f3" title="io_comm_mosaic::Comm\l_IO::get_handlers" alt="" coords="478,282,649,324"/>
+<area shape="rect" id="node20" href="$classio__comm__mosaic_1_1_callback_handlers.html#a04123af5f873a3219795e85a20c9be4b" title="io_comm_mosaic::Callback\lHandlers::insert" alt="" coords="472,348,655,389"/>
+</map>

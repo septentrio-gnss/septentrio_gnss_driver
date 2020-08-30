@@ -1,0 +1,4 @@
+<map id="io_comm_mosaic::CallbackHandler_::get" name="io_comm_mosaic::CallbackHandler_::get">
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_callback_handlers.html#ae81780f030813b119e4445be0fb3eb28" title="Stores momentary (polling, not reading) message with ID &quot;message_ID&quot; in &quot;message&quot;, after having waited for &quot;timeout&quot;. " alt="" coords="236,5,419,47"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_comm___i_o.html#a5de00a03b60a081b4fc32e617396cb1c" title="Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic. " alt="" coords="467,5,637,47"/>
+</map>

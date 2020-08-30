@@ -1,0 +1,4 @@
+<map id="mosaicMessage::next" name="mosaicMessage::next">
+<area shape="rect" id="node2" href="$classmosaic_message.html#a16dd2cd03a7b0a20a6d45990f2d1d645" title="Gets the length of the SBF block. " alt="" coords="205,5,361,47"/>
+<area shape="rect" id="node3" href="$classmosaic_message.html#a1a2c54bf4fb6c2f2d7896a5d45099227" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="204,71,361,98"/>
+</map>
