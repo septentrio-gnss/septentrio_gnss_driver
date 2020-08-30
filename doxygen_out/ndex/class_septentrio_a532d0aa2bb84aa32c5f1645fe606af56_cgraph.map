@@ -1,0 +1,15 @@
+<map id="Septentrio::bufferIncomingData" name="Septentrio::bufferIncomingData">
+<area shape="rect" id="node2" href="$crc_8c.html#a0e5fbe587f4f4f83b262a280c3271822" title="This function validates whether the calculated CRC of the SBF block at hand matches the CRC field tha..." alt="" coords="309,7,401,33"/>
+<area shape="rect" id="node4" href="$class_septentrio.html#a6e3530157d234a5fda580e3218d8d3c3" title="Parses one septentrio block. " alt="" coords="275,57,435,84"/>
+<area shape="rect" id="node5" href="$class_septentrio.html#a044e74573ef755a30cf8a2b216b82a00" title="Septentrio::ParseNMEAASCII" alt="" coords="256,108,455,135"/>
+<area shape="rect" id="node3" href="$crc_8c.html#a7cd490b2500867e78877d83ec575b82c" title="This function computes the CRC&#45;8&#45;CCITT (Cyclic Redundancy Check) of a buffer &quot;buf&quot; of &quot;buf_length&quot; by..." alt="" coords="513,7,676,33"/>
+<area shape="rect" id="node6" href="$classminros__driver_1_1_gpgga_parser.html#ac4f9631e40074edae5f23a58b1036aea" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="503,79,687,121"/>
+<area shape="rect" id="node7" href="$classminros__driver_1_1_gpgga_parser.html#ac7c69d4247abb7cfc766e90afc19a426" title="Parses one GGA message. " alt="" coords="503,145,687,186"/>
+<area shape="rect" id="node8" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="751,5,917,32"/>
+<area shape="rect" id="node10" href="$namespaceminros__driver.html#a76b7210e0fd0310bddaac5065a8d9a1e" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="745,57,923,98"/>
+<area shape="rect" id="node11" href="$namespaceminros__driver.html#adcd27ab3026f810041c1820477f62d94" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="743,123,925,149"/>
+<area shape="rect" id="node12" href="$namespaceminros__driver.html#a3039efae84f4eb36407515c6dfbc159f" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="735,174,933,215"/>
+<area shape="rect" id="node13" href="$namespaceminros__driver.html#adb2da604bcbc9bd0749baca3895d2572" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="743,240,925,267"/>
+<area shape="rect" id="node14" href="$namespaceminros__driver.html#a13cb2105dad482ee26e27ec7dfd09ce1" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="749,291,919,317"/>
+<area shape="rect" id="node9" href="$mosaic_message_8hpp.html#a9e590eb42c726c9d090b0f5e6ffcd842" title="Gets the end position in the read buffer. " alt="" coords="981,5,1024,32"/>
+</map>

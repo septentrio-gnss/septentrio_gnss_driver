@@ -1,0 +1,7 @@
+<map id="mosaicMessage::block_length" name="mosaicMessage::block_length">
+<area shape="rect" id="node2" href="$classmosaic_message.html#a557c838139ac25ee9a8aa622d9cccb76" title="Constructor of the mosaicMessage class. " alt="" coords="620,5,840,32"/>
+<area shape="rect" id="node3" href="$classmosaic_message.html#ade589e076b8d6b121d35ddc0d63018e2" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="209,31,360,57"/>
+<area shape="rect" id="node5" href="$class_callback_handlers.html#afe39d98c70e7f1a7bb2aa23ae4242970" title="CallbackHandlers::readCallback" alt="" coords="625,81,835,108"/>
+<area shape="rect" id="node4" href="$classmosaic_message.html#a5c0da772d60e8ebd0dd2eee07fa24137" title="Searches the buffer for the beginning of the next message (NMEA or SBF) " alt="" coords="408,56,572,83"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_comm___i_o.html#a686bf92a19e383b21a912fb8ddf40ccd" title="Set the I/O manager. " alt="" coords="888,74,1059,115"/>
+</map>

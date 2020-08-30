@@ -1,0 +1,13 @@
+<map id="include/rosaic/parsers/sbf_block_header.hpp" name="include/rosaic/parsers/sbf_block_header.hpp">
+<area shape="rect" id="node2" href="$sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="121,95,270,136"/>
+<area shape="rect" id="node3" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="115,184,275,225"/>
+<area shape="rect" id="node4" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="109,273,281,315"/>
+<area shape="rect" id="node5" href="$gpgga_8cpp.html" title="Derived class for parsing GGA messages. " alt="" coords="5,363,177,404"/>
+<area shape="rect" id="node6" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="202,363,397,404"/>
+<area shape="rect" id="node7" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="7,452,178,493"/>
+<area shape="rect" id="node8" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="202,452,397,493"/>
+<area shape="rect" id="node9" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="269,541,463,583"/>
+<area shape="rect" id="node10" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="187,631,358,672"/>
+<area shape="rect" id="node11" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="382,631,537,672"/>
+<area shape="rect" id="node12" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="393,720,525,761"/>
+</map>

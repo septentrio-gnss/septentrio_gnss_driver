@@ -1,0 +1,11 @@
+<map id="CallbackHandlers::readCallback" name="CallbackHandlers::readCallback">
+<area shape="rect" id="node2" href="$classmosaic_message.html#a16dd2cd03a7b0a20a6d45990f2d1d645" title="Gets the length of the SBF block. " alt="" coords="737,22,893,63"/>
+<area shape="rect" id="node3" href="$classmosaic_message.html#a07474552994a9a699a24aff51afb684c" title="Gets the end position in the read buffer. " alt="" coords="285,54,432,81"/>
+<area shape="rect" id="node4" href="$classmosaic_message.html#a1a2c54bf4fb6c2f2d7896a5d45099227" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="736,160,893,186"/>
+<area shape="rect" id="node5" href="$class_callback_handler.html#a7090d06453f4941fa019d4d484d7c863" title="CallbackHandler::handle" alt="" coords="277,156,441,182"/>
+<area shape="rect" id="node6" href="$classmosaic_message.html#a4f17dacf42298369e45afe8ff51506a0" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="263,206,455,233"/>
+<area shape="rect" id="node7" href="$classmosaic_message.html#a8a1e3d4f91a5015e9889faf3d26244b4" title="Gets the current position in the read buffer. " alt="" coords="285,257,432,284"/>
+<area shape="rect" id="node8" href="$classmosaic_message.html#a5c0da772d60e8ebd0dd2eee07fa24137" title="Searches the buffer for the beginning of the next message (NMEA or SBF) " alt="" coords="277,105,441,132"/>
+<area shape="rect" id="node9" href="$classmosaic_message.html#ade589e076b8d6b121d35ddc0d63018e2" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="520,80,671,106"/>
+<area shape="rect" id="node10" href="$classmosaic_message.html#a17565228d99faf54133f00f4ecf90602" title="Calculates the CRC of the SBF block where data_ is pointing to at the moment. " alt="" coords="503,130,688,157"/>
+</map>

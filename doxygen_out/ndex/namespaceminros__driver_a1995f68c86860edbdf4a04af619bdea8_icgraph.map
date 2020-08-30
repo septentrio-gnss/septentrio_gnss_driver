@@ -1,0 +1,7 @@
+<map id="minros_driver::UTCtoUnix" name="minros_driver::UTCtoUnix">
+<area shape="rect" id="node2" href="$classminros__driver_1_1_gpgga_parser.html#ac7c69d4247abb7cfc766e90afc19a426" title="Parses one GGA message. " alt="" coords="228,71,412,112"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="460,37,687,79"/>
+<area shape="rect" id="node6" href="$classminros__driver_1_1_gpgga_parser.html#a634f8177b9ecefc2a8cd327c4c806eb6" title="Constructor of the class GpggaParser. " alt="" coords="481,103,665,144"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="735,5,961,47"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="757,71,939,112"/>
+</map>
