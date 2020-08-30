@@ -1,0 +1,12 @@
+<map id="mosaicMessage::mosaicMessage" name="mosaicMessage::mosaicMessage">
+<area shape="rect" id="node2" href="$classmosaic_message.html#a16dd2cd03a7b0a20a6d45990f2d1d645" title="Gets the length of the SBF block. " alt="" coords="747,23,903,65"/>
+<area shape="rect" id="node3" href="$classmosaic_message.html#a17565228d99faf54133f00f4ecf90602" title="Calculates the CRC of the SBF block where data_ is pointing to at the moment. " alt="" coords="513,245,699,272"/>
+<area shape="rect" id="node4" href="$classmosaic_message.html#a07474552994a9a699a24aff51afb684c" title="Gets the end position in the read buffer. " alt="" coords="296,93,443,120"/>
+<area shape="rect" id="node5" href="$classmosaic_message.html#a1a2c54bf4fb6c2f2d7896a5d45099227" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="747,212,904,239"/>
+<area shape="rect" id="node6" href="$classmosaic_message.html#ae494b02a45ecc84d1bc27f52befaa7f9" title="Determines whether data_ points to the SBF block with ID &quot;ID&quot;, e.g. 5003. " alt="" coords="275,195,463,221"/>
+<area shape="rect" id="node7" href="$classmosaic_message.html#a4f17dacf42298369e45afe8ff51506a0" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="273,245,465,272"/>
+<area shape="rect" id="node8" href="$classmosaic_message.html#ade589e076b8d6b121d35ddc0d63018e2" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="531,107,681,133"/>
+<area shape="rect" id="node9" href="$classmosaic_message.html#a8a1e3d4f91a5015e9889faf3d26244b4" title="Gets the current position in the read buffer. " alt="" coords="296,347,443,373"/>
+<area shape="rect" id="node10" href="$classmosaic_message.html#aaa13c4f25b5aeb550f6d9dd6cae39866" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="294,397,445,424"/>
+<area shape="rect" id="node11" href="$classmosaic_message.html#a5c0da772d60e8ebd0dd2eee07fa24137" title="Searches the buffer for the beginning of the next message (NMEA or SBF) " alt="" coords="287,144,451,171"/>
+</map>
