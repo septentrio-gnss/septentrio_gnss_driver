@@ -1,5 +1,0 @@
-<map id="mosaicMessage::pos" name="mosaicMessage::pos">
-<area shape="rect" id="node2" href="$classmosaic_message.html#a557c838139ac25ee9a8aa622d9cccb76" title="Constructor of the mosaicMessage class. " alt="" coords="200,5,420,32"/>
-<area shape="rect" id="node3" href="$class_callback_handlers.html#afe39d98c70e7f1a7bb2aa23ae4242970" title="CallbackHandlers::readCallback" alt="" coords="205,56,415,83"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_comm___i_o.html#a686bf92a19e383b21a912fb8ddf40ccd" title="Set the I/O manager. " alt="" coords="468,49,639,90"/>
-</map>

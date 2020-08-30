@@ -1,4 +1,0 @@
-<map id="CallbackHandler_::handle" name="CallbackHandler_::handle">
-<area shape="rect" id="node2" href="$classmosaic_message.html#a4f17dacf42298369e45afe8ff51506a0" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="224,5,416,32"/>
-<area shape="rect" id="node3" href="$classmosaic_message.html#aaa13c4f25b5aeb550f6d9dd6cae39866" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="245,56,395,83"/>
-</map>
