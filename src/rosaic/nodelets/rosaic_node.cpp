@@ -28,20 +28,20 @@
 //
 // ****************************************************************************
 
-#include <MinROS/nodelets/minros_node.hpp>
+#include <rosaic/nodelets/rosaic_node.hpp>
 
 /**
- * @file minros_node.cpp
+ * @file rosaic_node.cpp
  * @date 22/08/20
- * @brief The heart of the MinROS driver: The ROS node that represents it
+ * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
 std::string frame_id;
 
  
-minros_node::MinROSNode::MinROSNode()
+rosaic_node::ROSaicNode::ROSaicNode()
 {
-	ROS_DEBUG("Entered MinROSNode() constructor..");
+	ROS_DEBUG("Entered ROSaicNode() constructor..");
 	// Params must be set before initializing IO
 	GetROSParams();
 	StringValues_Initialize();
@@ -54,7 +54,7 @@ minros_node::MinROSNode::MinROSNode()
 }
 
 
-void minros_node::MinROSNode::GetROSParams() 
+void rosaic_node::ROSaicNode::GetROSParams() 
 {
 	nh->param("device", device_, std::string("/dev/ttyACM0"));	
 	// Serial params
@@ -65,7 +65,7 @@ void minros_node::MinROSNode::GetROSParams()
 }	
 
 
-void minros_node::MinROSNode::InitializeIO() 
+void rosaic_node::ROSaicNode::InitializeIO() 
 {
 	ROS_DEBUG("Called InitializeIO() method");
 	boost::smatch match;
@@ -98,7 +98,7 @@ void minros_node::MinROSNode::InitializeIO()
 		// To be modified here, or clarified: how to use reconnect_delay_s properly? Is respawn (roslaunch parameter) enough?
 		ROS_DEBUG("Setting timer for calling InitializeSerial() method");
 		//nh->param("reconnect_delay_s", reconnect_delay_s_, 0.5f);
-		//reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &MinROSNode::Reconnect, this);
+		//reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &ROSaicNode::Reconnect, this);
 		//reconnect_timer_.start();
 		//ros::spin(); // otherwise callback will never be called, with ros::spin i cannot leave InitializeIO(), yet with ros::spinOnce can enter reconnect() even once
 		ROS_DEBUG("Current debug value before calling initializeserial() method is %u", io_comm_mosaic::debug);
@@ -108,7 +108,7 @@ void minros_node::MinROSNode::InitializeIO()
 	ROS_DEBUG("Leaving InitializeIO()");
 }
 
-void minros_node::MinROSNode::Reconnect(const ros::TimerEvent& event) 
+void rosaic_node::ROSaicNode::Reconnect(const ros::TimerEvent& event) 
 {
 	ROS_DEBUG("Inside reconnect");
 	if(IO.InitializeSerial(device_, baudrate_))
@@ -123,7 +123,7 @@ void minros_node::MinROSNode::Reconnect(const ros::TimerEvent& event)
 	ROS_DEBUG("Leaving reconnect");
 }
 
-void minros_node::MinROSNode::Subscribe() 
+void rosaic_node::ROSaicNode::Subscribe() 
 {
 	ROS_DEBUG("Entered subscribe() method");
 	nh->param("publish/gpgga", publish_gpgga_, true);
@@ -146,13 +146,13 @@ boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_;
 
 int main(int argc, char** argv) 
 {
-	ROS_DEBUG("About to call MinROSNode constructor.."); // This will not be shown since info level seems to be default, hence modify momentarily..
-	//minros_node::nh->param("?", node_name, default_node_name); 
+	ROS_DEBUG("About to call ROSaicNode constructor.."); // This will not be shown since info level seems to be default, hence modify momentarily..
+	//rosaic_node::nh->param("?", node_name, default_node_name); 
 	ros::init(argc, argv, "mosaic_gnss");
-	ROS_DEBUG("Just called MinROSNode constructor..");
-	minros_node::nh.reset(new ros::NodeHandle("~")); // Note that nh was initialized in the header file already.
-	minros_node::nh->param("debug", io_comm_mosaic::debug, 1); 
-	minros_node::nh->param("frame_id", frame_id, (std::string) "gnss"); 
+	ROS_DEBUG("Just called ROSaicNode constructor..");
+	rosaic_node::nh.reset(new ros::NodeHandle("~")); // Note that nh was initialized in the header file already.
+	rosaic_node::nh->param("debug", io_comm_mosaic::debug, 1); 
+	rosaic_node::nh->param("frame_id", frame_id, (std::string) "gnss"); 
 	ROS_DEBUG("Just loaded debug value to be %u from parameter server..", io_comm_mosaic::debug);
 
 	// ros::NodeHandle param_nh("~");
@@ -171,8 +171,8 @@ int main(int argc, char** argv)
 		ros::console::notifyLoggerLevelsChanged();
 
 	}
-	ROS_DEBUG("Right before calling MinROSNode constructor");
-	minros_node::MinROSNode mosaic_node; // This launches everything we need, in theory :)
+	ROS_DEBUG("Right before calling ROSaicNode constructor");
+	rosaic_node::ROSaicNode mosaic_node; // This launches everything we need, in theory :)
 	ROS_DEBUG("Leaving int main.");
 	return 0;
 }

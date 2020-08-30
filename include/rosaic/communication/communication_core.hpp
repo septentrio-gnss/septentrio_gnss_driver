@@ -58,7 +58,7 @@
 
 
 #ifndef COMMUNICATION_CORE_HPP // This block is called a conditional group. The controlled text will get included in the preprocessor output iff the macroname is not defined
-#define COMMUNICATION_CORE_HPP // include guards help to avoid the double inclusion of the septentrio.h file, by defining the token = macro called "MINROS_HPP"
+#define COMMUNICATION_CORE_HPP // include guards help to avoid the double inclusion of the septentrio.h file, by defining a token = macro
 
 #define MAX_MSG_SIZE 4096 // See header message length, the preprocessor will replace MAX_MSG_SIZE (a macro) by 4096 (in bytes)
 #define MAX_NOUT_SIZE 4096  // Maximum size of a Septentrio block in bytes (ALMANAC logs are big!)
@@ -81,10 +81,10 @@
 #include <sstream>
 #include <string.h>
 #include <memory>
-#include <MinROS/communication/mosaicMessage.hpp>
-#include <MinROS/communication/async_manager.hpp>
-#include <MinROS/communication/callbackhandlers.hpp>
-#include <MinROS/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
+#include <rosaic/communication/mosaicMessage.hpp>
+#include <rosaic/communication/async_manager.hpp>
+#include <rosaic/communication/callbackhandlers.hpp>
+#include <rosaic/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
 
 
 /**

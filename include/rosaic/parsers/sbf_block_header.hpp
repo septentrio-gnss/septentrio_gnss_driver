@@ -28,12 +28,12 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_SBF_BLOCK_HEADER_HPP
-#define MINROS_DRIVER_SBF_BLOCK_HEADER_HPP
+#ifndef SBF_BLOCK_HEADER_HPP
+#define SBF_BLOCK_HEADER_HPP
 
 //! The cstdint header was originally in the C standard library as <stdint.h>. 
 #include <cstdint> 
-#include <MinROS/parsers/parsing_utilities.hpp>
+#include <rosaic/parsers/parsing_utilities.hpp>
 
 /**
  * @file sbf_block_header.hpp
@@ -41,7 +41,7 @@
  * @date 14/08/20 
 */
 
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	 * @brief Represents the header of an SBF block, excluding the timestamp
@@ -66,4 +66,4 @@ namespace minros_driver
 		uint16_t       WNc;
 	};
 }
-#endif //MINROS_DRIVER_SBF_BLOCK_HEADER_HPP
+#endif //SBF_BLOCK_HEADER_HPP

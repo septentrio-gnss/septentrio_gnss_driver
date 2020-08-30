@@ -28,7 +28,7 @@
 //
 // *****************************************************************************
 
-#include <MinROS/communication/communication_core.hpp>
+#include <rosaic/communication/communication_core.hpp>
 
 /**
  * @file communication_core.cpp

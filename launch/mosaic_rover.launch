@@ -7,11 +7,11 @@
   <arg name="respawn" default="false" />
   <arg name="clear_params" default="true" />
 
-  <node pkg="MinROS_2" type="MinROS_2_node" name="$(arg node_name)"
+  <node pkg="rosaic" type="rosaic_node" name="$(arg node_name)"
         output="$(arg output)" 
         clear_params="$(arg clear_params)"
         respawn="$(arg respawn)">
     <rosparam command="load" 
-              file="$(find MinROS_2)/config/$(arg param_file_name).yaml" />
+              file="$(find rosaic)/config/$(arg param_file_name).yaml" />
   </node>
 </launch>

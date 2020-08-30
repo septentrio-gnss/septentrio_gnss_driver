@@ -56,13 +56,13 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_NODE_HPP
-#define MINROS_NODE_HPP
+#ifndef ROSAIC_NODE_HPP
+#define ROSAIC_NODE_HPP
 
 /**
- * @file minros_node.hpp
+ * @file rosaic_node.hpp
  * @date 21/08/20
- * @brief The heart of the MinROS driver: The ROS node that represents it
+ * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 // ROS includes
 #include <ros/ros.h>
@@ -74,15 +74,15 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 // The class boost::posix_time::ptime that we will use defines a location-independent time. It uses the type boost::gregorian::date, yet also stores a time.
 // File includes
-#include <MinROS/communication/communication_core.hpp>
+#include <rosaic/communication/communication_core.hpp>
 #include <boost/thread/mutex.hpp>
 
 /**
- * @namespace minros_node
- * This namespace is for the MinROS node, handling all aspects regarding
+ * @namespace rosaic_node
+ * This namespace is for the ROSaic node, handling all aspects regarding
  * ROS parameters, ROS message publishing etc.
  */
-namespace minros_node 
+namespace rosaic_node 
 {
 	//! Queue size for ROS publishers
 	constexpr static uint32_t ROSQueueSize = 1;
@@ -93,7 +93,7 @@ namespace minros_node
 	//! Default period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous two ROS parameters, and - if published - between the publishing of all other ROS messages 
 	constexpr static float poll_pub_rest_period = 0.05;
 
-	//! Node Handle for minros node
+	//! Node Handle for the ROSaic node
 	//! You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only...
 	boost::shared_ptr<ros::NodeHandle> nh;
 	//! Handles communication with the mosaic
@@ -231,16 +231,16 @@ namespace minros_node
 
 	
 	/**
-	 * @class MinROSNode
-	 * @brief This class represents the MinROS node for mosaic-X5, to be extended..
+	 * @class ROSaicNode
+	 * @brief This class represents the ROsaic node, to be extended..
 	 */
-	class MinROSNode
+	class ROSaicNode
 	{
 		public:
 		
-			//! The constructor initializes and runs the MinROS node, if all works out fine.
+			//! The constructor initializes and runs the Rosaic node, if all works out fine.
 			//! It loads the user-defined ROS parameters, subscribes to mosaic messages, and publishes requested ROS messages (for now, 1-1 or GGA-like, not yet NavSatFix that needs multiple messages as input..)
-			MinROSNode();
+			ROSaicNode();
 			
 			/**
 			 * @brief Get the node parameters from the ROS Parameter Server, parts of which are specified in a YAML file, other parts of which are specified via the command line.
@@ -279,4 +279,4 @@ namespace minros_node
 	};
 }
 
-#endif // for MINROS_NODE_HPP
+#endif // for ROSAIC_NODE_HPP

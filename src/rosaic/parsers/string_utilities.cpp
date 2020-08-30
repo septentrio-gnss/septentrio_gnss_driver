@@ -28,7 +28,7 @@
 //
 // *****************************************************************************
  
-#include <MinROS/parsers/string_utilities.h>
+#include <rosaic/parsers/string_utilities.h>
  
 #include <cerrno>
 #include <cstdlib>

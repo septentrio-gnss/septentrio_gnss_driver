@@ -28,8 +28,8 @@
 //
 // *****************************************************************************
 
-#ifndef MINROS_DRIVER_PARSER_BASE_CLASS_H
-#define MINROS_DRIVER_PARSER_BASE_CLASS_H
+#ifndef PARSER_BASE_CLASS_HPP
+#define PARSER_BASE_CLASS_HPP
 
 #include "sbf_block.hpp" 
 #include "nmea_sentence.hpp"
@@ -43,7 +43,7 @@
  * @date 13/08/20 
  */
  
-namespace minros_driver
+namespace rosaic_driver
 {
 	/**
 	* @class BaseParser
@@ -60,7 +60,7 @@ namespace minros_driver
 	* templates are useful when a class defines something that is independent of 
 	* the data type, as here the notion of parsing.
 	* 
-	* @tparam T The ROS message pointer type that the parser should produce, e.g. MinROS::GpggaPtr.
+	* @tparam T The ROS message pointer type that the parser should produce, e.g. nmea_msgs::GpggaPtr.
 	*/
 	template<typename T>
 	class BaseParser
@@ -101,7 +101,7 @@ namespace minros_driver
 		virtual const std::string GetMessageID() const = 0;
     
 		/**
-		 * @brief Converts bin_msg into a ROS message pointer (e.g. MinROS::GpggaPtr) and returns it.
+		 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it.
 		 *
 		 * The returned value should not be NULL. ParseException will be thrown
 		 * if there are any issues parsing the block.
@@ -115,7 +115,7 @@ namespace minros_driver
 		};
 
 		/**
-		 * @brief Converts an NMEA sentence - both standardized and proprietary ones - into a ROS message pointer (e.g. MinROS::GpggaPtr) and returns it
+		 * @brief Converts an NMEA sentence - both standardized and proprietary ones - into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
 		 *
 		 * The returned value should not be NULL. ParseException will be thrown
 		 * if there are any issues parsing the message.
@@ -129,4 +129,4 @@ namespace minros_driver
 	};
 }
 
-#endif //MINROS_DRIVER_PARSER_BASE_CLASS_H
+#endif //PARSER_BASE_CLASS_HPP
