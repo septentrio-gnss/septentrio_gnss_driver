@@ -1,0 +1,4 @@
+<map id="minros_driver::SBFBlockHeader::ParseHeader" name="minros_driver::SBFBlockHeader::ParseHeader">
+<area shape="rect" id="node2" href="$namespaceminros__driver.html#a2698db1f5befc907592a7d65d390e45f" title="Converts a buffer containing 2 bytes into an unsigned 16&#45;bit int. " alt="" coords="263,5,444,32"/>
+<area shape="rect" id="node3" href="$namespaceminros__driver.html#adb2da604bcbc9bd0749baca3895d2572" title="Converts a buffer containing 4 bytes into an unsigned 32&#45;bit int. " alt="" coords="263,56,444,83"/>
+</map>

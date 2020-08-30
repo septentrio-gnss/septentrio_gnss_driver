@@ -1,0 +1,7 @@
+<map id="include/rosaic/parsers/parser_base_class.hpp" name="include/rosaic/parsers/parser_base_class.hpp">
+<area shape="rect" id="node2" href="$sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="51,95,154,121"/>
+<area shape="rect" id="node5" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="117,244,267,285"/>
+<area shape="rect" id="node10" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="229,95,368,121"/>
+<area shape="rect" id="node11" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="393,95,535,121"/>
+<area shape="rect" id="node3" href="$sbf__block__header_8hpp.html" title="The cstdint header was originally in the C standard library as &lt;stdint.h&gt;. " alt="" coords="5,169,155,196"/>
+</map>

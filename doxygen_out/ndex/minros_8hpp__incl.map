@@ -1,0 +1,12 @@
+<map id="include/MinROS/minros.hpp" name="include/MinROS/minros.hpp">
+<area shape="rect" id="node3" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="5,169,139,211"/>
+<area shape="rect" id="node5" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="257,87,330,114"/>
+<area shape="rect" id="node9" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="354,80,505,121"/>
+<area shape="rect" id="node4" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="74,259,174,285"/>
+<area shape="rect" id="node10" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="667,169,831,211"/>
+<area shape="rect" id="node11" href="$sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="609,259,711,285"/>
+<area shape="rect" id="node14" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="667,408,831,449"/>
+<area shape="rect" id="node17" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="787,259,925,285"/>
+<area shape="rect" id="node18" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="950,259,1093,285"/>
+<area shape="rect" id="node12" href="$sbf__block__header_8hpp.html" title="Defines structs SBFBlockHeader and TimeHeader. " alt="" coords="563,333,712,360"/>
+</map>

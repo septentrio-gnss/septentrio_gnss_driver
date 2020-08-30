@@ -1,0 +1,6 @@
+<map id="io_comm_mosaic::mosaicMessage::mosaicMessage" name="io_comm_mosaic::mosaicMessage::mosaicMessage">
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a4194cf4fef0e7f36f6893dcf5749ee8e" title="Calculates the CRC of the SBF block where data_ is pointing to at the moment. " alt="" coords="280,5,507,47"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#aa47f07ca0ec8ef26995e7ba5937482d8" title="Determines whether data_ points to the SBF block with ID &quot;ID&quot;, e.g. 5003. " alt="" coords="280,71,507,112"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="280,136,507,177"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#af26df0ec7e396df4bb35c062bb168571" title="Gets the end position in the read buffer. " alt="" coords="555,143,811,170"/>
+</map>

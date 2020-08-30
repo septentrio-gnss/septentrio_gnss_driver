@@ -1,0 +1,9 @@
+<map id="minros_driver::GpggaParser::ParseASCII" name="minros_driver::GpggaParser::ParseASCII">
+<area shape="rect" id="node2" href="$namespaceminros__driver.html#a3039efae84f4eb36407515c6dfbc159f" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="237,5,436,47"/>
+<area shape="rect" id="node3" href="$namespaceminros__driver.html#adcd27ab3026f810041c1820477f62d94" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="245,71,428,98"/>
+<area shape="rect" id="node4" href="$namespaceminros__driver.html#a13cb2105dad482ee26e27ec7dfd09ce1" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="251,122,422,149"/>
+<area shape="rect" id="node5" href="$namespaceminros__driver.html#adb2da604bcbc9bd0749baca3895d2572" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="246,173,427,199"/>
+<area shape="rect" id="node6" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="253,223,420,250"/>
+<area shape="rect" id="node7" href="$namespaceminros__driver.html#a76b7210e0fd0310bddaac5065a8d9a1e" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="248,275,425,316"/>
+<area shape="rect" id="node8" href="$namespaceminros__driver.html#a1995f68c86860edbdf4a04af619bdea8" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="249,341,424,367"/>
+</map>

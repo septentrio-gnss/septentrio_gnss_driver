@@ -1,0 +1,9 @@
+<map id="rosaic_driver::GpggaParser::ParseASCII" name="rosaic_driver::GpggaParser::ParseASCII">
+<area shape="rect" id="node2" href="$namespacerosaic__driver.html#a922785787f46c546657090d067722214" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="233,5,428,47"/>
+<area shape="rect" id="node3" href="$namespacerosaic__driver.html#a105486e8c459bf8976f83b1872538a1b" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="241,71,420,98"/>
+<area shape="rect" id="node4" href="$namespacerosaic__driver.html#a875626aed000dd9134115e0f578b2b42" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="247,122,414,149"/>
+<area shape="rect" id="node5" href="$namespacerosaic__driver.html#a3a75ba7eb74bff5ca9cdd1a5b5c0d0f8" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="242,173,419,199"/>
+<area shape="rect" id="node6" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="247,223,414,250"/>
+<area shape="rect" id="node7" href="$namespacerosaic__driver.html#a0b2482d57b61c66431e336df6850366c" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="244,275,417,316"/>
+<area shape="rect" id="node8" href="$namespacerosaic__driver.html#ac018409c6adb53031e0bf4fb80e69c32" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="245,341,416,367"/>
+</map>

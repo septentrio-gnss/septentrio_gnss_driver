@@ -1,0 +1,4 @@
+<map id="io_comm_mosaic::CallbackHandlers::insert" name="io_comm_mosaic::CallbackHandlers::insert">
+<area shape="rect" id="node2" href="$classrosaic__node_1_1_r_o_saic_node.html#ae7c4bc0e0719882a281d2f88a963ec86" title="Subscribe (= read in) to all requested mosaic messages and publish them. " alt="" coords="236,5,413,47"/>
+<area shape="rect" id="node3" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="461,5,639,47"/>
+</map>
