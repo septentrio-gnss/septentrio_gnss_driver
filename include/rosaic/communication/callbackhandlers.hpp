@@ -83,7 +83,6 @@
 
 // Other includes
 #include <rosaic/communication/mosaicMessage.hpp>
-#include <nmea_msgs/Gpgga.h>
 
 /**
  * @file callbackhandlers.hpp
@@ -132,18 +131,17 @@ namespace io_comm_mosaic
 					//ROS_DEBUG("Attempting to read message");
 					if (!mMessage.read<T>(message_)) 
 					{
-						ROS_DEBUG("Read apparently successful..");
 						std::ostringstream ss;
-						ss << "mosaic decoder error for message with ID " << mMessage.MessageID();
-						ROS_DEBUG_COND(debug >= 2, "%s", ss.str().c_str());
+						ss << "Read unsuccessful: mosaic decoder error for message with ID " << mMessage.MessageID();
+						ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
 						condition_.notify_all();
 						return;
 					}
 				} catch (std::runtime_error& e) 
 				{
 					std::ostringstream ss;
-					ss << "mosaic decoder error for message with ID " << mMessage.MessageID();
-					ROS_DEBUG_COND(debug >= 2, "%s", ss.str().c_str());
+					ss << "Read unsuccessful: mosaic decoder error for message with ID " << mMessage.MessageID() << ".\nReason: " << e.what();
+					ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
 					condition_.notify_all();
 					return;
 				}
@@ -180,8 +178,8 @@ namespace io_comm_mosaic
 				boost::mutex::scoped_lock lock(callback_mutex_);
 				CallbackHandler_<T>* handler = new CallbackHandler_<T>(callback); // Adding typename might be cleaner, but is optional again
 				callbacks_.insert(std::make_pair(message_ID, boost::shared_ptr<CallbackHandler>(handler)));
-				Callbacks::key_type key = "$GPGGA";
-				//ROS_DEBUG("After insert command, key is there: %u", (unsigned int) callbacks_.count(key));
+				Callbacks::key_type key = message_ID;
+				ROS_DEBUG("After insert command, key is there: %u", (unsigned int) callbacks_.count(key));
 				return callbacks_;
 			}
 	 
@@ -195,7 +193,7 @@ namespace io_comm_mosaic
 				//ROS_DEBUG("The element exists in our map: %u", (unsigned int) callbacks_.count(key));
 				for (Callbacks::iterator callback = callbacks_.lower_bound(key); callback != callbacks_.upper_bound(key); ++callback)
 				{
-					//ROS_DEBUG("Inside for loop for calling specific message handle.");
+					ROS_DEBUG("Inside for loop for calling specific message handle.");
 					callback->second->handle(mMessage);
 				}
 			}
@@ -246,12 +244,12 @@ namespace io_comm_mosaic
 						// Print the received bytes (if NMEA) or just show messageID..
 						if (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_2)
 						{
-							ROS_DEBUG("Apparently we are dealing with an SBF block");
+							//ROS_DEBUG("Apparently we are dealing with an SBF block");
 							unsigned long sbf_block_length;
 							sbf_block_length = (unsigned long) mMessage.block_length(); //c-like cast notation, functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise
 							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
 						}
-						else
+						if ((mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_3) || (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_4))
 						{
 							std::ostringstream oss;
 							boost::char_separator<char> sep("\r");

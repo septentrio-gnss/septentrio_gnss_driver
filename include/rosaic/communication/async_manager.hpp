@@ -276,7 +276,7 @@ namespace io_comm_mosaic
 
 	template <typename StreamT>
 	void AsyncManager<StreamT>::doRead() {
-		//ROS_DEBUG("Entered doRead() method of the AsyncManager class.");
+		ROS_DEBUG("Entered doRead() method of the AsyncManager class.");
 		ScopedLock lock(read_mutex_);
 		stream_->async_read_some(
 		   boost::asio::buffer(in_.data() + in_buffer_size_,
@@ -292,7 +292,7 @@ namespace io_comm_mosaic
 	void AsyncManager<StreamT>::async_read_some_handler(const boost::system::error_code& error,
 										std::size_t bytes_transfered) 
 	{
-		//ROS_DEBUG("Entered async_read_some_handler method.");
+		ROS_DEBUG("Entered async_read_some_handler method.");
 		ScopedLock lock(read_mutex_);
 		if (error) //e.g. if no input received from receiver (or ttyACM1 !while! messages sent), bytes_transferred will be 0 of course, error.message() will be "operation canceled"
 		{
@@ -321,7 +321,7 @@ namespace io_comm_mosaic
 	 
 			if (read_callback_) //will be false in InitializeSerial (first call)
 			{
-				//ROS_DEBUG("Before read_callback_(in_.data etc");
+				ROS_DEBUG("Leaving async_read_some_handler method, with bytes_transferred being %u", (unsigned int) bytes_transfered);
 				read_callback_(in_.data(), in_buffer_size_);	 // not just the few bytes above, now all that was read in so far is passed to readCallback from CallbackHandlers class!..
 																// .data() Returns a direct pointer to the memory array used internally by the vector to store its owned elements. Because elements in the vector are guaranteed to be stored in contiguous storage locations in the same order as represented by the vector, the pointer retrieved can be offset to access any element in the array.
 				//ROS_DEBUG("After read_callback_(in_.data etc");
@@ -331,7 +331,6 @@ namespace io_comm_mosaic
 	 
 		if (!stopping_)
 			io_service_->post(boost::bind(&AsyncManager<StreamT>::doRead, this));
-		ROS_DEBUG("Leaving async_read_some_handler method, with bytes_transferred being %u", (unsigned int) bytes_transfered);
 	}
 	 
 	template <typename StreamT>

@@ -22,5 +22,6 @@ var searchData=
   ['poll_5fpub_5fpvt_5fperiod',['poll_pub_pvt_period',['../namespacerosaic__node.html#a35533838a89bbc2654db970d82ec6d3e',1,'rosaic_node']]],
   ['poll_5fpub_5frest_5fperiod',['poll_pub_rest_period',['../namespacerosaic__node.html#ad8890202101c88e8389117dbf13e99b9',1,'rosaic_node']]],
   ['prn',['PRN',['../struct_g_p_s_n_a_v.html#a2fccdce746fce5c9fa02fc267bcb221e',1,'GPSNAV']]],
-  ['publish_5fgpgga_5f',['publish_gpgga_',['../classrosaic__node_1_1_r_o_saic_node.html#aaa969322e38dffe8b430e1178c6756b3',1,'rosaic_node::ROSaicNode']]]
+  ['publish_5fgpgga_5f',['publish_gpgga_',['../classrosaic__node_1_1_r_o_saic_node.html#aaa969322e38dffe8b430e1178c6756b3',1,'rosaic_node::ROSaicNode']]],
+  ['publish_5fpvtcartesian_5f',['publish_pvtcartesian_',['../classrosaic__node_1_1_r_o_saic_node.html#ad5a20ce7c5afc9e060b0a8d8300642ab',1,'rosaic_node::ROSaicNode']]]
 ];

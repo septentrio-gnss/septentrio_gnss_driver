@@ -66,8 +66,8 @@
 #define SEP_SYNC_BYTE_4 0x47 
 
 #include <cstddef>
-#include <boost/tokenizer.hpp>
 #include <sstream>
+#include <boost/tokenizer.hpp>
 #include <rosaic/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
 #include <rosaic/parsers/string_utilities.h>
 #include <rosaic/parsers/nmea_sentence.hpp>
@@ -76,6 +76,9 @@
 #include <map>
 #include <ros/ros.h>
 #include <boost/call_traits.hpp>
+#include <rosaic/PVTCartesian.h>
+#include <rosaic/PVTGeodetic.h>
+#include <boost/format.hpp>
 
 #ifndef MOSAIC_MESSAGE_HPP
 #define MOSAIC_MESSAGE_HPP
@@ -86,6 +89,8 @@
  * @brief Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_read_some
  */
  
+extern bool use_GNSS_time;
+extern uint32_t read_count;
 //! Since switch only works with int (yet NMEA message IDs are strings), we need enum.
 //! Note drawbacks: No variable can have a name which is already in some enumeration, enums are not type safe etc..
 enum NMEA_ID_Enum {evGPGGA};
@@ -99,6 +104,29 @@ static void StringValues_Initialize()
   
 namespace io_comm_mosaic 
 {
+	
+	/**
+	 * @brief Callback function when reading PVTCartesian blocks
+	 * @param[in] data The (packed and aligned) struct instance that we use to populate our ROS message rosaic::PVTCartesian
+	 * @return A smart pointer to the ROS message rosaic::PVTCartesian just created
+	 */
+	rosaic::PVTCartesianPtr PVTCartesianCallback(PVTCartesian& data);
+	
+	/**
+	 * @brief Callback function when reading PVTCartesian blocks
+	 * @param[in] data The (packed and aligned) struct instance that we use to populate our ROS message rosaic::PVTCartesian
+	 * @return A smart pointer to the ROS message rosaic::PVTCartesian just created
+	 */
+	rosaic::PVTGeodeticPtr PVTGeodeticCallback(PVTGeodetic& data);
+	
+	/**
+	 * @brief Calculates the timestamp, in the Unix Epoch time format, either using the TOW as transmitted with the SBF block, or using the current time
+	 * @param[in] TOW Number of milliseconds that elapsed since the beginning of the current GPS week as transmitted by the SBF block
+	 * @param[in] use_GNSS_time If true, the TOW as transmitted with the SBF block is used, otherwise the current time
+	 * @return ros::Time object containing seconds and nanoseconds since last epoch
+	 */
+	ros::Time timestampSBF(uint32_t TOW, bool use_GNSS);
+	
 	/**
 	 * @class mosaicMessage
 	 * @brief Can search buffer for messages, jump to next one (in case of SBF block), and so on
@@ -137,7 +165,7 @@ namespace io_comm_mosaic
 			 * It determines the length from the header of the SBF block and thus includes the header length.
 			 * @return The length of the SBF block
 			 */
-			uint32_t block_length();
+			uint16_t block_length();
 			
 			/**
 			 * @brief Gets the current position in the read buffer
@@ -190,6 +218,7 @@ namespace io_comm_mosaic
 			 * @brief Whether or not a message has been found
 			 */
 			bool found_; 
+			
 	};
 	
 	
@@ -200,6 +229,7 @@ namespace io_comm_mosaic
 	 * Note that putting the default in the definition's argument list instead of the declaration's is an added extra that is not available for function templates, hence no search = false here.
 	 * Finally note that it is bad practice (I got undefined reference to .. error) to separate the definition of template functions into the source file and declarations into header file. I guess another
 	 * solution would be to add explicit instantiations into the mosaicMessage.cpp file.
+	 * Also note that the SBF block header part of the SBF-echoing ROS messages have ID fields that only show the block number as found in the firmware (e.g. 4007 for PVTGeodetic), without the revision number.
 	 */
 	template <typename T>
 	bool mosaicMessage::read(typename boost::call_traits<T>::reference message, bool search) 
@@ -207,30 +237,68 @@ namespace io_comm_mosaic
 		//ROS_DEBUG("Inside mosaicMessage's read");
 		if (search) this->search();
 		if (!found()) return false; 
-		if (data_[1] == SEP_SYNC_BYTE_2)
+		if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
 		{
 			// CRC Check
 			bool CRCcheck = CRCIsValid(data_);
 			if (!CRCcheck)
 			{
-				ROS_DEBUG("CRC Check returned False for SBF block %s. Not a valid data block, perhaps noisy. Move on to next message/block of buffer..", this->MessageID().c_str());
-				return false;
+				std::stringstream ss;
+				ss << "CRC Check returned False. Not a valid data block, perhaps noisy. Ignore..";
+				throw std::runtime_error(ss.str().c_str());
 			}
 			uint32_t SBF_ID;
 			string_utilities::ToUInt32(this->MessageID(), SBF_ID);
 			switch(SBF_ID) 
 			{
-				// Postion and velocity in XYZ
+				// Position and velocity in XYZ
 				case 4006:
-					memcpy(&message, data_+8, sizeof(message)); // you cut out the block you are interested in via sizeof(..) since you do not care about the header of the block..
-					// read_timestamp... Caution: This should be part of Septentrio::readSerialPort(), since you want the timestamp when message came in, not after all these calculations...
-					// now do message.GPS_ms for instance
+				{ 	// The curly bracket here is crucial: declarations inside a block remain inside, and will die at the end of the block
+					rosaic::PVTCartesianPtr msg = boost::make_shared<rosaic::PVTCartesian>();
+					PVTCartesian pvt_cartesian;
+					ROS_DEBUG("sizeof(pvt_object) is %u", (uint16_t) (sizeof(pvt_cartesian)));
+					memcpy(&pvt_cartesian, data_, sizeof(pvt_cartesian));
+					msg = PVTCartesianCallback(pvt_cartesian);
+					msg->ROS_Header.seq = read_count;
+					msg->ROS_Header.frame_id = frame_id;
+					uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
+					ros::Time time_obj;
+					time_obj = timestampSBF(TOW, use_GNSS_time);
+					msg->ROS_Header.stamp.sec = time_obj.sec;
+					msg->ROS_Header.stamp.nsec = time_obj.nsec;
+					msg->Block_Header.ID = 4006;
+					memcpy(&message, msg.get(), sizeof(*msg));
+					++read_count;
 					break;
+				}
+				
+				// Position and velocity in geodetic coordinate frame (ENU frame)
+				case 4007:
+				{ 	// The curly bracket here is crucial: declarations inside a block remain inside, and will die at the end of the block
+					rosaic::PVTGeodeticPtr msg = boost::make_shared<rosaic::PVTGeodetic>();
+					PVTGeodetic pvt_geodetic;
+					ROS_DEBUG("sizeof(pvt_object) is %u", (uint16_t) (sizeof(pvt_geodetic)));
+					memcpy(&pvt_geodetic, data_, sizeof(pvt_geodetic));
+					msg = PVTGeodeticCallback(pvt_geodetic);
+					msg->ROS_Header.seq = read_count;
+					msg->ROS_Header.frame_id = frame_id;
+					uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
+					ros::Time time_obj;
+					time_obj = timestampSBF(TOW, use_GNSS_time);
+					msg->ROS_Header.stamp.sec = time_obj.sec;
+					msg->ROS_Header.stamp.nsec = time_obj.nsec;
+					msg->Block_Header.ID = 4007;
+					memcpy(&message, msg.get(), sizeof(*msg));
+					++read_count;
+					break;
+				}
 
 				// Position Covariance block
 				case 5905:
+				{
 					memcpy(&message, data_+8, sizeof(message));
 					break;
+				}
 				// many more to be implemented...
 			}
 		}
@@ -239,14 +307,13 @@ namespace io_comm_mosaic
 			boost::char_separator<char> sep("*");
 			typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 			std::size_t end_point = std::min(static_cast<std::size_t>(this->end() - data_), static_cast<std::size_t>(82));
-			std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);		// We cannot uses overloaded '=' operator from string class since that converts char* to string 
-			// Instead, reinterpret_cast<char*>(name) casts from uint8_t* to char* in an unsafe way but that's the one which should be used here. Then you call the ordinary constructor of std::string
+			std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
 			tokenizer tokens(block_in_string, sep);
 			ROS_DEBUG("NMEA message is %s", (*tokens.begin()).c_str());
-			// typeid (explointing knowledge about T) instead of switch with message ID would not quite work (e.g. gcc gives you mangled names for instance), and even boost's fancy names are not that fancy..
 			switch(StringValues[this->MessageID()])
 			{
 				case evGPGGA:
+				{
 					std::string id = this->MessageID();
 					std::string pure_block = *tokens.begin();
 					boost::char_separator<char> sep_2(",", "", boost::keep_empty_tokens);
@@ -254,12 +321,10 @@ namespace io_comm_mosaic
 					std::vector<std::string> body;
 					for (tokenizer::iterator tok_iter = tokens_2.begin(); tok_iter != tokens_2.end(); ++tok_iter) // perhaps str.erase from <string.h> would be faster, but i would not know what exactly to do..
 					{
-						// create NmeaSentence struct to pass to GpggaParser::ParseAscii
 						body.push_back(*tok_iter);
 					}
+					// Create NmeaSentence struct to pass to GpggaParser::ParseASCII
 					rosaic_driver::NMEASentence gga_message(id, body);
-					//ROS_DEBUG("First entry of vector is %s", body[0].c_str());
-					// Pass NmeaSentence struct to GGA-Parser
 					nmea_msgs::GpggaPtr gpgga_ros_message_ptr;
 					rosaic_driver::GpggaParser parser_obj;
 					try
@@ -268,10 +333,12 @@ namespace io_comm_mosaic
 					}
 					catch (rosaic_driver::ParseException& e)
 					{
-						std::cout << "GGA parsing failed: " << e.what() << "\n";
+						ROS_INFO("GGA parsing failed: %s\n", e.what());
+						throw std::runtime_error(e.what());
 					}
-					message = *gpgga_ros_message_ptr; 
+					memcpy(&message, gpgga_ros_message_ptr.get(), sizeof(*gpgga_ros_message_ptr));
 					return true;
+				}
 			}
 		}
 		return true;

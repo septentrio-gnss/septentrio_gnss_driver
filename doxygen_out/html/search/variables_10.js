@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['sbasprn',['SBASprn',['../struct_pvt_cartesian.html#ac5e36cb3fd1e87b5fc8163c126a48204',1,'PvtCartesian']]],
   ['sblength',['SBLength',['../struct_meas_epoch.html#a4452f155106cb115e371b13b82ee101c',1,'MeasEpoch']]],
   ['serial_5fport_5f',['serial_port_',['../classio__comm__mosaic_1_1_comm___i_o.html#a335fbe29195986121f9fe552aa4375a6',1,'io_comm_mosaic::Comm_IO']]],
   ['setbaudratesleepms',['SetBaudrateSleepMs',['../classio__comm__mosaic_1_1_comm___i_o.html#aac4a71048df61f977f006d885898c7a5',1,'io_comm_mosaic::Comm_IO']]],
+  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian']]],
   ['sqrt_5fa',['SQRT_A',['../struct_g_p_s_n_a_v.html#a7e418b504d87b4a13b6c7bd785d79ed1',1,'GPSNAV']]],
   ['stopping_5f',['stopping_',['../classio__comm__mosaic_1_1_async_manager.html#a459077c21e975d157bd2d051b0363348',1,'io_comm_mosaic::AsyncManager']]],
   ['stream_5f',['stream_',['../classio__comm__mosaic_1_1_async_manager.html#a064c1bcb1d8c474b873026bd51c08fb3',1,'io_comm_mosaic::AsyncManager']]],
@@ -15,6 +15,5 @@ var searchData=
   ['sync',['Sync',['../structrosaic__driver_1_1_s_b_f_block_header.html#a76400e5f6191e701cf2e8f02f843cf7c',1,'rosaic_driver::SBFBlockHeader']]],
   ['sync1',['SYNC1',['../struct_block_header__t.html#a1c387491d87ba8b7696d4b94b7f594a3',1,'BlockHeader_t']]],
   ['sync2',['SYNC2',['../struct_block_header__t.html#addb5555077117e39f215892fcb8b3075',1,'BlockHeader_t']]],
-  ['synclevel',['SyncLevel',['../struct_receiver_time.html#a5b219a34cc3f2e058ef926933f0528ec',1,'ReceiverTime']]],
-  ['system',['System',['../struct_pvt_cartesian.html#a09d16b668795c68fd9e88c3bceb7cad9',1,'PvtCartesian']]]
+  ['synclevel',['SyncLevel',['../struct_receiver_time.html#a5b219a34cc3f2e058ef926933f0528ec',1,'ReceiverTime']]]
 ];

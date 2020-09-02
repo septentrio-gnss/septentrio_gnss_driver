@@ -6,5 +6,5 @@ var searchData=
   ['nmea_5fid_5fenum',['NMEA_ID_Enum',['../mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71',1,'mosaicMessage.hpp']]],
   ['nmea_5fsentence_2ehpp',['nmea_sentence.hpp',['../nmea__sentence_8hpp.html',1,'']]],
   ['nmeasentence',['NMEASentence',['../classrosaic__driver_1_1_n_m_e_a_sentence.html',1,'rosaic_driver::NMEASentence'],['../classrosaic__driver_1_1_n_m_e_a_sentence.html#a3999c8d21c6ad50998c1ab0d7aebe708',1,'rosaic_driver::NMEASentence::NMEASentence()']]],
-  ['nrsv',['NrSV',['../struct_pvt_cartesian.html#a565025c4283ab5e4ef26ca0aa1fb2cae',1,'PvtCartesian::NrSV()'],['../struct_attitude_euler.html#a3ec9357e660188a5945dc4a3268e118c',1,'AttitudeEuler::NRSV()']]]
+  ['nrsv',['NRSV',['../struct_attitude_euler.html#a3ec9357e660188a5945dc4a3268e118c',1,'AttitudeEuler::NRSV()'],['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()']]]
 ];

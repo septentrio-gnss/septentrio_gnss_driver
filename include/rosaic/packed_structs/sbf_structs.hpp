@@ -41,6 +41,11 @@
  * to enforce 32-bit alignment for double data types and to port the sbf 
  * encoding/decoding functionality to the CPMF.
  */
+// The aligned variable attribute specifies a minimum alignment for the variable or structure field, measured in bytes.
+// The aligned attribute only increases the alignment for a struct or struct member. For a variable that is not in a structure, 
+// the minimum alignment is the natural alignment of the variable type. To set the alignment in a structure to any value greater than 0, 
+// use the packed variable attribute. Without packed, the minimum alignment is the natural alignment of the variable type.
+
 #  define SBFDOUBLE double __attribute__((packed, aligned(4)))
 #else
 #  define SBFDOUBLE double
@@ -119,36 +124,84 @@ typedef struct
  */
 
 /**
- * @class PvtCartesian
+ * @class PVTCartesian
  * @brief Struct for the SBF block "PVTCartesian"
  */
-struct PvtCartesian
+struct PVTCartesian
 {
-	BlockHeader_t  Header;       
+	BlockHeader_t  Block_Header;       
 
 	/* Time Header */
 	uint32_t       TOW;          
 	uint16_t       WNc;          
 
-	uint8_t        NrSV;         
+	uint8_t        Mode;
 	uint8_t        Error;        
-	uint8_t        Mode;         
-	uint8_t        System;       
-	uint8_t        Info;         
-	uint8_t        SBASprn;      
 	SBFDOUBLE      X;            
 	SBFDOUBLE      Y;            
-	SBFDOUBLE      Z;            
+	SBFDOUBLE      Z;     
+	float          Undulation;
 	float          Vx;           
 	float          Vy;           
-	float          Vz;           
-	SBFDOUBLE      RxClkBias;    
+	float          Vz;  
+	float          COG;   
+	SBFDOUBLE      RxClkBias; 
 	float          RxClkDrift;   
-	uint16_t       MeanCorrAge;  
-	uint16_t       BaseStationID;
-	float          Cog;          
+	uint8_t        TimeSystem; 
+	uint8_t        Datum;
+	uint8_t        NrSV; 
+	uint8_t        WACorrInfo;
+	uint16_t       ReferenceID;
+	uint16_t       MeanCorrAge; 
+	uint32_t       SignalInfo;
+	uint8_t        AlertFlag;
+	uint8_t        NrBases;
+	uint16_t       PPPInfo;
+	uint16_t       Latency;
+	uint16_t       HAccuracy;
+	uint16_t       VAccuracy;
+	uint8_t        Misc;	
 };
 
+/**
+ * @class PVTGeodetic
+ * @brief Struct for the SBF block "PVTGeodetic"
+ */
+struct PVTGeodetic
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        Mode;
+	uint8_t        Error;        
+	SBFDOUBLE      Latitude;            
+	SBFDOUBLE      Longitude;            
+	SBFDOUBLE      Height;     
+	float          Undulation;
+	float          Vn;           
+	float          Ve;           
+	float          Vu;  
+	float          COG;   
+	SBFDOUBLE      RxClkBias; 
+	float          RxClkDrift;   
+	uint8_t        TimeSystem; 
+	uint8_t        Datum;
+	uint8_t        NrSV; 
+	uint8_t        WACorrInfo;
+	uint16_t       ReferenceID;
+	uint16_t       MeanCorrAge; 
+	uint32_t       SignalInfo;
+	uint8_t        AlertFlag;
+	uint8_t        NrBases;
+	uint16_t       PPPInfo;
+	uint16_t       Latency;
+	uint16_t       HAccuracy;
+	uint16_t       VAccuracy;
+	uint8_t        Misc;	
+};
 
 //structure for the PosCovCartesian parsed block, old
 /*
