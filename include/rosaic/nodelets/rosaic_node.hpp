@@ -67,12 +67,8 @@
 // ROS includes
 #include <ros/ros.h>
 #include <ros/console.h>
-// ROS messages
-#include <nmea_msgs/Gpgga.h>
 // Boost includes
 #include <boost/regex.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-// The class boost::posix_time::ptime that we will use defines a location-independent time. It uses the type boost::gregorian::date, yet also stores a time.
 // File includes
 #include <rosaic/communication/communication_core.hpp>
 #include <boost/thread/mutex.hpp>
@@ -106,17 +102,6 @@ namespace rosaic_node
 	std::map<std::string, bool> enabled;	
 	
 	/**
-	 * @brief Determines current time via BOOST, using the type boost::gregorian::date
-	 * @return Total number of seconds since midnight
-	 */
-	double defaultGetTimeHandler() 
-	{
-		boost::posix_time::ptime present_time(boost::posix_time::microsec_clock::universal_time());
-		boost::posix_time::time_duration duration(present_time.time_of_day());
-		return duration.total_seconds();
-	}
-	
-	/**
 	 * @brief Publishes a ROS message of type MessageT to topic "topic".
 	 * @param m The message to publish
 	 * @param topic The topic to publish the message to
@@ -125,8 +110,6 @@ namespace rosaic_node
 	void publish(const MessageT& m, const std::string& topic) 
 	{
 		//ROS_DEBUG("About to publish message");
-		// long read_timestamp = defaultGetTimeHandler(); 
-		// cpu timestamp could be used for whatever purposes, otherwise you get unused warning from compiler
 		static ros::Publisher publisher = nh->advertise<MessageT>(topic, ROSQueueSize);
 		publisher.publish(m);
 	}
@@ -230,6 +213,7 @@ namespace rosaic_node
 	}
 
 	
+	
 	/**
 	 * @class ROSaicNode
 	 * @brief This class represents the ROsaic node, to be extended..
@@ -276,6 +260,10 @@ namespace rosaic_node
 			bool connected_ = false;
 			//! Whether or not to publsh GGA messages
 			bool publish_gpgga_;
+			//! Whether or not to publsh PVTCartesian block
+			bool publish_pvtcartesian_;
+			//! Whether or not to publsh PVTGeodetic block
+			bool publish_pvtgeodetic_;
 	};
 }
 

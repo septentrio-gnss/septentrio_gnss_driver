@@ -162,7 +162,6 @@ namespace rosaic_driver
 	 */
 	time_t UTCtoUnix(double utc_double);
 	
-	
 	/**
 	 * @brief Converts latitude or longitude from the DMS notation (in the without-colon-delimiter format), type double, to the pure degree notation, type double
 	 * @param dms The double variable representing latitude or longitude in the DMS notation (in the without-colon-delimiter format)

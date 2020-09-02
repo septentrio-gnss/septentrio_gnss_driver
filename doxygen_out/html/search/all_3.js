@@ -27,7 +27,7 @@ var searchData=
   ['checkrange',['checkRange',['../namespacerosaic__node.html#a23f139644bb35df0323938ce23adc897',1,'rosaic_node::checkRange(V val, T min, T max, std::string name)'],['../namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4',1,'rosaic_node::checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)']]],
   ['checksum',['checksum',['../classio__comm__mosaic_1_1mosaic_message.html#a4194cf4fef0e7f36f6893dcf5749ee8e',1,'io_comm_mosaic::mosaicMessage']]],
   ['checksum_5f',['checksum_',['../classio__comm__mosaic_1_1mosaic_message.html#a265264bf2e490edd11c4c579877976de',1,'io_comm_mosaic::mosaicMessage']]],
-  ['cog',['Cog',['../struct_pvt_cartesian.html#a891c934bf8329f371609c471deb5ef64',1,'PvtCartesian']]],
+  ['cog',['COG',['../struct_p_v_t_cartesian.html#a3fbd87ad7480104c3bcc1885fab67921',1,'PVTCartesian']]],
   ['comm_5fio',['Comm_IO',['../classio__comm__mosaic_1_1_comm___i_o.html',1,'io_comm_mosaic::Comm_IO'],['../classio__comm__mosaic_1_1_comm___i_o.html#a5ce69ceed8075c89281d1859b19df8b3',1,'io_comm_mosaic::Comm_IO::Comm_IO()']]],
   ['communication_5fcore_2ecpp',['communication_core.cpp',['../communication__core_8cpp.html',1,'']]],
   ['communication_5fcore_2ehpp',['communication_core.hpp',['../communication__core_8hpp.html',1,'']]],

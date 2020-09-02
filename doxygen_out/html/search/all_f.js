@@ -10,6 +10,7 @@ var searchData=
   ['reconnect',['Reconnect',['../classrosaic__node_1_1_r_o_saic_node.html#a1798ec942a9142e0f04762129d2cee1e',1,'rosaic_node::ROSaicNode']]],
   ['reconnect_5fdelay_5fs_5f',['reconnect_delay_s_',['../classrosaic__node_1_1_r_o_saic_node.html#a901dc455d86d71ca533e37b37e102270',1,'rosaic_node::ROSaicNode']]],
   ['reconnect_5ftimer_5f',['reconnect_timer_',['../classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47',1,'rosaic_node::ROSaicNode']]],
+  ['referenceid',['ReferenceID',['../struct_p_v_t_cartesian.html#a258a3a08c39462746000ca8b73f43c66',1,'PVTCartesian']]],
   ['reserved',['reserved',['../struct_attitude_cov_euler.html#a636778b1da2244767bdf253a91aa200e',1,'AttitudeCovEuler::reserved()'],['../struct_attitude_euler.html#a0b23e3781e78c3d2e8f666215acea289',1,'AttitudeEuler::Reserved()'],['../struct_g_p_s_n_a_v.html#a5759df137d25e0d037dccef9938b45d9',1,'GPSNAV::Reserved()']]],
   ['resetserial',['resetSerial',['../classio__comm__mosaic_1_1_comm___i_o.html#ad520b4cd3b73e38ca1ac17962950065f',1,'io_comm_mosaic::Comm_IO']]],
   ['roll',['Roll',['../struct_attitude_euler.html#a22633d0109fab487cdf3c93f49ee1bc6',1,'AttitudeEuler']]],
@@ -21,6 +22,6 @@ var searchData=
   ['rosaicnode',['ROSaicNode',['../classrosaic__node_1_1_r_o_saic_node.html',1,'rosaic_node::ROSaicNode'],['../classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3',1,'rosaic_node::ROSaicNode::ROSaicNode()']]],
   ['rosqueuesize',['ROSQueueSize',['../namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2',1,'rosaic_node']]],
   ['rxchannel',['RXChannel',['../struct_meas_epoch_sub_block.html#a8257e691422ee267ae4b4772f8393f1c',1,'MeasEpochSubBlock']]],
-  ['rxclkbias',['RxClkBias',['../struct_pvt_cartesian.html#a48c29dfa2af7cab70c6e5c4090bcd8d9',1,'PvtCartesian']]],
-  ['rxclkdrift',['RxClkDrift',['../struct_pvt_cartesian.html#a9c023d060c9f7cb003211c52fbdf10ae',1,'PvtCartesian']]]
+  ['rxclkbias',['RxClkBias',['../struct_p_v_t_cartesian.html#ae9c246789825b6ade2f1ad8c3fdf2e6e',1,'PVTCartesian']]],
+  ['rxclkdrift',['RxClkDrift',['../struct_p_v_t_cartesian.html#abe224f1f74e7f8ec76c346fc1eb1f1f9',1,'PVTCartesian']]]
 ];

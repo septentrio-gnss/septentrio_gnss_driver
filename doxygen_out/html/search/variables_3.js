@@ -19,7 +19,7 @@ var searchData=
   ['callbacks_5f',['callbacks_',['../classio__comm__mosaic_1_1_callback_handlers.html#aae5f44264767ff58bf971ba2aea06838',1,'io_comm_mosaic::CallbackHandlers']]],
   ['caorponl2',['CAorPonL2',['../struct_g_p_s_n_a_v.html#a4dfceb0b73d0ecc9066acae157ce74bb',1,'GPSNAV']]],
   ['checksum_5f',['checksum_',['../classio__comm__mosaic_1_1mosaic_message.html#a265264bf2e490edd11c4c579877976de',1,'io_comm_mosaic::mosaicMessage']]],
-  ['cog',['Cog',['../struct_pvt_cartesian.html#a891c934bf8329f371609c471deb5ef64',1,'PvtCartesian']]],
+  ['cog',['COG',['../struct_p_v_t_cartesian.html#a3fbd87ad7480104c3bcc1885fab67921',1,'PVTCartesian']]],
   ['condition_5f',['condition_',['../classio__comm__mosaic_1_1_callback_handler.html#a113bf0c6a54de84ceed5d54b50af8269',1,'io_comm_mosaic::CallbackHandler']]],
   ['connected_5f',['connected_',['../classrosaic__node_1_1_r_o_saic_node.html#a14d93cf26d847306e0e152967ea9d5a3',1,'rosaic_node::ROSaicNode']]],
   ['count_5f',['count_',['../classio__comm__mosaic_1_1mosaic_message.html#a9c5cbaf7e77bd84397cb7246110f9875',1,'io_comm_mosaic::mosaicMessage']]],

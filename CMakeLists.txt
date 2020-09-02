@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   rostime
   xmlrpcpp
   nmea_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,11 +52,12 @@ find_package(Boost REQUIRED COMPONENTS system thread regex)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   BlockHeader.msg
+   PVTCartesian.msg
+   PVTGeodetic.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -72,10 +74,11 @@ find_package(Boost REQUIRED COMPONENTS system thread regex)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#    DEPENDENCIES
-#    nmea_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+    DEPENDENCIES
+    nmea_msgs  # Or other packages containing msgs
+    std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -109,7 +112,7 @@ find_package(Boost REQUIRED COMPONENTS system thread regex)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES 
-   CATKIN_DEPENDS cpp_common rosconsole rosconsole_backend_interface rosconsole_log4cxx roscpp roscpp_serialization rostime xmlrpcpp
+   CATKIN_DEPENDS cpp_common rosconsole rosconsole_backend_interface rosconsole_log4cxx roscpp roscpp_serialization rostime xmlrpcpp message_runtime
    DEPENDS Boost 
 )
 
@@ -148,7 +151,7 @@ add_executable(${PROJECT_NAME}_node src/rosaic/nodelets/rosaic_node.cpp src/rosa
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node 

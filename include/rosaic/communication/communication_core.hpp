@@ -176,6 +176,9 @@ namespace io_comm_mosaic
 			uint32_t baudrate_;
 			
 			friend class CallbackHandlers;
+			friend class mosaicMessage;
+			//! Number of times the "read" method of the mosiacMessage class has been called
+			uint32_t read_count_;
 	};
 }
 
