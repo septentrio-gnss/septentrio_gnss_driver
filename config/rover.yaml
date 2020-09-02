@@ -8,8 +8,12 @@ frame_id: gnss
 
 publish:
   gpgga: true
+  pvtcartesian: true
+  pvtgeodetic: true
 
 serial:
   baudrate: 115200
 
 reconnect_delay_s: 0.1
+
+use_GNSS_time: true
