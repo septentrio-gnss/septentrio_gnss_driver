@@ -109,7 +109,7 @@ Variables</h2></td></tr>
 <tr class="memdesc:af830cc8c898b498f08fa6616aa8360e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue size for ROS publishers.  <a href="#af830cc8c898b498f08fa6616aa8360e2">More...</a><br /></td></tr>
 <tr class="separator:af830cc8c898b498f08fa6616aa8360e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35533838a89bbc2654db970d82ec6d3e"><td class="memItemLeft" align="right" valign="top">static constexpr float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a35533838a89bbc2654db970d82ec6d3e">poll_pub_pvt_period</a> = 0.05</td></tr>
-<tr class="memdesc:a35533838a89bbc2654db970d82ec6d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, PVTCartesian and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages.  <a href="#a35533838a89bbc2654db970d82ec6d3e">More...</a><br /></td></tr>
+<tr class="memdesc:a35533838a89bbc2654db970d82ec6d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages.  <a href="#a35533838a89bbc2654db970d82ec6d3e">More...</a><br /></td></tr>
 <tr class="separator:a35533838a89bbc2654db970d82ec6d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1f3f7fe69753b4d5d4d292f7de8eb2d"><td class="memItemLeft" align="right" valign="top">static constexpr float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#aa1f3f7fe69753b4d5d4d292f7de8eb2d">poll_pub_orientation_period</a> = 0.05</td></tr>
 <tr class="memdesc:aa1f3f7fe69753b4d5d4d292f7de8eb2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive AttEuler, AttCovEuler blocks as well as the HRP NMEA sentence, and - if published - between the publishing of AttEuler and AttCovEuler.  <a href="#aa1f3f7fe69753b4d5d4d292f7de8eb2d">More...</a><br /></td></tr>
@@ -597,7 +597,7 @@ template&lt;typename MessageT &gt; </div>
 
 <p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00098">98</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00057">rosaic_node::ROSaicNode::GetROSParams()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00147">main()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00126">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00057">rosaic_node::ROSaicNode::GetROSParams()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00156">main()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00126">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
 
 </div>
 </div>
@@ -647,7 +647,7 @@ template&lt;typename MessageT &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, PVTCartesian and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages. </p>
+<p>Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages. </p>
 
 <p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00090">90</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
@@ -710,7 +710,7 @@ template&lt;typename MessageT &gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Aug 30 2020 17:44:30 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 1 2020 14:49:26 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

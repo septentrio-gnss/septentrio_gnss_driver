@@ -5,7 +5,7 @@ var searchData=
   ['var_5froll',['var_roll',['../struct_attitude_cov_euler.html#af25ffdb6a7e906931814975f7f03867e',1,'AttitudeCovEuler']]],
   ['velcovcartesian',['VelCovCartesian',['../struct_vel_cov_cartesian.html',1,'']]],
   ['voidblock_5ft',['VoidBlock_t',['../crc_8h.html#a3c26aeb88c0c35c95712a6ffe3cc581d',1,'crc.h']]],
-  ['vx',['Vx',['../struct_pvt_cartesian.html#a4c2c97853eb93fa0eb03e6db990f9768',1,'PvtCartesian']]],
-  ['vy',['Vy',['../struct_pvt_cartesian.html#afe9925ca5dc1d035aaa07a2d54f088a5',1,'PvtCartesian']]],
-  ['vz',['Vz',['../struct_pvt_cartesian.html#aaa3a593c6beaa37b9d5603859033b2ec',1,'PvtCartesian']]]
+  ['vx',['Vx',['../struct_p_v_t_cartesian.html#a60eb313be9237017196be40d0749718e',1,'PVTCartesian']]],
+  ['vy',['Vy',['../struct_p_v_t_cartesian.html#a671de439ced06637a16b9224cfb654f9',1,'PVTCartesian']]],
+  ['vz',['Vz',['../struct_p_v_t_cartesian.html#aa241dcae6c66cf1b03f1376efce01d1d',1,'PVTCartesian']]]
 ];

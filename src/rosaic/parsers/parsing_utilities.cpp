@@ -246,6 +246,7 @@ namespace rosaic_driver
 	 * The date ambiguity is resolved by adding/subtracting a day to the current date if the host time is more than 12 hours behind/ahead the NMEA time (i.e. UTC time).
 	 * Recall time(0), time(NULL): If argument is a null pointer, the parameter is not used (the function still returns the current calendar time of type time_t). Otherwise, 
 	 * the return value is the same as the one stored in the location pointed by the argument.
+	 * Note that the function assumes that utc_double has two significant digits after the decimal point, i.e. hhmmss.ss, and rounds the number of seconds to the nearest unsigned integer.
 	 */
 	time_t UTCtoUnix(double utc_double)
 	{
@@ -253,22 +254,14 @@ namespace rosaic_driver
 		struct tm * timeinfo;
 
 		// The function localtime uses the value pointed by its argument to fill a tm structure with the values that represent the corresponding time, expressed for the local timezone.
-		timeinfo = localtime ( &time_now ); 
+		timeinfo = gmtime(&time_now); 
 
 		uint32_t year = timeinfo->tm_year; // year, starting from 1900
 		uint32_t month = timeinfo->tm_mon; // months since January - [0,11]
 		uint32_t day = timeinfo->tm_mday;  //day of the month - [1,31] 
-		uint32_t hours = static_cast<uint32_t>(utc_double) / 10000;
-		uint32_t minutes = (static_cast<uint32_t>(utc_double) - hours * 10000) / 100;
-		uint32_t seconds = (static_cast<uint32_t>(utc_double) - hours * 10000 - minutes * 100);
-		if ((((int32_t) timeinfo->tm_hour) - ((int32_t) hours )) > 12) // E.g. in the UTC+14:00 time zone..
-		{
-			day -= 1;
-		}
-		if ((((int32_t) hours )- ((int32_t) timeinfo->tm_hour)) > 12)
-		{
-			day += 1;
-		}
+		uint32_t hours = static_cast<uint32_t>(utc_double + 0.5f) / 10000;
+		uint32_t minutes = (static_cast<uint32_t>(utc_double + 0.5f) - hours * 10000) / 100;
+		uint32_t seconds = (static_cast<uint32_t>(utc_double + 0.5f) - hours * 10000 - minutes * 100);
 		
 		//ROS_DEBUG("Checking year %u, month %u, day %u", year, month, day);
 
@@ -278,9 +271,9 @@ namespace rosaic_driver
 		timeinfo->tm_sec    = seconds;          // seconds after the minute - [0,59]
 
 		// Inverse of gmtime, the latter converts time_t (Unix time) to tm (UTC time)
-		time_t date = timegm ( timeinfo ); 
+		time_t date = timegm(timeinfo); 
 
-		//ROS_DEBUG("Until the given date, since 1970/01/01 %jd seconds have passed.\n", (intmax_t) date);
+		//ROS_DEBUG("Since 1970/01/01 %jd seconds have passed.\n", (intmax_t) date);
 		return date;
 	}
 }

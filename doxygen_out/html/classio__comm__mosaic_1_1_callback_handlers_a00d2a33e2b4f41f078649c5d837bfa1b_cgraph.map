@@ -1,5 +1,5 @@
 <map id="io_comm_mosaic::CallbackHandlers::readCallback" name="io_comm_mosaic::CallbackHandlers::readCallback">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#afb8d5ecefbb36a2102c7214e98d1fa91" title="Gets the length of the SBF block. " alt="" coords="844,45,1071,86"/>
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a6c3df42ee1234150bd02bc9e4ce8d561" title="Gets the length of the SBF block. " alt="" coords="844,45,1071,86"/>
 <area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#af26df0ec7e396df4bb35c062bb168571" title="Gets the end position in the read buffer. " alt="" coords="540,203,796,230"/>
 <area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a786eb05a5effa4a5ffd9707b24c4a38f" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="844,224,1071,265"/>
 <area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_callback_handler.html#ace1c7d3eaf5813ef6f6a3bb4db454d35" title="io_comm_mosaic::Callback\lHandler::handle" alt="" coords="273,192,455,233"/>

@@ -127,13 +127,27 @@ void rosaic_node::ROSaicNode::Subscribe()
 {
 	ROS_DEBUG("Entered subscribe() method");
 	nh->param("publish/gpgga", publish_gpgga_, true);
+	nh->param("publish/pvtcartesian", publish_pvtcartesian_, true);
+	nh->param("publish/pvtgeodetic", publish_pvtgeodetic_, true);
+
 	if (publish_gpgga_ == true)
 	{
-		//ROS_DEBUG("Since publish_gpgga is true, insert to map");
 		IO.handlers_.callbacks_ = IO.get_handlers().insert<nmea_msgs::Gpgga>("$GPGGA", boost::bind(publish<nmea_msgs::Gpgga>, _1, "/gpgga"));
 		
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "$GPGGA";
+		//std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "$GPGGA";
 		//ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
+	}
+	if (publish_pvtcartesian_ == true)
+	{
+		IO.handlers_.callbacks_ = IO.get_handlers().insert<rosaic::PVTCartesian>("4006", boost::bind(publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "4006";
+		ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
+	}
+	if (publish_pvtgeodetic_ == true)
+	{
+		IO.handlers_.callbacks_ = IO.get_handlers().insert<rosaic::PVTGeodetic>("4007", boost::bind(publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "4007";
+		ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
 	}
 	ROS_DEBUG("Leaving subscribe() method");
 	// and so on
@@ -141,17 +155,22 @@ void rosaic_node::ROSaicNode::Subscribe()
 
 
 // Declaring global variables..
+bool use_GNSS_time;
+//! Number of times the "read" method of the mosaicMessage class has been called
+uint32_t read_count;
 int io_comm_mosaic::debug; 
 boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_; 
 
 int main(int argc, char** argv) 
 {
+	read_count = 0;
 	ROS_DEBUG("About to call ROSaicNode constructor.."); // This will not be shown since info level seems to be default, hence modify momentarily..
 	//rosaic_node::nh->param("?", node_name, default_node_name); 
 	ros::init(argc, argv, "mosaic_gnss");
 	ROS_DEBUG("Just called ROSaicNode constructor..");
 	rosaic_node::nh.reset(new ros::NodeHandle("~")); // Note that nh was initialized in the header file already.
 	rosaic_node::nh->param("debug", io_comm_mosaic::debug, 1); 
+	rosaic_node::nh->param("use_GNSS_time", use_GNSS_time, true);
 	rosaic_node::nh->param("frame_id", frame_id, (std::string) "gnss"); 
 	ROS_DEBUG("Just loaded debug value to be %u from parameter server..", io_comm_mosaic::debug);
 
