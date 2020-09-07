@@ -64,6 +64,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #ifndef ASYNC_MANAGER_HPP
 #define ASYNC_MANAGER_HPP
@@ -90,7 +91,7 @@ namespace io_comm_mosaic
 		 
 			// virtual bool send(const uint8_t* data, const unsigned int size) = 0; // for sending data to Rx
 		   
-			virtual void wait(const boost::posix_time::time_duration& timeout) = 0;
+			virtual void wait(uint16_t* count) = 0;
 		 
 			virtual bool isOpen() const = 0;
 	};
@@ -112,14 +113,14 @@ namespace io_comm_mosaic
 			 * Boost.Thread provides different mutex classes with boost::mutex being the simplest. The basic principle of a mutex is to prevent other threads 
 			 * from taking ownership while a particular thread owns (by calling lock()) the mutex. Once released, a different thread can take ownership. 
 			 * This causes threads to wait until the thread that owns the mutex has finished processing and releases its ownership of the mutex.
-			 * E.g. Because std::cout is a global object shared by the threads, access must be synchronized.
+			 * E.g. Because std::cout is a global object shared by the threads, access must be synchronized (could also be done via boost::asio::io_context::strand).
 			 * Helps to avoid data races (A data race occurs when all: a) two or more threads in a single process access the same memory location concurrently, and b) at least one of the accesses is for writing, and c)the threads are not using any exclusive locks to control their accesses to that memory.) and undefined behavior
 			 */	
 			typedef boost::mutex Mutex;
 			/**
-			 * @brief scoped_lock is meant to carry out the tasks for locking, unlocking, try-locking and timed-locking (recursive or not) for the mutex
+			 * @brief ScopedLock is meant to carry out the tasks for locking, unlocking, try-locking and timed-locking (recursive or not) for the mutex
 			 * 
-			 * It is more robust than raw mutex, e.g. with traditional mutex, an exception may occur while your mutex is locked, and your call to unlock() may never be reached, even though you do not have any return statement between your call to lock() and your call to unlock().
+			 * It is more robust than a raw mutex: E.g. with a traditional mutex, an exception may occur while your mutex is locked, and your call to unlock() may never be reached, even though you do not have any return statement between your call to lock() and your call to unlock().
 			 */
 			typedef boost::mutex::scoped_lock ScopedLock;
 			
@@ -128,9 +129,7 @@ namespace io_comm_mosaic
 			 * @param stream Whether TCP/IP or serial communication, either boost::asio::serial_port or boost::asio::tcp::ip
 			 * @param io_service The io_context object. The io_context represents your program's link to the operating system's I/O services. 
 			 */
-			AsyncManager(boost::shared_ptr<StreamT> stream,
-				   boost::shared_ptr<boost::asio::io_service> io_service,
-				   std::size_t buffer_size = 8192);
+			AsyncManager(boost::shared_ptr<StreamT> stream, boost::shared_ptr<boost::asio::io_service> io_service, std::size_t buffer_size = 8192);
 			virtual ~AsyncManager();
 	 
 			void setCallback(const Callback& callback) { read_callback_ = callback; }
@@ -138,7 +137,7 @@ namespace io_comm_mosaic
 			// void setRawDataCallback(const Callback& callback) { write_callback_ = callback; }
 	 
 			// bool send(const uint8_t* data, const unsigned int size);
-			void wait(const boost::posix_time::time_duration& timeout);
+			void wait(uint16_t* count);
 	 
 			bool isOpen() const { return stream_->is_open(); }
 	 
@@ -172,31 +171,47 @@ namespace io_comm_mosaic
 			 */
 			boost::condition read_condition_;
 			std::vector<uint8_t> in_; 
-			//! Keeps track of how large the buffer (not just space allocated) is at the moment
-			std::size_t in_buffer_size_;  
+
 			// Mutex write_mutex_; 
+			
 			// boost::condition write_condition_;
 			std::vector<uint8_t> out_; 
 	 
-			boost::shared_ptr<boost::thread> callback_thread_; 
+			boost::shared_ptr<boost::thread> async_background_thread_; 
 			Callback read_callback_; 
 			// Callback write_callback_; 
 	 
 			bool stopping_; 
+			
+			/// In and out buffers' size
+			const std::size_t buffer_size_;
+			
+			boost::asio::deadline_timer timer_;
+			const uint16_t count_max_;
+			
+			void call_async_wait(uint16_t* count);
+			
+			uint16_t do_read_count_;
 	};
 	 
 	template <typename StreamT>
+	void AsyncManager<StreamT>::call_async_wait(uint16_t* count)
+	{
+		timer_.async_wait(boost::bind(&AsyncManager::wait, this, count));
+	}
+	
+	template <typename StreamT>
 	AsyncManager<StreamT>::AsyncManager(boost::shared_ptr<StreamT> stream,
 			 boost::shared_ptr<boost::asio::io_service> io_service,
-			 std::size_t buffer_size) : stopping_(false) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
+			 std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false), buffer_size_(buffer_size), count_max_(5) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
 	{
 		ROS_DEBUG("Setting the stream private variable of the AsyncManager class.");
+		do_read_count_ = 0;
 		stream_ = stream;
 		io_service_ = io_service;
-		in_.resize(buffer_size);
-		in_buffer_size_ = 0;
+		in_.resize(buffer_size_);
 
-		out_.reserve(buffer_size); 	// Note that std::vector::reserve() requests to reserve vector capacity be at least enough to contain n elements. 
+		out_.reserve(buffer_size_); 	// Note that std::vector::reserve() requests to reserve vector capacity be at least enough to contain n elements. 
 									// Reallocation happens if there is need of even more space.
 		 
 		io_service_->post(boost::bind(&AsyncManager<StreamT>::doRead, this));
@@ -204,15 +219,17 @@ namespace io_comm_mosaic
 		// The function signature of the handler must be: void handler(); 
 		// The io_service guarantees that the handler (given as parameter) will only be called in a thread in which the run(), run_one(), poll() or poll_one() member functions is currently being invoked. 
 		// So the fundamental difference is that dispatch will execute the work right away if it can and queue it otherwise while post queues the work no matter what.
-		callback_thread_.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_))); // io_service_ is already pointer
+		async_background_thread_.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_))); // io_service_ is already pointer
+		uint16_t count = 0;
+		boost::thread(boost::bind(&AsyncManager::call_async_wait, this, &count));
 		// If the value of the pointer for the current thread is changed using reset(), then the previous value is destroyed by calling the cleanup routine. Alternatively, the stored value can be reset to NULL and the prior value returned by calling the release() member function, allowing the application to take back responsibility for destroying the object. 
-	}
+	} // Calls std::terminate() on last thread created
 	 
 	template <typename StreamT>
 	AsyncManager<StreamT>::~AsyncManager() 
 	{
-		io_service_->post(boost::bind(&AsyncManager<StreamT>::doClose, this));
-		callback_thread_->join(); 
+		//io_service_->post(boost::bind(&AsyncManager<StreamT>::doClose, this));
+		async_background_thread_->join(); 
 		//io_service_->reset(); 
 		// Reset the io_service in preparation for a subsequent run() invocation. 
 		// must be called prior to any second or later set of invocations of the run(), run_one() etc.
@@ -275,17 +292,19 @@ namespace io_comm_mosaic
 
 
 	template <typename StreamT>
-	void AsyncManager<StreamT>::doRead() {
+	void AsyncManager<StreamT>::doRead() 
+	{
 		ROS_DEBUG("Entered doRead() method of the AsyncManager class.");
-		ScopedLock lock(read_mutex_);
+		//ScopedLock lock(read_mutex_); // lock will be destroyed when scope of doRead ends and the mutex released (hence need another lock in async_read_some_handler)
 		stream_->async_read_some(
-		   boost::asio::buffer(in_.data() + in_buffer_size_,
-							   in_.size() - in_buffer_size_),
+		   boost::asio::buffer(in_.data(),
+							   in_.size()),
 							   boost::bind(&AsyncManager<StreamT>::async_read_some_handler, this,
 								   boost::asio::placeholders::error,
 								   boost::asio::placeholders::bytes_transferred));
 									// handler is async_read_some_handler!!, call postponed as with post..
-		//ROS_DEBUG("After async_read_some command.");
+		++do_read_count_;
+		ROS_DEBUG("Leaving doRead.");
 	}
 	 
 	template <typename StreamT>
@@ -293,7 +312,6 @@ namespace io_comm_mosaic
 										std::size_t bytes_transfered) 
 	{
 		ROS_DEBUG("Entered async_read_some_handler method.");
-		ScopedLock lock(read_mutex_);
 		if (error) //e.g. if no input received from receiver (or ttyACM1 !while! messages sent), bytes_transferred will be 0 of course, error.message() will be "operation canceled"
 		{
 			ROS_ERROR("mosaic-X5 ASIO input buffer read error: %s, %li",
@@ -301,8 +319,6 @@ namespace io_comm_mosaic
 		} 
 		else if (bytes_transfered > 0) 
 		{
-			in_buffer_size_ += bytes_transfered;
-	 
 			/* uint8_t *pRawDataStart = &(*(in_.begin() + (in_buffer_size_ - bytes_transfered))); //&(*()) seems redundant!
 			std::size_t raw_data_stream_size = bytes_transfered;
 	 
@@ -319,12 +335,18 @@ namespace io_comm_mosaic
 					oss.str().c_str());
 			}*/
 	 
-			if (read_callback_) //will be false in InitializeSerial (first call)
+			if (read_callback_) //Will be false in InitializeSerial (first call)
 			{
-				ROS_DEBUG("Leaving async_read_some_handler method, with bytes_transferred being %u", (unsigned int) bytes_transfered);
-				read_callback_(in_.data(), in_buffer_size_);	 // not just the few bytes above, now all that was read in so far is passed to readCallback from CallbackHandlers class!..
-																// .data() Returns a direct pointer to the memory array used internally by the vector to store its owned elements. Because elements in the vector are guaranteed to be stored in contiguous storage locations in the same order as represented by the vector, the pointer retrieved can be offset to access any element in the array.
-				//ROS_DEBUG("After read_callback_(in_.data etc");
+				// start new thread, to be killed once read_callback_ returns...
+				//temporary_thread new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_));
+				ROS_DEBUG("Leaving async_read_some_handler method and transfering to readCallback, with bytes_transferred being %u", (unsigned int) bytes_transfered);
+				std::vector<uint8_t> copied_buffer = in_;
+				// Note that .data() returns a direct pointer to the memory array used internally by the vector to store its owned elements. Because elements in the vector are guaranteed to be stored in contiguous storage locations in the same order as represented by the vector, the pointer retrieved can be offset to access any element in the array.
+				boost::thread temporary_thread(read_callback_, copied_buffer.data(), bytes_transfered);
+				temporary_thread.detach();
+				std::vector<uint8_t> empty;
+				in_ = empty;
+				in_.resize(buffer_size_);
 			}		 
 			read_condition_.notify_all(); //other threads can now read too..
 		}
@@ -336,7 +358,6 @@ namespace io_comm_mosaic
 	template <typename StreamT>
 	void AsyncManager<StreamT>::doClose() 
 	{
-		ScopedLock lock(read_mutex_);
 		stopping_ = true;
 		boost::system::error_code error;
 		stream_->close(error); 
@@ -347,14 +368,19 @@ namespace io_comm_mosaic
 	}
 	 
 	template <typename StreamT>
-	void AsyncManager<StreamT>::wait(const boost::posix_time::time_duration& timeout) 
+	void AsyncManager<StreamT>::wait(uint16_t* count) //const boost::posix_time::time_duration& timeout) 
 	{
-		ScopedLock lock(read_mutex_);
-		read_condition_.timed_wait(lock, timeout);
-		// bool timed_wait(boost::unique_lock<boost::mutex>& lock,boost::system_time const& abs_time)
-		// Unlocks mutex and blocks current thread for specified time. The thread will unblock when notified by a call to this->notify_one() (perhaps) or this->notify_all(), when the time as reported by boost::get_system_time() would be equal to or later than the specified abs_time, or spuriously.
-		// When the thread is unblocked (for whatever reason), the lock is reacquired by invoking (invoked under the hood, not you) lock.lock() before the call to wait returns (as in std::condition_variable::wait_for).
-		// false if the call is returning because the time specified by abs_time was reached (kind of means waiting should be continued), true otherwise. 
+		if (*count < count_max_)
+		{
+			++(*count);
+			timer_.expires_at(timer_.expires_at() + boost::posix_time::seconds(1));
+			timer_.async_wait(boost::bind(&AsyncManager::wait, this, count));
+		}
+		if ((*count >= count_max_) && (do_read_count_ < 2))
+		{
+			ROS_INFO("No incoming messages, driver stopped, ros::spin() will spin forever unless you hit Ctrl+C.");
+			async_background_thread_->interrupt(); 
+		}
 	}
 }
  

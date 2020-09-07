@@ -138,6 +138,13 @@ namespace io_comm_mosaic
 			bool InitializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
 			
 			/**
+			 * @brief Initializes the TCP I/O.
+			 * @param[in] host The TCP host
+			 * @param[in] port The TCP port
+			 */
+			void InitializeTCP(std::string host, std::string port);
+			
+			/**
 			 * @brief Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic
 			 * 
 			 * InitializeSerial is not self-contained: The for loop in Callbackhandlers' handle method would never open a specific handler unless the handler is added (=inserted) to the map via this function. 
@@ -179,6 +186,11 @@ namespace io_comm_mosaic
 			friend class mosaicMessage;
 			//! Number of times the "read" method of the mosiacMessage class has been called
 			uint32_t read_count_;
+			
+			//! Host currently connected to
+			std::string host_;
+			//! Port over which TCP/IP connection is currently established
+			std::string port_;
 	};
 }
 
