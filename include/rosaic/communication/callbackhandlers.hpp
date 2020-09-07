@@ -128,11 +128,10 @@ namespace io_comm_mosaic
 				boost::mutex::scoped_lock lock(mutex_);
 				try 
 				{
-					//ROS_DEBUG("Attempting to read message");
 					if (!mMessage.read<T>(message_)) 
 					{
 						std::ostringstream ss;
-						ss << "Read unsuccessful: mosaic decoder error for message with ID " << mMessage.MessageID();
+						ss << "Read unsuccessful: mosaic decoder error for message with ID (empty field if non-determinable" << mMessage.MessageID() << ". ";
 						ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
 						condition_.notify_all();
 						return;
@@ -193,7 +192,6 @@ namespace io_comm_mosaic
 				//ROS_DEBUG("The element exists in our map: %u", (unsigned int) callbacks_.count(key));
 				for (Callbacks::iterator callback = callbacks_.lower_bound(key); callback != callbacks_.upper_bound(key); ++callback)
 				{
-					ROS_DEBUG("Inside for loop for calling specific message handle.");
 					callback->second->handle(mMessage);
 				}
 			}
@@ -235,8 +233,7 @@ namespace io_comm_mosaic
 			void readCallback(uint8_t* data, std::size_t& size) 
 			{
 				mosaicMessage mMessage(data, size);
-				//ROS_DEBUG("Created mosaicMessage object");
-				// Read !all! (there might be many) the messages in the buffer
+				// Read !all! (there might be many) messages in the buffer
 				while (mMessage.search() != mMessage.end() && mMessage.found()) 
 				{
 					if (debug >= 3) 
@@ -244,10 +241,9 @@ namespace io_comm_mosaic
 						// Print the received bytes (if NMEA) or just show messageID..
 						if (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_2)
 						{
-							//ROS_DEBUG("Apparently we are dealing with an SBF block");
 							unsigned long sbf_block_length;
 							sbf_block_length = (unsigned long) mMessage.block_length(); //c-like cast notation, functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise
-							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
+							//ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
 						}
 						if ((mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_3) || (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_4))
 						{
@@ -265,10 +261,6 @@ namespace io_comm_mosaic
 					//ROS_DEBUG("Handing over from readcallback to handle while count is %d", mMessage.get_count());
 					handle(mMessage);
 				}
-	 
-				// delete read bytes from input buffer
-				std::copy(mMessage.pos(), mMessage.end(), data); //Recall: The first and second parameter specify the range of elements to copy, while the third parameter specifies the beginning of the destination range. 
-				size -= mMessage.pos() - data; // data was never modified
 			}
 			
                         //! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method

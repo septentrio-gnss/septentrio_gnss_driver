@@ -46,7 +46,14 @@ rosaic_node::ROSaicNode::ROSaicNode()
 	GetROSParams();
 	StringValues_Initialize();
 	ROS_DEBUG("About to call InitializeIO() method");
-	InitializeIO();
+	try
+	{
+		InitializeIO();
+	}
+	catch (std::runtime_error& e)
+	{
+		ROS_ERROR("InitializeIO() failed: %s", e.what());
+	}
 	// Subscribe to all requested mosaic messages and publish them
     Subscribe();
 	ros::spin();
@@ -70,8 +77,8 @@ void rosaic_node::ROSaicNode::InitializeIO()
 	ROS_DEBUG("Called InitializeIO() method");
 	boost::smatch match;
 	// In fact: typedef match_results<string::const_iterator> smatch;
-	if (boost::regex_match(device_, match,
-                         boost::regex("(tcp|udp)://(.+):(\\d+)"))) 
+	if (boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"))) 
+	// \d means decimal, however, in the regular expression, the \ is a special character, which needs to be escaped on its own as well..
 	// regex_match can be used with a smatch object to store results, or without. In any case, true is returned if and only if it matches the !complete! string.
 	{
 		// The first sub_match (index 0) contained in a match_result always represents the full match within a target sequence made by a regex, 
@@ -80,13 +87,17 @@ void rosaic_node::ROSaicNode::InitializeIO()
 		std::string proto(match[1]);
 		if (proto == "tcp") 
 		{
-			// To be written
-			/*
 			std::string host(match[2]);
 			std::string port(match[3]);
-			ROS_INFO("Connecting to %s://%s:%s ...", proto.str(), host.str(), port.str());
-			IO.InitializeTCP(host, port);
-			*/
+			ROS_INFO("Connecting to %s://%s:%s ...", proto.c_str(), host.c_str(), port.c_str());
+			try
+			{
+				IO.InitializeTCP(host, port);
+			}
+			catch (std::runtime_error& e)
+			{
+				throw std::runtime_error("IO.InitializeTCP() failed for host " + host + " on port " + port + " due to: " + e.what());
+			}
 		} 
 		else 
 		{
@@ -100,10 +111,17 @@ void rosaic_node::ROSaicNode::InitializeIO()
 		//nh->param("reconnect_delay_s", reconnect_delay_s_, 0.5f);
 		//reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &ROSaicNode::Reconnect, this);
 		//reconnect_timer_.start();
+		//ROS_DEBUG("Started timer"); //not printed if error in callback of course
 		//ros::spin(); // otherwise callback will never be called, with ros::spin i cannot leave InitializeIO(), yet with ros::spinOnce can enter reconnect() even once
 		ROS_DEBUG("Current debug value before calling initializeserial() method is %u", io_comm_mosaic::debug);
-		IO.InitializeSerial(device_, baudrate_);
-		//ROS_DEBUG("Started timer"); //not printed if error in callback of course
+		try
+		{
+			IO.InitializeSerial(device_, baudrate_);
+		}
+		catch (std::runtime_error& e)
+		{
+			throw std::runtime_error("IO.InitializeSerial() failed for device " + device_ + " due to: " + e.what());
+		}
 	}
 	ROS_DEBUG("Leaving InitializeIO()");
 }
