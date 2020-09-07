@@ -139,7 +139,7 @@ namespace io_comm_mosaic
 			 * @param[out] data Pointer to the buffer that is about to be analyzed
 			 * @param[in] size Size of the buffer (as handed over by async_read_some)
 			 */
-			mosaicMessage(const uint8_t* data, std::size_t& size): data_(data), count_(size) {}
+			mosaicMessage(const uint8_t* data, std::size_t& size): data_(data), count_(size) {found_ = false;}
 			// One can always provide a non-const value where a const one was expected. The const-ness of the argument just means the function promises not to change it..
 			// Recall: static_cast by the way can remove or add const-ness, no other C++ cast is capable of removing it (not even reinterpret_cast)
 			
@@ -197,6 +197,11 @@ namespace io_comm_mosaic
 			template <typename T>
 			bool read(typename boost::call_traits<T>::reference message, bool search = false); 
 			
+			/**
+			 * @brief Whether or not a message has been found
+			 */
+			bool found_; 
+			
 		private:
 
 			/**
@@ -214,10 +219,7 @@ namespace io_comm_mosaic
 			 */
 			uint16_t checksum_;
 			
-			/**
-			 * @brief Whether or not a message has been found
-			 */
-			bool found_; 
+			
 			
 	};
 	
@@ -256,7 +258,6 @@ namespace io_comm_mosaic
 				{ 	// The curly bracket here is crucial: declarations inside a block remain inside, and will die at the end of the block
 					rosaic::PVTCartesianPtr msg = boost::make_shared<rosaic::PVTCartesian>();
 					PVTCartesian pvt_cartesian;
-					ROS_DEBUG("sizeof(pvt_object) is %u", (uint16_t) (sizeof(pvt_cartesian)));
 					memcpy(&pvt_cartesian, data_, sizeof(pvt_cartesian));
 					msg = PVTCartesianCallback(pvt_cartesian);
 					msg->ROS_Header.seq = read_count;
@@ -277,7 +278,6 @@ namespace io_comm_mosaic
 				{ 	// The curly bracket here is crucial: declarations inside a block remain inside, and will die at the end of the block
 					rosaic::PVTGeodeticPtr msg = boost::make_shared<rosaic::PVTGeodetic>();
 					PVTGeodetic pvt_geodetic;
-					ROS_DEBUG("sizeof(pvt_object) is %u", (uint16_t) (sizeof(pvt_geodetic)));
 					memcpy(&pvt_geodetic, data_, sizeof(pvt_geodetic));
 					msg = PVTGeodeticCallback(pvt_geodetic);
 					msg->ROS_Header.seq = read_count;
@@ -302,7 +302,7 @@ namespace io_comm_mosaic
 				// many more to be implemented...
 			}
 		}
-		else
+		if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4))
 		{
 			boost::char_separator<char> sep("*");
 			typedef boost::tokenizer<boost::char_separator<char> > tokenizer;

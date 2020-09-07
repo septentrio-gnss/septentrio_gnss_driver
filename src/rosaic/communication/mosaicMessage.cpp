@@ -188,11 +188,9 @@ bool io_comm_mosaic::mosaicMessage::found()
   
 const uint8_t* io_comm_mosaic::mosaicMessage::search()
 {
-	//ROS_DEBUG("found_ is %s at the moment", found_ ? "true" : "false");
-	//ROS_DEBUG("found_ is %s", found_ ? "true" : "false");
 	if (found_) 
 	{	
-		next(); // Without this, you would have to check every byte, takes time. This jump only works for SBF of course, since for NMEA, message lengths are variable.
+		next(); 
 	}
 	// Search for a message header
 	for( ; count_ > 0; --count_, ++data_) {

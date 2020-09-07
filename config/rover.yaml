@@ -2,7 +2,7 @@
 
 debug: 3
 
-device: /dev/ttyACM0
+device: tcp://192.168.3.1:28784
 
 frame_id: gnss
 

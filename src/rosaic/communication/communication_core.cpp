@@ -44,31 +44,66 @@ bool io_comm_mosaic::Comm_IO::poll(T& message, std::string message_ID, const boo
 	return handlers_.poll(message, message_ID, timeout);
 }
 
+void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
+{
+	host_ = host;
+	port_ = port;
+	// The io_context, of which io_service is a typedef of; it represents your program's link to the operating system's I/O services.
+	boost::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service);
+	boost::asio::ip::tcp::resolver::iterator endpoint;
+
+	try 
+	{
+		boost::asio::ip::tcp::resolver resolver(*io_service);
+		// Note that tcp::resolver::query takes the host to resolve or the IP as the first parameter and the name of the service (as defined e.g. in /etc/services on Unix hosts) as second parameter. 
+		// For the latter, one can also use a numeric service identifier (aka port number). In any case, it returns a list of possible endpoints, as there might be several entries for a single host.
+		endpoint = resolver.resolve(boost::asio::ip::tcp::resolver::query(host, port)); // Resolves query object.. 
+	} 
+	catch (std::runtime_error& e) 
+	{
+		throw std::runtime_error("mosaic: Could not resolve " + host + " on port " + port + ": " + e.what());
+	}
+
+	boost::shared_ptr<boost::asio::ip::tcp::socket> socket(new boost::asio::ip::tcp::socket(*io_service));
+
+	try 
+	{
+		// The list of endpoints obtained above may contain both IPv4 and IPv6 endpoints, so we need to try each of them until we find one that works. 
+		// This keeps the client program independent of a specific IP version. The boost::asio::connect() function does this for us automatically. 
+		socket->connect(*endpoint);
+	} 
+	catch (std::runtime_error& e) 
+	{
+		throw std::runtime_error("mosaic: Could not connect to " + endpoint->host_name() + ": " + endpoint->service_name() + ": " + e.what());
+	}
+
+	ROS_INFO("mosaic: Connected to %s: %s.", endpoint->host_name().c_str(), endpoint->service_name().c_str());
+
+	if (manager_) return;
+	setManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
+}
+
  
-bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudrate,
-			std::string flowcontrol) 
+bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudrate, std::string flowcontrol) 
 {
 	//ROS_DEBUG("Current debug value after calling initializeserial() method is %u", io_comm_mosaic::debug);
 	ROS_DEBUG("mosaic: Calling InitializeSerial method..");
 	serial_port_ = port;
 	baudrate_ = baudrate;
-	boost::shared_ptr<boost::asio::io_service> io_service(
-		new boost::asio::io_service); 
-		// The io_context, of which io_service is a typedef of,
-		// represents your program's link to the operating system's I/O services.
-	boost::shared_ptr<boost::asio::serial_port> serial(
-		new boost::asio::serial_port(*io_service));
-		// To perform I/O operations the program needs an I/O object, here "serial".
+	// The io_context, of which io_service is a typedef of; it represents your program's link to the operating system's I/O services.
+	boost::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service); 
+	// To perform I/O operations the program needs an I/O object, here "serial".
+	boost::shared_ptr<boost::asio::serial_port> serial(new boost::asio::serial_port(*io_service));
 
 	// We attempt the opening of the serial port..
-	try {
+	try 
+	{
 		serial->open(serial_port_);
 	} 
 	catch (std::runtime_error& e) 
 	{
-	// and return an error message in case it fails.
-		throw std::runtime_error("mosaic-X5: Could not open serial port :"
-								 + serial_port_ + " " + e.what());
+		// and return an error message in case it fails.
+		throw std::runtime_error("mosaic-X5: Could not open serial port : " + serial_port_ + ": " + e.what());
 		return false;
 	}
 
