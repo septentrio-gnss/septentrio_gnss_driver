@@ -1,8 +1,11 @@
 <map id="string_utilities::ToDouble" name="string_utilities::ToDouble">
-<area shape="rect" id="node2" href="$classrosaic__driver_1_1_gpgga_parser.html#ab4b95cdc2b0dd46c9fa87f1a77a8b7a4" title="Parses one GGA message. " alt="" coords="220,12,400,53"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="448,71,675,112"/>
-<area shape="rect" id="node7" href="$namespacerosaic__driver.html#a937929d02acaf35e2ffa109b9da70474" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="221,129,399,155"/>
-<area shape="rect" id="node3" href="$classrosaic__driver_1_1_gpgga_parser.html#ad06e4cc2f85194b92f6691c10f375fcc" title="Constructor of the class GpggaParser. " alt="" coords="471,5,651,47"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="723,37,949,79"/>
-<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="745,103,927,144"/>
+<area shape="rect" id="node2" href="$classrosaic__driver_1_1_gpgga_parser.html#ab4b95cdc2b0dd46c9fa87f1a77a8b7a4" title="Parses one GGA message. " alt="" coords="239,16,419,57"/>
+<area shape="rect" id="node7" href="$namespacerosaic__driver.html#a937929d02acaf35e2ffa109b9da70474" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="240,82,419,109"/>
+<area shape="rect" id="node8" href="$namespaceio__comm__mosaic.html#a2d24eb0155ba8598ba0ad97d252e21ee" title="Calculates the timestamp, in the Unix Epoch time format, either using the TOW as transmitted with the..." alt="" coords="220,133,439,159"/>
+<area shape="rect" id="node3" href="$classrosaic__driver_1_1_gpgga_parser.html#ad06e4cc2f85194b92f6691c10f375fcc" title="Constructor of the class GpggaParser. " alt="" coords="510,5,690,47"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="487,71,713,112"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="761,5,988,47"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="783,71,966,112"/>
+<area shape="rect" id="node9" href="$mosaic_message_8hpp.html#a2eab17bf465172185a0ae925d791b255" title="StringValues_Initialize" alt="" coords="525,139,675,166"/>
+<area shape="rect" id="node10" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="786,136,963,177"/>
 </map>

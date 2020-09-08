@@ -1,18 +1,18 @@
 <map id="src/rosaic/nodelets/rosaic_node.cpp" name="src/rosaic/nodelets/rosaic_node.cpp">
-<area shape="rect" id="node2" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="1675,95,1825,136"/>
-<area shape="rect" id="node8" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="971,184,1142,225"/>
-<area shape="rect" id="node18" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="2007,363,2157,404"/>
-<area shape="rect" id="node21" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="147,459,259,486"/>
-<area shape="rect" id="node43" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="1115,273,1265,315"/>
-<area shape="rect" id="node48" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="1551,273,1701,315"/>
-<area shape="rect" id="node27" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="2324,452,2464,493"/>
-<area shape="rect" id="node29" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="2149,631,2289,672"/>
-<area shape="rect" id="node31" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1607,452,1747,493"/>
-<area shape="rect" id="node22" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="5,631,156,672"/>
-<area shape="rect" id="node23" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="61,541,212,583"/>
-<area shape="rect" id="node32" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1913,541,2057,583"/>
-<area shape="rect" id="node33" href="$sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="2023,638,2125,665"/>
-<area shape="rect" id="node36" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1943,795,2093,836"/>
-<area shape="rect" id="node38" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1749,638,1892,665"/>
-<area shape="rect" id="node34" href="$sbf__block__header_8hpp.html" title="The cstdint header was originally in the C standard library as &lt;stdint.h&gt;. " alt="" coords="1830,720,1979,747"/>
+<area shape="rect" id="node2" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="2672,95,2821,136"/>
+<area shape="rect" id="node6" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="1503,184,1673,225"/>
+<area shape="rect" id="node17" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="1763,363,1912,404"/>
+<area shape="rect" id="node20" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="2433,459,2545,486"/>
+<area shape="rect" id="node43" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="619,273,768,315"/>
+<area shape="rect" id="node48" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="1052,273,1201,315"/>
+<area shape="rect" id="node26" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1231,452,1371,493"/>
+<area shape="rect" id="node28" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1282,631,1422,672"/>
+<area shape="rect" id="node31" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1395,452,1535,493"/>
+<area shape="rect" id="node21" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="2346,631,2497,672"/>
+<area shape="rect" id="node22" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="2239,541,2390,583"/>
+<area shape="rect" id="node32" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1393,541,1537,583"/>
+<area shape="rect" id="node33" href="$sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="1446,638,1549,665"/>
+<area shape="rect" id="node36" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1530,795,1681,836"/>
+<area shape="rect" id="node38" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1643,638,1786,665"/>
+<area shape="rect" id="node34" href="$sbf__block__header_8hpp.html" title="The cstdint header was originally in the C standard library as &lt;stdint.h&gt;. " alt="" coords="1419,720,1568,747"/>
 </map>

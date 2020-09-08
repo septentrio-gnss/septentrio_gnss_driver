@@ -193,7 +193,8 @@ const uint8_t* io_comm_mosaic::mosaicMessage::search()
 		next(); 
 	}
 	// Search for a message header
-	for( ; count_ > 0; --count_, ++data_) {
+	for( ; count_ > 0; --count_, ++data_) 
+	{
 		if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4)) 
 		{
 			break;
