@@ -6,5 +6,6 @@ var searchData=
   ['nmea_5fid_5fenum',['NMEA_ID_Enum',['../mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71',1,'mosaicMessage.hpp']]],
   ['nmea_5fsentence_2ehpp',['nmea_sentence.hpp',['../nmea__sentence_8hpp.html',1,'']]],
   ['nmeasentence',['NMEASentence',['../classrosaic__driver_1_1_n_m_e_a_sentence.html',1,'rosaic_driver::NMEASentence'],['../classrosaic__driver_1_1_n_m_e_a_sentence.html#a3999c8d21c6ad50998c1ab0d7aebe708',1,'rosaic_driver::NMEASentence::NMEASentence()']]],
-  ['nrsv',['NRSV',['../struct_attitude_euler.html#a3ec9357e660188a5945dc4a3268e118c',1,'AttitudeEuler::NRSV()'],['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()']]]
+  ['nrbases',['NrBases',['../struct_p_v_t_cartesian.html#ab101875ec6cbf0e572dde31d2c6b02a8',1,'PVTCartesian::NrBases()'],['../struct_p_v_t_geodetic.html#a150255be741746d2e4b3e365fcd8f2c5',1,'PVTGeodetic::NrBases()']]],
+  ['nrsv',['NrSV',['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()'],['../struct_p_v_t_geodetic.html#a2f6a708fae9bacf3b63994b70514f37f',1,'PVTGeodetic::NrSV()'],['../struct_attitude_euler.html#a3ec9357e660188a5945dc4a3268e118c',1,'AttitudeEuler::NRSV()']]]
 ];
