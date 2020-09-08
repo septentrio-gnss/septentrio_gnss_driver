@@ -21,6 +21,9 @@ var searchData=
   ['l2phase_5f1',['L2Phase_1',['../struct_r_a_n_g_e___d_a_t_a.html#ab6f47b6ceda26ea302297b6a99b4f61e',1,'RANGE_DATA']]],
   ['l2phase_5f2',['L2Phase_2',['../struct_r_a_n_g_e___d_a_t_a.html#a5c12ee56679d8fc7f7e9d2aac84cd4ff',1,'RANGE_DATA']]],
   ['l2phase_5f3',['L2Phase_3',['../struct_r_a_n_g_e___d_a_t_a.html#a3dc7c1c4fd56ae74a7f8a9945d8dc649',1,'RANGE_DATA']]],
+  ['latency',['Latency',['../struct_p_v_t_cartesian.html#a610d995ed5bb608228aec2da6510c337',1,'PVTCartesian::Latency()'],['../struct_p_v_t_geodetic.html#a41597f918a2d33aed81c826adbce6216',1,'PVTGeodetic::Latency()']]],
+  ['latitude',['Latitude',['../struct_p_v_t_geodetic.html#a03522ae270f6a1a31e87a24ae4c3802b',1,'PVTGeodetic']]],
   ['length',['Length',['../struct_block_header__t.html#a822dac6159cb707be904fef859af3e7c',1,'BlockHeader_t::Length()'],['../structrosaic__driver_1_1_s_b_f_block_header.html#a8c6d5c1f8a368e672cc1bcd981bf6438',1,'rosaic_driver::SBFBlockHeader::Length()']]],
-  ['locktime',['LockTime',['../struct_meas_epoch_sub_block.html#ae0fd7c67625f5d2c921d13e8ea3be220',1,'MeasEpochSubBlock']]]
+  ['locktime',['LockTime',['../struct_meas_epoch_sub_block.html#ae0fd7c67625f5d2c921d13e8ea3be220',1,'MeasEpochSubBlock']]],
+  ['longitude',['Longitude',['../struct_p_v_t_geodetic.html#a5fa35a5ac7cac1db7e145df07c095b74',1,'PVTGeodetic']]]
 ];

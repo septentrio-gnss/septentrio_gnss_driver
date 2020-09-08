@@ -83,7 +83,7 @@ namespace io_comm_mosaic
 	 */
 	class Manager {
 		public:
-			typedef boost::function<void(uint8_t*, std::size_t&)> Callback;
+			typedef boost::function<void(std::vector<uint8_t>, std::size_t&)> Callback;
 			virtual ~Manager() {}
 			virtual void setCallback(const Callback& callback) = 0;
 		 
@@ -107,23 +107,6 @@ namespace io_comm_mosaic
 	class AsyncManager : public Manager 
 	{
 		public:
-			/**
-			 * @brief Multithreaded programs use mutexes for synchronization.
-			 * 
-			 * Boost.Thread provides different mutex classes with boost::mutex being the simplest. The basic principle of a mutex is to prevent other threads 
-			 * from taking ownership while a particular thread owns (by calling lock()) the mutex. Once released, a different thread can take ownership. 
-			 * This causes threads to wait until the thread that owns the mutex has finished processing and releases its ownership of the mutex.
-			 * E.g. Because std::cout is a global object shared by the threads, access must be synchronized (could also be done via boost::asio::io_context::strand).
-			 * Helps to avoid data races (A data race occurs when all: a) two or more threads in a single process access the same memory location concurrently, and b) at least one of the accesses is for writing, and c)the threads are not using any exclusive locks to control their accesses to that memory.) and undefined behavior
-			 */	
-			typedef boost::mutex Mutex;
-			/**
-			 * @brief ScopedLock is meant to carry out the tasks for locking, unlocking, try-locking and timed-locking (recursive or not) for the mutex
-			 * 
-			 * It is more robust than a raw mutex: E.g. with a traditional mutex, an exception may occur while your mutex is locked, and your call to unlock() may never be reached, even though you do not have any return statement between your call to lock() and your call to unlock().
-			 */
-			typedef boost::mutex::scoped_lock ScopedLock;
-			
 			/**
 			 * @brief Class constructor
 			 * @param stream Whether TCP/IP or serial communication, either boost::asio::serial_port or boost::asio::tcp::ip
@@ -158,27 +141,14 @@ namespace io_comm_mosaic
 			boost::shared_ptr<StreamT> stream_; 
 			//! io_context object
 			boost::shared_ptr<boost::asio::io_service> io_service_; 
-			//! As name suggest, the read mutex
-			Mutex read_mutex_; 
 			
-			/**
-			 * @brief A condition object is always used in conjunction with a mutex object (an object whose type is a model of a Mutex or one of its 
-			 * refinements). 
-			 * 
-			 * The mutex object must be locked prior to waiting on the condition, which is verified by passing a lock object 
-			 * (an object whose type is a model of Lock or one of its refinements) to the condition object's wait functions. Upon blocking on the 
-			 * condition object, the thread unlocks the mutex object. 
-			 */
-			boost::condition read_condition_;
 			std::vector<uint8_t> in_; 
-
-			// Mutex write_mutex_; 
 			
-			// boost::condition write_condition_;
 			std::vector<uint8_t> out_; 
 	 
 			boost::shared_ptr<boost::thread> async_background_thread_; 
 			Callback read_callback_; 
+			
 			// Callback write_callback_; 
 	 
 			bool stopping_; 
@@ -203,7 +173,7 @@ namespace io_comm_mosaic
 	template <typename StreamT>
 	AsyncManager<StreamT>::AsyncManager(boost::shared_ptr<StreamT> stream,
 			 boost::shared_ptr<boost::asio::io_service> io_service,
-			 std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false), buffer_size_(buffer_size), count_max_(5) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
+			 std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false), buffer_size_(buffer_size), count_max_(8) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
 	{
 		ROS_DEBUG("Setting the stream private variable of the AsyncManager class.");
 		do_read_count_ = 0;
@@ -294,28 +264,24 @@ namespace io_comm_mosaic
 	template <typename StreamT>
 	void AsyncManager<StreamT>::doRead() 
 	{
-		ROS_DEBUG("Entered doRead() method of the AsyncManager class.");
-		//ScopedLock lock(read_mutex_); // lock will be destroyed when scope of doRead ends and the mutex released (hence need another lock in async_read_some_handler)
 		stream_->async_read_some(
-		   boost::asio::buffer(in_.data(),
-							   in_.size()),
-							   boost::bind(&AsyncManager<StreamT>::async_read_some_handler, this,
-								   boost::asio::placeholders::error,
-								   boost::asio::placeholders::bytes_transferred));
-									// handler is async_read_some_handler!!, call postponed as with post..
+								boost::asio::buffer(in_.data(),
+								in_.size()),
+								boost::bind(&AsyncManager<StreamT>::async_read_some_handler, this,
+								boost::asio::placeholders::error,
+								boost::asio::placeholders::bytes_transferred));
+								// The handler is async_read_some_handler, whose call is postponed to when async_read_some completes.
 		++do_read_count_;
-		ROS_DEBUG("Leaving doRead.");
 	}
 	 
 	template <typename StreamT>
 	void AsyncManager<StreamT>::async_read_some_handler(const boost::system::error_code& error,
-										std::size_t bytes_transfered) 
+								std::size_t bytes_transfered) 
 	{
-		ROS_DEBUG("Entered async_read_some_handler method.");
-		if (error) //e.g. if no input received from receiver (or ttyACM1 !while! messages sent), bytes_transferred will be 0 of course, error.message() will be "operation canceled"
+		if (error) 
 		{
 			ROS_ERROR("mosaic-X5 ASIO input buffer read error: %s, %li",
-					error.message().c_str(), bytes_transfered); // c_str() is also part of <string>, str() would not work here
+					error.message().c_str(), bytes_transfered); // The c_str() method is also part of the <string> header.
 		} 
 		else if (bytes_transfered > 0) 
 		{
@@ -337,18 +303,15 @@ namespace io_comm_mosaic
 	 
 			if (read_callback_) //Will be false in InitializeSerial (first call)
 			{
-				// start new thread, to be killed once read_callback_ returns...
-				//temporary_thread new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_));
-				ROS_DEBUG("Leaving async_read_some_handler method and transfering to readCallback, with bytes_transferred being %u", (unsigned int) bytes_transfered);
+				ROS_DEBUG("Launching readCallback thread, with bytes_transferred being %u", (unsigned int) bytes_transfered);
 				std::vector<uint8_t> copied_buffer = in_;
-				// Note that .data() returns a direct pointer to the memory array used internally by the vector to store its owned elements. Because elements in the vector are guaranteed to be stored in contiguous storage locations in the same order as represented by the vector, the pointer retrieved can be offset to access any element in the array.
-				boost::thread temporary_thread(read_callback_, copied_buffer.data(), bytes_transfered);
+				// Launch new thread, to be desctructed once read_callback_'s scope ends...
+				boost::thread temporary_thread(read_callback_, copied_buffer, bytes_transfered);
 				temporary_thread.detach();
 				std::vector<uint8_t> empty;
 				in_ = empty;
 				in_.resize(buffer_size_);
 			}		 
-			read_condition_.notify_all(); //other threads can now read too..
 		}
 	 
 		if (!stopping_)

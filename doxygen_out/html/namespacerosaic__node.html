@@ -75,9 +75,6 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a01670a48546ad50fc7ec58988b261340"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a01670a48546ad50fc7ec58988b261340">defaultGetTimeHandler</a> ()</td></tr>
-<tr class="memdesc:a01670a48546ad50fc7ec58988b261340"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines current time via BOOST, using the type boost::gregorian::date.  <a href="#a01670a48546ad50fc7ec58988b261340">More...</a><br /></td></tr>
-<tr class="separator:a01670a48546ad50fc7ec58988b261340"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa92adb8a3c4f33967238edd9fb292cb5"><td class="memTemplParams" colspan="2">template&lt;typename MessageT &gt; </td></tr>
 <tr class="memitem:aa92adb8a3c4f33967238edd9fb292cb5"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#aa92adb8a3c4f33967238edd9fb292cb5">publish</a> (const MessageT &amp;m, const std::string &amp;topic)</td></tr>
 <tr class="memdesc:aa92adb8a3c4f33967238edd9fb292cb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publishes a ROS message of type MessageT to topic "topic".  <a href="#aa92adb8a3c4f33967238edd9fb292cb5">More...</a><br /></td></tr>
@@ -109,7 +106,7 @@ Variables</h2></td></tr>
 <tr class="memdesc:af830cc8c898b498f08fa6616aa8360e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue size for ROS publishers.  <a href="#af830cc8c898b498f08fa6616aa8360e2">More...</a><br /></td></tr>
 <tr class="separator:af830cc8c898b498f08fa6616aa8360e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35533838a89bbc2654db970d82ec6d3e"><td class="memItemLeft" align="right" valign="top">static constexpr float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a35533838a89bbc2654db970d82ec6d3e">poll_pub_pvt_period</a> = 0.05</td></tr>
-<tr class="memdesc:a35533838a89bbc2654db970d82ec6d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages.  <a href="#a35533838a89bbc2654db970d82ec6d3e">More...</a><br /></td></tr>
+<tr class="memdesc:a35533838a89bbc2654db970d82ec6d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive <a class="el" href="struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. ">PVTGeodetic</a>, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages.  <a href="#a35533838a89bbc2654db970d82ec6d3e">More...</a><br /></td></tr>
 <tr class="separator:a35533838a89bbc2654db970d82ec6d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1f3f7fe69753b4d5d4d292f7de8eb2d"><td class="memItemLeft" align="right" valign="top">static constexpr float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#aa1f3f7fe69753b4d5d4d292f7de8eb2d">poll_pub_orientation_period</a> = 0.05</td></tr>
 <tr class="memdesc:aa1f3f7fe69753b4d5d4d292f7de8eb2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default period in seconds between the polling of two consecutive AttEuler, AttCovEuler blocks as well as the HRP NMEA sentence, and - if published - between the publishing of AttEuler and AttCovEuler.  <a href="#aa1f3f7fe69753b4d5d4d292f7de8eb2d">More...</a><br /></td></tr>
@@ -186,10 +183,10 @@ template&lt;typename V , typename T &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00144">144</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00127">127</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00164">checkRange()</a>, and <a class="el" href="rosaic__node_8hpp_source.html#l00182">GetROSInt()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    {</div><div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;        <span class="keywordflow">if</span>(val &lt; min || val &gt; max) </div><div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        {</div><div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;            std::stringstream oss;</div><div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;            oss &lt;&lt; <span class="stringliteral">&quot;Invalid settings: &quot;</span> &lt;&lt; name &lt;&lt; <span class="stringliteral">&quot; must be in range [&quot;</span> &lt;&lt; min &lt;&lt;</div><div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; max &lt;&lt; <span class="stringliteral">&quot;].&quot;</span>;</div><div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;            <span class="keywordflow">throw</span> std::runtime_error(oss.str());</div><div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;        }</div><div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    }</div></div><!-- fragment --><div class="dynheader">
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00147">checkRange()</a>, and <a class="el" href="rosaic__node_8hpp_source.html#l00165">GetROSInt()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    {</div><div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        <span class="keywordflow">if</span>(val &lt; min || val &gt; max) </div><div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        {</div><div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            std::stringstream oss;</div><div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            oss &lt;&lt; <span class="stringliteral">&quot;Invalid settings: &quot;</span> &lt;&lt; name &lt;&lt; <span class="stringliteral">&quot; must be in range [&quot;</span> &lt;&lt; min &lt;&lt;</div><div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; max &lt;&lt; <span class="stringliteral">&quot;].&quot;</span>;</div><div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keywordflow">throw</span> std::runtime_error(oss.str());</div><div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        }</div><div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    }</div></div><!-- fragment --><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="namespacerosaic__node_a23f139644bb35df0323938ce23adc897_icgraph.png" border="0" usemap="#namespacerosaic__node_a23f139644bb35df0323938ce23adc897_icgraph" alt=""/></div>
@@ -261,10 +258,10 @@ template&lt;typename V , typename T &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00164">164</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00147">147</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00144">checkRange()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    {</div><div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; val.size(); i++)  </div><div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        {</div><div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;            std::stringstream oss;</div><div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;            oss &lt;&lt; name &lt;&lt; <span class="stringliteral">&quot;[&quot;</span> &lt;&lt; i &lt;&lt; <span class="stringliteral">&quot;]&quot;</span>;</div><div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;            <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>(val[i], min, max, oss.str());</div><div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        }</div><div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00164">rosaic_node.hpp:164</a></div></div>
+<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00127">checkRange()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    {</div><div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; val.size(); i++)  </div><div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;        {</div><div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;            std::stringstream oss;</div><div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;            oss &lt;&lt; name &lt;&lt; <span class="stringliteral">&quot;[&quot;</span> &lt;&lt; i &lt;&lt; <span class="stringliteral">&quot;]&quot;</span>;</div><div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;            <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>(val[i], min, max, oss.str());</div><div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        }</div><div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00147">rosaic_node.hpp:147</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -274,28 +271,6 @@ Here is the call graph for this function:</div>
 </map>
 </div>
 
-</div>
-</div>
-<a id="a01670a48546ad50fc7ec58988b261340"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01670a48546ad50fc7ec58988b261340">&#9670;&nbsp;</a></span>defaultGetTimeHandler()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double rosaic_node::defaultGetTimeHandler </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Determines current time via BOOST, using the type boost::gregorian::date. </p>
-<dl class="section return"><dt>Returns</dt><dd>Total number of seconds since midnight </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00112">112</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    {</div><div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        boost::posix_time::ptime present_time(boost::posix_time::microsec_clock::universal_time());</div><div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        boost::posix_time::time_duration duration(present_time.time_of_day());</div><div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;        <span class="keywordflow">return</span> duration.total_seconds();</div><div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    }</div></div><!-- fragment -->
 </div>
 </div>
 <a id="a597b37b47a860626a345b832ba290b0f"></a>
@@ -342,13 +317,13 @@ template&lt;typename U &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if found, false if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00182">182</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00165">165</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00144">checkRange()</a>.</p>
+<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00127">checkRange()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00203">GetROSInt()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00057">rosaic_node::ROSaicNode::GetROSParams()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;                                               {</div><div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        <span class="keywordtype">int</span> param;</div><div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;        <span class="keywordflow">if</span> (!<a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;getParam(key, param)) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div><div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        <span class="comment">// Check the bounds</span></div><div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        U min = std::numeric_limits&lt;U&gt;::lowest();</div><div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        U max = std::numeric_limits&lt;U&gt;::max();</div><div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>((U) param, min, max, key);</div><div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        <span class="comment">// set the output</span></div><div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        u = (U) param;</div><div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div><div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00098">rosaic_node.hpp:98</a></div></div>
-<div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00164">rosaic_node.hpp:164</a></div></div>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00186">GetROSInt()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00064">rosaic_node::ROSaicNode::GetROSParams()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                                               {</div><div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        <span class="keywordtype">int</span> param;</div><div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <span class="keywordflow">if</span> (!<a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;getParam(key, param)) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div><div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        <span class="comment">// Check the bounds</span></div><div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        U min = std::numeric_limits&lt;U&gt;::lowest();</div><div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        U max = std::numeric_limits&lt;U&gt;::max();</div><div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>((U) param, min, max, key);</div><div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <span class="comment">// set the output</span></div><div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        u = (U) param;</div><div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div><div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00094">rosaic_node.hpp:94</a></div></div>
+<div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00147">rosaic_node.hpp:147</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -421,10 +396,10 @@ template&lt;typename U , typename V &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if found, false if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00203">203</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00186">186</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00182">GetROSInt()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    {</div><div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        <span class="keywordflow">if</span>(!<a class="code" href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">GetROSInt</a>(key, u))</div><div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            u = default_val;</div><div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_a21cb72c7dfaf128ef11a645341147d0d"><div class="ttname"><a href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">rosaic_node::GetROSInt</a></div><div class="ttdeci">bool GetROSInt(const std::string &amp;key, std::vector&lt; U &gt; &amp;u)</div><div class="ttdoc">Gets an unsigned integer or integer vector from the parameter server. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00217">rosaic_node.hpp:217</a></div></div>
+<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00165">GetROSInt()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    {</div><div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        <span class="keywordflow">if</span>(!<a class="code" href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">GetROSInt</a>(key, u))</div><div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;            u = default_val;</div><div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_a21cb72c7dfaf128ef11a645341147d0d"><div class="ttname"><a href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">rosaic_node::GetROSInt</a></div><div class="ttdeci">bool GetROSInt(const std::string &amp;key, std::vector&lt; U &gt; &amp;u)</div><div class="ttdoc">Gets an unsigned integer or integer vector from the parameter server. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00200">rosaic_node.hpp:200</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -481,11 +456,11 @@ template&lt;typename U &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if found, false if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00217">217</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00200">200</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00144">checkRange()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    {</div><div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        std::vector&lt;int&gt; param;</div><div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        <span class="keywordflow">if</span> (!<a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;getParam(key, param)) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div><div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div><div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <span class="comment">// Check the bounds</span></div><div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        U min = std::numeric_limits&lt;U&gt;::lowest();</div><div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;        U max = std::numeric_limits&lt;U&gt;::max();</div><div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>(param, min, max, key);</div><div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div><div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        <span class="comment">// set the output</span></div><div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        u.insert(u.begin(), param.begin(), param.end());</div><div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div><div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00098">rosaic_node.hpp:98</a></div></div>
-<div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00164">rosaic_node.hpp:164</a></div></div>
+<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00127">checkRange()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    {</div><div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        std::vector&lt;int&gt; param;</div><div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keywordflow">if</span> (!<a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;getParam(key, param)) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div><div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div><div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        <span class="comment">// Check the bounds</span></div><div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;        U min = std::numeric_limits&lt;U&gt;::lowest();</div><div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        U max = std::numeric_limits&lt;U&gt;::max();</div><div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;        <a class="code" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">checkRange</a>(param, min, max, key);</div><div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;</div><div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        <span class="comment">// set the output</span></div><div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        u.insert(u.begin(), param.begin(), param.end());</div><div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div><div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00094">rosaic_node.hpp:94</a></div></div>
+<div class="ttc" id="namespacerosaic__node_html_a881a0aeab598f16ee18791fe91a8adb4"><div class="ttname"><a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a></div><div class="ttdeci">void checkRange(std::vector&lt; V &gt; val, T min, T max, std::string name)</div><div class="ttdoc">Check whether the elements of the vector are in the given range. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00147">rosaic_node.hpp:147</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -534,11 +509,11 @@ template&lt;typename MessageT &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00125">125</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00110">110</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00088">ROSQueueSize</a>.</p>
-<div class="fragment"><div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    {</div><div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="comment">//ROS_DEBUG(&quot;About to publish message&quot;);</span></div><div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;        <span class="comment">// long read_timestamp = defaultGetTimeHandler(); </span></div><div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        <span class="comment">// cpu timestamp could be used for whatever purposes, otherwise you get unused warning from compiler</span></div><div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <span class="keyword">static</span> ros::Publisher publisher = <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;advertise&lt;MessageT&gt;(topic, <a class="code" href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">ROSQueueSize</a>);</div><div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        publisher.publish(m);</div><div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00098">rosaic_node.hpp:98</a></div></div>
-<div class="ttc" id="namespacerosaic__node_html_af830cc8c898b498f08fa6616aa8360e2"><div class="ttname"><a href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">rosaic_node::ROSQueueSize</a></div><div class="ttdeci">static constexpr uint32_t ROSQueueSize</div><div class="ttdoc">Queue size for ROS publishers. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00088">rosaic_node.hpp:88</a></div></div>
+<p class="reference">References <a class="el" href="rosaic__node_8hpp_source.html#l00084">ROSQueueSize</a>.</p>
+<div class="fragment"><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    {</div><div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        <span class="comment">//ROS_DEBUG(&quot;About to publish message&quot;);</span></div><div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <span class="keyword">static</span> ros::Publisher publisher = <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">nh</a>-&gt;advertise&lt;MessageT&gt;(topic, <a class="code" href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">ROSQueueSize</a>);</div><div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        publisher.publish(m);</div><div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    }</div><div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00094">rosaic_node.hpp:94</a></div></div>
+<div class="ttc" id="namespacerosaic__node_html_af830cc8c898b498f08fa6616aa8360e2"><div class="ttname"><a href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">rosaic_node::ROSQueueSize</a></div><div class="ttdeci">static constexpr uint32_t ROSQueueSize</div><div class="ttdoc">Queue size for ROS publishers. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00084">rosaic_node.hpp:84</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -558,7 +533,7 @@ template&lt;typename MessageT &gt; </div>
 <p>Whether or not to publish the given mosaic message. </p>
 <p>The key is the message name, i.e. the message ID for SBF blocks embedded in inverted commas (a string) or the message ID for NMEA messages. The value indicates whether or not to enable that message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00106">106</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00102">102</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
 </div>
 </div>
@@ -576,9 +551,9 @@ template&lt;typename MessageT &gt; </div>
 
 <p>Handles communication with the mosaic. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00100">100</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00096">96</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00068">rosaic_node::ROSaicNode::InitializeIO()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00111">rosaic_node::ROSaicNode::Reconnect()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00126">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00075">rosaic_node::ROSaicNode::InitializeIO()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00129">rosaic_node::ROSaicNode::Reconnect()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00144">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
 
 </div>
 </div>
@@ -595,9 +570,9 @@ template&lt;typename MessageT &gt; </div>
 </div><div class="memdoc">
 <p>Node Handle for the ROSaic node You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only... </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00098">98</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00094">94</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00057">rosaic_node::ROSaicNode::GetROSParams()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00156">main()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00126">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00064">rosaic_node::ROSaicNode::GetROSParams()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00182">main()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00144">rosaic_node::ROSaicNode::Subscribe()</a>.</p>
 
 </div>
 </div>
@@ -623,7 +598,7 @@ template&lt;typename MessageT &gt; </div>
 
 <p>Default period in seconds between the polling of two consecutive AttEuler, AttCovEuler blocks as well as the HRP NMEA sentence, and - if published - between the publishing of AttEuler and AttCovEuler. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00092">92</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00088">88</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
 </div>
 </div>
@@ -647,9 +622,9 @@ template&lt;typename MessageT &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages. </p>
+<p>Default period in seconds between the polling of two consecutive <a class="el" href="struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. ">PVTGeodetic</a>, PosCovGeodetic, <a class="el" href="struct_p_v_t_cartesian.html" title="Struct for the SBF block &quot;PVTCartesian&quot;. ">PVTCartesian</a> and <a class="el" href="struct_pos_cov_cartesian.html" title="Struct for the SBF block &quot;PosCovCartesian&quot;. ">PosCovCartesian</a> blocks and - if published - between the publishing of two of the corresponding ROS messages. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00090">90</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00086">86</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
 </div>
 </div>
@@ -675,7 +650,7 @@ template&lt;typename MessageT &gt; </div>
 
 <p>Default period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous two ROS parameters, and - if published - between the publishing of all other ROS messages. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00094">94</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00090">90</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
 </div>
 </div>
@@ -701,16 +676,16 @@ template&lt;typename MessageT &gt; </div>
 
 <p>Queue size for ROS publishers. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00088">88</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8hpp_source.html#l00084">84</a> of file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00125">publish()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8hpp_source.html#l00110">publish()</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Sep 1 2020 14:49:26 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 8 2020 10:40:38 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
