@@ -3,7 +3,7 @@ var searchData=
   ['sblength',['SBLength',['../struct_meas_epoch.html#a4452f155106cb115e371b13b82ee101c',1,'MeasEpoch']]],
   ['serial_5fport_5f',['serial_port_',['../classio__comm__mosaic_1_1_comm___i_o.html#a335fbe29195986121f9fe552aa4375a6',1,'io_comm_mosaic::Comm_IO']]],
   ['setbaudratesleepms',['SetBaudrateSleepMs',['../classio__comm__mosaic_1_1_comm___i_o.html#aac4a71048df61f977f006d885898c7a5',1,'io_comm_mosaic::Comm_IO']]],
-  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian']]],
+  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian::SignalInfo()'],['../struct_p_v_t_geodetic.html#afd72c67b4b84927bef9660bb719fa34e',1,'PVTGeodetic::SignalInfo()']]],
   ['sqrt_5fa',['SQRT_A',['../struct_g_p_s_n_a_v.html#a7e418b504d87b4a13b6c7bd785d79ed1',1,'GPSNAV']]],
   ['stopping_5f',['stopping_',['../classio__comm__mosaic_1_1_async_manager.html#a459077c21e975d157bd2d051b0363348',1,'io_comm_mosaic::AsyncManager']]],
   ['stream_5f',['stream_',['../classio__comm__mosaic_1_1_async_manager.html#a064c1bcb1d8c474b873026bd51c08fb3',1,'io_comm_mosaic::AsyncManager']]],

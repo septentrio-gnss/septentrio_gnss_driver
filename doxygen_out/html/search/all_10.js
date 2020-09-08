@@ -18,7 +18,7 @@ var searchData=
   ['setbaudratesleepms',['SetBaudrateSleepMs',['../classio__comm__mosaic_1_1_comm___i_o.html#aac4a71048df61f977f006d885898c7a5',1,'io_comm_mosaic::Comm_IO']]],
   ['setcallback',['setCallback',['../classio__comm__mosaic_1_1_manager.html#a289befc7ff53ec05fd086d410a7607f9',1,'io_comm_mosaic::Manager::setCallback()'],['../classio__comm__mosaic_1_1_async_manager.html#a9fdc9e6bbdef18654b84c9864ae5e89a',1,'io_comm_mosaic::AsyncManager::setCallback()']]],
   ['setmanager',['setManager',['../classio__comm__mosaic_1_1_comm___i_o.html#af12c3542da732768a9f4b719b5f99dec',1,'io_comm_mosaic::Comm_IO']]],
-  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian']]],
+  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian::SignalInfo()'],['../struct_p_v_t_geodetic.html#afd72c67b4b84927bef9660bb719fa34e',1,'PVTGeodetic::SignalInfo()']]],
   ['sqrt_5fa',['SQRT_A',['../struct_g_p_s_n_a_v.html#a7e418b504d87b4a13b6c7bd785d79ed1',1,'GPSNAV']]],
   ['ssntypes_2ehpp',['ssntypes.hpp',['../ssntypes_8hpp.html',1,'']]],
   ['ssntypes_5fhpp',['SSNTYPES_HPP',['../ssntypes_8hpp.html#a55946b4bf92eae594ca432e3e2053799',1,'ssntypes.hpp']]],

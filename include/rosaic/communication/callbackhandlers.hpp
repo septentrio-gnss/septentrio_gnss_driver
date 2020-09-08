@@ -230,9 +230,10 @@ namespace io_comm_mosaic
 			 * @brief Main callback organizer "on callbackhandlers' thread" (recall: this callback_thread is initialized upon InitializeSerial call)
 			 * @param data Buffer passed on from AsyncManager class
 			 */
-			void readCallback(uint8_t* data, std::size_t& size) 
+			void readCallback(std::vector<uint8_t> data, std::size_t& size) 
 			{
-				mosaicMessage mMessage(data, size);
+				uint8_t* data_raw = &data[0];
+				mosaicMessage mMessage(data_raw, size);
 				// Read !all! (there might be many) messages in the buffer
 				while (mMessage.search() != mMessage.end() && mMessage.found()) 
 				{
@@ -243,7 +244,7 @@ namespace io_comm_mosaic
 						{
 							unsigned long sbf_block_length;
 							sbf_block_length = (unsigned long) mMessage.block_length(); //c-like cast notation, functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise
-							//ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
+							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
 						}
 						if ((mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_3) || (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_4))
 						{
@@ -263,7 +264,7 @@ namespace io_comm_mosaic
 				}
 			}
 			
-                        //! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method
+			//! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method
 			Callbacks callbacks_;
 	 
 		private:
