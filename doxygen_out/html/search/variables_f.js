@@ -1,10 +1,8 @@
 var searchData=
 [
   ['read_5fcallback_5f',['read_callback_',['../classio__comm__mosaic_1_1_async_manager.html#a19287f7b21a0d1c477f971c7bca8d4bb',1,'io_comm_mosaic::AsyncManager']]],
-  ['read_5fcondition_5f',['read_condition_',['../classio__comm__mosaic_1_1_async_manager.html#ac7e0e44e2fd0da547d05a7f3cf6d8ff0',1,'io_comm_mosaic::AsyncManager']]],
   ['read_5fcount',['read_count',['../rosaic__node_8cpp.html#a34b86d18a5f8ac7123363aa42ae88a16',1,'read_count():&#160;rosaic_node.cpp'],['../mosaic_message_8hpp.html#a34b86d18a5f8ac7123363aa42ae88a16',1,'read_count():&#160;rosaic_node.cpp']]],
   ['read_5fcount_5f',['read_count_',['../classio__comm__mosaic_1_1_comm___i_o.html#af67f6ff9a9441cccc956c7e6f121f05c',1,'io_comm_mosaic::Comm_IO']]],
-  ['read_5fmutex_5f',['read_mutex_',['../classio__comm__mosaic_1_1_async_manager.html#ad31124eb014726b96f2753a93451a70f',1,'io_comm_mosaic::AsyncManager']]],
   ['reconnect_5fdelay_5fs_5f',['reconnect_delay_s_',['../classrosaic__node_1_1_r_o_saic_node.html#a901dc455d86d71ca533e37b37e102270',1,'rosaic_node::ROSaicNode']]],
   ['reconnect_5ftimer_5f',['reconnect_timer_',['../classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47',1,'rosaic_node::ROSaicNode']]],
   ['referenceid',['ReferenceID',['../struct_p_v_t_cartesian.html#a258a3a08c39462746000ca8b73f43c66',1,'PVTCartesian::ReferenceID()'],['../struct_p_v_t_geodetic.html#a11780cf75e74c2370973c4ae79a1a53c',1,'PVTGeodetic::ReferenceID()']]],

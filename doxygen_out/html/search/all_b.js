@@ -20,6 +20,5 @@ var searchData=
   ['mosaicmessage_2ecpp',['mosaicMessage.cpp',['../mosaic_message_8cpp.html',1,'']]],
   ['mosaicmessage_2ehpp',['mosaicMessage.hpp',['../mosaic_message_8hpp.html',1,'']]],
   ['multipath_5fmitigation',['multipath_mitigation',['../struct_meas_epoch_flag.html#a1e43da249dbd4ef87a3ddbccebc31074',1,'MeasEpochFlag']]],
-  ['mutex',['Mutex',['../classio__comm__mosaic_1_1_async_manager.html#a58e83fffb3b2fa12e0f7a66f28bb07a6',1,'io_comm_mosaic::AsyncManager']]],
   ['mutex_5f',['mutex_',['../classio__comm__mosaic_1_1_callback_handler.html#aaa03b9856967ec294ae0d7f377be17bb',1,'io_comm_mosaic::CallbackHandler']]]
 ];

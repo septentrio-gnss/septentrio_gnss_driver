@@ -8,7 +8,6 @@ var searchData=
   ['sbfblockheader',['SBFBlockHeader',['../structrosaic__driver_1_1_s_b_f_block_header.html',1,'rosaic_driver']]],
   ['sbfdouble',['SBFDOUBLE',['../sbf__structs_8hpp.html#a44e5be81703f2acc14180283da02ff63',1,'sbf_structs.hpp']]],
   ['sblength',['SBLength',['../struct_meas_epoch.html#a4452f155106cb115e371b13b82ee101c',1,'MeasEpoch']]],
-  ['scopedlock',['ScopedLock',['../classio__comm__mosaic_1_1_async_manager.html#a6586653c408e255140f553f4c0aa2e6e',1,'io_comm_mosaic::AsyncManager']]],
   ['search',['search',['../classio__comm__mosaic_1_1mosaic_message.html#aea3905f1901c1727e237542e8a95ed2d',1,'io_comm_mosaic::mosaicMessage']]],
   ['sep_5fsync_5fbyte_5f1',['SEP_SYNC_BYTE_1',['../communication__core_8hpp.html#a8bb07e43349565d9fa5b7515c99d1043',1,'SEP_SYNC_BYTE_1():&#160;communication_core.hpp'],['../mosaic_message_8hpp.html#a8bb07e43349565d9fa5b7515c99d1043',1,'SEP_SYNC_BYTE_1():&#160;mosaicMessage.hpp']]],
   ['sep_5fsync_5fbyte_5f2',['SEP_SYNC_BYTE_2',['../communication__core_8hpp.html#a777fef7dfb89a56f0a5e114ce595ae7f',1,'SEP_SYNC_BYTE_2():&#160;communication_core.hpp'],['../mosaic_message_8hpp.html#a777fef7dfb89a56f0a5e114ce595ae7f',1,'SEP_SYNC_BYTE_2():&#160;mosaicMessage.hpp']]],

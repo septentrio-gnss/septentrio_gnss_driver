@@ -85,14 +85,14 @@ Inheritance diagram for io_comm_mosaic::Manager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a04713eda3b65a6c34818941bd63b7402"><td class="memItemLeft" align="right" valign="top">typedef boost::function&lt; void(uint8_t *, std::size_t &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a04713eda3b65a6c34818941bd63b7402">Callback</a></td></tr>
-<tr class="separator:a04713eda3b65a6c34818941bd63b7402"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0bf6b36c6af5a254846869f4894a33c"><td class="memItemLeft" align="right" valign="top">typedef boost::function&lt; void(std::vector&lt; uint8_t &gt;, std::size_t &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a></td></tr>
+<tr class="separator:ac0bf6b36c6af5a254846869f4894a33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a8e9e2d5349b016bdc3d6f3e218490948"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a8e9e2d5349b016bdc3d6f3e218490948">~Manager</a> ()</td></tr>
 <tr class="separator:a8e9e2d5349b016bdc3d6f3e218490948"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a289befc7ff53ec05fd086d410a7607f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a289befc7ff53ec05fd086d410a7607f9">setCallback</a> (const <a class="el" href="classio__comm__mosaic_1_1_manager.html#a04713eda3b65a6c34818941bd63b7402">Callback</a> &amp;callback)=0</td></tr>
+<tr class="memitem:a289befc7ff53ec05fd086d410a7607f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a289befc7ff53ec05fd086d410a7607f9">setCallback</a> (const <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a> &amp;callback)=0</td></tr>
 <tr class="separator:a289befc7ff53ec05fd086d410a7607f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2284309e5607c4216d9ca481a7b2cc01"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a2284309e5607c4216d9ca481a7b2cc01">wait</a> (uint16_t *count)=0</td></tr>
 <tr class="separator:a2284309e5607c4216d9ca481a7b2cc01"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -104,14 +104,14 @@ Public Member Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00084">84</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a04713eda3b65a6c34818941bd63b7402"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04713eda3b65a6c34818941bd63b7402">&#9670;&nbsp;</a></span>Callback</h2>
+<a id="ac0bf6b36c6af5a254846869f4894a33c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0bf6b36c6af5a254846869f4894a33c">&#9670;&nbsp;</a></span>Callback</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef boost::function&lt;void(uint8_t*, std::size_t&amp;)&gt; <a class="el" href="classio__comm__mosaic_1_1_manager.html#a04713eda3b65a6c34818941bd63b7402">io_comm_mosaic::Manager::Callback</a></td>
+          <td class="memname">typedef boost::function&lt;void(std::vector&lt;uint8_t&gt;, std::size_t&amp;)&gt; <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">io_comm_mosaic::Manager::Callback</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -210,7 +210,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname">virtual void io_comm_mosaic::Manager::setCallback </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classio__comm__mosaic_1_1_manager.html#a04713eda3b65a6c34818941bd63b7402">Callback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a> &amp;&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
           <td></td>
         </tr>
@@ -262,7 +262,7 @@ Here is the caller graph for this function:</div>
 
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#abcba672df423de9c48cd6383c5e97bbf">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00135">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::setCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00087">~Manager()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00118">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::setCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00087">~Manager()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -281,7 +281,7 @@ Here is the caller graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Sep 7 2020 13:57:28 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 8 2020 10:40:38 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

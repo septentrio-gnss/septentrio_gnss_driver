@@ -1,6 +1,6 @@
 <map id="io_comm_mosaic::mosaicMessage::pos" name="io_comm_mosaic::mosaicMessage::pos">
 <area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="309,5,536,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handlers.html#a00d2a33e2b4f41f078649c5d837bfa1b" title="Main callback organizer &quot;on callbackhandlers&#39; thread&quot; (recall: this callback_thread is initialized up..." alt="" coords="331,71,514,112"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handlers.html#a0cee7e1789af9246b8a4989189ad2347" title="Main callback organizer &quot;on callbackhandlers&#39; thread&quot; (recall: this callback_thread is initialized up..." alt="" coords="331,71,514,112"/>
 <area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_comm___i_o.html#af12c3542da732768a9f4b719b5f99dec" title="Set the I/O manager. " alt="" coords="584,71,755,112"/>
 <area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_comm___i_o.html#a931dab5cd52ffaf420405bdd0526bb2d" title="Initializes the serial port. " alt="" coords="803,71,973,112"/>
 <area shape="rect" id="node9" href="$classio__comm__mosaic_1_1_comm___i_o.html#a390c71fb645c3277abd3ed3e31960d36" title="Initializes the TCP I/O. " alt="" coords="803,5,973,47"/>
