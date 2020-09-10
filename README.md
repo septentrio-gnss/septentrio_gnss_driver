@@ -27,8 +27,6 @@ or [from source](https://www.doxygen.nl/manual/install.html).
 `sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
 Note: Adapt the `rover.yaml` file (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 
-# Configuration Settings for mosaic, rover
-
 ```
 debug: 3
 
