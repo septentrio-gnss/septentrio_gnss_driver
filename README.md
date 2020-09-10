@@ -6,8 +6,6 @@ driver development process. Our goal is to build a ROS Melodic and Noetic driver
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both the serial and the TCP/IP protocols
-- Can store and play back PCAP (Packet Capture) logs to perform tests
-  - PCAP is a valuable resource for file analysis and to monitor your network traffic. Packet collection tools like Wireshark allow you to collect network traffic and translate it into a format that’s human-readable. These PCAP files can then be used to view TCP/IP and UDP/IP network packets. There are many reasons why PCAP is used to monitor networks. Some of the most common include monitoring bandwidth usage, identifying rogue DHCP servers, detecting malware, DNS resolution, and incident response.
 - Facilitates extension to further log types, see instructions below
 - Supports (as of now) a handful of ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Tested with the mosaic-X5 receiver
@@ -16,7 +14,8 @@ Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
-
+We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br><br>
+`sudo apt-get install ros-melodic-nmea-msgs`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br><br>
