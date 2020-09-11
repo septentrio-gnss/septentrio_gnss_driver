@@ -29,9 +29,19 @@ Alternatively, the package can also be built from source using [`catkin_tools`](
 `sudo apt-get install python-catkin-tools`.<br><br>
 The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
 ```
-source /opt/ros/${ROS_DISTRO}/setup.bash
+source /opt/ros/${ROS_DISTRO}/setup.bash                       # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+mkdir -p ~/septentrio/src                                      # Note: Change accordingly dependending on where you want your package to be installed.
+cd ~/septentrio
+catkin init                                                    # Initialize with a hidden marker file
+catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cd src
+git clone https://github.com/tibordome/rosaic
+rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, depending on OS.
+catkin build
+source ~/septentrio/devel/setup.bash 
+catkin clean
 ```
-Note: Adapt the `rover.yaml` file (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
+Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 
 ```
 debug: 3
