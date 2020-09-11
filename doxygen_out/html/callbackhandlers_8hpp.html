@@ -92,17 +92,15 @@ Include dependency graph for callbackhandlers.hpp:</div>
 <div class="center"><img src="callbackhandlers_8hpp__incl.png" border="0" usemap="#include_2rosaic_2communication_2callbackhandlers_8hpp" alt=""/></div>
 <map name="include_2rosaic_2communication_2callbackhandlers_8hpp" id="include_2rosaic_2communication_2callbackhandlers_8hpp">
 <area shape="rect" id="node14" href="mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="1739,95,1889,136"/>
-<area shape="rect" id="node17" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="1242,191,1354,218"/>
-<area shape="rect" id="node23" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1393,184,1533,225"/>
-<area shape="rect" id="node25" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1524,363,1664,404"/>
-<area shape="rect" id="node28" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1689,184,1829,225"/>
-<area shape="rect" id="node18" href="ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="1152,363,1303,404"/>
-<area shape="rect" id="node19" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="1208,273,1359,315"/>
-<area shape="rect" id="node29" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1779,273,1923,315"/>
-<area shape="rect" id="node30" href="sbf__block_8hpp.html" title="Defines a simple struct into which streamed SBF blocks shall be mapped. " alt="" coords="1688,370,1791,397"/>
-<area shape="rect" id="node33" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1768,527,1919,568"/>
-<area shape="rect" id="node36" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1867,370,2009,397"/>
-<area shape="rect" id="node31" href="sbf__block__header_8hpp.html" title="The cstdint header was originally in the C standard library as &lt;stdint.h&gt;. " alt="" coords="1657,452,1806,479"/>
+<area shape="rect" id="node23" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1575,184,1715,225"/>
+<area shape="rect" id="node25" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1710,370,1849,397"/>
+<area shape="rect" id="node33" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1801,273,1941,315"/>
+<area shape="rect" id="node36" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="1851,191,1963,218"/>
+<area shape="rect" id="node24" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1395,273,1539,315"/>
+<area shape="rect" id="node28" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1548,370,1685,397"/>
+<area shape="rect" id="node31" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1381,370,1524,397"/>
+<area shape="rect" id="node37" href="ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="2155,363,2305,404"/>
+<area shape="rect" id="node38" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="2116,273,2267,315"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -121,14 +119,13 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_callback_handler.html">io_comm_mosaic::CallbackHandler</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract class representing a generic callback handler, top-level functionality such as wait.  <a href="classio__comm__mosaic_1_1_callback_handler.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_abstract_callback_handler.html">io_comm_mosaic::AbstractCallbackHandler</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_callback_handler__.html">io_comm_mosaic::CallbackHandler_&lt; T &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Derived class operating on a mosaic message level.  <a href="classio__comm__mosaic_1_1_callback_handler__.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_callback_handler.html">io_comm_mosaic::CallbackHandler&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract class representing a generic callback handler, includes high-level functionality such as wait.  <a href="classio__comm__mosaic_1_1_callback_handler.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_callback_handlers.html">io_comm_mosaic::CallbackHandlers</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents ensemble of messages, to be handled at once by this class.  <a href="classio__comm__mosaic_1_1_callback_handlers.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents ensemble of (to be constructed) ROS messages, to be handled at once by this class.  <a href="classio__comm__mosaic_1_1_callback_handlers.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -138,7 +135,11 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="callbackhandlers_8hpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a></td></tr>
+<tr class="memdesc:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publsh <a class="el" href="struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. ">PVTGeodetic</a> block.  <a href="#a4a9e8555c1c00c433f0d86ad695e12d2">More...</a><br /></td></tr>
+<tr class="separator:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f40fc7a8e86452a84186c779fcce48f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceio__comm__mosaic.html#a7f40fc7a8e86452a84186c779fcce48f">io_comm_mosaic::debug</a></td></tr>
+<tr class="memdesc:a7f40fc7a8e86452a84186c779fcce48f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Driver debugging level (not the ROS logging level), as specified in rover.yaml or equivalent files.  <a href="namespaceio__comm__mosaic.html#a7f40fc7a8e86452a84186c779fcce48f">More...</a><br /></td></tr>
 <tr class="separator:a7f40fc7a8e86452a84186c779fcce48f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -146,10 +147,31 @@ Variables</h2></td></tr>
 <dl class="section date"><dt>Date</dt><dd>22/08/20 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Variable Documentation</h2>
+<a id="a4a9e8555c1c00c433f0d86ad695e12d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a9e8555c1c00c433f0d86ad695e12d2">&#9670;&nbsp;</a></span>publish_navsatfix</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool publish_navsatfix</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Whether or not to publsh <a class="el" href="struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. ">PVTGeodetic</a> block. </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00199">199</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00190">io_comm_mosaic::CallbackHandlers::Handle()</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Sep 8 2020 10:40:38 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Sep 11 2020 13:35:49 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

@@ -54,7 +54,7 @@ uint16_t CRC_compute16CCITT (const void *buf, size_t buf_length) // the CRC we c
 	// The left shift and right shift operators should not be used for negative numbers
 	// The left-shift and right-shift operators are equivalent to multiplication and division by 2 respectively, hence only rightshift is non-exact (remainder is not retained)
 	// CRC_SBF_LookUp contains is constructed from truncated polynomial (divisor)
-	// The above implements a kind of CRC 32 algorithm, efficient, fast
+	// The above implements a kind of CRC 32 algorithm: efficient, fast
 	}
 
 	return crc;

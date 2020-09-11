@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['handle',['handle',['../classio__comm__mosaic_1_1_callback_handler.html#ace1c7d3eaf5813ef6f6a3bb4db454d35',1,'io_comm_mosaic::CallbackHandler::handle()'],['../classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7',1,'io_comm_mosaic::CallbackHandler_::handle()'],['../classio__comm__mosaic_1_1_callback_handlers.html#aa1f0151840b4e9059958af8b7c357239',1,'io_comm_mosaic::CallbackHandlers::handle()']]]
+  ['handle',['Handle',['../classio__comm__mosaic_1_1_abstract_callback_handler.html#a60f6eb593bf42079460d6e7d63e67ce3',1,'io_comm_mosaic::AbstractCallbackHandler::Handle()'],['../classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77',1,'io_comm_mosaic::CallbackHandler::Handle()'],['../classio__comm__mosaic_1_1_callback_handlers.html#a1fec2bb11f61ef346431fe73801e5a9e',1,'io_comm_mosaic::CallbackHandlers::Handle()']]]
 ];
