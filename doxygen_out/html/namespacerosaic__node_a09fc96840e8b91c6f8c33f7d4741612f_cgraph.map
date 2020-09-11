@@ -1,0 +1,4 @@
+<map id="rosaic_node::GetROSInt" name="rosaic_node::GetROSInt">
+<area shape="rect" id="node2" href="$namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f" title="Gets an integer or unsigned integer value from the parameter server. " alt="" coords="219,5,384,32"/>
+<area shape="rect" id="node3" href="$namespacerosaic__node.html#a31b51aee8484326d6d8577a4db8bbe58" title="Checks whether the parameter is in the given range. " alt="" coords="432,5,608,32"/>
+</map>
