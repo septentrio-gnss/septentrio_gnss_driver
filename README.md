@@ -14,20 +14,20 @@ Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
-We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br>
-`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br>
-The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br>
-`sudo apt install libboost-all-dev`.<br>
-Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br>
-`sudo apt-get install -y doxygen`<br>
+We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br><br>
+`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br><br>
+The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br><br>
+`sudo apt install libboost-all-dev`.<br><br>
+Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br><br>
+`sudo apt-get install -y doxygen`<br><br>
 or [from source](https://www.doxygen.nl/manual/install.html).
 
 ## Usage
- To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br>
-`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br>
-Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br>
-`sudo apt-get install python-catkin-tools`.<br>
-The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br>
+ To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
+`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
+Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
+`sudo apt-get install python-catkin-tools`.<br><br>
+The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
 ```
 source /opt/ros/${ROS_DISTRO}/setup.bash                       # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
 mkdir -p ~/septentrio/src                                      # Note: Change accordingly dependending on where you want your package to be installed.
@@ -42,7 +42,6 @@ source ~/septentrio/devel/setup.bash
 catkin clean
 ```
 Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
-
 ```
 debug: 3
 
@@ -69,7 +68,7 @@ Subscribe to certain topics listed below (many not yet implemented!) depending o
 ## ROS Wrapper
 ### ROS Parameters
 The following is a list of ROS parameters found in the, say, `rover.yaml` file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
-- Parameters Configuring Communication Ports and Processing of GNSS Data
+- Implemented Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
     - for serial connections, the device node, e.g., `"/dev/ttyUSB0"`
     - for TCP/IP connections, a `"host:port"` specification
@@ -81,6 +80,7 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `"GNSS"`
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
+- Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
     - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
     - default: `true`
@@ -114,13 +114,20 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - This ROS parameter is ignored in the NTRIP server mode.
     - default: `"auto"`
   
-- Parameters Configuring (Non-)Publishing of ROS Messages
+- Implemented Parameters Configuring (Non-)Publishing of ROS Messages
   - `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
     - default: `true`
-  - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
+  - `publish/gpgga`: `true` to publish `rosaic/GPGGA.msg` messages into the topic `/gpgga`
+    - default: `true`
+  - `publish/pvtgeodetic`: `true` to publish `rosaic/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     - default: `true`
   - `publish/pvtcartesian`: `true` to publish `rosaic/PVTCartesian.msg` messages into the topic `/pvtcartesian`
-    - default: `false`
+    - default: `true`
+  - `publish/poscovgeodetic`: `true` to publish `rosaic/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
+    - default: `true`
+- Planned Parameters Configuring (Non-)Publishing of ROS Messages
+  - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
+    - default: `true`
   - `publish/poscovcartesian`: `true` to publish `rosaic/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     - default: `false`
   - `publish/orientation`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/orientation`
