@@ -14,20 +14,20 @@ Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
-We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br><br>
-The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br><br>
-`sudo apt install libboost-all-dev`.<br><br>
-Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br><br>
-`sudo apt-get install -y doxygen`<br><br>
+We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br>
+`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br>
+The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br>
+`sudo apt install libboost-all-dev`.<br>
+Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br>
+`sudo apt-get install -y doxygen`<br>
 or [from source](https://www.doxygen.nl/manual/install.html).
 
 ## Usage
- To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
-Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
-`sudo apt-get install python-catkin-tools`.<br><br>
-The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
+ To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br>
+`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br>
+Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br>
+`sudo apt-get install python-catkin-tools`.<br>
+The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br>
 ```
 source /opt/ros/${ROS_DISTRO}/setup.bash                       # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
 mkdir -p ~/septentrio/src                                      # Note: Change accordingly dependending on where you want your package to be installed.
