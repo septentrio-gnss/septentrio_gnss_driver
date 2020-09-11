@@ -35,13 +35,14 @@
  * @date 22/08/20
  * @brief Highest-Level view on communication services
  */
+ 
 io_comm_mosaic::Comm_IO::Comm_IO(): handlers_() {}
 
 template <typename T>
-bool io_comm_mosaic::Comm_IO::poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout) 
+bool io_comm_mosaic::Comm_IO::Poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout) 
 {
 	if (!manager_) return false;
-	return handlers_.poll(message, message_ID, timeout);
+	return handlers_.Poll(message, message_ID, timeout);
 }
 
 void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
@@ -80,13 +81,13 @@ void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
 	ROS_INFO("mosaic: Connected to %s: %s.", endpoint->host_name().c_str(), endpoint->service_name().c_str());
 
 	if (manager_) return;
-	setManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
+	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
 }
 
  
 bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudrate, std::string flowcontrol) 
 {
-	//ROS_DEBUG("Current debug value after calling initializeserial() method is %u", io_comm_mosaic::debug);
+	//ROS_DEBUG("Current debug value after calling InitializeSerial() method is %u", io_comm_mosaic::debug);
 	ROS_DEBUG("mosaic: Calling InitializeSerial method..");
 	serial_port_ = port;
 	baudrate_ = baudrate;
@@ -103,13 +104,13 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	catch (std::runtime_error& e) 
 	{
 		// and return an error message in case it fails.
-		throw std::runtime_error("mosaic-X5: Could not open serial port : " + serial_port_ + ": " + e.what());
+		throw std::runtime_error("mosaic: Could not open serial port : " + serial_port_ + ": " + e.what());
 		return false;
 	}
 
-	ROS_INFO("mosaic-X5: Opened serial port %s", serial_port_.c_str());
+	ROS_INFO("mosaic: Opened serial port %s", serial_port_.c_str());
     ROS_DEBUG("Our boost version is %u.", BOOST_VERSION);
-	if(BOOST_VERSION < 106600) // e.g. for ROS melodic (i.e. Ubuntu 18.04) it is 106501, standing for 1.65.1
+	if(BOOST_VERSION < 106600) // E.g. for ROS melodic (i.e. Ubuntu 18.04), the version is 106501, standing for 1.65.1.
 	{
 		// Workaround to set some options for the port manually, 
 		// cf. https://github.com/mavlink/mavros/pull/971/files
@@ -134,8 +135,7 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 		cfmakeraw(&tio);
 		
 		// Commit settings, syntax is 
-		// int tcsetattr(int fd, int optional_actions,
-		// 		const struct termios *termios_p);
+		// int tcsetattr(int fd, int optional_actions, const struct termios *termios_p);
 		tcsetattr(fd, TCSANOW, &tio);
 	}
 
@@ -146,7 +146,7 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 		return false;
 	}
 	ROS_DEBUG("Creating new Async-Manager..");
-	setManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
+	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
 	
 	//ROS_DEBUG("Finished creating new Async-Manager, have not yet called its read_callback_, since that will only be populated by the readCallback method of the CallbackHandlers class momentarily..");
 
@@ -156,8 +156,7 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	ROS_DEBUG("Initiated current_baudrate object...");
 	try 
 	{
-		serial->get_option(current_baudrate); 	// Embed with throw to catch bad file descriptor error or similar ones..
-												// Often sets current_baudrate.value() magically to 115200
+		serial->get_option(current_baudrate); // Often this seems to set current_baudrate.value() magically to 115200 such that no increments are needed below.
 	} catch(boost::system::system_error& e)
 	{
 		
@@ -180,10 +179,10 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	{
 		if (current_baudrate.value() == baudrate_)
 			break; 
-			// Break if the desired baudrate has been reached
+			// Break if the desired baudrate has been reached.
 		if(current_baudrate.value() > Baudrates[i] && baudrate_ > Baudrates[i])
 			continue; 
-			// Increment until Baudrate[i] matches current_baudrate
+			// Increment until Baudrate[i] matches current_baudrate.
 		serial->set_option(boost::asio::serial_port_base::baud_rate(Baudrates[i]));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(SetBaudrateSleepMs));
 		serial->get_option(current_baudrate);
@@ -193,19 +192,19 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	return true;
 }
 
-void io_comm_mosaic::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager) {
-	ROS_DEBUG("Entered setManager");
+void io_comm_mosaic::Comm_IO::SetManager(const boost::shared_ptr<Manager>& manager) 
+{
+	ROS_DEBUG("Entered SetManager");
 	if (manager_) return; 
 	manager_ = manager;
 	ROS_DEBUG("About to call setCallback");
-	manager_->setCallback(boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2));
+	manager_->SetCallback(boost::bind(&CallbackHandlers::ReadCallback, &handlers_, _1, _2));
 }
-
 
 /**
  * Needs to be checked..
  */
-void io_comm_mosaic::Comm_IO::resetSerial(std::string port) 
+void io_comm_mosaic::Comm_IO::ResetSerial(std::string port) 
 {
 	serial_port_ = port;
 	boost::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service);
@@ -225,12 +224,12 @@ void io_comm_mosaic::Comm_IO::resetSerial(std::string port)
 
 	// Sets the I/O worker
 	if (manager_) return;
-	setManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
+	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
 
 	/*
 	// Polls ReceiverStatus block
 	std::vector<uint8_t> receiverstatus;
-	if (!poll(..., receiverstatus)) 
+	if (!Poll(..., receiverstatus)) 
 	{
 		ROS_ERROR("Resetting Serial Port: Could not poll ReceiverStatus");
 		return;

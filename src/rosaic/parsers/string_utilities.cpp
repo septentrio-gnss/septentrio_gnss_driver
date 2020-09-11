@@ -27,9 +27,10 @@
 // POSSIBILITY OF SUCH DAMAGE. 
 //
 // *****************************************************************************
- 
+
+// ROSaic includes 
 #include <rosaic/parsers/string_utilities.h>
- 
+// C++ library includes
 #include <cerrno>
 #include <cstdlib>
 #include <limits>

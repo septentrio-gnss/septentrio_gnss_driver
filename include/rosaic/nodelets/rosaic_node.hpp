@@ -69,10 +69,16 @@
 #include <ros/console.h>
 // Boost includes
 #include <boost/regex.hpp>
-// File includes
-#include <rosaic/communication/communication_core.hpp>
 #include <boost/thread/mutex.hpp>
+// ROSaic includes
+#include <rosaic/communication/communication_core.hpp>
 
+extern bool publish_gpgga;
+extern bool publish_pvtcartesian;
+extern bool publish_pvtgeodetic;
+extern bool publish_poscovgeodetic;
+extern bool publish_navsatfix;
+	
 /**
  * @namespace rosaic_node
  * This namespace is for the ROSaic node, handling all aspects regarding
@@ -90,48 +96,47 @@ namespace rosaic_node
 	constexpr static float poll_pub_rest_period = 0.05;
 
 	//! Node Handle for the ROSaic node
-	//! You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only...
+	//! You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). 
+	//! One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only...
 	boost::shared_ptr<ros::NodeHandle> nh;
 	//! Handles communication with the mosaic
 	io_comm_mosaic::Comm_IO IO;
-	//! Whether or not to publish the given mosaic message
 	/**
+	 * @brief Whether or not to publish the given mosaic message
 	 * The key is the message name, i.e. the message ID for SBF blocks embedded in inverted commas (a string) or the message ID for NMEA messages.
-	 * The value indicates whether or not to enable that message. 
+	 * The boolean value indicates whether or not to enable that message. 
 	 */
-	std::map<std::string, bool> enabled;	
+	std::map<std::string, bool> enabled;
 	
 	/**
 	 * @brief Publishes a ROS message of type MessageT to topic "topic".
-	 * @param m The message to publish
-	 * @param topic The topic to publish the message to
+	 * @param[in] m The message to publish
+	 * @param[in] topic The topic to publish the message to
 	 */
 	template <typename MessageT>
-	void publish(const MessageT& m, const std::string& topic) 
+	void Publish(const MessageT& m, const std::string& topic) 
 	{
-		//ROS_DEBUG("About to publish message");
+		//ROS_DEBUG("sizeof message is %lu", sizeof(m));
 		static ros::Publisher publisher = nh->advertise<MessageT>(topic, ROSQueueSize);
 		publisher.publish(m);
 	}
 	
-	
 	/**
 	 * @brief Checks whether the parameter is in the given range
-	 * @param val The value to check
-	 * @param min The minimum for this value
-	 * @param max The maximum for this value
-	 * @param name The name of the parameter
+	 * @param[in] val The value to check
+	 * @param[in] min The minimum for this value
+	 * @param[in] max The maximum for this value
+	 * @param[in] name The name of the parameter
 	 * @throws std::runtime_error if it is out of bounds
 	 */
 	template <typename V, typename T>
-	void checkRange(V val, T min, T max, std::string name) 
+	void CheckRange(V val, T min, T max, std::string name) 
 	{
 		if(val < min || val > max) 
 		{
-			std::stringstream oss;
-			oss << "Invalid settings: " << name << " must be in range [" << min <<
-				", " << max << "].";
-			throw std::runtime_error(oss.str());
+			std::stringstream ss;
+			ss << "Invalid settings: " << name << " must be in range [" << min << ", " << max << "].";
+			throw std::runtime_error(ss.str());
 		}
 	}
 
@@ -141,16 +146,15 @@ namespace rosaic_node
 	 * @param[in] min The minimum for this value
 	 * @param[in] max The maximum for this value
 	 * @param[in] name The name of the parameter
-	 * @throws std::runtime_error value if it is out of bounds
 	 */
 	template <typename V, typename T>
-	void checkRange(std::vector<V> val, T min, T max, std::string name) 
+	void CheckRange(std::vector<V> val, T min, T max, std::string name) 
 	{
 		for(size_t i = 0; i < val.size(); i++)  
 		{
-			std::stringstream oss;
-			oss << name << "[" << i << "]";
-			checkRange(val[i], min, max, oss.str());
+			std::stringstream ss;
+			ss << name << "[" << i << "]";
+			CheckRange(val[i], min, max, ss.str());
 		}
 	}
 	
@@ -165,11 +169,18 @@ namespace rosaic_node
 	bool GetROSInt(const std::string& key, U &u) {
 		int param;
 		if (!nh->getParam(key, param)) return false;
-		// Check the bounds
 		U min = std::numeric_limits<U>::lowest();
 		U max = std::numeric_limits<U>::max();
-		checkRange((U) param, min, max, key);
-		// set the output
+		try
+		{
+			CheckRange((U) param, min, max, key);
+		}
+		catch (std::runtime_error& e) 
+		{
+			std::ostringstream ss;
+			ss << e.what();
+			ROS_INFO("%s", ss.str().c_str());
+		}
 		u = (U) param;
 		return true;
 	}
@@ -182,8 +193,8 @@ namespace rosaic_node
 	 * @throws std::runtime_error if the parameter is out of bounds
 	 * @return True if found, false if not found
 	 */
-	template <typename U, typename V>
-	void GetROSInt(const std::string& key, U &u, V default_val) 
+	template <typename U>
+	void GetROSInt(const std::string& key, U &u, U default_val) 
 	{
 		if(!GetROSInt(key, u))
 			u = default_val;
@@ -191,9 +202,9 @@ namespace rosaic_node
 
 	/**
 	 * @brief Gets an unsigned integer or integer vector from the parameter server
-	 * @throws std::runtime_error if the parameter is out of bounds
 	 * @param[in] key The key to be used in the parameter server's dictionary
 	 * @param[out] u Storage for the retrieved value, of type std::vector<U>, where U can be either unsigned int or int
+	 * @throws std::runtime_error if the parameter is out of bounds
 	 * @return True if found, false if not found
 	 */
 	template <typename U>
@@ -201,18 +212,12 @@ namespace rosaic_node
 	{
 		std::vector<int> param;
 		if (!nh->getParam(key, param)) return false;
-
-		// Check the bounds
 		U min = std::numeric_limits<U>::lowest();
 		U max = std::numeric_limits<U>::max();
 		checkRange(param, min, max, key);
-
-		// set the output
 		u.insert(u.begin(), param.begin(), param.end());
 		return true;
 	}
-
-	
 	
 	/**
 	 * @class ROSaicNode
@@ -223,21 +228,21 @@ namespace rosaic_node
 		public:
 		
 			//! The constructor initializes and runs the Rosaic node, if all works out fine.
-			//! It loads the user-defined ROS parameters, subscribes to mosaic messages, and publishes requested ROS messages (for now, 1-1 or GGA-like, not yet NavSatFix that needs multiple messages as input..)
+			//! It loads the user-defined ROS parameters, subscribes to mosaic messages, and publishes requested ROS messages...
 			ROSaicNode();
 			
 			/**
-			 * @brief Get the node parameters from the ROS Parameter Server, parts of which are specified in a YAML file, other parts of which are specified via the command line.
+			 * @brief Gets the node parameters from the ROS Parameter Server, parts of which are specified in a YAML file, other parts of which are specified via the command line.
 			 */
 			void GetROSParams();
 			
 			/**
-			 * @brief Subscribe (= read in) to all requested mosaic messages and publish them
+			 * @brief Defines which mosaic messages to read and which ROS messages to publish
 			 */
-			void Subscribe();
+			void DefineMessages();
 			
 			/**
-			 * @brief Initialize the I/O handling.
+			 * @brief Initializes the I/O handling
 			 */
 			void InitializeIO();
 			
@@ -258,12 +263,6 @@ namespace rosaic_node
 			ros::Timer reconnect_timer_;
 			//! Whether or not connection has been successful so far
 			bool connected_ = false;
-			//! Whether or not to publsh GGA messages
-			bool publish_gpgga_;
-			//! Whether or not to publsh PVTCartesian block
-			bool publish_pvtcartesian_;
-			//! Whether or not to publsh PVTGeodetic block
-			bool publish_pvtgeodetic_;
 	};
 }
 

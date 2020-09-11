@@ -31,6 +31,7 @@
 #ifndef SBFStructs_HPP
 #define SBFStructs_HPP
 
+// ROSaic includes
 #include "ssntypes.hpp"
 
 #if defined(__GNUC__) || defined(__ARMCC__)
@@ -230,7 +231,7 @@ struct PosCovCartesian //message 5905
  */
 struct PosCovCartesian
 {
-	BlockHeader_t  Header;       
+	BlockHeader_t  Block_Header;       
 
 	/* Time Header */
 	uint32_t       TOW;          
@@ -248,6 +249,32 @@ struct PosCovCartesian
 	float          Cov_yz;       
 	float          Cov_yt;       
 	float          Cov_zt;       
+};
+
+/**
+ * @class PosCovGeodetic
+ * @brief Struct for the SBF block "PosCovGeodetic"
+ */
+struct PosCovGeodetic
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        Mode;         
+	uint8_t        Error;        
+	float          Cov_latlat;       
+	float          Cov_lonlon;       
+	float          Cov_hgthgt;       
+	float          Cov_bb;       
+	float          Cov_latlon;       
+	float          Cov_lathgt;       
+	float          Cov_latb;       
+	float          Cov_lonhgt;       
+	float          Cov_lonb;       
+	float          Cov_hb;       
 };
 
 //structure for the VelCovCaresian parsed block, old
@@ -580,7 +607,7 @@ struct RANGE_DATA
 
 
 /**
- * @brief CRCLookUp provided by Septenrio (c) 2000-2004 Septentrio nv/sa, Belgium 
+ * @brief CRCLookUp provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium 
  */
 static const uint16_t CRCLookUp[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,

@@ -35,14 +35,11 @@
  * @date 22/08/20
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
-
-std::string frame_id;
-
  
 rosaic_node::ROSaicNode::ROSaicNode()
 {
 	ROS_DEBUG("Entered ROSaicNode() constructor..");
-	// Params must be set before initializing IO
+	// Parameters must be set before initializing IO
 	GetROSParams();
 	StringValues_Initialize();
 	ROS_DEBUG("About to call InitializeIO() method");
@@ -54,8 +51,8 @@ rosaic_node::ROSaicNode::ROSaicNode()
 	{
 		ROS_ERROR("InitializeIO() failed: %s", e.what());
 	}
-	// Subscribe to all requested mosaic messages and publish them
-    Subscribe();
+	// Subscribe to all requested mosaic messages and publish them raw or in composite form (e.g. NavSatFix)
+    DefineMessages();
 	ros::spin();
 	
 }
@@ -65,7 +62,7 @@ void rosaic_node::ROSaicNode::GetROSParams()
 {
 	nh->param("device", device_, std::string("/dev/ttyACM0"));	
 	// Serial params
-	GetROSInt("serial/baudrate", baudrate_, 115200);
+	GetROSInt("serial/baudrate", baudrate_, (uint32_t) 115200);
 	// To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix mode...
 	ROS_DEBUG("Finished GetROSParams() method");
 
@@ -76,10 +73,10 @@ void rosaic_node::ROSaicNode::InitializeIO()
 {
 	ROS_DEBUG("Called InitializeIO() method");
 	boost::smatch match;
-	// In fact: typedef match_results<string::const_iterator> smatch;
+	// In fact: smatch is a typedef of match_results<string::const_iterator>
 	if (boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"))) 
 	// \d means decimal, however, in the regular expression, the \ is a special character, which needs to be escaped on its own as well..
-	// regex_match can be used with a smatch object to store results, or without. In any case, true is returned if and only if it matches the !complete! string.
+	// Note that regex_match can be used with a smatch object to store results, or without. In any case, true is returned if and only if it matches the !complete! string.
 	{
 		// The first sub_match (index 0) contained in a match_result always represents the full match within a target sequence made by a regex, 
 		// and subsequent sub_matches represent sub-expression matches corresponding in sequence to the left parenthesis delimiting the sub-expression in the regex,
@@ -107,13 +104,12 @@ void rosaic_node::ROSaicNode::InitializeIO()
 	else 
 	{
 		// To be modified here, or clarified: how to use reconnect_delay_s properly? Is respawn (roslaunch parameter) enough?
-		ROS_DEBUG("Setting timer for calling InitializeSerial() method");
+		//ROS_DEBUG("Setting timer for calling InitializeSerial() method");
 		//nh->param("reconnect_delay_s", reconnect_delay_s_, 0.5f);
 		//reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &ROSaicNode::Reconnect, this);
 		//reconnect_timer_.start();
 		//ROS_DEBUG("Started timer"); //not printed if error in callback of course
 		//ros::spin(); // otherwise callback will never be called, with ros::spin i cannot leave InitializeIO(), yet with ros::spinOnce can enter reconnect() even once
-		ROS_DEBUG("Current debug value before calling initializeserial() method is %u", io_comm_mosaic::debug);
 		try
 		{
 			IO.InitializeSerial(device_, baudrate_);
@@ -141,74 +137,99 @@ void rosaic_node::ROSaicNode::Reconnect(const ros::TimerEvent& event)
 	ROS_DEBUG("Leaving reconnect");
 }
 
-void rosaic_node::ROSaicNode::Subscribe() 
+//! InitializeSerial is not self-contained: The for loop in Callbackhandlers' handle method would never open a specific handler unless 
+//! the handler is added (=inserted) to the C++ map via this function. This way, the specific handler can be called, in which in turn 
+//! mosaicMessage's read() method is called, thereby "message" occupied, and func_ (the handler we insert in this function) called with this "message".
+void rosaic_node::ROSaicNode::DefineMessages() 
 {
-	ROS_DEBUG("Entered subscribe() method");
-	nh->param("publish/gpgga", publish_gpgga_, true);
-	nh->param("publish/pvtcartesian", publish_pvtcartesian_, true);
-	nh->param("publish/pvtgeodetic", publish_pvtgeodetic_, true);
+	ROS_DEBUG("Entered DefineMessages() method");
 
-	if (publish_gpgga_ == true)
+	if (publish_gpgga == true)
 	{
-		IO.handlers_.callbacks_ = IO.get_handlers().insert<nmea_msgs::Gpgga>("$GPGGA", boost::bind(publish<nmea_msgs::Gpgga>, _1, "/gpgga"));
-		
-		//std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "$GPGGA";
-		//ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
+		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::Gpgga>("$GPGGA", boost::bind(Publish<rosaic::Gpgga>, _1, "/gpgga"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "$GPGGA";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
-	if (publish_pvtcartesian_ == true)
+	if (publish_pvtcartesian == true)
 	{
-		IO.handlers_.callbacks_ = IO.get_handlers().insert<rosaic::PVTCartesian>("4006", boost::bind(publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "4006";
-		ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
+		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PVTCartesian>("4006", boost::bind(Publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4006";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
-	if (publish_pvtgeodetic_ == true)
+	if (publish_pvtgeodetic == true)
 	{
-		IO.handlers_.callbacks_ = IO.get_handlers().insert<rosaic::PVTGeodetic>("4007", boost::bind(publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::CallbackHandler> >::key_type key = "4007";
-		ROS_DEBUG("Back to subscribe() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbacks_.count(key));
+		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PVTGeodetic>("4007", boost::bind(Publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4007";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
-	ROS_DEBUG("Leaving subscribe() method");
+	if (publish_poscovgeodetic == true)
+	{
+		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PosCovGeodetic>("5906", boost::bind(Publish<rosaic::PosCovGeodetic>, _1, "/poscovgeodetic"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5906";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+	}
+	if (publish_navsatfix == true)
+	{
+		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<sensor_msgs::NavSatFix>("NavSatFix", boost::bind(Publish<sensor_msgs::NavSatFix>, _1, "/navsatfix"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "NavSatFix";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+	}
+	ROS_DEBUG("Leaving DefineMessages() method");
 	// and so on
 }
 
 
-// Declaring global variables..
+// Declaring global variables (to be modified, since their use is not recommended)...
+//! If true, the ROS message headers' unix time field is constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data. 
+//! If false, times are constructed within the driver via time(NULL) of the <ctime> library.
 bool use_GNSS_time;
 //! Number of times the "read" method of the mosaicMessage class has been called
 uint32_t read_count;
+//! Driver debugging level (not the ROS logging level), as specified in rover.yaml or equivalent files
 int io_comm_mosaic::debug; 
-boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_; 
+//! Whether or not to publsh GGA messages
+bool publish_gpgga;
+//! Whether or not to publsh PVTCartesian block
+bool publish_pvtcartesian;
+//! Whether or not to publsh PVTGeodetic block
+bool publish_pvtgeodetic;
+//! Whether or not to publsh PVTGeodetic block
+bool publish_poscovgeodetic;
+//! Whether or not to publsh PVTGeodetic block
+bool publish_navsatfix;
+//! The frame ID used in the header of every published ROS message
+std::string frame_id;
+//! The get_handlers() method of the Comm_IO class forces us to make this mutex static, since otherwise, 
+//! the method would need to construct-by-copy the mutex, which is strictly prohibited.
+boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_;
 
 int main(int argc, char** argv) 
 {
 	read_count = 0;
-	ROS_DEBUG("About to call ROSaicNode constructor.."); // This will not be shown since info level seems to be default, hence modify momentarily..
-	//rosaic_node::nh->param("?", node_name, default_node_name); 
+	//rosaic_node::nh->param("something", node_name, default_node_name); 
 	ros::init(argc, argv, "mosaic_gnss");
-	ROS_DEBUG("Just called ROSaicNode constructor..");
 	rosaic_node::nh.reset(new ros::NodeHandle("~")); // Note that nh was initialized in the header file already.
-	rosaic_node::nh->param("debug", io_comm_mosaic::debug, 1); 
+	rosaic_node::GetROSInt("debug", io_comm_mosaic::debug, 1); 
 	rosaic_node::nh->param("use_GNSS_time", use_GNSS_time, true);
 	rosaic_node::nh->param("frame_id", frame_id, (std::string) "gnss"); 
-	ROS_DEBUG("Just loaded debug value to be %u from parameter server..", io_comm_mosaic::debug);
+	rosaic_node::nh->param("publish/gpgga", publish_gpgga, true);
+	rosaic_node::nh->param("publish/pvtcartesian", publish_pvtcartesian, true);
+	rosaic_node::nh->param("publish/pvtgeodetic", publish_pvtgeodetic, true);
+	rosaic_node::nh->param("publish/poscovgeodetic", publish_poscovgeodetic, true);
+	rosaic_node::nh->param("publish/navsatfix", publish_navsatfix, true);
+	
+	//To be implemented: Let nh subscribe to RTCM topic...
 
-	// ros::NodeHandle param_nh("~");
-	// std::string rtcm_topic;
-	// param_nh.param("rtcm_topic", rtcm_topic, std::string("rtcm"));
-	// subRTCM = nh->subscribe(rtcm_topic, 10, rtcmCallback);
-  
-
-
-	if(io_comm_mosaic::debug) //yields true if 1
+	if(io_comm_mosaic::debug) //yields true if >= 1
 	{
-		ROS_DEBUG("Inside of if clause");
+		// The info logging level seems to be default, hence we modify log level momentarily..
 		// The following is the C++ version of rospy.init_node('my_ros_node', log_level=rospy.DEBUG)
 		if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
                                        ros::console::levels::Debug)) //debug is lowest level, shows everything
 		ros::console::notifyLoggerLevelsChanged();
 
 	}
-	ROS_DEBUG("Right before calling ROSaicNode constructor");
+	ROS_DEBUG("Calling ROSaicNode constructor");
 	rosaic_node::ROSaicNode mosaic_node; // This launches everything we need, in theory :)
 	ROS_DEBUG("Leaving int main.");
 	return 0;

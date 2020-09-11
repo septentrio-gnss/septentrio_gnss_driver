@@ -36,7 +36,7 @@
  * @brief Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_read_some
  */
  
-rosaic::PVTGeodeticPtr io_comm_mosaic::PVTGeodeticCallback(PVTGeodetic& data)
+rosaic::PVTGeodeticPtr io_comm_mosaic::mosaicMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
 	rosaic::PVTGeodeticPtr msg = boost::make_shared<rosaic::PVTGeodetic>();
 	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
@@ -76,7 +76,7 @@ rosaic::PVTGeodeticPtr io_comm_mosaic::PVTGeodeticCallback(PVTGeodetic& data)
 }
 
 
-rosaic::PVTCartesianPtr io_comm_mosaic::PVTCartesianCallback(PVTCartesian& data)
+rosaic::PVTCartesianPtr io_comm_mosaic::mosaicMessage::PVTCartesianCallback(PVTCartesian& data)
 {
 	rosaic::PVTCartesianPtr msg = boost::make_shared<rosaic::PVTCartesian>();
 	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
@@ -115,11 +115,86 @@ rosaic::PVTCartesianPtr io_comm_mosaic::PVTCartesianCallback(PVTCartesian& data)
 	return msg;
 }
 
+rosaic::PosCovGeodeticPtr io_comm_mosaic::mosaicMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
+{
+	rosaic::PosCovGeodeticPtr msg = boost::make_shared<rosaic::PosCovGeodetic>();
+	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
+	msg->Block_Header.SYNC2 = data.Block_Header.SYNC2;
+	msg->Block_Header.CRC = data.Block_Header.CRC;
+	msg->Block_Header.ID = data.Block_Header.ID;
+	msg->Block_Header.Length = data.Block_Header.Length;
+	msg->Block_Header.TOW = data.TOW;
+	msg->Block_Header.WNc = data.WNc;
+	msg->Mode = data.Mode;
+	msg->Error = data.Error;
+	msg->Cov_latlat = data.Cov_latlat;
+	msg->Cov_lonlon = data.Cov_lonlon;
+	msg->Cov_hgthgt = data.Cov_hgthgt;
+	msg->Cov_bb = data.Cov_bb;
+	msg->Cov_latlon = data.Cov_latlon;
+	msg->Cov_lathgt = data.Cov_lathgt;
+	msg->Cov_latb = data.Cov_latb;
+	msg->Cov_lonhgt = data.Cov_lonhgt;
+	msg->Cov_lonb = data.Cov_lonb;
+	msg->Cov_hb = data.Cov_hb;
+	return msg;
+}
 
-/// If the current time shall be employed, it is calculated via BOOST, using the type boost::gregorian::date.
+/**
+ * The position_covariance array is populated in row-major order, where the basis of the corresponding matrix is ENU (so Cov_lonlon is in location 11 of the matrix).
+ */
+sensor_msgs::NavSatFixPtr io_comm_mosaic::mosaicMessage::NavSatFixCallback()
+{
+	sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
+	uint16_t mask = 15; // We extract the first four bytes using this mask.
+	uint16_t type_of_pvt = ((uint16_t) (last_pvtgeodetic_.Mode)) & mask;
+	switch(type_of_pvt)
+	{
+		case 0:
+		{
+			msg->status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
+			break;
+		}
+		case 1: case 3:
+		{
+			msg->status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
+			break;
+		}
+		case 2: case 4: case 5: case 7: case 8: case 10:
+		{
+			msg->status.status = sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
+			break;
+		}
+		case 6:
+		{
+			msg->status.status = sensor_msgs::NavSatStatus::STATUS_SBAS_FIX;
+			break;
+		}
+		default:
+		{
+			throw std::runtime_error("PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+		}
+	}
+	msg->latitude = last_pvtgeodetic_.Latitude*360/(2*boost::math::constants::pi<double>());
+	msg->longitude = last_pvtgeodetic_.Longitude*360/(2*boost::math::constants::pi<double>());
+	msg->altitude = last_pvtgeodetic_.Height;
+	msg->position_covariance[0] = last_poscovgeodetic_.Cov_lonlon;
+	msg->position_covariance[1] = last_poscovgeodetic_.Cov_latlon;
+	msg->position_covariance[2] = last_poscovgeodetic_.Cov_lonhgt;
+	msg->position_covariance[3] = last_poscovgeodetic_.Cov_latlon;
+	msg->position_covariance[4] = last_poscovgeodetic_.Cov_latlat;
+	msg->position_covariance[5] = last_poscovgeodetic_.Cov_lathgt;
+	msg->position_covariance[6] = last_poscovgeodetic_.Cov_lonhgt;
+	msg->position_covariance[7] = last_poscovgeodetic_.Cov_lathgt;
+	msg->position_covariance[8] = last_poscovgeodetic_.Cov_hgthgt;
+	msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
+	return msg;
+}
+
+/// If the current time shall be employed, it is calculated via the time(NULL) function found in the <ctime> library
 /// At the time of writing the code (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt 
 /// accordingly as soon as the next leap second is inserted into the UTC time.
-ros::Time io_comm_mosaic::timestampSBF(uint32_t TOW, bool use_GNSS)
+ros::Time io_comm_mosaic::TimestampSBF(uint32_t TOW, bool use_GNSS)
 {
 	if (use_GNSS)
 	{
@@ -156,7 +231,7 @@ ros::Time io_comm_mosaic::timestampSBF(uint32_t TOW, bool use_GNSS)
 		}
 		boost::format fmt = boost::format("%02u%02u%02u.%02u") % hh % mm % ss % hs; 
 		std::string utc_string = fmt.str();
-		//ROS_DEBUG("UTC string (still need to subtract 18 seconds) is %s", utc_string.c_str());
+		//ROS_DEBUG("UTC string is %s", utc_string.c_str());
 		double utc_double;
 		string_utilities::ToDouble(utc_string, utc_double);
 		time_t unix_time_seconds = rosaic_driver::UTCtoUnix(utc_double);
@@ -172,12 +247,12 @@ ros::Time io_comm_mosaic::timestampSBF(uint32_t TOW, bool use_GNSS)
 	}
 }
 
-bool io_comm_mosaic::mosaicMessage::found()
+bool io_comm_mosaic::mosaicMessage::Found()
 {
 	if (found_) return true;
 	
 	// Verify header bytes
-	if (!((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4)))
+	if (!this->IsSBF() && !this->IsNMEA())
 	{
 		return false;
 	}
@@ -186,16 +261,16 @@ bool io_comm_mosaic::mosaicMessage::found()
 	return true;
 }
   
-const uint8_t* io_comm_mosaic::mosaicMessage::search()
+const uint8_t* io_comm_mosaic::mosaicMessage::Search()
 {
 	if (found_) 
 	{	
-		next(); 
+		Next(); 
 	}
 	// Search for a message header
 	for( ; count_ > 0; --count_, ++data_) 
 	{
-		if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4)) 
+		if (this->IsSBF() || this->IsNMEA())
 		{
 			break;
 		}
@@ -204,22 +279,9 @@ const uint8_t* io_comm_mosaic::mosaicMessage::search()
 	return data_;
 }
 
-
-bool io_comm_mosaic::mosaicMessage::checksum()
+bool io_comm_mosaic::mosaicMessage::IsMessage(const uint16_t ID)
 {
-	if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4))
-	{
-		return false;
-	}
-	if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
-	{
-		return *reinterpret_cast<const uint16_t *>(data_ + 2); //data[2] would only catch first half of CRC
-	}
-}
-
-bool io_comm_mosaic::mosaicMessage::isMessage(const uint16_t ID)
-{
-	if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
+	if (this->IsSBF())
 	{
 		if (*reinterpret_cast<const uint16_t *>(data_ + 4) == static_cast<const uint16_t>(ID))
 		// Caution: reinterpret_cast is the most dangerous cast, It's used primarily for particularly weird conversions and bit manipulations, like turning a raw data stream into actual data
@@ -236,15 +298,15 @@ bool io_comm_mosaic::mosaicMessage::isMessage(const uint16_t ID)
 		return false;
 	}
 }
-		
 
-bool io_comm_mosaic::mosaicMessage::isMessage(std::string ID)
+
+bool io_comm_mosaic::mosaicMessage::IsMessage(std::string ID)
 {
-	if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4))
+	if (this->IsNMEA())
 	{
 		boost::char_separator<char> sep(",");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		std::size_t end_point = std::min(static_cast<std::size_t>(this->end() - data_), static_cast<std::size_t>(82));
+		std::size_t end_point = std::min(static_cast<std::size_t>(this->End() - data_), static_cast<std::size_t>(82));
 		std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
 		tokenizer tokens(block_in_string,sep);
 		if (*tokens.begin() == ID) 
@@ -262,45 +324,68 @@ bool io_comm_mosaic::mosaicMessage::isMessage(std::string ID)
 	}
 }
 
+bool io_comm_mosaic::mosaicMessage::IsSBF()
+{
+	if (data_[0] == SBF_SYNC_BYTE_1 && data_[1] == SBF_SYNC_BYTE_2)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool io_comm_mosaic::mosaicMessage::IsNMEA()
+{
+	if ((data_[0] == NMEA_SYNC_BYTE_1 && data_[1] == NMEA_SYNC_BYTE_2_1) || (data_[0] == NMEA_SYNC_BYTE_1 && data_[1] == NMEA_SYNC_BYTE_2_2))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 std::string io_comm_mosaic::mosaicMessage::MessageID()
 {
-	if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
+	if (this->IsSBF())
 	{
-		//ROS_DEBUG("MessageID if clause");
-		// Construct bit mask:
+		// Define bit mask:
 		uint16_t mask = 8191; // It is not as stated in the firmware: !first! three bits are for revision (not last 3), and rest for block number
 		uint16_t value = (*(reinterpret_cast<const uint16_t*>(data_+4))) & mask; // Bitwise AND gives us first 3 bits set to zero, rest unchanged
 		std::stringstream ss;
 		ss << value;
 		return ss.str();
 	}
-	if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4))
+	if (this->IsNMEA())
 	{
 		boost::char_separator<char> sep(",");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		std::size_t end_point = std::min(static_cast<std::size_t>(this->end() - data_), static_cast<std::size_t>(82));
+		std::size_t end_point = std::min(static_cast<std::size_t>(this->End() - data_), static_cast<std::size_t>(82));
 		std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
 		tokenizer tokens(block_in_string,sep);
 		return *tokens.begin();
 	}
-	return std::string(); // less work than return "";
+	return std::string(); // less CPU work than return "";
 }
 
 
 
-const uint8_t* io_comm_mosaic::mosaicMessage::pos()
+const uint8_t* io_comm_mosaic::mosaicMessage::Pos()
 {
 	return data_;
 }
 
-const uint8_t* io_comm_mosaic::mosaicMessage::end()
+const uint8_t* io_comm_mosaic::mosaicMessage::End()
 {
 	return data_ + count_;
 }
 
-uint16_t io_comm_mosaic::mosaicMessage::block_length()
+uint16_t io_comm_mosaic::mosaicMessage::BlockLength()
 {
-	if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
+	if (this->IsSBF())
 	{
 		return static_cast<uint16_t>(data_[6]);
 	}
@@ -311,23 +396,31 @@ uint16_t io_comm_mosaic::mosaicMessage::block_length()
 }
 
 /**
- * Warning: Won't jump to next message if current one is an NMEA message. search() will then check bytes one by one for the new message start.
+ * Warning: Won't jump to next message if current one is an NMEA message. search() will then check bytes one by one for the new message's sync bytes ($P or $G).
  */
-const uint8_t* io_comm_mosaic::mosaicMessage::next()
+const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 {
-	if (found()) 
+	if (Found()) 
 	{
-		if ((data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_3) || (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_4))
+		if (this->IsNMEA())
 		{
 			--count_;
 			++data_;
 			return data_;
 		}
-		if (data_[0] == SEP_SYNC_BYTE_1 && data_[1] == SEP_SYNC_BYTE_2)
+		if (this->IsSBF())
 		{
-			//ROS_DEBUG("Jump about to happen with jump size %u", block_length());
-			uint32_t size = 1;
-			data_ += size; count_ -= size;
+			uint32_t jump_size;
+			if (CRCcheck_)
+			{
+				jump_size = this->BlockLength();
+			}
+			else
+			{
+				jump_size = 1;
+			}
+			ROS_DEBUG("Jump about to happen with jump size %u", jump_size);
+			data_ += jump_size; count_ -= jump_size;
 		}
 	}
 	found_ = false;
