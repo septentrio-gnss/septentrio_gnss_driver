@@ -54,7 +54,6 @@
   <depend>sensor_msgs</depend>
   <depend>boost</depend>
   <depend>rosconsole_backend_interface</depend>
-  <depend>rosconsole_log4cxx</depend>
   
 
   <build_depend>cpp_common</build_depend>
