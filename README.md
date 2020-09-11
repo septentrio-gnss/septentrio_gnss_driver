@@ -38,6 +38,7 @@ publish:
   gpgga: true
   pvtcartesian: true
   pvtgeodetic: true
+  poscovgeodetic: true
   navsatfix: true
 
 serial:
