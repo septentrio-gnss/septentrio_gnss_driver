@@ -33,13 +33,13 @@ source /opt/ros/${ROS_DISTRO}/setup.bash                       # In case you do 
 mkdir -p ~/septentrio/src                                      # Note: Change accordingly dependending on where you want your package to be installed.
 cd ~/septentrio
 catkin init                                                    # Initialize with a hidden marker file
-catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo   # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
 cd src
 git clone https://github.com/tibordome/rosaic
 rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, depending on OS.
 catkin build
 source ~/septentrio/devel/setup.bash 
-catkin clean
+catkin clean -y
 ```
 Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 ```
