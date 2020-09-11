@@ -78,7 +78,7 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - default: `115200`
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
-    - default: `"GNSS"`
+    - default: `"gnss"`
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
 - Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
