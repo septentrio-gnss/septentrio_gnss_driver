@@ -1,5 +1,5 @@
 <map id="CRCIsValid" name="CRCIsValid">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#af188e58adbe99c9d46023cc1a64331c6" title="Performs CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1 if ..." alt="" coords="145,39,372,80"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handler__.html#a5d11634e3c5dbfcb4324ad1ffe4f06f7" title="io_comm_mosaic::Callback\lHandler_::handle" alt="" coords="442,5,625,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="420,71,647,112"/>
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a1fad65b4a7b7a38b0f02d599ab005eea" title="Performs the CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1..." alt="" coords="145,39,372,80"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77" title="io_comm_mosaic::Callback\lHandler::Handle" alt="" coords="442,5,625,47"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a7c1dcc9704f31eadfa980a66464433a7" title="Returns the count_ variable. " alt="" coords="420,71,647,112"/>
 </map>

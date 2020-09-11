@@ -10,15 +10,15 @@ var searchData=
   ['measepoch',['MeasEpoch',['../struct_meas_epoch.html',1,'']]],
   ['measepochflag',['MeasEpochFlag',['../struct_meas_epoch_flag.html',1,'']]],
   ['measepochsubblock',['MeasEpochSubBlock',['../struct_meas_epoch_sub_block.html',1,'']]],
-  ['message_5f',['message_',['../classio__comm__mosaic_1_1_callback_handler__.html#ac83a24361f4f163cdb0e28613d284c3c',1,'io_comm_mosaic::CallbackHandler_']]],
+  ['message_5f',['message_',['../classio__comm__mosaic_1_1_callback_handler.html#a84692f8275675566a0d202176a622ba6',1,'io_comm_mosaic::CallbackHandler']]],
   ['message_5fid',['MESSAGE_ID',['../classrosaic__driver_1_1_gpgga_parser.html#ade699de990d17d7d99e68df9f052a0aa',1,'rosaic_driver::GpggaParser']]],
   ['messageid',['MessageID',['../classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54',1,'io_comm_mosaic::mosaicMessage']]],
   ['misc',['Misc',['../struct_p_v_t_cartesian.html#a5332be3da4a68b7a942b93b9800f0799',1,'PVTCartesian::Misc()'],['../struct_p_v_t_geodetic.html#ac59f8ded8cae67a2e25d6f7f1b4af05c',1,'PVTGeodetic::Misc()']]],
-  ['mode',['Mode',['../struct_p_v_t_cartesian.html#a92787c9c21ee507da5cd34e299cf5e7d',1,'PVTCartesian::Mode()'],['../struct_p_v_t_geodetic.html#aca418df25de798c15c68a5c6e6d7d8df',1,'PVTGeodetic::Mode()'],['../struct_pos_cov_cartesian.html#a72e1ffb423e6c3f9c25ee8c8d9730b26',1,'PosCovCartesian::Mode()'],['../struct_vel_cov_cartesian.html#a3ef98d86a8939d5ced5a29a77090c041',1,'VelCovCartesian::Mode()'],['../struct_attitude_euler.html#a3a9f37adc18cb06d3eca75782cb52317',1,'AttitudeEuler::Mode()']]],
+  ['mode',['Mode',['../struct_p_v_t_cartesian.html#a92787c9c21ee507da5cd34e299cf5e7d',1,'PVTCartesian::Mode()'],['../struct_p_v_t_geodetic.html#aca418df25de798c15c68a5c6e6d7d8df',1,'PVTGeodetic::Mode()'],['../struct_pos_cov_cartesian.html#a72e1ffb423e6c3f9c25ee8c8d9730b26',1,'PosCovCartesian::Mode()'],['../struct_pos_cov_geodetic.html#a92c89bf5c1e558892671b99aec399c9b',1,'PosCovGeodetic::Mode()'],['../struct_vel_cov_cartesian.html#a3ef98d86a8939d5ced5a29a77090c041',1,'VelCovCartesian::Mode()'],['../struct_attitude_euler.html#a3a9f37adc18cb06d3eca75782cb52317',1,'AttitudeEuler::Mode()']]],
   ['mosaic_5fmessage_5fhpp',['MOSAIC_MESSAGE_HPP',['../mosaic_message_8hpp.html#a1ba4a1fecf294bee8f6a4dea4dd5b097',1,'mosaicMessage.hpp']]],
   ['mosaicmessage',['mosaicMessage',['../classio__comm__mosaic_1_1mosaic_message.html',1,'io_comm_mosaic::mosaicMessage'],['../classio__comm__mosaic_1_1_comm___i_o.html#abea9784bebc73b34926cfd520b93b565',1,'io_comm_mosaic::Comm_IO::mosaicMessage()'],['../classio__comm__mosaic_1_1mosaic_message.html#a1d96f8c187c2e543f915cc425887a900',1,'io_comm_mosaic::mosaicMessage::mosaicMessage()']]],
   ['mosaicmessage_2ecpp',['mosaicMessage.cpp',['../mosaic_message_8cpp.html',1,'']]],
   ['mosaicmessage_2ehpp',['mosaicMessage.hpp',['../mosaic_message_8hpp.html',1,'']]],
   ['multipath_5fmitigation',['multipath_mitigation',['../struct_meas_epoch_flag.html#a1e43da249dbd4ef87a3ddbccebc31074',1,'MeasEpochFlag']]],
-  ['mutex_5f',['mutex_',['../classio__comm__mosaic_1_1_callback_handler.html#aaa03b9856967ec294ae0d7f377be17bb',1,'io_comm_mosaic::CallbackHandler']]]
+  ['mutex_5f',['mutex_',['../classio__comm__mosaic_1_1_abstract_callback_handler.html#af21c6100fb8dd13006bdd16aad7e7f9a',1,'io_comm_mosaic::AbstractCallbackHandler']]]
 ];

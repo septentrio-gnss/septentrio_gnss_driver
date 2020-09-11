@@ -32,6 +32,7 @@
 #ifndef STRING_UTILITIES_H
 #define STRING_UTILITIES_H
  
+// C++ library includes
 #include <stdint.h>
 #include <string>
  

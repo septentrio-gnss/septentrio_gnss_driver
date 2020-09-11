@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['search',['search',['../classio__comm__mosaic_1_1mosaic_message.html#aea3905f1901c1727e237542e8a95ed2d',1,'io_comm_mosaic::mosaicMessage']]],
-  ['setcallback',['setCallback',['../classio__comm__mosaic_1_1_manager.html#a289befc7ff53ec05fd086d410a7607f9',1,'io_comm_mosaic::Manager::setCallback()'],['../classio__comm__mosaic_1_1_async_manager.html#a9fdc9e6bbdef18654b84c9864ae5e89a',1,'io_comm_mosaic::AsyncManager::setCallback()']]],
-  ['setmanager',['setManager',['../classio__comm__mosaic_1_1_comm___i_o.html#af12c3542da732768a9f4b719b5f99dec',1,'io_comm_mosaic::Comm_IO']]],
-  ['stringvalues_5finitialize',['StringValues_Initialize',['../mosaic_message_8hpp.html#a2eab17bf465172185a0ae925d791b255',1,'mosaicMessage.hpp']]],
-  ['subscribe',['Subscribe',['../classrosaic__node_1_1_r_o_saic_node.html#ae7c4bc0e0719882a281d2f88a963ec86',1,'rosaic_node::ROSaicNode']]]
+  ['search',['Search',['../classio__comm__mosaic_1_1mosaic_message.html#a5d16197e9d496c66f1e40f849e588c85',1,'io_comm_mosaic::mosaicMessage']]],
+  ['setcallback',['SetCallback',['../classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6',1,'io_comm_mosaic::Manager::SetCallback()'],['../classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a',1,'io_comm_mosaic::AsyncManager::SetCallback()']]],
+  ['setmanager',['SetManager',['../classio__comm__mosaic_1_1_comm___i_o.html#aebf2b8477a895d3558678df4a4fd633d',1,'io_comm_mosaic::Comm_IO']]],
+  ['stringvalues_5finitialize',['StringValues_Initialize',['../mosaic_message_8hpp.html#a2eab17bf465172185a0ae925d791b255',1,'mosaicMessage.hpp']]]
 ];

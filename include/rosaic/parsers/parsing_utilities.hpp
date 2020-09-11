@@ -31,9 +31,11 @@
 #ifndef PARSING_UTILITIES_HPP
 #define PARSING_UTILITIES_HPP
 
+// C++ library includes
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <string> // C++ header, corresponds to <string.h> in C
 #include <ctime> // C++ header, corresponds to <time.h> in C
+// ROS includes
 #include <ros/ros.h>
 
 /**

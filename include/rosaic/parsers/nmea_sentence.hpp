@@ -31,6 +31,7 @@
 #ifndef NMEA_SENTENCE_HPP
 #define NMEA_SENTENCE_HPP
 
+// C++ library includes
 #include <string>
 #include <vector>
 

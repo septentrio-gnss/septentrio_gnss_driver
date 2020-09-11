@@ -12,7 +12,6 @@ var searchData=
   ['svid_5f1',['SVID_1',['../struct_r_a_n_g_e___d_a_t_a.html#af88b79570f1e39d4288042e1ff08e95c',1,'RANGE_DATA']]],
   ['svid_5f2',['SVID_2',['../struct_r_a_n_g_e___d_a_t_a.html#acddd30524c082746924c97ad321ca0df',1,'RANGE_DATA']]],
   ['svid_5f3',['SVID_3',['../struct_r_a_n_g_e___d_a_t_a.html#a0b751d025612b83bb0549dda2c887775',1,'RANGE_DATA']]],
-  ['sync',['Sync',['../structrosaic__driver_1_1_s_b_f_block_header.html#a76400e5f6191e701cf2e8f02f843cf7c',1,'rosaic_driver::SBFBlockHeader']]],
   ['sync1',['SYNC1',['../struct_block_header__t.html#a1c387491d87ba8b7696d4b94b7f594a3',1,'BlockHeader_t']]],
   ['sync2',['SYNC2',['../struct_block_header__t.html#addb5555077117e39f215892fcb8b3075',1,'BlockHeader_t']]],
   ['synclevel',['SyncLevel',['../struct_receiver_time.html#a5b219a34cc3f2e058ef926933f0528ec',1,'ReceiverTime']]]

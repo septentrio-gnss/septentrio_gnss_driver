@@ -81,7 +81,7 @@
 #include <boost/asio/serial_port.hpp>
 #include <boost/thread/mutex.hpp>
 
-// Other includes
+// ROSaic includes
 #include <rosaic/communication/mosaicMessage.hpp>
 
 /**
@@ -89,19 +89,23 @@
  * @date 22/08/20
  * @brief Handles callbacks when reading in various NMEA messages and/or SBF blocks
  */
+ 
+extern bool publish_navsatfix;
 
 namespace io_comm_mosaic 
 {
 	extern int debug;
 	/**
 	 * @class CallbackHandler
-	 * @brief Abstract class representing a generic callback handler, top-level functionality such as wait
+	 * @brief Abstract class representing a generic callback handler, includes high-level functionality such as wait
 	 */
-	class CallbackHandler {
+	class AbstractCallbackHandler 
+	{
 		public:
-			virtual void handle(mosaicMessage& mMessage) = 0;
+			virtual void Handle(mosaicMessage& mMessage, std::string message_key) = 0;
 	 
-			bool wait(const boost::posix_time::time_duration& timeout) {
+			bool Wait(const boost::posix_time::time_duration& timeout) 
+			{
 				boost::mutex::scoped_lock lock(mutex_);
 				return condition_.timed_wait(lock, timeout);
 			}
@@ -112,28 +116,29 @@ namespace io_comm_mosaic
 	};
 	 
 	/**
-	 * @class CallbackHandler_
-	 * @brief Derived class operating on a mosaic message level
+	 * @class CallbackHandler
+	 * @brief Derived class operating on a ROS message level
 	 */
 	template <typename T>
-	class CallbackHandler_ : public CallbackHandler {
+	class CallbackHandler : public AbstractCallbackHandler 
+	{
 		public:
 			typedef boost::function<void(const T&)> Callback; 
 	 
-			CallbackHandler_(const Callback& func = Callback()) : func_(func) {}
+			CallbackHandler(const Callback& func = Callback()) : func_(func) {}
 	   
-			virtual const T& get() { return message_; }
+			virtual const T& Get() { return message_; }
 	 
-			void handle(mosaicMessage& mMessage) {
+			void Handle(mosaicMessage& mMessage, std::string message_key) 
+			{
 				boost::mutex::scoped_lock lock(mutex_);
 				try 
 				{
-					if (!mMessage.read<T>(message_)) 
+					if (!mMessage.Read<T>(message_, message_key)) 
 					{
 						std::ostringstream ss;
 						ss << "Read unsuccessful: mosaic decoder error for message with ID (empty field if non-determinable" << mMessage.MessageID() << ". ";
 						ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
-						condition_.notify_all();
 						return;
 					}
 				} catch (std::runtime_error& e) 
@@ -141,12 +146,11 @@ namespace io_comm_mosaic
 					std::ostringstream ss;
 					ss << "Read unsuccessful: mosaic decoder error for message with ID " << mMessage.MessageID() << ".\nReason: " << e.what();
 					ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
-					condition_.notify_all();
 					return;
 				}
-	 
-				if (func_) func_(message_); 
+				
 				condition_.notify_all();
+				if (func_) func_(message_); 
 			}
 	   
 		private:
@@ -156,116 +160,133 @@ namespace io_comm_mosaic
 	 
 	/**
 	 * @class CallbackHandlers
-	 * @brief Represents ensemble of messages, to be handled at once by this class
+	 * @brief Represents ensemble of (to be constructed) ROS messages, to be handled at once by this class
 	 */
 	 
-	class CallbackHandlers {
+	class CallbackHandlers 
+	{
 		
 		public:
 	
-			//! Key is std::string, value is boost::shared_ptr<CallbackHandler> 
-			typedef std::multimap<std::string,
-							 boost::shared_ptr<CallbackHandler> > Callbacks;
-							 
+			//! Key is std::string and represents the ROS message key, value is boost::shared_ptr<CallbackHandler> 
+			typedef std::multimap<std::string, boost::shared_ptr<AbstractCallbackHandler>> CallbackMap;
+			
 			CallbackHandlers() = default;
 			
 			template <typename T> 
-                        //! Insert adds a pair to our multimap, with the message_ID being the key; this method is called by handlers_ in rosaic_node.cpp
-			//! T would be e.g. PVTGeodetic struct, or nmea_msgs::Gpgga (which is not a struct, maybe internally?)..
-			Callbacks insert(std::string message_ID, typename CallbackHandler_<T>::Callback callback) // typename is not needed here
+			//! Insert adds a pair to our multimap, with the message_ID being the key; this method is called by handlers_ in rosaic_node.cpp
+			//! T would be a (custom or not) ROS message, e.g. rosaic::PVTGeodetic, or nmea_msgs::GPGGA
+			CallbackMap Insert(std::string message_key, typename CallbackHandler<T>::Callback callback) // typename is not needed here
 			{
 				boost::mutex::scoped_lock lock(callback_mutex_);
-				CallbackHandler_<T>* handler = new CallbackHandler_<T>(callback); // Adding typename might be cleaner, but is optional again
-				callbacks_.insert(std::make_pair(message_ID, boost::shared_ptr<CallbackHandler>(handler)));
-				Callbacks::key_type key = message_ID;
-				ROS_DEBUG("After insert command, key is there: %u", (unsigned int) callbacks_.count(key));
-				return callbacks_;
+				CallbackHandler<T>* handler = new CallbackHandler<T>(callback); // Adding typename might be cleaner, but is optional again
+				callbackmap_.insert(std::make_pair(message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
+				CallbackMap::key_type key = message_key;
+				ROS_DEBUG("After insert command, key is there: %u", (unsigned int) callbackmap_.count(key));
+				return callbackmap_;
 			}
 	 
-			//! Called many many times (every time mMessage is found to contain some useful message), for loop can forward to message-specific handle if latter was added via callbacks_.insert at some earlier point
-			void handle(mosaicMessage& mMessage) 
+			//! Called many times (every time mMessage is found to contain some useful message), for loop can forward to ROS message specific handle if latter was added via callbackmap_.insert at some earlier point
+			void Handle(mosaicMessage& mMessage) 
 			{
-				// !!Find!! the callback handler for the message & decode it
+				// Find the ROS message callback handler for equivalent mosaic message at hand & call it
 				boost::mutex::scoped_lock lock(callback_mutex_);
-				Callbacks::key_type key = mMessage.MessageID();
-				//ROS_DEBUG("The element exists in our map: %s", callbacks_.count(key) ? "true" : "false");
-				//ROS_DEBUG("The element exists in our map: %u", (unsigned int) callbacks_.count(key));
-				for (Callbacks::iterator callback = callbacks_.lower_bound(key); callback != callbacks_.upper_bound(key); ++callback)
+				CallbackMap::key_type key = mMessage.MessageID();
+				for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
 				{
-					callback->second->handle(mMessage);
+					callback->second->Handle(mMessage, callback->first);
+				}
+				// Call NavSatFix callback function if it was added
+				if (publish_navsatfix)
+				{
+					CallbackMap::key_type key = "NavSatFix";
+					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+					{
+						std::string ID_temp = mMessage.MessageID();
+						if (ID_temp == "4007" || ID_temp == "5906") // If no new message is coming in, no need to publish NavSatFix anew
+						{
+							callback->second->Handle(mMessage, callback->first);
+						}
+					}
 				}
 			}
 	 
 			/**
-			 * @brief Stores momentary (polling, not reading) message with ID "message_ID" in "message", after having waited for "timeout"
+			 * @brief Stores momentary (polling, not reading) (ROS) message with key "message_key" in "message", after having waited "timeout" long
 			 * 
-			 * Needs to be checked!
-			 * @param[out] message Storage for polled message
-			 * @param[in] message_ID ID of mosaid message
-			 * @param[in] timeout How much time should pass before storage is overwritten?
-			 * @return 
+			 * Usually this method would be launched in a new thread.
+			 * Method needs to be tested!
+			 * @param[out] message Storage for polled (ROS) message
+			 * @param[in] message_key Key of ROS message in C++ map
+			 * @param[in] timeout How much time should we wait for ROS message to be constructed?
+			 * @return True if polling was successful (i.e. new ROS message of type T was constructed within specified time), false otherwise
 			 */
 			template <typename T>
-			bool poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout) {
+			bool Poll(T& message, std::string message_key, const boost::posix_time::time_duration& timeout) 
+			{
 				bool result = false;
+				// Insert callback handler to C++ map
 				callback_mutex_.lock();
-				CallbackHandler_<T>* handler = new CallbackHandler_<T>(); // this calls the constructor with empty function
-				Callbacks::iterator callback = callbacks_.insert(std::make_pair(message_ID, boost::shared_ptr<CallbackHandler>(handler)));
+				CallbackHandler<T>* handler = new CallbackHandler<T>(); // This calls the constructor with an empty function.
+				CallbackMap::iterator callback = callbackmap_.insert(std::make_pair(message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
 				callback_mutex_.unlock();
 	 
 				// Wait for the message
-				if (handler->wait(timeout)) {
-					message = handler->get();
+				if (handler->Wait(timeout)) 
+				{
+					message = handler->Get();
 					result = true;
 				}
 		 
 				// Remove the callback handler
 				callback_mutex_.lock();
-				callbacks_.erase(callback);
+				callbackmap_.erase(callback);
 				callback_mutex_.unlock();
 				return result;
 			}
 	 
 			/**
-			 * @brief Main callback organizer "on callbackhandlers' thread" (recall: this callback_thread is initialized upon InitializeSerial call)
-			 * @param data Buffer passed on from AsyncManager class
+			 * @brief Searches for mosaic messages that could potentially be decoded/parsed/published  
+			 * @param[in] data Buffer passed on from AsyncManager class
+			 * @param[in] size Size of the buffer
 			 */
-			void readCallback(std::vector<uint8_t> data, std::size_t& size) 
+			void ReadCallback(std::vector<uint8_t> data, std::size_t& size) 
 			{
 				uint8_t* data_raw = &data[0];
 				mosaicMessage mMessage(data_raw, size);
 				// Read !all! (there might be many) messages in the buffer
-				while (mMessage.search() != mMessage.end() && mMessage.found()) 
+				while (mMessage.Search() != mMessage.End() && mMessage.Found()) 
 				{
 					if (debug >= 3) 
 					{
-						// Print the received bytes (if NMEA) or just show messageID..
-						if (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_2)
+						// Print the found message (if NMEA) or just show messageID (if SBF)..
+						if (mMessage.IsSBF())
 						{
 							unsigned long sbf_block_length;
-							sbf_block_length = (unsigned long) mMessage.block_length(); //c-like cast notation, functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise
-							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); //recall: long is at least 32 bits
+							sbf_block_length = (unsigned long) mMessage.BlockLength(); // C-like cast notation (since functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise)
+							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); // Recall: The long data type is at least 32 bits.
 						}
-						if ((mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_3) || (mMessage.pos()[0] == SEP_SYNC_BYTE_1 && mMessage.pos()[1] == SEP_SYNC_BYTE_4))
+						if (mMessage.IsNMEA())
 						{
 							std::ostringstream oss;
 							boost::char_separator<char> sep("\r");
 							typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-							std::size_t end_point = std::min(static_cast<std::size_t>(mMessage.end() - mMessage.pos()), static_cast<std::size_t>(82));
-							std::string block_in_string(reinterpret_cast<const char*>(mMessage.pos()), end_point);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
+							std::size_t end_point = std::min(static_cast<std::size_t>(mMessage.End() - mMessage.Pos()), static_cast<std::size_t>(82));
+							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), end_point);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
 																													// NMEA 0183 messages are at most 82 characters long, , including the $ or ! starting character and the ending <LF>
 							tokenizer tokens(block_in_string, sep);
-							//ROS_DEBUG("block_in_string is ready to be iterated, first NMEA message should be %s", (*tokens.begin()).c_str());
+							ROS_DEBUG("block_in_string is ready to be iterated, first NMEA message should be %s", (*tokens.begin()).c_str());
 						}
 					}
 	 
-					//ROS_DEBUG("Handing over from readcallback to handle while count is %d", mMessage.get_count());
-					handle(mMessage);
+					//ROS_DEBUG("Handing over from readcallback to Handle while count is %d", mMessage.GetCount());
+					Handle(mMessage);
 				}
 			}
 			
-			//! Call back handlers for mosaic messages, needs to be public since we insert pairs to the multimap within Subscribe() method
-			Callbacks callbacks_;
+			//! Callback handlers multimap for mosaic messages; it needs to be public since we copy-assign (did not work otherwise) new callbackmap_, 
+			//! after inserting a pair to the multimap within the DefineMessages() method of the ROSaicNode class, onto its old version.
+			CallbackMap callbackmap_;
 	 
 		private:
 			
@@ -274,8 +295,6 @@ namespace io_comm_mosaic
 			static boost::mutex callback_mutex_; 
 			
 	};
-	
 }
-
 
 #endif
