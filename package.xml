@@ -53,8 +53,7 @@
   <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>boost</depend>
-  <depend>rosconsole_backend_interface</depend>
-  
+   
 
   <build_depend>cpp_common</build_depend>
   <build_depend>rosconsole</build_depend>
