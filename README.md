@@ -169,6 +169,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   - `/pvtgeodetic`: accepts custom ROS message `rosaic/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic`
   - `/poscovgeodetic`: accepts custom ROS message `rosaic/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`
   - `/pvtcartesian`: accepts custom ROS message `rosaic/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`
+  - `/gpgga`: accepts generic ROS message [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html), converted from the NMEA sentence GGA
 - Planned Topics
   - `/gpsfix`: accepts generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `SatVisibility`, `ChannelStatus`, `AttEuler` and `AttCovEuler` (or from proprietary NMEA sentence HRP) and `DOP` 
   - `/poscovcartesian`: accepts custom ROS message `rosaic/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian`
@@ -180,7 +181,6 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   - `/glonasst` (for GLONASS Time): accepts generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the SBF block `GLOTime`
   - `/gst` (for Galileo System Time): accepts generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the SBF block `GALUtc`
   - `/bdt` (for BeiDou Time): accepts generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the SBF block `BDSUtc`
-  - `/gpgga`: accepts generic ROS message [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html), converted from the NMEA sentence GGA
   - `/gprmc`: accepts generic ROS message [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html), converted from the NMEA sentence RMC
   - `/gpgsa`: accepts generic ROS message [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html), converted from the NMEA sentence GSA
   - `/gpgsv`: accepts generic ROS message [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html), converted from the NMEA sentence GSV
