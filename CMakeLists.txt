@@ -116,7 +116,7 @@ generate_messages(
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES 
-   CATKIN_DEPENDS cpp_common rosconsole rosconsole_backend_interface rosconsole_log4cxx roscpp roscpp_serialization rostime xmlrpcpp message_runtime
+   CATKIN_DEPENDS cpp_common rosconsole rosconsole_backend_interface roscpp roscpp_serialization rostime xmlrpcpp message_runtime
    DEPENDS Boost 
 )
 
