@@ -23,8 +23,8 @@ Source and header files of the driver have been used as input for [Doxygen](http
 or [from source](https://www.doxygen.nl/manual/install.html).
 
 ## Usage
- To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
+ (We will have a binary release only in the end: To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
+`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.)<br><br>
 Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
 `sudo apt-get install python-catkin-tools`.<br><br>
 The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
