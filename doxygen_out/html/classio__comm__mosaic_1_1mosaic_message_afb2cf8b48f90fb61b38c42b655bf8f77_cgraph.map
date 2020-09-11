@@ -1,0 +1,4 @@
+<map id="io_comm_mosaic::mosaicMessage::IsMessage" name="io_comm_mosaic::mosaicMessage::IsMessage">
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a5981c1e2ce2425df5c6957405077f3a2" title="Gets the end position in the read buffer. " alt="" coords="280,5,539,32"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="296,57,523,98"/>
+</map>

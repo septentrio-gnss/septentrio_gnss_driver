@@ -1,0 +1,6 @@
+<map id="io_comm_mosaic::CallbackHandlers::Handle" name="io_comm_mosaic::CallbackHandlers::Handle">
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="236,71,463,112"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a71b8ae8eeec37ef08cc361e567df2936" title="Determines whether data_ currently points to an SBF block. " alt="" coords="527,5,753,47"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="527,71,753,112"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a5981c1e2ce2425df5c6957405077f3a2" title="Gets the end position in the read buffer. " alt="" coords="511,137,769,163"/>
+</map>

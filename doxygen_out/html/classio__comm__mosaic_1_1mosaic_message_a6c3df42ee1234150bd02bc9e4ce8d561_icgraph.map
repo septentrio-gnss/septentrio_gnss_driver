@@ -1,0 +1,11 @@
+<map id="io_comm_mosaic::mosaicMessage::block_length" name="io_comm_mosaic::mosaicMessage::block_length">
+<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a3736235fbb0226469ca084a42c27a439" title="io_comm_mosaic::mosaicMessage\l::get_count" alt="" coords="280,5,507,47"/>
+<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handlers.html#a0cee7e1789af9246b8a4989189ad2347" title="Main callback organizer &quot;on callbackhandlers&#39; thread&quot; (recall: this callback_thread is initialized up..." alt="" coords="302,71,485,112"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_comm___i_o.html#af12c3542da732768a9f4b719b5f99dec" title="Set the I/O manager. " alt="" coords="555,71,725,112"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_comm___i_o.html#a931dab5cd52ffaf420405bdd0526bb2d" title="Initializes the serial port. " alt="" coords="773,71,944,112"/>
+<area shape="rect" id="node9" href="$classio__comm__mosaic_1_1_comm___i_o.html#a390c71fb645c3277abd3ed3e31960d36" title="Initializes the TCP I/O. " alt="" coords="773,5,944,47"/>
+<area shape="rect" id="node10" href="$classio__comm__mosaic_1_1_comm___i_o.html#ad520b4cd3b73e38ca1ac17962950065f" title="Reset the Serial I/O port, e.g. after mosaic reset. " alt="" coords="773,136,944,177"/>
+<area shape="rect" id="node6" href="$classrosaic__node_1_1_r_o_saic_node.html#ac06ed02ba77b90ca96015e2dda95ff01" title="Initialize the I/O handling. " alt="" coords="992,5,1169,47"/>
+<area shape="rect" id="node8" href="$classrosaic__node_1_1_r_o_saic_node.html#a1798ec942a9142e0f04762129d2cee1e" title="Attempts to (re)connect every reconnect_delay_s_ seconds. " alt="" coords="992,71,1169,112"/>
+<area shape="rect" id="node7" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="1217,5,1395,47"/>
+</map>
