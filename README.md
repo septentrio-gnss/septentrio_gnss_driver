@@ -36,7 +36,7 @@ catkin init                                                    # Initialize with
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo   # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
 cd src
 git clone https://github.com/tibordome/rosaic
-rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, depending on OS
+rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
 catkin build
 source ~/septentrio/devel/setup.bash 
 catkin clean -y
