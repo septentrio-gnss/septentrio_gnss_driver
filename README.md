@@ -25,6 +25,12 @@ or [from source](https://www.doxygen.nl/manual/install.html).
 ## Usage
  To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
 `sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
+Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
+`sudo apt-get install python-catkin-tools`.<br><br>
+The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
+```
+source /opt/ros/${ROS_DISTRO}/setup.bash
+```
 Note: Adapt the `rover.yaml` file (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 
 ```
