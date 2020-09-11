@@ -1,2 +1,5 @@
 <map id="io_comm_mosaic::mosaicMessage" name="io_comm_mosaic::mosaicMessage">
+<area shape="rect" id="node2" href="$struct_pos_cov_geodetic.html" title="Struct for the SBF block &quot;PosCovGeodetic&quot;. " alt="" coords="170,465,291,492"/>
+<area shape="rect" id="node8" href="$struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. " alt="" coords="656,465,756,492"/>
+<area shape="rect" id="node6" href="$struct_block_header__t.html" title="Struct for the SBF block&#39;s header message. " alt="" coords="86,177,194,203"/>
 </map>

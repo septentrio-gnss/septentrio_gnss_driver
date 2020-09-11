@@ -68,9 +68,9 @@
 #define SEP_SYNC_BYTE_3 0x50 //0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message
 #define SEP_SYNC_BYTE_4 0x47 //0x47 is ASCII for G - 2nd byte to indicate NMEA-type ASCII message
 
+// ROS includes
 #include <ros/ros.h>
-// Boost (C++ libraries) Boost is a set of libraries for the C++ programming language that provides support for tasks and structures such as linear algebra, pseudorandom number generation, multithreading, image processing, regular expressions, and unit testing.
-// Boost also allows to go beyond the long long, long double data type (which is 64 bits, usually).
+// Boost includes
 #include <boost/function.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/asio.hpp>
@@ -78,13 +78,15 @@
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/asio/serial_port.hpp>
+// C++ library includes
 #include <sstream>
 #include <string.h>
 #include <memory>
+// ROSaic includes
 #include <rosaic/communication/mosaicMessage.hpp>
 #include <rosaic/communication/async_manager.hpp>
 #include <rosaic/communication/callbackhandlers.hpp>
-#include <rosaic/crc/crc.h> // for calculating CRC checks, the crc.h file is a C style header file, hence has its declarations are in an extern C block
+#include <rosaic/crc/crc.h>
 
 
 /**
@@ -99,10 +101,9 @@
  */
 namespace io_comm_mosaic 
 {
-	
 	extern int debug;
 
-	// Possible baudrates for mosaic-x5
+	//! Possible baudrates for mosaic
 	const static uint32_t Baudrates[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
 										115200, 230400, 460800, 500000, 576000, 921600, 
 										1000000, 1152000, 1500000, 2000000, 2500000, 
@@ -110,19 +111,23 @@ namespace io_comm_mosaic
 
 	/**
 	 * @class Comm_IO
-	 * @brief Handles communication with and configuration of the mosaic-x5 device(s)
+	 * @brief Handles (for now: one-way, very soon: two-way) communication with and (very soon) configuration of the mosaic-x5 device(s)
 	 */
-	class Comm_IO {
+	class Comm_IO 
+	{
 		public:
+			
 			// Sleep time in milliseconds after setting the baudrate to certain value (important between increments)
 			const static int SetBaudrateSleepMs = 500;
+			
 			// Size of write buffer in bytes for output messages
 			// const static int WriterSize = 2056;
 	  
 			/**
 			* @brief Default constructor of the class Comm_IO
 			*/
-			Comm_IO(); //getting rid of default did not solve the issue of insert not surviving
+			Comm_IO(); 
+			
 			/**
 			* @brief Default destructor of the class Comm_IO
 			*/
@@ -132,8 +137,7 @@ namespace io_comm_mosaic
 			 * @brief Initializes the serial port
 			 * @param[in] port The device's port address
 			 * @param[in] baudrate The chosen baud rate of the port
-			 * @param[in] flowcontrol Default is "None", set variable to "RTS|CTS" to activate hardware flow control 
-			 * (only for ports COM1, COM2 and COM3)
+			 * @param[in] flowcontrol Default is "None", set variable (not yet checked) to "RTS|CTS" to activate hardware flow control (only for mosaic serial ports COM1, COM2 and COM3)
 			 */
 			bool InitializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
 			
@@ -147,26 +151,25 @@ namespace io_comm_mosaic
 			/**
 			 * @brief Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic
 			 * 
-			 * InitializeSerial is not self-contained: The for loop in Callbackhandlers' handle method would never open a specific handler unless the handler is added (=inserted) to the map via this function. 
-			 * This way (since specific handle exists), the specific handler is opened, hence mosaicMessage's read method is called, "message" occupied (we allow for some time for this to happen), and func_ is called with the same, now occupied, "message", before control is handed back to bool read, which just returns true after deleting the specific handler.
-			 * Outline: mosaic_node calls both InitializeSerial and e.g. bool read(GPGGA to_be_published) and then publish it!
+			 * Note that the Poll() method has not yet been tested.
+			 , before control is handed back to bool read, which just returns true after deleting the specific handler.
 			 * @param[out] message The received message
 			 * @param[in] timeout The amount of time to wait for the desired message (before callback-handler is erased without populating message)
 			 */
 			template <typename T>
-			bool poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout);
+			bool Poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout);
 									
 			/**
 			 * @brief Set the I/O manager
 			 * @param[in] manager An I/O handler
 			 */
-			void setManager(const boost::shared_ptr<Manager>& manager);
+			void SetManager(const boost::shared_ptr<Manager>& manager);
 			
 			/**
 			 * @brief Reset the Serial I/O port, e.g. after mosaic reset.
 			 * @param[in] port The device's port address
 			 */
-			void resetSerial(std::string port);
+			void ResetSerial(std::string port);
 			
 			CallbackHandlers get_handlers() const {return handlers_;}
 			

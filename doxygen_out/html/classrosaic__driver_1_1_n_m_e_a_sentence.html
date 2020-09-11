@@ -102,7 +102,7 @@ Protected Attributes</h2></td></tr>
 <div class="textblock"><p>Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings. </p>
 <p>The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P". The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing). </p>
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00051">51</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00052">52</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3999c8d21c6ad50998c1ab0d7aebe708"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3999c8d21c6ad50998c1ab0d7aebe708">&#9670;&nbsp;</a></span>NMEASentence()</h2>
@@ -138,9 +138,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00054">54</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;: <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a5468c266ab394f8267dc1b143d40ea4c">id_</a>(<span class="keywordtype">id</span>), <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">body_</a>(body) {}</div><div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a1474b7e9a5f0096ed73d072f5eda7155"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">rosaic_driver::NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00058">nmea_sentence.hpp:58</a></div></div>
-<div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a5468c266ab394f8267dc1b143d40ea4c"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a5468c266ab394f8267dc1b143d40ea4c">rosaic_driver::NMEASentence::id_</a></div><div class="ttdeci">std::string id_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00057">nmea_sentence.hpp:57</a></div></div>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00055">55</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;: <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a5468c266ab394f8267dc1b143d40ea4c">id_</a>(<span class="keywordtype">id</span>), <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">body_</a>(body) {}</div><div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a1474b7e9a5f0096ed73d072f5eda7155"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">rosaic_driver::NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00059">nmea_sentence.hpp:59</a></div></div>
+<div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a5468c266ab394f8267dc1b143d40ea4c"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a5468c266ab394f8267dc1b143d40ea4c">rosaic_driver::NMEASentence::id_</a></div><div class="ttdeci">std::string id_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00058">nmea_sentence.hpp:58</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -168,10 +168,10 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00055">55</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00056">56</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="nmea__sentence_8hpp_source.html#l00058">body_</a>.</p>
-<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;{<span class="keywordflow">return</span> <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">body_</a>;}</div><div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a1474b7e9a5f0096ed73d072f5eda7155"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">rosaic_driver::NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00058">nmea_sentence.hpp:58</a></div></div>
+<p class="reference">References <a class="el" href="nmea__sentence_8hpp_source.html#l00059">body_</a>.</p>
+<div class="fragment"><div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;{<span class="keywordflow">return</span> <a class="code" href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">body_</a>;}</div><div class="ttc" id="classrosaic__driver_1_1_n_m_e_a_sentence_html_a1474b7e9a5f0096ed73d072f5eda7155"><div class="ttname"><a href="classrosaic__driver_1_1_n_m_e_a_sentence.html#a1474b7e9a5f0096ed73d072f5eda7155">rosaic_driver::NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00059">nmea_sentence.hpp:59</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -196,9 +196,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00058">58</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00059">59</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="nmea__sentence_8hpp_source.html#l00055">get_body()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="nmea__sentence_8hpp_source.html#l00056">get_body()</a>.</p>
 
 </div>
 </div>
@@ -222,7 +222,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00057">57</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00058">58</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
 </div>
 </div>
@@ -232,7 +232,7 @@ Protected Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Sep 8 2020 10:40:38 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Sep 11 2020 13:35:49 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

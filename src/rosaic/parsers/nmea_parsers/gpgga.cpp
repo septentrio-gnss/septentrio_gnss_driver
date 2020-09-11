@@ -29,9 +29,6 @@
 // *****************************************************************************
 
 #include <rosaic/parsers/nmea_parsers/gpgga.hpp>
-#include <boost/make_shared.hpp>
-#include <rosaic/parsers/string_utilities.h>
-#include <ros/ros.h>
 
 /**
  * @file gpgga.cpp
@@ -47,24 +44,24 @@ const std::string rosaic_driver::GpggaParser::GetMessageID() const
 }
 
 /**
- * Caution: Due to the occurrence of the throw keyword, this method ParseAscii should be called within a try / catch framework...
+ * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
  * Note: This method assumes that "sentence" does not include the checksum part of the GGA message.
  */
-nmea_msgs::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::NMEASentence& sentence) noexcept(false)
+rosaic::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::NMEASentence& sentence) noexcept(false)
 {
 	//ROS_DEBUG("Just testing that first entry is indeed what we expect it to: %s", sentence.get_body()[0].c_str());
-	// Check the length first, which should be 15 elements (if station ID available, otherwise missing field, not empty field) or 14 elements (if station ID not avaiable).
+	// Check the length first, which should be 15 elements (if station ID available, otherwise that one is a missing field, not empty field) or 14 elements (if station ID not avaiable).
 	const size_t MAX_LEN = 15;
 	const size_t MIN_LEN = 14;
 	if (sentence.get_body().size() > MAX_LEN || sentence.get_body().size() < MIN_LEN)
 	{
 		std::stringstream error;
-		error << "Expected GPGGA length " << MIN_LEN << "  <= length <= "
-			  << MAX_LEN << ", actual length = " << sentence.get_body().size();
+		error << "GGA parsing failed: Expected GPGGA length " << MIN_LEN << "  <= length <= "
+			  << MAX_LEN << ", but actual length = " << sentence.get_body().size();
 		throw ParseException(error.str());
 	}
 
-	nmea_msgs::GpggaPtr msg = boost::make_shared<nmea_msgs::Gpgga>();
+	rosaic::GpggaPtr msg = boost::make_shared<rosaic::Gpgga>();
 	msg->header.frame_id = frame_id;
 
 	msg->message_id = sentence.get_body()[0];
@@ -83,13 +80,14 @@ nmea_msgs::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::
 			
 			// The Header's Unix Epoch time stamp
 			time_t unix_time_seconds = UTCtoUnix(utc_double);
-			uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; // Assumes there are two digits after the decimal point in NMEA UTC time
+			// The following assumes that there are two digits after the decimal point in utc_double, i.e. in the NMEA UTC time.
+			uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; 
 			msg->header.stamp.sec = unix_time_seconds;
 			msg->header.stamp.nsec = unix_time_nanoseconds;
 		}
 		else
 		{
-			throw rosaic_driver::ParseException("Error parsing UTC seconds in GPGGA"); // E.g. if one of the time fields of the string is empty
+			throw rosaic_driver::ParseException("Error parsing UTC seconds in GPGGA"); // E.g. if one of the fields of the NMEA UTC string is empty
 		}
 	}
 

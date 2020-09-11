@@ -31,9 +31,8 @@
 #ifndef PARSER_BASE_CLASS_HPP
 #define PARSER_BASE_CLASS_HPP
 
-#include "sbf_block.hpp" 
+// ROSaic includes
 #include "nmea_sentence.hpp"
-
 #include "parsing_utilities.hpp"
 #include "parse_exception.hpp"
 
@@ -51,9 +50,7 @@ namespace rosaic_driver
 	*
 	* Subclasses that parse NMEA messages should implement
 	* ParseASCII(const NMEASentence&); subclasses that parse SBF blocks
-	* should implement ParseBinary(const SBFBlock&) and subclasses that parse
-	* proprietary NMEA messages should implement
-	* ParseASCII(const SeptentrioNMEASentence&). The base class is implemented
+	* should implement ParseBinary(const SBFBlock&). The base class is implemented
 	* as a template, which is a simple and yet very powerful tool in C++. The 
 	* simple idea is to pass data type as a parameter so that we don’t need to 
 	* write the same code for different data types. Like function templates, class
@@ -90,7 +87,7 @@ namespace rosaic_driver
 		/**
 		 * @brief Returns the ASCII message name
 		 * 
-		 * GetMessageName() is a pure virtual function, i.e. a function
+		 * GetMessageID() is a pure virtual function, i.e. a function
 		 * for which writing a function declaration suffices. It is declared by 
 		 * assigning the value 0 in the declaration. Since we now have at least 
 		 * 1 pure virtual function, our class BaseParser thus becomes an
@@ -101,15 +98,16 @@ namespace rosaic_driver
 		virtual const std::string GetMessageID() const = 0;
     
 		/**
-		 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it.
+		 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
 		 *
 		 * The returned value should not be NULL. ParseException will be thrown
 		 * if there are any issues parsing the block.
 		 * 
-		 * @param[in] bin_msg The message to convert, of type const SBFBlock&.
-		 * @return A valid ROS message pointer.
+		 * @param[in] bin_msg The message to convert, of type const SBFStructT
+		 * @return A valid ROS message pointer
 		 */
-		virtual T ParseBinary(const SBFBlock& bin_msg) noexcept(false)
+		template <typename SBFStructT>
+		T ParseBinary(const SBFStructT& bin_msg) noexcept(false)
 		{
 			throw ParseException("ParseBinary not implemented.");
 		};
@@ -119,8 +117,8 @@ namespace rosaic_driver
 		 *
 		 * The returned value should not be NULL. ParseException will be thrown
 		 * if there are any issues parsing the message.
-		 * @param[in] sentence The standardized NMEA sentence to convert.
-		 * @return A valid ROS message pointer.
+		 * @param[in] sentence The standardized NMEA sentence to convert, of type NMEASentence
+		 * @return A valid ROS message pointer
 		 */
 		virtual T ParseASCII(const NMEASentence& sentence) noexcept(false)
 		{

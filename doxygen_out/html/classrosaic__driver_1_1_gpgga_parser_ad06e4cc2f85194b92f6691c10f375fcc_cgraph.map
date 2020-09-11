@@ -1,6 +1,6 @@
 <map id="rosaic_driver::GpggaParser::GpggaParser" name="rosaic_driver::GpggaParser::GpggaParser">
 <area shape="rect" id="node2" href="$classrosaic__driver_1_1_gpgga_parser.html#a7f9df0e8e306ab2afcfc24a099ff83d6" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="233,101,413,142"/>
-<area shape="rect" id="node3" href="$classrosaic__driver_1_1_gpgga_parser.html#ab4b95cdc2b0dd46c9fa87f1a77a8b7a4" title="Parses one GGA message. " alt="" coords="233,166,413,207"/>
+<area shape="rect" id="node3" href="$classrosaic__driver_1_1_gpgga_parser.html#a6b834ffc3f6ed036b9eab045ad15aaf7" title="Parses one GGA message. " alt="" coords="233,166,413,207"/>
 <area shape="rect" id="node11" href="$classrosaic__driver_1_1_gpgga_parser.html#a55e0e03a9228a372779f5c676e2cab2e" title="Tells us whether the last GGA message was valid or not. " alt="" coords="233,231,413,273"/>
 <area shape="rect" id="node4" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="475,5,642,32"/>
 <area shape="rect" id="node5" href="$namespacerosaic__driver.html#a0b2482d57b61c66431e336df6850366c" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="472,57,645,98"/>

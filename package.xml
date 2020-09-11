@@ -51,6 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <depend>nmea_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>boost</depend>
   <depend>rosconsole_backend_interface</depend>
   <depend>rosconsole_log4cxx</depend>
