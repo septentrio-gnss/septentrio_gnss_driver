@@ -6,6 +6,8 @@ driver development process. Our goal is to build a ROS Melodic and Noetic driver
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both the serial and the TCP/IP protocols
+- Can store and play back PCAP (Packet Capture) logs to perform tests
+  - PCAP is a valuable resource for file analysis and to monitor your network traffic. Packet collection tools like Wireshark allow you to collect network traffic and translate it into a format that’s human-readable. These PCAP files can then be used to view TCP/IP and UDP/IP network packets. There are many reasons why PCAP is used to monitor networks. Some of the most common include monitoring bandwidth usage, identifying rogue DHCP servers, detecting malware, DNS resolution, and incident response.
 - Facilitates extension to further log types, see instructions below
 - Supports (as of now) a handful of ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Tested with the mosaic-X5 receiver
@@ -14,8 +16,7 @@ Please [let the maintainers know](mailto:tibor.dome@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
-We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br><br>
+
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br><br>
@@ -23,47 +24,94 @@ Source and header files of the driver have been used as input for [Doxygen](http
 or [from source](https://www.doxygen.nl/manual/install.html).
 
 ## Usage
- To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
+ To install the binary packages, run the following command in a terminal:<br><br>
 `sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.<br><br>
-Note: Adapt the `rover.yaml` file (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
+Note: Adapt the `rover.launch` file and if necessary the `base.launch` file in the launch directory and configure it as desired:<br><br>
 
+```cpp
+<?xml version="1.0"?>
+<launch>
+  <node name="mosaic_gnss"
+    pkg="rosaic" type="rosaic_node"
+    required="true
+    output="screen"
+    args="standalone septentrio_gnss_driver">
+        
+    <param name="port"             value="/dev/ttyS0" type="string"/>
+    <param name="baudrate"         value="115200"       type="int" />
+    <param name="septentrio_port"  value="COM1"         type="string"/>
+    <param name="output_rate"       value="1.0"   type="string"/>
+    <param name="range_output_rate" value="1.0"   type="string"/>
+    
+    <!-- 
+      Log options are:
+        - PVTCar: PvtCartesian
+        - CovCar: PosCovCartesian, VelCovCartesian
+        - AttEuler: AttitudeEuler
+        - CovEuler: AttitudeCovEuler
+      There are several others available, but they will have to be implemented
+     -->
+     
+    <rosparam     param="logs">
+      ["PVTCar", "CovCar", "AttEuler", "CovEuler"]
+    </rosparam>
+    <rosparam     param="connection_type">
+      serial
+    </rosparam>
+    <rosparam     param="device">
+      /dev/ttyUSB0
+    </rosparam>
+    <rosparam     param="frame_id">
+      /gps
+    </rosparam>
+    <rosparam     param="publish_septentrio_velocity">
+      true
+    </rosparam>
+    
+    <rosparam param="antenna_location/1">
+      x: 0.0292
+      y: 1.1464
+      z: 0.0
+    </rosparam>
+    
+    <rosparam param="antenna_location/2">
+      x: 1.9091
+      y: 0.0
+      z: 0.0
+    </rosparam>
+    
+    </rosparam>
+
+    <!-- 
+      format options: RTCM3, RTCM, CMR
+        - for NTRIP from Lefebure, use RTCM
+      Port: which port on the septentrio board
+     -->
+    <param name="rtk_port" value="COM2"/>
+    <param name="rtk_baud" value="115200" type="int"/>
+    <param name="rtk_format" value="RTCM3"/>
+    
+  </node>
+</launch>
 ```
-debug: 3
-
-device: tcp://192.168.3.1:28784
-
-frame_id: gnss
-
-publish:
-  gpgga: true
-  pvtcartesian: true
-  pvtgeodetic: true
-  navsatfix: true
-
-serial:
-  baudrate: 115200
-
-reconnect_delay_s: 0.1
-
-use_GNSS_time: true
-```
-
-Subscribe to certain topics listed below (many not yet implemented!) depending on your application...
+Subscribe to certain topics listed below depending on your application...
 ## ROS Wrapper
 ### ROS Parameters
-The following is a list of ROS parameters found in the, say, `rover.yaml` file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
+The following is a list of ROS parameters, which are determined in the ?rover? launch file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
 - Parameters Configuring Communication Ports and Processing of GNSS Data
+  - `communication_type`: type of communication to the receiver
+    - must be one of `"Serial"` or `"TCP"`
+    - default: `"Serial"`
   - `device`: location of device connection
     - for serial connections, the device node, e.g., `"/dev/ttyUSB0"`
     - for TCP/IP connections, a `"host:port"` specification
       - If the port is omitted, `28784` will be used as the default for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured before the ROS driver can be used.
     - default: empty string `""`  
-  - `serial/baudrate`: serial baud rate to be used in a serial connection 
+  - `serial_baud`: serial baud rate to be used in a serial connection 
     - default: `115200`
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `"GNSS"`
-  - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
     - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
     - default: `true`
@@ -98,43 +146,43 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - default: `"auto"`
   
 - Parameters Configuring (Non-)Publishing of ROS Messages
-  - `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
+  - `publish_navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
     - default: `true`
-  - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
+  - `publish_gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
     - default: `true`
-  - `publish/pvtcartesian`: `true` to publish `rosaic/PVTCartesian.msg` messages into the topic `/pvtcartesian`
+  - `publish_pvtcartesian`: `true` to publish `rosaic/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     - default: `false`
-  - `publish/poscovcartesian`: `true` to publish `rosaic/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
+  - `publish_poscovcartesian`: `true` to publish `rosaic/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     - default: `false`
-  - `publish/orientation`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/orientation`
+  - `publish_orientation`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/orientation`
     - default: `false`
-  - `publish/gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
+  - `publish_gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
     - default: `false`
-  - `publish/glonasst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/glonasst`
+  - `publish_glonasst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/glonasst`
     - default: `false`
-  - `publish/gst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gst`
+  - `publish_gst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gst`
     - default: `false`
-  - `publish/bdt`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/bdt`
+  - `publish_bdt`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/bdt`
     - default: `false`
-  - `publish/gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
+  - `publish_gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     - default: `false`
-  - `publish/gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
+  - `publish_gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     - default: `false`
-  - `publish/gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
+  - `publish_gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     - default: `false`
-  - `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
+  - `publish_gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     - default: `false`
-  - `publish/rosdiagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/rosdiagnostics`
+  - `publish_rosdiagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/rosdiagnostics`
     - default: `false`
-  - `publish/receiversetup`: `true` to publish `rosaic/ReceiverSetup.msg` messages into the topic `/receiversetup`
+  - `publish_receiversetup`: `true` to publish `rosaic/ReceiverSetup.msg` messages into the topic `/receiversetup`
     - default: `false`
-  - `publish/inputlink`: `true` to publish `rosaic/InputLink.msg` messages into the topic `/inputlink`
+  - `publish_inputlink`: `true` to publish `rosaic/InputLink.msg` messages into the topic `/inputlink`
     - default: `false`
-  - `publish/basestation`: `true` to publish `rosaic/BaseStation.msg` messages into the topic `/basestation`
+  - `publish_basestation`: `true` to publish `rosaic/BaseStation.msg` messages into the topic `/basestation`
     - default: `false`
-  - `publish/rtcmdatum`: `true` to publish `rosaic/RTCMDatum.msg` messages into the topic `/rtcmdatum`
+  - `publish_rtcmdatum`: `true` to publish `rosaic/RTCMDatum.msg` messages into the topic `/rtcmdatum`
     - default: `false`
-  - `publish/receivertime`: `true` to publish `rosaic/ReceiverTime.msg` messages into the topic `/receivertime`
+  - `publish_receivertime`: `true` to publish `rosaic/ReceiverTime.msg` messages into the topic `/receivertime`
     - default: `false`
 
 ### ROS Topic Publications
@@ -177,4 +225,3 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 ## Adding New SBF Blocks
 Is there an SBF block that is not being addressed while being important to your application? If yes, follow these steps:
 1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5) of Septentrio's homepage and focus on Chapter 4.
-
