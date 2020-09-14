@@ -45,6 +45,12 @@ bool io_comm_mosaic::Comm_IO::Poll(T& message, std::string message_ID, const boo
 	return handlers_.Poll(message, message_ID, timeout);
 }
 
+void io_comm_mosaic::Comm_IO::Send(std::string cmd)
+{
+	// Determine byte size of cmd and hand over to Send() method of manager_
+	manager_.get()->Send(cmd, cmd.size());
+}
+
 void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
 {
 	host_ = host;

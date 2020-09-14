@@ -77,6 +77,8 @@ extern bool publish_gpgga;
 extern bool publish_pvtcartesian;
 extern bool publish_pvtgeodetic;
 extern bool publish_poscovgeodetic;
+extern bool publish_atteuler;
+extern bool publish_attcoveuler;
 extern bool publish_navsatfix;
 	
 /**

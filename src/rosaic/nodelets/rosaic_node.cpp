@@ -53,6 +53,9 @@ rosaic_node::ROSaicNode::ROSaicNode()
 	}
 	// Subscribe to all requested mosaic messages and publish them raw or in composite form (e.g. NavSatFix)
     DefineMessages();
+	// Testing Send() method of AsyncManager class
+	std::string cmd = "grc \x0D";
+	IO.Send(cmd);
 	ros::spin();
 	
 }
@@ -146,34 +149,47 @@ void rosaic_node::ROSaicNode::DefineMessages()
 
 	if (publish_gpgga == true)
 	{
-		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::Gpgga>("$GPGGA", boost::bind(Publish<rosaic::Gpgga>, _1, "/gpgga"));
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::Gpgga>("$GPGGA", boost::bind(Publish<rosaic::Gpgga>, _1, "/gpgga"));
 		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "$GPGGA";
 		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_pvtcartesian == true)
 	{
-		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PVTCartesian>("4006", boost::bind(Publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PVTCartesian>("4006", boost::bind(Publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
 		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4006";
 		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_pvtgeodetic == true)
 	{
-		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PVTGeodetic>("4007", boost::bind(Publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PVTGeodetic>("4007", boost::bind(Publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
 		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4007";
 		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_poscovgeodetic == true)
 	{
-		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<rosaic::PosCovGeodetic>("5906", boost::bind(Publish<rosaic::PosCovGeodetic>, _1, "/poscovgeodetic"));
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PosCovGeodetic>("5906", boost::bind(Publish<rosaic::PosCovGeodetic>, _1, "/poscovgeodetic"));
 		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5906";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+	}
+	if (publish_atteuler == true)
+	{
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::AttEuler>("5938", boost::bind(Publish<rosaic::AttEuler>, _1, "/atteuler"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5938";
+		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+	}
+	if (publish_attcoveuler == true)
+	{
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::AttCovEuler>("5939", boost::bind(Publish<rosaic::AttCovEuler>, _1, "/attcoveuler"));
+		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5939";
 		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_navsatfix == true)
 	{
-		IO.handlers_.callbackmap_ = IO.get_handlers().Insert<sensor_msgs::NavSatFix>("NavSatFix", boost::bind(Publish<sensor_msgs::NavSatFix>, _1, "/navsatfix"));
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<sensor_msgs::NavSatFix>("NavSatFix", boost::bind(Publish<sensor_msgs::NavSatFix>, _1, "/navsatfix"));
 		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "NavSatFix";
 		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
+	
 	ROS_DEBUG("Leaving DefineMessages() method");
 	// and so on
 }
@@ -183,19 +199,21 @@ void rosaic_node::ROSaicNode::DefineMessages()
 //! If true, the ROS message headers' unix time field is constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data. 
 //! If false, times are constructed within the driver via time(NULL) of the <ctime> library.
 bool use_GNSS_time;
-//! Number of times the "read" method of the mosaicMessage class has been called
-uint32_t read_count;
 //! Driver debugging level (not the ROS logging level), as specified in rover.yaml or equivalent files
 int io_comm_mosaic::debug; 
-//! Whether or not to publsh GGA messages
+//! Whether or not to publish the GGA message
 bool publish_gpgga;
-//! Whether or not to publsh PVTCartesian block
+//! Whether or not to publish the rosaic::PVTCartesian message
 bool publish_pvtcartesian;
-//! Whether or not to publsh PVTGeodetic block
+//! Whether or not to publish the rosaic::PVTGeodetic message
 bool publish_pvtgeodetic;
-//! Whether or not to publsh PVTGeodetic block
+//! Whether or not to publish the rosaic::PosCovGeodetic message
 bool publish_poscovgeodetic;
-//! Whether or not to publsh PVTGeodetic block
+//! Whether or not to publish the rosaic::AttEuler message
+bool publish_atteuler;
+//! Whether or not to publish the rosaic::AttCovEuler message
+bool publish_attcoveuler;
+//! Whether or not to publish the sensor_msgs::NavSatFix message
 bool publish_navsatfix;
 //! The frame ID used in the header of every published ROS message
 std::string frame_id;
@@ -205,7 +223,6 @@ boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_;
 
 int main(int argc, char** argv) 
 {
-	read_count = 0;
 	//rosaic_node::nh->param("something", node_name, default_node_name); 
 	ros::init(argc, argv, "mosaic_gnss");
 	rosaic_node::nh.reset(new ros::NodeHandle("~")); // Note that nh was initialized in the header file already.
@@ -216,6 +233,8 @@ int main(int argc, char** argv)
 	rosaic_node::nh->param("publish/pvtcartesian", publish_pvtcartesian, true);
 	rosaic_node::nh->param("publish/pvtgeodetic", publish_pvtgeodetic, true);
 	rosaic_node::nh->param("publish/poscovgeodetic", publish_poscovgeodetic, true);
+	rosaic_node::nh->param("publish/atteuler", publish_atteuler, true);
+	rosaic_node::nh->param("publish/attcoveuler", publish_attcoveuler, true);
 	rosaic_node::nh->param("publish/navsatfix", publish_navsatfix, true);
 	
 	//To be implemented: Let nh subscribe to RTCM topic...
