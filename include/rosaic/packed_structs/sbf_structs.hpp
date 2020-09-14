@@ -204,6 +204,54 @@ struct PVTGeodetic
 	uint8_t        Misc;	
 };
 
+/**
+ * @class AttEuler
+ * @brief Struct for the SBF block "AttEuler"
+ */
+struct AttEuler
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        NrSV;
+	uint8_t        Error;   
+	uint16_t       Mode;
+	uint16_t       Reserved;
+	float          Heading;
+	float          Pitch;
+	float          Roll;
+	float          PitchDot;
+	float          RollDot;
+	float          HeadingDot;	
+};
+
+
+/**
+ * @class AttCovEuler
+ * @brief Struct for the SBF block "AttCovEuler"
+ */
+struct AttCovEuler
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        Reserved;         
+	uint8_t        Error; 
+	float          Cov_HeadHead;
+	float          Cov_PitchPitch;
+	float          Cov_RollRoll;
+	float          Cov_HeadPitch;
+	float          Cov_HeadRoll;
+	float          Cov_PitchRoll;
+};
+
+
 //structure for the PosCovCartesian parsed block, old
 /*
 struct PosCovCartesian //message 5905
@@ -322,65 +370,6 @@ struct VelCovCartesian
 	float          Cov_VyVz;     
 	float          Cov_VyDt;     
 	float          Cov_VzDt;     
-};
-
-
-//structure for the AttitudeEuler parsed block, old
-/*
-struct AttitudeEuler //message 5938
-{
-    unsigned int GPS_ms; //Time tag of attitude solution in milliseconds of week, receiver time scale
-    unsigned short weekNumber; //Week number
-    unsigned char numSat; //Average over all antennas of the number of satellites used
-    unsigned char error; //Error bit field
-    unsigned short mode; //Attitude mode
-    unsigned short reserved; // for future use 
-    float heading; //Heading (degrees)
-    float pitch; //Pitch (degrees)
-    float roll; //Roll (degrees)
-    float x_omega; //Angular rate in vehicle frame (deg/s)
-    float y_omega; //Angular rate in vehicle frame (deg/s)
-    float z_omega; //Angular rate in vehicle frame (deg/s)
-};
-*/
-
-/**
- * @class AttitudeEuler
- * @brief Struct for the SBF block "AttitudeEuler"
- */
-struct AttitudeEuler
-{
-	BlockHeader_t  Header;       
-
-	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
-
-	uint8_t        NRSV;         
-	uint8_t        Error;        
-	uint16_t       Mode;         
-	uint16_t       Reserved;     
-	float          Heading;      
-	float          Pitch;        
-	float          Roll;         
-	float          PitchDot;     
-	float          RollDot;      
-	float          HeadingDot;   
-};
-
-/**
- * @class AttitudeCovEuler
- * @brief Struct for the SBF block "AttitudeCovEuler"
- */
-struct AttitudeCovEuler
-{
-	unsigned int GPS_ms;       //Time tag of attitude solution in milliseconds of week, receiver time scale
-	unsigned short weekNumber; //Week number
-	unsigned char reserved;    //Rserved for future use, DO NOT USE
-	unsigned char error;       //Error bit code
-	float var_heading;         //variance of heading estimate deg^2
-	float var_pitch;           //variance of pitch estiamte   deg^2 
-	float var_roll;            //variance of roll estiamte    deg^2
 };
 
 

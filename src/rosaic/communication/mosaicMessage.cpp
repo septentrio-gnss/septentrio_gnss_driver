@@ -36,6 +36,15 @@
  * @brief Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_read_some
  */
  
+//! Number of times the "read" method of the mosaicMessage class has been called
+uint32_t io_comm_mosaic::mosaicMessage::read_count_pvtgeodetic_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_pvtcartesian_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_poscovgeodetic_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_atteuler_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_attcoveuler_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_navsatfix_ = 0;
+uint32_t io_comm_mosaic::mosaicMessage::read_count_gpgga_ = 0;
+
 rosaic::PVTGeodeticPtr io_comm_mosaic::mosaicMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
 	rosaic::PVTGeodeticPtr msg = boost::make_shared<rosaic::PVTGeodetic>();
@@ -140,6 +149,48 @@ rosaic::PosCovGeodeticPtr io_comm_mosaic::mosaicMessage::PosCovGeodeticCallback(
 	return msg;
 }
 
+rosaic::AttEulerPtr io_comm_mosaic::mosaicMessage::AttEulerCallback(AttEuler& data)
+{
+	rosaic::AttEulerPtr msg = boost::make_shared<rosaic::AttEuler>();
+	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
+	msg->Block_Header.SYNC2 = data.Block_Header.SYNC2;
+	msg->Block_Header.CRC = data.Block_Header.CRC;
+	msg->Block_Header.ID = data.Block_Header.ID;
+	msg->Block_Header.Length = data.Block_Header.Length;
+	msg->Block_Header.TOW = data.TOW;
+	msg->Block_Header.WNc = data.WNc;
+	msg->NrSV = data.NrSV;
+	msg->Error = data.Error;
+	msg->Mode = data.Mode;
+	msg->Heading = data.Heading;
+	msg->Pitch = data.Pitch;
+	msg->Roll = data.Roll;
+	msg->PitchDot = data.PitchDot;
+	msg->RollDot = data.RollDot;
+	msg->HeadingDot = data.HeadingDot;
+	return msg;
+};
+
+rosaic::AttCovEulerPtr io_comm_mosaic::mosaicMessage::AttCovEulerCallback(AttCovEuler& data)
+{
+	rosaic::AttCovEulerPtr msg = boost::make_shared<rosaic::AttCovEuler>();
+	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
+	msg->Block_Header.SYNC2 = data.Block_Header.SYNC2;
+	msg->Block_Header.CRC = data.Block_Header.CRC;
+	msg->Block_Header.ID = data.Block_Header.ID;
+	msg->Block_Header.Length = data.Block_Header.Length;
+	msg->Block_Header.TOW = data.TOW;
+	msg->Block_Header.WNc = data.WNc;
+	msg->Error = data.Error;
+	msg->Cov_HeadHead = data.Cov_HeadHead;
+	msg->Cov_PitchPitch = data.Cov_PitchPitch;
+	msg->Cov_RollRoll = data.Cov_RollRoll;
+	msg->Cov_HeadPitch = data.Cov_HeadPitch;
+	msg->Cov_HeadRoll = data.Cov_HeadRoll;
+	msg->Cov_PitchRoll = data.Cov_PitchRoll;
+	return msg;
+};
+
 /**
  * The position_covariance array is populated in row-major order, where the basis of the corresponding matrix is ENU (so Cov_lonlon is in location 11 of the matrix).
  */
@@ -175,6 +226,26 @@ sensor_msgs::NavSatFixPtr io_comm_mosaic::mosaicMessage::NavSatFixCallback()
 			throw std::runtime_error("PVTGeodetic's Mode field contains an invalid type of PVT solution.");
 		}
 	}
+	bool gps_in_pvt = false;
+	bool glo_in_pvt = false;
+	bool com_in_pvt = false;
+	bool gal_in_pvt = false;
+	uint32_t mask_2 = 1;
+	for(int bit = 0; bit != 31; ++bit)
+	{
+		bool in_use = last_pvtgeodetic_.SignalInfo & mask_2;
+		if (bit <= 5 && in_use) 
+		{
+			gps_in_pvt = true;
+		}
+		if (8   <= bit && bit <= 12 && in_use) glo_in_pvt = true;
+		if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) && in_use) com_in_pvt = true;
+		if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use) gal_in_pvt = true;
+		mask_2 *= 2;
+	}
+	//ROS_DEBUG("GPS is in use: %s, GLO is in use: %s, COM is in use: %s, GAL is in use: %s", gps_in_pvt ? "true" : "false", glo_in_pvt ? "true" : "false", com_in_pvt ? "true" : "false", gal_in_pvt ? "true" : "false");
+	uint16_t service = gps_in_pvt*1+glo_in_pvt*2+com_in_pvt*4+gal_in_pvt*8; // booleans will be promoted to integers automatically
+	msg->status.service = service;
 	msg->latitude = last_pvtgeodetic_.Latitude*360/(2*boost::math::constants::pi<double>());
 	msg->longitude = last_pvtgeodetic_.Longitude*360/(2*boost::math::constants::pi<double>());
 	msg->altitude = last_pvtgeodetic_.Height;
@@ -252,7 +323,7 @@ bool io_comm_mosaic::mosaicMessage::Found()
 	if (found_) return true;
 	
 	// Verify header bytes
-	if (!this->IsSBF() && !this->IsNMEA())
+	if (!this->IsSBF() && !this->IsNMEA() && !this->IsResponse())
 	{
 		return false;
 	}
@@ -270,7 +341,7 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Search()
 	// Search for a message header
 	for( ; count_ > 0; --count_, ++data_) 
 	{
-		if (this->IsSBF() || this->IsNMEA())
+		if (this->IsSBF() || this->IsNMEA() || this->IsResponse())
 		{
 			break;
 		}
@@ -279,6 +350,25 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Search()
 	return data_;
 }
 
+std::size_t io_comm_mosaic::mosaicMessage::SegmentEnd()
+{
+	uint16_t pos = 0;
+	segment_size_ = 0;
+	do
+	{
+		++segment_size_;
+		++pos;
+	} while(!(data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED));
+	if (this->IsResponse())
+	{
+		do
+		{
+			++segment_size_;
+			++pos;
+		} while(!(data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED));
+	}
+	return segment_size_;
+}
 bool io_comm_mosaic::mosaicMessage::IsMessage(const uint16_t ID)
 {
 	if (this->IsSBF())
@@ -348,6 +438,18 @@ bool io_comm_mosaic::mosaicMessage::IsNMEA()
 	}
 }
 
+bool io_comm_mosaic::mosaicMessage::IsResponse()
+{
+	if (data_[0] == RESPONSE_SYNC_BYTE_1 && data_[1] == RESPONSE_SYNC_BYTE_2)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 std::string io_comm_mosaic::mosaicMessage::MessageID()
 {
 	if (this->IsSBF())
@@ -402,7 +504,7 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 {
 	if (Found()) 
 	{
-		if (this->IsNMEA())
+		if (this->IsNMEA() || this->IsResponse())
 		{
 			--count_;
 			++data_;
