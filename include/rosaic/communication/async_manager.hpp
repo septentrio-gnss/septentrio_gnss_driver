@@ -77,6 +77,8 @@
  
 namespace io_comm_mosaic 
 {
+	extern int debug;
+	
 	/**
 	 * @class Manager
 	 * @brief Interface (in C++ terms), that could be used for any I/O manager, synchronous and asynchronous alike
@@ -89,7 +91,8 @@ namespace io_comm_mosaic
 		 
 			// virtual void SetRawDataCallback(const Callback& callback) = 0; //later for MeasEpoch3, if we get that far..
 		 
-			// virtual bool Send(const uint8_t* data, const unsigned int size) = 0; // for sending data to Rx
+			//! Sends commands to mosaic
+			virtual bool Send(std::string cmd, std::size_t size) = 0;
 		   
 			virtual void Wait(uint16_t* count) = 0;
 		 
@@ -121,19 +124,29 @@ namespace io_comm_mosaic
 	 
 			// bool Send(const uint8_t* data, const unsigned int size);
 			void Wait(uint16_t* count);
-	 
+			
+			/**
+			 * @brief Sends data bytes via the I/O stream.
+			 * @param data The buffer of data bytes to be sent
+			 * @param size The size of the buffer
+			 */
+			bool Send(std::string cmd, std::size_t size);
+			
 			bool IsOpen() const { return stream_->is_open(); }
-	 
+			
 		protected:
 			
 			//! Reads in via async_read_some and hands certain number of bytes (bytes_transferred) over to async_read_some_handler 
 			void DoRead();
 			
 			//!  Handler for async_read_some (Boost library)..
-			void AsyncReadSomeHandler(const boost::system::error_code&, std::size_t);
+			void AsyncReadSomeHandler(const boost::system::error_code& error, std::size_t bytes_transfered);
 	 
-			// void DoWrite();
-	 
+			/**
+			 * @brief Sends all the data in the output buffer
+			 */
+			void DoWrite();
+			
 			//! Closes Stream "stream_"
 			void DoClose();
 			
@@ -145,12 +158,12 @@ namespace io_comm_mosaic
 			std::vector<uint8_t> in_; 
 			
 			std::vector<uint8_t> out_; 
-	 
+			
 			boost::shared_ptr<boost::thread> async_background_thread_; 
 			Callback read_callback_; 
 			
 			// Callback write_callback_; 
-	 
+			
 			bool stopping_; 
 			
 			/// In and out buffers' size
@@ -164,6 +177,49 @@ namespace io_comm_mosaic
 			uint16_t do_read_count_;
 	};
 	 
+	template <typename StreamT>
+	bool AsyncManager<StreamT>::Send(std::string cmd, std::size_t size) 
+	{
+		if(size == 0) 
+		{
+			ROS_ERROR("Message size to be sent to mosaic would be 0");
+			return true;
+		}
+
+		if (out_.capacity() - out_.size() < size) 
+		{
+			ROS_ERROR("Output buffer too full to send message to mosaic");
+			return false;
+		}
+		std::vector<uint8_t> vector_temp(cmd.begin(), cmd.end());
+		uint8_t *p = &vector_temp[0];
+		out_.insert(out_.end(), p, p + size);
+
+		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoWrite, this));
+		return true;
+	}
+	
+	template <typename StreamT>
+	void AsyncManager<StreamT>::DoWrite() 
+	{
+		// Does nothing if out buffer is empty
+		if (out_.size() == 0) 
+		{
+			return;
+		}
+		// Write all the data in the out buffer
+		boost::asio::write(*stream_, boost::asio::buffer(out_.data(), out_.size()));
+
+		if (debug >= 2) 
+		{
+			// Prints the data that was sent
+			std::string command(reinterpret_cast<char*>(out_.data()), out_.size());
+			ROS_DEBUG("Sent the following %li bytes to mosaic: \n%s", out_.size(), command.c_str());
+		}
+		// Clears the buffer
+		out_.clear();
+	}
+
 	template <typename StreamT>
 	void AsyncManager<StreamT>::CallAsyncWait(uint16_t* count)
 	{
@@ -181,8 +237,8 @@ namespace io_comm_mosaic
 		io_service_ = io_service;
 		in_.resize(buffer_size_);
 
-		out_.reserve(buffer_size_); 	// Note that std::vector::reserve() requests to reserve vector capacity be at least enough to contain n elements. 
-										// Reallocation happens if there is need of even more space.
+		out_.reserve(buffer_size_); 	// Note that std::vector::reserve() requests to reserve vector capacity be at least enough to contain n elements. It leaves the allocated memory uninitialized.
+										// Reallocation happens if there is need of even more space. Note that size() is not changed by this command.
 		 
 		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoRead, this));
 		// This function is used to ask the io_service to execute the given handler, but without allowing the io_service to call the handler from inside this function.

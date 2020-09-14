@@ -171,7 +171,9 @@ namespace io_comm_mosaic
 			 */
 			void ResetSerial(std::string port);
 			
-			CallbackHandlers get_handlers() const {return handlers_;}
+			CallbackHandlers GetHandlers() const {return handlers_;}
+			
+			void Send(std::string cmd);
 			
 			//! Callback handlers for the inwards streaming messages
 			CallbackHandlers handlers_;
@@ -181,14 +183,13 @@ namespace io_comm_mosaic
 			//! Saves the port description
 			std::string serial_port_;
 			//! Processes I/O stream data
+			//! This declaration is deliberately stream-independent (Serial or TCP).
 			boost::shared_ptr<Manager> manager_;
 			//! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
 			uint32_t baudrate_;
 			
 			friend class CallbackHandlers;
 			friend class mosaicMessage;
-			//! Number of times the "read" method of the mosiacMessage class has been called
-			uint32_t read_count_;
 			
 			//! Host currently connected to
 			std::string host_;

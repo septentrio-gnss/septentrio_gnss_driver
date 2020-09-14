@@ -66,6 +66,14 @@
 #define NMEA_SYNC_BYTE_2_1 0x47
 //! 0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message
 #define NMEA_SYNC_BYTE_2_2 0x50
+//! 0x24 is ASCII for $ - 1st byte in each response from mosaic
+#define RESPONSE_SYNC_BYTE_1 0x24
+//! 0x52 is ASCII for R (for "Response") - 2nd byte in each response from mosaic
+#define RESPONSE_SYNC_BYTE_2 0x52
+//! 0x0D is ASCII for "Carriage Return", i.e. "Enter"
+#define CARRIAGE_RETURN 0x0D
+//! 0x0A is ASCII for "Line Feed", i.e. "New Line"
+#define LINE_FEED 0x0A
 
 // C++ libraries
 #include <cstddef>
@@ -88,6 +96,8 @@
 #include <rosaic/PVTCartesian.h>
 #include <rosaic/PVTGeodetic.h>
 #include <rosaic/PosCovGeodetic.h>
+#include <rosaic/AttEuler.h>
+#include <rosaic/AttCovEuler.h>
 
 
 #ifndef MOSAIC_MESSAGE_HPP
@@ -100,10 +110,9 @@
  */
  
 extern bool use_GNSS_time;
-extern uint32_t read_count;
 //! Since switch only works with int (yet NMEA message IDs are strings), we need enum.
 //! Note drawbacks: No variable can have a name which is already in some enumeration, enums are not type safe etc..
-enum NMEA_ID_Enum {evGPGGA, evNavSatFix, evPVTCartesian, evPVTGeodetic, evPosCovGeodetic};
+enum NMEA_ID_Enum {evGPGGA, evNavSatFix, evPVTCartesian, evPVTGeodetic, evPosCovGeodetic, evAttEuler, evAttCovEuler};
 //! Static keyword makes them visible only to the code of this particular .cpp file (and those that import it), which helps to avoid global namespace pollution.
 //! One also receives "multiple definition of 'StringValues'" error without the static keyword.
 static std::map<std::string, NMEA_ID_Enum> StringValues;
@@ -114,6 +123,8 @@ static void StringValues_Initialize()
 	StringValues.insert(std::make_pair("4006", evPVTCartesian));
 	StringValues.insert(std::make_pair("4007", evPVTGeodetic));
 	StringValues.insert(std::make_pair("5906", evPosCovGeodetic));
+	StringValues.insert(std::make_pair("5938", evAttEuler));
+	StringValues.insert(std::make_pair("5939", evAttCovEuler));
 }
   
 namespace io_comm_mosaic 
@@ -141,7 +152,7 @@ namespace io_comm_mosaic
 			 * @param[in] data Pointer to the buffer that is about to be analyzed
 			 * @param[in] size Size of the buffer (as handed over by async_read_some)
 			 */
-			mosaicMessage(const uint8_t* data, std::size_t& size): data_(data), count_(size) {found_ = false; CRCcheck_ = false;}
+			mosaicMessage(const uint8_t* data, std::size_t& size): data_(data), count_(size) {found_ = false; CRCcheck_ = false; segment_size_ = 0;}
 			
 			//! Determines whether data_ points to the SBF block with ID "ID", e.g. 5003
 			bool IsMessage(const uint16_t ID);
@@ -151,6 +162,10 @@ namespace io_comm_mosaic
 			bool IsSBF();
 			//! Determines whether data_ currently points to an NMEA message
 			bool IsNMEA();
+			//! Determines whether data_ currently points to an NMEA message
+			bool IsResponse();
+			//! ll
+			std::size_t SegmentEnd();
 			//! Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embellished with inverted commas, e.g. "5003"
 			std::string MessageID(); 
 			
@@ -191,6 +206,7 @@ namespace io_comm_mosaic
 			 */
 			bool Found();
 			
+			
 			/**
 			 * @brief Goes to the start of the next message based on the calculated length of current message
 			 */
@@ -225,15 +241,49 @@ namespace io_comm_mosaic
 			 */
 			bool CRCcheck_;
 			
+			//! Helps to determine size of response message / NMEA message / SBF block
+			std::size_t segment_size_;
+			
+			//! Number of times the rosaic::PVTGeodetic message has been published
+			static uint32_t read_count_pvtgeodetic_;
+			
+			//! Number of times the rosaic::PVTCartesian message has been published
+			static uint32_t read_count_pvtcartesian_;
+			
+			//! Number of times the rosaic::PosCovGeodetic message has been published
+			static uint32_t read_count_poscovgeodetic_;
+			
+			//! Number of times the rosaic::AttEuler message has been published
+			static uint32_t read_count_atteuler_;
+			
+			//! Number of times the rosaic::AttCovEuler message has been published
+			static uint32_t read_count_attcoveuler_;
+			
+			//! Number of times the sensor_msgs::NavSatFix message has been published
+			static uint32_t read_count_navsatfix_;
+			
+			//! Number of times the nmea_msgs::Gpgga message has been published
+			static uint32_t read_count_gpgga_;
+			
 			/**
-			 * @brief Since NavSatFix etc. needs PVTGeodetic, incoming PVTGeodetic blocks need to be stored
+			 * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks need to be stored
 			 */
 			PVTGeodetic last_pvtgeodetic_;
 			
 			/**
-			 * @brief Since NavSatFix etc. needs PosCovGeodetic, incoming PosCovGeodetic blocks need to be stored
+			 * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic blocks need to be stored
 			 */
 			PosCovGeodetic last_poscovgeodetic_;
+			
+			/**
+			 * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to be stored
+			 */
+			AttEuler last_atteuler_;
+			
+			/**
+			 * @brief Since GPSFix etc. need AttCovEuler, incoming AttCovEuler blocks need to be stored
+			 */
+			AttCovEuler last_attcoveuler_;
 			
 			/**
 			 * @brief Callback function when reading PVTCartesian blocks
@@ -255,6 +305,20 @@ namespace io_comm_mosaic
 			 * @return A smart pointer to the ROS message rosaic::PosCovGeodetic just created
 			 */
 			rosaic::PosCovGeodeticPtr PosCovGeodeticCallback(PosCovGeodetic& data);
+			
+			/**
+			 * @brief Callback function when reading AttEuler blocks
+			 * @param[in] data The (packed and aligned) struct instance that we use to populate our ROS message rosaic::AttEuler
+			 * @return A smart pointer to the ROS message rosaic::AttEuler just created
+			 */
+			rosaic::AttEulerPtr AttEulerCallback(AttEuler& data);
+			
+			/**
+			 * @brief Callback function when reading AttCovEuler blocks
+			 * @param[in] data The (packed and aligned) struct instance that we use to populate our ROS message rosaic::AttCovEuler
+			 * @return A smart pointer to the ROS message rosaic::AttCovEuler just created
+			 */
+			rosaic::AttCovEulerPtr AttCovEulerCallback(AttCovEuler& data);
 			
 			/**
 			 * @brief "Callback" function when constructing NavSatFix messages
@@ -295,7 +359,7 @@ namespace io_comm_mosaic
 				PVTCartesian pvtcartesian;
 				memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
 				msg = PVTCartesianCallback(pvtcartesian);
-				msg->ROS_Header.seq = read_count;
+				msg->ROS_Header.seq = read_count_pvtcartesian_;
 				msg->ROS_Header.frame_id = frame_id;
 				uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
 				ros::Time time_obj;
@@ -304,7 +368,7 @@ namespace io_comm_mosaic
 				msg->ROS_Header.stamp.nsec = time_obj.nsec;
 				msg->Block_Header.ID = 4006;
 				memcpy(&message, msg.get(), sizeof(*msg));
-				++read_count;
+				++read_count_pvtcartesian_;
 				break;
 			}
 			case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU frame)
@@ -312,7 +376,7 @@ namespace io_comm_mosaic
 				rosaic::PVTGeodeticPtr msg = boost::make_shared<rosaic::PVTGeodetic>();
 				memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
 				msg = PVTGeodeticCallback(last_pvtgeodetic_);
-				msg->ROS_Header.seq = read_count;
+				msg->ROS_Header.seq = read_count_pvtgeodetic_;
 				msg->ROS_Header.frame_id = frame_id;
 				uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
 				ros::Time time_obj;
@@ -321,7 +385,7 @@ namespace io_comm_mosaic
 				msg->ROS_Header.stamp.nsec = time_obj.nsec;
 				msg->Block_Header.ID = 4007;
 				memcpy(&message, msg.get(), sizeof(*msg));
-				++read_count;
+				++read_count_pvtgeodetic_;
 				break;
 			}
 				
@@ -330,7 +394,7 @@ namespace io_comm_mosaic
 				rosaic::PosCovGeodeticPtr msg = boost::make_shared<rosaic::PosCovGeodetic>();
 				memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
 				msg = PosCovGeodeticCallback(last_poscovgeodetic_);
-				msg->ROS_Header.seq = read_count;
+				msg->ROS_Header.seq = read_count_poscovgeodetic_;
 				msg->ROS_Header.frame_id = frame_id;
 				uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
 				ros::Time time_obj;
@@ -339,7 +403,41 @@ namespace io_comm_mosaic
 				msg->ROS_Header.stamp.nsec = time_obj.nsec;
 				msg->Block_Header.ID = 5906;
 				memcpy(&message, msg.get(), sizeof(*msg));
-				++read_count;
+				++read_count_poscovgeodetic_;
+				break;
+			}
+			case evAttEuler:
+			{
+				rosaic::AttEulerPtr msg = boost::make_shared<rosaic::AttEuler>();
+				memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
+				msg = AttEulerCallback(last_atteuler_);
+				msg->ROS_Header.seq = read_count_atteuler_;
+				msg->ROS_Header.frame_id = frame_id;
+				uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
+				ros::Time time_obj;
+				time_obj = TimestampSBF(TOW, use_GNSS_time);
+				msg->ROS_Header.stamp.sec = time_obj.sec;
+				msg->ROS_Header.stamp.nsec = time_obj.nsec;
+				msg->Block_Header.ID = 5938;
+				memcpy(&message, msg.get(), sizeof(*msg));
+				++read_count_atteuler_;
+				break;
+			}
+			case evAttCovEuler:
+			{
+				rosaic::AttCovEulerPtr msg = boost::make_shared<rosaic::AttCovEuler>();
+				memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
+				msg = AttCovEulerCallback(last_attcoveuler_);
+				msg->ROS_Header.seq = read_count_attcoveuler_;
+				msg->ROS_Header.frame_id = frame_id;
+				uint32_t TOW = *(reinterpret_cast<const uint32_t *>(data_ + 8));
+				ros::Time time_obj;
+				time_obj = TimestampSBF(TOW, use_GNSS_time);
+				msg->ROS_Header.stamp.sec = time_obj.sec;
+				msg->ROS_Header.stamp.nsec = time_obj.nsec;
+				msg->Block_Header.ID = 5939;
+				memcpy(&message, msg.get(), sizeof(*msg));
+				++read_count_attcoveuler_;
 				break;
 			}
 			case evGPGGA:
@@ -371,6 +469,7 @@ namespace io_comm_mosaic
 				{
 					throw std::runtime_error(e.what());
 				}
+				gpgga_ros_message_ptr->header.seq = read_count_gpgga_;
 				//ROS_DEBUG("ID is %s, size of message is %lu and sizeof ptr is %lu", gpgga_ros_message_ptr->message_id.c_str(), sizeof(message), sizeof(*gpgga_ros_message_ptr));
 				memcpy(&message, gpgga_ros_message_ptr.get(), sizeof(*gpgga_ros_message_ptr));
 				break;
@@ -386,7 +485,7 @@ namespace io_comm_mosaic
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->header.seq = read_count;
+				msg->header.seq = read_count_navsatfix_;
 				msg->header.frame_id = frame_id;
 				uint32_t TOW = last_pvtgeodetic_.TOW;
 				ros::Time time_obj;
@@ -394,7 +493,7 @@ namespace io_comm_mosaic
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				memcpy(&message, msg.get(), sizeof(*msg));
-				++read_count;
+				++read_count_navsatfix_;
 				break;
 			}
 			// Many more to be implemented...

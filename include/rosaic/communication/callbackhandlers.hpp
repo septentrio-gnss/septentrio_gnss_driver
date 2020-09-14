@@ -203,7 +203,8 @@ namespace io_comm_mosaic
 					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
 					{
 						std::string ID_temp = mMessage.MessageID();
-						if (ID_temp == "4007" || ID_temp == "5906") // If no new message is coming in, no need to publish NavSatFix anew
+						if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish NavSatFix anew. 
+												// It would be wasteful to also call the NavSatFix handle if the PosCovGeodetic block comes in.
 						{
 							callback->second->Handle(mMessage, callback->first);
 						}
@@ -271,11 +272,18 @@ namespace io_comm_mosaic
 							std::ostringstream oss;
 							boost::char_separator<char> sep("\r");
 							typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-							std::size_t end_point = std::min(static_cast<std::size_t>(mMessage.End() - mMessage.Pos()), static_cast<std::size_t>(82));
-							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), end_point);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
+							std::size_t nmea_size = mMessage.SegmentEnd();
+							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), nmea_size);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
 																													// NMEA 0183 messages are at most 82 characters long, , including the $ or ! starting character and the ending <LF>
 							tokenizer tokens(block_in_string, sep);
-							ROS_DEBUG("block_in_string is ready to be iterated, first NMEA message should be %s", (*tokens.begin()).c_str());
+							ROS_DEBUG("The NMEA message is made up of %li bytes and is ready to be iterated. It reads: %s", nmea_size, (*tokens.begin()).c_str());
+						}
+						if (mMessage.IsResponse())
+						{
+							std::ostringstream oss;
+							std::size_t response_size = mMessage.SegmentEnd();
+							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), response_size);
+							ROS_DEBUG("mosaic's response contains %li bytes and reads:\n %s", response_size, block_in_string.c_str());
 						}
 					}
 	 
