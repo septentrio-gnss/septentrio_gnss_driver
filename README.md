@@ -54,6 +54,8 @@ publish:
   pvtcartesian: true
   pvtgeodetic: true
   poscovgeodetic: true
+  atteuler: true
+  attcoveuler: true
   navsatfix: true
 
 serial:
