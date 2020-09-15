@@ -57,6 +57,7 @@ publish:
   atteuler: true
   attcoveuler: true
   navsatfix: true
+  gpsfix: true
 
 serial:
   baudrate: 115200
@@ -127,9 +128,13 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - default: `true`
   - `publish/poscovgeodetic`: `true` to publish `rosaic/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
     - default: `true`
-- Planned Parameters Configuring (Non-)Publishing of ROS Messages
+  - `publish/atteuler`: `true` to publish `rosaic/AttEuler.msg` messages into the topic `/atteuler`
+    - default: `true`
+  - `publish/attcoveuler`: `true` to publish `rosaic/AttCovEuler.msg` messages into the topic `/attcoveuler`
+    - default: `true`
   - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
     - default: `true`
+- Planned Parameters Configuring (Non-)Publishing of ROS Messages
   - `publish/poscovcartesian`: `true` to publish `rosaic/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     - default: `false`
   - `publish/orientation`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/orientation`
@@ -141,8 +146,6 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
   - `publish/gst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gst`
     - default: `false`
   - `publish/bdt`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/bdt`
-    - default: `false`
-  - `publish/gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     - default: `false`
   - `publish/gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     - default: `false`
