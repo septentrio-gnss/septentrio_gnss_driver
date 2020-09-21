@@ -61,6 +61,10 @@ publish:
 
 serial:
   baudrate: 115200
+  
+polling_period:
+  pvt: 1
+  rest: 1
 
 reconnect_delay_s: 0.1
 
