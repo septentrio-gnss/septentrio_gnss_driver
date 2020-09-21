@@ -38,10 +38,10 @@ cd src
 git clone https://github.com/tibordome/rosaic
 rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
 catkin build
-echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc
+echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc       # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
 source ~/.bashrc 
 ```
-Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
+In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd rosaic`. Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified): Specify the communication parameters, the ROS messages to be published,  the frequency at which the latter should happen, the endianness of your system etc. Also, one can set the number of leap seconds that have been inserted into UTC up to the time of ROSaic usage. Since December 2016, 18 leap seconds have been inserted, hence watch out for new insertions in the near future. ROSaic can thus be used for the purpose of simulations by modifying as little as the `leap_seconds` parameter. Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 ```
 debug: 3
 
@@ -70,8 +70,8 @@ reconnect_delay_s: 0.1
 
 use_GNSS_time: true
 ```
+In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch rosaic rover.launch param_file_name:=rover`.
 
-Subscribe to certain topics listed below (many not yet implemented!) depending on your application...
 ## ROS Wrapper
 ### ROS Parameters
 The following is a list of ROS parameters found in the, say, `rover.yaml` file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
