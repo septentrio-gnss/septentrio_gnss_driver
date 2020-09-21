@@ -38,8 +38,8 @@ cd src
 git clone https://github.com/tibordome/rosaic
 rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
 catkin build
-source ~/septentrio/devel/setup.bash 
-catkin clean -y
+echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc 
 ```
 Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `mosaic_rover.launch` need not necessarily be modified). Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
 ```
