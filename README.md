@@ -47,6 +47,9 @@ debug: 3
 
 device: tcp://192.168.3.1:28784
 
+serial:
+  baudrate: 115200
+
 frame_id: gnss
 
 publish:
@@ -59,9 +62,8 @@ publish:
   navsatfix: true
   gpsfix: true
 
-serial:
-  baudrate: 115200
-  
+leap_seconds: 18
+
 polling_period:
   pvt: 1
   rest: 1
