@@ -52,6 +52,16 @@ serial:
 
 frame_id: gnss
 
+datum: ETRS89
+
+marker_to_arp:
+  delta_e: 0.0
+  delta_n: 0.0
+  delta_u: 0.0
+  
+ant_type: Unknown
+ant_serial_nr: Unknown
+
 publish:
   gpgga: true
   pvtcartesian: true
@@ -88,18 +98,32 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `"gnss"`
-  - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
-- Planned Parameters Configuring Communication Ports and Processing of GNSS Data
-  - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
-    - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
-    - default: `true`
-  - `poll_pub_pvt_period`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `rosaic/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html)
+  - `datum`: datum that (ellipsoidal) height should be referenced to in all published ROS messages
+    - Since the standardized GGA message does only provide the orthometric height (= MSL height = distance from Earth's surface to geoid) and the geoid undulation (distance from geoid to ellipsoid) for which non-WGS84 datums cannot be specified, it does not affect the GGA message.
+    - default: `ETRS89`
+  - `marker_to_arp`: offsets of the antenna reference point (ARP) with respect to the marker
+    - The parameters `delta_e`, `delta_n` and `delta_u` are the offsets in the East, North and Up (ENU) directions respectively, expressed in meters.
+    - All absolute positions reported by the receiver are marker positions, obtained by subtracting this offset from the ARP. The purpose is to take into account the fact that the antenna may not be located directly on the surveying point of interest.
+    - default: `0.0`, `0.0` and `0.0`
+  - `ant_type`: type of your antenna
+    - For best positional accuracy, it is recommended to select a type from the list returned by the command `lstAntennaInfo, Overview`. This is the list of antennas for which the receiver can compensate for phase center variation.
+    - By default and if `ant_type` does not match any entry in the list returned by `lstAntennaInfo, Overview`, the receiver will assume that the phase center variation is zero at all elevations and frequency bands, and the position will not be as accurate.
+    - default: `Unknown`
+  - `ant_serial_nr`: This parameter is the serial number of your particular antenna.
+  - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
+    - At the time of writing the code (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations.
+  - `polling_period/pvt`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `rosaic/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) and [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html)
     - default: `0.05` (20 Hz)
   - `poll_pub_orientation_period`: desired period in seconds between the polling of two consecutive `AttEuler`, `AttCovEuler` blocks as well as the `HRP` NMEA sentence, and - if published - between the publishing of `AttEuler` and `AttCovEuler`
     - default: `0.05` (20 Hz)
   - `poll_pub_rest_period`: desired period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous two ROS parameters, and - if published - between the publishing of all other ROS messages
     - The message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) is - if published - published at the maximum of the all three `poll_pub_..._period`
     - default: `0.05` (20 Hz)
+  - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
+- Planned Parameters Configuring Communication Ports and Processing of GNSS Data
+  - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
+    - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
+    - default: `true`
   - `reconnect_delay_s`: delay in seconds between reconnection attempts to the connection type specified in the parameter `connection_type`
     - default: `0.5` 
   - `navsatfix_with`: determines whether the published message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) is constructed from the SBF blocks `PVTGeodetic` and `PosCovGeodetic`, or from the NMEA sentences GGA and GSA via a covariance estimation algorithm, which postprocesses dilution of precision (DOP) data
