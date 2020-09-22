@@ -41,7 +41,12 @@ catkin build
 echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc       # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
 source ~/.bashrc 
 ```
-In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd rosaic`. Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified): Specify the communication parameters, the ROS messages to be published,  the frequency at which the latter should happen, the endianness of your system etc. Also, one can set the number of leap seconds that have been inserted into UTC up to the time of ROSaic usage. Since December 2016, 18 leap seconds have been inserted, hence watch out for new insertions in the near future. ROSaic can thus be used for the purpose of simulations by modifying as little as the `leap_seconds` parameter. Later, one will also be able to adapt (if necessary) the `base.launch` file in the launch directory and configure it as desired.<br><br>
+- Notes Before Usage
+  - In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd rosaic`. 
+  - Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified): Specify the communication parameters, the ROS messages to be published,  the frequency at which the latter should happen, the endianness of your system etc.
+  - Currently, the driver only works on systems that are little-endian. We will add a ROSaic parameter shortly to address this issue.
+  - The development process of this driver has been performed for mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
+  - Further, at the moment, the driver is only a rover driver. We will add a ROSaic parameter shortly to address this issue, such that one will also be able to adapt the (not-yet-existent) `base.launch` file in the launch directory and configure it as desired.<br><br>
 ```
 debug: 3
 
