@@ -245,9 +245,9 @@ Is there an SBF block or NMEA message that is not being addressed while being im
     - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `rosaic/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
     - SBF: Extend the `NMEA_ID_Enum` enumeration in the `mosaic_message.hpp` file with a new entry.
     - SBF: Extend the static `StringValues_Initialize()` method in the `mosaic_message.hpp` file with a new entry.
-    - SBF: Add a new callback function declaration, a new method, to the io_comm_mosaic::mosaicMessage class in the `mosaic_message.hpp` file.
+    - SBF: Add a new callback function declaration, a new method, to the `io_comm_mosaic::mosaicMessage class` in the `mosaic_message.hpp` file.
     - SBF: Add the latter's definition to the `mosaic_message.cpp` file.
-    - SBF: The new case should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
-    - NMEA: Construct two new parsing files such as "gpgga.cpp" to the `rosaic/src/rosaic/parsers/nmea_parsers` folder and one such as "gpgga.hpp" to the `rosaic/include/rosaic/parsers/nmea_parsers` folder.
+    - SBF: Add a new C++ "case" (part of the C++ switch-case structure) in the `mosaic_message.hpp` file. It should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
+    - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `rosaic/src/rosaic/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `rosaic/include/rosaic/parsers/nmea_parsers` folder.
 5. Create a new `publish/..` ROSaic parameter in the `rosaic/config/rover.yaml` file, create a global boolean variable `publish_...` in the `rosaic/src/rosaic/nodelets/rosaic_node.cpp` file, insert the publishing callback function to the C++ "multimap" `IO.handlers_.callbackmap_` - which is already storing all the others - in the `rosaic_node::ROSaicNode::DefineMessages()` method in the same file and add an `extern bool publish_...;` line to the `rosaic/src/include/nodelets/rosaic_node.hpp` file.
 6. Modify the `rosaic/CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
