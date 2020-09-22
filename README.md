@@ -85,7 +85,7 @@ use_GNSS_time: true
 In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch rosaic rover.launch param_file_name:=rover`.
 
 ## ROS Wrapper
-### ROS Parameters
+### ROSaic Parameters
 The following is a list of ROS parameters found in the, say, `rover.yaml` file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
 - Implemented Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
@@ -113,19 +113,14 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
   - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
     - At the time of writing the code (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations.
   - `polling_period/pvt`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `rosaic/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) and [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html)
-    - default: `0.05` (20 Hz)
-  - `poll_pub_orientation_period`: desired period in seconds between the polling of two consecutive `AttEuler`, `AttCovEuler` blocks as well as the `HRP` NMEA sentence, and - if published - between the publishing of `AttEuler` and `AttCovEuler`
-    - default: `0.05` (20 Hz)
-  - `poll_pub_rest_period`: desired period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous two ROS parameters, and - if published - between the publishing of all other ROS messages
-    - The message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) is - if published - published at the maximum of the all three `poll_pub_..._period`
-    - default: `0.05` (20 Hz)
+    - default: `1` (1 Hz)
+  - `polling_period/rest`: desired period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
+    - default: `1` (1 Hz)
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
 - Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
     - NMEA sentences are standardized (except for the proprietary NMEA sentences) and easier to parse, yet SBF blocks contain either more detailed or complementary information.
     - default: `true`
-  - `reconnect_delay_s`: delay in seconds between reconnection attempts to the connection type specified in the parameter `connection_type`
-    - default: `0.5` 
   - `navsatfix_with`: determines whether the published message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) is constructed from the SBF blocks `PVTGeodetic` and `PosCovGeodetic`, or from the NMEA sentences GGA and GSA via a covariance estimation algorithm, which postprocesses dilution of precision (DOP) data
     - must be one of `"SBF"` or `"NMEA"`
     - default: `"SBF"`
