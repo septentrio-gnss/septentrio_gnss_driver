@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   xmlrpcpp
   nmea_msgs
   sensor_msgs
+  gps_common
   message_generation
 )
 
@@ -84,6 +85,7 @@ generate_messages(
     nmea_msgs  # Or other packages containing msgs
     std_msgs
     sensor_msgs
+    gps_common
 )
 
 ################################################

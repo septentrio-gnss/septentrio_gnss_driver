@@ -1,13 +1,11 @@
 var searchData=
 [
-  ['vaccuracy',['VAccuracy',['../struct_p_v_t_cartesian.html#acb93c410e75e9f6710476c7bbf60def7',1,'PVTCartesian::VAccuracy()'],['../struct_p_v_t_geodetic.html#a72cd82b8481e9c15fd133c2a0fd2dcc8',1,'PVTGeodetic::VAccuracy()']]],
-  ['var_5fheading',['var_heading',['../struct_attitude_cov_euler.html#aa017d3910691ab7a9ff72e0288775c84',1,'AttitudeCovEuler']]],
-  ['var_5fpitch',['var_pitch',['../struct_attitude_cov_euler.html#acecefc4dae158ce737cdce581312d9a5',1,'AttitudeCovEuler']]],
-  ['var_5froll',['var_roll',['../struct_attitude_cov_euler.html#af25ffdb6a7e906931814975f7f03867e',1,'AttitudeCovEuler']]],
-  ['ve',['Ve',['../struct_p_v_t_geodetic.html#a45c6ed9b6ee7c6d6aec26f81b5c83690',1,'PVTGeodetic']]],
-  ['vn',['Vn',['../struct_p_v_t_geodetic.html#ad4ef599dd5061026225a130b84f36d83',1,'PVTGeodetic']]],
-  ['vu',['Vu',['../struct_p_v_t_geodetic.html#a422c0d58e986992c0e315188b226c0bd',1,'PVTGeodetic']]],
-  ['vx',['Vx',['../struct_p_v_t_cartesian.html#a60eb313be9237017196be40d0749718e',1,'PVTCartesian']]],
-  ['vy',['Vy',['../struct_p_v_t_cartesian.html#a671de439ced06637a16b9224cfb654f9',1,'PVTCartesian']]],
-  ['vz',['Vz',['../struct_p_v_t_cartesian.html#aa241dcae6c66cf1b03f1376efce01d1d',1,'PVTCartesian']]]
+  ['wacorrinfo',['WACorrInfo',['../struct_p_v_t_cartesian.html#a9955eca5c0038c3d61e528607acd007e',1,'PVTCartesian::WACorrInfo()'],['../struct_p_v_t_geodetic.html#a0c0107743218144bfe91a72d9a26e0e7',1,'PVTGeodetic::WACorrInfo()']]],
+  ['was_5flast_5fgpgga_5fvalid_5f',['was_last_gpgga_valid_',['../classrosaic__driver_1_1_gpgga_parser.html#a1784c6a071df229fbd7770af84fbf130',1,'rosaic_driver::GpggaParser']]],
+  ['wn',['WN',['../struct_g_p_s_n_a_v.html#a9411c5763ef6cfe2e6b7c0df49fa3842',1,'GPSNAV']]],
+  ['wnc',['WNc',['../struct_p_v_t_cartesian.html#ad41ebb9a9c02c257576dcb9a2e9d75c0',1,'PVTCartesian::WNc()'],['../struct_p_v_t_geodetic.html#a2b2dc5dce7706429ee13317b88fb4a00',1,'PVTGeodetic::WNc()'],['../struct_att_euler.html#a787c1b9b23134869ec6d5bc29db286f1',1,'AttEuler::WNc()'],['../struct_att_cov_euler.html#ad690615047ed4f689b53edda50d55cef',1,'AttCovEuler::WNc()'],['../struct_channel_status.html#a563aeae46a5399442975803286fedb99',1,'ChannelStatus::WNc()'],['../struct_meas_epoch.html#a202644e0f03b4afade3007b742c062b6',1,'MeasEpoch::WNc()'],['../struct_d_o_p.html#ae437f78f7688562287b772c2df5f298b',1,'DOP::WNc()'],['../struct_pos_cov_cartesian.html#ad35be9f94d575568918fd3669d3d9ad9',1,'PosCovCartesian::WNc()'],['../struct_pos_cov_geodetic.html#a33117db552a919482a9d9aaebe5ec19a',1,'PosCovGeodetic::WNc()'],['../struct_vel_cov_cartesian.html#abb28e69becc6d17807671e4d127952e3',1,'VelCovCartesian::WNc()'],['../struct_vel_cov_geodetic.html#a53ff0d45fb4e55cc26c2aec7d7dc87cd',1,'VelCovGeodetic::WNc()'],['../struct_receiver_time.html#a32189a92f7bcfef6da28ec98c30d79ee',1,'ReceiverTime::WNc()'],['../struct_g_p_s_n_a_v.html#a410a77d2a71b0a58c9c14493288bca6d',1,'GPSNAV::WNc()']]],
+  ['wnt_5foc',['WNt_oc',['../struct_g_p_s_n_a_v.html#a8706915a5a42330b23def6a16d1ab7f1',1,'GPSNAV']]],
+  ['wnt_5foe',['WNt_oe',['../struct_g_p_s_n_a_v.html#a7a96a44bfa6a836de696e18a31a0d75c',1,'GPSNAV']]],
+  ['write_5fcondition_5f',['write_condition_',['../classio__comm__mosaic_1_1_async_manager.html#a1b31a65c4553a69a6c25e4dbb69e03ab',1,'io_comm_mosaic::AsyncManager']]],
+  ['write_5fmutex_5f',['write_mutex_',['../classio__comm__mosaic_1_1_async_manager.html#a69d0f02b83590569c3cd16efdaa450a5',1,'io_comm_mosaic::AsyncManager']]]
 ];

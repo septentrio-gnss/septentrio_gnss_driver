@@ -79,6 +79,8 @@ $(function() {
 <div class="textblock"><code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;sstream&gt;</code><br />
 <code>#include &lt;map&gt;</code><br />
+<code>#include &lt;cmath&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;boost/tokenizer.hpp&gt;</code><br />
 <code>#include &lt;boost/call_traits.hpp&gt;</code><br />
 <code>#include &lt;boost/format.hpp&gt;</code><br />
@@ -86,6 +88,7 @@ $(function() {
 <code>#include &lt;ros/ros.h&gt;</code><br />
 <code>#include &lt;rosaic/Gpgga.h&gt;</code><br />
 <code>#include &lt;sensor_msgs/NavSatFix.h&gt;</code><br />
+<code>#include &lt;gps_common/GPSFix.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="gpgga_8hpp_source.html">rosaic/parsers/nmea_parsers/gpgga.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="crc_8h_source.html">rosaic/crc/crc.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="string__utilities_8h_source.html">rosaic/parsers/string_utilities.h</a>&gt;</code><br />
@@ -93,20 +96,23 @@ $(function() {
 <code>#include &lt;rosaic/PVTCartesian.h&gt;</code><br />
 <code>#include &lt;rosaic/PVTGeodetic.h&gt;</code><br />
 <code>#include &lt;rosaic/PosCovGeodetic.h&gt;</code><br />
+<code>#include &lt;rosaic/AttEuler.h&gt;</code><br />
+<code>#include &lt;rosaic/AttCovEuler.h&gt;</code><br />
+<code>#include &lt;<a class="el" href="sbf__structs_8hpp_source.html">rosaic/packed_structs/sbf_structs.hpp</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for mosaicMessage.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="mosaic_message_8hpp__incl.png" border="0" usemap="#include_2rosaic_2communication_2mosaic_message_8hpp" alt=""/></div>
 <map name="include_2rosaic_2communication_2mosaic_message_8hpp" id="include_2rosaic_2communication_2mosaic_message_8hpp">
-<area shape="rect" id="node12" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1204,95,1344,136"/>
-<area shape="rect" id="node14" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1365,281,1503,307"/>
-<area shape="rect" id="node22" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1467,184,1607,225"/>
-<area shape="rect" id="node25" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="1589,102,1701,129"/>
-<area shape="rect" id="node13" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1061,184,1205,225"/>
-<area shape="rect" id="node17" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1203,281,1340,307"/>
-<area shape="rect" id="node20" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1036,281,1179,307"/>
-<area shape="rect" id="node26" href="ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="1696,273,1847,315"/>
-<area shape="rect" id="node27" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="1683,184,1833,225"/>
+<area shape="rect" id="node15" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1085,95,1225,136"/>
+<area shape="rect" id="node17" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1359,281,1498,307"/>
+<area shape="rect" id="node24" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1467,184,1607,225"/>
+<area shape="rect" id="node28" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="1738,102,1850,129"/>
+<area shape="rect" id="node30" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="1925,184,2076,225"/>
+<area shape="rect" id="node16" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1061,184,1205,225"/>
+<area shape="rect" id="node19" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="1031,281,1168,307"/>
+<area shape="rect" id="node22" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="1192,281,1335,307"/>
+<area shape="rect" id="node29" href="ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="1868,273,2019,315"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -153,18 +159,41 @@ Macros</h2></td></tr>
 <tr class="memitem:a6b0899b795362d5b704ed1b87e296753"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a6b0899b795362d5b704ed1b87e296753">NMEA_SYNC_BYTE_2_2</a>&#160;&#160;&#160;0x50</td></tr>
 <tr class="memdesc:a6b0899b795362d5b704ed1b87e296753"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message  <a href="#a6b0899b795362d5b704ed1b87e296753">More...</a><br /></td></tr>
 <tr class="separator:a6b0899b795362d5b704ed1b87e296753"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae716049f14df0087a81e3fed10e078d8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#ae716049f14df0087a81e3fed10e078d8">RESPONSE_SYNC_BYTE_1</a>&#160;&#160;&#160;0x24</td></tr>
+<tr class="memdesc:ae716049f14df0087a81e3fed10e078d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x24 is ASCII for $ - 1st byte in each response from mosaic  <a href="#ae716049f14df0087a81e3fed10e078d8">More...</a><br /></td></tr>
+<tr class="separator:ae716049f14df0087a81e3fed10e078d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a388be89584df289df56ce4ed43c80580"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a388be89584df289df56ce4ed43c80580">RESPONSE_SYNC_BYTE_2</a>&#160;&#160;&#160;0x52</td></tr>
+<tr class="memdesc:a388be89584df289df56ce4ed43c80580"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x52 is ASCII for R (for "Response") - 2nd byte in each response from mosaic  <a href="#a388be89584df289df56ce4ed43c80580">More...</a><br /></td></tr>
+<tr class="separator:a388be89584df289df56ce4ed43c80580"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b81478c7058ceb6ed610ce8e2ca3822"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a3b81478c7058ceb6ed610ce8e2ca3822">CARRIAGE_RETURN</a>&#160;&#160;&#160;0x0D</td></tr>
+<tr class="memdesc:a3b81478c7058ceb6ed610ce8e2ca3822"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x0D is ASCII for "Carriage Return", i.e. "Enter"  <a href="#a3b81478c7058ceb6ed610ce8e2ca3822">More...</a><br /></td></tr>
+<tr class="separator:a3b81478c7058ceb6ed610ce8e2ca3822"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c2cad5489953de23c5733e6e696a93e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a3c2cad5489953de23c5733e6e696a93e">LINE_FEED</a>&#160;&#160;&#160;0x0A</td></tr>
+<tr class="memdesc:a3c2cad5489953de23c5733e6e696a93e"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x0A is ASCII for "Line Feed", i.e. "New Line"  <a href="#a3c2cad5489953de23c5733e6e696a93e">More...</a><br /></td></tr>
+<tr class="separator:a3c2cad5489953de23c5733e6e696a93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e99642e2f20b87008b3c6c2d3802946"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a4e99642e2f20b87008b3c6c2d3802946">RESPONSE_SYNC_BYTE_3</a>&#160;&#160;&#160;0x3F</td></tr>
+<tr class="memdesc:a4e99642e2f20b87008b3c6c2d3802946"><td class="mdescLeft">&#160;</td><td class="mdescRight">0x3F is ASCII for ? - 3rd byte in the response message from mosaic in case the command was invalid  <a href="#a4e99642e2f20b87008b3c6c2d3802946">More...</a><br /></td></tr>
+<tr class="separator:a4e99642e2f20b87008b3c6c2d3802946"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ba4a1fecf294bee8f6a4dea4dd5b097"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a1ba4a1fecf294bee8f6a4dea4dd5b097">MOSAIC_MESSAGE_HPP</a></td></tr>
 <tr class="separator:a1ba4a1fecf294bee8f6a4dea4dd5b097"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:a2a87f2094b729f5ef971a53f297f8f71"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71">NMEA_ID_Enum</a> { <br />
-&#160;&#160;<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>, 
-<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>, 
+&#160;&#160;<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340">evGPSFix</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>, 
 <a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a>, 
-<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>, 
 <br />
-&#160;&#160;<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>
+&#160;&#160;<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0">evAttEuler</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92">evAttCovEuler</a>, 
+<br />
+&#160;&#160;<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac">evChannelStatus</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110">evMeasEpoch</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c">evDOP</a>, 
+<a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39">evVelCovGeodetic</a>
 <br />
  }</td></tr>
 <tr class="separator:a2a87f2094b729f5ef971a53f297f8f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,9 +210,9 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:a5d04eedb59934d49cc0d128d3c375e82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a></td></tr>
 <tr class="separator:a5d04eedb59934d49cc0d128d3c375e82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34b86d18a5f8ac7123363aa42ae88a16"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a34b86d18a5f8ac7123363aa42ae88a16">read_count</a></td></tr>
-<tr class="memdesc:a34b86d18a5f8ac7123363aa42ae88a16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of times the "read" method of the mosaicMessage class has been called.  <a href="#a34b86d18a5f8ac7123363aa42ae88a16">More...</a><br /></td></tr>
-<tr class="separator:a34b86d18a5f8ac7123363aa42ae88a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54037a42ab45aa966d0433733fed3268"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#a54037a42ab45aa966d0433733fed3268">leap_seconds</a></td></tr>
+<tr class="memdesc:a54037a42ab45aa966d0433733fed3268"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of leap seconds that have been inserted into the UTC time.  <a href="#a54037a42ab45aa966d0433733fed3268">More...</a><br /></td></tr>
+<tr class="separator:a54037a42ab45aa966d0433733fed3268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb7328be37d2759ed452faaf714743d4"><td class="memItemLeft" align="right" valign="top">static std::map&lt; std::string, <a class="el" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71">NMEA_ID_Enum</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a></td></tr>
 <tr class="separator:afb7328be37d2759ed452faaf714743d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -193,6 +222,46 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a3b81478c7058ceb6ed610ce8e2ca3822"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b81478c7058ceb6ed610ce8e2ca3822">&#9670;&nbsp;</a></span>CARRIAGE_RETURN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CARRIAGE_RETURN&#160;&#160;&#160;0x0D</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0x0D is ASCII for "Carriage Return", i.e. "Enter" </p>
+
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00089">89</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00609">io_comm_mosaic::mosaicMessage::SegmentEnd()</a>.</p>
+
+</div>
+</div>
+<a id="a3c2cad5489953de23c5733e6e696a93e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c2cad5489953de23c5733e6e696a93e">&#9670;&nbsp;</a></span>LINE_FEED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LINE_FEED&#160;&#160;&#160;0x0A</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0x0A is ASCII for "Line Feed", i.e. "New Line" </p>
+
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00093">93</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00609">io_comm_mosaic::mosaicMessage::SegmentEnd()</a>.</p>
+
+</div>
+</div>
 <a id="a1ba4a1fecf294bee8f6a4dea4dd5b097"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1ba4a1fecf294bee8f6a4dea4dd5b097">&#9670;&nbsp;</a></span>MOSAIC_MESSAGE_HPP</h2>
 
@@ -205,7 +274,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00094">94</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00130">130</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
 </div>
 </div>
@@ -223,9 +292,9 @@ Variables</h2></td></tr>
 
 <p>0x24 is ASCII for $ - 1st byte in each message </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00064">64</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00069">69</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00339">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00689">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
 
 </div>
 </div>
@@ -243,9 +312,9 @@ Variables</h2></td></tr>
 
 <p>0x47 is ASCII for G - 2nd byte to indicate NMEA-type ASCII message </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00066">66</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00073">73</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00339">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00689">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
 
 </div>
 </div>
@@ -263,9 +332,69 @@ Variables</h2></td></tr>
 
 <p>0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00068">68</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00077">77</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00339">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00689">io_comm_mosaic::mosaicMessage::IsNMEA()</a>.</p>
+
+</div>
+</div>
+<a id="ae716049f14df0087a81e3fed10e078d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae716049f14df0087a81e3fed10e078d8">&#9670;&nbsp;</a></span>RESPONSE_SYNC_BYTE_1</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RESPONSE_SYNC_BYTE_1&#160;&#160;&#160;0x24</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0x24 is ASCII for $ - 1st byte in each response from mosaic </p>
+
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00081">81</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00713">io_comm_mosaic::mosaicMessage::IsErrorMessage()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00701">io_comm_mosaic::mosaicMessage::IsResponse()</a>.</p>
+
+</div>
+</div>
+<a id="a388be89584df289df56ce4ed43c80580"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a388be89584df289df56ce4ed43c80580">&#9670;&nbsp;</a></span>RESPONSE_SYNC_BYTE_2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RESPONSE_SYNC_BYTE_2&#160;&#160;&#160;0x52</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0x52 is ASCII for R (for "Response") - 2nd byte in each response from mosaic </p>
+
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00085">85</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00713">io_comm_mosaic::mosaicMessage::IsErrorMessage()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00701">io_comm_mosaic::mosaicMessage::IsResponse()</a>.</p>
+
+</div>
+</div>
+<a id="a4e99642e2f20b87008b3c6c2d3802946"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e99642e2f20b87008b3c6c2d3802946">&#9670;&nbsp;</a></span>RESPONSE_SYNC_BYTE_3</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RESPONSE_SYNC_BYTE_3&#160;&#160;&#160;0x3F</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0x3F is ASCII for ? - 3rd byte in the response message from mosaic in case the command was invalid </p>
+
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00097">97</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00713">io_comm_mosaic::mosaicMessage::IsErrorMessage()</a>.</p>
 
 </div>
 </div>
@@ -283,9 +412,9 @@ Variables</h2></td></tr>
 
 <p>0x24 is ASCII for $ - 1st byte in each message </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00060">60</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00061">61</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00327">io_comm_mosaic::mosaicMessage::IsSBF()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00677">io_comm_mosaic::mosaicMessage::IsSBF()</a>.</p>
 
 </div>
 </div>
@@ -303,9 +432,9 @@ Variables</h2></td></tr>
 
 <p>0x40 is ASCII for @ - 2nd byte to indicate SBF block </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00062">62</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00065">65</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00327">io_comm_mosaic::mosaicMessage::IsSBF()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00677">io_comm_mosaic::mosaicMessage::IsSBF()</a>.</p>
 
 </div>
 </div>
@@ -323,19 +452,33 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Since switch only works with int (yet NMEA message IDs are strings), we need enum. Note drawbacks: No variable can have a name which is already in some enumeration, enums are not type safe etc.. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"></a>evGPGGA&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"></a>evNavSatFix&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"></a>evNavSatFix&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340"></a>evGPSFix&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"></a>evGPGGA&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca"></a>evPVTCartesian&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0"></a>evPVTGeodetic&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9"></a>evPosCovGeodetic&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0"></a>evAttEuler&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92"></a>evAttCovEuler&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac"></a>evChannelStatus&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110"></a>evMeasEpoch&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c"></a>evDOP&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39"></a>evVelCovGeodetic&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00106">106</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;{<a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>};</div><div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00142">142</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;{<a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340">evGPSFix</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0">evAttEuler</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92">evAttCovEuler</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac">evChannelStatus</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110">evMeasEpoch</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c">evDOP</a>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39">evVelCovGeodetic</a>};</div><div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39">evVelCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340">evGPSFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0">evAttEuler</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c">evDOP</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110">evMeasEpoch</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92">evAttCovEuler</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac">evChannelStatus</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -363,17 +506,24 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00110">110</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00146">146</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="mosaic_message_8hpp_source.html#l00106">evGPGGA</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00106">evNavSatFix</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00106">evPosCovGeodetic</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00106">evPVTCartesian</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00106">evPVTGeodetic</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00197">io_comm_mosaic::TimestampSBF()</a>.</p>
+<p class="reference">References <a class="el" href="mosaic_message_8hpp_source.html#l00142">evAttCovEuler</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evAttEuler</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evChannelStatus</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evDOP</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evGPGGA</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evGPSFix</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evMeasEpoch</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evNavSatFix</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evPosCovGeodetic</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evPVTCartesian</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evPVTGeodetic</a>, <a class="el" href="mosaic_message_8hpp_source.html#l00142">evVelCovGeodetic</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00524">io_comm_mosaic::TimestampSBF()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00039">rosaic_node::ROSaicNode::ROSaicNode()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;{</div><div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;$GPGGA&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>));</div><div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;NavSatFix&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>));</div><div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4006&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a>));</div><div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4007&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>));</div><div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;5906&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>));</div><div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;}</div><div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00106">mosaicMessage.hpp:106</a></div></div>
-<div class="ttc" id="mosaic_message_8hpp_html_afb7328be37d2759ed452faaf714743d4"><div class="ttname"><a href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a></div><div class="ttdeci">static std::map&lt; std::string, NMEA_ID_Enum &gt; StringValues</div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00109">mosaicMessage.hpp:109</a></div></div>
+<div class="fragment"><div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;{</div><div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;NavSatFix&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a>));</div><div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;GPSFix&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340">evGPSFix</a>));</div><div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;$GPGGA&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a>));</div><div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4006&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a>));</div><div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4007&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a>));</div><div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;5906&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a>));</div><div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;5938&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0">evAttEuler</a>));</div><div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;5939&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92">evAttCovEuler</a>));</div><div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4013&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac">evChannelStatus</a>));</div><div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4027&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110">evMeasEpoch</a>));</div><div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;4001&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c">evDOP</a>));</div><div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <a class="code" href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a>.insert(std::make_pair(<span class="stringliteral">&quot;5908&quot;</span>, <a class="code" href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39">evVelCovGeodetic</a>));</div><div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;}</div><div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ada93743c26481a69a094c9b269acee39">evVelCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ab0d42c829a4a41226f6e8f93c20fe629">evGPGGA</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a56f6fa3b1c923a13086f40468b1e4da0">evPVTGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71af7fcb21c145be64208f77e9fd4e18340">evGPSFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a368499b271302212786aefb517290bab">evNavSatFix</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a65a21ddb37ec8340ed59af8226d26bca">evPVTCartesian</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71ac8bbe5cc7e64ac97bcde88e1270e8eb9">evPosCovGeodetic</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a2e016f053393b8abb2921f8e54601ad0">evAttEuler</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_afb7328be37d2759ed452faaf714743d4"><div class="ttname"><a href="mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4">StringValues</a></div><div class="ttdeci">static std::map&lt; std::string, NMEA_ID_Enum &gt; StringValues</div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00145">mosaicMessage.hpp:145</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a124f041dc23a47db6687206fde76c76c">evDOP</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a54dfaeca8538f3f15b54a3d5fd61d110">evMeasEpoch</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a0436a49c8272690679b45a24fefe2e92">evAttCovEuler</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
+<div class="ttc" id="mosaic_message_8hpp_html_a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac"><div class="ttname"><a href="mosaic_message_8hpp.html#a2a87f2094b729f5ef971a53f297f8f71a52c5f84555f6f18e04a5f253cdd2c1ac">evChannelStatus</a></div><div class="ttdef"><b>Definition:</b> <a href="mosaic_message_8hpp_source.html#l00142">mosaicMessage.hpp:142</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -396,23 +546,23 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a34b86d18a5f8ac7123363aa42ae88a16"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a34b86d18a5f8ac7123363aa42ae88a16">&#9670;&nbsp;</a></span>read_count</h2>
+<a id="a54037a42ab45aa966d0433733fed3268"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54037a42ab45aa966d0433733fed3268">&#9670;&nbsp;</a></span>leap_seconds</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t read_count</td>
+          <td class="memname">uint32_t leap_seconds</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Number of times the "read" method of the mosaicMessage class has been called. </p>
+<p>The number of leap seconds that have been inserted into the UTC time. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00187">187</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00360">360</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00206">main()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00276">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00524">io_comm_mosaic::TimestampSBF()</a>.</p>
 
 </div>
 </div>
@@ -437,7 +587,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Static keyword makes them visible only to the code of this particular .cpp file (and those that import it), which helps to avoid global namespace pollution. One also receives "multiple definition of 'StringValues'" error without the static keyword. </p>
 
-<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00109">109</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mosaic_message_8hpp_source.html#l00145">145</a> of file <a class="el" href="mosaic_message_8hpp_source.html">mosaicMessage.hpp</a>.</p>
 
 </div>
 </div>
@@ -454,16 +604,16 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>If true, the ROS message headers' unix time field is constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data. If false, times are constructed within the driver via time(NULL) of the &lt;ctime&gt; library. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00185">185</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00338">338</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00206">main()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00276">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00403">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 11 2020 13:35:49 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 22 2020 13:33:08 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

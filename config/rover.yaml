@@ -4,7 +4,20 @@ debug: 3
 
 device: tcp://192.168.3.1:28784
 
+serial:
+  baudrate: 115200
+
 frame_id: gnss
+
+datum: ETRS89
+
+marker_to_arp:
+  delta_e: 0.0
+  delta_n: 0.0
+  delta_u: 0.0
+  
+ant_type: Unknown
+ant_serial_nr: Unknown
 
 publish:
   gpgga: true
@@ -14,9 +27,13 @@ publish:
   atteuler: true
   attcoveuler: true
   navsatfix: true
+  gpsfix: true
 
-serial:
-  baudrate: 115200
+leap_seconds: 18
+
+polling_period:
+  pvt: 1
+  rest: 1
 
 reconnect_delay_s: 0.1
 

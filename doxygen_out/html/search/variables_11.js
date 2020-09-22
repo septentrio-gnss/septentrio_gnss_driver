@@ -1,9 +1,12 @@
 var searchData=
 [
-  ['t_5fgd',['T_gd',['../struct_g_p_s_n_a_v.html#a07646df47496c4f5d28b8ba24601e447',1,'GPSNAV']]],
-  ['t_5foc',['t_oc',['../struct_g_p_s_n_a_v.html#a545d3d7e8051219f7a1069a4e3eabe6e',1,'GPSNAV']]],
-  ['t_5foe',['t_oe',['../struct_g_p_s_n_a_v.html#a47a431834fc73f7bffe633e287de6e31',1,'GPSNAV']]],
-  ['timer_5f',['timer_',['../classio__comm__mosaic_1_1_async_manager.html#a4b5fa054a1d277b1b292dd8cc406c0fb',1,'io_comm_mosaic::AsyncManager']]],
-  ['timesystem',['TimeSystem',['../struct_p_v_t_cartesian.html#a08b37b373e65dee059f593d731b73bae',1,'PVTCartesian::TimeSystem()'],['../struct_p_v_t_geodetic.html#a1ad97c215c683b0243e78c7b4b6147c8',1,'PVTGeodetic::TimeSystem()']]],
-  ['tow',['TOW',['../struct_p_v_t_cartesian.html#ab4b214e07815c129ce9b6c6bd582139f',1,'PVTCartesian::TOW()'],['../struct_p_v_t_geodetic.html#a4600128ed90af5ded8f0ad5be64bf0a5',1,'PVTGeodetic::TOW()'],['../struct_pos_cov_cartesian.html#a63a7f9530322e7ec76b9bf29d8cce623',1,'PosCovCartesian::TOW()'],['../struct_pos_cov_geodetic.html#a6db849a9ff844a186bd69adc31eefe68',1,'PosCovGeodetic::TOW()'],['../struct_vel_cov_cartesian.html#aaadf904ee2cd20180f4341736ce2857d',1,'VelCovCartesian::TOW()'],['../struct_attitude_euler.html#a8495c10c821d04d4b44073221df4390c',1,'AttitudeEuler::TOW()'],['../struct_receiver_time.html#a8616f0fd30f4bf4cd2c8726ad6c359d3',1,'ReceiverTime::TOW()'],['../struct_g_p_s_n_a_v.html#a6bc462393682a84d93bbd545b86d77d2',1,'GPSNAV::TOW()']]]
+  ['undulation',['Undulation',['../struct_p_v_t_cartesian.html#a571815fb69ac925a0ebcc19de7a83dfd',1,'PVTCartesian::Undulation()'],['../struct_p_v_t_geodetic.html#ab27640a92c97ccfe28f4c1e7a3fd73d3',1,'PVTGeodetic::Undulation()']]],
+  ['ura',['URA',['../struct_g_p_s_n_a_v.html#af7aa7ddb5e83c200a6db8bb33aa12b26',1,'GPSNAV']]],
+  ['use_5fgnss_5ftime',['use_GNSS_time',['../rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82',1,'use_GNSS_time():&#160;rosaic_node.cpp'],['../mosaic_message_8hpp.html#a5d04eedb59934d49cc0d128d3c375e82',1,'use_GNSS_time():&#160;rosaic_node.cpp']]],
+  ['utcday',['UTCDay',['../struct_receiver_time.html#ae4b5e42b5982e47725bf96fe9b353aaa',1,'ReceiverTime']]],
+  ['utchour',['UTCHour',['../struct_receiver_time.html#a68f118b995ef9acbb66601ad9826b708',1,'ReceiverTime']]],
+  ['utcmin',['UTCMin',['../struct_receiver_time.html#ab9ba38728316cb239136f41ce75e8056',1,'ReceiverTime']]],
+  ['utcmonth',['UTCMonth',['../struct_receiver_time.html#a7171bd3b3cd373554dbc8922e20f3b91',1,'ReceiverTime']]],
+  ['utcsec',['UTCSec',['../struct_receiver_time.html#a0ac929b9bb477bd051a482c7324eeb4f',1,'ReceiverTime']]],
+  ['utcyear',['UTCYear',['../struct_receiver_time.html#a8afad19f31d32c359a17121adbd89f86',1,'ReceiverTime']]]
 ];

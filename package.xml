@@ -52,6 +52,7 @@
   
   <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>gps_common</depend>
   <depend>boost</depend>
    
 

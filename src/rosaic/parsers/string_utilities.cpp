@@ -176,4 +176,15 @@ namespace string_utilities
 		value = (uint8_t) value_new;
 		return true;
 	}
+	
+	std::string TrimString(std::string str)
+	{
+		for(std::string::size_type s=str.length()-1; s>0; --s)
+		{
+			if(str[s] == '0' && !isdigit(str[s-1])) break;
+			else if (str[s] == '0') str.erase(s,1);
+			else break;
+		}
+		return str;
+	}
 }

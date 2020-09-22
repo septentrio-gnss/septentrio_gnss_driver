@@ -32,9 +32,10 @@
 #ifndef STRING_UTILITIES_H
 #define STRING_UTILITIES_H
  
-// C++ library includes
+// C and C++ library includes
 #include <stdint.h>
 #include <string>
+#include <locale> // merely for "isdigit()" function, also available in <cctype.h> C header..
  
 /**
  * @file string_utilities.h
@@ -99,6 +100,13 @@ namespace string_utilities
 	 * @return The value found in "string"
 	 */ 
 	uint8_t ToUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+	
+	/**
+	 * @brief Removes trailing zeros from a string representing a float or double except for the first zero after the decimal point
+	 * @param[in] str The string whose trailing zeros shall be removed
+	 * @return The trimmed string
+	 */
+	std::string TrimString(std::string str);
 }
 
  
