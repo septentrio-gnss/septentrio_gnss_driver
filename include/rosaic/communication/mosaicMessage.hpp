@@ -175,7 +175,7 @@ namespace io_comm_mosaic
 	 */
 	class mosaicMessage
 	{
-	public:
+		public:
 			/**
 			 * @brief Constructor of the mosaicMessage class
 			 * 
