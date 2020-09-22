@@ -77,6 +77,8 @@ leap_seconds: 18
 polling_period:
   pvt: 1
   rest: 1
+  
+reconnect_delay_s: 4
 
 use_GNSS_time: true
 ```
@@ -114,6 +116,8 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
     - default: `1` (1 Hz)
   - `polling_period/rest`: desired period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
     - default: `1` (1 Hz)
+  - `reconnect_delay_s`: delay in seconds between reconnection attempts to the connection specified in the parameter `device`
+    - default: `4`
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
 - Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `use_sbf`: `true` in order to request SBF blocks, `false` to request NMEA sentences
