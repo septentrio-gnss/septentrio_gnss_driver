@@ -78,8 +78,6 @@ polling_period:
   pvt: 1
   rest: 1
 
-reconnect_delay_s: 0.1
-
 use_GNSS_time: true
 ```
 In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch rosaic rover.launch param_file_name:=rover`.
