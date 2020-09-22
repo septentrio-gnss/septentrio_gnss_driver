@@ -240,7 +240,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 Is there an SBF block or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
 1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5) of Septentrio's homepage and focus on Chapter 4.
 2. Add a new `.msg` file to the `rosaic/msg` folder.
-3. In case of SBF block: Add the new struct definition to the `sbf_structs.hpp` file.
+3. SBF: Add the new struct definition to the `sbf_structs.hpp` file.
 4. Parsing/Processing the message/block:
     - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `rosaic/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
     - SBF: Extend the `NMEA_ID_Enum` enumeration in the `mosaic_message.hpp` file with a new entry.
