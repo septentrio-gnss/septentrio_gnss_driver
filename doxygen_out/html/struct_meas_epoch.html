@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ROSaic: MeasEpoch Struct Reference</title>
+<title>ROSaic: MeasEpoch Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -61,103 +61,228 @@ $(function() {
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">MeasEpoch Struct Reference</div>  </div>
+<div class="title">MeasEpoch Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Struct for the SBF block "MeasEpoch".  
+ <a href="struct_meas_epoch.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for MeasEpoch:</div>
 <div class="dyncontent">
 <div class="center"><img src="struct_meas_epoch__coll__graph.png" border="0" usemap="#_meas_epoch_coll__map" alt="Collaboration graph"/></div>
+<map name="_meas_epoch_coll__map" id="_meas_epoch_coll__map">
+<area shape="rect" id="node4" href="struct_block_header__t.html" title="Struct for the SBF block&#39;s header message. " alt="" coords="68,162,176,189"/>
+</map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:af49ca50e48afb6df7ca3a2949702f631"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#af49ca50e48afb6df7ca3a2949702f631">GPS_ms</a></td></tr>
-<tr class="separator:af49ca50e48afb6df7ca3a2949702f631"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5ae0b8e20f947208bb9b4d8ed0483e0"><td class="memItemLeft" align="right" valign="top">unsigned short&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#ab5ae0b8e20f947208bb9b4d8ed0483e0">weekNumber</a></td></tr>
-<tr class="separator:ab5ae0b8e20f947208bb9b4d8ed0483e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04cd14d7ab34a9ee87a9e97fa1d78658"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a04cd14d7ab34a9ee87a9e97fa1d78658">N</a></td></tr>
-<tr class="separator:a04cd14d7ab34a9ee87a9e97fa1d78658"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4452f155106cb115e371b13b82ee101c"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a4452f155106cb115e371b13b82ee101c">SBLength</a></td></tr>
-<tr class="separator:a4452f155106cb115e371b13b82ee101c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb90ccf78317dce3a376573e888676de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_block_header__t.html">BlockHeader_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#aeb90ccf78317dce3a376573e888676de">Block_Header</a></td></tr>
+<tr class="separator:aeb90ccf78317dce3a376573e888676de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07d0ebd868ffa80b5d96ce811aa830e8"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a07d0ebd868ffa80b5d96ce811aa830e8">TOW</a></td></tr>
+<tr class="separator:a07d0ebd868ffa80b5d96ce811aa830e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a202644e0f03b4afade3007b742c062b6"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a202644e0f03b4afade3007b742c062b6">WNc</a></td></tr>
+<tr class="separator:a202644e0f03b4afade3007b742c062b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcf1d44eb84dd2d0e39954c8a0f3f2b1"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#afcf1d44eb84dd2d0e39954c8a0f3f2b1">N</a></td></tr>
+<tr class="separator:afcf1d44eb84dd2d0e39954c8a0f3f2b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c41a514363132cc613778417fa605b0"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a4c41a514363132cc613778417fa605b0">SB1Size</a></td></tr>
+<tr class="separator:a4c41a514363132cc613778417fa605b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8648416c63a5ec2b88637fa7dfb56841"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a8648416c63a5ec2b88637fa7dfb56841">SB2Size</a></td></tr>
+<tr class="separator:a8648416c63a5ec2b88637fa7dfb56841"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e54dfa88ad56e744981a05ceb151e71"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a4e54dfa88ad56e744981a05ceb151e71">CommonFlags</a></td></tr>
+<tr class="separator:a4e54dfa88ad56e744981a05ceb151e71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80fa4714a115e2bcd2bdd6bec111766d"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a80fa4714a115e2bcd2bdd6bec111766d">CumClkJumps</a></td></tr>
+<tr class="separator:a80fa4714a115e2bcd2bdd6bec111766d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f9f6970dd177bac99dd0e49e0f11dc8"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a2f9f6970dd177bac99dd0e49e0f11dc8">Reserved</a></td></tr>
+<tr class="separator:a2f9f6970dd177bac99dd0e49e0f11dc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a443f549f65f8384e9ed3b45516f09588"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_meas_epoch.html#a443f549f65f8384e9ed3b45516f09588">Data</a> [((80+1) *sizeof(<a class="el" href="struct_meas_epoch_channel_type1.html">MeasEpochChannelType1</a>)+(((80+1)) *(((7) *(3)) -1)) *sizeof(<a class="el" href="struct_meas_epoch_channel_type2.html">MeasEpochChannelType2</a>))]</td></tr>
+<tr class="separator:a443f549f65f8384e9ed3b45516f09588"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00524">524</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+<div class="textblock"><p>Struct for the SBF block "MeasEpoch". </p>
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00391">391</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="af49ca50e48afb6df7ca3a2949702f631"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af49ca50e48afb6df7ca3a2949702f631">&#9670;&nbsp;</a></span>GPS_ms</h2>
+<a id="aeb90ccf78317dce3a376573e888676de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb90ccf78317dce3a376573e888676de">&#9670;&nbsp;</a></span>Block_Header</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int MeasEpoch::GPS_ms</td>
+          <td class="memname"><a class="el" href="struct_block_header__t.html">BlockHeader_t</a> MeasEpoch::Block_Header</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00526">526</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00393">393</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00290">io_comm_mosaic::mosaicMessage::GPSFixCallback()</a>.</p>
 
 </div>
 </div>
-<a id="a04cd14d7ab34a9ee87a9e97fa1d78658"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04cd14d7ab34a9ee87a9e97fa1d78658">&#9670;&nbsp;</a></span>N</h2>
+<a id="a4e54dfa88ad56e744981a05ceb151e71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e54dfa88ad56e744981a05ceb151e71">&#9670;&nbsp;</a></span>CommonFlags</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned char MeasEpoch::N</td>
+          <td class="memname">uint8_t MeasEpoch::CommonFlags</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00528">528</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00404">404</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
 
 </div>
 </div>
-<a id="a4452f155106cb115e371b13b82ee101c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4452f155106cb115e371b13b82ee101c">&#9670;&nbsp;</a></span>SBLength</h2>
+<a id="a80fa4714a115e2bcd2bdd6bec111766d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80fa4714a115e2bcd2bdd6bec111766d">&#9670;&nbsp;</a></span>CumClkJumps</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned char MeasEpoch::SBLength</td>
+          <td class="memname">uint8_t MeasEpoch::CumClkJumps</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00529">529</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00405">405</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
 
 </div>
 </div>
-<a id="ab5ae0b8e20f947208bb9b4d8ed0483e0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab5ae0b8e20f947208bb9b4d8ed0483e0">&#9670;&nbsp;</a></span>weekNumber</h2>
+<a id="a443f549f65f8384e9ed3b45516f09588"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a443f549f65f8384e9ed3b45516f09588">&#9670;&nbsp;</a></span>Data</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned short MeasEpoch::weekNumber</td>
+          <td class="memname">uint8_t MeasEpoch::Data[((80+ 1) *sizeof(<a class="el" href="struct_meas_epoch_channel_type1.html">MeasEpochChannelType1</a>)+(((80+ 1)) *(((7) *(3)) -1)) *sizeof(<a class="el" href="struct_meas_epoch_channel_type2.html">MeasEpochChannelType2</a>))]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00527">527</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00407">407</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00290">io_comm_mosaic::mosaicMessage::GPSFixCallback()</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<a id="afcf1d44eb84dd2d0e39954c8a0f3f2b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afcf1d44eb84dd2d0e39954c8a0f3f2b1">&#9670;&nbsp;</a></span>N</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t MeasEpoch::N</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00400">400</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00290">io_comm_mosaic::mosaicMessage::GPSFixCallback()</a>.</p>
+
+</div>
+</div>
+<a id="a2f9f6970dd177bac99dd0e49e0f11dc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f9f6970dd177bac99dd0e49e0f11dc8">&#9670;&nbsp;</a></span>Reserved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t MeasEpoch::Reserved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00406">406</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a4c41a514363132cc613778417fa605b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c41a514363132cc613778417fa605b0">&#9670;&nbsp;</a></span>SB1Size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t MeasEpoch::SB1Size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00401">401</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00290">io_comm_mosaic::mosaicMessage::GPSFixCallback()</a>.</p>
+
+</div>
+</div>
+<a id="a8648416c63a5ec2b88637fa7dfb56841"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8648416c63a5ec2b88637fa7dfb56841">&#9670;&nbsp;</a></span>SB2Size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t MeasEpoch::SB2Size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00402">402</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00290">io_comm_mosaic::mosaicMessage::GPSFixCallback()</a>.</p>
+
+</div>
+</div>
+<a id="a07d0ebd868ffa80b5d96ce811aa830e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07d0ebd868ffa80b5d96ce811aa830e8">&#9670;&nbsp;</a></span>TOW</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t MeasEpoch::TOW</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00396">396</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a202644e0f03b4afade3007b742c062b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a202644e0f03b4afade3007b742c062b6">&#9670;&nbsp;</a></span>WNc</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t MeasEpoch::WNc</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="sbf__structs_8hpp_source.html#l00397">397</a> of file <a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/rosaic/packed_structs/<a class="el" href="sbf__structs_8hpp_source.html">sbf_structs.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 11 2020 13:35:49 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 22 2020 13:33:08 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

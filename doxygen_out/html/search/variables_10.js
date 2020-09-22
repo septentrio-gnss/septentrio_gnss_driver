@@ -1,18 +1,12 @@
 var searchData=
 [
-  ['sblength',['SBLength',['../struct_meas_epoch.html#a4452f155106cb115e371b13b82ee101c',1,'MeasEpoch']]],
-  ['serial_5fport_5f',['serial_port_',['../classio__comm__mosaic_1_1_comm___i_o.html#a335fbe29195986121f9fe552aa4375a6',1,'io_comm_mosaic::Comm_IO']]],
-  ['setbaudratesleepms',['SetBaudrateSleepMs',['../classio__comm__mosaic_1_1_comm___i_o.html#aac4a71048df61f977f006d885898c7a5',1,'io_comm_mosaic::Comm_IO']]],
-  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian::SignalInfo()'],['../struct_p_v_t_geodetic.html#afd72c67b4b84927bef9660bb719fa34e',1,'PVTGeodetic::SignalInfo()']]],
-  ['sqrt_5fa',['SQRT_A',['../struct_g_p_s_n_a_v.html#a7e418b504d87b4a13b6c7bd785d79ed1',1,'GPSNAV']]],
-  ['stopping_5f',['stopping_',['../classio__comm__mosaic_1_1_async_manager.html#a459077c21e975d157bd2d051b0363348',1,'io_comm_mosaic::AsyncManager']]],
-  ['stream_5f',['stream_',['../classio__comm__mosaic_1_1_async_manager.html#a064c1bcb1d8c474b873026bd51c08fb3',1,'io_comm_mosaic::AsyncManager']]],
-  ['stringvalues',['StringValues',['../mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4',1,'mosaicMessage.hpp']]],
-  ['svid',['SVID',['../struct_meas_epoch_sub_block.html#a45a8957085862a6a8dff283fdee560d6',1,'MeasEpochSubBlock']]],
-  ['svid_5f1',['SVID_1',['../struct_r_a_n_g_e___d_a_t_a.html#af88b79570f1e39d4288042e1ff08e95c',1,'RANGE_DATA']]],
-  ['svid_5f2',['SVID_2',['../struct_r_a_n_g_e___d_a_t_a.html#acddd30524c082746924c97ad321ca0df',1,'RANGE_DATA']]],
-  ['svid_5f3',['SVID_3',['../struct_r_a_n_g_e___d_a_t_a.html#a0b751d025612b83bb0549dda2c887775',1,'RANGE_DATA']]],
-  ['sync1',['SYNC1',['../struct_block_header__t.html#a1c387491d87ba8b7696d4b94b7f594a3',1,'BlockHeader_t']]],
-  ['sync2',['SYNC2',['../struct_block_header__t.html#addb5555077117e39f215892fcb8b3075',1,'BlockHeader_t']]],
-  ['synclevel',['SyncLevel',['../struct_receiver_time.html#a5b219a34cc3f2e058ef926933f0528ec',1,'ReceiverTime']]]
+  ['t_5fgd',['T_gd',['../struct_g_p_s_n_a_v.html#a07646df47496c4f5d28b8ba24601e447',1,'GPSNAV']]],
+  ['t_5foc',['t_oc',['../struct_g_p_s_n_a_v.html#a545d3d7e8051219f7a1069a4e3eabe6e',1,'GPSNAV']]],
+  ['t_5foe',['t_oe',['../struct_g_p_s_n_a_v.html#a47a431834fc73f7bffe633e287de6e31',1,'GPSNAV']]],
+  ['tdop',['TDOP',['../struct_d_o_p.html#a06401d5f07141e8866ed51b210d2bd72',1,'DOP']]],
+  ['timer_5f',['timer_',['../classio__comm__mosaic_1_1_async_manager.html#a4b5fa054a1d277b1b292dd8cc406c0fb',1,'io_comm_mosaic::AsyncManager']]],
+  ['timesystem',['TimeSystem',['../struct_p_v_t_cartesian.html#a08b37b373e65dee059f593d731b73bae',1,'PVTCartesian::TimeSystem()'],['../struct_p_v_t_geodetic.html#a1ad97c215c683b0243e78c7b4b6147c8',1,'PVTGeodetic::TimeSystem()']]],
+  ['tow',['TOW',['../struct_p_v_t_cartesian.html#ab4b214e07815c129ce9b6c6bd582139f',1,'PVTCartesian::TOW()'],['../struct_p_v_t_geodetic.html#a4600128ed90af5ded8f0ad5be64bf0a5',1,'PVTGeodetic::TOW()'],['../struct_att_euler.html#af586ca549fd05c15a6abfd127e554829',1,'AttEuler::TOW()'],['../struct_att_cov_euler.html#a96c4cba649f0ef1133c21642c0ca7f3a',1,'AttCovEuler::TOW()'],['../struct_channel_status.html#ae690488f656c20093dba50b0b060d9c1',1,'ChannelStatus::TOW()'],['../struct_meas_epoch.html#a07d0ebd868ffa80b5d96ce811aa830e8',1,'MeasEpoch::TOW()'],['../struct_d_o_p.html#a2f0e40c8545ba1daf4f747f27737cc76',1,'DOP::TOW()'],['../struct_pos_cov_cartesian.html#a63a7f9530322e7ec76b9bf29d8cce623',1,'PosCovCartesian::TOW()'],['../struct_pos_cov_geodetic.html#a6db849a9ff844a186bd69adc31eefe68',1,'PosCovGeodetic::TOW()'],['../struct_vel_cov_cartesian.html#aaadf904ee2cd20180f4341736ce2857d',1,'VelCovCartesian::TOW()'],['../struct_vel_cov_geodetic.html#a2e3dae1bd416b0f236fe087c8b7a7e51',1,'VelCovGeodetic::TOW()'],['../struct_receiver_time.html#a8616f0fd30f4bf4cd2c8726ad6c359d3',1,'ReceiverTime::TOW()'],['../struct_g_p_s_n_a_v.html#a6bc462393682a84d93bbd545b86d77d2',1,'GPSNAV::TOW()']]],
+  ['trackingstatus',['TrackingStatus',['../struct_channel_state_info.html#a5dd9cf88be59727043457c04de4868b0',1,'ChannelStateInfo']]],
+  ['type',['Type',['../struct_meas_epoch_channel_type2.html#a48a5e111be2f1ef50be2dd9b2773e618',1,'MeasEpochChannelType2::Type()'],['../struct_meas_epoch_channel_type1.html#a34a8bc06c2deb66343f95a5090c74eee',1,'MeasEpochChannelType1::Type()']]]
 ];

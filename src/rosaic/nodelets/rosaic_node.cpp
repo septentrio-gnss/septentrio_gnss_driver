@@ -51,21 +51,160 @@ rosaic_node::ROSaicNode::ROSaicNode()
 	{
 		ROS_ERROR("InitializeIO() failed: %s", e.what());
 	}
-	// Subscribe to all requested mosaic messages and publish them raw or in composite form (e.g. NavSatFix)
+	// Subscribes to all requested mosaic messages and publish them raw or in composite form (e.g. NavSatFix)
     DefineMessages();
-	// Testing Send() method of AsyncManager class
-	std::string cmd = "grc \x0D";
-	IO.Send(cmd);
+	// Communicates to mosaic which SBF/NMEA messages it should output and sets all its necessary corrections-related parameters
+	ConfigureMosaic();
+	
 	ros::spin();
 	
 }
 
-
+//! The Send() method of AsyncManager class is paramount for this purpose.
+//! Note that std::to_string() is from C++11 onwards only.
+void rosaic_node::ROSaicNode::ConfigureMosaic()
+{
+	// It is imperative to hold a lock on the mutex "response_mutex" while modifying the variable "response_received".
+	boost::mutex::scoped_lock lock(response_mutex);
+	
+	// Turning off all current SBF/NMEA output 
+	IO.Send("sso, all, none, none, off \x0D");
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
+	IO.Send("sno, all, none, none, off \x0D");
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
+	
+	// Setting datum to be used by mosaic (not mosaic's NMEA output though, which only provides MSL and undulation (by default with respect to WGS84), but not ellipsoidal height)
+	{
+		std::stringstream ss;
+		ss << "sgd, " << datum_ << "\x0D"; 
+		IO.Send(ss.str());
+	}
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
+	
+	// Setting the marker-to-ARP offsets
+	{
+		std::stringstream ss;
+		ss << "sao, Main, " << string_utilities::TrimString(std::to_string(delta_e_)) << ", " << string_utilities::TrimString(std::to_string(delta_n_)) << ", " << string_utilities::TrimString(std::to_string(delta_u_)) << ", \"" << ant_type_ << "\", \"" << ant_serial_nr_ << "\", 0 \x0D"; 
+		IO.Send(ss.str());
+	}
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
+	
+	// Setting SBF/NMEA output of mosaic
+	unsigned stream = 1;
+	boost::smatch match;
+	boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"));
+	std::string proto(match[1]);
+	std::string mosaic_port;
+	if (proto == "tcp") 
+	{
+		mosaic_port = "IP10";
+	}
+	else
+	{
+		mosaic_port = "USB1";
+	}
+	if (publish_gpgga == true)
+	{
+		std::stringstream ss;
+		ss << "sno, Stream" << std::to_string(stream) << ", " << mosaic_port << ", GGA, sec" << std::to_string(polling_period_rest_) << "\x0D"; 
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_pvtcartesian == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", PVTCartesian, sec" << std::to_string(polling_period_pvt_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_pvtgeodetic == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", PVTGeodetic, sec" << std::to_string(polling_period_pvt_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_poscovgeodetic == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", PosCovGeodetic, sec" << std::to_string(polling_period_pvt_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_atteuler == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", AttEuler, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_attcoveuler == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", AttCovEuler, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	if (publish_gpsfix == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", ChannelStatus, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+		++stream;
+		ss.str(std::string()); // avoids invoking the std::string constructor
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", MeasEpoch, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+		++stream;
+		ss.str(std::string()); 
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", DOP, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+		++stream;
+		ss.str(std::string()); 
+		ss << "sso, Stream" << std::to_string(stream) << ", " << mosaic_port << ", VelCovGeodetic, sec" << std::to_string(polling_period_rest_) << "\x0D";
+		IO.Send(ss.str());
+		++stream;
+	}
+}
 void rosaic_node::ROSaicNode::GetROSParams() 
 {
-	nh->param("device", device_, std::string("/dev/ttyACM0"));	
-	// Serial params
-	GetROSInt("serial/baudrate", baudrate_, (uint32_t) 115200);
+	// Communication parameters
+	nh->param("device", device_, std::string("/dev/ttyACM0"));
+	GetROSInt("serial/baudrate", baudrate_, static_cast<uint32_t>(115200));
+	
+	// Polling period parameters
+	GetROSInt("polling_period/pvt", polling_period_pvt_, static_cast<unsigned>(1));
+	GetROSInt("polling_period/rest", polling_period_rest_, static_cast<unsigned>(1));
+	
+	// Datum and marker-to-ARP offset
+	nh->param("datum", datum_, std::string("ETRS89"));
+	nh->param("ant_type", ant_type_, std::string("Unknown"));
+	nh->param("ant_serial_nr", ant_serial_nr_, std::string("Unknown"));
+	nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
+	nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
+	nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+
 	// To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix mode...
 	ROS_DEBUG("Finished GetROSParams() method");
 
@@ -150,44 +289,42 @@ void rosaic_node::ROSaicNode::DefineMessages()
 	if (publish_gpgga == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::Gpgga>("$GPGGA", boost::bind(Publish<rosaic::Gpgga>, _1, "/gpgga"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "$GPGGA";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+		//std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "$GPGGA";
+		//ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_pvtcartesian == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PVTCartesian>("4006", boost::bind(Publish<rosaic::PVTCartesian>, _1, "/pvtcartesian"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4006";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_pvtgeodetic == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PVTGeodetic>("4007", boost::bind(Publish<rosaic::PVTGeodetic>, _1, "/pvtgeodetic"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "4007";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_poscovgeodetic == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::PosCovGeodetic>("5906", boost::bind(Publish<rosaic::PosCovGeodetic>, _1, "/poscovgeodetic"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5906";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_atteuler == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::AttEuler>("5938", boost::bind(Publish<rosaic::AttEuler>, _1, "/atteuler"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5938";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_attcoveuler == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<rosaic::AttCovEuler>("5939", boost::bind(Publish<rosaic::AttCovEuler>, _1, "/attcoveuler"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "5939";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
 	}
 	if (publish_navsatfix == true)
 	{
 		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<sensor_msgs::NavSatFix>("NavSatFix", boost::bind(Publish<sensor_msgs::NavSatFix>, _1, "/navsatfix"));
-		std::multimap<std::string, boost::shared_ptr<io_comm_mosaic::AbstractCallbackHandler> >::key_type key = "NavSatFix";
-		ROS_DEBUG("Back to DefineMessages() method: The element exists in our map: %u", (unsigned int) IO.handlers_.callbackmap_.count(key));
+	}
+	if (publish_gpsfix == true)
+	{
+		typedef boost::function<void(int32_t)> Empty; 
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<gps_common::GPSFix>("GPSFix", boost::bind(Publish<gps_common::GPSFix>, _1, "/gpsfix"));
+		// The following blocks are never published, yet are needed for the construction of the GPSFix message, hence we have empty callbacks.
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<int32_t>("4013", Empty()); // ChannelStatus block
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<int32_t>("4027", Empty()); // MeasEpoch block
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<int32_t>("4001", Empty()); // DOP block
+		IO.handlers_.callbackmap_ = IO.GetHandlers().Insert<int32_t>("5908", Empty()); // VelCovGeodetic block
 	}
 	
 	ROS_DEBUG("Leaving DefineMessages() method");
@@ -215,11 +352,18 @@ bool publish_atteuler;
 bool publish_attcoveuler;
 //! Whether or not to publish the sensor_msgs::NavSatFix message
 bool publish_navsatfix;
+//! Whether or not to publish the gps_common::GPSFix message
+bool publish_gpsfix;
 //! The frame ID used in the header of every published ROS message
 std::string frame_id;
+//! The number of leap seconds that have been inserted into the UTC time
+uint32_t leap_seconds;
 //! The get_handlers() method of the Comm_IO class forces us to make this mutex static, since otherwise, 
 //! the method would need to construct-by-copy the mutex, which is strictly prohibited.
 boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_;
+boost::mutex response_mutex;
+bool response_received;
+boost::condition_variable response_condition;
 
 int main(int argc, char** argv) 
 {
@@ -236,6 +380,10 @@ int main(int argc, char** argv)
 	rosaic_node::nh->param("publish/atteuler", publish_atteuler, true);
 	rosaic_node::nh->param("publish/attcoveuler", publish_attcoveuler, true);
 	rosaic_node::nh->param("publish/navsatfix", publish_navsatfix, true);
+	rosaic_node::nh->param("publish/gpsfix", publish_gpsfix, true);
+	rosaic_node::GetROSInt("leap_seconds", leap_seconds, static_cast<uint32_t>(18));
+	
+	response_received = false;
 	
 	//To be implemented: Let nh subscribe to RTCM topic...
 

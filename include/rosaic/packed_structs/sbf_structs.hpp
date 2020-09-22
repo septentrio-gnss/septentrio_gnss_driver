@@ -31,6 +31,43 @@
 #ifndef SBFStructs_HPP
 #define SBFStructs_HPP
 
+//! Using maximum value of NR_OF_LOGICALCHANNELS for SBF definitions
+#ifndef NR_OF_LOGICALCHANNELS
+#define NR_OF_LOGICALCHANNELS  80
+#endif
+//! Inmarsat is a British satellite telecommunications company.
+#ifndef MAX_NB_INMARSATCHANNELS
+#define MAX_NB_INMARSATCHANNELS 1
+#endif
+//! Using maximum value of MAX_NR_OF_SIGNALS_PER_SATELLITE for SBF definitions
+#ifndef MAX_NR_OF_SIGNALS_PER_SATELLITE
+#define MAX_NR_OF_SIGNALS_PER_SATELLITE 7
+#endif
+//! Using maximum value of NR_OF_ANTENNAS for SBF definitions
+#ifndef NR_OF_ANTENNAS
+#define NR_OF_ANTENNAS 3
+#endif
+//! Maximum number of antennas that mosaic can handle
+#ifndef MAXSB_NBRANTENNA
+#define MAXSB_NBRANTENNA  4
+#endif
+//! Max number of bytes that ChannelSatInfo sub-block can consist of
+#ifndef MAXSB_CHANNELSATINFO
+#define MAXSB_CHANNELSATINFO   (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
+#endif
+//! Max number of bytes that ChannelStateInfo sub-block can consist of
+#ifndef MAXSB_CHANNELSTATEINFO
+#define MAXSB_CHANNELSTATEINFO   (MAXSB_CHANNELSATINFO * MAXSB_NBRANTENNA)
+#endif
+//! Max number of bytes that MeasEpochChannelType1 sub-block can consist of
+#ifndef MAXSB_MEASEPOCH_T1
+#define MAXSB_MEASEPOCH_T1 (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
+#endif
+//! Max number of bytes that MeasEpochChannelType2 sub-block can consist of
+#ifndef MAXSB_MEASEPOCH_T2
+#define MAXSB_MEASEPOCH_T2 ((MAXSB_MEASEPOCH_T1) * ( ((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) -1))
+#endif
+
 // ROSaic includes
 #include "ssntypes.hpp"
 
@@ -39,7 +76,7 @@
  * 32-bit aligned, meaning that the struct were aligned to an address
  * that was divisible by 4. On the CPMF, double data types are 64-bit  
  * aligned. The "packed, aligned(4)" attribute combination is necessary 
- * to enforce 32-bit alignment for double data types and to port the sbf 
+ * to enforce 32-bit alignment for double data types and to port the SBF 
  * encoding/decoding functionality to the CPMF.
  */
 // The aligned variable attribute specifies a minimum alignment for the variable or structure field, measured in bytes.
@@ -251,6 +288,147 @@ struct AttCovEuler
 	float          Cov_PitchRoll;
 };
 
+/**
+ * @class ChannelStateInfo
+ * @brief Struct for the SBF sub-block "ChannelStateInfo"
+ */
+typedef struct 
+{
+	uint8_t        Antenna;      
+	uint8_t        Reserved;    
+	uint16_t       TrackingStatus;
+	uint16_t       PVTStatus;    
+	uint16_t       PVTInfo;      
+} ChannelStateInfo;
+
+/**
+ * @class ChannelSatInfo
+ * @brief Struct for the SBF sub-block "ChannelSatInfo"
+ */
+typedef struct 
+{
+	uint8_t        SVID;         
+	uint8_t        FreqNr;       
+	uint8_t        Reserved1[2]; 
+	uint16_t       Az_RiseSet;   
+	uint16_t       HealthStatus; 
+	int8_t         Elev;         
+	uint8_t        N2;           
+	uint8_t        Channel;      
+	uint8_t        Reserved2;    
+} ChannelSatInfo;
+
+//! Max number of bytes that the Data part of the ChannelStatus struct can consist of
+#ifndef SBF_CHANNELSTATUS_DATA_LENGTH
+#define SBF_CHANNELSTATUS_DATA_LENGTH  MAXSB_CHANNELSATINFO * sizeof(ChannelSatInfo) + MAXSB_CHANNELSTATEINFO * sizeof(ChannelStateInfo)
+#endif
+
+/**
+ * @class ChannelStatus
+ * @brief Struct for the SBF block "ChannelStatus"
+ */
+struct ChannelStatus
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        N;            
+	uint8_t        SB1Size;      
+	uint8_t        SB2Size;      
+	uint8_t        Reserved[3];  
+	uint8_t        Data[SBF_CHANNELSTATUS_DATA_LENGTH];
+};
+
+/**
+ * @class MeasEpochChannelType2
+ * @brief Struct for the SBF sub-block "MeasEpochChannelType2"
+ */
+typedef struct
+{
+  uint8_t        Type;         
+  uint8_t        LockTime;     
+  uint8_t        CN0;          
+  uint8_t        OffsetsMSB;   
+  int8_t         CarrierMSB;   
+  uint8_t        ObsInfo;      
+  uint16_t       CodeOffsetLSB;
+  uint16_t       CarrierLSB;   
+  uint16_t       DopplerOffsetLSB;
+} MeasEpochChannelType2;
+
+/**
+ * @class MeasEpochChannelType1
+ * @brief Struct for the SBF sub-block "MeasEpochChannelType1"
+ */
+typedef struct
+{
+  uint8_t        RXChannel;    
+  uint8_t        Type;         
+  uint8_t        SVID;         
+  uint8_t        Misc;         
+  uint32_t       CodeLSB;      
+  int32_t        Doppler;      
+  uint16_t       CarrierLSB;   
+  int8_t         CarrierMSB;   
+  uint8_t        CN0;          
+  uint16_t       LockTime;     
+  uint8_t        ObsInfo;      
+  uint8_t        N_Type2;      
+} MeasEpochChannelType1;
+
+//! Max number of bytes that the Data part of the MeasEpoch struct can consist of
+#ifndef MEASEPOCH_DATA_LENGTH
+#define MEASEPOCH_DATA_LENGTH (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) + MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
+#endif 
+
+/**
+ * @class MeasEpoch
+ * @brief Struct for the SBF block "MeasEpoch"
+ */
+struct MeasEpoch
+{
+  BlockHeader_t  Block_Header;       
+
+  /* Time Header */
+  uint32_t       TOW;          
+  uint16_t       WNc;          
+
+  /* MeasEpoch Header */
+  uint8_t        N;            
+  uint8_t        SB1Size;      
+  uint8_t        SB2Size;      
+
+  uint8_t        CommonFlags;  
+  uint8_t        CumClkJumps;  
+  uint8_t        Reserved;     
+  uint8_t        Data[MEASEPOCH_DATA_LENGTH];
+};
+
+/**
+ * @class DOP
+ * @brief Struct for the SBF block "DOP"
+ */
+struct DOP
+{
+	BlockHeader_t  Block_Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;   
+       
+	uint8_t        NrSV;
+	uint8_t        Reserved;
+	uint16_t       PDOP;
+	uint16_t       TDOP;
+	uint16_t       HDOP;
+	uint16_t       VDOP;
+	float          HPL;
+	float          VPL;
+};
+  
 
 //structure for the PosCovCartesian parsed block, old
 /*
@@ -370,6 +548,32 @@ struct VelCovCartesian
 	float          Cov_VyVz;     
 	float          Cov_VyDt;     
 	float          Cov_VzDt;     
+};
+
+/**
+ * @class VelCovGeodetic
+ * @brief Struct for the SBF block "VelCovGeodetic"
+ */
+struct VelCovGeodetic
+{
+	BlockHeader_t  Header;       
+
+	/* Time Header */
+	uint32_t       TOW;          
+	uint16_t       WNc;          
+
+	uint8_t        Mode;         
+	uint8_t        Error;        
+	float          Cov_VnVn;     
+	float          Cov_VeVe;     
+	float          Cov_VuVu;     
+	float          Cov_DtDt;     
+	float          Cov_VnVe;     
+	float          Cov_VnVu;     
+	float          Cov_VnDt;     
+	float          Cov_VeVu;     
+	float          Cov_VeDt;     
+	float          Cov_VuDt;     
 };
 
 
@@ -508,7 +712,7 @@ struct GPSNAV
 	uint16_t       WNt_oe;       /* modified WN to go with t_oe (still modulo 1024) */
 };
 
-
+/*
 //structure for the heading of the MeasEpoch block
 struct MeasEpoch//part of message 5889
 {//this section of the message is 8 bytes long
@@ -550,6 +754,7 @@ struct MeasEpochSubBlock//part of message 5889
 	MeasEpochFlag Flags;
 
 };
+*/
 
 
 #pragma pack ( pop ) //See GavlabVehicleCode.pdf for explaination

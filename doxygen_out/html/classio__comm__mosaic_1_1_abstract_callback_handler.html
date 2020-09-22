@@ -101,7 +101,7 @@ Protected Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00102">102</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00106">106</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a60f6eb593bf42079460d6e7d63e67ce3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a60f6eb593bf42079460d6e7d63e67ce3">&#9670;&nbsp;</a></span>Handle()</h2>
@@ -139,7 +139,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77">io_comm_mosaic::CallbackHandler&lt; T &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00253">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00285">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -182,13 +182,13 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00107">107</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00111">111</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="callbackhandlers_8hpp_source.html#l00115">condition_</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00114">mutex_</a>.</p>
+<p class="reference">References <a class="el" href="callbackhandlers_8hpp_source.html#l00119">condition_</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00118">mutex_</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00225">io_comm_mosaic::CallbackHandlers::Poll()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            {</div><div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                boost::mutex::scoped_lock lock(<a class="code" href="classio__comm__mosaic_1_1_abstract_callback_handler.html#af21c6100fb8dd13006bdd16aad7e7f9a">mutex_</a>);</div><div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                <span class="keywordflow">return</span> <a class="code" href="classio__comm__mosaic_1_1_abstract_callback_handler.html#a2ef9999e3d1e06195f43cf3153c033ba">condition_</a>.timed_wait(lock, timeout);</div><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            }</div><div class="ttc" id="classio__comm__mosaic_1_1_abstract_callback_handler_html_a2ef9999e3d1e06195f43cf3153c033ba"><div class="ttname"><a href="classio__comm__mosaic_1_1_abstract_callback_handler.html#a2ef9999e3d1e06195f43cf3153c033ba">io_comm_mosaic::AbstractCallbackHandler::condition_</a></div><div class="ttdeci">boost::condition_variable condition_</div><div class="ttdef"><b>Definition:</b> <a href="callbackhandlers_8hpp_source.html#l00115">callbackhandlers.hpp:115</a></div></div>
-<div class="ttc" id="classio__comm__mosaic_1_1_abstract_callback_handler_html_af21c6100fb8dd13006bdd16aad7e7f9a"><div class="ttname"><a href="classio__comm__mosaic_1_1_abstract_callback_handler.html#af21c6100fb8dd13006bdd16aad7e7f9a">io_comm_mosaic::AbstractCallbackHandler::mutex_</a></div><div class="ttdeci">boost::mutex mutex_</div><div class="ttdef"><b>Definition:</b> <a href="callbackhandlers_8hpp_source.html#l00114">callbackhandlers.hpp:114</a></div></div>
+<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00257">io_comm_mosaic::CallbackHandlers::Poll()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            {</div><div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;                boost::mutex::scoped_lock lock(<a class="code" href="classio__comm__mosaic_1_1_abstract_callback_handler.html#af21c6100fb8dd13006bdd16aad7e7f9a">mutex_</a>);</div><div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                <span class="keywordflow">return</span> <a class="code" href="classio__comm__mosaic_1_1_abstract_callback_handler.html#a2ef9999e3d1e06195f43cf3153c033ba">condition_</a>.timed_wait(lock, timeout);</div><div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;            }</div><div class="ttc" id="classio__comm__mosaic_1_1_abstract_callback_handler_html_a2ef9999e3d1e06195f43cf3153c033ba"><div class="ttname"><a href="classio__comm__mosaic_1_1_abstract_callback_handler.html#a2ef9999e3d1e06195f43cf3153c033ba">io_comm_mosaic::AbstractCallbackHandler::condition_</a></div><div class="ttdeci">boost::condition_variable condition_</div><div class="ttdef"><b>Definition:</b> <a href="callbackhandlers_8hpp_source.html#l00119">callbackhandlers.hpp:119</a></div></div>
+<div class="ttc" id="classio__comm__mosaic_1_1_abstract_callback_handler_html_af21c6100fb8dd13006bdd16aad7e7f9a"><div class="ttname"><a href="classio__comm__mosaic_1_1_abstract_callback_handler.html#af21c6100fb8dd13006bdd16aad7e7f9a">io_comm_mosaic::AbstractCallbackHandler::mutex_</a></div><div class="ttdeci">boost::mutex mutex_</div><div class="ttdef"><b>Definition:</b> <a href="callbackhandlers_8hpp_source.html#l00118">callbackhandlers.hpp:118</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -222,9 +222,9 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00115">115</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00119">119</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00132">io_comm_mosaic::CallbackHandler&lt; T &gt;::Handle()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00107">Wait()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00136">io_comm_mosaic::CallbackHandler&lt; T &gt;::Handle()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00111">Wait()</a>.</p>
 
 </div>
 </div>
@@ -248,9 +248,9 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00114">114</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="callbackhandlers_8hpp_source.html#l00118">118</a> of file <a class="el" href="callbackhandlers_8hpp_source.html">callbackhandlers.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00132">io_comm_mosaic::CallbackHandler&lt; T &gt;::Handle()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00107">Wait()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="callbackhandlers_8hpp_source.html#l00136">io_comm_mosaic::CallbackHandler&lt; T &gt;::Handle()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00111">Wait()</a>.</p>
 
 </div>
 </div>
@@ -260,7 +260,7 @@ Here is the caller graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 11 2020 13:35:49 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Sep 22 2020 13:33:08 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

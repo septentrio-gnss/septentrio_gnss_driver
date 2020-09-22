@@ -91,6 +91,10 @@
  */
  
 extern bool publish_navsatfix;
+extern bool publish_gpsfix;
+extern bool response_received;
+extern boost::mutex response_mutex;
+extern boost::condition_variable response_condition;
 
 namespace io_comm_mosaic 
 {
@@ -192,19 +196,46 @@ namespace io_comm_mosaic
 				// Find the ROS message callback handler for equivalent mosaic message at hand & call it
 				boost::mutex::scoped_lock lock(callback_mutex_);
 				CallbackMap::key_type key = mMessage.MessageID();
-				for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+				std::string ID_temp = mMessage.MessageID();
+				if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001"|| ID_temp == "5908")) // We only want to handle SatVisibility and ChannelStatus blocks in case GPSFix messages are to be published, see few lines below
 				{
-					callback->second->Handle(mMessage, callback->first);
+					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+					{
+						callback->second->Handle(mMessage, callback->first);
+					}
 				}
 				// Call NavSatFix callback function if it was added
 				if (publish_navsatfix)
 				{
 					CallbackMap::key_type key = "NavSatFix";
-					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+					std::string ID_temp = mMessage.MessageID();
+					if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish NavSatFix anew. 
+											// It would be wasteful to also call the NavSatFix handle if the PosCovGeodetic block comes in.
 					{
-						std::string ID_temp = mMessage.MessageID();
-						if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish NavSatFix anew. 
-												// It would be wasteful to also call the NavSatFix handle if the PosCovGeodetic block comes in.
+						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+						{
+							callback->second->Handle(mMessage, callback->first);
+						}
+					}
+				}
+				if (publish_gpsfix)
+				{
+					CallbackMap::key_type key1 = "GPSFix";
+					std::string ID_temp = mMessage.MessageID();
+					if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish GPSFix anew. 
+											// It would be wasteful to also call the GPSFix handle when any of the PosCovGeodetic, SatVisibility, ChannelStatus etc. blocks comes in.
+					{
+						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1); callback != callbackmap_.upper_bound(key1); ++callback)
+						{	
+							callback->second->Handle(mMessage, callback->first);
+						}
+					}
+					CallbackMap::key_type key2 = mMessage.MessageID();
+					if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" || ID_temp == "5908") 
+					// Even though we are not interested in publishing SatVisibility (4012) and ChannelStatus (4013) ROS messages, we have to save
+					// some contents of these incoming blocks in order to publish the GPSFix message. When these 2 blocks come in, the unchanged GPSFix message is published anew.
+					{
+						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key2); callback != callbackmap_.upper_bound(key2); ++callback)
 						{
 							callback->second->Handle(mMessage, callback->first);
 						}
@@ -284,9 +315,18 @@ namespace io_comm_mosaic
 							std::size_t response_size = mMessage.SegmentEnd();
 							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), response_size);
 							ROS_DEBUG("mosaic's response contains %li bytes and reads:\n %s", response_size, block_in_string.c_str());
+							{
+								boost::mutex::scoped_lock lock(response_mutex);
+								response_received = true;
+								lock.unlock();
+								response_condition.notify_one();
+							}
+							if (mMessage.IsErrorMessage())
+							{
+								ROS_ERROR("Invalid command just sent to mosaic!");
+							}
 						}
 					}
-	 
 					//ROS_DEBUG("Handing over from readcallback to Handle while count is %d", mMessage.GetCount());
 					Handle(mMessage);
 				}

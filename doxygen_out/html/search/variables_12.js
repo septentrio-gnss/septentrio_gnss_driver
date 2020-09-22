@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['undulation',['Undulation',['../struct_p_v_t_cartesian.html#a571815fb69ac925a0ebcc19de7a83dfd',1,'PVTCartesian::Undulation()'],['../struct_p_v_t_geodetic.html#ab27640a92c97ccfe28f4c1e7a3fd73d3',1,'PVTGeodetic::Undulation()']]],
-  ['ura',['URA',['../struct_g_p_s_n_a_v.html#af7aa7ddb5e83c200a6db8bb33aa12b26',1,'GPSNAV']]],
-  ['use_5fgnss_5ftime',['use_GNSS_time',['../rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82',1,'use_GNSS_time():&#160;rosaic_node.cpp'],['../mosaic_message_8hpp.html#a5d04eedb59934d49cc0d128d3c375e82',1,'use_GNSS_time():&#160;rosaic_node.cpp']]],
-  ['utcday',['UTCDay',['../struct_receiver_time.html#ae4b5e42b5982e47725bf96fe9b353aaa',1,'ReceiverTime']]],
-  ['utchour',['UTCHour',['../struct_receiver_time.html#a68f118b995ef9acbb66601ad9826b708',1,'ReceiverTime']]],
-  ['utcmin',['UTCMin',['../struct_receiver_time.html#ab9ba38728316cb239136f41ce75e8056',1,'ReceiverTime']]],
-  ['utcmonth',['UTCMonth',['../struct_receiver_time.html#a7171bd3b3cd373554dbc8922e20f3b91',1,'ReceiverTime']]],
-  ['utcsec',['UTCSec',['../struct_receiver_time.html#a0ac929b9bb477bd051a482c7324eeb4f',1,'ReceiverTime']]],
-  ['utcyear',['UTCYear',['../struct_receiver_time.html#a8afad19f31d32c359a17121adbd89f86',1,'ReceiverTime']]]
+  ['vaccuracy',['VAccuracy',['../struct_p_v_t_cartesian.html#acb93c410e75e9f6710476c7bbf60def7',1,'PVTCartesian::VAccuracy()'],['../struct_p_v_t_geodetic.html#a72cd82b8481e9c15fd133c2a0fd2dcc8',1,'PVTGeodetic::VAccuracy()']]],
+  ['vdop',['VDOP',['../struct_d_o_p.html#a72d42b28bccd6126deae70e1fe694e43',1,'DOP']]],
+  ['ve',['Ve',['../struct_p_v_t_geodetic.html#a45c6ed9b6ee7c6d6aec26f81b5c83690',1,'PVTGeodetic']]],
+  ['vn',['Vn',['../struct_p_v_t_geodetic.html#ad4ef599dd5061026225a130b84f36d83',1,'PVTGeodetic']]],
+  ['vpl',['VPL',['../struct_d_o_p.html#a9e8e6da33ab7176004c76827b0b98c99',1,'DOP']]],
+  ['vu',['Vu',['../struct_p_v_t_geodetic.html#a422c0d58e986992c0e315188b226c0bd',1,'PVTGeodetic']]],
+  ['vx',['Vx',['../struct_p_v_t_cartesian.html#a60eb313be9237017196be40d0749718e',1,'PVTCartesian']]],
+  ['vy',['Vy',['../struct_p_v_t_cartesian.html#a671de439ced06637a16b9224cfb654f9',1,'PVTCartesian']]],
+  ['vz',['Vz',['../struct_p_v_t_cartesian.html#aa241dcae6c66cf1b03f1376efce01d1d',1,'PVTCartesian']]]
 ];

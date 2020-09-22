@@ -1,5 +1,11 @@
 <map id="io_comm_mosaic::mosaicMessage" name="io_comm_mosaic::mosaicMessage">
-<area shape="rect" id="node2" href="$struct_pos_cov_geodetic.html" title="Struct for the SBF block &quot;PosCovGeodetic&quot;. " alt="" coords="170,465,291,492"/>
-<area shape="rect" id="node8" href="$struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. " alt="" coords="656,465,756,492"/>
-<area shape="rect" id="node6" href="$struct_block_header__t.html" title="Struct for the SBF block&#39;s header message. " alt="" coords="86,177,194,203"/>
+<area shape="rect" id="node2" href="$struct_d_o_p.html" title="Struct for the SBF block &quot;DOP&quot;. " alt="" coords="467,353,518,380"/>
+<area shape="rect" id="node8" href="$struct_att_cov_euler.html" title="Struct for the SBF block &quot;AttCovEuler&quot;. " alt="" coords="446,1391,539,1417"/>
+<area shape="rect" id="node9" href="$struct_vel_cov_geodetic.html" title="Struct for the SBF block &quot;VelCovGeodetic&quot;. " alt="" coords="434,703,551,729"/>
+<area shape="rect" id="node11" href="$struct_pos_cov_geodetic.html" title="Struct for the SBF block &quot;PosCovGeodetic&quot;. " alt="" coords="432,1261,553,1288"/>
+<area shape="rect" id="node12" href="$struct_p_v_t_geodetic.html" title="Struct for the SBF block &quot;PVTGeodetic&quot;. " alt="" coords="443,1856,543,1883"/>
+<area shape="rect" id="node14" href="$struct_att_euler.html" title="Struct for the SBF block &quot;AttEuler&quot;. " alt="" coords="458,181,527,208"/>
+<area shape="rect" id="node6" href="$struct_block_header__t.html" title="Struct for the SBF block&#39;s header message. " alt="" coords="171,1364,279,1391"/>
+<area shape="rect" id="node10" href="$struct_meas_epoch.html" title="Struct for the SBF block &quot;MeasEpoch&quot;. " alt="" coords="447,1684,538,1711"/>
+<area shape="rect" id="node17" href="$struct_channel_status.html" title="Struct for the SBF block &quot;ChannelStatus&quot;. " alt="" coords="439,2103,547,2129"/>
 </map>
