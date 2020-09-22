@@ -64,6 +64,7 @@
  * @date 21/08/20
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
+
 // ROS includes
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -244,6 +245,11 @@ namespace rosaic_node
 			void DefineMessages();
 			
 			/**
+			 * @brief Configures mosaic: Which SBF/NMEA messages it should output and later correction settings 
+			 */
+			void ConfigureMosaic();
+			
+			/**
 			 * @brief Initializes the I/O handling
 			 */
 			void InitializeIO();
@@ -259,8 +265,24 @@ namespace rosaic_node
 			std::string device_;
 			//! Baudrate
 			uint32_t baudrate_;
+			//! Datum to be used
+			std::string datum_;
+			//! Antenna type, from the list returned by the command "lstAntennaInfo, Overview"
+			std::string ant_type_;
+			//! Serial number of your particular antenna
+			std::string ant_serial_nr_;
+			//! Polling period for PVT-related SBF blocks
+			unsigned polling_period_pvt_;
+			//! Polling period for all other SBF blocks and NMEA messages
+			unsigned polling_period_rest_;
 			//! Delay in seconds between reconnection attempts to the connection type specified in the parameter connection_type
 			float reconnect_delay_s_;
+			//! Marker-to-ARP offset in the eastward direction
+			float delta_e_;
+			//! Marker-to-ARP offset in the northward direction
+			float delta_n_;
+			//! Marker-to-ARP offset in the upward direction
+			float delta_u_;
 			//! Our ROS timer governing the reconnection
 			ros::Timer reconnect_timer_;
 			//! Whether or not connection has been successful so far

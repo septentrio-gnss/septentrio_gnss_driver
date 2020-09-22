@@ -122,7 +122,6 @@ namespace io_comm_mosaic
 	 
 			// void SetRawDataCallback(const Callback& callback) { write_callback_ = callback; }
 	 
-			// bool Send(const uint8_t* data, const unsigned int size);
 			void Wait(uint16_t* count);
 			
 			/**
@@ -145,7 +144,7 @@ namespace io_comm_mosaic
 			/**
 			 * @brief Sends all the data in the output buffer
 			 */
-			void DoWrite();
+			void DoWrite(std::string cmd, std::size_t size);
 			
 			//! Closes Stream "stream_"
 			void DoClose();
@@ -158,6 +157,11 @@ namespace io_comm_mosaic
 			std::vector<uint8_t> in_; 
 			
 			std::vector<uint8_t> out_; 
+			
+			//! Lock for the output buffer
+			boost::mutex write_mutex_; 
+			
+			boost::condition write_condition_;
 			
 			boost::shared_ptr<boost::thread> async_background_thread_; 
 			Callback read_callback_; 
@@ -180,6 +184,7 @@ namespace io_comm_mosaic
 	template <typename StreamT>
 	bool AsyncManager<StreamT>::Send(std::string cmd, std::size_t size) 
 	{
+		//boost::mutex::scoped_lock lock(write_mutex_);
 		if(size == 0) 
 		{
 			ROS_ERROR("Message size to be sent to mosaic would be 0");
@@ -193,31 +198,38 @@ namespace io_comm_mosaic
 		}
 		std::vector<uint8_t> vector_temp(cmd.begin(), cmd.end());
 		uint8_t *p = &vector_temp[0];
-		out_.insert(out_.end(), p, p + size);
+		//ROS_DEBUG("end - begin is %u", (uint8_t)((uint8_t *) &(*out_.end()) - (uint8_t *) &(*out_.begin())));
+		//out_.insert(out_.end(), p, p + size);
+		
+		
 
-		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoWrite, this));
+		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoWrite, this, cmd, size));
 		return true;
 	}
 	
 	template <typename StreamT>
-	void AsyncManager<StreamT>::DoWrite() 
+	void AsyncManager<StreamT>::DoWrite(std::string cmd, std::size_t size) 
 	{
+		//boost::mutex::scoped_lock lock(write_mutex_);
+		//write_condition_.wait(lock, []{return ready;});
+		
 		// Does nothing if out buffer is empty
-		if (out_.size() == 0) 
-		{
-			return;
-		}
+		//if (out_.size() == 0) 
+		//{
+		//	return;
+		//}
 		// Write all the data in the out buffer
-		boost::asio::write(*stream_, boost::asio::buffer(out_.data(), out_.size()));
+		boost::asio::write(*stream_, boost::asio::buffer(cmd.data(), size));
 
 		if (debug >= 2) 
 		{
 			// Prints the data that was sent
-			std::string command(reinterpret_cast<char*>(out_.data()), out_.size());
-			ROS_DEBUG("Sent the following %li bytes to mosaic: \n%s", out_.size(), command.c_str());
+			ROS_DEBUG("Sent the following %li bytes to mosaic: \n%s", size, cmd.c_str());
 		}
 		// Clears the buffer
-		out_.clear();
+		//next_cmd = true;
+		//out_.clear();
+		//write_condition_.notify_one();
 	}
 
 	template <typename StreamT>

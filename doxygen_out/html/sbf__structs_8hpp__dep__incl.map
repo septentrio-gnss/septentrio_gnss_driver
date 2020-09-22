@@ -1,11 +1,11 @@
 <map id="include/rosaic/packed_structs/sbf_structs.hpp" name="include/rosaic/packed_structs/sbf_structs.hpp">
-<area shape="rect" id="node2" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="116,95,240,136"/>
-<area shape="rect" id="node3" href="$crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of a buffer. " alt="" coords="5,191,140,218"/>
-<area shape="rect" id="node4" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="131,363,326,404"/>
-<area shape="rect" id="node8" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="234,184,429,225"/>
-<area shape="rect" id="node5" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="50,452,221,493"/>
-<area shape="rect" id="node6" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="245,452,399,493"/>
-<area shape="rect" id="node7" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="256,541,388,583"/>
-<area shape="rect" id="node9" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="266,273,437,315"/>
-<area shape="rect" id="node10" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="461,273,655,315"/>
+<area shape="rect" id="node2" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="251,184,445,225"/>
+<area shape="rect" id="node9" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="411,95,535,136"/>
+<area shape="rect" id="node3" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="5,273,176,315"/>
+<area shape="rect" id="node4" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="200,273,395,315"/>
+<area shape="rect" id="node5" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="335,363,529,404"/>
+<area shape="rect" id="node6" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="253,452,424,493"/>
+<area shape="rect" id="node7" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="448,452,603,493"/>
+<area shape="rect" id="node8" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="459,541,591,583"/>
+<area shape="rect" id="node10" href="$crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of a buffer. " alt="" coords="521,191,655,218"/>
 </map>

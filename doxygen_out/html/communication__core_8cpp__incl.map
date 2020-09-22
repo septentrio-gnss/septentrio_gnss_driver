@@ -1,15 +1,13 @@
 <map id="src/rosaic/communication/communication_core.cpp" name="src/rosaic/communication/communication_core.cpp">
-<area shape="rect" id="node2" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="2016,95,2187,136"/>
-<area shape="rect" id="node14" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="876,273,1025,315"/>
-<area shape="rect" id="node35" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="2057,370,2169,397"/>
-<area shape="rect" id="node43" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="1684,184,1833,225"/>
-<area shape="rect" id="node48" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="2027,184,2176,225"/>
-<area shape="rect" id="node22" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="145,363,285,404"/>
-<area shape="rect" id="node24" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="888,549,1027,575"/>
-<area shape="rect" id="node32" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="830,452,970,493"/>
-<area shape="rect" id="node23" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="596,452,740,493"/>
-<area shape="rect" id="node27" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="649,549,786,575"/>
-<area shape="rect" id="node30" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="482,549,625,575"/>
-<area shape="rect" id="node36" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="2007,541,2158,583"/>
-<area shape="rect" id="node37" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="1855,452,2006,493"/>
+<area shape="rect" id="node2" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="1240,95,1411,136"/>
+<area shape="rect" id="node14" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="1750,273,1899,315"/>
+<area shape="rect" id="node33" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="3352,370,3464,397"/>
+<area shape="rect" id="node43" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="624,184,774,225"/>
+<area shape="rect" id="node48" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="1251,184,1400,225"/>
+<area shape="rect" id="node25" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1270,363,1410,404"/>
+<area shape="rect" id="node27" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1216,549,1355,575"/>
+<area shape="rect" id="node29" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1622,452,1762,493"/>
+<area shape="rect" id="node35" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="3148,452,3298,493"/>
+<area shape="rect" id="node26" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1268,452,1412,493"/>
+<area shape="rect" id="node34" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="3204,541,3354,583"/>
 </map>

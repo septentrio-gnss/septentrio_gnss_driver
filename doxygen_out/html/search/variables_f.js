@@ -1,16 +1,20 @@
 var searchData=
 [
-  ['read_5fcallback_5f',['read_callback_',['../classio__comm__mosaic_1_1_async_manager.html#a19287f7b21a0d1c477f971c7bca8d4bb',1,'io_comm_mosaic::AsyncManager']]],
-  ['read_5fcount',['read_count',['../rosaic__node_8cpp.html#a34b86d18a5f8ac7123363aa42ae88a16',1,'read_count():&#160;rosaic_node.cpp'],['../mosaic_message_8hpp.html#a34b86d18a5f8ac7123363aa42ae88a16',1,'read_count():&#160;rosaic_node.cpp']]],
-  ['read_5fcount_5f',['read_count_',['../classio__comm__mosaic_1_1_comm___i_o.html#af67f6ff9a9441cccc956c7e6f121f05c',1,'io_comm_mosaic::Comm_IO']]],
-  ['reconnect_5fdelay_5fs_5f',['reconnect_delay_s_',['../classrosaic__node_1_1_r_o_saic_node.html#a901dc455d86d71ca533e37b37e102270',1,'rosaic_node::ROSaicNode']]],
-  ['reconnect_5ftimer_5f',['reconnect_timer_',['../classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47',1,'rosaic_node::ROSaicNode']]],
-  ['referenceid',['ReferenceID',['../struct_p_v_t_cartesian.html#a258a3a08c39462746000ca8b73f43c66',1,'PVTCartesian::ReferenceID()'],['../struct_p_v_t_geodetic.html#a11780cf75e74c2370973c4ae79a1a53c',1,'PVTGeodetic::ReferenceID()']]],
-  ['reserved',['reserved',['../struct_attitude_cov_euler.html#a636778b1da2244767bdf253a91aa200e',1,'AttitudeCovEuler::reserved()'],['../struct_attitude_euler.html#a0b23e3781e78c3d2e8f666215acea289',1,'AttitudeEuler::Reserved()'],['../struct_g_p_s_n_a_v.html#a5759df137d25e0d037dccef9938b45d9',1,'GPSNAV::Reserved()']]],
-  ['roll',['Roll',['../struct_attitude_euler.html#a22633d0109fab487cdf3c93f49ee1bc6',1,'AttitudeEuler']]],
-  ['rolldot',['RollDot',['../struct_attitude_euler.html#a802721a2a9d3e82a425db0dc7c7f3906',1,'AttitudeEuler']]],
-  ['rosqueuesize',['ROSQueueSize',['../namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2',1,'rosaic_node']]],
-  ['rxchannel',['RXChannel',['../struct_meas_epoch_sub_block.html#a8257e691422ee267ae4b4772f8393f1c',1,'MeasEpochSubBlock']]],
-  ['rxclkbias',['RxClkBias',['../struct_p_v_t_cartesian.html#ae9c246789825b6ade2f1ad8c3fdf2e6e',1,'PVTCartesian::RxClkBias()'],['../struct_p_v_t_geodetic.html#aa9ec36be190f14aca07233a976eed6fb',1,'PVTGeodetic::RxClkBias()']]],
-  ['rxclkdrift',['RxClkDrift',['../struct_p_v_t_cartesian.html#abe224f1f74e7f8ec76c346fc1eb1f1f9',1,'PVTCartesian::RxClkDrift()'],['../struct_p_v_t_geodetic.html#a1bf7aab8119d33b8840882a137d364ba',1,'PVTGeodetic::RxClkDrift()']]]
+  ['sb1size',['SB1Size',['../struct_channel_status.html#a783a19275b50ec89a36bc9e2ecce84fb',1,'ChannelStatus::SB1Size()'],['../struct_meas_epoch.html#a4c41a514363132cc613778417fa605b0',1,'MeasEpoch::SB1Size()']]],
+  ['sb2size',['SB2Size',['../struct_channel_status.html#aa096ccdad5d278821ebe030fa29f8b55',1,'ChannelStatus::SB2Size()'],['../struct_meas_epoch.html#a8648416c63a5ec2b88637fa7dfb56841',1,'MeasEpoch::SB2Size()']]],
+  ['segment_5fsize_5f',['segment_size_',['../classio__comm__mosaic_1_1mosaic_message.html#ac53e7090010022a5666a6d426f1b421d',1,'io_comm_mosaic::mosaicMessage']]],
+  ['serial_5fport_5f',['serial_port_',['../classio__comm__mosaic_1_1_comm___i_o.html#a335fbe29195986121f9fe552aa4375a6',1,'io_comm_mosaic::Comm_IO']]],
+  ['setbaudratesleepms',['SetBaudrateSleepMs',['../classio__comm__mosaic_1_1_comm___i_o.html#aac4a71048df61f977f006d885898c7a5',1,'io_comm_mosaic::Comm_IO']]],
+  ['signalinfo',['SignalInfo',['../struct_p_v_t_cartesian.html#a733d799ab5933b0bf2e0c6e55bf833f4',1,'PVTCartesian::SignalInfo()'],['../struct_p_v_t_geodetic.html#afd72c67b4b84927bef9660bb719fa34e',1,'PVTGeodetic::SignalInfo()']]],
+  ['sqrt_5fa',['SQRT_A',['../struct_g_p_s_n_a_v.html#a7e418b504d87b4a13b6c7bd785d79ed1',1,'GPSNAV']]],
+  ['stopping_5f',['stopping_',['../classio__comm__mosaic_1_1_async_manager.html#a459077c21e975d157bd2d051b0363348',1,'io_comm_mosaic::AsyncManager']]],
+  ['stream_5f',['stream_',['../classio__comm__mosaic_1_1_async_manager.html#a064c1bcb1d8c474b873026bd51c08fb3',1,'io_comm_mosaic::AsyncManager']]],
+  ['stringvalues',['StringValues',['../mosaic_message_8hpp.html#afb7328be37d2759ed452faaf714743d4',1,'mosaicMessage.hpp']]],
+  ['svid',['SVID',['../struct_channel_sat_info.html#ad0bbf8c4c89dc85a0b287dbe0d0c8db8',1,'ChannelSatInfo::SVID()'],['../struct_meas_epoch_channel_type1.html#a0440116491da20cbe021f6172c11c6b0',1,'MeasEpochChannelType1::SVID()']]],
+  ['svid_5f1',['SVID_1',['../struct_r_a_n_g_e___d_a_t_a.html#af88b79570f1e39d4288042e1ff08e95c',1,'RANGE_DATA']]],
+  ['svid_5f2',['SVID_2',['../struct_r_a_n_g_e___d_a_t_a.html#acddd30524c082746924c97ad321ca0df',1,'RANGE_DATA']]],
+  ['svid_5f3',['SVID_3',['../struct_r_a_n_g_e___d_a_t_a.html#a0b751d025612b83bb0549dda2c887775',1,'RANGE_DATA']]],
+  ['sync1',['SYNC1',['../struct_block_header__t.html#a1c387491d87ba8b7696d4b94b7f594a3',1,'BlockHeader_t']]],
+  ['sync2',['SYNC2',['../struct_block_header__t.html#addb5555077117e39f215892fcb8b3075',1,'BlockHeader_t']]],
+  ['synclevel',['SyncLevel',['../struct_receiver_time.html#a5b219a34cc3f2e058ef926933f0528ec',1,'ReceiverTime']]]
 ];

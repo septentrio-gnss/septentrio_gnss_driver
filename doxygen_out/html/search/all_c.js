@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['n',['N',['../struct_meas_epoch.html#a04cd14d7ab34a9ee87a9e97fa1d78658',1,'MeasEpoch']]],
+  ['n',['N',['../struct_channel_status.html#a72640355257f02c3b37f8a082137d18b',1,'ChannelStatus::N()'],['../struct_meas_epoch.html#afcf1d44eb84dd2d0e39954c8a0f3f2b1',1,'MeasEpoch::N()']]],
+  ['n2',['N2',['../struct_channel_sat_info.html#a11dae91db103e13eefcae0cac5b3f17e',1,'ChannelSatInfo']]],
+  ['n_5ftype2',['N_Type2',['../struct_meas_epoch_channel_type1.html#ae2c75ab8292e45951b59080035e2db85',1,'MeasEpochChannelType1']]],
   ['navsatfixcallback',['NavSatFixCallback',['../classio__comm__mosaic_1_1mosaic_message.html#a6c9d92f560d6ece0b3c139a4ddb17fb2',1,'io_comm_mosaic::mosaicMessage']]],
   ['next',['Next',['../classio__comm__mosaic_1_1mosaic_message.html#a48a7cd28a6d1046cff2ea2a833c2e4e3',1,'io_comm_mosaic::mosaicMessage']]],
   ['nh',['nh',['../namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a',1,'rosaic_node']]],
@@ -10,6 +12,8 @@ var searchData=
   ['nmea_5fsync_5fbyte_5f2_5f1',['NMEA_SYNC_BYTE_2_1',['../mosaic_message_8hpp.html#a3dec8170e519761e56424a6901325f9f',1,'mosaicMessage.hpp']]],
   ['nmea_5fsync_5fbyte_5f2_5f2',['NMEA_SYNC_BYTE_2_2',['../mosaic_message_8hpp.html#a6b0899b795362d5b704ed1b87e296753',1,'mosaicMessage.hpp']]],
   ['nmeasentence',['NMEASentence',['../classrosaic__driver_1_1_n_m_e_a_sentence.html',1,'rosaic_driver::NMEASentence'],['../classrosaic__driver_1_1_n_m_e_a_sentence.html#a3999c8d21c6ad50998c1ab0d7aebe708',1,'rosaic_driver::NMEASentence::NMEASentence()']]],
+  ['nr_5fof_5fantennas',['NR_OF_ANTENNAS',['../sbf__structs_8hpp.html#a25d776dbd335639f00230ba599ed0971',1,'sbf_structs.hpp']]],
+  ['nr_5fof_5flogicalchannels',['NR_OF_LOGICALCHANNELS',['../sbf__structs_8hpp.html#accf2001026b7760cf2f1d291de35fe42',1,'sbf_structs.hpp']]],
   ['nrbases',['NrBases',['../struct_p_v_t_cartesian.html#ab101875ec6cbf0e572dde31d2c6b02a8',1,'PVTCartesian::NrBases()'],['../struct_p_v_t_geodetic.html#a150255be741746d2e4b3e365fcd8f2c5',1,'PVTGeodetic::NrBases()']]],
-  ['nrsv',['NrSV',['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()'],['../struct_p_v_t_geodetic.html#a2f6a708fae9bacf3b63994b70514f37f',1,'PVTGeodetic::NrSV()'],['../struct_attitude_euler.html#a3ec9357e660188a5945dc4a3268e118c',1,'AttitudeEuler::NRSV()']]]
+  ['nrsv',['NrSV',['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()'],['../struct_p_v_t_geodetic.html#a2f6a708fae9bacf3b63994b70514f37f',1,'PVTGeodetic::NrSV()'],['../struct_att_euler.html#a35cdf49e8b99927f616b203ff391ad37',1,'AttEuler::NrSV()'],['../struct_d_o_p.html#ac64ea02e33d0b5e0c7995c44f9c28082',1,'DOP::NrSV()']]]
 ];
