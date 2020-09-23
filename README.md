@@ -98,7 +98,7 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
     - for serial connections, the device node, e.g., `/dev/ttyUSB0`
     - for TCP/IP connections, a `host:port` specification
       - If the port is omitted, `28784` will be used as the default for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured before the ROS driver can be used.
-    - default: empty, ``  
+    - default: empty
   - `serial/baudrate`: serial baud rate to be used in a serial connection 
     - default: `115200`
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
@@ -132,19 +132,14 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
   - `orientation_with`: determines whether the published message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html) is constructed from the SBF blocks `AttEuler` and `AttCovEuler`, or from the proprietary NMEA sentence HRP
     - must be one of `AttEuler` or `HRP`
     - default: `HRP`
-  - `ntrip_mode`: specifies the type of NTRIP connection
-    - must be one of `Server`, `Client`, `"Client-Sapcorda"` or `"off"`
-    - In `Server` mode, the receiver is sending data to an NTRIP caster. In `"Client"` mode, the receiver receives data from the NTRIP caster. When selecting the `"Client-Sapcorda"` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required. Note that the latter mode only works in Europe and North America. Set mode to `"off"` to disable all correction services.
+  
     - default: `off`
   - `ntrip_settings`: determines NTRIP connection parameters
-    - Here, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point to be used when connecting to the NTRIP caster. The default NTRIP port number is 2101. Note that the receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use ("v1" or "v2").
-    - This ROS parameter is ignored in the `"Client-Sapcorda"` mode.
-    - default: `""`, `""`, `""`, `""`, `""`
-  - `send_gga`: specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate
-    - must be one of `"auto"`, `"off"`, `"sec1"`, `"sec5"`, `"sec10"` or `"sec60"`
-    - In `"auto"` mode, the receiver automatically sends GGA messages if requested by the caster. 
-    - This ROS parameter is ignored in the NTRIP server mode.
-    - default: `"auto"`
+    - The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Server`, `Client`, `Client-Sapcorda` or `off`. In `Server` mode, the receiver is sending data to an NTRIP caster. In `Client` mode, the receiver receives data from the NTRIP caster. When selecting the `Client-Sapcorda` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required, i.e. all other nested parameters are ignored. Note that the latter mode only works in Europe and North America. Set mode to `off` to disable all correction services.
+    - Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
+    - Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point to be used when connecting to the NTRIP caster, respectively. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
+    - Finally, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `"auto"`, `"off"`, `"sec1"`, `"sec5"`, `"sec10"` or `"sec60"`. In `"auto"` mode, the receiver automatically sends GGA messages if requested by the caster. 
+    - default: `off`, empty, empty, empty, empty, empty, `v2`, `auto`
   
 - Implemented Parameters Configuring (Non-)Publishing of ROS Messages
   - `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
