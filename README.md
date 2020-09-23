@@ -92,18 +92,18 @@ In order to launch ROSaic, one must specify all `arg` fields in the `rover.launc
 
 ## ROS Wrapper
 ### ROSaic Parameters
-The following is a list of ROS parameters found in the, say, `rover.yaml` file. The majority of the parameters is of string-type, yet some of them are integers, e.g. the parameter determining the serial baud rate or the one setting the polling period, and yet again others are boolean, e.g. `use_sbf`.
+The following is a list of ROSaic parameters found in the `rover.yaml` file.
 - Implemented Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
-    - for serial connections, the device node, e.g., `"/dev/ttyUSB0"`
-    - for TCP/IP connections, a `"host:port"` specification
+    - for serial connections, the device node, e.g., `/dev/ttyUSB0`
+    - for TCP/IP connections, a `host:port` specification
       - If the port is omitted, `28784` will be used as the default for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured before the ROS driver can be used.
-    - default: empty string `""`  
+    - default: empty, ``  
   - `serial/baudrate`: serial baud rate to be used in a serial connection 
     - default: `115200`
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
-    - default: `"gnss"`
+    - default: `gnss`
   - `datum`: datum that (ellipsoidal) height should be referenced to in all published ROS messages
     - Since the standardized GGA message does only provide the orthometric height (= MSL height = distance from Earth's surface to geoid) and the geoid undulation (distance from geoid to ellipsoid) for which non-WGS84 datums cannot be specified, it does not affect the GGA message.
     - default: `ETRS89`
@@ -127,15 +127,15 @@ The following is a list of ROS parameters found in the, say, `rover.yaml` file. 
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
 - Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `navsatfix_with`: determines whether the published message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) is constructed from the SBF blocks `PVTGeodetic` and `PosCovGeodetic`, or from the NMEA sentences GGA and GSA via a covariance estimation algorithm, which postprocesses dilution of precision (DOP) data
-    - must be one of `"SBF"` or `"NMEA"`
-    - default: `"SBF"`
+    - must be one of `SBF` or `NMEA`
+    - default: `SBF`
   - `orientation_with`: determines whether the published message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html) is constructed from the SBF blocks `AttEuler` and `AttCovEuler`, or from the proprietary NMEA sentence HRP
-    - must be one of `"AttEuler"` or `"HRP"`
-    - default: `"HRP"`
+    - must be one of `AttEuler` or `HRP`
+    - default: `HRP`
   - `ntrip_mode`: specifies the type of NTRIP connection
-    - must be one of `"Server"`, `"Client"`, `"Client-Sapcorda"` or `"off"`
-    - In `"Server"` mode, the receiver is sending data to an NTRIP caster. In `"Client"` mode, the receiver receives data from the NTRIP caster. When selecting the `"Client-Sapcorda"` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required. Note that the latter mode only works in Europe and North America. Set mode to `"off"` to disable all correction services.
-    - default: `"off"`
+    - must be one of `Server`, `Client`, `"Client-Sapcorda"` or `"off"`
+    - In `Server` mode, the receiver is sending data to an NTRIP caster. In `"Client"` mode, the receiver receives data from the NTRIP caster. When selecting the `"Client-Sapcorda"` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required. Note that the latter mode only works in Europe and North America. Set mode to `"off"` to disable all correction services.
+    - default: `off`
   - `ntrip_settings`: determines NTRIP connection parameters
     - Here, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point to be used when connecting to the NTRIP caster. The default NTRIP port number is 2101. Note that the receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use ("v1" or "v2").
     - This ROS parameter is ignored in the `"Client-Sapcorda"` mode.
