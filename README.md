@@ -1,7 +1,7 @@
 # ROSaic
 
 ## Overview
-This repository keeps track of the driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ (stay tuned for Python version) - that is compatible with Septentrio's mosaic-X5 GNSS receiver. It will also be extended to ROS2, modifications mainly addressing launch file configurations. 
+This repository keeps track of the driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that is compatible with Septentrio's mosaic-X5 GNSS receiver. It will also be extended to ROS2, modifications mainly addressing launch file configurations. 
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both the serial and the TCP/IP protocols
