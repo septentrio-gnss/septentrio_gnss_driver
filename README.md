@@ -1,8 +1,7 @@
 # ROSaic
 
 ## Overview
-This repository aims at keeping track of the 
-driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ (stay tuned for Python version) - that is compatible with Septentrio's mosaic-X5 GNSS receiver. It will also be extended to ROS2, modifications mainly addressing launch file configurations. 
+This repository keeps track of the driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ (stay tuned for Python version) - that is compatible with Septentrio's mosaic-X5 GNSS receiver. It will also be extended to ROS2, modifications mainly addressing launch file configurations. 
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both the serial and the TCP/IP protocols
@@ -47,14 +46,16 @@ source ~/.bashrc
   - Currently, the driver only works on systems that are little-endian. We will add a ROSaic parameter shortly to address this issue.
   - The development process of this driver has been performed for mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   - Further, at the moment, the driver is only a rover driver. We will add a ROSaic parameter shortly to address this issue, such that one will also be able to adapt the (not-yet-existent) `base.launch` file in the launch directory and configure it as desired.
+  - ROSaic only works from C++11 onwards due to std::to_string() etc.
   - Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified). Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
 ```
 debug: 3
 
-device: tcp://192.168.3.1:28784
+device: /dev/ttyACM0
 
 serial:
   baudrate: 115200
+  mosaic_serial_port: USB1
 
 frame_id: gnss
 
@@ -68,6 +69,26 @@ marker_to_arp:
 ant_type: Unknown
 ant_serial_nr: Unknown
 
+leap_seconds: 18
+
+polling_period:
+  pvt: 1
+  rest: 1
+
+reconnect_delay_s: 2
+
+use_GNSS_time: true
+
+ntrip_settings:
+  mode: off
+  caster: 0
+  port: 0
+  username: 0
+  password: 0
+  mountpoint: 0
+  version: v2
+  send_gga: auto
+
 publish:
   gpgga: true
   pvtcartesian: true
@@ -77,16 +98,6 @@ publish:
   attcoveuler: true
   navsatfix: true
   gpsfix: true
-
-leap_seconds: 18
-
-polling_period:
-  pvt: 1
-  rest: 1
-  
-reconnect_delay_s: 4
-
-use_GNSS_time: true
 ```
 In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch rosaic rover.launch param_file_name:=rover`.
 
@@ -97,10 +108,12 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
   - `device`: location of device connection
     - for serial connections, the device node, e.g., `/dev/ttyUSB0`
     - for TCP/IP connections, a `host:port` specification
-      - If the port is omitted, `28784` will be used as the default for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured before the ROS driver can be used.
+      - If the port is omitted, `28784` will be used as the default for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before the ROS driver can be used.
     - default: empty
-  - `serial/baudrate`: serial baud rate to be used in a serial connection 
-    - default: `115200`
+  - `serial`: specifications for serial communication
+    - `serial/baudrate`: serial baud rate to be used in a serial connection 
+    - `serial/mosaic_serial_port`: determines to which serial port of mosaic we want to get connected to, e.g. USB1 or COM1
+    - default: `115200`, `USB1`
   - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `gnss`
@@ -115,7 +128,7 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
     - For best positional accuracy, it is recommended to select a type from the list returned by the command `lstAntennaInfo, Overview`. This is the list of antennas for which the receiver can compensate for phase center variation.
     - By default and if `ant_type` does not match any entry in the list returned by `lstAntennaInfo, Overview`, the receiver will assume that the phase center variation is zero at all elevations and frequency bands, and the position will not be as accurate.
     - default: `Unknown`
-  - `ant_serial_nr`: This parameter is the serial number of your particular antenna.
+  - `ant_serial_nr`: serial number of your particular antenna
   - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
     - At the time of writing the code (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations.
   - `polling_period/pvt`: desired period in seconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `rosaic/PVTGeodetic.msg`) yet also [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) and [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html)
@@ -123,8 +136,15 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
   - `polling_period/rest`: desired period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
     - default: `1` (1 Hz)
   - `reconnect_delay_s`: delay in seconds between reconnection attempts to the connection specified in the parameter `device`
-    - default: `4`
+    - default: `2`
   - `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
+    - default: `true`
+  - `ntrip_settings`: determines NTRIP connection parameters
+    - The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client`, `Client-Sapcorda` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. When selecting the `Client-Sapcorda` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required, i.e. all other nested parameters are ignored. Note that the latter mode only works in Europe and North America. Set mode to `off` to disable all correction services.
+    - Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
+    - Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
+    - Finally, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster. 
+    - default: `off`, empty, empty, empty, empty, empty, `v2`, `auto`
 - Planned Parameters Configuring Communication Ports and Processing of GNSS Data
   - `navsatfix_with`: determines whether the published message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) is constructed from the SBF blocks `PVTGeodetic` and `PosCovGeodetic`, or from the NMEA sentences GGA and GSA via a covariance estimation algorithm, which postprocesses dilution of precision (DOP) data
     - must be one of `SBF` or `NMEA`
@@ -132,12 +152,6 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
   - `orientation_with`: determines whether the published message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html) is constructed from the SBF blocks `AttEuler` and `AttCovEuler`, or from the proprietary NMEA sentence HRP
     - must be one of `AttEuler` or `HRP`
     - default: `HRP`  
-  - `ntrip_settings`: determines NTRIP connection parameters
-    - The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client`, `Client-Sapcorda` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. When selecting the `Client-Sapcorda` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required, i.e. all other nested parameters are ignored. Note that the latter mode only works in Europe and North America. Set mode to `off` to disable all correction services.
-    - Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
-    - Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
-    - Finally, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster. 
-    - default: `off`, empty, empty, empty, empty, empty, `v2`, `auto`
   
 - Implemented Parameters Configuring (Non-)Publishing of ROS Messages
   - `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
