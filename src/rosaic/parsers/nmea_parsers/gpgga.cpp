@@ -45,19 +45,18 @@ const std::string rosaic_driver::GpggaParser::GetMessageID() const
 
 /**
  * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
- * Note: This method assumes that "sentence" does not include the checksum part of the GGA message.
+ * Note: This method is called from within the read() method of the mosaicMessage class by including the checksum part in
+ * the argument "sentence" here, though the checksum is never parsed: It would be sentence.get_body()[15] if anybody ever needs it.
  */
 rosaic::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::NMEASentence& sentence) noexcept(false)
 {
 	//ROS_DEBUG("Just testing that first entry is indeed what we expect it to: %s", sentence.get_body()[0].c_str());
-	// Check the length first, which should be 15 elements (if station ID available, otherwise that one is a missing field, not empty field) or 14 elements (if station ID not avaiable).
-	const size_t MAX_LEN = 15;
-	const size_t MIN_LEN = 14;
-	if (sentence.get_body().size() > MAX_LEN || sentence.get_body().size() < MIN_LEN)
+	// Check the length first, which should be 16 elements.
+	const size_t LEN = 16;
+	if (sentence.get_body().size() > LEN || sentence.get_body().size() < LEN)
 	{
 		std::stringstream error;
-		error << "GGA parsing failed: Expected GPGGA length " << MIN_LEN << "  <= length <= "
-			  << MAX_LEN << ", but actual length = " << sentence.get_body().size();
+		error << "GGA parsing failed: Expected GPGGA length is " << LEN << ", but actual length is " << sentence.get_body().size();
 		throw ParseException(error.str());
 	}
 
@@ -105,22 +104,17 @@ rosaic::GpggaPtr rosaic_driver::GpggaParser::ParseASCII(const rosaic_driver::NME
 	msg->lon_dir = sentence.get_body()[5];
 	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[6], msg->gps_qual);
 	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[7], msg->num_sats);
-	//ROS_DEBUG("Valid is %s so far with number of satellites in use being %s", valid ? "true" : "false", sentence.get_body()[7].c_str());
+	//ROS_INFO("Valid is %s so far with number of satellites in use being %s", valid ? "true" : "false", sentence.get_body()[7].c_str());
 
 	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[8], msg->hdop);
 	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[9], msg->alt);
 	msg->altitude_units = sentence.get_body()[10];
 	valid = valid && rosaic_driver::ParseFloat(sentence.get_body()[11], msg->undulation);
 	msg->undulation_units = sentence.get_body()[12];
-	valid = valid && rosaic_driver::ParseUInt32(sentence.get_body()[13], msg->diff_age);
-	if (sentence.get_body().size() == MAX_LEN)
-	{
-		msg->station_id = sentence.get_body()[14];
-	}
-	else
-	{
-		msg->station_id = "";
-	}
+	double diff_age_temp;
+	valid = valid && rosaic_driver::ParseDouble(sentence.get_body()[13], diff_age_temp);
+	msg->diff_age = static_cast<uint32_t>(round(diff_age_temp));
+	msg->station_id = sentence.get_body()[14];
 
 	if (!valid)
 	{

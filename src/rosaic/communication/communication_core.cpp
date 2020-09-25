@@ -51,7 +51,7 @@ void io_comm_mosaic::Comm_IO::Send(std::string cmd)
 	manager_.get()->Send(cmd, cmd.size());
 }
 
-void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
+bool io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
 {
 	host_ = host;
 	port_ = port;
@@ -69,6 +69,7 @@ void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
 	catch (std::runtime_error& e) 
 	{
 		throw std::runtime_error("mosaic: Could not resolve " + host + " on port " + port + ": " + e.what());
+		return false;
 	}
 
 	boost::shared_ptr<boost::asio::ip::tcp::socket> socket(new boost::asio::ip::tcp::socket(*io_service));
@@ -82,12 +83,18 @@ void io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
 	catch (std::runtime_error& e) 
 	{
 		throw std::runtime_error("mosaic: Could not connect to " + endpoint->host_name() + ": " + endpoint->service_name() + ": " + e.what());
+		return false;
 	}
 
 	ROS_INFO("mosaic: Connected to %s: %s.", endpoint->host_name().c_str(), endpoint->service_name().c_str());
 
-	if (manager_) return;
+	if (manager_)
+	{
+		ROS_ERROR("You have called the InitializeTCP() method though an AsyncManager object is already available! Start all anew..");
+		return false;
+	}
 	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
+	return true;
 }
 
  
@@ -129,11 +136,14 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 		// int tcgetattr(int fd, struct termios *termios_p);
 		tcgetattr(fd, &tio); 
 		
-		// Setting hardware flow control settings..
-		if (flowcontrol == "RTS|CTS") {
+		// Hardware flow control settings..
+		if (flowcontrol == "RTS|CTS") 
+		{
 			tio.c_iflag &= ~(IXOFF | IXON);
 			tio.c_cflag |= CRTSCTS;
-		} else {
+		} 
+		else 
+		{
 			tio.c_iflag &= ~(IXOFF | IXON);
 			tio.c_cflag &= ~CRTSCTS;
 		}
@@ -148,10 +158,10 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	// Set the I/O manager
 	if (manager_) 
 	{
-		ROS_ERROR("You have called InitializeSerial twice! Start all anew or call ResetSerial..");
+		ROS_ERROR("You have called the InitializeSerial() method though an AsyncManager object is already available! Start all anew..");
 		return false;
 	}
-	ROS_DEBUG("Creating new Async-Manager..");
+	ROS_DEBUG("Creating new Async-Manager object..");
 	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
 	
 	//ROS_DEBUG("Finished creating new Async-Manager, have not yet called its read_callback_, since that will only be populated by the readCallback method of the CallbackHandlers class momentarily..");
@@ -162,7 +172,8 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	ROS_DEBUG("Initiated current_baudrate object...");
 	try 
 	{
-		serial->get_option(current_baudrate); // Often this seems to set current_baudrate.value() magically to 115200 such that no increments are needed below.
+		serial->get_option(current_baudrate); // Note that this sets current_baudrate.value() often to 115200, since by default, all mosaic COM ports 
+		// are set to a baudrate of 115200 baud, using 8 data-bits, no parity and 1 stop-bit.
 	} catch(boost::system::system_error& e)
 	{
 		
@@ -175,23 +186,52 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 			serial->get_option(current_baudrate, e_loop);
 		} while(e_loop);
 		*/
-        return 1;
+        return false;
     }
 	// Gradually increase the baudrate to the desired value
 	// The desired baudrate can be lower or larger than the
 	// current baudrate; the for loop takes care of both scenarios.
 	ROS_DEBUG("Current baudrate is %u", current_baudrate.value());
-	for (uint8_t i = 0; i < sizeof(Baudrates)/sizeof(Baudrates[0]); i++) 
+	for (uint8_t i = 0; i < sizeof(baudrates)/sizeof(baudrates[0]); i++) 
 	{
 		if (current_baudrate.value() == baudrate_)
-			break; 
-			// Break if the desired baudrate has been reached.
-		if(current_baudrate.value() > Baudrates[i] && baudrate_ > Baudrates[i])
+		{
+			break; // Break if the desired baudrate has been reached.
+		}
+		if(current_baudrate.value() >= baudrates[i] && baudrate_ > baudrates[i])
+		{
 			continue; 
-			// Increment until Baudrate[i] matches current_baudrate.
-		serial->set_option(boost::asio::serial_port_base::baud_rate(Baudrates[i]));
-		boost::this_thread::sleep(boost::posix_time::milliseconds(SetBaudrateSleepMs));
-		serial->get_option(current_baudrate);
+		}
+		// Increment until Baudrate[i] matches current_baudrate.
+		try 
+		{
+			serial->set_option(boost::asio::serial_port_base::baud_rate(baudrates[i]));
+		} catch(boost::system::system_error& e)
+		{
+			
+			ROS_ERROR("set_option failed due to %s", e.what());
+			ROS_INFO("Additional info about error is %s", boost::diagnostic_information(e).c_str());
+			return false;
+		}
+		usleep(set_baudrate_sleep_);
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(set_baudrate_sleep_*1000)); // This yields an error message with exit code -7 the second time it is called, hence we use sleep().
+		try 
+		{
+			serial->get_option(current_baudrate);
+		} catch(boost::system::system_error& e)
+		{
+			
+			ROS_ERROR("get_option failed due to %s", e.what());
+			ROS_INFO("Additional info about error is %s", boost::diagnostic_information(e).c_str());
+			/*
+			boost::system::error_code e_loop;
+			do // Caution: Might cause infinite loop..
+			{
+				serial->get_option(current_baudrate, e_loop);
+			} while(e_loop);
+			*/
+			return false;
+		}
 		ROS_DEBUG("mosaic: Set ASIO baudrate to %u", current_baudrate.value());
 	}
 	ROS_INFO("mosaic: Set ASIO baudrate to %u, leaving InitializeSerial() method", current_baudrate.value());
@@ -200,11 +240,11 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 
 void io_comm_mosaic::Comm_IO::SetManager(const boost::shared_ptr<Manager>& manager) 
 {
-	ROS_DEBUG("Entered SetManager");
+	ROS_DEBUG("Called SetManager() method");
 	if (manager_) return; 
 	manager_ = manager;
-	ROS_DEBUG("About to call setCallback");
 	manager_->SetCallback(boost::bind(&CallbackHandlers::ReadCallback, &handlers_, _1, _2));
+	ROS_DEBUG("Leaving SetManager() method");
 }
 
 /**

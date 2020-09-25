@@ -96,6 +96,15 @@
 #ifndef RESPONSE_SYNC_BYTE_3
 #define RESPONSE_SYNC_BYTE_3 0x3F
 #endif
+//! 0x49 is ASCII for I - 1st character of connection descriptor sent by mosaic after initiating TCP connection
+#ifndef CONNECTION_DESCRIPTOR_BYTE_1
+#define CONNECTION_DESCRIPTOR_BYTE_1 0x49
+#endif
+//! 0x50 is ASCII for P - 2nd character of connection descriptor sent by mosaic after initiating TCP connection
+#ifndef CONNECTION_DESCRIPTOR_BYTE_2
+#define CONNECTION_DESCRIPTOR_BYTE_2 0x50
+#endif
+
 
 // C++ libraries
 #include <cstddef>
@@ -136,6 +145,7 @@
  */
  
 extern bool use_GNSS_time;
+extern bool read_cd;
 extern uint32_t leap_seconds;
 //! Since switch only works with int (yet NMEA message IDs are strings), we need enum.
 //! Note drawbacks: No variable can have a name which is already in some enumeration, enums are not type safe etc..
@@ -196,6 +206,8 @@ namespace io_comm_mosaic
 			bool IsNMEA();
 			//! Determines whether data_ currently points to an NMEA message
 			bool IsResponse();
+			//! Determines whether data_ currently points to a connection descriptor (right after initiating TCP connection)
+			bool IsConnectionDescriptor();
 			//! Determines whether data_ currently points to an error message reply from mosaic
 			bool IsErrorMessage();
 			//! ll
@@ -398,6 +410,8 @@ namespace io_comm_mosaic
 	 * Note that putting the default in the definition's argument list instead of the declaration's is an added extra that is not available for function templates, hence no search = false here.
 	 * Finally note that it is bad practice (one gets undefined reference to .. error) to separate the definition of template functions into the source file and declarations into header file. 
 	 * Also note that the SBF block header part of the SBF-echoing ROS messages have ID fields that only show the block number as found in the firmware (e.g. 4007 for PVTGeodetic), without the revision number.
+	 * NMEA 0183 messages are at most 82 characters long in principle, but mosaic by default increases precision on lat/lon s.t. the maximum allowed seems to be 89. 
+	 * Luckily, when parsing we do not care since we just search for <LF><CR>.
 	 */
 	template <typename T>
 	bool mosaicMessage::Read(typename boost::call_traits<T>::reference message, std::string message_key, bool search) 
@@ -505,15 +519,16 @@ namespace io_comm_mosaic
 			}
 			case evGPGGA:
 			{
-				boost::char_separator<char> sep("*");
+				boost::char_separator<char> sep("\r");
 				typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-				std::size_t end_point = std::min(static_cast<std::size_t>(this->End() - data_), static_cast<std::size_t>(82));
-				std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
+				std::size_t nmea_size = std::min(this->SegmentEnd(), static_cast<std::size_t>(89));
+				std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
 				tokenizer tokens(block_in_string, sep);
 				
 				std::string id = this->MessageID();
 				std::string one_message = *tokens.begin();
-				boost::char_separator<char> sep_2(",", "", boost::keep_empty_tokens);
+				boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);	// No kept delimiters, hence "". Also, we specify that empty tokens should show up in the output when two delimiters are next to each other.
+																						// Hence we also append the checksum part of the GGA message to "body" below, though it is not parsed.
 				tokenizer tokens_2(one_message, sep_2);
 				std::vector<std::string> body;
 				for (tokenizer::iterator tok_iter = tokens_2.begin(); tok_iter != tokens_2.end(); ++tok_iter) // perhaps str.erase from <string.h> would be faster, but i would not know what exactly to do..
