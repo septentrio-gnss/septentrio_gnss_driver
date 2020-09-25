@@ -285,7 +285,7 @@ sensor_msgs::NavSatFixPtr io_comm_mosaic::mosaicMessage::NavSatFixCallback()
  * Note that elevations and azimuths of visible satellites are taken from the ChannelStatus block, which provides 1 degree precision, while the 
  * SatVisibility block could provide hundredths of degrees precision. Change if imperative for your application..
  * Definition of "visible satellite" adopted: Here, we define a visible satellite as being up to "in sync" mode with the receiver, which corresponds 
- * to last_measepoch_.N, though not last_channelstatus_.N (also includes those "in search").
+ * to last_measepoch_.N (signal-to-noise ratios are thereby available for these), though not last_channelstatus_.N, which also includes those "in search".
  */
 gps_common::GPSFixPtr io_comm_mosaic::mosaicMessage::GPSFixCallback()
 {
@@ -579,7 +579,7 @@ bool io_comm_mosaic::mosaicMessage::Found()
 	if (found_) return true;
 	
 	// Verify header bytes
-	if (!this->IsSBF() && !this->IsNMEA() && !this->IsResponse())
+	if (!this->IsSBF() && !this->IsNMEA() && !this->IsResponse() && !(read_cd && this->IsConnectionDescriptor()))
 	{
 		return false;
 	}
@@ -591,13 +591,13 @@ bool io_comm_mosaic::mosaicMessage::Found()
 const uint8_t* io_comm_mosaic::mosaicMessage::Search()
 {
 	if (found_) 
-	{	
+	{
 		Next(); 
 	}
 	// Search for message or a response header
 	for( ; count_ > 0; --count_, ++data_) 
 	{
-		if (this->IsSBF() || this->IsNMEA() || this->IsResponse())
+		if (this->IsSBF() || this->IsNMEA() || this->IsResponse() || (read_cd && this->IsConnectionDescriptor()))
 		{
 			break;
 		}
@@ -624,7 +624,7 @@ std::size_t io_comm_mosaic::mosaicMessage::SegmentEnd()
 		{
 			++segment_size_;
 			++pos;
-		} while(!((data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED)));
+		} while(!((data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED) || data_[pos] == CARRIAGE_RETURN || data_[pos] == LINE_FEED));
 	}
 	return segment_size_;
 }
@@ -656,8 +656,8 @@ bool io_comm_mosaic::mosaicMessage::IsMessage(std::string ID)
 	{
 		boost::char_separator<char> sep(",");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		std::size_t end_point = std::min(static_cast<std::size_t>(this->End() - data_), static_cast<std::size_t>(82));
-		std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
+		std::size_t nmea_size = std::min(this->SegmentEnd(), static_cast<std::size_t>(89));
+		std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
 		tokenizer tokens(block_in_string,sep);
 		if (*tokens.begin() == ID) 
 		{
@@ -710,6 +710,18 @@ bool io_comm_mosaic::mosaicMessage::IsResponse()
 	}
 }
 
+bool io_comm_mosaic::mosaicMessage::IsConnectionDescriptor()
+{
+	if (data_[0] == CONNECTION_DESCRIPTOR_BYTE_1 && data_[1] == CONNECTION_DESCRIPTOR_BYTE_2)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool io_comm_mosaic::mosaicMessage::IsErrorMessage()
 {
 	if (data_[0] == RESPONSE_SYNC_BYTE_1 && data_[1] == RESPONSE_SYNC_BYTE_2 && data_[2] == RESPONSE_SYNC_BYTE_3)
@@ -737,8 +749,8 @@ std::string io_comm_mosaic::mosaicMessage::MessageID()
 	{
 		boost::char_separator<char> sep(",");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		std::size_t end_point = std::min(static_cast<std::size_t>(this->End() - data_), static_cast<std::size_t>(82));
-		std::string block_in_string(reinterpret_cast<const char*>(data_), end_point);
+		std::size_t nmea_size = std::min(this->SegmentEnd(), static_cast<std::size_t>(89));
+		std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
 		tokenizer tokens(block_in_string,sep);
 		return *tokens.begin();
 	}
@@ -779,10 +791,15 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 {
 	if (Found()) 
 	{
-		if (this->IsNMEA() || this->IsResponse())
+		if (this->IsNMEA() || this->IsResponse() || (read_cd && this->IsConnectionDescriptor()))
 		{
+			if (read_cd && this->IsConnectionDescriptor())
+			{
+				read_cd = false;
+			}
 			--count_;
 			++data_;
+			found_ = false;
 			return data_;
 		}
 		if (this->IsSBF())
@@ -798,7 +815,7 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 			{
 				jump_size = 1;
 			}
-			ROS_DEBUG("Jump about to happen with jump size %u", jump_size);
+			//ROS_DEBUG("Jump about to happen with jump size %u", jump_size);
 			data_ += jump_size; count_ -= jump_size;
 		}
 	}

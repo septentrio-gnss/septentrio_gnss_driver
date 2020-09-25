@@ -95,6 +95,7 @@ extern bool publish_gpsfix;
 extern bool response_received;
 extern boost::mutex response_mutex;
 extern boost::condition_variable response_condition;
+extern std::string mosaic_tcp_port;
 
 namespace io_comm_mosaic 
 {
@@ -186,7 +187,7 @@ namespace io_comm_mosaic
 				CallbackHandler<T>* handler = new CallbackHandler<T>(callback); // Adding typename might be cleaner, but is optional again
 				callbackmap_.insert(std::make_pair(message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
 				CallbackMap::key_type key = message_key;
-				ROS_DEBUG("After insert command, key is there: %u", (unsigned int) callbackmap_.count(key));
+				ROS_DEBUG("Key successfully inserted to multimap: %s", ((unsigned int) callbackmap_.count(key)) ? "true" : "false");
 				return callbackmap_;
 			}
 	 
@@ -296,22 +297,23 @@ namespace io_comm_mosaic
 						{
 							unsigned long sbf_block_length;
 							sbf_block_length = (unsigned long) mMessage.BlockLength(); // C-like cast notation (since functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise)
-							ROS_DEBUG("Driver reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); // Recall: The long data type is at least 32 bits.
+							ROS_DEBUG("ROSaic reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); // Recall: The long data type is at least 32 bits.
+							if (sbf_block_length < 15) // If the SBF block is so corrupted that not even its header's Length field could be properly read, don't bother to process the block.
+							{
+								continue;
+							}
 						}
 						if (mMessage.IsNMEA())
 						{
-							std::ostringstream oss;
 							boost::char_separator<char> sep("\r");
 							typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-							std::size_t nmea_size = mMessage.SegmentEnd();
+							std::size_t nmea_size = std::min(mMessage.SegmentEnd(), static_cast<std::size_t>(89));
 							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), nmea_size);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
-																													// NMEA 0183 messages are at most 82 characters long, , including the $ or ! starting character and the ending <LF>
 							tokenizer tokens(block_in_string, sep);
-							ROS_DEBUG("The NMEA message is made up of %li bytes and is ready to be iterated. It reads: %s", nmea_size, (*tokens.begin()).c_str());
+							ROS_DEBUG("The NMEA message is ready to be iterated. It reads: %s", (*tokens.begin()).c_str());
 						}
 						if (mMessage.IsResponse())
 						{
-							std::ostringstream oss;
 							std::size_t response_size = mMessage.SegmentEnd();
 							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), response_size);
 							ROS_DEBUG("mosaic's response contains %li bytes and reads:\n %s", response_size, block_in_string.c_str());
@@ -325,6 +327,12 @@ namespace io_comm_mosaic
 							{
 								ROS_ERROR("Invalid command just sent to mosaic!");
 							}
+						}
+						if (mMessage.IsConnectionDescriptor())
+						{
+							std::string cd(reinterpret_cast<const char*>(mMessage.Pos()), 4);
+							mosaic_tcp_port = cd;
+							ROS_INFO("The connection descriptor for the TCP connection is %s", cd.c_str());
 						}
 					}
 					//ROS_DEBUG("Handing over from readcallback to Handle while count is %d", mMessage.GetCount());

@@ -243,7 +243,7 @@ namespace io_comm_mosaic
 			 boost::shared_ptr<boost::asio::io_service> io_service,
 			 std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false), buffer_size_(buffer_size), count_max_(6) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
 	{
-		ROS_DEBUG("Setting the stream private variable of the AsyncManager class.");
+		ROS_DEBUG("Setting the private stream variable of the AsyncManager instance.");
 		do_read_count_ = 0;
 		stream_ = stream;
 		io_service_ = io_service;
@@ -311,7 +311,7 @@ namespace io_comm_mosaic
 				std::vector<uint8_t> empty;
 				in_ = empty;
 				in_.resize(buffer_size_);
-			}		 
+			}
 		}
 	 
 		if (!stopping_)

@@ -1,31 +1,32 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>rosaic</name>
-  <version>0.0.0</version>
-  <description>The rosaic package</description>
+  <version>1.0.2</version>
+  <description>ROSaic: C++ Driver for Septentrio's mosaic Receivers</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="tibor.doeme@alumni.ethz.ch">Tibor Dome</maintainer>
+  <maintainer email="githubuser@septentrio.com">Septentrio</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>BSD 3-Clause License</license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <!-- <url type="website">https://github.com/tibordome/rosaic</url> -->
+  <url type="website">https://github.com/septentrio-gnss/rosaic</url>
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="tibor.doeme@gmail.com">Tibor Dome</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
