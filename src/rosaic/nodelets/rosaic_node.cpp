@@ -38,34 +38,38 @@
  
 rosaic_node::ROSaicNode::ROSaicNode()
 {
-	ROS_DEBUG("Entered ROSaicNode() constructor..");
+	ROS_DEBUG("Called ROSaicNode() constructor..");
+	
 	// Parameters must be set before initializing IO
 	GetROSParams();
 	StringValues_Initialize();
 	ROS_DEBUG("About to call InitializeIO() method");
-	try
-	{
-		InitializeIO();
-	}
-	catch (std::runtime_error& e)
-	{
-		ROS_ERROR("InitializeIO() failed: %s", e.what());
-	}
+	InitializeIO();
 	// Subscribes to all requested mosaic messages and publish them raw or in composite form (e.g. NavSatFix)
     DefineMessages();
 	// Communicates to mosaic which SBF/NMEA messages it should output and sets all its necessary corrections-related parameters
+	boost::mutex::scoped_lock lock(connection_mutex_);
+	connection_condition_.wait(lock, [](){return connected;});
 	ConfigureMosaic();
 	
-	ros::spin();
-	
+	ros::waitForShutdown();	
 }
 
 //! The Send() method of AsyncManager class is paramount for this purpose.
 //! Note that std::to_string() is from C++11 onwards only.
+//! Since this driver can be launched before booting mosaic, we have to watch out for escape characters that are sent 
+//! by mosaic to indicate that it is in upgrade mode. Those characters would then be mingled with the first command 
+//! we send to it in this method and could result in an invalid command. Hence the first command we send to mosaic is an unneccesary "grc".
 void rosaic_node::ROSaicNode::ConfigureMosaic()
 {
+	ROS_DEBUG("Called ConfigureMosaic() method");
+	
 	// It is imperative to hold a lock on the mutex "response_mutex" while modifying the variable "response_received".
 	boost::mutex::scoped_lock lock(response_mutex);
+	
+	IO.Send("grc \x0D");
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
 	
 	// Turning off all current SBF/NMEA output 
 	IO.Send("sso, all, none, none, off \x0D");
@@ -93,6 +97,43 @@ void rosaic_node::ROSaicNode::ConfigureMosaic()
 	response_condition.wait(lock, [](){return response_received;});
 	response_received = false;
 	
+	// Configuring the NTRIP connection
+	// Disabling any existing NTRIP connection on NTR1
+	{
+		std::stringstream ss;
+		ss << "snts, NTR1, off \x0D"; 
+		IO.Send(ss.str());
+	}
+	response_condition.wait(lock, [](){return response_received;});
+	response_received = false;
+	if (mode_ == "off")
+	{
+	}
+	else if (mode_ == "Client")
+	{
+		{
+			std::stringstream ss;
+			ss << "snts, NTR1, " << mode_ << ", " << caster_ << ", " << std::to_string(ntrip_port_) << ", " << username_ << ", " << password_ << ", " << mountpoint_ << ", " << version_ << ", " << send_gga_ << " \x0D"; 
+			IO.Send(ss.str());
+		}
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	else if (mode_ == "Client-Sapcorda")
+	{
+		{
+			std::stringstream ss;
+			ss << "snts, NTR1, Client-Sapcorda, , , , , , , , \x0D"; 
+			IO.Send(ss.str());
+		}
+		response_condition.wait(lock, [](){return response_received;});
+		response_received = false;
+	}
+	else 
+	{
+		ROS_ERROR("Invalid mode specified for NTRIP settings.");
+	}
+	
 	// Setting SBF/NMEA output of mosaic
 	unsigned stream = 1;
 	boost::smatch match;
@@ -101,11 +142,11 @@ void rosaic_node::ROSaicNode::ConfigureMosaic()
 	std::string mosaic_port;
 	if (proto == "tcp") 
 	{
-		mosaic_port = "IP10";
+		mosaic_port = mosaic_tcp_port;
 	}
 	else
 	{
-		mosaic_port = "USB1";
+		mosaic_port = mosaic_serial_port_;
 	}
 	if (publish_gpgga == true)
 	{
@@ -186,12 +227,15 @@ void rosaic_node::ROSaicNode::ConfigureMosaic()
 		IO.Send(ss.str());
 		++stream;
 	}
+	ROS_DEBUG("Finished ConfigureMosaic() method");
 }
 void rosaic_node::ROSaicNode::GetROSParams() 
 {
 	// Communication parameters
 	nh->param("device", device_, std::string("/dev/ttyACM0"));
 	GetROSInt("serial/baudrate", baudrate_, static_cast<uint32_t>(115200));
+	nh->param("reconnect_delay_s", reconnect_delay_s_, 4.0f);
+	nh->param("serial/mosaic_serial_port", mosaic_serial_port_, std::string("USB1"));
 	
 	// Polling period parameters
 	GetROSInt("polling_period/pvt", polling_period_pvt_, static_cast<unsigned>(1));
@@ -204,19 +248,28 @@ void rosaic_node::ROSaicNode::GetROSParams()
 	nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
 	nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
 	nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+	
+	// Correction service parameters
+	nh->param("ntrip_settings/mode", mode_, std::string("off"));
+	nh->param("ntrip_settings/caster", caster_, std::string());
+	GetROSInt("ntrip_settings/port", ntrip_port_, static_cast<uint32_t>(0));
+	nh->param("ntrip_settings/username", username_, std::string());
+	nh->param("ntrip_settings/password", password_, std::string());
+	nh->param("ntrip_settings/mountpoint", mountpoint_, std::string());
+	nh->param("ntrip_settings/version", version_, std::string("v2"));
+	nh->param("ntrip_settings/send_gga", send_gga_, std::string("auto"));
 
 	// To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix mode...
 	ROS_DEBUG("Finished GetROSParams() method");
 
-}	
-
+}
 
 void rosaic_node::ROSaicNode::InitializeIO() 
 {
 	ROS_DEBUG("Called InitializeIO() method");
 	boost::smatch match;
 	// In fact: smatch is a typedef of match_results<string::const_iterator>
-	if (boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"))) 
+	if (boost::regex_match(device_, match, boost::regex("(tcp)://(.+):(\\d+)"))) 
 	// \d means decimal, however, in the regular expression, the \ is a special character, which needs to be escaped on its own as well..
 	// Note that regex_match can be used with a smatch object to store results, or without. In any case, true is returned if and only if it matches the !complete! string.
 	{
@@ -226,57 +279,105 @@ void rosaic_node::ROSaicNode::InitializeIO()
 		std::string proto(match[1]);
 		if (proto == "tcp") 
 		{
-			std::string host(match[2]);
-			std::string port(match[3]);
-			ROS_INFO("Connecting to %s://%s:%s ...", proto.c_str(), host.c_str(), port.c_str());
-			try
-			{
-				IO.InitializeTCP(host, port);
-			}
-			catch (std::runtime_error& e)
-			{
-				throw std::runtime_error("IO.InitializeTCP() failed for host " + host + " on port " + port + " due to: " + e.what());
-			}
+			tcp_host_ = match[2];
+			tcp_port_ = match[3];
+			
+			serial_ = false;
+			boost::thread temporary_thread(boost::bind(&ROSaicNode::Connect, this));
+			temporary_thread.detach();
 		} 
 		else 
 		{
-			throw std::runtime_error("Protocol '" + proto + "' is unsupported");
+			{
+				std::stringstream ss;
+				ss << "Protocol '" << proto << "' is unsupported.";
+				ROS_ERROR("%s", ss.str().c_str());
+			}
 		}
 	} 
 	else 
 	{
-		// To be modified here, or clarified: how to use reconnect_delay_s properly? Is respawn (roslaunch parameter) enough?
-		//ROS_DEBUG("Setting timer for calling InitializeSerial() method");
-		//nh->param("reconnect_delay_s", reconnect_delay_s_, 0.5f);
-		//reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &ROSaicNode::Reconnect, this);
-		//reconnect_timer_.start();
-		//ROS_DEBUG("Started timer"); //not printed if error in callback of course
-		//ros::spin(); // otherwise callback will never be called, with ros::spin i cannot leave InitializeIO(), yet with ros::spinOnce can enter reconnect() even once
-		try
-		{
-			IO.InitializeSerial(device_, baudrate_);
-		}
-		catch (std::runtime_error& e)
-		{
-			throw std::runtime_error("IO.InitializeSerial() failed for device " + device_ + " due to: " + e.what());
-		}
+		serial_ = true;
+		boost::thread temporary_thread(boost::bind(&ROSaicNode::Connect, this));
+		temporary_thread.detach();
 	}
-	ROS_DEBUG("Leaving InitializeIO()");
+	ROS_DEBUG("Leaving InitializeIO() method");
 }
 
+
+		
+void rosaic_node::ROSaicNode::Connect() 
+{
+	ROS_DEBUG("Called Connect() method");
+	ROS_DEBUG("Setting ROS timer for calling Reconnect() method until connection succeds");
+	reconnect_timer_ = nh->createTimer(ros::Duration(reconnect_delay_s_), &ROSaicNode::Reconnect, this);
+	reconnect_timer_.start();
+	ROS_DEBUG("Started ROS timer for calling Reconnect() method until connection succeds"); //not printed if error in callback of course
+	ros::spin(); // otherwise callback will never be called, with ros::spin i cannot leave InitializeIO(), yet with ros::spinOnce cannot enter reconnect() even once
+	ROS_DEBUG("Leaving Connect() method"); // will never be called
+}
+
+//! Please ensure that the USB is connected to mosaic's COM1, COM2 or COM3 port, since we employ UART hardware flow control.
 void rosaic_node::ROSaicNode::Reconnect(const ros::TimerEvent& event) 
 {
-	ROS_DEBUG("Inside reconnect");
-	if(IO.InitializeSerial(device_, baudrate_))
-	{
-		connected_ = true;
-	}
-	if (connected_ == true)
+	ROS_DEBUG("Called Reconnect() method");
+	if (connected == true)
 	{
 		reconnect_timer_.stop();
 		ROS_DEBUG("Ended timer");
 	}
-	ROS_DEBUG("Leaving reconnect");
+	else
+	{
+		if (serial_)
+		{
+			bool initialize_serial_return = false;
+			try
+			{
+				ROS_INFO("Connecting serially to device %s, targeted baudrate: %u", device_.c_str(), baudrate_);
+				initialize_serial_return = IO.InitializeSerial(device_, baudrate_, "RTS|CTS");
+			}
+			catch (std::runtime_error& e)
+			{
+				{
+					std::stringstream ss;
+					ss << "IO.InitializeSerial() failed for device " << device_ << " due to: " << e.what();
+					ROS_ERROR("%s", ss.str().c_str());
+				}
+			}
+			if (initialize_serial_return)
+			{
+				boost::mutex::scoped_lock lock(connection_mutex_);
+				connected = true;
+				lock.unlock();
+				connection_condition_.notify_one();
+			}
+		}
+		else
+		{
+			bool initialize_tcp_return = false;
+			try
+			{
+				ROS_INFO("Connecting to tcp://%s:%s ...", tcp_host_.c_str(), tcp_port_.c_str());
+				initialize_tcp_return = IO.InitializeTCP(tcp_host_, tcp_port_);
+			}
+			catch (std::runtime_error& e)
+			{
+				{
+					std::stringstream ss;
+					ss << "IO.InitializeTCP() failed for host " << tcp_host_ << " on port " << tcp_port_ << " due to: " << e.what();
+					ROS_ERROR("%s", ss.str().c_str());
+				}
+			}
+			if (initialize_tcp_return)
+			{
+				boost::mutex::scoped_lock lock(connection_mutex_);
+				connected = true;
+				lock.unlock();
+				connection_condition_.notify_one();
+			}
+		}
+	}
+	ROS_DEBUG("Leaving Reconnect() method");
 }
 
 //! InitializeSerial is not self-contained: The for loop in Callbackhandlers' handle method would never open a specific handler unless 
@@ -284,7 +385,7 @@ void rosaic_node::ROSaicNode::Reconnect(const ros::TimerEvent& event)
 //! mosaicMessage's read() method is called, thereby "message" occupied, and func_ (the handler we insert in this function) called with this "message".
 void rosaic_node::ROSaicNode::DefineMessages() 
 {
-	ROS_DEBUG("Entered DefineMessages() method");
+	ROS_DEBUG("Called DefineMessages() method");
 
 	if (publish_gpgga == true)
 	{
@@ -364,6 +465,11 @@ boost::mutex io_comm_mosaic::CallbackHandlers::callback_mutex_;
 boost::mutex response_mutex;
 bool response_received;
 boost::condition_variable response_condition;
+bool connected;
+//! Whether or not we still want to read the connection descriptor, which we only want in the very beginning to know whether it is IP10, IP11 etc.
+bool read_cd;
+//! Mosaic TCP port, e.g. IP10 or IP11, to which ROSaic is connected to
+std::string mosaic_tcp_port;
 
 int main(int argc, char** argv) 
 {
@@ -382,6 +488,8 @@ int main(int argc, char** argv)
 	rosaic_node::nh->param("publish/navsatfix", publish_navsatfix, true);
 	rosaic_node::nh->param("publish/gpsfix", publish_gpsfix, true);
 	rosaic_node::GetROSInt("leap_seconds", leap_seconds, static_cast<uint32_t>(18));
+	connected = false;
+	read_cd = true;
 	
 	response_received = false;
 	

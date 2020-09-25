@@ -59,6 +59,8 @@
 #ifndef GPGGA_HPP
 #define GPGGA_HPP
 
+// C++ library includes
+#include <cmath> // for round(double x)
 // ROSaic includes
 #include <rosaic/parsers/parser_base_class.hpp>
 #include <rosaic/parsers/string_utilities.h>

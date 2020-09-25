@@ -81,6 +81,8 @@ extern bool publish_poscovgeodetic;
 extern bool publish_atteuler;
 extern bool publish_attcoveuler;
 extern bool publish_navsatfix;
+extern bool connected;
+extern ros::Timer reconnect_timer_;
 	
 /**
  * @namespace rosaic_node
@@ -258,6 +260,12 @@ namespace rosaic_node
 			 * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
 			 */
 			void Reconnect(const ros::TimerEvent& event);
+			
+			/**
+			 * @brief Calles the Reconnect() method
+			 */
+			void Connect();
+			
 
 			
 		private:
@@ -265,12 +273,10 @@ namespace rosaic_node
 			std::string device_;
 			//! Baudrate
 			uint32_t baudrate_;
+			//! In case of serial communication to mosaic, mosaic_serial_port_ specifies mosaic's serial port connected to, e.g. USB1 or COM1
+			std::string mosaic_serial_port_;
 			//! Datum to be used
 			std::string datum_;
-			//! Antenna type, from the list returned by the command "lstAntennaInfo, Overview"
-			std::string ant_type_;
-			//! Serial number of your particular antenna
-			std::string ant_serial_nr_;
 			//! Polling period for PVT-related SBF blocks
 			unsigned polling_period_pvt_;
 			//! Polling period for all other SBF blocks and NMEA messages
@@ -283,10 +289,40 @@ namespace rosaic_node
 			float delta_n_;
 			//! Marker-to-ARP offset in the upward direction
 			float delta_u_;
+			//! Antenna type, from the list returned by the command "lstAntennaInfo, Overview"
+			std::string ant_type_;
+			//! Serial number of your particular antenna
+			std::string ant_serial_nr_;
+			//! Type of NTRIP connection
+			std::string mode_;
+			//! Hostname or IP address of the NTRIP caster to connect to
+			std::string caster_;
+			//! IP port number of NTRIP caster to connect to
+			uint32_t ntrip_port_;
+			//! Username for NTRIP service
+			std::string username_;
+			//! Password for NTRIP service
+			std::string password_;
+			//! Mountpoint for NTRIP service
+			std::string mountpoint_;
+			//! NTRIP version for NTRIP service
+			std::string version_;
 			//! Our ROS timer governing the reconnection
 			ros::Timer reconnect_timer_;
-			//! Whether or not connection has been successful so far
-			bool connected_ = false;
+			//! Whether (and at which rate) or not to send GGA to the NTRIP caster
+			std::string send_gga_;
+			//! Since the ConfigureMosaic() method should only be called once the connection 
+			//! was established, we need the threads to communicate this to each other. Associated mutex..
+			boost::mutex connection_mutex_;
+			//! Since the ConfigureMosaic() method should only be called once the connection 
+			//! was established, we need the threads to communicate this to each other. Associated condition variable..
+			boost::condition_variable connection_condition_;
+			//! Host name of TCP server
+			std::string tcp_host_;
+			//! TCP port number
+			std::string tcp_port_;
+			//! Whether yet-to-be-established connection to mosaic will be serial or TCP
+			bool serial_;
 	};
 }
 

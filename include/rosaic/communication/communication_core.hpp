@@ -82,6 +82,7 @@
 #include <sstream>
 #include <string.h>
 #include <memory>
+#include <unistd.h> // for usleep()
 // ROSaic includes
 #include <rosaic/communication/mosaicMessage.hpp>
 #include <rosaic/communication/async_manager.hpp>
@@ -104,7 +105,7 @@ namespace io_comm_mosaic
 	extern int debug;
 
 	//! Possible baudrates for mosaic
-	const static uint32_t Baudrates[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
+	const static uint32_t baudrates[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
 										115200, 230400, 460800, 500000, 576000, 921600, 
 										1000000, 1152000, 1500000, 2000000, 2500000, 
 										3000000, 3500000, 4000000};
@@ -117,8 +118,6 @@ namespace io_comm_mosaic
 	{
 		public:
 			
-			// Sleep time in milliseconds after setting the baudrate to certain value (important between increments)
-			const static int SetBaudrateSleepMs = 500;
 			
 			// Size of write buffer in bytes for output messages
 			// const static int WriterSize = 2056;
@@ -138,6 +137,7 @@ namespace io_comm_mosaic
 			 * @param[in] port The device's port address
 			 * @param[in] baudrate The chosen baud rate of the port
 			 * @param[in] flowcontrol Default is "None", set variable (not yet checked) to "RTS|CTS" to activate hardware flow control (only for mosaic serial ports COM1, COM2 and COM3)
+			 * @return True if connection could be established, false otherwise
 			 */
 			bool InitializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
 			
@@ -145,8 +145,9 @@ namespace io_comm_mosaic
 			 * @brief Initializes the TCP I/O.
 			 * @param[in] host The TCP host
 			 * @param[in] port The TCP port
+			 * @return True if connection could be established, false otherwise
 			 */
-			void InitializeTCP(std::string host, std::string port);
+			bool InitializeTCP(std::string host, std::string port);
 			
 			/**
 			 * @brief Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic
@@ -195,6 +196,9 @@ namespace io_comm_mosaic
 			std::string host_;
 			//! Port over which TCP/IP connection is currently established
 			std::string port_;
+			//! Sleep time in microseconds (there is no Unix command for milliseconds) 
+			//! after setting the baudrate to certain value (important between increments)
+			const static unsigned int set_baudrate_sleep_ = 500000;
 	};
 }
 
