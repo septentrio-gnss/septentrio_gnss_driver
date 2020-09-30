@@ -42,89 +42,88 @@
  * @date 13/08/20 
  */
  
-namespace rosaic_driver
+
+/**
+* @class BaseParser
+* @brief Base class for parsing NMEA messages and SBF blocks
+*
+* Subclasses that parse NMEA messages should implement
+* ParseASCII(const NMEASentence&); subclasses that parse SBF blocks
+* should implement ParseBinary(const SBFBlock&). The base class is implemented
+* as a template, which is a simple and yet very powerful tool in C++. The 
+* simple idea is to pass data type as a parameter so that we don’t need to 
+* write the same code for different data types. Like function templates, class
+* templates are useful when a class defines something that is independent of 
+* the data type, as here the notion of parsing.
+* 
+* @tparam T The ROS message pointer type that the parser should produce, e.g. nmea_msgs::GpggaPtr.
+*/
+template<typename T>
+class BaseParser
 {
+	public:
+
 	/**
-	* @class BaseParser
-	* @brief Base class for parsing NMEA messages and SBF blocks
-	*
-	* Subclasses that parse NMEA messages should implement
-	* ParseASCII(const NMEASentence&); subclasses that parse SBF blocks
-	* should implement ParseBinary(const SBFBlock&). The base class is implemented
-	* as a template, which is a simple and yet very powerful tool in C++. The 
-	* simple idea is to pass data type as a parameter so that we don’t need to 
-	* write the same code for different data types. Like function templates, class
-	* templates are useful when a class defines something that is independent of 
-	* the data type, as here the notion of parsing.
-	* 
-	* @tparam T The ROS message pointer type that the parser should produce, e.g. nmea_msgs::GpggaPtr.
-	*/
-	template<typename T>
-	class BaseParser
+	 * @brief Default constructor of the class BaseParser
+	 * 
+	 * Adding the "default" keyword to the constructor declaration is a new feature since C++11 for creating a default 
+	 * constructor (a constructor which can be called with no arguments). Strictly 
+	 * speaking, it is not the same as when the keyword is omitted, but the differences are miniscule.
+	 * 
+	 * Also note that in C++, the constructor cannot be virtual, because when a constructor of a class is executed,
+	 * there is no virtual table in the memory, i.e. no virtual pointer defined yet.
+	 * 
+	 */
+	BaseParser() = default;
+	
+	/**
+	 * @brief Default destructor of the class BaseParser
+	 * 
+	 * As opposed to the constructor, a destructor can be virtual, as here. 
+	 */
+	virtual ~BaseParser() = default;
+
+	/**
+	 * @brief Returns the ASCII message name
+	 * 
+	 * GetMessageID() is a pure virtual function, i.e. a function
+	 * for which writing a function declaration suffices. It is declared by 
+	 * assigning the value 0 in the declaration. Since we now have at least 
+	 * 1 pure virtual function, our class BaseParser thus becomes an
+	 * "abstract" one.
+	 * 
+	 * @return The ASCII message name.
+	 */
+	virtual const std::string GetMessageID() const = 0;
+
+	/**
+	 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
+	 *
+	 * The returned value should not be NULL. ParseException will be thrown
+	 * if there are any issues parsing the block.
+	 * 
+	 * @param[in] bin_msg The message to convert, of type const SBFStructT
+	 * @return A valid ROS message pointer
+	 */
+	template <typename SBFStructT>
+	T ParseBinary(const SBFStructT& bin_msg) noexcept(false)
 	{
-		public:
-  
-		/**
-		 * @brief Default constructor of the class BaseParser
-		 * 
-		 * Adding the "default" keyword to the constructor declaration is a new feature since C++11 for creating a default 
-		 * constructor (a constructor which can be called with no arguments). Strictly 
-		 * speaking, it is not the same as when the keyword is omitted, but the differences are miniscule.
-		 * 
-		 * Also note that in C++, the constructor cannot be virtual, because when a constructor of a class is executed,
-		 * there is no virtual table in the memory, i.e. no virtual pointer defined yet.
-		 * 
-		 */
-		BaseParser() = default;
-		
-		/**
-		 * @brief Default destructor of the class BaseParser
-		 * 
-		 * As opposed to the constructor, a destructor can be virtual, as here. 
-		 */
-		virtual ~BaseParser() = default;
-
-		/**
-		 * @brief Returns the ASCII message name
-		 * 
-		 * GetMessageID() is a pure virtual function, i.e. a function
-		 * for which writing a function declaration suffices. It is declared by 
-		 * assigning the value 0 in the declaration. Since we now have at least 
-		 * 1 pure virtual function, our class BaseParser thus becomes an
-		 * "abstract" one.
-		 * 
-		 * @return The ASCII message name.
-		 */
-		virtual const std::string GetMessageID() const = 0;
-    
-		/**
-		 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
-		 *
-		 * The returned value should not be NULL. ParseException will be thrown
-		 * if there are any issues parsing the block.
-		 * 
-		 * @param[in] bin_msg The message to convert, of type const SBFStructT
-		 * @return A valid ROS message pointer
-		 */
-		template <typename SBFStructT>
-		T ParseBinary(const SBFStructT& bin_msg) noexcept(false)
-		{
-			throw ParseException("ParseBinary not implemented.");
-		};
-
-		/**
-		 * @brief Converts an NMEA sentence - both standardized and proprietary ones - into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
-		 *
-		 * The returned value should not be NULL. ParseException will be thrown
-		 * if there are any issues parsing the message.
-		 * @param[in] sentence The standardized NMEA sentence to convert, of type NMEASentence
-		 * @return A valid ROS message pointer
-		 */
-		virtual T ParseASCII(const NMEASentence& sentence) noexcept(false)
-		{
-			throw ParseException("ParseASCII not implemented.");
-		};
+		throw ParseException("ParseBinary not implemented.");
 	};
-}
+
+	/**
+	 * @brief Converts an NMEA sentence - both standardized and proprietary ones - into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
+	 *
+	 * The returned value should not be NULL. ParseException will be thrown
+	 * if there are any issues parsing the message.
+	 * @param[in] sentence The standardized NMEA sentence to convert, of type NMEASentence
+	 * @return A valid ROS message pointer
+	 */
+	virtual T ParseASCII(const NMEASentence& sentence) noexcept(false)
+	{
+		throw ParseException("ParseASCII not implemented.");
+	};
+};
+
 
 #endif //PARSER_BASE_CLASS_HPP

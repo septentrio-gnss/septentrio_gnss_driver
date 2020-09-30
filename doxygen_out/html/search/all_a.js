@@ -1,18 +1,5 @@
 var searchData=
 [
-  ['l1doppler_5f1',['L1Doppler_1',['../struct_r_a_n_g_e___d_a_t_a.html#aad2be989eba7c3b5b23445447f1e2c11',1,'RANGE_DATA']]],
-  ['l1doppler_5f2',['L1Doppler_2',['../struct_r_a_n_g_e___d_a_t_a.html#a00993f959f0c596384ab7b8523ccc7d6',1,'RANGE_DATA']]],
-  ['l1doppler_5f3',['L1Doppler_3',['../struct_r_a_n_g_e___d_a_t_a.html#a49cabc561bc32c3403512f6ce0cd7884',1,'RANGE_DATA']]],
-  ['l1phase_5f1',['L1Phase_1',['../struct_r_a_n_g_e___d_a_t_a.html#a7f91416deac8df34ed00c07d500effe9',1,'RANGE_DATA']]],
-  ['l1phase_5f2',['L1Phase_2',['../struct_r_a_n_g_e___d_a_t_a.html#a2c12ac05ac71c40d3ca69b750b388062',1,'RANGE_DATA']]],
-  ['l1phase_5f3',['L1Phase_3',['../struct_r_a_n_g_e___d_a_t_a.html#a4e0749a1900f64c659c9a6811a8cee19',1,'RANGE_DATA']]],
-  ['l2dataflag',['L2DataFlag',['../struct_g_p_s_n_a_v.html#a7d95d081562bafc318c672efc6c5c480',1,'GPSNAV']]],
-  ['l2doppler_5f1',['L2Doppler_1',['../struct_r_a_n_g_e___d_a_t_a.html#a00117a6b6ae2b5a09cecf99a7e5c17f3',1,'RANGE_DATA']]],
-  ['l2doppler_5f2',['L2Doppler_2',['../struct_r_a_n_g_e___d_a_t_a.html#a96c418bf440a987c837c2f3064f066a5',1,'RANGE_DATA']]],
-  ['l2doppler_5f3',['L2Doppler_3',['../struct_r_a_n_g_e___d_a_t_a.html#a889fb01f7292579d51fb632442cccb12',1,'RANGE_DATA']]],
-  ['l2phase_5f1',['L2Phase_1',['../struct_r_a_n_g_e___d_a_t_a.html#ab6f47b6ceda26ea302297b6a99b4f61e',1,'RANGE_DATA']]],
-  ['l2phase_5f2',['L2Phase_2',['../struct_r_a_n_g_e___d_a_t_a.html#a5c12ee56679d8fc7f7e9d2aac84cd4ff',1,'RANGE_DATA']]],
-  ['l2phase_5f3',['L2Phase_3',['../struct_r_a_n_g_e___d_a_t_a.html#a3dc7c1c4fd56ae74a7f8a9945d8dc649',1,'RANGE_DATA']]],
   ['last_5fattcoveuler_5f',['last_attcoveuler_',['../classio__comm__mosaic_1_1mosaic_message.html#a77e2dc36fcf6f3f46ca6b0ab5b43b527',1,'io_comm_mosaic::mosaicMessage']]],
   ['last_5fatteuler_5f',['last_atteuler_',['../classio__comm__mosaic_1_1mosaic_message.html#a48be872c112243bad0e1e2fce0307864',1,'io_comm_mosaic::mosaicMessage']]],
   ['last_5fchannelstatus_5f',['last_channelstatus_',['../classio__comm__mosaic_1_1mosaic_message.html#a31158326e25ec0855a47e1f3a5f99e8a',1,'io_comm_mosaic::mosaicMessage']]],

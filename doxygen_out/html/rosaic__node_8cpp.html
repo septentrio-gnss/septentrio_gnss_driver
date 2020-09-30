@@ -78,18 +78,19 @@ Include dependency graph for rosaic_node.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="rosaic__node_8cpp__incl.png" border="0" usemap="#src_2rosaic_2nodelets_2rosaic__node_8cpp" alt=""/></div>
 <map name="src_2rosaic_2nodelets_2rosaic__node_8cpp" id="src_2rosaic_2nodelets_2rosaic__node_8cpp">
-<area shape="rect" id="node2" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="1581,95,1730,136"/>
-<area shape="rect" id="node7" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="1737,184,1907,225"/>
-<area shape="rect" id="node18" href="mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="1279,363,1429,404"/>
-<area shape="rect" id="node34" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="99,459,211,486"/>
-<area shape="rect" id="node44" href="async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="2413,273,2562,315"/>
-<area shape="rect" id="node49" href="callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="2043,273,2193,315"/>
-<area shape="rect" id="node29" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1339,452,1479,493"/>
-<area shape="rect" id="node31" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="1338,638,1477,665"/>
-<area shape="rect" id="node32" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1171,541,1311,583"/>
-<area shape="rect" id="node36" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="217,541,368,583"/>
-<area shape="rect" id="node30" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1335,541,1479,583"/>
-<area shape="rect" id="node35" href="ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="55,631,205,672"/>
+<area shape="rect" id="node2" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="4247,95,4396,136"/>
+<area shape="rect" id="node7" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="2491,184,2661,225"/>
+<area shape="rect" id="node19" href="mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="2357,363,2507,404"/>
+<area shape="rect" id="node40" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="4172,459,4284,486"/>
+<area shape="rect" id="node49" href="async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="1799,273,1948,315"/>
+<area shape="rect" id="node50" href="callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="2501,273,2651,315"/>
+<area shape="rect" id="node35" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="973,452,1113,493"/>
+<area shape="rect" id="node36" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1223,541,1363,583"/>
+<area shape="rect" id="node37" href="gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="1349,452,1489,493"/>
+<area shape="rect" id="node38" href="gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="1729,452,1869,493"/>
+<area shape="rect" id="node39" href="gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="1565,452,1705,493"/>
+<area shape="rect" id="node41" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="3962,541,4113,583"/>
+<area shape="rect" id="node42" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="3671,459,3809,486"/>
 </map>
 </div>
 </div>
@@ -104,30 +105,18 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:a5d04eedb59934d49cc0d128d3c375e82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a></td></tr>
 <tr class="separator:a5d04eedb59934d49cc0d128d3c375e82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">publish_gpgga</a></td></tr>
-<tr class="memdesc:a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the GGA message.  <a href="#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">More...</a><br /></td></tr>
-<tr class="separator:a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa48c9faf33db869296eb462a53d8283e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#aa48c9faf33db869296eb462a53d8283e">publish_pvtcartesian</a></td></tr>
-<tr class="memdesc:aa48c9faf33db869296eb462a53d8283e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the rosaic::PVTCartesian message.  <a href="#aa48c9faf33db869296eb462a53d8283e">More...</a><br /></td></tr>
-<tr class="separator:aa48c9faf33db869296eb462a53d8283e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58a955350c9a8ab68cb75c25c17964da"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a58a955350c9a8ab68cb75c25c17964da">publish_pvtgeodetic</a></td></tr>
-<tr class="memdesc:a58a955350c9a8ab68cb75c25c17964da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the rosaic::PVTGeodetic message.  <a href="#a58a955350c9a8ab68cb75c25c17964da">More...</a><br /></td></tr>
-<tr class="separator:a58a955350c9a8ab68cb75c25c17964da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af27e4eb3277cb71cd00661e03fcfb02a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#af27e4eb3277cb71cd00661e03fcfb02a">publish_poscovgeodetic</a></td></tr>
-<tr class="memdesc:af27e4eb3277cb71cd00661e03fcfb02a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the rosaic::PosCovGeodetic message.  <a href="#af27e4eb3277cb71cd00661e03fcfb02a">More...</a><br /></td></tr>
-<tr class="separator:af27e4eb3277cb71cd00661e03fcfb02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab97116e8250dc1b2d5acc2369726c1ff"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#ab97116e8250dc1b2d5acc2369726c1ff">publish_atteuler</a></td></tr>
-<tr class="memdesc:ab97116e8250dc1b2d5acc2369726c1ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the rosaic::AttEuler message.  <a href="#ab97116e8250dc1b2d5acc2369726c1ff">More...</a><br /></td></tr>
-<tr class="separator:ab97116e8250dc1b2d5acc2369726c1ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab843cee0f334f93c962f6a55bb3c96ca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#ab843cee0f334f93c962f6a55bb3c96ca">publish_attcoveuler</a></td></tr>
-<tr class="memdesc:ab843cee0f334f93c962f6a55bb3c96ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the rosaic::AttCovEuler message.  <a href="#ab843cee0f334f93c962f6a55bb3c96ca">More...</a><br /></td></tr>
-<tr class="separator:ab843cee0f334f93c962f6a55bb3c96ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8226c429e460b161a37825878a145bd2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a8226c429e460b161a37825878a145bd2">publish_gpst</a></td></tr>
+<tr class="memdesc:a8226c429e460b161a37825878a145bd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::TimeReference message with GPST.  <a href="#a8226c429e460b161a37825878a145bd2">More...</a><br /></td></tr>
+<tr class="separator:a8226c429e460b161a37825878a145bd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a></td></tr>
 <tr class="memdesc:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::NavSatFix message.  <a href="#a4a9e8555c1c00c433f0d86ad695e12d2">More...</a><br /></td></tr>
 <tr class="separator:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af82433026bdc0842a68d778c13f960b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#af82433026bdc0842a68d778c13f960b3">publish_gpsfix</a></td></tr>
 <tr class="memdesc:af82433026bdc0842a68d778c13f960b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the gps_common::GPSFix message.  <a href="#af82433026bdc0842a68d778c13f960b3">More...</a><br /></td></tr>
 <tr class="separator:af82433026bdc0842a68d778c13f960b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0cbdac27cf03ddec581e7e5fe3b296a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#ae0cbdac27cf03ddec581e7e5fe3b296a">publish_posewithcovariancestamped</a></td></tr>
+<tr class="memdesc:ae0cbdac27cf03ddec581e7e5fe3b296a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message.  <a href="#ae0cbdac27cf03ddec581e7e5fe3b296a">More...</a><br /></td></tr>
+<tr class="separator:ae0cbdac27cf03ddec581e7e5fe3b296a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee63db9a1c81df1506964242aacdac88"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a></td></tr>
 <tr class="memdesc:aee63db9a1c81df1506964242aacdac88"><td class="mdescLeft">&#160;</td><td class="mdescRight">The frame ID used in the header of every published ROS message.  <a href="#aee63db9a1c81df1506964242aacdac88">More...</a><br /></td></tr>
 <tr class="separator:aee63db9a1c81df1506964242aacdac88"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,11 +124,32 @@ Variables</h2></td></tr>
 <tr class="memdesc:a54037a42ab45aa966d0433733fed3268"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of leap seconds that have been inserted into the UTC time.  <a href="#a54037a42ab45aa966d0433733fed3268">More...</a><br /></td></tr>
 <tr class="separator:a54037a42ab45aa966d0433733fed3268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae97b9abfa15b1bed042730f61252ba21"><td class="memItemLeft" align="right" valign="top">boost::mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#ae97b9abfa15b1bed042730f61252ba21">response_mutex</a></td></tr>
+<tr class="memdesc:ae97b9abfa15b1bed042730f61252ba21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex to control changes of global variable "response_received".  <a href="#ae97b9abfa15b1bed042730f61252ba21">More...</a><br /></td></tr>
 <tr class="separator:ae97b9abfa15b1bed042730f61252ba21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a026a995d0b2f4f543877d176be1207bb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a026a995d0b2f4f543877d176be1207bb">response_received</a></td></tr>
+<tr class="memdesc:a026a995d0b2f4f543877d176be1207bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether a command reply was received from mosaic.  <a href="#a026a995d0b2f4f543877d176be1207bb">More...</a><br /></td></tr>
 <tr class="separator:a026a995d0b2f4f543877d176be1207bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3cba8e1e0091cb065db7faa1c98d849"><td class="memItemLeft" align="right" valign="top">boost::condition_variable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#ae3cba8e1e0091cb065db7faa1c98d849">response_condition</a></td></tr>
+<tr class="memdesc:ae3cba8e1e0091cb065db7faa1c98d849"><td class="mdescLeft">&#160;</td><td class="mdescRight">Condition variable complementing "response_mutex".  <a href="#ae3cba8e1e0091cb065db7faa1c98d849">More...</a><br /></td></tr>
 <tr class="separator:ae3cba8e1e0091cb065db7faa1c98d849"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af057a4b378c915c514b5d712a8fbcc92"><td class="memItemLeft" align="right" valign="top">boost::mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#af057a4b378c915c514b5d712a8fbcc92">cd_mutex</a></td></tr>
+<tr class="memdesc:af057a4b378c915c514b5d712a8fbcc92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex to control changes of global variable "cd_received".  <a href="#af057a4b378c915c514b5d712a8fbcc92">More...</a><br /></td></tr>
+<tr class="separator:af057a4b378c915c514b5d712a8fbcc92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20d2f54a5ea5f63be624f160b97fca96"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a20d2f54a5ea5f63be624f160b97fca96">cd_received</a></td></tr>
+<tr class="memdesc:a20d2f54a5ea5f63be624f160b97fca96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether the connection descriptor was received from mosaic.  <a href="#a20d2f54a5ea5f63be624f160b97fca96">More...</a><br /></td></tr>
+<tr class="separator:a20d2f54a5ea5f63be624f160b97fca96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a053f69aacc3ba272ad2dfc66df0f5630"><td class="memItemLeft" align="right" valign="top">boost::condition_variable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a053f69aacc3ba272ad2dfc66df0f5630">cd_condition</a></td></tr>
+<tr class="memdesc:a053f69aacc3ba272ad2dfc66df0f5630"><td class="mdescLeft">&#160;</td><td class="mdescRight">Condition variable complementing "cd_mutex".  <a href="#a053f69aacc3ba272ad2dfc66df0f5630">More...</a><br /></td></tr>
+<tr class="separator:a053f69aacc3ba272ad2dfc66df0f5630"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a3a81c1ec3b1f9c9c2bd2e03713256b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a5a3a81c1ec3b1f9c9c2bd2e03713256b">read_cd</a></td></tr>
+<tr class="memdesc:a5a3a81c1ec3b1f9c9c2bd2e03713256b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not we still want to read the connection descriptor, which we only want in the very beginning to know whether it is IP10, IP11 etc.  <a href="#a5a3a81c1ec3b1f9c9c2bd2e03713256b">More...</a><br /></td></tr>
+<tr class="separator:a5a3a81c1ec3b1f9c9c2bd2e03713256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8818efd87823d5c04ba72312463446fb"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a8818efd87823d5c04ba72312463446fb">mosaic_tcp_port</a></td></tr>
+<tr class="memdesc:a8818efd87823d5c04ba72312463446fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mosaic TCP port, e.g. IP10 or IP11, to which ROSaic is connected to.  <a href="#a8818efd87823d5c04ba72312463446fb">More...</a><br /></td></tr>
+<tr class="separator:a8818efd87823d5c04ba72312463446fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b5ce25e71a6354e9af65aec806d2f88"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8cpp.html#a3b5ce25e71a6354e9af65aec806d2f88">cd_count</a></td></tr>
+<tr class="memdesc:a3b5ce25e71a6354e9af65aec806d2f88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have to count the connection descriptors.  <a href="#a3b5ce25e71a6354e9af65aec806d2f88">More...</a><br /></td></tr>
+<tr class="separator:a3b5ce25e71a6354e9af65aec806d2f88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The heart of the ROSaic driver: The ROS node that represents it. </p>
@@ -173,25 +183,23 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00368">368</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00642">642</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">References <a class="el" href="callbackhandlers_8hpp_source.html#l00101">io_comm_mosaic::debug</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00358">frame_id</a>, <a class="el" href="rosaic__node_8hpp_source.html#l00172">rosaic_node::GetROSInt()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00360">leap_seconds</a>, <a class="el" href="rosaic__node_8hpp_source.html#l00104">rosaic_node::nh</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00352">publish_attcoveuler</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00350">publish_atteuler</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00342">publish_gpgga</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00356">publish_gpsfix</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00354">publish_navsatfix</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00348">publish_poscovgeodetic</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00344">publish_pvtcartesian</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00346">publish_pvtgeodetic</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00365">response_received</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00338">use_GNSS_time</a>.</p>
-<div class="fragment"><div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;{</div><div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <span class="comment">//rosaic_node::nh-&gt;param(&quot;something&quot;, node_name, default_node_name); </span></div><div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    ros::init(argc, argv, <span class="stringliteral">&quot;mosaic_gnss&quot;</span>);</div><div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>.reset(<span class="keyword">new</span> ros::NodeHandle(<span class="stringliteral">&quot;~&quot;</span>)); <span class="comment">// Note that nh was initialized in the header file already.</span></div><div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    <a class="code" href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a>(<span class="stringliteral">&quot;debug&quot;</span>, <a class="code" href="namespaceio__comm__mosaic.html#a7f40fc7a8e86452a84186c779fcce48f">io_comm_mosaic::debug</a>, 1); </div><div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;use_GNSS_time&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;frame_id&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a>, (std::string) <span class="stringliteral">&quot;gnss&quot;</span>); </div><div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/gpgga&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">publish_gpgga</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/pvtcartesian&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#aa48c9faf33db869296eb462a53d8283e">publish_pvtcartesian</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/pvtgeodetic&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a58a955350c9a8ab68cb75c25c17964da">publish_pvtgeodetic</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/poscovgeodetic&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#af27e4eb3277cb71cd00661e03fcfb02a">publish_poscovgeodetic</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/atteuler&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#ab97116e8250dc1b2d5acc2369726c1ff">publish_atteuler</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/attcoveuler&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#ab843cee0f334f93c962f6a55bb3c96ca">publish_attcoveuler</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/navsatfix&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/gpsfix&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#af82433026bdc0842a68d778c13f960b3">publish_gpsfix</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;    <a class="code" href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a>(<span class="stringliteral">&quot;leap_seconds&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a54037a42ab45aa966d0433733fed3268">leap_seconds</a>, static_cast&lt;uint32_t&gt;(18));</div><div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;    </div><div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    <a class="code" href="rosaic__node_8cpp.html#a026a995d0b2f4f543877d176be1207bb">response_received</a> = <span class="keyword">false</span>;</div><div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;    </div><div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    <span class="comment">//To be implemented: Let nh subscribe to RTCM topic...</span></div><div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;</div><div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespaceio__comm__mosaic.html#a7f40fc7a8e86452a84186c779fcce48f">io_comm_mosaic::debug</a>) <span class="comment">//yields true if &gt;= 1</span></div><div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;    {</div><div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;        <span class="comment">// The info logging level seems to be default, hence we modify log level momentarily..</span></div><div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;        <span class="comment">// The following is the C++ version of rospy.init_node(&#39;my_ros_node&#39;, log_level=rospy.DEBUG)</span></div><div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;        <span class="keywordflow">if</span> (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,</div><div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;                                       ros::console::levels::Debug)) <span class="comment">//debug is lowest level, shows everything</span></div><div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;        ros::console::notifyLoggerLevelsChanged();</div><div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;</div><div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    }</div><div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;    ROS_DEBUG(<span class="stringliteral">&quot;Calling ROSaicNode constructor&quot;</span>);</div><div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;    <a class="code" href="classrosaic__node_1_1_r_o_saic_node.html">rosaic_node::ROSaicNode</a> mosaic_node; <span class="comment">// This launches everything we need, in theory :)</span></div><div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;    ROS_DEBUG(<span class="stringliteral">&quot;Leaving int main.&quot;</span>);</div><div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;    <span class="keywordflow">return</span> 0;</div><div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;}</div><div class="ttc" id="rosaic__node_8cpp_html_aa48c9faf33db869296eb462a53d8283e"><div class="ttname"><a href="rosaic__node_8cpp.html#aa48c9faf33db869296eb462a53d8283e">publish_pvtcartesian</a></div><div class="ttdeci">bool publish_pvtcartesian</div><div class="ttdoc">Whether or not to publish the rosaic::PVTCartesian message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00344">rosaic_node.cpp:344</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a58a955350c9a8ab68cb75c25c17964da"><div class="ttname"><a href="rosaic__node_8cpp.html#a58a955350c9a8ab68cb75c25c17964da">publish_pvtgeodetic</a></div><div class="ttdeci">bool publish_pvtgeodetic</div><div class="ttdoc">Whether or not to publish the rosaic::PVTGeodetic message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00346">rosaic_node.cpp:346</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_af27e4eb3277cb71cd00661e03fcfb02a"><div class="ttname"><a href="rosaic__node_8cpp.html#af27e4eb3277cb71cd00661e03fcfb02a">publish_poscovgeodetic</a></div><div class="ttdeci">bool publish_poscovgeodetic</div><div class="ttdoc">Whether or not to publish the rosaic::PosCovGeodetic message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00348">rosaic_node.cpp:348</a></div></div>
-<div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00104">rosaic_node.hpp:104</a></div></div>
-<div class="ttc" id="namespaceio__comm__mosaic_html_a7f40fc7a8e86452a84186c779fcce48f"><div class="ttname"><a href="namespaceio__comm__mosaic.html#a7f40fc7a8e86452a84186c779fcce48f">io_comm_mosaic::debug</a></div><div class="ttdeci">int debug</div><div class="ttdoc">Driver debugging level (not the ROS logging level), as specified in rover.yaml or equivalent files...</div><div class="ttdef"><b>Definition:</b> <a href="callbackhandlers_8hpp_source.html#l00101">callbackhandlers.hpp:101</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_ab843cee0f334f93c962f6a55bb3c96ca"><div class="ttname"><a href="rosaic__node_8cpp.html#ab843cee0f334f93c962f6a55bb3c96ca">publish_attcoveuler</a></div><div class="ttdeci">bool publish_attcoveuler</div><div class="ttdoc">Whether or not to publish the rosaic::AttCovEuler message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00352">rosaic_node.cpp:352</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_ab97116e8250dc1b2d5acc2369726c1ff"><div class="ttname"><a href="rosaic__node_8cpp.html#ab97116e8250dc1b2d5acc2369726c1ff">publish_atteuler</a></div><div class="ttdeci">bool publish_atteuler</div><div class="ttdoc">Whether or not to publish the rosaic::AttEuler message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00350">rosaic_node.cpp:350</a></div></div>
-<div class="ttc" id="namespacerosaic__node_html_a597b37b47a860626a345b832ba290b0f"><div class="ttname"><a href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a></div><div class="ttdeci">bool GetROSInt(const std::string &amp;key, U &amp;u)</div><div class="ttdoc">Gets an integer or unsigned integer value from the parameter server. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00172">rosaic_node.hpp:172</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a4a9e8555c1c00c433f0d86ad695e12d2"><div class="ttname"><a href="rosaic__node_8cpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a></div><div class="ttdeci">bool publish_navsatfix</div><div class="ttdoc">Whether or not to publish the sensor_msgs::NavSatFix message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00354">rosaic_node.cpp:354</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a5d04eedb59934d49cc0d128d3c375e82"><div class="ttname"><a href="rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a></div><div class="ttdeci">bool use_GNSS_time</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00338">rosaic_node.cpp:338</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_aee63db9a1c81df1506964242aacdac88"><div class="ttname"><a href="rosaic__node_8cpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a></div><div class="ttdeci">std::string frame_id</div><div class="ttdoc">The frame ID used in the header of every published ROS message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00358">rosaic_node.cpp:358</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a026a995d0b2f4f543877d176be1207bb"><div class="ttname"><a href="rosaic__node_8cpp.html#a026a995d0b2f4f543877d176be1207bb">response_received</a></div><div class="ttdeci">bool response_received</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00365">rosaic_node.cpp:365</a></div></div>
-<div class="ttc" id="classrosaic__node_1_1_r_o_saic_node_html"><div class="ttname"><a href="classrosaic__node_1_1_r_o_saic_node.html">rosaic_node::ROSaicNode</a></div><div class="ttdoc">This class represents the ROsaic node, to be extended.. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00229">rosaic_node.hpp:229</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a54037a42ab45aa966d0433733fed3268"><div class="ttname"><a href="rosaic__node_8cpp.html#a54037a42ab45aa966d0433733fed3268">leap_seconds</a></div><div class="ttdeci">uint32_t leap_seconds</div><div class="ttdoc">The number of leap seconds that have been inserted into the UTC time. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00360">rosaic_node.cpp:360</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><div class="ttname"><a href="rosaic__node_8cpp.html#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">publish_gpgga</a></div><div class="ttdeci">bool publish_gpgga</div><div class="ttdoc">Whether or not to publish the GGA message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00342">rosaic_node.cpp:342</a></div></div>
-<div class="ttc" id="rosaic__node_8cpp_html_af82433026bdc0842a68d778c13f960b3"><div class="ttname"><a href="rosaic__node_8cpp.html#af82433026bdc0842a68d778c13f960b3">publish_gpsfix</a></div><div class="ttdeci">bool publish_gpsfix</div><div class="ttdoc">Whether or not to publish the gps_common::GPSFix message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00356">rosaic_node.cpp:356</a></div></div>
+<p class="reference">References <a class="el" href="rosaic__node_8cpp_source.html#l00640">cd_count</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00632">cd_received</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00617">frame_id</a>, <a class="el" href="rosaic__node_8hpp_source.html#l00171">rosaic_node::GetROSInt()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00619">leap_seconds</a>, <a class="el" href="rosaic__node_8hpp_source.html#l00101">rosaic_node::nh</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00613">publish_gpsfix</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00609">publish_gpst</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00611">publish_navsatfix</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00615">publish_posewithcovariancestamped</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00636">read_cd</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00626">response_received</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00607">use_GNSS_time</a>.</p>
+<div class="fragment"><div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;{</div><div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;    ros::init(argc, argv, <span class="stringliteral">&quot;mosaic_gnss&quot;</span>);</div><div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>.reset(<span class="keyword">new</span> ros::NodeHandle(<span class="stringliteral">&quot;~&quot;</span>)); <span class="comment">// Note that nh was initialized in the header file already.</span></div><div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;use_GNSS_time&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;frame_id&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a>, (std::string) <span class="stringliteral">&quot;gnss&quot;</span>); </div><div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/gpst&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a8226c429e460b161a37825878a145bd2">publish_gpst</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/navsatfix&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/gpsfix&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#af82433026bdc0842a68d778c13f960b3">publish_gpsfix</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;    <a class="code" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a>-&gt;param(<span class="stringliteral">&quot;publish/posewithcovariancestamped&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#ae0cbdac27cf03ddec581e7e5fe3b296a">publish_posewithcovariancestamped</a>, <span class="keyword">true</span>);</div><div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;    <a class="code" href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a>(<span class="stringliteral">&quot;leap_seconds&quot;</span>, <a class="code" href="rosaic__node_8cpp.html#a54037a42ab45aa966d0433733fed3268">leap_seconds</a>, static_cast&lt;uint32_t&gt;(18));</div><div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;    </div><div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;    <a class="code" href="rosaic__node_8cpp.html#a026a995d0b2f4f543877d176be1207bb">response_received</a> = <span class="keyword">false</span>;</div><div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;    <a class="code" href="rosaic__node_8cpp.html#a20d2f54a5ea5f63be624f160b97fca96">cd_received</a> = <span class="keyword">false</span>;</div><div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;    <a class="code" href="rosaic__node_8cpp.html#a5a3a81c1ec3b1f9c9c2bd2e03713256b">read_cd</a> = <span class="keyword">true</span>;</div><div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;    <a class="code" href="rosaic__node_8cpp.html#a3b5ce25e71a6354e9af65aec806d2f88">cd_count</a> = 0;</div><div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;    </div><div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;    <span class="comment">// The info logging level seems to be default, hence we modify log level momentarily..</span></div><div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;    <span class="comment">// The following is the C++ version of rospy.init_node(&#39;my_ros_node&#39;, log_level=rospy.DEBUG)</span></div><div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;    <span class="keywordflow">if</span> (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,</div><div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;                                   ros::console::levels::Debug)) <span class="comment">//debug is lowest level, shows everything</span></div><div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;    ros::console::notifyLoggerLevelsChanged();</div><div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;</div><div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;    ROS_DEBUG(<span class="stringliteral">&quot;Calling ROSaicNode constructor&quot;</span>);</div><div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;    <a class="code" href="classrosaic__node_1_1_r_o_saic_node.html">rosaic_node::ROSaicNode</a> mosaic_node; <span class="comment">// This launches everything we need, in theory :)</span></div><div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;    ROS_DEBUG(<span class="stringliteral">&quot;Leaving int main.&quot;</span>);</div><div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;    <span class="keywordflow">return</span> 0;</div><div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;}</div><div class="ttc" id="rosaic__node_8cpp_html_a20d2f54a5ea5f63be624f160b97fca96"><div class="ttname"><a href="rosaic__node_8cpp.html#a20d2f54a5ea5f63be624f160b97fca96">cd_received</a></div><div class="ttdeci">bool cd_received</div><div class="ttdoc">Determines whether the connection descriptor was received from mosaic. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00632">rosaic_node.cpp:632</a></div></div>
+<div class="ttc" id="namespacerosaic__node_html_ad7081f762b7a395f8af8fa48b88fbc5a"><div class="ttname"><a href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></div><div class="ttdeci">boost::shared_ptr&lt; ros::NodeHandle &gt; nh</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00101">rosaic_node.hpp:101</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a3b5ce25e71a6354e9af65aec806d2f88"><div class="ttname"><a href="rosaic__node_8cpp.html#a3b5ce25e71a6354e9af65aec806d2f88">cd_count</a></div><div class="ttdeci">uint32_t cd_count</div><div class="ttdoc">Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have to count the connec...</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00640">rosaic_node.cpp:640</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a5a3a81c1ec3b1f9c9c2bd2e03713256b"><div class="ttname"><a href="rosaic__node_8cpp.html#a5a3a81c1ec3b1f9c9c2bd2e03713256b">read_cd</a></div><div class="ttdeci">bool read_cd</div><div class="ttdoc">Whether or not we still want to read the connection descriptor, which we only want in the very beginn...</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00636">rosaic_node.cpp:636</a></div></div>
+<div class="ttc" id="namespacerosaic__node_html_a597b37b47a860626a345b832ba290b0f"><div class="ttname"><a href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a></div><div class="ttdeci">bool GetROSInt(const std::string &amp;key, U &amp;u)</div><div class="ttdoc">Gets an integer or unsigned integer value from the parameter server. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00171">rosaic_node.hpp:171</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_ae0cbdac27cf03ddec581e7e5fe3b296a"><div class="ttname"><a href="rosaic__node_8cpp.html#ae0cbdac27cf03ddec581e7e5fe3b296a">publish_posewithcovariancestamped</a></div><div class="ttdeci">bool publish_posewithcovariancestamped</div><div class="ttdoc">Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00615">rosaic_node.cpp:615</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a4a9e8555c1c00c433f0d86ad695e12d2"><div class="ttname"><a href="rosaic__node_8cpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a></div><div class="ttdeci">bool publish_navsatfix</div><div class="ttdoc">Whether or not to publish the sensor_msgs::NavSatFix message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00611">rosaic_node.cpp:611</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a5d04eedb59934d49cc0d128d3c375e82"><div class="ttname"><a href="rosaic__node_8cpp.html#a5d04eedb59934d49cc0d128d3c375e82">use_GNSS_time</a></div><div class="ttdeci">bool use_GNSS_time</div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00607">rosaic_node.cpp:607</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a8226c429e460b161a37825878a145bd2"><div class="ttname"><a href="rosaic__node_8cpp.html#a8226c429e460b161a37825878a145bd2">publish_gpst</a></div><div class="ttdeci">bool publish_gpst</div><div class="ttdoc">Whether or not to publish the sensor_msgs::TimeReference message with GPST. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00609">rosaic_node.cpp:609</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_aee63db9a1c81df1506964242aacdac88"><div class="ttname"><a href="rosaic__node_8cpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a></div><div class="ttdeci">std::string frame_id</div><div class="ttdoc">The frame ID used in the header of every published ROS message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00617">rosaic_node.cpp:617</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a026a995d0b2f4f543877d176be1207bb"><div class="ttname"><a href="rosaic__node_8cpp.html#a026a995d0b2f4f543877d176be1207bb">response_received</a></div><div class="ttdeci">bool response_received</div><div class="ttdoc">Determines whether a command reply was received from mosaic. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00626">rosaic_node.cpp:626</a></div></div>
+<div class="ttc" id="classrosaic__node_1_1_r_o_saic_node_html"><div class="ttname"><a href="classrosaic__node_1_1_r_o_saic_node.html">rosaic_node::ROSaicNode</a></div><div class="ttdoc">This class represents the ROsaic node, to be extended.. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8hpp_source.html#l00228">rosaic_node.hpp:228</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_a54037a42ab45aa966d0433733fed3268"><div class="ttname"><a href="rosaic__node_8cpp.html#a54037a42ab45aa966d0433733fed3268">leap_seconds</a></div><div class="ttdeci">uint32_t leap_seconds</div><div class="ttdoc">The number of leap seconds that have been inserted into the UTC time. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00619">rosaic_node.cpp:619</a></div></div>
+<div class="ttc" id="rosaic__node_8cpp_html_af82433026bdc0842a68d778c13f960b3"><div class="ttname"><a href="rosaic__node_8cpp.html#af82433026bdc0842a68d778c13f960b3">publish_gpsfix</a></div><div class="ttdeci">bool publish_gpsfix</div><div class="ttdoc">Whether or not to publish the gps_common::GPSFix message. </div><div class="ttdef"><b>Definition:</b> <a href="rosaic__node_8cpp_source.html#l00613">rosaic_node.cpp:613</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -205,6 +213,86 @@ Here is the call graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a053f69aacc3ba272ad2dfc66df0f5630"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a053f69aacc3ba272ad2dfc66df0f5630">&#9670;&nbsp;</a></span>cd_condition</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">boost::condition_variable cd_condition</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Condition variable complementing "cd_mutex". </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00634">634</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+
+</div>
+</div>
+<a id="a3b5ce25e71a6354e9af65aec806d2f88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b5ce25e71a6354e9af65aec806d2f88">&#9670;&nbsp;</a></span>cd_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t cd_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have to count the connection descriptors. </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00640">640</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, <a class="el" href="mosaic_message_8cpp_source.html#l00872">io_comm_mosaic::mosaicMessage::Next()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+
+</div>
+</div>
+<a id="af057a4b378c915c514b5d712a8fbcc92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af057a4b378c915c514b5d712a8fbcc92">&#9670;&nbsp;</a></span>cd_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">boost::mutex cd_mutex</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Mutex to control changes of global variable "cd_received". </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00630">630</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+
+</div>
+</div>
+<a id="a20d2f54a5ea5f63be624f160b97fca96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20d2f54a5ea5f63be624f160b97fca96">&#9670;&nbsp;</a></span>cd_received</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cd_received</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Determines whether the connection descriptor was received from mosaic. </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00632">632</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+
+</div>
+</div>
 <a id="aee63db9a1c81df1506964242aacdac88"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aee63db9a1c81df1506964242aacdac88">&#9670;&nbsp;</a></span>frame_id</h2>
 
@@ -219,9 +307,9 @@ Here is the call graph for this function:</div>
 
 <p>The frame ID used in the header of every published ROS message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00358">358</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00617">617</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, <a class="el" href="gpgga_8cpp_source.html#l00050">rosaic_driver::GpggaParser::ParseASCII()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00403">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, <a class="el" href="gprmc_8cpp_source.html#l00054">GprmcParser::ParseASCII()</a>, <a class="el" href="gpgsv_8cpp_source.html#l00051">GpgsvParser::ParseASCII()</a>, <a class="el" href="gpgga_8cpp_source.html#l00051">GpggaParser::ParseASCII()</a>, <a class="el" href="gpgsa_8cpp_source.html#l00051">GpgsaParser::ParseASCII()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00432">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
 
 </div>
 </div>
@@ -239,69 +327,29 @@ Here is the call graph for this function:</div>
 
 <p>The number of leap seconds that have been inserted into the UTC time. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00360">360</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00619">619</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00524">io_comm_mosaic::TimestampSBF()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00599">io_comm_mosaic::TimestampSBF()</a>.</p>
 
 </div>
 </div>
-<a id="ab843cee0f334f93c962f6a55bb3c96ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab843cee0f334f93c962f6a55bb3c96ca">&#9670;&nbsp;</a></span>publish_attcoveuler</h2>
+<a id="a8818efd87823d5c04ba72312463446fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8818efd87823d5c04ba72312463446fb">&#9670;&nbsp;</a></span>mosaic_tcp_port</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_attcoveuler</td>
+          <td class="memname">std::string mosaic_tcp_port</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Whether or not to publish the rosaic::AttCovEuler message. </p>
+<p>Mosaic TCP port, e.g. IP10 or IP11, to which ROSaic is connected to. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00352">352</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00638">638</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
-
-</div>
-</div>
-<a id="ab97116e8250dc1b2d5acc2369726c1ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab97116e8250dc1b2d5acc2369726c1ff">&#9670;&nbsp;</a></span>publish_atteuler</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool publish_atteuler</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Whether or not to publish the rosaic::AttEuler message. </p>
-
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00350">350</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
-
-</div>
-</div>
-<a id="a1a2f176cf4c6ea5a06b7eaa2eea5de5d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">&#9670;&nbsp;</a></span>publish_gpgga</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool publish_gpgga</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Whether or not to publish the GGA message. </p>
-
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00342">342</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
 
 </div>
 </div>
@@ -319,9 +367,29 @@ Here is the call graph for this function:</div>
 
 <p>Whether or not to publish the gps_common::GPSFix message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00356">356</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00613">613</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00194">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00203">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
+
+</div>
+</div>
+<a id="a8226c429e460b161a37825878a145bd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8226c429e460b161a37825878a145bd2">&#9670;&nbsp;</a></span>publish_gpst</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool publish_gpst</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Whether or not to publish the sensor_msgs::TimeReference message with GPST. </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00609">609</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00203">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
 
 </div>
 </div>
@@ -339,69 +407,49 @@ Here is the call graph for this function:</div>
 
 <p>Whether or not to publish the sensor_msgs::NavSatFix message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00354">354</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00611">611</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00194">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00203">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
 
 </div>
 </div>
-<a id="af27e4eb3277cb71cd00661e03fcfb02a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af27e4eb3277cb71cd00661e03fcfb02a">&#9670;&nbsp;</a></span>publish_poscovgeodetic</h2>
+<a id="ae0cbdac27cf03ddec581e7e5fe3b296a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0cbdac27cf03ddec581e7e5fe3b296a">&#9670;&nbsp;</a></span>publish_posewithcovariancestamped</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_poscovgeodetic</td>
+          <td class="memname">bool publish_posewithcovariancestamped</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Whether or not to publish the rosaic::PosCovGeodetic message. </p>
+<p>Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00348">348</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00615">615</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, <a class="el" href="callbackhandlers_8hpp_source.html#l00203">io_comm_mosaic::CallbackHandlers::Handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
 
 </div>
 </div>
-<a id="aa48c9faf33db869296eb462a53d8283e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa48c9faf33db869296eb462a53d8283e">&#9670;&nbsp;</a></span>publish_pvtcartesian</h2>
+<a id="a5a3a81c1ec3b1f9c9c2bd2e03713256b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a3a81c1ec3b1f9c9c2bd2e03713256b">&#9670;&nbsp;</a></span>read_cd</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_pvtcartesian</td>
+          <td class="memname">bool read_cd</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Whether or not to publish the rosaic::PVTCartesian message. </p>
+<p>Whether or not we still want to read the connection descriptor, which we only want in the very beginning to know whether it is IP10, IP11 etc. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00344">344</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00636">636</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
-
-</div>
-</div>
-<a id="a58a955350c9a8ab68cb75c25c17964da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58a955350c9a8ab68cb75c25c17964da">&#9670;&nbsp;</a></span>publish_pvtgeodetic</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool publish_pvtgeodetic</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Whether or not to publish the rosaic::PVTGeodetic message. </p>
-
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00346">346</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00285">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mosaic_message_8cpp_source.html#l00652">io_comm_mosaic::mosaicMessage::Found()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, <a class="el" href="mosaic_message_8cpp_source.html#l00872">io_comm_mosaic::mosaicMessage::Next()</a>, and <a class="el" href="mosaic_message_8cpp_source.html#l00666">io_comm_mosaic::mosaicMessage::Search()</a>.</p>
 
 </div>
 </div>
@@ -417,9 +465,11 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00366">366</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p>Condition variable complementing "response_mutex". </p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00285">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00628">628</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
 
 </div>
 </div>
@@ -435,9 +485,11 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00364">364</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p>Mutex to control changes of global variable "response_received". </p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00285">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00624">624</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
 
 </div>
 </div>
@@ -453,9 +505,11 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00365">365</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p>Determines whether a command reply was received from mosaic. </p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00065">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00285">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00626">626</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00069">rosaic_node::ROSaicNode::ConfigureMosaic()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, and <a class="el" href="callbackhandlers_8hpp_source.html#l00332">io_comm_mosaic::CallbackHandlers::ReadCallback()</a>.</p>
 
 </div>
 </div>
@@ -472,16 +526,16 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>If true, the ROS message headers' unix time field is constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data. If false, times are constructed within the driver via time(NULL) of the &lt;ctime&gt; library. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00338">338</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00607">607</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00368">main()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00403">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>, and <a class="el" href="mosaic_message_8hpp_source.html#l00432">io_comm_mosaic::mosaicMessage::Read()</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Sep 22 2020 13:33:08 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

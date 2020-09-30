@@ -76,52 +76,51 @@
  */
 
 extern std::string frame_id;
-namespace rosaic_driver
+
+/**
+ * @class GpggaParser
+ * @brief Derived class for parsing GGA messages
+ * @date 13/08/20
+ */
+class GpggaParser : public BaseParser<rosaic::GpggaPtr>
 {
-	/**
-	 * @class GpggaParser
-	 * @brief Derived class for parsing GGA messages
-	 * @date 13/08/20
-	 */
-	class GpggaParser : public BaseParser<rosaic::GpggaPtr>
-	{
-		public:
-			
-			/**
-			 * @brief Constructor of the class GpggaParser
-			 */
-			GpggaParser(): BaseParser<rosaic::GpggaPtr>(), was_last_gpgga_valid_(false) {}
+	public:
+		
+		/**
+		 * @brief Constructor of the class GpggaParser
+		 */
+		GpggaParser(): BaseParser<rosaic::GpggaPtr>(), was_last_gpgga_valid_(false) {}
 
-			/**
-			 * @brief Returns the ASCII message ID, here "$GPGGA"
-			 * @return The message ID
-			 */
-			const std::string GetMessageID() const override; 	
-			
-			/**
-			 * @brief Parses one GGA message 
-			 * @param[in] sentence The GGA message to be parsed
-			 * @return A ROS message pointer of ROS type rosaic::GpggaPtr
-			 */
-			rosaic::GpggaPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
+		/**
+		 * @brief Returns the ASCII message ID, here "$GPGGA"
+		 * @return The message ID
+		 */
+		const std::string GetMessageID() const override; 	
+		
+		/**
+		 * @brief Parses one GGA message 
+		 * @param[in] sentence The GGA message to be parsed
+		 * @return A ROS message pointer of ROS type rosaic::GpggaPtr
+		 */
+		rosaic::GpggaPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
 
-			/**
-			 * @brief Tells us whether the last GGA message was valid or not 
-			 * @return True if last GGA message was valid, false if not
-			 */
-			bool WasLastGPGGAValid() const;
+		/**
+		 * @brief Tells us whether the last GGA message was valid or not 
+		 * @return True if last GGA message was valid, false if not
+		 */
+		bool WasLastGPGGAValid() const;
 
-			/**
-			 * @brief Declares the string MESSAGE_ID
-			 */
-			static const std::string MESSAGE_ID;
-			
-		private:
-			/**
-			 * @brief Declares a boolean representing whether or not the last GPGGA message was valid
-			 */
-			bool was_last_gpgga_valid_;
-	};
-}
+		/**
+		 * @brief Declares the string MESSAGE_ID
+		 */
+		static const std::string MESSAGE_ID;
+		
+	private:
+		/**
+		 * @brief Declares a boolean representing whether or not the last GPGGA message was valid
+		 */
+		bool was_last_gpgga_valid_;
+};
+
 
 #endif //GPGGA_HPP

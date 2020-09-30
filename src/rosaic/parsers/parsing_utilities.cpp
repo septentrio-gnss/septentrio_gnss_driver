@@ -40,7 +40,7 @@
  * @date 17/08/20 
 */
 
-namespace rosaic_driver
+namespace parsing_utilities
 {
 
 	/** 
@@ -248,7 +248,9 @@ namespace rosaic_driver
 	 * The date ambiguity is resolved by adding/subtracting a day to the current date if the host time is more than 12 hours behind/ahead the NMEA time (i.e. UTC time).
 	 * Recall time(0), time(NULL): If argument is a null pointer, the parameter is not used (the function still returns the current calendar time of type time_t). Otherwise, 
 	 * the return value is the same as the one stored in the location pointed by the argument.
-	 * Note that the function assumes that utc_double has two significant digits after the decimal point, i.e. hhmmss.ss, and rounds the number of seconds to the nearest unsigned integer.
+	 * Note that the function assumes that utc_double has two significant digits after the decimal point, i.e. hhmmss.ss, yet it does not round the number of seconds 
+	 * to the nearest unsigned integer, but instead disregards ss. This is since we use this function for the "header.stamp.sec" field of ROS messages, while 
+	 * "header.stamp.nsec" is taken care of separately.
 	 */
 	time_t UTCtoUnix(double utc_double)
 	{
@@ -261,9 +263,9 @@ namespace rosaic_driver
 		uint32_t year = timeinfo->tm_year; // year, starting from 1900
 		uint32_t month = timeinfo->tm_mon; // months since January - [0,11]
 		uint32_t day = timeinfo->tm_mday;  //day of the month - [1,31] 
-		uint32_t hours = static_cast<uint32_t>(utc_double + 0.5f) / 10000;
-		uint32_t minutes = (static_cast<uint32_t>(utc_double + 0.5f) - hours * 10000) / 100;
-		uint32_t seconds = (static_cast<uint32_t>(utc_double + 0.5f) - hours * 10000 - minutes * 100);
+		uint32_t hours = static_cast<uint32_t>(utc_double) / 10000;
+		uint32_t minutes = (static_cast<uint32_t>(utc_double) - hours * 10000) / 100;
+		uint32_t seconds = (static_cast<uint32_t>(utc_double) - hours * 10000 - minutes * 100);
 		
 		//ROS_DEBUG("Checking year %u, month %u, day %u", year, month, day);
 
@@ -277,6 +279,37 @@ namespace rosaic_driver
 
 		//ROS_DEBUG("Since 1970/01/01 %jd seconds have passed.\n", (intmax_t) date);
 		return date;
+	}
+	
+	//! The rotational sequence convention we adopt here (and mosaic receivers' pitch, roll, yaw definition too) is 
+	//! the yaw-pitch-roll sequence, i.e. the 3-2-1 sequence: The body first does yaw around the Z=Down-axis, 
+	//! then pitches around the new Y=East=right-axis and finally rolls around the new X=North=forward-axis.
+	geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch, double roll) 
+	{
+		// Abbreviations for the angular functions
+		double cy = cos(yaw * 0.5);
+		double sy = sin(yaw * 0.5);
+		double cp = cos(pitch * 0.5);
+		double sp = sin(pitch * 0.5);
+		double cr = cos(roll * 0.5);
+		double sr = sin(roll * 0.5);
+
+		geometry_msgs::Quaternion q;
+		q.w = cr * cp * cy + sr * sp * sy;
+		q.x = sr * cp * cy - cr * sp * sy;
+		q.y = cr * sp * cy + sr * cp * sy;
+		q.z = cr * cp * sy - sr * sp * cy;
+
+		return q;
+	}
+	
+	uint32_t UserPeriodToMosaicPeriod(uint32_t period_user)
+	{
+		if (period_user <= 500 && period_user >= 10) return period_user;
+		else
+		{
+			return period_user/1000;
+		}
 	}
 }
 

@@ -103,20 +103,6 @@
 // #pragma pack()   // n defaults to 8; equivalent to /Zp8, Valid values are 1, 2, 4, 8, and 16, forces the maximum alignment of each field to be the value specified by n
 // push: Pushes the current alignment setting on an internal stack and then optionally sets the new alignment, identifier is also allowed
 
-/*
-struct SEP_FLAGS
-{
-    //utility flags
-    bool save_data;
-    bool data_ready;
-
-    //Requested data flags
-    bool rcvrtimeflag;
-    bool pvtflag;
-    bool attitudeflag;
-};
-*/
-
 /**
  * @file sbf_structs.hpp
  * @brief Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions
@@ -135,31 +121,6 @@ typedef struct
 	uint16_t Length; //!< length of the entire message including the header. A multiple of 4 between 8 and 4096
 } BlockHeader_t;
 
-
-//structure for the PVTCartesian parsed block, old SBF block, of PolaRx times..
-/*struct PvtCartesian //message 5903
-{
-    unsigned int GPS_ms; //Time tag of PVT fix in milliseconds of week, receiver time scale
-    unsigned short weekNumber; //Week number
-    unsigned char numSat; //Number of satellites used in PVT :8 means only a single byte
-    unsigned char Error; //PVT error code
-    unsigned char Mode; //Mode
-    unsigned char System; //Defines which GNSS system is used
-    unsigned char Info; //Additional PVY information
-    unsigned char SBASprn; //PRN of the SBAS satellite used for aubmentation information :8 means only a single byte
-    double x_position; //X coordinate in WGS-84(m)
-    double y_position; //Y coordinate in WGS-84(m)
-    double z_position; //Z coordinate in WGS-84 (m)
-    float x_velocity; //Velocity in X direction (m/s)
-    float y_velocity; //Velocity in Y direction (m/s)
-    float z_velocity; //Velocity in Z direction (m/s)
-    double RxClkBias; //Receiver clock bias relative to GPS time (s)
-    float RxClkDrift; //Receiver clock drift relative to GPS time (s/s)
-    unsigned short MeanCorrAge; //Mean age of differential corrections if applicable (1/100 sec)
-    unsigned short ReferenceID; //Reference ID of the base station for differential corrections
-    float course; //Course over ground (degree)
-};
- */
 
 /**
  * @class PVTCartesian
@@ -428,28 +389,6 @@ struct DOP
 	float          HPL;
 	float          VPL;
 };
-  
-
-//structure for the PosCovCartesian parsed block, old
-/*
-struct PosCovCartesian //message 5905
-{
-    unsigned int GPS_ms; //Time tag of PVT fix in milliseconds of week, receiver time scale
-    unsigned short weekNumber; //Week number
-    unsigned char reserved;    //Rserved for future use, DO NOT USE
-    unsigned char error;       //Error bit code
-    float Cov_xx; //variance of the x estimate
-    float Cov_yy; //variance of the y estimate
-    float Cov_zz; //variance of the z estimate
-    float Cov_bb; //variance of the clock bias
-    float Cov_xy; //covariance between the x and y estimates
-    float Cov_xz; //covariance between the x and z estimates
-    float Cov_xb; //covariance between the y and clock bias estimates
-    float Cov_yz; //covariance between the y and z estimates
-    float Cov_yb; //covariance between the y and clock bias estimates
-    float Cov_zb; //covariance between the z and clock bias estimates
-};
-*/
 
 /**
  * @class PosCovCartesian
@@ -468,13 +407,13 @@ struct PosCovCartesian
 	float          Cov_xx;       
 	float          Cov_yy;       
 	float          Cov_zz;       
-	float          Cov_tt;       
+	float          Cov_bb;       
 	float          Cov_xy;       
 	float          Cov_xz;       
-	float          Cov_xt;       
+	float          Cov_xb;       
 	float          Cov_yz;       
-	float          Cov_yt;       
-	float          Cov_zt;       
+	float          Cov_yb;       
+	float          Cov_zb;       
 };
 
 /**
@@ -502,27 +441,6 @@ struct PosCovGeodetic
 	float          Cov_lonb;       
 	float          Cov_hb;       
 };
-
-//structure for the VelCovCaresian parsed block, old
-/*
-struct VelCovCartesian //message 5907
-{
-    unsigned int GPS_ms; //Time tag of PVT fix in milliseconds of week, receiver time scale
-    unsigned short weekNumber; //Week number
-    unsigned char reserved;    //Rserved for future use, DO NOT USE
-    unsigned char error;       //Error bit code
-    float Cov_VxVx; //variance of the x-velocity estimate
-    float Cov_VyVy; //variance of the y-velocity estimate
-    float Cov_VzVz; //variance of the z-velocity estimate
-    float Cov_dd; //variance of the clock drift bias
-    float Cov_VxVy; //covariance between the x- and y-velocity estimates
-    float Cov_VxVz; //covariance between the x- and z-velocity estimates
-    float Cov_Vxd; //covariance between the y-velocity and clock drift estimates
-    float Cov_VyVz; //covariance between the y- and z-velocity estimates
-    float Cov_Vyd; //covariance between the y-velocity and clock drift estimates
-    float Cov_Vzd; //covariance between the z-velocity and clock drift estimates
-};
-*/
 
 /**
  * @class VelCovCartesian
@@ -576,229 +494,9 @@ struct VelCovGeodetic
 	float          Cov_VuDt;     
 };
 
-
-//structure for the ReceiverTime parsed block, old
-/*
-struct ReceiverTime //message 5914
-{
-    unsigned int GPS_ms; //Time tag in milliseconds of week
-    unsigned short weekNumber; //Week number
-    signed int UTCYear;
-    signed int UTCMonth;
-    signed int UTCDay;
-    signed int UTCHour;
-    signed int UTCMin;
-    signed int UTCSec;
-    signed int deltaLS; //Integer second difference between GPS and UTC time Positive if GPS time is ahead of UTC. Set to -148 if not available
-    unsigned char syncLevel; //Bit field indicating the synchronization level of the receiver time
-};
-*/
-
-
-#ifndef SBF_RECEIVERTIME_1_0__PADDING_LENGTH 
-#define SBF_RECEIVERTIME_1_0__PADDING_LENGTH 2 
-#endif
-
-/**
- * @class ReceiverTime
- * @brief Struct for the SBF block "ReceiverTime"
- */
-struct ReceiverTime
-{
-	BlockHeader_t  Header;       
-
-	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
-
-	int8_t         UTCYear;      
-	int8_t         UTCMonth;     
-	int8_t         UTCDay;       
-	int8_t         UTCHour;      
-	int8_t         UTCMin;       
-	int8_t         UTCSec;       
-	int8_t         DeltaLS;      
-	uint8_t        SyncLevel;    
-
-	uint8_t        _padding[SBF_RECEIVERTIME_1_0__PADDING_LENGTH];
-};
-
-//structure for the GPSNAV parsed block (GPS SV Ephemeris), old
-/*
-struct Ephemeris //message 5891
-{
-    unsigned int GPS_ms; //Time tag in milliseconds of week
-    unsigned short weekNumber; //Week number
-    unsigned char PRN; //PRN number (1 to 37)
-    unsigned char reserved;
-    signed short WN;
-    unsigned char CAorPonL2;
-    unsigned char URA;
-    unsigned char health;
-    unsigned char L2DataFlag;
-    unsigned short IODC;
-    unsigned char IODE2;
-    unsigned char IODE3;
-    unsigned char FitInFlg;
-    unsigned char NotUsed;
-    float T_gd;
-    unsigned int t_oc;
-    float a_f2;
-    float a_f1;
-    float a_f0;
-    float C_rs;
-    float DELTA_N;
-    double M_0;
-    float C_uc;
-    double e;
-    float C_us;
-    double SQRT_A;
-    unsigned int t_oe;
-    float C_ic;
-    double OMEGA_0;
-    float C_is;
-    double i_0;
-    float C_rc;
-    double omega;
-    float OMEGADOT;
-    float IDOT;
-    unsigned short WNt_oc;
-    unsigned short WNt_oe;
-};
-*/
-
-struct GPSNAV
-{
-	BlockHeader_t  Header;       
-
-	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
-
-	uint8_t        PRN;          
-	uint8_t        Reserved;     
-	uint16_t       WN;           /* Week number (modulo 1024). [061-070:1] */
-	uint8_t        CAorPonL2;    /* C/A code or P code on L2. [071-072:1] */
-	uint8_t        URA;          /* User range accuracy index. [073-076:1] */
-	uint8_t        health;       /* SV health. [077-082:1] */
-	uint8_t        L2DataFlag;   /* L2 P data flag. [091-091:1] */
-	uint16_t       IODC;         /* Issue of data clock. [083-084:1] [211-218:1] */
-	uint8_t        IODE2;        /* Issue of data eph. frame 2. [061-068:2] */
-	uint8_t        IODE3;        /* Issue of data eph. frame 3. [271-278:3] */
-	uint8_t        FitIntFlg;    /* fit interval flag [287-287:2] */
-	uint8_t        dummy;        /* introduced w.r.t. 32-bits memory alignment */
-	float          T_gd;         /* Correction term T_gd (s). [197-204:1] */
-	uint32_t       t_oc;         /* Clock correction t_oc (s). [219-234:1] */
-	float          a_f2;         /* Clock correction a_f2 (s/s^2). [241-248:1] */
-	float          a_f1;         /* Clock correction a_f1 (s/s). [249-264:1] */
-	float          a_f0;         /* Clock correction a_f0 (s). [271-292:1] */
-	float          C_rs;         /* radius sin ampl (m) [069-084:2] */
-	float          DEL_N;        /* mean motion diff (semi-circles/s) [091-106:2] */
-	SBFDOUBLE      M_0;          /* Mean Anom (semi-circles) [107-114:2] [121-144:2] */
-	float          C_uc;         /* lat cosine ampl (r) [151-166:2] */
-	SBFDOUBLE      e;            /* Eccentricity [167-174:2] [181-204:2] */
-	float          C_us;         /* Lat sine ampl   (r) [211-226:2] */
-	SBFDOUBLE      SQRT_A;       /* SQRT(A) (m^1/2) [227-234:2 241-264:2] */
-	uint32_t       t_oe;         /* Reference time of ephemeris (s) [271-286:2] */
-	float          C_ic;         /* inclin cos ampl (r) [061-076:3] */
-	SBFDOUBLE      OMEGA_0;      /* Right Ascen at TOA (semi-circles) [077-084:3] [091-114:3] */
-	float          C_is;         /* inclin sin ampl (r) [121-136:3] */
-	SBFDOUBLE      i_0;          /* Orbital Inclination (semi-circles) [137-144:3] [151-174:3] */
-	float          C_rc;         /* radius cos ampl (m) [181-196:3] */
-	SBFDOUBLE      omega;        /* Argument of Perigee(semi-circle) [197-204:3] [211-234:3] */
-	float          OMEGADOT;     /* Rate of Right Ascen(semi-circles/s) [241-264:3] */
-	float          IDOT;         /* Rate of inclin (semi-circles/s) [279-292:3] */
-	uint16_t       WNt_oc;       /* modified WN to go with t_oc (still modulo 1024) */
-	uint16_t       WNt_oe;       /* modified WN to go with t_oe (still modulo 1024) */
-};
-
-/*
-//structure for the heading of the MeasEpoch block
-struct MeasEpoch//part of message 5889
-{//this section of the message is 8 bytes long
-	unsigned int GPS_ms; //Time tag in milliseconds of week
-	unsigned short weekNumber; //Week number
-	unsigned char N; //number of sub-blocks
-	unsigned char SBLength; //number of bytes of each sub-frame
-};
-
-
-//structure for the MeasEpochFlag
-typedef struct
-{
-	unsigned L1_loss_of_lock: 1;
-	unsigned L2_loos_of_lock: 1;
-	unsigned L1_smoothing: 1;
-	unsigned L2_smoothing: 1;
-	unsigned multipath_mitigation: 1;
-	unsigned antennaID: 3;
-} MeasEpochFlag;
-
-
-//structure for the sub-blocks of the MeasEpoch block
-struct MeasEpochSubBlock//part of message 5889
-{
-	double CACode;
-	float P1_CACode;
-	float P2_CACode;
-	double L1Phase;
-	double L2Phase;
-	signed int L1Doppler;
-	signed int L2Doppler;
-	signed short CACN0;
-	signed short P1CN0;
-	signed short P2CN0;
-	unsigned char SVID;
-	unsigned char RXChannel;
-	float LockTime;
-	MeasEpochFlag Flags;
-
-};
-*/
-
-
-#pragma pack ( pop ) //See GavlabVehicleCode.pdf for explaination
-// The above form of the pack pragma affects only class, struct, and union type declarations between push and pop directives. (A pop directive with no prior push results in a warning diagnostic from the compiler.)
-struct RANGE_DATA
-{
-	int SVID_1[30];
-	double CACode_1[30];
-	double P1_CACode_1[30];
-	double P2_CACode_1[30];
-	double L1Phase_1[30];
-	double L2Phase_1[30];
-	double L1Doppler_1[30];
-	double L2Doppler_1[30];
-	double CAC2N_1[30];
-	double P1C2N_1[30];
-	double P2C2N_1[30];
-
-	int SVID_2[30];
-	double CACode_2[30];
-	double P1_CACode_2[30];
-	double P2_CACode_2[30];
-	double L1Phase_2[30];
-	double L2Phase_2[30];
-	double L1Doppler_2[30];
-	double L2Doppler_2[30];
-	double CAC2N_2[30];
-	double P1C2N_2[30];
-	double P2C2N_2[30];
-
-	int SVID_3[30];
-	double CACode_3[30];
-	double P1_CACode_3[30];
-	double P2_CACode_3[30];
-	double L1Phase_3[30];
-	double L2Phase_3[30];
-	double L1Doppler_3[30];
-	double L2Doppler_3[30];
-	double CAC2N_3[30];
-	double P1C2N_3[30];
-	double P2C2N_3[30];
-
-};
-
+#pragma pack ( pop ) 
+// The above form of the pack pragma affects only class, struct, and union type declarations between 
+// push and pop directives. (A pop directive with no prior push results in a warning diagnostic from the compiler.)
 
 /**
  * @brief CRCLookUp provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium 
@@ -838,4 +536,4 @@ static const uint16_t CRCLookUp[256] = {
     0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 };
 
-#endif // end of SBFStructs_HPP
+#endif // SBFStructs_HPP

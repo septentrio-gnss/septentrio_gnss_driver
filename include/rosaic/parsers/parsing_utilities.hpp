@@ -35,8 +35,10 @@
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <string> // C++ header, corresponds to <string.h> in C
 #include <ctime> // C++ header, corresponds to <time.h> in C
+#include <cmath> // C++ header, corresponds to <math.h> in C
 // ROS includes
 #include <ros/ros.h>
+#include <geometry_msgs/Quaternion.h>
 
 /**
  * @file parsing_utilities.hpp
@@ -44,7 +46,7 @@
  * @date 17/08/20 
 */
 
-namespace rosaic_driver
+namespace parsing_utilities
 {
    
 	/**
@@ -166,11 +168,26 @@ namespace rosaic_driver
 	
 	/**
 	 * @brief Converts latitude or longitude from the DMS notation (in the without-colon-delimiter format), type double, to the pure degree notation, type double
-	 * @param dms The double variable representing latitude or longitude in the DMS notation (in the without-colon-delimiter format)
+	 * @param[in] dms The double variable representing latitude or longitude in the DMS notation (in the without-colon-delimiter format)
 	 * @return The double variable representing latitude or longitude in the pure degree notation
 	 */
 	double ConvertDMSToDegrees(double dms);
+	
+	/**
+	 * @brief Transforms Euler angles to a quaternion
+	 * @param[in] yaw Yaw, i.e. heading, about the Up-axis
+	 * @param[in] pitch Pitch about the new North-axis
+	 * @param[in] roll Roll about the new East-axis
+	 * @return ROS message representing a quaternion
+	 */
+	geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch, double roll); 
 
+	/**
+	 * @brief Transforms the input polling period [milliseconds] into a uint32_t number that can be appended to either sec or msec for mosaic commands
+	 * @param[in] period_user Polling period in milliseconds as specified by the ROSaic user
+	 * @return Number to be appended to either sec or msec when sending commands to mosaic
+	 */
+	uint32_t UserPeriodToMosaicPeriod(uint32_t period_user);
 }
 
 #endif //PARSING_UTILITIES_HPP

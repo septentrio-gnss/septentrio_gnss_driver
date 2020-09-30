@@ -66,6 +66,9 @@
 #include <boost/system/error_code.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+// ROSaic includes
+#include <rosaic/communication/circular_buffer.hpp>
+
 #ifndef ASYNC_MANAGER_HPP
 #define ASYNC_MANAGER_HPP
 
@@ -77,7 +80,6 @@
  
 namespace io_comm_mosaic 
 {
-	extern int debug;
 	
 	/**
 	 * @class Manager
@@ -85,17 +87,15 @@ namespace io_comm_mosaic
 	 */
 	class Manager {
 		public:
-			typedef boost::function<void(std::vector<uint8_t>, std::size_t&)> Callback;
+			typedef boost::function<void(const uint8_t*, std::size_t&)> Callback;
 			virtual ~Manager() {}
+			//! Sets the callback function
 			virtual void SetCallback(const Callback& callback) = 0;
-		 
-			// virtual void SetRawDataCallback(const Callback& callback) = 0; //later for MeasEpoch3, if we get that far..
-		 
-			//! Sends commands to mosaic
+			//! Sends commands to the receiver
 			virtual bool Send(std::string cmd, std::size_t size) = 0;
-		   
+			//! Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived
 			virtual void Wait(uint16_t* count) = 0;
-		 
+			//! Determines whether or not the connection is open
 			virtual bool IsOpen() const = 0;
 	};
 
@@ -119,15 +119,13 @@ namespace io_comm_mosaic
 			virtual ~AsyncManager();
 	 
 			void SetCallback(const Callback& callback) { read_callback_ = callback; }
-	 
-			// void SetRawDataCallback(const Callback& callback) { write_callback_ = callback; }
-	 
+	 	 
 			void Wait(uint16_t* count);
 			
 			/**
-			 * @brief Sends data bytes via the I/O stream.
-			 * @param data The buffer of data bytes to be sent
-			 * @param size The size of the buffer
+			 * @brief Sends commands via the I/O stream.
+			 * @param cmd The command to be sent
+			 * @param size The size of the command
 			 */
 			bool Send(std::string cmd, std::size_t size);
 			
@@ -139,70 +137,131 @@ namespace io_comm_mosaic
 			void DoRead();
 			
 			//!  Handler for async_read_some (Boost library)..
-			void AsyncReadSomeHandler(const boost::system::error_code& error, std::size_t bytes_transfered);
-	 
-			/**
-			 * @brief Sends all the data in the output buffer
-			 */
+			void AsyncReadSomeHandler(const boost::system::error_code& error, std::size_t bytes_transferred);
+			
+			//! Sends all the data in the output buffer
 			void DoWrite(std::string cmd, std::size_t size);
 			
 			//! Closes Stream "stream_"
 			void DoClose();
 			
+			//! Tries parsing SBF/NMEA whenever the boolean class variable "try_parsing" is true
+			void TryParsing();
+			
+			//! Mutex to control changes of class variable "try_parsing"
+			boost::mutex parse_mutex_;
+			
+			//! Determines when the TryParsing() method will attempt parsing SBF/NMEA
+			bool try_parsing_;
+			
+			//! Determines when the AsyncReadSomeHandler() method should write SBF/NMEA into the circular buffer
+			bool allow_writing_;
+			
+			//! Condition variable complementing "parse_mutex"
+			boost::condition_variable parsing_condition_;
+			
 			//! Stream, represents either serial or TCP/IP connection
 			boost::shared_ptr<StreamT> stream_; 
+			
 			//! io_context object
 			boost::shared_ptr<boost::asio::io_service> io_service_; 
 			
+			//! Buffer for async_read_some() to read continuous SBF/NMEA stream
 			std::vector<uint8_t> in_; 
 			
-			std::vector<uint8_t> out_; 
+			//! Circular Buffer to avoid unsuccessful SBF/NMEA parsing due to incomplete messages 
+			CircularBuffer circular_buffer_; 
 			
-			//! Lock for the output buffer
-			boost::mutex write_mutex_; 
+			//! Memory location where read_callback_ will start reading unless part of SBF/NMEA had to be appended before
+			uint8_t * to_be_parsed_;
 			
-			boost::condition write_condition_;
-			
+			//! New thread for receiving incoming messages
 			boost::shared_ptr<boost::thread> async_background_thread_; 
+			
+			//! Callback to be called once message arrives
 			Callback read_callback_; 
 			
-			// Callback write_callback_; 
-			
+			//! Whether or not we want to sever the connection to the Rx
 			bool stopping_; 
 			
-			/// In and out buffers' size
+			/// Size of in_ buffers
 			const std::size_t buffer_size_;
 			
+			//! Boost timer for throwing ROS_INFO message once timed out due to lack of incoming messages
 			boost::asio::deadline_timer timer_;
+			
+			//! Number of seconds before ROS_INFO message is thrown (if no incoming message)
 			const uint16_t count_max_;
 			
+			//! Handles the ROS_INFO throwing (if no incoming message)
 			void CallAsyncWait(uint16_t* count);
 			
+			//! Number of times the DoRead() method has been called (only counts initially)
 			uint16_t do_read_count_;
 	};
 	 
+	 
+	template <typename StreamT>
+	void AsyncManager<StreamT>::TryParsing()
+	{
+		uint8_t * to_be_parsed;
+		to_be_parsed = new uint8_t[buffer_size_];
+		to_be_parsed_ = to_be_parsed;
+		bool timed_out = false;
+		std::size_t shift_bytes = 0;
+		std::size_t arg_for_read_callback = 0;
+		
+		while(!timed_out) // Loop will stop if condition variable timed out
+		{
+			boost::mutex::scoped_lock lock(parse_mutex_);
+			parsing_condition_.wait_for(lock, boost::chrono::seconds(5), [this](){return try_parsing_;});
+			bool timed_out = !try_parsing_;
+			if (timed_out) break;
+			try_parsing_ = false;
+			allow_writing_ = true;
+			std::size_t current_buffer_size = circular_buffer_.size();
+			arg_for_read_callback += current_buffer_size;
+			circular_buffer_.read(to_be_parsed + shift_bytes, current_buffer_size);
+			
+			lock.unlock();
+			parsing_condition_.notify_one();
+			
+			try
+			{
+				ROS_DEBUG("Calling read_callback_() method, with number of bytes to be parsed being %li", arg_for_read_callback);
+				read_callback_(to_be_parsed_, arg_for_read_callback);
+			}
+			catch (std::size_t& parsing_failed_here) 
+			{
+				to_be_parsed_ = to_be_parsed + parsing_failed_here;
+				ROS_DEBUG("current buffer size is %li and parsing_failed_here is %li", current_buffer_size, parsing_failed_here);
+				arg_for_read_callback = arg_for_read_callback - parsing_failed_here;
+				shift_bytes += current_buffer_size;
+				continue;
+			}
+			// Freeing memory
+			delete [] to_be_parsed;
+			to_be_parsed = new uint8_t[buffer_size_];
+			to_be_parsed_ = to_be_parsed;
+			shift_bytes = 0;
+			arg_for_read_callback = 0;
+		}
+		ROS_INFO("TryParsing() method finished since it did not receive anything to parse for 5 seconds..");
+	}
+	
+	
 	template <typename StreamT>
 	bool AsyncManager<StreamT>::Send(std::string cmd, std::size_t size) 
 	{
-		//boost::mutex::scoped_lock lock(write_mutex_);
 		if(size == 0) 
 		{
 			ROS_ERROR("Message size to be sent to mosaic would be 0");
 			return true;
 		}
-
-		if (out_.capacity() - out_.size() < size) 
-		{
-			ROS_ERROR("Output buffer too full to send message to mosaic");
-			return false;
-		}
+		
 		std::vector<uint8_t> vector_temp(cmd.begin(), cmd.end());
 		uint8_t *p = &vector_temp[0];
-		//ROS_DEBUG("end - begin is %u", (uint8_t)((uint8_t *) &(*out_.end()) - (uint8_t *) &(*out_.begin())));
-		//out_.insert(out_.end(), p, p + size);
 		
-		
-
 		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoWrite, this, cmd, size));
 		return true;
 	}
@@ -210,26 +269,9 @@ namespace io_comm_mosaic
 	template <typename StreamT>
 	void AsyncManager<StreamT>::DoWrite(std::string cmd, std::size_t size) 
 	{
-		//boost::mutex::scoped_lock lock(write_mutex_);
-		//write_condition_.wait(lock, []{return ready;});
-		
-		// Does nothing if out buffer is empty
-		//if (out_.size() == 0) 
-		//{
-		//	return;
-		//}
-		// Write all the data in the out buffer
 		boost::asio::write(*stream_, boost::asio::buffer(cmd.data(), size));
-
-		if (debug >= 2) 
-		{
-			// Prints the data that was sent
-			ROS_DEBUG("Sent the following %li bytes to mosaic: \n%s", size, cmd.c_str());
-		}
-		// Clears the buffer
-		//next_cmd = true;
-		//out_.clear();
-		//write_condition_.notify_one();
+		// Prints the data that was sent
+		ROS_DEBUG("Sent the following %li bytes to mosaic: \n%s", size, cmd.c_str());
 	}
 
 	template <typename StreamT>
@@ -240,17 +282,15 @@ namespace io_comm_mosaic
 	
 	template <typename StreamT>
 	AsyncManager<StreamT>::AsyncManager(boost::shared_ptr<StreamT> stream,
-			 boost::shared_ptr<boost::asio::io_service> io_service,
-			 std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false), buffer_size_(buffer_size), count_max_(6) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
+			boost::shared_ptr<boost::asio::io_service> io_service,
+			std::size_t buffer_size) : timer_(*(io_service.get()), boost::posix_time::seconds(1)), 
+			stopping_(false), try_parsing_(false), allow_writing_(true), do_read_count_(0), buffer_size_(buffer_size), 
+			count_max_(6), circular_buffer_(buffer_size) // Since buffer_size = 8912 in declaration, no need in definition any more (even yields error message, since "overwrite").
 	{
 		ROS_DEBUG("Setting the private stream variable of the AsyncManager instance.");
-		do_read_count_ = 0;
 		stream_ = stream;
 		io_service_ = io_service;
 		in_.resize(buffer_size_);
-
-		out_.reserve(buffer_size_); 	// Note that std::vector::reserve() requests to reserve vector capacity be at least enough to contain n elements. It leaves the allocated memory uninitialized.
-										// Reallocation happens if there is need of even more space. Note that size() is not changed by this command.
 		 
 		io_service_->post(boost::bind(&AsyncManager<StreamT>::DoRead, this));
 		// This function is used to ask the io_service to execute the given handler, but without allowing the io_service to call the handler from inside this function.
@@ -258,23 +298,21 @@ namespace io_comm_mosaic
 		// The io_service guarantees that the handler (given as parameter) will only be called in a thread in which the run(), run_one(), poll() or poll_
 		// one() member functions is currently being invoked. 
 		// So the fundamental difference is that dispatch will execute the work right away if it can and queue it otherwise while post queues the work no matter what.
-		async_background_thread_.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_))); // io_service_ is already pointer
+		async_background_thread_.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, io_service_))); // Note that io_service_ is already pointer.
 		// If the value of the pointer for the current thread is changed using reset(), then the previous value is destroyed by calling the cleanup routine. 
 		// Alternatively, the stored value can be reset to NULL and the prior value returned by calling the release() member function, 
 		// allowing the application to take back responsibility for destroying the object. 
 		uint16_t count = 0;
 		boost::thread(boost::bind(&AsyncManager::CallAsyncWait, this, &count));
-	} // Calls std::terminate() on thread just created
+		
+		ROS_DEBUG("Launching TryParsing() thread..");
+		boost::thread(boost::bind(&AsyncManager::TryParsing, this));
+	} 	// Calls std::terminate() on thread just created
 	 
 	template <typename StreamT>
 	AsyncManager<StreamT>::~AsyncManager() 
 	{
-		//io_service_->post(boost::bind(&AsyncManager<StreamT>::doClose, this));
 		async_background_thread_->join(); 
-		//io_service_->reset(); 
-		// Reset the io_service in preparation for a subsequent run() invocation. 
-		// It must be called prior to any second or later set of invocations of the run(), run_one() etc.
-		// After a call to reset(), the io_service object's stopped() function will return false (true only after true stop).
 	}
 
 	template <typename StreamT>
@@ -287,27 +325,28 @@ namespace io_comm_mosaic
 								boost::asio::placeholders::error,
 								boost::asio::placeholders::bytes_transferred));
 								// The handler is async_read_some_handler, whose call is postponed to when async_read_some completes.
-		++do_read_count_;
+		if (do_read_count_ < 5) ++do_read_count_;
 	}
 	 
 	template <typename StreamT>
 	void AsyncManager<StreamT>::AsyncReadSomeHandler(const boost::system::error_code& error,
-								std::size_t bytes_transfered) 
+								std::size_t bytes_transferred) 
 	{
 		if (error) 
 		{
-			ROS_ERROR("mosaic ASIO input buffer read error: %s, %li",
-					error.message().c_str(), bytes_transfered); // The c_str() method is also part of the <string> header.
+			ROS_ERROR("mosaic ASIO input buffer read error: %s, %li", error.message().c_str(), bytes_transferred); 
 		} 
-		else if (bytes_transfered > 0) 
+		else if (bytes_transferred > 0) 
 		{ 
-			if (read_callback_) //Will be false in InitializeSerial (first call)
+			if (read_callback_) //Will be false in InitializeSerial (first call) since read_callback_ not added yet..
 			{
-				ROS_DEBUG("Launching ReadCallback thread, with bytes_transferred being %u", (unsigned int) bytes_transfered);
-				std::vector<uint8_t> copied_buffer = in_;
-				// Launch new thread, detached right afterwards..
-				boost::thread temporary_thread(read_callback_, copied_buffer, bytes_transfered);
-				temporary_thread.detach();
+				boost::mutex::scoped_lock lock(parse_mutex_);
+				parsing_condition_.wait(lock, [this](){return allow_writing_;});
+				circular_buffer_.write(in_.data(), bytes_transferred);
+				allow_writing_ = false;
+				try_parsing_ = true;
+				lock.unlock();
+				parsing_condition_.notify_one();
 				std::vector<uint8_t> empty;
 				in_ = empty;
 				in_.resize(buffer_size_);
@@ -318,7 +357,6 @@ namespace io_comm_mosaic
 			io_service_->post(boost::bind(&AsyncManager<StreamT>::DoRead, this));
 	}
 	 
-	// Still needs to be tested.
 	template <typename StreamT>
 	void AsyncManager<StreamT>::DoClose() 
 	{
@@ -332,7 +370,7 @@ namespace io_comm_mosaic
 	}
 	 
 	template <typename StreamT>
-	void AsyncManager<StreamT>::Wait(uint16_t* count) //const boost::posix_time::time_duration& timeout) 
+	void AsyncManager<StreamT>::Wait(uint16_t* count) 
 	{
 		if (*count < count_max_)
 		{

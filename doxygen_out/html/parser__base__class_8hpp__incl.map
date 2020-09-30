@@ -1,5 +1,5 @@
 <map id="include/rosaic/parsers/parser_base_class.hpp" name="include/rosaic/parsers/parser_base_class.hpp">
 <area shape="rect" id="node2" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="47,95,185,121"/>
-<area shape="rect" id="node5" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="211,95,349,121"/>
-<area shape="rect" id="node9" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="385,95,527,121"/>
+<area shape="rect" id="node5" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="253,95,390,121"/>
+<area shape="rect" id="node11" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="577,95,719,121"/>
 </map>
