@@ -79,12 +79,6 @@ void rosaic_node::ROSaicNode::ConfigureMosaic()
 	cd_condition.wait(lock_cd, [](){return cd_received;}); 
 	cd_received = false;
 	
-	// Authentication, leaving anonymous mode
-	IO.Send("login, Tibor, Tibor \x0D");
-	response_condition.wait(lock, [](){return response_received;});
-	response_received = false;
-	
-	
 	// Turning off all current SBF/NMEA output 
 	IO.Send("sso, all, none, none, off \x0D");
 	response_condition.wait(lock, [](){return response_received;});
