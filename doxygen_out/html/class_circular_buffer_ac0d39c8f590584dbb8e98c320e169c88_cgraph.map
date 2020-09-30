@@ -1,0 +1,4 @@
+<map id="CircularBuffer::read" name="CircularBuffer::read">
+<area shape="rect" id="node2" href="$class_circular_buffer.html#a453971561ff89049ab87c9fe801efb17" title="Returns capacity_. " alt="" coords="188,5,347,32"/>
+<area shape="rect" id="node3" href="$class_circular_buffer.html#aaeabea80655d80bfe4ef8b6ad91da2bd" title="Returns number of bytes written. " alt="" coords="395,5,533,32"/>
+</map>

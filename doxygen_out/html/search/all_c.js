@@ -11,9 +11,10 @@ var searchData=
   ['nmea_5fsync_5fbyte_5f1',['NMEA_SYNC_BYTE_1',['../mosaic_message_8hpp.html#a79483e30fbb259308b89ab449deb2210',1,'mosaicMessage.hpp']]],
   ['nmea_5fsync_5fbyte_5f2_5f1',['NMEA_SYNC_BYTE_2_1',['../mosaic_message_8hpp.html#a3dec8170e519761e56424a6901325f9f',1,'mosaicMessage.hpp']]],
   ['nmea_5fsync_5fbyte_5f2_5f2',['NMEA_SYNC_BYTE_2_2',['../mosaic_message_8hpp.html#a6b0899b795362d5b704ed1b87e296753',1,'mosaicMessage.hpp']]],
-  ['nmeasentence',['NMEASentence',['../classrosaic__driver_1_1_n_m_e_a_sentence.html',1,'rosaic_driver::NMEASentence'],['../classrosaic__driver_1_1_n_m_e_a_sentence.html#a3999c8d21c6ad50998c1ab0d7aebe708',1,'rosaic_driver::NMEASentence::NMEASentence()']]],
+  ['nmeasentence',['NMEASentence',['../class_n_m_e_a_sentence.html',1,'NMEASentence'],['../class_n_m_e_a_sentence.html#a5431f84f112966f6c8aa52d775c8c699',1,'NMEASentence::NMEASentence()']]],
   ['nr_5fof_5fantennas',['NR_OF_ANTENNAS',['../sbf__structs_8hpp.html#a25d776dbd335639f00230ba599ed0971',1,'sbf_structs.hpp']]],
   ['nr_5fof_5flogicalchannels',['NR_OF_LOGICALCHANNELS',['../sbf__structs_8hpp.html#accf2001026b7760cf2f1d291de35fe42',1,'sbf_structs.hpp']]],
   ['nrbases',['NrBases',['../struct_p_v_t_cartesian.html#ab101875ec6cbf0e572dde31d2c6b02a8',1,'PVTCartesian::NrBases()'],['../struct_p_v_t_geodetic.html#a150255be741746d2e4b3e365fcd8f2c5',1,'PVTGeodetic::NrBases()']]],
-  ['nrsv',['NrSV',['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()'],['../struct_p_v_t_geodetic.html#a2f6a708fae9bacf3b63994b70514f37f',1,'PVTGeodetic::NrSV()'],['../struct_att_euler.html#a35cdf49e8b99927f616b203ff391ad37',1,'AttEuler::NrSV()'],['../struct_d_o_p.html#ac64ea02e33d0b5e0c7995c44f9c28082',1,'DOP::NrSV()']]]
+  ['nrsv',['NrSV',['../struct_p_v_t_cartesian.html#aeaa6a78cacde23a16f61c60e90a0e9ea',1,'PVTCartesian::NrSV()'],['../struct_p_v_t_geodetic.html#a2f6a708fae9bacf3b63994b70514f37f',1,'PVTGeodetic::NrSV()'],['../struct_att_euler.html#a35cdf49e8b99927f616b203ff391ad37',1,'AttEuler::NrSV()'],['../struct_d_o_p.html#ac64ea02e33d0b5e0c7995c44f9c28082',1,'DOP::NrSV()']]],
+  ['ntrip_5fversion_5f',['ntrip_version_',['../classrosaic__node_1_1_r_o_saic_node.html#a35cbd0ad21f5f37d8f96da2607075c98',1,'rosaic_node::ROSaicNode']]]
 ];

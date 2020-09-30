@@ -1,6 +1,6 @@
 # AttEuler block
 # ROS message header
-Header       ROS_Header
+Header       header
 
 # SBF block header including time header
 BlockHeader  Block_Header   

@@ -1,12 +1,18 @@
 <map id="include/rosaic/parsers/parse_exception.hpp" name="include/rosaic/parsers/parse_exception.hpp">
-<area shape="rect" id="node2" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="115,95,275,136"/>
-<area shape="rect" id="node3" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="109,184,281,225"/>
+<area shape="rect" id="node2" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="414,95,574,136"/>
+<area shape="rect" id="node3" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="115,184,287,225"/>
+<area shape="rect" id="node12" href="$gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="311,184,483,225"/>
+<area shape="rect" id="node14" href="$gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="507,184,679,225"/>
+<area shape="rect" id="node16" href="$gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="703,184,877,225"/>
 <area shape="rect" id="node4" href="$gpgga_8cpp.html" title="Derived class for parsing GGA messages. " alt="" coords="5,273,177,315"/>
-<area shape="rect" id="node5" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="202,273,397,315"/>
-<area shape="rect" id="node6" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="7,363,178,404"/>
-<area shape="rect" id="node7" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="202,363,397,404"/>
-<area shape="rect" id="node8" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="269,452,463,493"/>
-<area shape="rect" id="node9" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="187,541,358,583"/>
-<area shape="rect" id="node10" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="382,541,537,583"/>
-<area shape="rect" id="node11" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="393,631,525,672"/>
+<area shape="rect" id="node5" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="398,273,593,315"/>
+<area shape="rect" id="node6" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="203,363,374,404"/>
+<area shape="rect" id="node7" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="398,363,593,404"/>
+<area shape="rect" id="node8" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="465,452,659,493"/>
+<area shape="rect" id="node9" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="383,541,554,583"/>
+<area shape="rect" id="node10" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="578,541,733,583"/>
+<area shape="rect" id="node11" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="589,631,721,672"/>
+<area shape="rect" id="node13" href="$gpgsa_8cpp.html" title="Derived class for parsing GSA messages. " alt="" coords="201,273,373,315"/>
+<area shape="rect" id="node15" href="$gpgsv_8cpp.html" title="Derived class for parsing GSV messages. " alt="" coords="617,273,789,315"/>
+<area shape="rect" id="node17" href="$gprmc_8cpp.html" title="Derived class for parsing RMC messages. " alt="" coords="814,273,987,315"/>
 </map>

@@ -1,10 +1,11 @@
 var searchData=
 [
   ['read_5fcallback_5f',['read_callback_',['../classio__comm__mosaic_1_1_async_manager.html#a19287f7b21a0d1c477f971c7bca8d4bb',1,'io_comm_mosaic::AsyncManager']]],
+  ['read_5fcd',['read_cd',['../rosaic__node_8cpp.html#a5a3a81c1ec3b1f9c9c2bd2e03713256b',1,'read_cd():&#160;rosaic_node.cpp'],['../mosaic_message_8hpp.html#a5a3a81c1ec3b1f9c9c2bd2e03713256b',1,'read_cd():&#160;rosaic_node.cpp']]],
   ['reconnect_5fdelay_5fs_5f',['reconnect_delay_s_',['../classrosaic__node_1_1_r_o_saic_node.html#a901dc455d86d71ca533e37b37e102270',1,'rosaic_node::ROSaicNode']]],
-  ['reconnect_5ftimer_5f',['reconnect_timer_',['../classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47',1,'rosaic_node::ROSaicNode']]],
+  ['reconnect_5ftimer_5f',['reconnect_timer_',['../classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47',1,'rosaic_node::ROSaicNode::reconnect_timer_()'],['../rosaic__node_8hpp.html#ae2e39109ac122db5d5608f2ebb47e916',1,'reconnect_timer_():&#160;rosaic_node.hpp']]],
   ['referenceid',['ReferenceID',['../struct_p_v_t_cartesian.html#a258a3a08c39462746000ca8b73f43c66',1,'PVTCartesian::ReferenceID()'],['../struct_p_v_t_geodetic.html#a11780cf75e74c2370973c4ae79a1a53c',1,'PVTGeodetic::ReferenceID()']]],
-  ['reserved',['Reserved',['../struct_att_euler.html#a1d9a50b66bd1af765bb84f66741d6fb2',1,'AttEuler::Reserved()'],['../struct_att_cov_euler.html#a4c1d97684db50360db10b670f8a618cd',1,'AttCovEuler::Reserved()'],['../struct_channel_state_info.html#ad49fb7409dbcf6adddcbb3a0a5879878',1,'ChannelStateInfo::Reserved()'],['../struct_channel_status.html#a79c084f2b8d8f8965ec0ff7ff814c85f',1,'ChannelStatus::Reserved()'],['../struct_meas_epoch.html#a2f9f6970dd177bac99dd0e49e0f11dc8',1,'MeasEpoch::Reserved()'],['../struct_d_o_p.html#ab3edf09f4b15f6953fc0b751051ecf5c',1,'DOP::Reserved()'],['../struct_g_p_s_n_a_v.html#a5759df137d25e0d037dccef9938b45d9',1,'GPSNAV::Reserved()']]],
+  ['reserved',['Reserved',['../struct_att_euler.html#a1d9a50b66bd1af765bb84f66741d6fb2',1,'AttEuler::Reserved()'],['../struct_att_cov_euler.html#a4c1d97684db50360db10b670f8a618cd',1,'AttCovEuler::Reserved()'],['../struct_channel_state_info.html#ad49fb7409dbcf6adddcbb3a0a5879878',1,'ChannelStateInfo::Reserved()'],['../struct_channel_status.html#a79c084f2b8d8f8965ec0ff7ff814c85f',1,'ChannelStatus::Reserved()'],['../struct_meas_epoch.html#a2f9f6970dd177bac99dd0e49e0f11dc8',1,'MeasEpoch::Reserved()'],['../struct_d_o_p.html#ab3edf09f4b15f6953fc0b751051ecf5c',1,'DOP::Reserved()']]],
   ['reserved1',['Reserved1',['../struct_channel_sat_info.html#ae02f3806a977bf02bf4c6cd4ca53d598',1,'ChannelSatInfo']]],
   ['reserved2',['Reserved2',['../struct_channel_sat_info.html#a580f307a385888d8217613addadde955',1,'ChannelSatInfo']]],
   ['response_5fcondition',['response_condition',['../rosaic__node_8cpp.html#ae3cba8e1e0091cb065db7faa1c98d849',1,'response_condition():&#160;rosaic_node.cpp'],['../callbackhandlers_8hpp.html#ae3cba8e1e0091cb065db7faa1c98d849',1,'response_condition():&#160;rosaic_node.cpp']]],
@@ -13,6 +14,7 @@ var searchData=
   ['roll',['Roll',['../struct_att_euler.html#a27a4437acea3191885e12e5a78bfd847',1,'AttEuler']]],
   ['rolldot',['RollDot',['../struct_att_euler.html#ac62ba6a4c750010c1985374e12cd5e44',1,'AttEuler']]],
   ['rosqueuesize',['ROSQueueSize',['../namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2',1,'rosaic_node']]],
+  ['rtcm_5fversion_5f',['rtcm_version_',['../classrosaic__node_1_1_r_o_saic_node.html#ac8ba9ffd43f9df178729a739d3dcf627',1,'rosaic_node::ROSaicNode']]],
   ['rxchannel',['RXChannel',['../struct_meas_epoch_channel_type1.html#a179c60f96c88db2bc20bf5719c181987',1,'MeasEpochChannelType1']]],
   ['rxclkbias',['RxClkBias',['../struct_p_v_t_cartesian.html#ae9c246789825b6ade2f1ad8c3fdf2e6e',1,'PVTCartesian::RxClkBias()'],['../struct_p_v_t_geodetic.html#aa9ec36be190f14aca07233a976eed6fb',1,'PVTGeodetic::RxClkBias()']]],
   ['rxclkdrift',['RxClkDrift',['../struct_p_v_t_cartesian.html#abe224f1f74e7f8ec76c346fc1eb1f1f9',1,'PVTCartesian::RxClkDrift()'],['../struct_p_v_t_geodetic.html#a1bf7aab8119d33b8840882a137d364ba',1,'PVTGeodetic::RxClkDrift()']]]

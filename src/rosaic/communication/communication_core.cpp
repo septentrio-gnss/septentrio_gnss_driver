@@ -38,13 +38,6 @@
  
 io_comm_mosaic::Comm_IO::Comm_IO(): handlers_() {}
 
-template <typename T>
-bool io_comm_mosaic::Comm_IO::Poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout) 
-{
-	if (!manager_) return false;
-	return handlers_.Poll(message, message_ID, timeout);
-}
-
 void io_comm_mosaic::Comm_IO::Send(std::string cmd)
 {
 	// Determine byte size of cmd and hand over to Send() method of manager_
@@ -100,7 +93,6 @@ bool io_comm_mosaic::Comm_IO::InitializeTCP(std::string host, std::string port)
  
 bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudrate, std::string flowcontrol) 
 {
-	//ROS_DEBUG("Current debug value after calling InitializeSerial() method is %u", io_comm_mosaic::debug);
 	ROS_DEBUG("mosaic: Calling InitializeSerial method..");
 	serial_port_ = port;
 	baudrate_ = baudrate;
@@ -164,8 +156,6 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 	ROS_DEBUG("Creating new Async-Manager object..");
 	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
 	
-	//ROS_DEBUG("Finished creating new Async-Manager, have not yet called its read_callback_, since that will only be populated by the readCallback method of the CallbackHandlers class momentarily..");
-
 	// Setting the baudrate, incrementally..
 	ROS_DEBUG("Gradually increasing the baudrate to the desired value...");
 	boost::asio::serial_port_base::baud_rate current_baudrate;
@@ -214,7 +204,7 @@ bool io_comm_mosaic::Comm_IO::InitializeSerial(std::string port, uint32_t baudra
 			return false;
 		}
 		usleep(set_baudrate_sleep_);
-		//boost::this_thread::sleep(boost::posix_time::milliseconds(set_baudrate_sleep_*1000)); // This yields an error message with exit code -7 the second time it is called, hence we use sleep().
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(set_baudrate_sleep_*1000)); // This yields an error message with exit code -7 the second time it is called, hence we use sleep() or usleep().
 		try 
 		{
 			serial->get_option(current_baudrate);
@@ -247,9 +237,6 @@ void io_comm_mosaic::Comm_IO::SetManager(const boost::shared_ptr<Manager>& manag
 	ROS_DEBUG("Leaving SetManager() method");
 }
 
-/**
- * Needs to be checked..
- */
 void io_comm_mosaic::Comm_IO::ResetSerial(std::string port) 
 {
 	serial_port_ = port;
@@ -271,23 +258,7 @@ void io_comm_mosaic::Comm_IO::ResetSerial(std::string port)
 	// Sets the I/O worker
 	if (manager_) return;
 	SetManager(boost::shared_ptr<Manager>(new AsyncManager<boost::asio::serial_port>(serial, io_service)));
-
-	/*
-	// Polls ReceiverStatus block
-	std::vector<uint8_t> receiverstatus;
-	if (!Poll(..., receiverstatus)) 
-	{
-		ROS_ERROR("Resetting Serial Port: Could not poll ReceiverStatus");
-		return;
-	}
-	ReceiverStatus struct_object;
-	if(!read(struct_object, ...default_timeout_)) 
-	{
-		ROS_ERROR("Resetting Serial Port: Could not read polled ReceiverStatus");
-		return;
-	}
-	*/
-
+	
 	// Set the baudrate
 	serial->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
 }

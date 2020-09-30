@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['string_5futilities',['string_utilities',['../namespacestring__utilities.html',1,'']]]
+  ['rosaic_5fnode',['rosaic_node',['../namespacerosaic__node.html',1,'']]]
 ];

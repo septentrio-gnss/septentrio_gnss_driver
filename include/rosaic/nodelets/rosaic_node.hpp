@@ -78,10 +78,11 @@ extern bool publish_gpgga;
 extern bool publish_pvtcartesian;
 extern bool publish_pvtgeodetic;
 extern bool publish_poscovgeodetic;
+extern bool publish_poscovcartesian;
 extern bool publish_atteuler;
 extern bool publish_attcoveuler;
+extern bool publish_gpst;
 extern bool publish_navsatfix;
-extern bool connected;
 extern ros::Timer reconnect_timer_;
 	
 /**
@@ -93,19 +94,15 @@ namespace rosaic_node
 {
 	//! Queue size for ROS publishers
 	constexpr static uint32_t ROSQueueSize = 1;
-	//! Default period in seconds between the polling of two consecutive PVTGeodetic, PosCovGeodetic, PVTCartesian and PosCovCartesian blocks and - if published - between the publishing of two of the corresponding ROS messages 
-	constexpr static float poll_pub_pvt_period = 0.05;
-	//! Default period in seconds between the polling of two consecutive AttEuler, AttCovEuler blocks as well as the HRP NMEA sentence, and - if published - between the publishing of AttEuler and AttCovEuler
-	constexpr static float poll_pub_orientation_period = 0.05;
-	//! Default period in seconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous two ROS parameters, and - if published - between the publishing of all other ROS messages 
-	constexpr static float poll_pub_rest_period = 0.05;
 
 	//! Node Handle for the ROSaic node
 	//! You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). 
 	//! One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only...
 	boost::shared_ptr<ros::NodeHandle> nh;
+	
 	//! Handles communication with the mosaic
 	io_comm_mosaic::Comm_IO IO;
+	
 	/**
 	 * @brief Whether or not to publish the given mosaic message
 	 * The key is the message name, i.e. the message ID for SBF blocks embedded in inverted commas (a string) or the message ID for NMEA messages.
@@ -273,14 +270,18 @@ namespace rosaic_node
 			std::string device_;
 			//! Baudrate
 			uint32_t baudrate_;
+			//! HW flow control
+			std::string hw_flow_control_;
 			//! In case of serial communication to mosaic, mosaic_serial_port_ specifies mosaic's serial port connected to, e.g. USB1 or COM1
 			std::string mosaic_serial_port_;
+			//! Whether connecting to mosaic was successful
+			bool connected_;
 			//! Datum to be used
 			std::string datum_;
 			//! Polling period for PVT-related SBF blocks
-			unsigned polling_period_pvt_;
+			uint32_t polling_period_pvt_;
 			//! Polling period for all other SBF blocks and NMEA messages
-			unsigned polling_period_rest_;
+			uint32_t polling_period_rest_;
 			//! Delay in seconds between reconnection attempts to the connection type specified in the parameter connection_type
 			float reconnect_delay_s_;
 			//! Marker-to-ARP offset in the eastward direction
@@ -298,7 +299,7 @@ namespace rosaic_node
 			//! Hostname or IP address of the NTRIP caster to connect to
 			std::string caster_;
 			//! IP port number of NTRIP caster to connect to
-			uint32_t ntrip_port_;
+			uint32_t caster_port_;
 			//! Username for NTRIP service
 			std::string username_;
 			//! Password for NTRIP service
@@ -306,11 +307,39 @@ namespace rosaic_node
 			//! Mountpoint for NTRIP service
 			std::string mountpoint_;
 			//! NTRIP version for NTRIP service
-			std::string version_;
+			std::string ntrip_version_;
+			//! Whether mosaic has internet or not
+			bool mosaic_has_internet_;
+			//! RTCM version for NTRIP service (if mosaic does not have internet)
+			std::string rtcm_version_;
+			//! Mosaic TCP port number, e.g. 28785, on which Rx receives the corrections (can't be the same as main connection unless localhost concept is used)
+			uint32_t mosaic_input_corrections_tcp_;
+			//! Mosaic serial port, e.g. USB2, on which Rx receives the corrections (can't be the same as main connection unless localhost concept is used)
+			std::string mosaic_input_corrections_serial_;
 			//! Our ROS timer governing the reconnection
 			ros::Timer reconnect_timer_;
 			//! Whether (and at which rate) or not to send GGA to the NTRIP caster
 			std::string send_gga_;
+			//! Whether or not to publish the GGA message
+			bool publish_gpgga_;
+			//! Whether or not to publish the RMC message
+			bool publish_gprmc_;
+			//! Whether or not to publish the GSA message
+			bool publish_gpgsa_;
+			//! Whether or not to publish the GSV message
+			bool publish_gpgsv_;
+			//! Whether or not to publish the rosaic::PVTCartesian message
+			bool publish_pvtcartesian_;
+			//! Whether or not to publish the rosaic::PVTGeodetic message
+			bool publish_pvtgeodetic_;
+			//! Whether or not to publish the rosaic::PosCovCartesian message
+			bool publish_poscovcartesian_;
+			//! Whether or not to publish the rosaic::PosCovGeodetic message
+			bool publish_poscovgeodetic_;
+			//! Whether or not to publish the rosaic::AttEuler message
+			bool publish_atteuler_;
+			//! Whether or not to publish the rosaic::AttCovEuler message
+			bool publish_attcoveuler_;
 			//! Since the ConfigureMosaic() method should only be called once the connection 
 			//! was established, we need the threads to communicate this to each other. Associated mutex..
 			boost::mutex connection_mutex_;

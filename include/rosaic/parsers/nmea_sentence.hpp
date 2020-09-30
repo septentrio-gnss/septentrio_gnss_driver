@@ -41,23 +41,22 @@
  * @date 13/08/20 
  */
  
-namespace rosaic_driver
+
+/**
+ * @brief Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings.
+ * 
+ * The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P".
+ * The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing).
+ */
+class NMEASentence
 {
-	/**
-	 * @brief Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings.
-	 * 
-	 * The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P".
-	 * The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing).
-	 */
-	class NMEASentence
-	{
-		public:
-			NMEASentence(std::string id, std::vector<std::string> body): id_(id), body_(body) {}
-			std::vector<std::string> get_body() const {return body_;}
-		protected:
-			std::string id_;
-			std::vector<std::string> body_;
-	};
-}
+	public:
+		NMEASentence(std::string id, std::vector<std::string> body): id_(id), body_(body) {}
+		std::vector<std::string> get_body() const {return body_;}
+	protected:
+		std::string id_;
+		std::vector<std::string> body_;
+};
+
 
 #endif //NMEA_SENTENCE_HPP

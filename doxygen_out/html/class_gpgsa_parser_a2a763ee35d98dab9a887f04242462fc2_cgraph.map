@@ -1,0 +1,7 @@
+<map id="GpgsaParser::GpgsaParser" name="GpgsaParser::GpgsaParser">
+<area shape="rect" id="node2" href="$class_gpgsa_parser.html#a006379bf5d4a3c42f7abbe61fb00c5fa" title="Returns the ASCII message ID, here &quot;$GPGSA&quot;. " alt="" coords="236,5,431,32"/>
+<area shape="rect" id="node3" href="$class_gpgsa_parser.html#a51e753594ae1f0163c27e545b5759949" title="Parses one GSA message. " alt="" coords="245,56,421,83"/>
+<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#a049ebf9daf86aafe6b915527782cb43a" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint8_t, stores its value in..." alt="" coords="479,15,599,57"/>
+<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#ad033480f07c8ac616ed7e03584219eec" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="479,81,599,122"/>
+<area shape="rect" id="node5" href="$namespacestring__utilities.html#aacef6a9a84e935f1d079161d4dc7a725" title="Interprets the contents of &quot;string&quot; as a floating point number of whatever unsigned integer type your..." alt="" coords="647,23,811,49"/>
+</map>

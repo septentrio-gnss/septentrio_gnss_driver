@@ -102,8 +102,7 @@
  */
 namespace io_comm_mosaic 
 {
-	extern int debug;
-
+	
 	//! Possible baudrates for mosaic
 	const static uint32_t baudrates[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
 										115200, 230400, 460800, 500000, 576000, 921600, 
@@ -112,16 +111,12 @@ namespace io_comm_mosaic
 
 	/**
 	 * @class Comm_IO
-	 * @brief Handles (for now: one-way, very soon: two-way) communication with and (very soon) configuration of the mosaic-x5 device(s)
+	 * @brief Handles communication with configuration of the mosaic (and beyond) device(s)
 	 */
 	class Comm_IO 
 	{
 		public:
 			
-			
-			// Size of write buffer in bytes for output messages
-			// const static int WriterSize = 2056;
-	  
 			/**
 			* @brief Default constructor of the class Comm_IO
 			*/
@@ -149,17 +144,7 @@ namespace io_comm_mosaic
 			 */
 			bool InitializeTCP(std::string host, std::string port);
 			
-			/**
-			 * @brief Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic
-			 * 
-			 * Note that the Poll() method has not yet been tested.
-			 , before control is handed back to bool read, which just returns true after deleting the specific handler.
-			 * @param[out] message The received message
-			 * @param[in] timeout The amount of time to wait for the desired message (before callback-handler is erased without populating message)
-			 */
-			template <typename T>
-			bool Poll(T& message, std::string message_ID, const boost::posix_time::time_duration& timeout);
-									
+			
 			/**
 			 * @brief Set the I/O manager
 			 * @param[in] manager An I/O handler

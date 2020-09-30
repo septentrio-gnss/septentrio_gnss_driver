@@ -92,14 +92,19 @@
  
 extern bool publish_navsatfix;
 extern bool publish_gpsfix;
+extern bool publish_gpst;
+extern bool publish_posewithcovariancestamped;
 extern bool response_received;
 extern boost::mutex response_mutex;
 extern boost::condition_variable response_condition;
+extern bool cd_received;
+extern boost::mutex cd_mutex;
+extern boost::condition_variable cd_condition;
+extern uint32_t cd_count;
 extern std::string mosaic_tcp_port;
 
 namespace io_comm_mosaic 
 {
-	extern int debug;
 	/**
 	 * @class CallbackHandler
 	 * @brief Abstract class representing a generic callback handler, includes high-level functionality such as wait
@@ -142,15 +147,17 @@ namespace io_comm_mosaic
 					if (!mMessage.Read<T>(message_, message_key)) 
 					{
 						std::ostringstream ss;
-						ss << "Read unsuccessful: mosaic decoder error for message with ID (empty field if non-determinable" << mMessage.MessageID() << ". ";
-						ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
+						ss << "Read unsuccessful: mosaic decoder error for message with ID (empty field if non-determinable)" << mMessage.MessageID() << ". Reason unknown.";
+						throw std::runtime_error(ss.str());
+						ROS_INFO("%s", ss.str().c_str());
 						return;
 					}
 				} catch (std::runtime_error& e) 
 				{
 					std::ostringstream ss;
 					ss << "Read unsuccessful: mosaic decoder error for message with ID " << mMessage.MessageID() << ".\nReason: " << e.what();
-					ROS_INFO_COND(debug >= 2, "%s", ss.str().c_str());
+					throw std::runtime_error(ss.str());
+					ROS_INFO("%s", ss.str().c_str());
 					return;
 				}
 				
@@ -191,18 +198,27 @@ namespace io_comm_mosaic
 				return callbackmap_;
 			}
 	 
-			//! Called many times (every time mMessage is found to contain some useful message), for loop can forward to ROS message specific handle if latter was added via callbackmap_.insert at some earlier point
+			//! This method is called every time mMessage is found to contain some potentially useful message.
+			//! The for loop forwards to a ROS message specific handle if the latter was added via callbackmap_.insert at some earlier point.
 			void Handle(mosaicMessage& mMessage) 
 			{
 				// Find the ROS message callback handler for equivalent mosaic message at hand & call it
 				boost::mutex::scoped_lock lock(callback_mutex_);
 				CallbackMap::key_type key = mMessage.MessageID();
 				std::string ID_temp = mMessage.MessageID();
-				if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001"|| ID_temp == "5908")) // We only want to handle SatVisibility and ChannelStatus blocks in case GPSFix messages are to be published, see few lines below
+				if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001"|| ID_temp == "5908")) 
+				// We only want to handle SatVisibility, ChannelStatus, DOP and VelCovGeodetic blocks in case GPSFix messages are to be published, see few lines below.
 				{
 					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
 					{
-						callback->second->Handle(mMessage, callback->first);
+						try
+						{
+							callback->second->Handle(mMessage, callback->first);
+						}
+						catch (std::runtime_error& e) 
+						{
+							throw std::runtime_error(e.what());
+						}
 					}
 				}
 				// Call NavSatFix callback function if it was added
@@ -215,10 +231,60 @@ namespace io_comm_mosaic
 					{
 						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
 						{
-							callback->second->Handle(mMessage, callback->first);
+							try
+							{
+								callback->second->Handle(mMessage, callback->first);
+							}
+							catch (std::runtime_error& e) 
+							{
+								throw std::runtime_error(e.what());
+							}
 						}
 					}
 				}
+				// Call geometry_msgs::PoseWithCovarianceStamped callback function if it was added
+				if (publish_posewithcovariancestamped)
+				{
+					CallbackMap::key_type key = "PoseWithCovarianceStamped";
+					std::string ID_temp = mMessage.MessageID();
+					if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish PoseWithCovarianceStamped anew. 
+											// It would be wasteful to also call the PoseWithCovarianceStamped handle if the PosCovGeodetic block etc. comes in.
+					{
+						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+						{
+							try
+							{
+								callback->second->Handle(mMessage, callback->first);
+							}
+							catch (std::runtime_error& e) 
+							{
+								throw std::runtime_error(e.what());
+							}
+						}
+					}
+				}
+				// Call sensor_msgs::TimeReference (with GPST) callback function if it was added
+				if (publish_gpst)
+				{
+					CallbackMap::key_type key = "GPST";
+					std::string ID_temp = mMessage.MessageID();
+					if (ID_temp == "4007") 	// If no new PVTGeodetic block is coming in, there is no need to publish PoseWithCovarianceStamped anew. 
+											// It would be wasteful to also call the PoseWithCovarianceStamped handle if the PosCovGeodetic block etc. comes in.
+					{
+						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key); callback != callbackmap_.upper_bound(key); ++callback)
+						{
+							try
+							{
+								callback->second->Handle(mMessage, callback->first);
+							}
+							catch (std::runtime_error& e) 
+							{
+								throw std::runtime_error(e.what());
+							}
+						}
+					}
+				}
+				// Call GPSFix callback function if it was added
 				if (publish_gpsfix)
 				{
 					CallbackMap::key_type key1 = "GPSFix";
@@ -227,8 +293,15 @@ namespace io_comm_mosaic
 											// It would be wasteful to also call the GPSFix handle when any of the PosCovGeodetic, SatVisibility, ChannelStatus etc. blocks comes in.
 					{
 						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1); callback != callbackmap_.upper_bound(key1); ++callback)
-						{	
-							callback->second->Handle(mMessage, callback->first);
+						{
+							try
+							{
+								callback->second->Handle(mMessage, callback->first);
+							}
+							catch (std::runtime_error& e) 
+							{
+								throw std::runtime_error(e.what());
+							}
 						}
 					}
 					CallbackMap::key_type key2 = mMessage.MessageID();
@@ -238,105 +311,90 @@ namespace io_comm_mosaic
 					{
 						for (CallbackMap::iterator callback = callbackmap_.lower_bound(key2); callback != callbackmap_.upper_bound(key2); ++callback)
 						{
-							callback->second->Handle(mMessage, callback->first);
+							try
+							{
+								callback->second->Handle(mMessage, callback->first);
+							}
+							catch (std::runtime_error& e) 
+							{
+								throw std::runtime_error(e.what());
+							}
 						}
 					}
 				}
 			}
-	 
-			/**
-			 * @brief Stores momentary (polling, not reading) (ROS) message with key "message_key" in "message", after having waited "timeout" long
-			 * 
-			 * Usually this method would be launched in a new thread.
-			 * Method needs to be tested!
-			 * @param[out] message Storage for polled (ROS) message
-			 * @param[in] message_key Key of ROS message in C++ map
-			 * @param[in] timeout How much time should we wait for ROS message to be constructed?
-			 * @return True if polling was successful (i.e. new ROS message of type T was constructed within specified time), false otherwise
-			 */
-			template <typename T>
-			bool Poll(T& message, std::string message_key, const boost::posix_time::time_duration& timeout) 
-			{
-				bool result = false;
-				// Insert callback handler to C++ map
-				callback_mutex_.lock();
-				CallbackHandler<T>* handler = new CallbackHandler<T>(); // This calls the constructor with an empty function.
-				CallbackMap::iterator callback = callbackmap_.insert(std::make_pair(message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
-				callback_mutex_.unlock();
-	 
-				// Wait for the message
-				if (handler->Wait(timeout)) 
-				{
-					message = handler->Get();
-					result = true;
-				}
-		 
-				// Remove the callback handler
-				callback_mutex_.lock();
-				callbackmap_.erase(callback);
-				callback_mutex_.unlock();
-				return result;
-			}
-	 
+			
 			/**
 			 * @brief Searches for mosaic messages that could potentially be decoded/parsed/published  
 			 * @param[in] data Buffer passed on from AsyncManager class
 			 * @param[in] size Size of the buffer
 			 */
-			void ReadCallback(std::vector<uint8_t> data, std::size_t& size) 
+			void ReadCallback(const uint8_t* data, std::size_t& size) 
 			{
-				uint8_t* data_raw = &data[0];
-				mosaicMessage mMessage(data_raw, size);
+				mosaicMessage mMessage(data, size);
 				// Read !all! (there might be many) messages in the buffer
 				while (mMessage.Search() != mMessage.End() && mMessage.Found()) 
 				{
-					if (debug >= 3) 
+					// Print the found message (if NMEA) or just show messageID (if SBF)..
+					if (mMessage.IsSBF())
 					{
-						// Print the found message (if NMEA) or just show messageID (if SBF)..
-						if (mMessage.IsSBF())
+						unsigned long sbf_block_length;
+						sbf_block_length = (unsigned long) mMessage.BlockLength(); // C-like cast notation (since functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise)
+						ROS_DEBUG("ROSaic reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); // Recall: The long data type is at least 32 bits.
+						if (sbf_block_length < 15) // If the SBF block is so corrupted that not even its header's Length field could be properly read, don't bother to process the block, but technically not necessary here.
 						{
-							unsigned long sbf_block_length;
-							sbf_block_length = (unsigned long) mMessage.BlockLength(); // C-like cast notation (since functional notation did not work, although https://www.cplusplus.com/doc/tutorial/typecasting/ suggests otherwise)
-							ROS_DEBUG("ROSaic reading SBF block %s with %lu bytes...", mMessage.MessageID().c_str(), sbf_block_length); // Recall: The long data type is at least 32 bits.
-							if (sbf_block_length < 15) // If the SBF block is so corrupted that not even its header's Length field could be properly read, don't bother to process the block.
-							{
-								continue;
-							}
+							continue;
 						}
-						if (mMessage.IsNMEA())
+					}
+					if (mMessage.IsNMEA())
+					{
+						boost::char_separator<char> sep("\r");
+						typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+						std::size_t nmea_size = std::min(mMessage.SegmentEnd(), static_cast<std::size_t>(89));
+						std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), nmea_size);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
+						tokenizer tokens(block_in_string, sep);
+						ROS_DEBUG("The NMEA message is ready to be parsed. It reads: %s", (*tokens.begin()).c_str());
+					}
+					if (mMessage.IsResponse())
+					{
+						std::size_t response_size = mMessage.SegmentEnd();
+						std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), response_size);
+						ROS_DEBUG("mosaic's response contains %li bytes and reads:\n %s", response_size, block_in_string.c_str());
 						{
-							boost::char_separator<char> sep("\r");
-							typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-							std::size_t nmea_size = std::min(mMessage.SegmentEnd(), static_cast<std::size_t>(89));
-							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), nmea_size);	// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
-							tokenizer tokens(block_in_string, sep);
-							ROS_DEBUG("The NMEA message is ready to be iterated. It reads: %s", (*tokens.begin()).c_str());
+							boost::mutex::scoped_lock lock(response_mutex);
+							response_received = true;
+							lock.unlock();
+							response_condition.notify_one();
 						}
-						if (mMessage.IsResponse())
+						if (mMessage.IsErrorMessage())
 						{
-							std::size_t response_size = mMessage.SegmentEnd();
-							std::string block_in_string(reinterpret_cast<const char*>(mMessage.Pos()), response_size);
-							ROS_DEBUG("mosaic's response contains %li bytes and reads:\n %s", response_size, block_in_string.c_str());
-							{
-								boost::mutex::scoped_lock lock(response_mutex);
-								response_received = true;
-								lock.unlock();
-								response_condition.notify_one();
-							}
-							if (mMessage.IsErrorMessage())
-							{
-								ROS_ERROR("Invalid command just sent to mosaic!");
-							}
+							ROS_ERROR("Invalid command just sent to mosaic!");
 						}
-						if (mMessage.IsConnectionDescriptor())
+					}
+					if (mMessage.IsConnectionDescriptor())
+					{
+						std::string cd(reinterpret_cast<const char*>(mMessage.Pos()), 4);
+						mosaic_tcp_port = cd;
+						ROS_INFO_COND(cd_count == 0, "The connection descriptor for the TCP connection is %s", cd.c_str());
+						if (cd_count < 3) ++cd_count;
+						if (cd_count == 2)
 						{
-							std::string cd(reinterpret_cast<const char*>(mMessage.Pos()), 4);
-							mosaic_tcp_port = cd;
-							ROS_INFO("The connection descriptor for the TCP connection is %s", cd.c_str());
+							boost::mutex::scoped_lock lock(cd_mutex);
+							cd_received = true;
+							lock.unlock();
+							cd_condition.notify_one();
 						}
 					}
 					//ROS_DEBUG("Handing over from readcallback to Handle while count is %d", mMessage.GetCount());
-					Handle(mMessage);
+					try
+					{
+						Handle(mMessage);
+					}
+					catch (std::runtime_error& e) 
+					{
+						ROS_DEBUG("Without a (circular) buffer and a new thread, we would have faced an incomplete message right now. %s", e.what());
+						throw (static_cast<std::size_t>(mMessage.Pos() - data));
+					}
 				}
 			}
 			
