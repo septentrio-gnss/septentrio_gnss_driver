@@ -37,14 +37,7 @@
  */
  
 //! Number of times the "read" method of the mosaicMessage class has been called
-uint32_t io_comm_mosaic::mosaicMessage::count_pvtgeodetic_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_pvtcartesian_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_poscovgeodetic_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_atteuler_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_attcoveuler_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_navsatfix_ = 0;
 uint32_t io_comm_mosaic::mosaicMessage::count_gpsfix_ = 0;
-uint32_t io_comm_mosaic::mosaicMessage::count_gpgga_ = 0;
 PVTGeodetic io_comm_mosaic::mosaicMessage::last_pvtgeodetic_ = PVTGeodetic();
 PosCovGeodetic io_comm_mosaic::mosaicMessage::last_poscovgeodetic_ = PosCovGeodetic();
 AttEuler io_comm_mosaic::mosaicMessage::last_atteuler_ = AttEuler();
@@ -133,6 +126,32 @@ rosaic::PVTCartesianPtr io_comm_mosaic::mosaicMessage::PVTCartesianCallback(PVTC
 	return msg;
 }
 
+rosaic::PosCovCartesianPtr io_comm_mosaic::mosaicMessage::PosCovCartesianCallback(PosCovCartesian& data)
+{
+	rosaic::PosCovCartesianPtr msg = boost::make_shared<rosaic::PosCovCartesian>();
+	msg->Block_Header.SYNC1 = data.Block_Header.SYNC1;
+	msg->Block_Header.SYNC2 = data.Block_Header.SYNC2;
+	msg->Block_Header.CRC = data.Block_Header.CRC;
+	msg->Block_Header.ID = data.Block_Header.ID;
+	msg->Block_Header.Length = data.Block_Header.Length;
+	msg->Block_Header.TOW = data.TOW;
+	msg->Block_Header.WNc = data.WNc;
+	msg->Mode = data.Mode;
+	msg->Error = data.Error;
+	msg->Cov_xx = data.Cov_xx;
+	msg->Cov_yy = data.Cov_yy;
+	msg->Cov_zz = data.Cov_zz;
+	msg->Cov_bb = data.Cov_bb;
+	msg->Cov_xy = data.Cov_xy;
+	msg->Cov_xz = data.Cov_xz;
+	msg->Cov_xb = data.Cov_xb;
+	msg->Cov_yz = data.Cov_yz;
+	msg->Cov_yb = data.Cov_yb;
+	msg->Cov_zb = data.Cov_zb;
+	return msg;
+}
+
+
 rosaic::PosCovGeodeticPtr io_comm_mosaic::mosaicMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
 {
 	rosaic::PosCovGeodeticPtr msg = boost::make_shared<rosaic::PosCovGeodetic>();
@@ -201,6 +220,62 @@ rosaic::AttCovEulerPtr io_comm_mosaic::mosaicMessage::AttCovEulerCallback(AttCov
 };
 
 /**
+ * The position_covariance array is populated in row-major order, where the basis of the correspond matrix is (E, N, U, Roll, Pitch, Heading).
+ * Important: The Euler angles (Roll, Pitch, Heading) are with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command setAntennaLocation, ...)
+ * !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence (apart from the fact 
+ * that e.g. mosaic receivers do not calculate these quantities) set to zero. The position and the partial (with 2 antennas) or full 
+ * (for INS receivers) orientation have covariances matrices available e.g. in the PosCovGeodetic or AttCovEuler blocks, yet those are separate computations. 
+ */
+geometry_msgs::PoseWithCovarianceStampedPtr io_comm_mosaic::mosaicMessage::PoseWithCovarianceStampedCallback()
+{
+	geometry_msgs::PoseWithCovarianceStampedPtr msg = boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>();
+	// Filling in the pose data
+	msg->pose.pose.orientation = parsing_utilities::ToQuaternion(static_cast<double>(last_atteuler_.Heading), static_cast<double>(last_atteuler_.Pitch), static_cast<double>(last_atteuler_.Roll));
+	msg->pose.pose.position.x = static_cast<double>(last_pvtgeodetic_.Longitude)*360/(2*boost::math::constants::pi<double>());
+	msg->pose.pose.position.y = static_cast<double>(last_pvtgeodetic_.Latitude)*360/(2*boost::math::constants::pi<double>());
+	msg->pose.pose.position.z = static_cast<double>(last_pvtgeodetic_.Height);
+	// Filling in the covariance data in row-major order
+	msg->pose.covariance[0] = static_cast<double>(last_poscovgeodetic_.Cov_lonlon);
+	msg->pose.covariance[1] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->pose.covariance[2] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->pose.covariance[3] = 0;
+	msg->pose.covariance[4] = 0;
+	msg->pose.covariance[5] = 0;
+	msg->pose.covariance[6] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->pose.covariance[7] = static_cast<double>(last_poscovgeodetic_.Cov_latlat);
+	msg->pose.covariance[8] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->pose.covariance[9] = 0;
+	msg->pose.covariance[10] = 0;
+	msg->pose.covariance[11] = 0;
+	msg->pose.covariance[12] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->pose.covariance[13] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->pose.covariance[14] = static_cast<double>(last_poscovgeodetic_.Cov_hgthgt);
+	msg->pose.covariance[15] = 0;
+	msg->pose.covariance[16] = 0;
+	msg->pose.covariance[17] = 0;
+	msg->pose.covariance[18] = 0;
+	msg->pose.covariance[19] = 0;
+	msg->pose.covariance[20] = 0;
+	msg->pose.covariance[21] = static_cast<double>(last_attcoveuler_.Cov_RollRoll);
+	msg->pose.covariance[22] = static_cast<double>(last_attcoveuler_.Cov_PitchRoll);
+	msg->pose.covariance[23] = static_cast<double>(last_attcoveuler_.Cov_HeadRoll);
+	msg->pose.covariance[24] = 0;
+	msg->pose.covariance[25] = 0;
+	msg->pose.covariance[26] = 0;
+	msg->pose.covariance[27] = static_cast<double>(last_attcoveuler_.Cov_PitchRoll);
+	msg->pose.covariance[28] = static_cast<double>(last_attcoveuler_.Cov_PitchPitch);
+	msg->pose.covariance[29] = static_cast<double>(last_attcoveuler_.Cov_HeadPitch);
+	msg->pose.covariance[30] = 0;
+	msg->pose.covariance[31] = 0;
+	msg->pose.covariance[32] = 0;
+	msg->pose.covariance[33] = static_cast<double>(last_attcoveuler_.Cov_HeadRoll);
+	msg->pose.covariance[34] = static_cast<double>(last_attcoveuler_.Cov_PitchRoll);
+	msg->pose.covariance[35] = static_cast<double>(last_attcoveuler_.Cov_HeadHead);
+	
+	return msg;
+}
+
+/**
  * The position_covariance array is populated in row-major order, where the basis of the corresponding matrix is ENU (so Cov_lonlon is in location 11 of the matrix).
  * The B2b signal type of BeiDou is not checked for usage, since the SignalInfo field of the PVTGeodetic block does not disclose it. For that, one would need to
  * go to the ObsInfo field of the MeasEpochChannelType1 sub-block.
@@ -260,15 +335,15 @@ sensor_msgs::NavSatFixPtr io_comm_mosaic::mosaicMessage::NavSatFixCallback()
 	msg->latitude = last_pvtgeodetic_.Latitude*360/(2*boost::math::constants::pi<double>());
 	msg->longitude = last_pvtgeodetic_.Longitude*360/(2*boost::math::constants::pi<double>());
 	msg->altitude = last_pvtgeodetic_.Height;
-	msg->position_covariance[0] = last_poscovgeodetic_.Cov_lonlon;
-	msg->position_covariance[1] = last_poscovgeodetic_.Cov_latlon;
-	msg->position_covariance[2] = last_poscovgeodetic_.Cov_lonhgt;
-	msg->position_covariance[3] = last_poscovgeodetic_.Cov_latlon;
-	msg->position_covariance[4] = last_poscovgeodetic_.Cov_latlat;
-	msg->position_covariance[5] = last_poscovgeodetic_.Cov_lathgt;
-	msg->position_covariance[6] = last_poscovgeodetic_.Cov_lonhgt;
-	msg->position_covariance[7] = last_poscovgeodetic_.Cov_lathgt;
-	msg->position_covariance[8] = last_poscovgeodetic_.Cov_hgthgt;
+	msg->position_covariance[0] = static_cast<double>(last_poscovgeodetic_.Cov_lonlon);
+	msg->position_covariance[1] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->position_covariance[2] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->position_covariance[3] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->position_covariance[4] = static_cast<double>(last_poscovgeodetic_.Cov_latlat);
+	msg->position_covariance[5] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->position_covariance[6] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->position_covariance[7] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->position_covariance[8] = static_cast<double>(last_poscovgeodetic_.Cov_hgthgt);
 	msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
 	return msg;
 }
@@ -277,11 +352,11 @@ sensor_msgs::NavSatFixPtr io_comm_mosaic::mosaicMessage::NavSatFixCallback()
  * For some unknown reason, the first 2 entries of the GPSStatus field's arrays are not shown properly when published. 
  * Please consult section 4.1.9 of the firmware to understand the meaning of the satellite identifiers used in the arrays of the GPSStatus field.
  * Note that the field "dip" denotes the local magnetic inclination in degrees (positive when the magnetic field points downwards (into the Earth)). 
- * This quantity cannot be calculated by mosaic.
+ * This quantity cannot be calculated by mosaic receivers.
  * We assume that for the ROS field "err_time", we are requested to provide the 2 sigma uncertainty on the clock bias estimate in square meters, 
  * not the clock drift estimate (latter would be "2*std::sqrt(static_cast<double>(last_velcovgeodetic_.Cov_DtDt))").
- * The "err_track" entry is calculated via the Gaussian error propagation formula. For its usage we have to assume that the eastward and 
- * the northward velocities are independent variables.
+ * The "err_track" entry is calculated via the Gaussian error propagation formula from the eastward and the northward velocities. 
+ * For its usage we have to assume that the eastward and the northward velocities are independent variables.
  * Note that elevations and azimuths of visible satellites are taken from the ChannelStatus block, which provides 1 degree precision, while the 
  * SatVisibility block could provide hundredths of degrees precision. Change if imperative for your application..
  * Definition of "visible satellite" adopted: Here, we define a visible satellite as being up to "in sync" mode with the receiver, which corresponds 
@@ -329,12 +404,13 @@ gps_common::GPSFixPtr io_comm_mosaic::mosaicMessage::GPSFixCallback()
 	std::vector<int32_t> elevation_tracked;
 	std::vector<int32_t> azimuth_tracked;
 	std::vector<int32_t> svid_pvt;
+	svid_pvt.clear();
 	std::vector<int32_t> ordering;
 	{
 		uint8_t sb1_size = last_channelstatus_.SB1Size;
 		uint8_t sb2_size = last_channelstatus_.SB2Size;
 		uint8_t *sb_start = &last_channelstatus_.Data[0];
-		int32_t index = sb_start - &last_channelstatus_.Block_Header.SYNC1; //What about endianness?
+		int32_t index = sb_start - &last_channelstatus_.Block_Header.SYNC1; 
 		//ROS_DEBUG("index is %i", index); // yields 20, as expected
 		
 		uint16_t azimuth_mask = 511;
@@ -445,15 +521,14 @@ gps_common::GPSFixPtr io_comm_mosaic::mosaicMessage::GPSFixCallback()
 	msg->status.motion_source = gps_common::GPSStatus::SOURCE_POINTS; // Doppler is not used when calculating the velocities of mosaic.
 	msg->status.orientation_source = gps_common::GPSStatus::SOURCE_POINTS; // Doppler is not used when calculating the orientation of mosaic.
 	msg->status.position_source = gps_common::GPSStatus::SOURCE_GPS;
-	msg->latitude = last_pvtgeodetic_.Latitude*360/(2*boost::math::constants::pi<double>());
-	msg->longitude = last_pvtgeodetic_.Longitude*360/(2*boost::math::constants::pi<double>());
-	msg->altitude = last_pvtgeodetic_.Height;
+	msg->latitude = static_cast<double>(last_pvtgeodetic_.Latitude)*360/(2*boost::math::constants::pi<double>());
+	msg->longitude = static_cast<double>(last_pvtgeodetic_.Longitude)*360/(2*boost::math::constants::pi<double>());
+	msg->altitude = static_cast<double>(last_pvtgeodetic_.Height);
 	msg->track = static_cast<double>(last_pvtgeodetic_.COG); // Note that COG is of type float32 while track is of type float64.
 	msg->speed = std::sqrt(std::pow(static_cast<double>(last_pvtgeodetic_.Vn), 2) + std::pow(static_cast<double>(last_pvtgeodetic_.Ve), 2));
 	msg->climb = static_cast<double>(last_pvtgeodetic_.Vu);
-	msg->pitch = last_atteuler_.Pitch;
-	msg->roll = last_atteuler_.Roll;
-	// Heading was already given in the "track" field.
+	msg->pitch = static_cast<double>(last_atteuler_.Pitch);
+	msg->roll = static_cast<double>(last_atteuler_.Roll);
 	if (last_dop_.PDOP == static_cast<uint16_t>(0) || last_dop_.TDOP == static_cast<uint16_t>(0))
 	{
 		msg->gdop = static_cast<double>(-1);
@@ -504,15 +579,15 @@ gps_common::GPSFixPtr io_comm_mosaic::mosaicMessage::GPSFixCallback()
 	msg->err_time = 2*std::sqrt(static_cast<double>(last_poscovgeodetic_.Cov_bb));
 	msg->err_pitch = 2*std::sqrt(static_cast<double>(last_attcoveuler_.Cov_PitchPitch));
 	msg->err_roll = 2*std::sqrt(static_cast<double>(last_attcoveuler_.Cov_RollRoll));
-	msg->position_covariance[0] = last_poscovgeodetic_.Cov_lonlon;
-	msg->position_covariance[1] = last_poscovgeodetic_.Cov_latlon;
-	msg->position_covariance[2] = last_poscovgeodetic_.Cov_lonhgt;
-	msg->position_covariance[3] = last_poscovgeodetic_.Cov_latlon;
-	msg->position_covariance[4] = last_poscovgeodetic_.Cov_latlat;
-	msg->position_covariance[5] = last_poscovgeodetic_.Cov_lathgt;
-	msg->position_covariance[6] = last_poscovgeodetic_.Cov_lonhgt;
-	msg->position_covariance[7] = last_poscovgeodetic_.Cov_lathgt;
-	msg->position_covariance[8] = last_poscovgeodetic_.Cov_hgthgt;
+	msg->position_covariance[0] = static_cast<double>(last_poscovgeodetic_.Cov_lonlon);
+	msg->position_covariance[1] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->position_covariance[2] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->position_covariance[3] = static_cast<double>(last_poscovgeodetic_.Cov_latlon);
+	msg->position_covariance[4] = static_cast<double>(last_poscovgeodetic_.Cov_latlat);
+	msg->position_covariance[5] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->position_covariance[6] = static_cast<double>(last_poscovgeodetic_.Cov_lonhgt);
+	msg->position_covariance[7] = static_cast<double>(last_poscovgeodetic_.Cov_lathgt);
+	msg->position_covariance[8] = static_cast<double>(last_poscovgeodetic_.Cov_hgthgt);
 	msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
 	
 	return msg;
@@ -561,8 +636,8 @@ ros::Time io_comm_mosaic::TimestampSBF(uint32_t TOW, bool use_GNSS)
 		//ROS_DEBUG("UTC string is %s", utc_string.c_str());
 		double utc_double;
 		string_utilities::ToDouble(utc_string, utc_double);
-		time_t unix_time_seconds = rosaic_driver::UTCtoUnix(utc_double);
-		uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000000; 	// works since there are two digits after the decimal point in the utc_double
+		time_t unix_time_seconds = parsing_utilities::UTCtoUnix(utc_double); // This only deals with full seconds.
+		uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000000; 	// This works since there are two digits after the decimal point in the utc_double.
 		ros::Time time_obj(unix_time_seconds, unix_time_nanoseconds);
 		return time_obj;
 	}
@@ -610,12 +685,15 @@ std::size_t io_comm_mosaic::mosaicMessage::SegmentEnd()
 {
 	uint16_t pos = 0;
 	segment_size_ = 0;
+	uint32_t count_copy = count_;
 	if (this->IsResponse())
 	{
 		do
 		{
 			++segment_size_;
 			++pos;
+			--count_copy;
+			if (count_copy == 0) break;
 		} while(!((data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED)) || (data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED && data_[pos+2] == 0x20 && data_[pos+3] == 0x20 && data_[pos+4] == 0x4E) || (data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED && data_[pos+2] == 0x20 && data_[pos+3] == 0x20 && data_[pos+4] == 0x53) || (data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED && data_[pos+2] == 0x20 && data_[pos+3] == 0x20 && data_[pos+4] == 0x52));
 	}
 	else
@@ -624,16 +702,19 @@ std::size_t io_comm_mosaic::mosaicMessage::SegmentEnd()
 		{
 			++segment_size_;
 			++pos;
+			--count_copy;
+			if (count_copy == 0) break;
 		} while(!((data_[pos] == CARRIAGE_RETURN && data_[pos+1] == LINE_FEED) || data_[pos] == CARRIAGE_RETURN || data_[pos] == LINE_FEED));
 	}
 	return segment_size_;
 }
+
 bool io_comm_mosaic::mosaicMessage::IsMessage(const uint16_t ID)
 {
 	if (this->IsSBF())
 	{
 		uint16_t mask = 8191;
-		if (*(reinterpret_cast<const uint16_t *>(data_ + 4)) & mask== static_cast<const uint16_t>(ID))
+		if (*(reinterpret_cast<const uint16_t *>(data_ + 4)) & mask == static_cast<const uint16_t>(ID))
 		// Caution: reinterpret_cast is the most dangerous cast, It's used primarily for particularly weird conversions and bit manipulations, like turning a raw data stream into actual data
 		{
 			return true;
@@ -785,7 +866,8 @@ uint16_t io_comm_mosaic::mosaicMessage::BlockLength()
 }
 
 /**
- * Warning: Won't jump to next message if current one is an NMEA message. search() will then check bytes one by one for the new message's sync bytes ($P or $G).
+ * This method won't make data_ jump to the next message if the current one is an NMEA message or a command reply. In that case, search() will
+ * check the bytes one by one for the new message's sync bytes ($P, $G or $R).
  */
 const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 {
@@ -793,7 +875,7 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 	{
 		if (this->IsNMEA() || this->IsResponse() || (read_cd && this->IsConnectionDescriptor()))
 		{
-			if (read_cd && this->IsConnectionDescriptor())
+			if (read_cd && this->IsConnectionDescriptor() && cd_count == 2)
 			{
 				read_cd = false;
 			}
@@ -817,8 +899,12 @@ const uint8_t* io_comm_mosaic::mosaicMessage::Next()
 			}
 			//ROS_DEBUG("Jump about to happen with jump size %u", jump_size);
 			data_ += jump_size; count_ -= jump_size;
+			found_ = false;
+			return data_;
 		}
 	}
 	found_ = false;
+	--count_;
+	++data_;
 	return data_;
 }

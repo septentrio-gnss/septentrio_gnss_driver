@@ -85,41 +85,44 @@ Inheritance diagram for io_comm_mosaic::Manager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ac0bf6b36c6af5a254846869f4894a33c"><td class="memItemLeft" align="right" valign="top">typedef boost::function&lt; void(std::vector&lt; uint8_t &gt;, std::size_t &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a></td></tr>
-<tr class="separator:ac0bf6b36c6af5a254846869f4894a33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76d71599758b795f35d0c0ae298e6f99"><td class="memItemLeft" align="right" valign="top">typedef boost::function&lt; void(const uint8_t *, std::size_t &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a76d71599758b795f35d0c0ae298e6f99">Callback</a></td></tr>
+<tr class="separator:a76d71599758b795f35d0c0ae298e6f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a8e9e2d5349b016bdc3d6f3e218490948"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a8e9e2d5349b016bdc3d6f3e218490948">~Manager</a> ()</td></tr>
 <tr class="separator:a8e9e2d5349b016bdc3d6f3e218490948"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e56959e3337f056a042b8d38b9119d6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6">SetCallback</a> (const <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a> &amp;callback)=0</td></tr>
+<tr class="memitem:a6e56959e3337f056a042b8d38b9119d6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6">SetCallback</a> (const <a class="el" href="classio__comm__mosaic_1_1_manager.html#a76d71599758b795f35d0c0ae298e6f99">Callback</a> &amp;callback)=0</td></tr>
+<tr class="memdesc:a6e56959e3337f056a042b8d38b9119d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the callback function.  <a href="#a6e56959e3337f056a042b8d38b9119d6">More...</a><br /></td></tr>
 <tr class="separator:a6e56959e3337f056a042b8d38b9119d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad0a7b5c470676108d087cbf39bc5b8c"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c">Send</a> (std::string cmd, std::size_t size)=0</td></tr>
-<tr class="memdesc:aad0a7b5c470676108d087cbf39bc5b8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends commands to mosaic.  <a href="#aad0a7b5c470676108d087cbf39bc5b8c">More...</a><br /></td></tr>
+<tr class="memdesc:aad0a7b5c470676108d087cbf39bc5b8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends commands to the receiver.  <a href="#aad0a7b5c470676108d087cbf39bc5b8c">More...</a><br /></td></tr>
 <tr class="separator:aad0a7b5c470676108d087cbf39bc5b8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52276042491cc0d4ba19df9d15c45f82"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82">Wait</a> (uint16_t *count)=0</td></tr>
+<tr class="memdesc:a52276042491cc0d4ba19df9d15c45f82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived.  <a href="#a52276042491cc0d4ba19df9d15c45f82">More...</a><br /></td></tr>
 <tr class="separator:a52276042491cc0d4ba19df9d15c45f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53ad719fb4c0c37022d79f72ec220700"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700">IsOpen</a> () const =0</td></tr>
+<tr class="memdesc:a53ad719fb4c0c37022d79f72ec220700"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether or not the connection is open.  <a href="#a53ad719fb4c0c37022d79f72ec220700">More...</a><br /></td></tr>
 <tr class="separator:a53ad719fb4c0c37022d79f72ec220700"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Interface (in C++ terms), that could be used for any I/O manager, synchronous and asynchronous alike. </p>
 
-<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00086">86</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00088">88</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="ac0bf6b36c6af5a254846869f4894a33c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0bf6b36c6af5a254846869f4894a33c">&#9670;&nbsp;</a></span>Callback</h2>
+<a id="a76d71599758b795f35d0c0ae298e6f99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76d71599758b795f35d0c0ae298e6f99">&#9670;&nbsp;</a></span>Callback</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef boost::function&lt;void(std::vector&lt;uint8_t&gt;, std::size_t&amp;)&gt; <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">io_comm_mosaic::Manager::Callback</a></td>
+          <td class="memname">typedef boost::function&lt;void(const uint8_t*, std::size_t&amp;)&gt; <a class="el" href="classio__comm__mosaic_1_1_manager.html#a76d71599758b795f35d0c0ae298e6f99">io_comm_mosaic::Manager::Callback</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00088">88</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00090">90</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
 
 </div>
 </div>
@@ -147,18 +150,18 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00089">89</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="async__manager_8hpp_source.html#l00091">91</a> of file <a class="el" href="async__manager_8hpp_source.html">async_manager.hpp</a>.</p>
 
 <p class="reference">References <a class="el" href="classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700">IsOpen()</a>, <a class="el" href="classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c">Send()</a>, <a class="el" href="classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6">SetCallback()</a>, and <a class="el" href="classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82">Wait()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;{}</div></div><!-- fragment --><div class="dynheader">
+<div class="fragment"><div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;{}</div></div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classio__comm__mosaic_1_1_manager_a8e9e2d5349b016bdc3d6f3e218490948_cgraph.png" border="0" usemap="#classio__comm__mosaic_1_1_manager_a8e9e2d5349b016bdc3d6f3e218490948_cgraph" alt=""/></div>
 <map name="classio__comm__mosaic_1_1_manager_a8e9e2d5349b016bdc3d6f3e218490948_cgraph" id="classio__comm__mosaic_1_1_manager_a8e9e2d5349b016bdc3d6f3e218490948_cgraph">
-<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700" title="io_comm_mosaic::Manager\l::IsOpen" alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c" title="Sends commands to mosaic. " alt="" coords="236,71,419,112"/>
-<area shape="rect" id="node4" href="classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6" title="io_comm_mosaic::Manager\l::SetCallback" alt="" coords="236,136,419,177"/>
-<area shape="rect" id="node5" href="classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82" title="io_comm_mosaic::Manager\l::Wait" alt="" coords="236,201,419,243"/>
+<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700" title="Determines whether or not the connection is open. " alt="" coords="236,5,419,47"/>
+<area shape="rect" id="node3" href="classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c" title="Sends commands to the receiver. " alt="" coords="236,71,419,112"/>
+<area shape="rect" id="node4" href="classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6" title="Sets the callback function. " alt="" coords="236,136,419,177"/>
+<area shape="rect" id="node5" href="classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="236,201,419,243"/>
 </map>
 </div>
 
@@ -188,9 +191,11 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
+<p>Determines whether or not the connection is open. </p>
+
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#a2543cd0066f3b438266a4703c73d5bed">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00089">~Manager()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00091">~Manager()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -236,17 +241,17 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Sends commands to mosaic. </p>
+<p>Sends commands to the receiver. </p>
 
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#a6e2a15c0542d46939b58a2b6ddf5b418">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00121">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::SetCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00089">~Manager()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00121">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::SetCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00091">~Manager()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classio__comm__mosaic_1_1_manager_aad0a7b5c470676108d087cbf39bc5b8c_icgraph.png" border="0" usemap="#classio__comm__mosaic_1_1_manager_aad0a7b5c470676108d087cbf39bc5b8c_icgraph" alt=""/></div>
 <map name="classio__comm__mosaic_1_1_manager_aad0a7b5c470676108d087cbf39bc5b8c_icgraph" id="classio__comm__mosaic_1_1_manager_aad0a7b5c470676108d087cbf39bc5b8c_icgraph">
-<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a" title="io_comm_mosaic::AsyncManager\l::SetCallback" alt="" coords="236,5,455,47"/>
+<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a" title="Sets the callback function. " alt="" coords="236,5,455,47"/>
 <area shape="rect" id="node3" href="classio__comm__mosaic_1_1_manager.html#a8e9e2d5349b016bdc3d6f3e218490948" title="io_comm_mosaic::Manager\l::~Manager" alt="" coords="254,71,437,112"/>
 </map>
 </div>
@@ -265,7 +270,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname">virtual void io_comm_mosaic::Manager::SetCallback </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classio__comm__mosaic_1_1_manager.html#ac0bf6b36c6af5a254846869f4894a33c">Callback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classio__comm__mosaic_1_1_manager.html#a76d71599758b795f35d0c0ae298e6f99">Callback</a> &amp;&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
           <td></td>
         </tr>
@@ -277,9 +282,11 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
+<p>Sets the callback function. </p>
+
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00089">~Manager()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00091">~Manager()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -315,15 +322,17 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
+<p>Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived. </p>
+
 <p>Implemented in <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#a756faa35e7105eb2204ebcce109b2a4e">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00121">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::SetCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00089">~Manager()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="async__manager_8hpp_source.html#l00121">io_comm_mosaic::AsyncManager&lt; StreamT &gt;::SetCallback()</a>, and <a class="el" href="async__manager_8hpp_source.html#l00091">~Manager()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classio__comm__mosaic_1_1_manager_a52276042491cc0d4ba19df9d15c45f82_icgraph.png" border="0" usemap="#classio__comm__mosaic_1_1_manager_a52276042491cc0d4ba19df9d15c45f82_icgraph" alt=""/></div>
 <map name="classio__comm__mosaic_1_1_manager_a52276042491cc0d4ba19df9d15c45f82_icgraph" id="classio__comm__mosaic_1_1_manager_a52276042491cc0d4ba19df9d15c45f82_icgraph">
-<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a" title="io_comm_mosaic::AsyncManager\l::SetCallback" alt="" coords="236,5,455,47"/>
+<area shape="rect" id="node2" href="classio__comm__mosaic_1_1_async_manager.html#a6d4f9746683ef179636e186349367b0a" title="Sets the callback function. " alt="" coords="236,5,455,47"/>
 <area shape="rect" id="node3" href="classio__comm__mosaic_1_1_manager.html#a8e9e2d5349b016bdc3d6f3e218490948" title="io_comm_mosaic::Manager\l::~Manager" alt="" coords="254,71,437,112"/>
 </map>
 </div>
@@ -336,7 +345,7 @@ Here is the caller graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Sep 22 2020 13:33:08 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

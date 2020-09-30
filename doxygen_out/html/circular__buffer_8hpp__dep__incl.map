@@ -1,0 +1,8 @@
+<map id="include/rosaic/communication/circular_buffer.hpp" name="include/rosaic/communication/circular_buffer.hpp">
+<area shape="rect" id="node2" href="$circular__buffer_8cpp.html" title="Defines a class for creating, writing and reading from a circular bufffer. " alt="" coords="5,95,176,136"/>
+<area shape="rect" id="node3" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="200,95,395,136"/>
+<area shape="rect" id="node4" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="200,184,395,225"/>
+<area shape="rect" id="node5" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="119,273,289,315"/>
+<area shape="rect" id="node6" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="313,273,468,315"/>
+<area shape="rect" id="node7" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="325,363,457,404"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="GprmcParser::ParseASCII" name="GprmcParser::ParseASCII">
+<area shape="rect" id="node2" href="$namespaceparsing__utilities.html#a674008c80fbf567d68b6d3930315c6a5" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="233,5,395,47"/>
+<area shape="rect" id="node3" href="$namespaceparsing__utilities.html#a0f61dc63530eea53d820c49fac865dfe" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="254,71,374,112"/>
+<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#ad033480f07c8ac616ed7e03584219eec" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="254,136,374,177"/>
+<area shape="rect" id="node5" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="231,202,397,229"/>
+<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#ac0ce6b6adcc24044637fda31b2f67556" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="235,253,393,295"/>
+<area shape="rect" id="node7" href="$namespaceparsing__utilities.html#af37ca3ef65c36f4c1bfa3f899ec83768" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="254,319,374,360"/>
+</map>

@@ -1,12 +1,11 @@
 # Configuration Settings for mosaic, rover
 
-debug: 3
-
-device: tcp://192.168.3.1:28784
+device: tcp://xxx.xxx.xxx.xxx:xxxx
 
 serial:
   baudrate: 115200
   mosaic_serial_port: USB1
+  hw_flow_control: off
 
 frame_id: gnss
 
@@ -23,30 +22,40 @@ ant_serial_nr: Unknown
 leap_seconds: 18
 
 polling_period:
-  pvt: 1
-  rest: 1
+  pvt: 500
+  rest: 500
 
 reconnect_delay_s: 2
 
 use_GNSS_time: true
 
 ntrip_settings:
-  mode: Client
-  caster: ntrip.flepos.be
-  port: 2102
-  username: septentrio-demo01
-  password: flepos4demo
-  mountpoint: FLEPOSDGPSNRS23
-  version: v2
+  mode: off
+  caster: 0
+  caster_port: 0
+  username: 0
+  password: 0
+  mountpoint: 0
+  ntrip_version: v2
   send_gga: auto
+  mosaic_has_internet: false
+  rtcm_version: RTCMv2
+  mosaic_input_corrections_tcp: 6666
+  mosaic_input_corrections_serial: USB2
 
 publish:
-  gpgga: true
-  pvtcartesian: true
+  gpgga: false
+  gprmc: false
+  gpgsa: false
+  gpgsv: false
+  pvtcartesian: false
   pvtgeodetic: true
+  poscovcartesian: false
   poscovgeodetic: true
   atteuler: true
   attcoveuler: true
+  gpst : false
   navsatfix: true
-  gpsfix: true
+  gpsfix: false
+  posewithcovariancestamped: true
 

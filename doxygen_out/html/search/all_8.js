@@ -1,15 +1,20 @@
 var searchData=
 [
-  ['haccuracy',['HAccuracy',['../struct_p_v_t_cartesian.html#af86dc379e8f8032c6acfa58aa4cb5a2e',1,'PVTCartesian::HAccuracy()'],['../struct_p_v_t_geodetic.html#a2b8110465dcba246dc05d61f1bdee5da',1,'PVTGeodetic::HAccuracy()']]],
-  ['handle',['Handle',['../classio__comm__mosaic_1_1_abstract_callback_handler.html#a60f6eb593bf42079460d6e7d63e67ce3',1,'io_comm_mosaic::AbstractCallbackHandler::Handle()'],['../classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77',1,'io_comm_mosaic::CallbackHandler::Handle()'],['../classio__comm__mosaic_1_1_callback_handlers.html#a1fec2bb11f61ef346431fe73801e5a9e',1,'io_comm_mosaic::CallbackHandlers::Handle()']]],
-  ['handlers_5f',['handlers_',['../classio__comm__mosaic_1_1_comm___i_o.html#a53e3298c13e4ee061c93e30fe9f44260',1,'io_comm_mosaic::Comm_IO']]],
-  ['hdop',['HDOP',['../struct_d_o_p.html#ab3418dadc60433b9f3de142ad5300f6d',1,'DOP']]],
-  ['header',['Header',['../struct_vel_cov_cartesian.html#a0417d61fe5c606347e87dafdca1297b0',1,'VelCovCartesian::Header()'],['../struct_vel_cov_geodetic.html#a14271441e25721b75ef0eaefcf0ace04',1,'VelCovGeodetic::Header()'],['../struct_receiver_time.html#a704e52db6836b07bf4fba9f662f0c6e6',1,'ReceiverTime::Header()'],['../struct_g_p_s_n_a_v.html#ad07c185eddf3b4305b64e78f4ea51878',1,'GPSNAV::Header()']]],
-  ['heading',['Heading',['../struct_att_euler.html#a03e0e77b6ddd15edfb4573b3c9f4a1d0',1,'AttEuler']]],
-  ['headingdot',['HeadingDot',['../struct_att_euler.html#a04d3d2308667c48fc62387d555e712ec',1,'AttEuler']]],
-  ['health',['health',['../struct_g_p_s_n_a_v.html#a208af369fbf6da1eea59c81190a13400',1,'GPSNAV']]],
-  ['healthstatus',['HealthStatus',['../struct_channel_sat_info.html#af921e3075cc492ae5df08d5a5c568eb7',1,'ChannelSatInfo']]],
-  ['height',['Height',['../struct_p_v_t_geodetic.html#ab3fc96c2bb85b7deb110ea9ea571674c',1,'PVTGeodetic']]],
-  ['host_5f',['host_',['../classio__comm__mosaic_1_1_comm___i_o.html#a75924fc508c2da2e8547494a84fbcca8',1,'io_comm_mosaic::Comm_IO']]],
-  ['hpl',['HPL',['../struct_d_o_p.html#a6cfa2055d6a9b1887dd3c4f9c55b72e3',1,'DOP']]]
+  ['id',['ID',['../struct_block_header__t.html#ae47cfac225de0794d56e9d0e8b55318b',1,'BlockHeader_t']]],
+  ['id_5f',['id_',['../class_n_m_e_a_sentence.html#aea0e525b80349ec15db7efff3dd3d1d7',1,'NMEASentence']]],
+  ['in_5f',['in_',['../classio__comm__mosaic_1_1_async_manager.html#a982365c42d5ea333850ad8ae01dea971',1,'io_comm_mosaic::AsyncManager']]],
+  ['initializeio',['InitializeIO',['../classrosaic__node_1_1_r_o_saic_node.html#ac06ed02ba77b90ca96015e2dda95ff01',1,'rosaic_node::ROSaicNode']]],
+  ['initializeserial',['InitializeSerial',['../classio__comm__mosaic_1_1_comm___i_o.html#a931dab5cd52ffaf420405bdd0526bb2d',1,'io_comm_mosaic::Comm_IO']]],
+  ['initializetcp',['InitializeTCP',['../classio__comm__mosaic_1_1_comm___i_o.html#af9f5547861ad72a0b3d5fa54b39d6ac7',1,'io_comm_mosaic::Comm_IO']]],
+  ['insert',['Insert',['../classio__comm__mosaic_1_1_callback_handlers.html#ac2cf074ee8319d2e2fbb66536a803d7c',1,'io_comm_mosaic::CallbackHandlers']]],
+  ['io',['IO',['../namespacerosaic__node.html#a48b42657065175858240799f0416951a',1,'rosaic_node']]],
+  ['io_5fcomm_5fmosaic',['io_comm_mosaic',['../namespaceio__comm__mosaic.html',1,'']]],
+  ['io_5fservice_5f',['io_service_',['../classio__comm__mosaic_1_1_async_manager.html#a86422ba2fce7002ba7aaa8184fecf931',1,'io_comm_mosaic::AsyncManager']]],
+  ['isconnectiondescriptor',['IsConnectionDescriptor',['../classio__comm__mosaic_1_1mosaic_message.html#addf5cd9237f4a6e2e4d36246a6ae18eb',1,'io_comm_mosaic::mosaicMessage']]],
+  ['iserrormessage',['IsErrorMessage',['../classio__comm__mosaic_1_1mosaic_message.html#a91611d9c08250aabc065f741163f9593',1,'io_comm_mosaic::mosaicMessage']]],
+  ['ismessage',['IsMessage',['../classio__comm__mosaic_1_1mosaic_message.html#a661fb8ae684ee0a3acb1b566702665c9',1,'io_comm_mosaic::mosaicMessage::IsMessage(const uint16_t ID)'],['../classio__comm__mosaic_1_1mosaic_message.html#afb2cf8b48f90fb61b38c42b655bf8f77',1,'io_comm_mosaic::mosaicMessage::IsMessage(std::string ID)']]],
+  ['isnmea',['IsNMEA',['../classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c',1,'io_comm_mosaic::mosaicMessage']]],
+  ['isopen',['IsOpen',['../classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700',1,'io_comm_mosaic::Manager::IsOpen()'],['../classio__comm__mosaic_1_1_async_manager.html#a2543cd0066f3b438266a4703c73d5bed',1,'io_comm_mosaic::AsyncManager::IsOpen()']]],
+  ['isresponse',['IsResponse',['../classio__comm__mosaic_1_1mosaic_message.html#a78a4ac9ad7ce95441a1ba249a3c23f4e',1,'io_comm_mosaic::mosaicMessage']]],
+  ['issbf',['IsSBF',['../classio__comm__mosaic_1_1mosaic_message.html#a71b8ae8eeec37ef08cc361e567df2936',1,'io_comm_mosaic::mosaicMessage']]]
 ];

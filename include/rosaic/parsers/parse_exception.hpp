@@ -63,24 +63,22 @@ int main () {
  * @date 17/08/20 
  */
  
-namespace rosaic_driver
+
+/**
+ * @class ParseException
+ * @date 17/08/20
+ * @brief Ćlass to declare error message format when parsing, derived from the public class "std::runtime_error"
+ * 
+ * Such error messages are thrown whenever a parser class has an unrecoverable issue parsing a message..
+ * Note that "std::runtime_error" is already a class derived from the base class "exception".
+ * Note on "explicit" keyword: When a class has a constructor which can be called with a single argument (since arguments might be set to some values by default), then this constructor becomes a conversion constructor, since it allows the !implicit! conversion of the single argument to the full class.
+ * We can avoid such implicit conversions as these may lead to unexpected results by making the constructor explicit with the help of the "explicit" keyword. 
+ */
+class ParseException : public std::runtime_error
 {
-	/**
-	 * @class ParseException
-	 * @date 17/08/20
-	 * @brief Ćlass to declare error message format when parsing, derived from the public class "std::runtime_error"
-	 * 
-	 * Such error messages are thrown whenever a parser class has an unrecoverable issue parsing a message..
-	 * Note that "std::runtime_error" is already a class derived from the base class "exception".
-	 * Note on "explicit" keyword: When a class has a constructor which can be called with a single argument (since arguments might be set to some values by default), then this constructor becomes a conversion constructor, since it allows the !implicit! conversion of the single argument to the full class.
-	 * We can avoid such implicit conversions as these may lead to unexpected results by making the constructor explicit with the help of the "explicit" keyword. 
-	 */
-	class ParseException : public std::runtime_error
-	{
-	public:
-		explicit ParseException(const std::string& error) : std::runtime_error(error)
-		{}
-	};
-}
+public:
+	explicit ParseException(const std::string& error) : std::runtime_error(error)
+	{}
+};
 
 #endif //PARSE_EXCEPTION_HPP

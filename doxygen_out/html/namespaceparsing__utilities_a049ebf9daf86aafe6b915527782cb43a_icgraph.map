@@ -1,0 +1,9 @@
+<map id="parsing_utilities::ParseUInt8" name="parsing_utilities::ParseUInt8">
+<area shape="rect" id="node2" href="$class_gpgsv_parser.html#a309ba857a2ed74aa31cfc989109c8fcc" title="Parses one GSV message. " alt="" coords="173,39,349,65"/>
+<area shape="rect" id="node7" href="$class_gpgsa_parser.html#a51e753594ae1f0163c27e545b5759949" title="Parses one GSA message. " alt="" coords="173,89,349,116"/>
+<area shape="rect" id="node3" href="$class_gpgsv_parser.html#afe1710863c692c3a465abd5898849440" title="Constructor of the class GpgsvParser. " alt="" coords="419,5,602,32"/>
+<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a1fad65b4a7b7a38b0f02d599ab005eea" title="Performs the CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1..." alt="" coords="397,57,624,98"/>
+<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a7c1dcc9704f31eadfa980a66464433a7" title="Returns the count_ variable. " alt="" coords="672,25,899,66"/>
+<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77" title="io_comm_mosaic::Callback\lHandler::Handle" alt="" coords="694,90,877,131"/>
+<area shape="rect" id="node8" href="$class_gpgsa_parser.html#a2a763ee35d98dab9a887f04242462fc2" title="Constructor of the class GpgsaParser. " alt="" coords="419,123,602,149"/>
+</map>
