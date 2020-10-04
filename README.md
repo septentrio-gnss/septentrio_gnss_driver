@@ -214,7 +214,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   - `/poscovgeodetic`: publishes custom ROS message `rosaic/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`
   - `/pvtcartesian`: publishes custom ROS message `rosaic/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`
   - `/gpgga`: publishes generic ROS message [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html), converted from the NMEA sentence GGA
-  - `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler` and `DOP`
+  - `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP`
   - `/atteuler`: publishes custom ROS message `rosaic/AttEuler.msg`, corresponding to SBF block `AttEuler`
   - `/attcoveuler`: publishes custom ROS message `rosaic/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`
     - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
