@@ -32,8 +32,8 @@
 #define CRC_H
 
 // ROSaic includes
-#include <rosaic/packed_structs/ssntypes.hpp>
-#include <rosaic/packed_structs/sbf_structs.hpp>  // imports structures into which Septenrio data can be unpacked then shipped to handler functions
+// The following imports structs into which SBF blocks can be unpacked then shipped to handler functions
+#include <rosaic/packed_structs/sbf_structs.hpp> 
 // C++ libary includes
 #include <stddef.h>
 #include <stdint.h>
@@ -42,11 +42,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-// By wrapping the C code with extern "C" the C++ compiler will not mangle the C code's names (official term: name mangling, allows C++ function overloading)
-// Therefore, !all! generic C style header files (stdio.h for e.g. printf(...), string.h, .. etc) have their declarations in extern “C” block, do the same for your C style header files!!
-// extern "C" doesn't really change the way that the compiler reads the code. If your code is in a .c file, it will be compiled as C, if it is in a .cpp file, it will be compiled as C++ (unless you do something strange to your configuration).
-// What extern "C" does is affect linkage. C++ functions, when compiled, have their names mangled -- this is what makes overloading possible. The function name gets modified based on the types and number of parameters, so that two functions with the same name will have different symbol names.
-// Code inside an extern "C" is still C++ code. There are limitations on what you can do in an extern "C" block, but they're all about linkage. You can't define any new symbols that can't be built with C linkage. That means no classes or templates, for example.
+
+// By wrapping the C code with extern "C" the C++ compiler will not mangle the C code's names (official term: name 
+// mangling, allows C++ function overloading),
+// Therefore, !all! generic C style header files (stdio.h for e.g. printf(...), string.h, .. etc) have their declarations 
+// in extern “C” block, do the same for your C style header files!!
+// extern "C" doesn't really change the way that the compiler reads the code. If your code is in a .c file, it will be 
+// compiled as C, if it is in a .cpp file, it will be compiled as C++ (unless you do something strange to your configuration).
+// What extern "C" does is affect linkage. C++ functions, when compiled, have their names mangled -- this is what makes 
+// overloading possible. The function name gets modified based on the types and number of parameters, so that two functions 
+// with the same name will have different symbol names.
+// Code inside an extern "C" is still C++ code. There are limitations on what you can do in an extern "C" block, but they're 
+// all about linkage. You can't define any new symbols that can't be built with C linkage. That means no classes or 
+// templates, for example.
  
 /**
  * @file crc.h
@@ -58,21 +66,16 @@ extern "C" {
  * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a buffer "buf" of "buf_length" bytes
  * @param[in] buf The buffer at hand
  * @param[in] buf_length Number of bytes in "buf"
- * @return Returns the calculated CRC
+ * @return The calculated CRC
  */
-uint16_t FW_EXPORT CRC_compute16CCITT(const void * buf, size_t buf_length);
+uint16_t FW_EXPORT compute16CCITT(const void * buf, size_t buf_length);
 
 /**
- * @brief This function validates whether the calculated CRC of the SBF block at hand matches the CRC field that is part of the streamed SBF block
- * @param Block The SBF block that we are interested in
- * @return Returns true if the CRC check of the SBFBlock has passed, false otherwise
+ * @brief Validates whether the calculated CRC of the SBF block at hand matches the CRC field of the streamed SBF block
+ * @param block The SBF block that we are interested in
+ * @return True if the CRC check of the SBFBlock has passed, false otherwise
  */
-bool FW_EXPORT CRCIsValid(const void *Block);
-
-/* Look-up table for fast computation of the 16-bit CRC in the SBF header. */
-
-typedef BlockHeader_t VoidBlock_t;
-
+bool FW_EXPORT isValid(const void *block);
 
 #ifdef __cplusplus
 }

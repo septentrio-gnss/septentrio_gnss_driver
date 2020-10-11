@@ -1,0 +1,12 @@
+<map id="io_comm_rx::RxMessage::isErrorMessage" name="io_comm_rx::RxMessage::isErrorMessage">
+<area shape="rect" id="node2" href="$classio__comm__rx_1_1_callback_handlers.html#a0e7fb4e461bc36873a96edcdc16e70d8" title="Searches for Rx messages that could potentially be decoded/parsed/published. " alt="" coords="224,71,428,112"/>
+<area shape="rect" id="node11" href="$classio__comm__rx_1_1_rx_message.html#a878c21f7f1faee5d3207633a21c909a6" title="Constructor of the RxMessage class. " alt="" coords="241,136,411,177"/>
+<area shape="rect" id="node3" href="$classio__comm__rx_1_1_comm___i_o.html#ad05e4d97461fde2d9dd49b890bd9effd" title="Set the I/O manager. " alt="" coords="476,71,637,112"/>
+<area shape="rect" id="node4" href="$classio__comm__rx_1_1_comm___i_o.html#a275c32a25ed6b40c353211ae89505dfd" title="Initializes the serial port. " alt="" coords="685,5,847,47"/>
+<area shape="rect" id="node9" href="$classio__comm__rx_1_1_comm___i_o.html#a109de026b8e7bda8c355dd7c57f7b958" title="Initializes the TCP I/O. " alt="" coords="685,71,847,112"/>
+<area shape="rect" id="node10" href="$classio__comm__rx_1_1_comm___i_o.html#a1987583fa8c5b76bbc4f86c55d1b2ae9" title="Reset the Serial I/O port, e.g. after a Rx reset. " alt="" coords="685,136,847,177"/>
+<area shape="rect" id="node5" href="$classrosaic__node_1_1_r_o_saic_node.html#a5e8c0a710df92963ed8b2d6a247db8ba" title="Attempts to (re)connect every reconnect_delay_s_ seconds. " alt="" coords="895,39,1072,80"/>
+<area shape="rect" id="node6" href="$classrosaic__node_1_1_r_o_saic_node.html#a811e5d18f33c13d1e49c2899a540abae" title="Calles the reconnect() method. " alt="" coords="1120,39,1297,80"/>
+<area shape="rect" id="node7" href="$classrosaic__node_1_1_r_o_saic_node.html#a0a7a85ecd1f4a6313711c13fbb659bad" title="Initializes the I/O handling. " alt="" coords="1345,39,1523,80"/>
+<area shape="rect" id="node8" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="1571,39,1748,80"/>
+</map>

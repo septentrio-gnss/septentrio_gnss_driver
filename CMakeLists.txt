@@ -14,9 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp_serialization
   rostime
   xmlrpcpp
-  nmea_msgs
   sensor_msgs
   geometry_msgs
+  diagnostic_msgs
   gps_common
   message_generation
 )
@@ -88,9 +88,9 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
     DEPENDENCIES
-    nmea_msgs  # Or other packages containing msgs
     std_msgs
     sensor_msgs
+    diagnostic_msgs
     gps_common
 )
 
@@ -155,7 +155,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/rosaic/nodelets/rosaic_node.cpp src/rosaic/communication/circular_buffer.cpp src/rosaic/parsers/parsing_utilities.cpp src/rosaic/parsers/string_utilities.cpp src/rosaic/parsers/nmea_parsers/gpgga.cpp src/rosaic/parsers/nmea_parsers/gprmc.cpp src/rosaic/parsers/nmea_parsers/gpgsa.cpp src/rosaic/parsers/nmea_parsers/gpgsv.cpp src/rosaic/crc/crc.c src/rosaic/communication/communication_core.cpp src/rosaic/communication/mosaicMessage.cpp)
+add_executable(${PROJECT_NAME}_node src/rosaic/node/rosaic_node.cpp src/rosaic/communication/circular_buffer.cpp src/rosaic/parsers/parsing_utilities.cpp src/rosaic/parsers/string_utilities.cpp src/rosaic/parsers/nmea_parsers/gpgga.cpp src/rosaic/parsers/nmea_parsers/gprmc.cpp src/rosaic/parsers/nmea_parsers/gpgsa.cpp src/rosaic/parsers/nmea_parsers/gpgsv.cpp src/rosaic/crc/crc.c src/rosaic/communication/communication_core.cpp src/rosaic/communication/rx_message.cpp src/rosaic/communication/callback_handlers.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

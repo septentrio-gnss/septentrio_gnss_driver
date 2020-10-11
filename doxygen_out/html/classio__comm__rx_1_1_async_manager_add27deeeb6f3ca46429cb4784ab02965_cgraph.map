@@ -1,0 +1,4 @@
+<map id="io_comm_rx::AsyncManager::setCallback" name="io_comm_rx::AsyncManager::setCallback">
+<area shape="rect" id="node2" href="$classio__comm__rx_1_1_manager.html#a8b506970406c794cf7e457051f45b6c8" title="Sends commands to the receiver. " alt="" coords="241,5,392,47"/>
+<area shape="rect" id="node3" href="$classio__comm__rx_1_1_manager.html#abd4e49033c12873599ef7484f466ff2d" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="241,71,392,112"/>
+</map>

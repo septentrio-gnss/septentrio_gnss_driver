@@ -38,17 +38,18 @@
 
 const std::string GpgsvParser::MESSAGE_ID = "$GPGSV";
 
-const std::string GpgsvParser::GetMessageID() const
+const std::string GpgsvParser::getMessageID() const
 {
 	return GpgsvParser::MESSAGE_ID;
 }
 
 /**
- * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
- * Note: This method is called from within the read() method of the mosaicMessage class by including the checksum part in
- * the argument "sentence" here, though the checksum is never parsed: E.g. for message with 4 Svs it would be sentence.get_body()[20] if anybody ever needs it.
+ * Caution: Due to the occurrence of the throw keyword, this method parseASCII should be called within a try / catch framework...
+ * Note: This method is called from within the read() method of the RxMessage class by including the checksum part in
+ * the argument "sentence" here, though the checksum is never parsed: E.g. for message with 4 Svs it would be 
+ * sentence.get_body()[20] if anybody ever needs it.
  */
-rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(false)
+rosaic::GpgsvPtr GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 {
 	
 	
@@ -62,9 +63,9 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		throw ParseException(error.str());
 	}
 	rosaic::GpgsvPtr msg = boost::make_shared<rosaic::Gpgsv>();
-	msg->header.frame_id = frame_id;
+	msg->header.frame_id = g_frame_id;
 	msg->message_id = sentence.get_body()[0];
-	if (!parsing_utilities::ParseUInt8(sentence.get_body()[1], msg->n_msgs))
+	if (!parsing_utilities::parseUInt8(sentence.get_body()[1], msg->n_msgs))
 	{
 		throw ParseException("Error parsing n_msgs in GSV.");
 	}
@@ -75,7 +76,7 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		throw ParseException(error.str());
 	}
 
-	if (!parsing_utilities::ParseUInt8(sentence.get_body()[2], msg->msg_number))
+	if (!parsing_utilities::parseUInt8(sentence.get_body()[2], msg->msg_number))
 	{
 		throw ParseException("Error parsing msg_number in GSV.");
 	}
@@ -85,7 +86,7 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		error << "msg_number in GSV is larger than n_msgs: " << msg->msg_number << " > " << msg->n_msgs << ".";
 		throw ParseException(error.str());
 	}
-	if (!parsing_utilities::ParseUInt8(sentence.get_body()[3], msg->n_satellites))
+	if (!parsing_utilities::parseUInt8(sentence.get_body()[3], msg->n_satellites))
 	{
 		throw ParseException("Error parsing n_satellites in GSV.");
 	}
@@ -108,7 +109,8 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		}
 	}
 	// Checking that the sentence is the right length for the number of satellites
-	size_t expected_length = MIN_LENGTH + 4 * n_sats_in_sentence + 1; // Note that we add +1 due to the checksum data being part of the argument "sentence".
+	size_t expected_length = MIN_LENGTH + 4 * n_sats_in_sentence + 1; 
+	// Note that we add +1 due to the checksum data being part of the argument "sentence".
 	if (n_sats_in_sentence == 0)
 	{
 		// Even if the number of sats is 0, the message will still have enough
@@ -138,14 +140,14 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	msg->satellites.resize(n_sats_in_sentence);
 	for (size_t sat = 0, index=MIN_LENGTH; sat < n_sats_in_sentence; ++sat, index += 4)
 	{
-		if (!parsing_utilities::ParseUInt8(sentence.get_body()[index], msg->satellites[sat].prn))
+		if (!parsing_utilities::parseUInt8(sentence.get_body()[index], msg->satellites[sat].prn))
 		{
 			std::stringstream error;
 			error << "Error parsing PRN for satellite " << sat << " in GSV.";
 			throw ParseException(error.str());
 		}
 		float elevation;
-		if (!parsing_utilities::ParseFloat(sentence.get_body()[index + 1], elevation))
+		if (!parsing_utilities::parseFloat(sentence.get_body()[index + 1], elevation))
 		{
 			std::stringstream error;
 			error << "Error parsing elevation for satellite " << sat << " in GSV.";
@@ -154,7 +156,7 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		msg->satellites[sat].elevation = static_cast<uint8_t>(elevation);
 
 		float azimuth;
-		if (!parsing_utilities::ParseFloat(sentence.get_body()[index + 2], azimuth))
+		if (!parsing_utilities::parseFloat(sentence.get_body()[index + 2], azimuth))
 		{
 			std::stringstream error;
 			error << "Error parsing azimuth for satellite " << sat << " in GSV.";
@@ -169,7 +171,7 @@ rosaic::GpgsvPtr GpgsvParser::ParseASCII(const NMEASentence& sentence) noexcept(
 		else
 		{
 			uint8_t snr;
-			if (!parsing_utilities::ParseUInt8(sentence.get_body()[index + 3], snr))
+			if (!parsing_utilities::parseUInt8(sentence.get_body()[index + 3], snr))
 			{
 				std::stringstream error;
 				error << "Error parsing snr for satellite " << sat << " in GSV.";

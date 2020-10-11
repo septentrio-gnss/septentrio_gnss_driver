@@ -1,12 +1,12 @@
 <map id="GpggaParser::GpggaParser" name="GpggaParser::GpggaParser">
-<area shape="rect" id="node2" href="$class_gpgga_parser.html#a246ecb418645cfc38d1ce27267f41f9a" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="256,144,451,171"/>
-<area shape="rect" id="node3" href="$class_gpgga_parser.html#a18483c990c6684419c3bbb1aa81b422a" title="Parses one GGA message. " alt="" coords="265,195,441,221"/>
-<area shape="rect" id="node11" href="$class_gpgga_parser.html#aa6c4eb50eca7fb485002b39d26355a94" title="Tells us whether the last GGA message was valid or not. " alt="" coords="236,245,471,272"/>
-<area shape="rect" id="node4" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="519,5,685,32"/>
-<area shape="rect" id="node5" href="$namespaceparsing__utilities.html#ac0ce6b6adcc24044637fda31b2f67556" title="Converts the UTC time from the without&#45;colon&#45;delimiter format, type double, to the number&#45;of&#45;seconds&#45;..." alt="" coords="523,57,681,98"/>
-<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#af37ca3ef65c36f4c1bfa3f899ec83768" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="542,122,662,163"/>
-<area shape="rect" id="node7" href="$namespaceparsing__utilities.html#a0f61dc63530eea53d820c49fac865dfe" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="542,187,662,229"/>
-<area shape="rect" id="node8" href="$namespaceparsing__utilities.html#a674008c80fbf567d68b6d3930315c6a5" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="521,253,683,294"/>
-<area shape="rect" id="node9" href="$namespaceparsing__utilities.html#a5449a882bfbc9db638299aeb4fc896b9" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="542,318,662,359"/>
-<area shape="rect" id="node10" href="$namespaceparsing__utilities.html#ad033480f07c8ac616ed7e03584219eec" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="542,383,662,425"/>
+<area shape="rect" id="node2" href="$class_gpgga_parser.html#a534807b5bf7622bbbf7a2289bfba4064" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="257,144,447,171"/>
+<area shape="rect" id="node3" href="$class_gpgga_parser.html#a6bda3f0b9240ce9a8a6d39361dcc29ec" title="Parses one GGA message. " alt="" coords="265,195,439,221"/>
+<area shape="rect" id="node11" href="$class_gpgga_parser.html#a6c81d509fa73629a43751b3ca1620981" title="Tells us whether the last GGA message was valid or not. " alt="" coords="236,245,468,272"/>
+<area shape="rect" id="node4" href="$namespacestring__utilities.html#a451618fdcf8f25a073befba3d2ac5421" title="Interprets the contents of &quot;string&quot; as a floating point number of type double It stores the &quot;string&quot;&#39;..." alt="" coords="535,5,697,32"/>
+<area shape="rect" id="node5" href="$namespaceparsing__utilities.html#a34ee6939c49825173737889032db9b77" title="Converts UTC time from the without&#45;colon&#45;delimiter format to the number&#45;of&#45;seconds&#45;since&#45;midnight for..." alt="" coords="516,57,716,98"/>
+<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#a2cc2dd97f656e434bef521d05e7193e0" title="Converts UTC time from the without&#45;colon&#45;delimiter format to Unix Epoch time (a number&#45;of&#45;seconds&#45;sin..." alt="" coords="551,122,681,163"/>
+<area shape="rect" id="node7" href="$namespaceparsing__utilities.html#afcfb7aecfb6d9fb7f662b7474f454eec" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="556,187,676,229"/>
+<area shape="rect" id="node8" href="$namespaceparsing__utilities.html#a339d2454d9e3f8a39e1b8a21c3d2e835" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="537,253,695,294"/>
+<area shape="rect" id="node9" href="$namespaceparsing__utilities.html#a3f94eb48cdb5adcad6ef4a38e0b8421d" title="Converts a 4&#45;byte&#45;buffer into an unsigned 32&#45;bit integer. " alt="" coords="556,318,676,359"/>
+<area shape="rect" id="node10" href="$namespaceparsing__utilities.html#aee4985c19b3a7daedfaba8ab10157c02" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="556,383,676,425"/>
 </map>

@@ -35,7 +35,7 @@
 // C and C++ library includes
 #include <stdint.h>
 #include <string>
-#include <locale> // merely for "isdigit()" function, also available in <cctype.h> C header..
+#include <locale> // Merely for "isdigit()" function, also available in <cctype.h> C header..
  
 /**
  * @file string_utilities.h
@@ -54,59 +54,70 @@ extern "C" {
 namespace string_utilities
 {
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of type double, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of type double
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The double variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */
-	bool ToDouble(const std::string& string, double& value);
+	bool toDouble(const std::string& string, double& value);
 	
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of type float, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of type float.
+	 *
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The float variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */ 
-	bool ToFloat(const std::string& string, float& value);
+	bool toFloat(const std::string& string, float& value);
  
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of whatever integer type your system has that is exactly 32 bits, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of whatever integer type your system has that is exactly 32 bits.
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The int32_t variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */ 
-	bool ToInt32(const std::string& string, int32_t& value, int32_t base = 10);
+	bool toInt32(const std::string& string, int32_t& value, int32_t base = 10);
  
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of whatever unsigned integer type your system has that is exactly 32 bits, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of whatever unsigned integer type your system has that is exactly 32 bits.
+	 *
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The uint32_t variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */ 
-	bool ToUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
+	bool toUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
 	
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of whatever integer type your system has that is exactly 8 bits and stores its value in "value"
+	 * @brief Interprets the contents of "string" as a floating point number of whatever integer type your system has that is exactly 8 bits.
+	 * 
+	 * It stores the "string"'s value in "value".
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The int8_t variable that should be overwritten by the floating point number found in "string"
 	 * @return The value found in "string"
 	 */ 
-	int8_t ToInt8(const std::string& string, int8_t& value, int32_t base = 10);
+	int8_t toInt8(const std::string& string, int8_t& value, int32_t base = 10);
  
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of whatever unsigned integer type your system has that is exactly 8 bits and stores its value in "value"
+	 * @brief Interprets the contents of "string" as a floating point number of whatever unsigned integer type your system has that is exactly 8 bits.
+	 * 
+	 * It stores the "string"'s value in "value".
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The uint8_t variable that should be overwritten by the floating point number found in "string"
 	 * @return The value found in "string"
 	 */ 
-	uint8_t ToUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+	uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 	
 	/**
 	 * @brief Removes trailing zeros from a string representing a float or double except for the first zero after the decimal point
 	 * @param[in] str The string whose trailing zeros shall be removed
 	 * @return The trimmed string
 	 */
-	std::string TrimString(std::string str);
+	std::string trimString(std::string str);
 }
 
  

@@ -1,14 +1,18 @@
 var searchData=
 [
-  ['tail_5f',['tail_',['../class_circular_buffer.html#a2a11fe18fb8f098131f39a3c47676ecd',1,'CircularBuffer']]],
-  ['tcp_5fhost_5f',['tcp_host_',['../classrosaic__node_1_1_r_o_saic_node.html#ab2ec23702ecd6ca6d505faa7f4a64aeb',1,'rosaic_node::ROSaicNode']]],
-  ['tcp_5fport_5f',['tcp_port_',['../classrosaic__node_1_1_r_o_saic_node.html#a98817d90c8bf3bb03635903be07d6d85',1,'rosaic_node::ROSaicNode']]],
-  ['tdop',['TDOP',['../struct_d_o_p.html#a06401d5f07141e8866ed51b210d2bd72',1,'DOP']]],
-  ['timer_5f',['timer_',['../classio__comm__mosaic_1_1_async_manager.html#a4b5fa054a1d277b1b292dd8cc406c0fb',1,'io_comm_mosaic::AsyncManager']]],
-  ['timesystem',['TimeSystem',['../struct_p_v_t_cartesian.html#a08b37b373e65dee059f593d731b73bae',1,'PVTCartesian::TimeSystem()'],['../struct_p_v_t_geodetic.html#a1ad97c215c683b0243e78c7b4b6147c8',1,'PVTGeodetic::TimeSystem()']]],
-  ['to_5fbe_5fparsed_5f',['to_be_parsed_',['../classio__comm__mosaic_1_1_async_manager.html#ab4a04b6198453294b27272184f51512f',1,'io_comm_mosaic::AsyncManager']]],
-  ['tow',['TOW',['../struct_p_v_t_cartesian.html#ab4b214e07815c129ce9b6c6bd582139f',1,'PVTCartesian::TOW()'],['../struct_p_v_t_geodetic.html#a4600128ed90af5ded8f0ad5be64bf0a5',1,'PVTGeodetic::TOW()'],['../struct_att_euler.html#af586ca549fd05c15a6abfd127e554829',1,'AttEuler::TOW()'],['../struct_att_cov_euler.html#a96c4cba649f0ef1133c21642c0ca7f3a',1,'AttCovEuler::TOW()'],['../struct_channel_status.html#ae690488f656c20093dba50b0b060d9c1',1,'ChannelStatus::TOW()'],['../struct_meas_epoch.html#a07d0ebd868ffa80b5d96ce811aa830e8',1,'MeasEpoch::TOW()'],['../struct_d_o_p.html#a2f0e40c8545ba1daf4f747f27737cc76',1,'DOP::TOW()'],['../struct_pos_cov_cartesian.html#a63a7f9530322e7ec76b9bf29d8cce623',1,'PosCovCartesian::TOW()'],['../struct_pos_cov_geodetic.html#a6db849a9ff844a186bd69adc31eefe68',1,'PosCovGeodetic::TOW()'],['../struct_vel_cov_cartesian.html#aaadf904ee2cd20180f4341736ce2857d',1,'VelCovCartesian::TOW()'],['../struct_vel_cov_geodetic.html#a2e3dae1bd416b0f236fe087c8b7a7e51',1,'VelCovGeodetic::TOW()']]],
-  ['trackingstatus',['TrackingStatus',['../struct_channel_state_info.html#a5dd9cf88be59727043457c04de4868b0',1,'ChannelStateInfo']]],
-  ['try_5fparsing_5f',['try_parsing_',['../classio__comm__mosaic_1_1_async_manager.html#ae5cb3ef26c9b93939c71336860dd0f0b',1,'io_comm_mosaic::AsyncManager']]],
-  ['type',['Type',['../struct_meas_epoch_channel_type2.html#a48a5e111be2f1ef50be2dd9b2773e618',1,'MeasEpochChannelType2::Type()'],['../struct_meas_epoch_channel_type1.html#a34a8bc06c2deb66343f95a5090c74eee',1,'MeasEpochChannelType1::Type()']]]
+  ['sample_5fvar',['sample_var',['../struct_a_g_c_state__t.html#a573f3fac3637528c0db464bb69f1a24f',1,'AGCState_t']]],
+  ['sb1_5fsize',['sb1_size',['../struct_channel_status.html#aa26940a71a1e486a6bdcd1b4ff6c09df',1,'ChannelStatus::sb1_size()'],['../struct_meas_epoch.html#a31bbec8c31741f47baf30454e2ed86c8',1,'MeasEpoch::sb1_size()']]],
+  ['sb2_5fsize',['sb2_size',['../struct_channel_status.html#a59caef7aeef5390a8c6f03266240a22d',1,'ChannelStatus::sb2_size()'],['../struct_meas_epoch.html#af7a762bd4430b4198e08506a69469c57',1,'MeasEpoch::sb2_size()']]],
+  ['sb_5flngth',['sb_lngth',['../struct_receiver_status.html#a8ea05f8e8bcfcf240cab80843f331ca3',1,'ReceiverStatus']]],
+  ['send_5fgga_5f',['send_gga_',['../classrosaic__node_1_1_r_o_saic_node.html#ac5783763fa12cc779606975da28d28de',1,'rosaic_node::ROSaicNode']]],
+  ['serial_5f',['serial_',['../classrosaic__node_1_1_r_o_saic_node.html#aabd7babb5817ad774e27338ee493c8fd',1,'rosaic_node::ROSaicNode']]],
+  ['serial_5fport_5f',['serial_port_',['../classio__comm__rx_1_1_comm___i_o.html#a8ae2d8c5f141a3d2b5638f9da059a3ce',1,'io_comm_rx::Comm_IO']]],
+  ['set_5fbaudrate_5fsleep_5f',['SET_BAUDRATE_SLEEP_',['../classio__comm__rx_1_1_comm___i_o.html#a7ae3bb36047cd5c7e747d2855c1d7c74',1,'io_comm_rx::Comm_IO']]],
+  ['signal_5finfo',['signal_info',['../struct_p_v_t_cartesian.html#af818d388a80ee210f071ef3b7121f1b1',1,'PVTCartesian::signal_info()'],['../struct_p_v_t_geodetic.html#a4aac11dd260bc9c5fcda09b06a419c30',1,'PVTGeodetic::signal_info()']]],
+  ['size_5f',['size_',['../class_circular_buffer.html#aea2f3278982ab619369785132a0df0d9',1,'CircularBuffer']]],
+  ['stopping_5f',['stopping_',['../classio__comm__rx_1_1_async_manager.html#a3d850fe28cf7e7c7c7b4b2a48943afc9',1,'io_comm_rx::AsyncManager']]],
+  ['stream_5f',['stream_',['../classio__comm__rx_1_1_async_manager.html#a9cb3f8f003366292da374f48a4a8c74f',1,'io_comm_rx::AsyncManager']]],
+  ['sv_5fid',['sv_id',['../struct_channel_sat_info.html#af1f815dd8a4f3df36d13fe8e3a99bde9',1,'ChannelSatInfo::sv_id()'],['../struct_meas_epoch_channel_type1.html#a0f1971cdc964119063d951aee8f833f0',1,'MeasEpochChannelType1::sv_id()']]],
+  ['sync_5f1',['sync_1',['../struct_block_header__t.html#a669415dbdd0763081ee5f3538b950653',1,'BlockHeader_t']]],
+  ['sync_5f2',['sync_2',['../struct_block_header__t.html#ad7634ff8040dda737a30c4feee811c75',1,'BlockHeader_t']]]
 ];

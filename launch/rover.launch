@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
-  <arg name="node_name" default="mosaic_gnss" />
+  <arg name="node_name" default="septentrio_gnss" />
   <arg name="param_file_name" />
   <arg name="output" default="screen" />
   <arg name="respawn" default="false" />

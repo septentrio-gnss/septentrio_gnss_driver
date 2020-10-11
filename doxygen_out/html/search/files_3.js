@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['mosaicmessage_2ecpp',['mosaicMessage.cpp',['../mosaic_message_8cpp.html',1,'']]],
-  ['mosaicmessage_2ehpp',['mosaicMessage.hpp',['../mosaic_message_8hpp.html',1,'']]]
+  ['nmea_5fsentence_2ehpp',['nmea_sentence.hpp',['../nmea__sentence_8hpp.html',1,'']]]
 ];

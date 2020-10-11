@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['main',['main',['../rosaic__node_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'rosaic_node.cpp']]],
-  ['messageid',['MessageID',['../classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54',1,'io_comm_mosaic::mosaicMessage']]],
-  ['mosaicmessage',['mosaicMessage',['../classio__comm__mosaic_1_1mosaic_message.html#a1d96f8c187c2e543f915cc425887a900',1,'io_comm_mosaic::mosaicMessage']]]
+  ['navsatfixcallback',['NavSatFixCallback',['../classio__comm__rx_1_1_rx_message.html#ababfab5327b3e5fa79c098d008002145',1,'io_comm_rx::RxMessage']]],
+  ['next',['next',['../classio__comm__rx_1_1_rx_message.html#a14a5b662425623e019e433df4e84d23e',1,'io_comm_rx::RxMessage']]],
+  ['nmeasentence',['NMEASentence',['../class_n_m_e_a_sentence.html#a5431f84f112966f6c8aa52d775c8c699',1,'NMEASentence']]]
 ];

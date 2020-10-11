@@ -1,14 +1,23 @@
 var searchData=
 [
-  ['data',['Data',['../struct_channel_status.html#a3e9b0c234364067666ae96f570ca2579',1,'ChannelStatus::Data()'],['../struct_meas_epoch.html#a443f549f65f8384e9ed3b45516f09588',1,'MeasEpoch::Data()']]],
-  ['data_5f',['data_',['../class_circular_buffer.html#ad2ba92eb33d42e83cd3ebecb8f362749',1,'CircularBuffer::data_()'],['../classio__comm__mosaic_1_1mosaic_message.html#abf3e0dd66c3d326a27bb88b5553dc8e4',1,'io_comm_mosaic::mosaicMessage::data_()']]],
-  ['datum',['Datum',['../struct_p_v_t_cartesian.html#afbf78fedbd7426187f889c1b31a7eef4',1,'PVTCartesian::Datum()'],['../struct_p_v_t_geodetic.html#a79ce1250b37fbe4c77935956f2ff0570',1,'PVTGeodetic::Datum()']]],
+  ['data',['data',['../struct_channel_status.html#a76f7d873b3f175068b3ec8fc87ad2ce7',1,'ChannelStatus::data()'],['../struct_meas_epoch.html#a26be947f6ebaaafbae23872418c303a4',1,'MeasEpoch::data()']]],
+  ['data_5f',['data_',['../class_circular_buffer.html#ad2ba92eb33d42e83cd3ebecb8f362749',1,'CircularBuffer::data_()'],['../classio__comm__rx_1_1_rx_message.html#ad9dee80a481d15340a41178efe17e9bb',1,'io_comm_rx::RxMessage::data_()']]],
+  ['datum',['datum',['../struct_p_v_t_cartesian.html#a4b8bd7f2163ee873ed5b3ceca95bbc50',1,'PVTCartesian::datum()'],['../struct_p_v_t_geodetic.html#a757a51a94ee9eea72ae1efd495442e0f',1,'PVTGeodetic::datum()']]],
   ['datum_5f',['datum_',['../classrosaic__node_1_1_r_o_saic_node.html#af4c4ff5a77747dd8ac916eeadb5dfef2',1,'rosaic_node::ROSaicNode']]],
+  ['delta_5fe',['delta_e',['../struct_receiver_setup.html#afe506dde27ab0875e927638a5e2752b1',1,'ReceiverSetup']]],
   ['delta_5fe_5f',['delta_e_',['../classrosaic__node_1_1_r_o_saic_node.html#a202d04383676ab6876e65fda2fc10d7b',1,'rosaic_node::ROSaicNode']]],
+  ['delta_5fh',['delta_h',['../struct_receiver_setup.html#ae5baa9b697e90a0379a52bb449abfb61',1,'ReceiverSetup']]],
+  ['delta_5fn',['delta_n',['../struct_receiver_setup.html#a536e4902f550a1042d165023acefc96e',1,'ReceiverSetup']]],
   ['delta_5fn_5f',['delta_n_',['../classrosaic__node_1_1_r_o_saic_node.html#ae693db28c3636e7dcc9d746f2969da16',1,'rosaic_node::ROSaicNode']]],
   ['delta_5fu_5f',['delta_u_',['../classrosaic__node_1_1_r_o_saic_node.html#a9d0e85f28e2926712808ff273506a968',1,'rosaic_node::ROSaicNode']]],
   ['device_5f',['device_',['../classrosaic__node_1_1_r_o_saic_node.html#a922fc2c205fce0783d0d79464a7ace87',1,'rosaic_node::ROSaicNode']]],
-  ['do_5fread_5fcount_5f',['do_read_count_',['../classio__comm__mosaic_1_1_async_manager.html#ab4b242acc985309e8b0df6de396c08ab',1,'io_comm_mosaic::AsyncManager']]],
-  ['doppler',['Doppler',['../struct_meas_epoch_channel_type1.html#a4e5abac6f1f8be0918cd0cb41abe41b1',1,'MeasEpochChannelType1']]],
-  ['doppleroffsetlsb',['DopplerOffsetLSB',['../struct_meas_epoch_channel_type2.html#a36ba824262d315971d4516550f734fef',1,'MeasEpochChannelType2']]]
+  ['diagnosticarray_5fmap',['diagnosticarray_map',['../classio__comm__rx_1_1_callback_handlers.html#a6d8118f503de8a190b21a98cec12ab95',1,'io_comm_rx::CallbackHandlers']]],
+  ['diagnosticarray_5fpairs',['diagnosticarray_pairs',['../callback__handlers_8cpp.html#a8d31997444ce9f94417a6b6e2208b436',1,'callback_handlers.cpp']]],
+  ['do_5fdiagnostics_5f',['do_diagnostics_',['../classio__comm__rx_1_1_callback_handlers.html#ab6f22c44a1c38c5b0c98263f2591656e',1,'io_comm_rx::CallbackHandlers']]],
+  ['do_5fgpsfix_5f',['do_gpsfix_',['../classio__comm__rx_1_1_callback_handlers.html#ab58165ef690815bab239273243624542',1,'io_comm_rx::CallbackHandlers']]],
+  ['do_5fnavsatfix_5f',['do_navsatfix_',['../classio__comm__rx_1_1_callback_handlers.html#ac61f80e6010c1716eb0d71f2ec7968da',1,'io_comm_rx::CallbackHandlers']]],
+  ['do_5fpose_5f',['do_pose_',['../classio__comm__rx_1_1_callback_handlers.html#aaccd664283b46c258faca343d979d57e',1,'io_comm_rx::CallbackHandlers']]],
+  ['do_5fread_5fcount_5f',['do_read_count_',['../classio__comm__rx_1_1_async_manager.html#a24276a6240a5250a9204a55a659b86ac',1,'io_comm_rx::AsyncManager']]],
+  ['doppler',['doppler',['../struct_meas_epoch_channel_type1.html#a6599d669d8102b4ac6fe74f8cc2cb6a0',1,'MeasEpochChannelType1']]],
+  ['doppler_5foffset_5flsb',['doppler_offset_lsb',['../struct_meas_epoch_channel_type2.html#a9f2195230f28a1b6b7559e359a9d7ba1',1,'MeasEpochChannelType2']]]
 ];

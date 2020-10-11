@@ -66,7 +66,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings.  
+<p>Struct to split an NMEA sentence into its ID and its body, the latter tokenized into a vector of strings.  
  <a href="class_n_m_e_a_sentence.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>&gt;</code></p>
@@ -95,10 +95,10 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ad2edcf628857801e65725830c1c31d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings. </p>
-<p>The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P". The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing). </p>
+<div class="textblock"><p>Struct to split an NMEA sentence into its ID and its body, the latter tokenized into a vector of strings. </p>
+<p>By ID, we mean either a standardized ID, e.g. "$GPGGA", or proprietary ID such as "$PSSN,HRP". The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P". The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing). </p>
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00051">51</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00053">53</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a5431f84f112966f6c8aa52d775c8c699"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5431f84f112966f6c8aa52d775c8c699">&#9670;&nbsp;</a></span>NMEASentence()</h2>
@@ -134,9 +134,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00054">54</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;: <a class="code" href="class_n_m_e_a_sentence.html#aea0e525b80349ec15db7efff3dd3d1d7">id_</a>(<span class="keywordtype">id</span>), <a class="code" href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">body_</a>(body) {}</div><div class="ttc" id="class_n_m_e_a_sentence_html_ad2edcf628857801e65725830c1c31d78"><div class="ttname"><a href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00058">nmea_sentence.hpp:58</a></div></div>
-<div class="ttc" id="class_n_m_e_a_sentence_html_aea0e525b80349ec15db7efff3dd3d1d7"><div class="ttname"><a href="class_n_m_e_a_sentence.html#aea0e525b80349ec15db7efff3dd3d1d7">NMEASentence::id_</a></div><div class="ttdeci">std::string id_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00057">nmea_sentence.hpp:57</a></div></div>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00056">56</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;: <a class="code" href="class_n_m_e_a_sentence.html#aea0e525b80349ec15db7efff3dd3d1d7">id_</a>(<span class="keywordtype">id</span>), <a class="code" href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">body_</a>(body) {}</div><div class="ttc" id="class_n_m_e_a_sentence_html_ad2edcf628857801e65725830c1c31d78"><div class="ttname"><a href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00060">nmea_sentence.hpp:60</a></div></div>
+<div class="ttc" id="class_n_m_e_a_sentence_html_aea0e525b80349ec15db7efff3dd3d1d7"><div class="ttname"><a href="class_n_m_e_a_sentence.html#aea0e525b80349ec15db7efff3dd3d1d7">NMEASentence::id_</a></div><div class="ttdeci">std::string id_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00059">nmea_sentence.hpp:59</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -164,10 +164,10 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00055">55</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00057">57</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
-<p class="reference">References <a class="el" href="nmea__sentence_8hpp_source.html#l00058">body_</a>.</p>
-<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;{<span class="keywordflow">return</span> <a class="code" href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">body_</a>;}</div><div class="ttc" id="class_n_m_e_a_sentence_html_ad2edcf628857801e65725830c1c31d78"><div class="ttname"><a href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00058">nmea_sentence.hpp:58</a></div></div>
+<p class="reference">References <a class="el" href="nmea__sentence_8hpp_source.html#l00060">body_</a>.</p>
+<div class="fragment"><div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;{<span class="keywordflow">return</span> <a class="code" href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">body_</a>;}</div><div class="ttc" id="class_n_m_e_a_sentence_html_ad2edcf628857801e65725830c1c31d78"><div class="ttname"><a href="class_n_m_e_a_sentence.html#ad2edcf628857801e65725830c1c31d78">NMEASentence::body_</a></div><div class="ttdeci">std::vector&lt; std::string &gt; body_</div><div class="ttdef"><b>Definition:</b> <a href="nmea__sentence_8hpp_source.html#l00060">nmea_sentence.hpp:60</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -192,9 +192,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00058">58</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00060">60</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="nmea__sentence_8hpp_source.html#l00055">get_body()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="nmea__sentence_8hpp_source.html#l00057">get_body()</a>.</p>
 
 </div>
 </div>
@@ -218,7 +218,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00057">57</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nmea__sentence_8hpp_source.html#l00059">59</a> of file <a class="el" href="nmea__sentence_8hpp_source.html">nmea_sentence.hpp</a>.</p>
 
 </div>
 </div>
@@ -228,7 +228,7 @@ Protected Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Oct 11 2020 16:02:24 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

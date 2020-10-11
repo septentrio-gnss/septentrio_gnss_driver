@@ -45,9 +45,10 @@ namespace string_utilities
 {
 	/**
 	 * It checks whether an error occurred (via errno) and whether junk characters 
-	 * exist within "string", and returns true if the latter two tests are negative and the string is non-empty, false otherwise.
+	 * exist within "string", and returns true if the latter two tests are negative and the 
+	 * string is non-empty, false otherwise.
 	 */
-	bool ToDouble(const std::string& string, double& value)
+	bool toDouble(const std::string& string, double& value)
 	{
 		if (string.empty())
 		{
@@ -70,9 +71,10 @@ namespace string_utilities
  
 	/**
 	 * It checks whether an error occurred (via errno) and whether junk characters 
-	 * exist within "string", and returns true if the latter two tests are negative and the string is non-empty, false otherwise.
+	 * exist within "string", and returns true if the latter two tests are negative and the 
+	 * string is non-empty, false otherwise.
 	 */
-	bool ToFloat(const std::string& string, float& value)
+	bool toFloat(const std::string& string, float& value)
 	{
 		if (string.empty())
 		{
@@ -94,9 +96,10 @@ namespace string_utilities
  
 	/**
 	 * It checks whether an error occurred (via errno) and whether junk characters 
-	 * exist within "string", and returns true if the latter two tests are negative and the string is non-empty, false otherwise.
+	 * exist within "string", and returns true if the latter two tests are negative and the 
+	 * string is non-empty, false otherwise.
 	 */
-	bool ToInt32(const std::string& string, int32_t& value, int32_t base)
+	bool toInt32(const std::string& string, int32_t& value, int32_t base)
 	{
 		if (string.empty())
 		{
@@ -124,9 +127,10 @@ namespace string_utilities
  
 	/**
 	 * It checks whether an error occurred (via errno) and whether junk characters 
-	 * exist within "string", and returns true if the latter two tests are negative and the string is non-empty, false otherwise.
+	 * exist within "string", and returns true if the latter two tests are negative and the 
+	 * string is non-empty, false otherwise.
 	 */
-	bool ToUInt32(const std::string& string, uint32_t& value, int32_t base)
+	bool toUInt32(const std::string& string, uint32_t& value, int32_t base)
 	{
 		if (string.empty())
 		{
@@ -152,9 +156,9 @@ namespace string_utilities
 	}
 	
 	/**
-	 * Not used now..
+	 * Not used as of now..
 	 */
-	int8_t ToInt8(const std::string& string, int8_t& value, int32_t base)
+	int8_t toInt8(const std::string& string, int8_t& value, int32_t base)
 	{
 		char* end;
 		errno = 0;
@@ -167,7 +171,7 @@ namespace string_utilities
 	/**
 	 * Not used as of now..
 	 */
-	uint8_t ToUInt8(const std::string& string, uint8_t& value, int32_t base)
+	uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base)
 	{ 
 		char* end;
 		errno = 0;
@@ -177,7 +181,7 @@ namespace string_utilities
 		return true;
 	}
 	
-	std::string TrimString(std::string str)
+	std::string trimString(std::string str)
 	{
 		for(std::string::size_type s=str.length()-1; s>0; --s)
 		{

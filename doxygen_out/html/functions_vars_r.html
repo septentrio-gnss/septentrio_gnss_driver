@@ -62,7 +62,7 @@ $(function() {
 
 <h3><a id="index_r"></a>- r -</h3><ul>
 <li>read_callback_
-: <a class="el" href="classio__comm__mosaic_1_1_async_manager.html#a19287f7b21a0d1c477f971c7bca8d4bb">io_comm_mosaic::AsyncManager&lt; StreamT &gt;</a>
+: <a class="el" href="classio__comm__rx_1_1_async_manager.html#adde94fe262cc75edd105d6df1805f51f">io_comm_rx::AsyncManager&lt; StreamT &gt;</a>
 </li>
 <li>reconnect_delay_s_
 : <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#a901dc455d86d71ca533e37b37e102270">rosaic_node::ROSaicNode</a>
@@ -70,49 +70,81 @@ $(function() {
 <li>reconnect_timer_
 : <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#ade41f8b44a913dfbed11ea17d161dc47">rosaic_node::ROSaicNode</a>
 </li>
-<li>ReferenceID
-: <a class="el" href="struct_p_v_t_cartesian.html#a258a3a08c39462746000ca8b73f43c66">PVTCartesian</a>
-, <a class="el" href="struct_p_v_t_geodetic.html#a11780cf75e74c2370973c4ae79a1a53c">PVTGeodetic</a>
+<li>reference_id
+: <a class="el" href="struct_p_v_t_cartesian.html#a59c8cdc8fd75a297e9072a4fb7c389ac">PVTCartesian</a>
+, <a class="el" href="struct_p_v_t_geodetic.html#ab798aba75da3fc2513749c5eb8bad7cf">PVTGeodetic</a>
 </li>
-<li>Reserved
-: <a class="el" href="struct_att_cov_euler.html#a4c1d97684db50360db10b670f8a618cd">AttCovEuler</a>
-, <a class="el" href="struct_att_euler.html#a1d9a50b66bd1af765bb84f66741d6fb2">AttEuler</a>
-, <a class="el" href="struct_channel_state_info.html#ad49fb7409dbcf6adddcbb3a0a5879878">ChannelStateInfo</a>
-, <a class="el" href="struct_channel_status.html#a79c084f2b8d8f8965ec0ff7ff814c85f">ChannelStatus</a>
-, <a class="el" href="struct_d_o_p.html#ab3edf09f4b15f6953fc0b751051ecf5c">DOP</a>
-, <a class="el" href="struct_meas_epoch.html#a2f9f6970dd177bac99dd0e49e0f11dc8">MeasEpoch</a>
+<li>reserved
+: <a class="el" href="struct_att_cov_euler.html#a17bd88303756340f361a28006c5fe5be">AttCovEuler</a>
+, <a class="el" href="struct_att_euler.html#a99166d4a0e4ad75d0a7ca302469969b7">AttEuler</a>
+, <a class="el" href="struct_channel_state_info.html#aea6d6bd4153b3a5a8b4fd8a81f79da48">ChannelStateInfo</a>
+, <a class="el" href="struct_channel_status.html#a5b03d9d4ef4b23c1fc43312516128523">ChannelStatus</a>
+, <a class="el" href="struct_d_o_p.html#a34a4dab8f6f1f9ad4a25d29a5120c7bc">DOP</a>
+, <a class="el" href="struct_meas_epoch.html#a1195ff319613740e07d34c8a4dc0377e">MeasEpoch</a>
+, <a class="el" href="struct_quality_ind.html#a8b0a5f64670878dfcf98aaa46626eea6">QualityInd</a>
+, <a class="el" href="struct_receiver_setup.html#a7a27d76e71b6c26ae7132f7c4f8339a6">ReceiverSetup</a>
 </li>
-<li>Reserved1
-: <a class="el" href="struct_channel_sat_info.html#ae02f3806a977bf02bf4c6cd4ca53d598">ChannelSatInfo</a>
+<li>reserved1
+: <a class="el" href="struct_channel_sat_info.html#aaa053e6f1241118143a61de05c21e728">ChannelSatInfo</a>
 </li>
-<li>Reserved2
-: <a class="el" href="struct_channel_sat_info.html#a580f307a385888d8217613addadde955">ChannelSatInfo</a>
+<li>reserved2
+: <a class="el" href="struct_channel_sat_info.html#a061bd197971eec8a32b64265a51f2f75">ChannelSatInfo</a>
 </li>
-<li>Roll
-: <a class="el" href="struct_att_euler.html#a27a4437acea3191885e12e5a78bfd847">AttEuler</a>
+<li>roll
+: <a class="el" href="struct_att_euler.html#a52f5ae5388dc5b15ddf85b917f04dbb5">AttEuler</a>
 </li>
-<li>RollDot
-: <a class="el" href="struct_att_euler.html#ac62ba6a4c750010c1985374e12cd5e44">AttEuler</a>
+<li>roll_dot
+: <a class="el" href="struct_att_euler.html#ac71a2ce8186e1e4590d9355d325b2be6">AttEuler</a>
 </li>
 <li>rtcm_version_
 : <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#ac8ba9ffd43f9df178729a739d3dcf627">rosaic_node::ROSaicNode</a>
 </li>
-<li>RXChannel
-: <a class="el" href="struct_meas_epoch_channel_type1.html#a179c60f96c88db2bc20bf5719c181987">MeasEpochChannelType1</a>
+<li>rx_channel
+: <a class="el" href="struct_meas_epoch_channel_type1.html#a3abde2a6a3223ace054f41a3c53aa609">MeasEpochChannelType1</a>
 </li>
-<li>RxClkBias
-: <a class="el" href="struct_p_v_t_cartesian.html#ae9c246789825b6ade2f1ad8c3fdf2e6e">PVTCartesian</a>
-, <a class="el" href="struct_p_v_t_geodetic.html#aa9ec36be190f14aca07233a976eed6fb">PVTGeodetic</a>
+<li>rx_clk_bias
+: <a class="el" href="struct_p_v_t_cartesian.html#aabc771491606168f83a1af4d21187cc5">PVTCartesian</a>
+, <a class="el" href="struct_p_v_t_geodetic.html#af7f61611c85ddbf462eb1fbc1364beea">PVTGeodetic</a>
 </li>
-<li>RxClkDrift
-: <a class="el" href="struct_p_v_t_cartesian.html#abe224f1f74e7f8ec76c346fc1eb1f1f9">PVTCartesian</a>
-, <a class="el" href="struct_p_v_t_geodetic.html#a1bf7aab8119d33b8840882a137d364ba">PVTGeodetic</a>
+<li>rx_clk_drift
+: <a class="el" href="struct_p_v_t_cartesian.html#ac5a295aff7ae1f6f38b411bc792de4f7">PVTCartesian</a>
+, <a class="el" href="struct_p_v_t_geodetic.html#a3a1e6d28d440297b988005c4bc1ad66e">PVTGeodetic</a>
+</li>
+<li>rx_error
+: <a class="el" href="struct_receiver_status.html#a85f0f75f259f33d66c669a7e2d6e5a66">ReceiverStatus</a>
+</li>
+<li>rx_has_internet_
+: <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#a5b5a6e0d47c3e4d1edc7b08c4987af73">rosaic_node::ROSaicNode</a>
+</li>
+<li>rx_id_map
+: <a class="el" href="classio__comm__rx_1_1_rx_message.html#a522938534ecf89b11cda76fb7614c247">io_comm_rx::RxMessage</a>
+</li>
+<li>rx_input_corrections_serial_
+: <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#acbbf6edc0498bca0c91297206d9d1f6e">rosaic_node::ROSaicNode</a>
+</li>
+<li>rx_input_corrections_tcp_
+: <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#a6329187d9c1dfeb0f1b52bcbd628158e">rosaic_node::ROSaicNode</a>
+</li>
+<li>rx_name
+: <a class="el" href="struct_receiver_setup.html#a2944373b3c754c4c3942bd35d50f4f48">ReceiverSetup</a>
+</li>
+<li>rx_serial_number
+: <a class="el" href="struct_receiver_setup.html#a6e9efcce80d9eefd35cf3ed3a053d66c">ReceiverSetup</a>
+</li>
+<li>rx_serial_port_
+: <a class="el" href="classrosaic__node_1_1_r_o_saic_node.html#ad179d38deb7e7ba97e5013e23e7bd0d0">rosaic_node::ROSaicNode</a>
+</li>
+<li>rx_status
+: <a class="el" href="struct_receiver_status.html#a4aa235563ce21ae113aaf474e706e7a3">ReceiverStatus</a>
+</li>
+<li>rx_version
+: <a class="el" href="struct_receiver_setup.html#ae8e60b1b15840d4a28abe9bc58c3bed8">ReceiverSetup</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Oct 11 2020 16:02:25 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

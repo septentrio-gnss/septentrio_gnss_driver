@@ -33,7 +33,10 @@
 
 // C++ library includes
 #include <stdexcept>
-// The C++ Standard library provides a base class specifically designed to declare objects to be thrown as exceptions. It is called std::exception and is defined in the <exception> header. This class has a virtual member function called what that returns a null-terminated character sequence (of type char *) and that can be overwritten in derived classes to contain some sort of description of the exception.
+// The C++ Standard library provides a base class specifically designed to declare objects to be thrown as exceptions. 
+// It is called std::exception and is defined in the <exception> header. This class has a virtual member function called 
+// what that returns a null-terminated character sequence (of type char *) and that can be overwritten in derived classes 
+// to contain some sort of description of the exception.
 // Example Code for using base class exception:
 /*
 class myexception: public exception
@@ -59,20 +62,22 @@ int main () {
 
 /**
  * @file parse_exception.hpp
- * @brief Declares a derived class of the class "std::runtime_error" for throwing error messages when parsing NMEA sentences and SBF blocks
+ * @brief Declares a derived class of the class "std::runtime_error" for throwing error messages when parsing NMEA/SBF
  * @date 17/08/20 
  */
  
-
 /**
  * @class ParseException
  * @date 17/08/20
- * @brief Ćlass to declare error message format when parsing, derived from the public class "std::runtime_error"
+ * @brief Class to declare error message format when parsing, derived from the public class "std::runtime_error"
  * 
- * Such error messages are thrown whenever a parser class has an unrecoverable issue parsing a message..
+ * Such error messages shall be thrown whenever a parser class has an unrecoverable issue parsing a message..
  * Note that "std::runtime_error" is already a class derived from the base class "exception".
- * Note on "explicit" keyword: When a class has a constructor which can be called with a single argument (since arguments might be set to some values by default), then this constructor becomes a conversion constructor, since it allows the !implicit! conversion of the single argument to the full class.
- * We can avoid such implicit conversions as these may lead to unexpected results by making the constructor explicit with the help of the "explicit" keyword. 
+ * Note on "explicit" keyword: When a class has a constructor which can be called with a single argument (since 
+ * arguments might be set to some values by default), then this constructor becomes a conversion constructor, since 
+ * it allows the !implicit! conversion of the single argument to the full class.
+ * We can avoid such implicit conversions as these may lead to unexpected results by making the constructor explicit 
+ * with the help of the "explicit" keyword. 
  */
 class ParseException : public std::runtime_error
 {

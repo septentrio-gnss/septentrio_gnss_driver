@@ -1,10 +1,11 @@
 <map id="include/rosaic/parsers/nmea_parsers/gpgga.hpp" name="include/rosaic/parsers/nmea_parsers/gpgga.hpp">
 <area shape="rect" id="node2" href="$gpgga_8cpp.html" title="Derived class for parsing GGA messages. " alt="" coords="5,95,177,136"/>
-<area shape="rect" id="node3" href="$mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="202,95,397,136"/>
-<area shape="rect" id="node4" href="$mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="7,184,178,225"/>
-<area shape="rect" id="node5" href="$callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="202,184,397,225"/>
-<area shape="rect" id="node6" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="269,273,463,315"/>
-<area shape="rect" id="node7" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="187,363,358,404"/>
-<area shape="rect" id="node8" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="382,363,537,404"/>
-<area shape="rect" id="node9" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="393,452,525,493"/>
+<area shape="rect" id="node3" href="$rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="202,95,397,136"/>
+<area shape="rect" id="node4" href="$rx__message_8cpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="111,184,282,225"/>
+<area shape="rect" id="node5" href="$callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="306,184,501,225"/>
+<area shape="rect" id="node6" href="$callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="215,273,386,315"/>
+<area shape="rect" id="node7" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="410,273,605,315"/>
+<area shape="rect" id="node8" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="334,363,505,404"/>
+<area shape="rect" id="node9" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="529,363,664,404"/>
+<area shape="rect" id="node10" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="521,452,672,493"/>
 </map>

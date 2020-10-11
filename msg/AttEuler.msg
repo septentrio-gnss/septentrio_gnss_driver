@@ -3,14 +3,14 @@
 Header       header
 
 # SBF block header including time header
-BlockHeader  Block_Header   
+BlockHeader  block_header   
 
-uint8        NrSV
-uint8        Error        
-uint16       Mode
-float32      Heading
-float32      Pitch
-float32      Roll
-float32      PitchDot
-float32      RollDot
-float32      HeadingDot
+uint8        nr_sv
+uint8        error        
+uint16       mode
+float32      heading
+float32      pitch
+float32      roll
+float32      pitch_dot
+float32      roll_dot
+float32      heading_dot

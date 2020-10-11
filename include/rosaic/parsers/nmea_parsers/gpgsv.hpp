@@ -59,23 +59,20 @@
 #ifndef GPGSV_HPP
 #define GPGSV_HPP
 
-// C++ library includes
-#include <cmath> // for round(double x)
 // ROSaic includes
 #include <rosaic/parsers/parser_base_class.hpp>
 #include <rosaic/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <rosaic/Gpgsv.h>
 #include <boost/make_shared.hpp>
-#include <ros/ros.h>
+
+extern std::string g_frame_id;
 
 /**
  * @file gpgsv.hpp
  * @brief Derived class for parsing GSV messages
  * @date 29/09/20 
  */
-
-extern std::string frame_id;
 
 /**
  * @class GpgsvParser
@@ -95,14 +92,14 @@ class GpgsvParser : public BaseParser<rosaic::GpgsvPtr>
 		 * @brief Returns the ASCII message ID, here "$GPGSV"
 		 * @return The message ID
 		 */
-		const std::string GetMessageID() const override; 
+		const std::string getMessageID() const override; 
 		
 		/**
 		 * @brief Parses one GSV message 
 		 * @param[in] sentence The GSV message to be parsed
 		 * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
 		 */
-		rosaic::GpgsvPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
+		rosaic::GpgsvPtr parseASCII(const NMEASentence& sentence) noexcept(false) override;
 		
 		/**
 		 * @brief Declares the string MESSAGE_ID

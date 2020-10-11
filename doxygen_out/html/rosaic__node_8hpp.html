@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ROSaic: include/rosaic/nodelets/rosaic_node.hpp File Reference</title>
+<title>ROSaic: include/rosaic/node/rosaic_node.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -58,7 +58,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_25c9660b5b5a3198a5e6d7e5c352cd64.html">rosaic</a></li><li class="navelem"><a class="el" href="dir_35085241224c271d8d73e49e5e39c0b1.html">nodelets</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_25c9660b5b5a3198a5e6d7e5c352cd64.html">rosaic</a></li><li class="navelem"><a class="el" href="dir_6bbc3afa54eee3fc25f352e5f43bbee8.html">node</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -74,36 +74,33 @@ $(function() {
 
 <p>The heart of the ROSaic driver: The ROS node that represents it.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;ros/ros.h&gt;</code><br />
-<code>#include &lt;ros/console.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;ros/console.h&gt;</code><br />
 <code>#include &lt;boost/regex.hpp&gt;</code><br />
-<code>#include &lt;boost/thread/mutex.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="communication__core_8hpp_source.html">rosaic/communication/communication_core.hpp</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for rosaic_node.hpp:</div>
 <div class="dyncontent">
-<div class="center"><img src="rosaic__node_8hpp__incl.png" border="0" usemap="#include_2rosaic_2nodelets_2rosaic__node_8hpp" alt=""/></div>
-<map name="include_2rosaic_2nodelets_2rosaic__node_8hpp" id="include_2rosaic_2nodelets_2rosaic__node_8hpp">
-<area shape="rect" id="node6" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="2481,95,2652,136"/>
-<area shape="rect" id="node18" href="mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="2567,273,2716,315"/>
-<area shape="rect" id="node39" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="4169,370,4281,397"/>
-<area shape="rect" id="node48" href="async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager such as reading NMEA messages or SBF blocks and..." alt="" coords="2048,184,2197,225"/>
-<area shape="rect" id="node50" href="callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="2221,184,2371,225"/>
-<area shape="rect" id="node34" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="1674,363,1814,404"/>
-<area shape="rect" id="node35" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1450,452,1590,493"/>
-<area shape="rect" id="node36" href="gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="1838,363,1978,404"/>
-<area shape="rect" id="node37" href="gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="1294,363,1434,404"/>
-<area shape="rect" id="node38" href="gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="1458,363,1598,404"/>
-<area shape="rect" id="node40" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="3879,452,4030,493"/>
-<area shape="rect" id="node41" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="3761,370,3900,397"/>
+<div class="center"><img src="rosaic__node_8hpp__incl.png" border="0" usemap="#include_2rosaic_2node_2rosaic__node_8hpp" alt=""/></div>
+<map name="include_2rosaic_2node_2rosaic__node_8hpp" id="include_2rosaic_2node_2rosaic__node_8hpp">
+<area shape="rect" id="node4" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="1379,95,1549,136"/>
+<area shape="rect" id="node14" href="async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager. " alt="" coords="757,184,907,225"/>
+<area shape="rect" id="node23" href="callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="1387,184,1541,225"/>
+<area shape="rect" id="node19" href="circular__buffer_8hpp.html" title="Declares a class for writing and reading from a circular bufffer. " alt="" coords="489,273,639,315"/>
+<area shape="rect" id="node28" href="rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="1927,273,2076,315"/>
+<area shape="rect" id="node40" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="3954,363,4094,404"/>
+<area shape="rect" id="node41" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="3954,452,4094,493"/>
+<area shape="rect" id="node42" href="gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="4118,363,4258,404"/>
+<area shape="rect" id="node43" href="gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="4282,363,4422,404"/>
+<area shape="rect" id="node44" href="gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="3738,363,3878,404"/>
+<area shape="rect" id="node45" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="821,370,933,397"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><img src="rosaic__node_8hpp__dep__incl.png" border="0" usemap="#include_2rosaic_2nodelets_2rosaic__node_8hppdep" alt=""/></div>
-<map name="include_2rosaic_2nodelets_2rosaic__node_8hppdep" id="include_2rosaic_2nodelets_2rosaic__node_8hppdep">
-<area shape="rect" id="node2" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="17,95,149,136"/>
+<div class="center"><img src="rosaic__node_8hpp__dep__incl.png" border="0" usemap="#include_2rosaic_2node_2rosaic__node_8hppdep" alt=""/></div>
+<map name="include_2rosaic_2node_2rosaic__node_8hppdep" id="include_2rosaic_2node_2rosaic__node_8hppdep">
+<area shape="rect" id="node2" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="5,95,156,136"/>
 </map>
 </div>
 </div>
@@ -122,66 +119,59 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa9ee6043410b164980f16f530ee22254"><td class="memTemplParams" colspan="2">template&lt;typename MessageT &gt; </td></tr>
-<tr class="memitem:aa9ee6043410b164980f16f530ee22254"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#aa9ee6043410b164980f16f530ee22254">rosaic_node::Publish</a> (const MessageT &amp;m, const std::string &amp;topic)</td></tr>
-<tr class="memdesc:aa9ee6043410b164980f16f530ee22254"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publishes a ROS message of type MessageT to topic "topic".  <a href="namespacerosaic__node.html#aa9ee6043410b164980f16f530ee22254">More...</a><br /></td></tr>
-<tr class="separator:aa9ee6043410b164980f16f530ee22254"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31b51aee8484326d6d8577a4db8bbe58"><td class="memTemplParams" colspan="2">template&lt;typename V , typename T &gt; </td></tr>
-<tr class="memitem:a31b51aee8484326d6d8577a4db8bbe58"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a31b51aee8484326d6d8577a4db8bbe58">rosaic_node::CheckRange</a> (V val, T min, T max, std::string name)</td></tr>
-<tr class="memdesc:a31b51aee8484326d6d8577a4db8bbe58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether the parameter is in the given range.  <a href="namespacerosaic__node.html#a31b51aee8484326d6d8577a4db8bbe58">More...</a><br /></td></tr>
-<tr class="separator:a31b51aee8484326d6d8577a4db8bbe58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a024ab026577df024d25718e94b59059f"><td class="memTemplParams" colspan="2">template&lt;typename V , typename T &gt; </td></tr>
-<tr class="memitem:a024ab026577df024d25718e94b59059f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a024ab026577df024d25718e94b59059f">rosaic_node::CheckRange</a> (std::vector&lt; V &gt; val, T min, T max, std::string name)</td></tr>
-<tr class="memdesc:a024ab026577df024d25718e94b59059f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the elements of the vector are in the given range.  <a href="namespacerosaic__node.html#a024ab026577df024d25718e94b59059f">More...</a><br /></td></tr>
-<tr class="separator:a024ab026577df024d25718e94b59059f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a597b37b47a860626a345b832ba290b0f"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
-<tr class="memitem:a597b37b47a860626a345b832ba290b0f"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">rosaic_node::GetROSInt</a> (const std::string &amp;key, U &amp;u)</td></tr>
-<tr class="memdesc:a597b37b47a860626a345b832ba290b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an integer or unsigned integer value from the parameter server.  <a href="namespacerosaic__node.html#a597b37b47a860626a345b832ba290b0f">More...</a><br /></td></tr>
-<tr class="separator:a597b37b47a860626a345b832ba290b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09fc96840e8b91c6f8c33f7d4741612f"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
-<tr class="memitem:a09fc96840e8b91c6f8c33f7d4741612f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a09fc96840e8b91c6f8c33f7d4741612f">rosaic_node::GetROSInt</a> (const std::string &amp;key, U &amp;u, U default_val)</td></tr>
-<tr class="memdesc:a09fc96840e8b91c6f8c33f7d4741612f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an integer or unsigned integer value from the parameter server.  <a href="namespacerosaic__node.html#a09fc96840e8b91c6f8c33f7d4741612f">More...</a><br /></td></tr>
-<tr class="separator:a09fc96840e8b91c6f8c33f7d4741612f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21cb72c7dfaf128ef11a645341147d0d"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
-<tr class="memitem:a21cb72c7dfaf128ef11a645341147d0d"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">rosaic_node::GetROSInt</a> (const std::string &amp;key, std::vector&lt; U &gt; &amp;u)</td></tr>
-<tr class="memdesc:a21cb72c7dfaf128ef11a645341147d0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an unsigned integer or integer vector from the parameter server.  <a href="namespacerosaic__node.html#a21cb72c7dfaf128ef11a645341147d0d">More...</a><br /></td></tr>
-<tr class="separator:a21cb72c7dfaf128ef11a645341147d0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23f139644bb35df0323938ce23adc897"><td class="memTemplParams" colspan="2">template&lt;typename V , typename T &gt; </td></tr>
+<tr class="memitem:a23f139644bb35df0323938ce23adc897"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a23f139644bb35df0323938ce23adc897">rosaic_node::checkRange</a> (V val, T min, T max, std::string name)</td></tr>
+<tr class="memdesc:a23f139644bb35df0323938ce23adc897"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether the parameter is in the given range.  <a href="namespacerosaic__node.html#a23f139644bb35df0323938ce23adc897">More...</a><br /></td></tr>
+<tr class="separator:a23f139644bb35df0323938ce23adc897"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a881a0aeab598f16ee18791fe91a8adb4"><td class="memTemplParams" colspan="2">template&lt;typename V , typename T &gt; </td></tr>
+<tr class="memitem:a881a0aeab598f16ee18791fe91a8adb4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">rosaic_node::checkRange</a> (std::vector&lt; V &gt; val, T min, T max, std::string name)</td></tr>
+<tr class="memdesc:a881a0aeab598f16ee18791fe91a8adb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the elements of the vector are in the given range.  <a href="namespacerosaic__node.html#a881a0aeab598f16ee18791fe91a8adb4">More...</a><br /></td></tr>
+<tr class="separator:a881a0aeab598f16ee18791fe91a8adb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c7f0e3d7cdd4ea1b81bd1361addc1d9"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
+<tr class="memitem:a1c7f0e3d7cdd4ea1b81bd1361addc1d9"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a1c7f0e3d7cdd4ea1b81bd1361addc1d9">rosaic_node::getROSInt</a> (const std::string &amp;key, U &amp;u)</td></tr>
+<tr class="memdesc:a1c7f0e3d7cdd4ea1b81bd1361addc1d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an integer or unsigned integer value from the parameter server.  <a href="namespacerosaic__node.html#a1c7f0e3d7cdd4ea1b81bd1361addc1d9">More...</a><br /></td></tr>
+<tr class="separator:a1c7f0e3d7cdd4ea1b81bd1361addc1d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acde5f6a2baf3bec2f59a155051558a6b"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
+<tr class="memitem:acde5f6a2baf3bec2f59a155051558a6b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#acde5f6a2baf3bec2f59a155051558a6b">rosaic_node::getROSInt</a> (const std::string &amp;key, U &amp;u, U default_val)</td></tr>
+<tr class="memdesc:acde5f6a2baf3bec2f59a155051558a6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an integer or unsigned integer value from the parameter server.  <a href="namespacerosaic__node.html#acde5f6a2baf3bec2f59a155051558a6b">More...</a><br /></td></tr>
+<tr class="separator:acde5f6a2baf3bec2f59a155051558a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e1e2a157abd08718b7422b9d70d49f9"><td class="memTemplParams" colspan="2">template&lt;typename U &gt; </td></tr>
+<tr class="memitem:a7e1e2a157abd08718b7422b9d70d49f9"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a7e1e2a157abd08718b7422b9d70d49f9">rosaic_node::getROSInt</a> (const std::string &amp;key, std::vector&lt; U &gt; &amp;u)</td></tr>
+<tr class="memdesc:a7e1e2a157abd08718b7422b9d70d49f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets an unsigned integer or integer vector from the parameter server.  <a href="namespacerosaic__node.html#a7e1e2a157abd08718b7422b9d70d49f9">More...</a><br /></td></tr>
+<tr class="separator:a7e1e2a157abd08718b7422b9d70d49f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">publish_gpgga</a></td></tr>
-<tr class="separator:a1a2f176cf4c6ea5a06b7eaa2eea5de5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa48c9faf33db869296eb462a53d8283e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#aa48c9faf33db869296eb462a53d8283e">publish_pvtcartesian</a></td></tr>
-<tr class="separator:aa48c9faf33db869296eb462a53d8283e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58a955350c9a8ab68cb75c25c17964da"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a58a955350c9a8ab68cb75c25c17964da">publish_pvtgeodetic</a></td></tr>
-<tr class="separator:a58a955350c9a8ab68cb75c25c17964da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af27e4eb3277cb71cd00661e03fcfb02a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#af27e4eb3277cb71cd00661e03fcfb02a">publish_poscovgeodetic</a></td></tr>
-<tr class="separator:af27e4eb3277cb71cd00661e03fcfb02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44dab5e60e6732dfe73b8903073eec5b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a44dab5e60e6732dfe73b8903073eec5b">publish_poscovcartesian</a></td></tr>
-<tr class="separator:a44dab5e60e6732dfe73b8903073eec5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab97116e8250dc1b2d5acc2369726c1ff"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#ab97116e8250dc1b2d5acc2369726c1ff">publish_atteuler</a></td></tr>
-<tr class="separator:ab97116e8250dc1b2d5acc2369726c1ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab843cee0f334f93c962f6a55bb3c96ca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#ab843cee0f334f93c962f6a55bb3c96ca">publish_attcoveuler</a></td></tr>
-<tr class="separator:ab843cee0f334f93c962f6a55bb3c96ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8226c429e460b161a37825878a145bd2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a8226c429e460b161a37825878a145bd2">publish_gpst</a></td></tr>
-<tr class="memdesc:a8226c429e460b161a37825878a145bd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::TimeReference message with GPST.  <a href="#a8226c429e460b161a37825878a145bd2">More...</a><br /></td></tr>
-<tr class="separator:a8226c429e460b161a37825878a145bd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a4a9e8555c1c00c433f0d86ad695e12d2">publish_navsatfix</a></td></tr>
-<tr class="memdesc:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::NavSatFix message.  <a href="#a4a9e8555c1c00c433f0d86ad695e12d2">More...</a><br /></td></tr>
-<tr class="separator:a4a9e8555c1c00c433f0d86ad695e12d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2e39109ac122db5d5608f2ebb47e916"><td class="memItemLeft" align="right" valign="top">ros::Timer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#ae2e39109ac122db5d5608f2ebb47e916">reconnect_timer_</a></td></tr>
-<tr class="separator:ae2e39109ac122db5d5608f2ebb47e916"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af830cc8c898b498f08fa6616aa8360e2"><td class="memItemLeft" align="right" valign="top">static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">rosaic_node::ROSQueueSize</a> = 1</td></tr>
-<tr class="memdesc:af830cc8c898b498f08fa6616aa8360e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue size for ROS publishers.  <a href="namespacerosaic__node.html#af830cc8c898b498f08fa6616aa8360e2">More...</a><br /></td></tr>
-<tr class="separator:af830cc8c898b498f08fa6616aa8360e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7081f762b7a395f8af8fa48b88fbc5a"><td class="memItemLeft" align="right" valign="top">boost::shared_ptr&lt; ros::NodeHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#ad7081f762b7a395f8af8fa48b88fbc5a">rosaic_node::nh</a></td></tr>
-<tr class="separator:ad7081f762b7a395f8af8fa48b88fbc5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48b42657065175858240799f0416951a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classio__comm__mosaic_1_1_comm___i_o.html">io_comm_mosaic::Comm_IO</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a48b42657065175858240799f0416951a">rosaic_node::IO</a></td></tr>
-<tr class="memdesc:a48b42657065175858240799f0416951a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles communication with the mosaic.  <a href="namespacerosaic__node.html#a48b42657065175858240799f0416951a">More...</a><br /></td></tr>
-<tr class="separator:a48b42657065175858240799f0416951a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23a1d978c6982e28a6ab7c735877246f"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::string, bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#a23a1d978c6982e28a6ab7c735877246f">rosaic_node::enabled</a></td></tr>
-<tr class="memdesc:a23a1d978c6982e28a6ab7c735877246f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the given mosaic message The key is the message name, i.e. the message ID for SBF blocks embedded in inverted commas (a string) or the message ID for NMEA messages. The boolean value indicates whether or not to enable that message.  <a href="namespacerosaic__node.html#a23a1d978c6982e28a6ab7c735877246f">More...</a><br /></td></tr>
-<tr class="separator:a23a1d978c6982e28a6ab7c735877246f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae51d72a44dc2aca59277da5c87fd46ac"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#ae51d72a44dc2aca59277da5c87fd46ac">g_publish_gpgga</a></td></tr>
+<tr class="separator:ae51d72a44dc2aca59277da5c87fd46ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abde565d4e9205ba22308c869d3fb13fe"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#abde565d4e9205ba22308c869d3fb13fe">g_publish_pvtcartesian</a></td></tr>
+<tr class="separator:abde565d4e9205ba22308c869d3fb13fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3134681ca67e089c171d797e26ebe7a3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a3134681ca67e089c171d797e26ebe7a3">g_publish_pvtgeodetic</a></td></tr>
+<tr class="separator:a3134681ca67e089c171d797e26ebe7a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a841e14465159436dcfd9d536a5d258ef"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a841e14465159436dcfd9d536a5d258ef">g_publish_poscovgeodetic</a></td></tr>
+<tr class="separator:a841e14465159436dcfd9d536a5d258ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16e500f85852d6853d1b4ab02573313a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a16e500f85852d6853d1b4ab02573313a">g_publish_poscovcartesian</a></td></tr>
+<tr class="separator:a16e500f85852d6853d1b4ab02573313a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a041b6194fccfbc7e34a46e2724162b17"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a041b6194fccfbc7e34a46e2724162b17">g_publish_atteuler</a></td></tr>
+<tr class="separator:a041b6194fccfbc7e34a46e2724162b17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c83763e87cce88622c3a9f6e395560f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a5c83763e87cce88622c3a9f6e395560f">g_publish_attcoveuler</a></td></tr>
+<tr class="separator:a5c83763e87cce88622c3a9f6e395560f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b2ae85c91f54675333b32b7b6d82ee2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a5b2ae85c91f54675333b32b7b6d82ee2">g_publish_gpst</a></td></tr>
+<tr class="memdesc:a5b2ae85c91f54675333b32b7b6d82ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::TimeReference message with GPST.  <a href="#a5b2ae85c91f54675333b32b7b6d82ee2">More...</a><br /></td></tr>
+<tr class="separator:a5b2ae85c91f54675333b32b7b6d82ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4acb447dc5b8c5fb8744f264536793c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#af4acb447dc5b8c5fb8744f264536793c">g_publish_navsatfix</a></td></tr>
+<tr class="memdesc:af4acb447dc5b8c5fb8744f264536793c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether or not to publish the sensor_msgs::NavSatFix message.  <a href="#af4acb447dc5b8c5fb8744f264536793c">More...</a><br /></td></tr>
+<tr class="separator:af4acb447dc5b8c5fb8744f264536793c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a01b925700640df90edcaa553a8e860"><td class="memItemLeft" align="right" valign="top">ros::Timer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a2a01b925700640df90edcaa553a8e860">g_reconnect_timer_</a></td></tr>
+<tr class="separator:a2a01b925700640df90edcaa553a8e860"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33d3f7c8865ece5c03d6fb48bfdecfac"><td class="memItemLeft" align="right" valign="top">boost::shared_ptr&lt; ros::NodeHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a33d3f7c8865ece5c03d6fb48bfdecfac">g_nh</a></td></tr>
+<tr class="separator:a33d3f7c8865ece5c03d6fb48bfdecfac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a128bc891d1db72f7a16fdf772a38e428"><td class="memItemLeft" align="right" valign="top">const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rosaic__node_8hpp.html#a128bc891d1db72f7a16fdf772a38e428">g_ROS_QUEUE_SIZE</a></td></tr>
+<tr class="memdesc:a128bc891d1db72f7a16fdf772a38e428"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue size for ROS publishers.  <a href="#a128bc891d1db72f7a16fdf772a38e428">More...</a><br /></td></tr>
+<tr class="separator:a128bc891d1db72f7a16fdf772a38e428"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbcd3ba1cd8fbe67d795df135bc7e0d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classio__comm__rx_1_1_comm___i_o.html">io_comm_rx::Comm_IO</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerosaic__node.html#afbcd3ba1cd8fbe67d795df135bc7e0d3">rosaic_node::IO</a></td></tr>
+<tr class="memdesc:afbcd3ba1cd8fbe67d795df135bc7e0d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles communication with the Rx.  <a href="namespacerosaic__node.html#afbcd3ba1cd8fbe67d795df135bc7e0d3">More...</a><br /></td></tr>
+<tr class="separator:afbcd3ba1cd8fbe67d795df135bc7e0d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The heart of the ROSaic driver: The ROS node that represents it. </p>
@@ -189,162 +179,199 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="rosaic__node_8hpp_source.html">rosaic_node.hpp</a>.</p>
 </div><h2 class="groupheader">Variable Documentation</h2>
-<a id="ab843cee0f334f93c962f6a55bb3c96ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab843cee0f334f93c962f6a55bb3c96ca">&#9670;&nbsp;</a></span>publish_attcoveuler</h2>
+<a id="a33d3f7c8865ece5c03d6fb48bfdecfac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33d3f7c8865ece5c03d6fb48bfdecfac">&#9670;&nbsp;</a></span>g_nh</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_attcoveuler</td>
+          <td class="memname">boost::shared_ptr&lt;ros::NodeHandle&gt; g_nh</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Node Handle for the ROSaic node You must initialize the NodeHandle in the "main" function (or in any method called indirectly or directly by the main function). One can declare a pointer to the NodeHandle to be a global variable and then initialize it afterwards only... </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00743">743</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00488">rosaic_node::ROSaicNode::connect()</a>, <a class="el" href="rosaic__node_8hpp_source.html#l00143">rosaic_node::getROSInt()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00380">rosaic_node::ROSaicNode::getROSParams()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00747">main()</a>.</p>
+
+</div>
+</div>
+<a id="a5c83763e87cce88622c3a9f6e395560f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c83763e87cce88622c3a9f6e395560f">&#9670;&nbsp;</a></span>g_publish_attcoveuler</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool g_publish_attcoveuler</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ab97116e8250dc1b2d5acc2369726c1ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab97116e8250dc1b2d5acc2369726c1ff">&#9670;&nbsp;</a></span>publish_atteuler</h2>
+<a id="a041b6194fccfbc7e34a46e2724162b17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a041b6194fccfbc7e34a46e2724162b17">&#9670;&nbsp;</a></span>g_publish_atteuler</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_atteuler</td>
+          <td class="memname">bool g_publish_atteuler</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a1a2f176cf4c6ea5a06b7eaa2eea5de5d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a2f176cf4c6ea5a06b7eaa2eea5de5d">&#9670;&nbsp;</a></span>publish_gpgga</h2>
+<a id="ae51d72a44dc2aca59277da5c87fd46ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae51d72a44dc2aca59277da5c87fd46ac">&#9670;&nbsp;</a></span>g_publish_gpgga</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_gpgga</td>
+          <td class="memname">bool g_publish_gpgga</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a8226c429e460b161a37825878a145bd2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8226c429e460b161a37825878a145bd2">&#9670;&nbsp;</a></span>publish_gpst</h2>
+<a id="a5b2ae85c91f54675333b32b7b6d82ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b2ae85c91f54675333b32b7b6d82ee2">&#9670;&nbsp;</a></span>g_publish_gpst</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_gpst</td>
+          <td class="memname">bool g_publish_gpst</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Whether or not to publish the sensor_msgs::TimeReference message with GPST. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00609">609</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00667">667</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00569">rosaic_node::ROSaicNode::defineMessages()</a>, <a class="el" href="callback__handlers_8cpp_source.html#l00090">io_comm_rx::CallbackHandlers::handle()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00747">main()</a>.</p>
 
 </div>
 </div>
-<a id="a4a9e8555c1c00c433f0d86ad695e12d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a9e8555c1c00c433f0d86ad695e12d2">&#9670;&nbsp;</a></span>publish_navsatfix</h2>
+<a id="af4acb447dc5b8c5fb8744f264536793c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4acb447dc5b8c5fb8744f264536793c">&#9670;&nbsp;</a></span>g_publish_navsatfix</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_navsatfix</td>
+          <td class="memname">bool g_publish_navsatfix</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Whether or not to publish the sensor_msgs::NavSatFix message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00611">611</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00669">669</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00517">rosaic_node::ROSaicNode::DefineMessages()</a>, and <a class="el" href="rosaic__node_8cpp_source.html#l00642">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rosaic__node_8cpp_source.html#l00569">rosaic_node::ROSaicNode::defineMessages()</a>, <a class="el" href="callback__handlers_8cpp_source.html#l00090">io_comm_rx::CallbackHandlers::handle()</a>, <a class="el" href="rosaic__node_8cpp_source.html#l00747">main()</a>, and <a class="el" href="callback__handlers_8cpp_source.html#l00269">io_comm_rx::CallbackHandlers::readCallback()</a>.</p>
 
 </div>
 </div>
-<a id="a44dab5e60e6732dfe73b8903073eec5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44dab5e60e6732dfe73b8903073eec5b">&#9670;&nbsp;</a></span>publish_poscovcartesian</h2>
+<a id="a16e500f85852d6853d1b4ab02573313a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16e500f85852d6853d1b4ab02573313a">&#9670;&nbsp;</a></span>g_publish_poscovcartesian</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_poscovcartesian</td>
+          <td class="memname">bool g_publish_poscovcartesian</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="af27e4eb3277cb71cd00661e03fcfb02a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af27e4eb3277cb71cd00661e03fcfb02a">&#9670;&nbsp;</a></span>publish_poscovgeodetic</h2>
+<a id="a841e14465159436dcfd9d536a5d258ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a841e14465159436dcfd9d536a5d258ef">&#9670;&nbsp;</a></span>g_publish_poscovgeodetic</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_poscovgeodetic</td>
+          <td class="memname">bool g_publish_poscovgeodetic</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="aa48c9faf33db869296eb462a53d8283e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa48c9faf33db869296eb462a53d8283e">&#9670;&nbsp;</a></span>publish_pvtcartesian</h2>
+<a id="abde565d4e9205ba22308c869d3fb13fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abde565d4e9205ba22308c869d3fb13fe">&#9670;&nbsp;</a></span>g_publish_pvtcartesian</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_pvtcartesian</td>
+          <td class="memname">bool g_publish_pvtcartesian</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a58a955350c9a8ab68cb75c25c17964da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58a955350c9a8ab68cb75c25c17964da">&#9670;&nbsp;</a></span>publish_pvtgeodetic</h2>
+<a id="a3134681ca67e089c171d797e26ebe7a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3134681ca67e089c171d797e26ebe7a3">&#9670;&nbsp;</a></span>g_publish_pvtgeodetic</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool publish_pvtgeodetic</td>
+          <td class="memname">bool g_publish_pvtgeodetic</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ae2e39109ac122db5d5608f2ebb47e916"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae2e39109ac122db5d5608f2ebb47e916">&#9670;&nbsp;</a></span>reconnect_timer_</h2>
+<a id="a2a01b925700640df90edcaa553a8e860"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a01b925700640df90edcaa553a8e860">&#9670;&nbsp;</a></span>g_reconnect_timer_</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">ros::Timer reconnect_timer_</td>
+          <td class="memname">ros::Timer g_reconnect_timer_</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a128bc891d1db72f7a16fdf772a38e428"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a128bc891d1db72f7a16fdf772a38e428">&#9670;&nbsp;</a></span>g_ROS_QUEUE_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t g_ROS_QUEUE_SIZE</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Queue size for ROS publishers. </p>
+
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00745">745</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Oct 11 2020 16:02:24 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

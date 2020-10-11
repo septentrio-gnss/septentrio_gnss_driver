@@ -59,23 +59,21 @@
 #ifndef GPGGA_HPP
 #define GPGGA_HPP
 
-// C++ library includes
-#include <cmath> // for round(double x)
 // ROSaic includes
 #include <rosaic/parsers/parser_base_class.hpp>
 #include <rosaic/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <rosaic/Gpgga.h>
 #include <boost/make_shared.hpp>
-#include <ros/ros.h>
+
+extern std::string g_frame_id;
+extern bool g_use_gnss_time;
 
 /**
  * @file gpgga.hpp
  * @brief Derived class for parsing GGA messages
  * @date 17/08/20 
  */
-
-extern std::string frame_id;
 
 /**
  * @class GpggaParser
@@ -95,20 +93,20 @@ class GpggaParser : public BaseParser<rosaic::GpggaPtr>
 		 * @brief Returns the ASCII message ID, here "$GPGGA"
 		 * @return The message ID
 		 */
-		const std::string GetMessageID() const override; 	
+		const std::string getMessageID() const override; 	
 		
 		/**
 		 * @brief Parses one GGA message 
 		 * @param[in] sentence The GGA message to be parsed
 		 * @return A ROS message pointer of ROS type rosaic::GpggaPtr
 		 */
-		rosaic::GpggaPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
+		rosaic::GpggaPtr parseASCII(const NMEASentence& sentence) noexcept(false) override;
 
 		/**
 		 * @brief Tells us whether the last GGA message was valid or not 
 		 * @return True if last GGA message was valid, false if not
 		 */
-		bool WasLastGPGGAValid() const;
+		bool wasLastGPGGAValid() const;
 
 		/**
 		 * @brief Declares the string MESSAGE_ID

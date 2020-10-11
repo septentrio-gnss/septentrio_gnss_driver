@@ -38,17 +38,17 @@
 
 const std::string GpgsaParser::MESSAGE_ID = "$GPGSA";
 
-const std::string GpgsaParser::GetMessageID() const
+const std::string GpgsaParser::getMessageID() const
 {
 	return GpgsaParser::MESSAGE_ID;
 }
 
 /**
  * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
- * Note: This method is called from within the read() method of the mosaicMessage class by including the checksum part in
+ * Note: This method is called from within the read() method of the RxMessage class by including the checksum part in
  * the argument "sentence" here, though the checksum is never parsed: It would be sentence.get_body()[18] if anybody ever needs it.
  */
-rosaic::GpgsaPtr GpgsaParser::ParseASCII(const NMEASentence& sentence) noexcept(false)
+rosaic::GpgsaPtr GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 {
 	
 	// Checking the length first, it should be 19 elements
@@ -62,25 +62,26 @@ rosaic::GpgsaPtr GpgsaParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	}
 
 	rosaic::GpgsaPtr msg = boost::make_shared<rosaic::Gpgsa>();
-	msg->header.frame_id = frame_id;
+	msg->header.frame_id = g_frame_id;
 	msg->message_id = sentence.get_body()[0];
 	msg->auto_manual_mode = sentence.get_body()[1];
-	parsing_utilities::ParseUInt8(sentence.get_body()[2], msg->fix_mode);
+	parsing_utilities::parseUInt8(sentence.get_body()[2], msg->fix_mode);
 	// Words 3-14 of the sentence are SV PRNs. Copying only the non-null strings..
-	msg->sv_ids.resize(12, 0); // 0 is the character needed to fill the new character space, in case 12 (first argument) is larger than sv_ids.
+	// 0 is the character needed to fill the new character space, in case 12 (first argument) is larger than sv_ids.
+	msg->sv_ids.resize(12, 0); 
 	size_t n_svs = 0;
 	for (std::vector<std::string>::const_iterator id = sentence.get_body().begin()+3; id < sentence.get_body().begin()+15; ++id)
 	{
 		if (! id->empty())
 		{
-			parsing_utilities::ParseUInt8(*id, msg->sv_ids[n_svs]);
+			parsing_utilities::parseUInt8(*id, msg->sv_ids[n_svs]);
 			++n_svs;
 		}
 	}
 	msg->sv_ids.resize(n_svs);
 
-	parsing_utilities::ParseFloat(sentence.get_body()[15], msg->pdop);
-	parsing_utilities::ParseFloat(sentence.get_body()[16], msg->hdop);
-	parsing_utilities::ParseFloat(sentence.get_body()[17], msg->vdop);
+	parsing_utilities::parseFloat(sentence.get_body()[15], msg->pdop);
+	parsing_utilities::parseFloat(sentence.get_body()[16], msg->hdop);
+	parsing_utilities::parseFloat(sentence.get_body()[17], msg->vdop);
 	return msg;
 }

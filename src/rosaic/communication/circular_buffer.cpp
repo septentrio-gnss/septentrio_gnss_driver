@@ -55,7 +55,7 @@ std::size_t CircularBuffer::write(const uint8_t *data, std::size_t bytes)
 
 	std::size_t capacity = capacity_;
 	std::size_t bytes_to_write = std::min(bytes, capacity - size_);
-	//ROS_DEBUG("bytes_to_write is %li", bytes_to_write);
+	//ROS_DEBUG("Number of bytes_to_write is %li.", bytes_to_write);
 	if (bytes_to_write != bytes)
 	{
 		ROS_ERROR("You are trying to overwrite parts of the circular buffer that have not yet been read!");
@@ -89,7 +89,7 @@ std::size_t CircularBuffer::read(uint8_t *data, std::size_t bytes)
 	if (bytes == 0) return 0;
 	std::size_t capacity = capacity_;
 	std::size_t bytes_to_read = std::min(bytes, size_);
-	//ROS_DEBUG("bytes_to_read is %li", bytes_to_read);
+	//ROS_DEBUG("Number of bytes_to_read is %li.", bytes_to_read);
 	if (bytes_to_read != bytes)
 	{
 		ROS_ERROR("You are trying to read parts of the circular buffer that have not yet been written!");

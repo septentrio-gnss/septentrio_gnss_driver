@@ -43,9 +43,11 @@
  
 
 /**
- * @brief Struct to split an NMEA sentence into its ID (e.g. the standardized "$GPGGA" or proprietary "$PSSN,HRP") and its body, the latter tokenized into a vector of strings.
+ * @brief Struct to split an NMEA sentence into its ID and its body, the latter tokenized into a vector of strings.
  * 
- * The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! (not just those defined by Septentrio) proprietary NMEA messages starts with "$P".
+ * By ID, we mean either a standardized ID, e.g. "$GPGGA", or proprietary ID such as "$PSSN,HRP".
+ * The STL Container Vector can be used to dynamically allocate arrays (C++ feature). Also note that the ID of !all! 
+ * (not just those defined by Septentrio) proprietary NMEA messages starts with "$P".
  * The body_ member variable shall exclude the NMEA checksum (also hinted at in files that implement the parsing).
  */
 class NMEASentence

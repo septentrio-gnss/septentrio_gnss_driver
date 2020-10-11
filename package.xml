@@ -2,7 +2,7 @@
 <package format="2">
   <name>rosaic</name>
   <version>1.0.2</version>
-  <description>ROSaic: C++ Driver for Septentrio's mosaic Receivers</description>
+  <description>ROSaic: C++ Driver for Septentrio's mosaic Receivers and Beyond</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -25,7 +25,7 @@
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
-  <author email="tibor.doeme@gmail.com">Tibor Dome</author>
+  <author>Tibor Dome</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
@@ -50,7 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   
-  <depend>nmea_msgs</depend>
+  <depend>diagnostic_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>gps_common</depend>

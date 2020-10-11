@@ -54,124 +54,142 @@ namespace parsing_utilities
 	 * @param[in] buffer A pointer to a buffer containing 8 bytes of data
 	 * @return The double extracted from the data in the buffer
 	 */
-	double ParseDouble(const uint8_t* buffer);
+	double parseDouble(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of type double, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of type double
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The double variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseDouble(const std::string& string, double& value);
+	bool parseDouble(const std::string& string, double& value);
 
 	/**
 	 * @brief Converts a 4-byte-buffer into a float
 	 * @param[in] buffer A pointer to a buffer containing 4 bytes of data
 	 * @return The float extracted from the data in the buffer
 	 */
-	float ParseFloat(const uint8_t* buffer);
+	float parseFloat(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a floating point number of type float, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a floating point number of type float
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The float variable that should be overwritten by the floating point number found in "string"
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseFloat(const std::string& string, float& value);
+	bool parseFloat(const std::string& string, float& value);
 
 	/**
 	 * @brief Converts a 2-byte-buffer into a signed 16-bit integer
 	 * @param[in] buffer A pointer to a buffer containing 2 bytes of data
 	 * @return The int16_t value extracted from the data in the buffer
 	 */
-	int16_t ParseInt16(const uint8_t* buffer);
+	int16_t parseInt16(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a integer number of type int16_t, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a integer number of type int16_t.
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as an integer number
 	 * @param[out] value The int16_t variable that should be overwritten by the integer number found in "string"
 	 * @param[in] base The numerical base of the integer in the string, default being 10
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseInt16(const std::string& string, int16_t& value, int32_t base = 10);
+	bool parseInt16(const std::string& string, int16_t& value, int32_t base = 10);
 	
 	/**
 	 * @brief Converts a 4-byte-buffer into a signed 32-bit integer
 	 * @param[in] buffer A pointer to a buffer containing 4 bytes of data
 	 * @return The int32_t value extracted from the data in the buffer
 	 */
-	int32_t ParseInt32(const uint8_t* buffer);
+	int32_t parseInt32(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a integer number of type int32_t, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a integer number of type int32_t.
+	 *
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as an integer number
 	 * @param[out] value The int32_t variable that should be overwritten by the integer number found in "string"
 	 * @param[in] base The numerical base of the integer in the string, default being 10
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseInt32(const std::string& string, int32_t& value, int32_t base = 10);
+	bool parseInt32(const std::string& string, int32_t& value, int32_t base = 10);
 
 	/**
-	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint8_t, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint8_t.
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as an integer number
 	 * @param[out] value The uint8_t variable that should be overwritten by the integer number found in "string"
 	 * @param[in] base The numerical base of the integer in the string, default being 10
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+	bool parseUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 
 	/**
 	 * @brief Converts a 2-byte-buffer into an unsigned 16-bit integer
 	 * @param[in] buffer A pointer to a buffer containing 2 bytes of data
 	 * @return The uint16_t value extracted from the data in the buffer
 	 */
-	uint16_t ParseUInt16(const uint8_t* buffer);
+	uint16_t parseUInt16(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint16_t, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint16_t.
+	 * 
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as an integer number
 	 * @param[out] value The uint16_t variable that should be overwritten by the integer number found in "string"
 	 * @param[in] base The numerical base of the integer in the string, default being 10
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseUInt16(const std::string& string, uint16_t& value, int32_t base = 10);
+	bool parseUInt16(const std::string& string, uint16_t& value, int32_t base = 10);
 
 	/**
 	 * @brief Converts a 4-byte-buffer into an unsigned 32-bit integer
 	 * @param[in] buffer A pointer to a buffer containing 4 bytes of data
 	 * @return The uint32_t value extracted from the data in the buffer
 	 */
-	uint32_t ParseUInt32(const uint8_t* buffer);
+	uint32_t parseUInt32(const uint8_t* buffer);
 
 	/**
-	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint32_t, stores its value in "value" and returns whether or not all went well
+	 * @brief Interprets the contents of "string" as a unsigned integer number of type uint32_t.
+	 *
+	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as an integer number
 	 * @param[out] value The uint32_t variable that should be overwritten by the integer number found in "string"
 	 * @param[in] base The numerical base of the integer in the string, default being 10
 	 * @return True if all went fine, false if not
 	 */
-	bool ParseUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
+	bool parseUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
 
 	/**
-	 * @brief Converts the UTC time from the without-colon-delimiter format, type double, to the number-of-seconds-since-midnight format, type double
-	 * @param[in] utc_float The double variable representing UTC time in the without-colon-delimiter format
-	 * @return The double variable representing UTC time in the number-of-seconds-since-midnight format
+	 * @brief Converts UTC time from the without-colon-delimiter format to the number-of-seconds-since-midnight format
+	 * @param[in] utc_double Rrepresents UTC time in the without-colon-delimiter format
+	 * @return Represents UTC time in the number-of-seconds-since-midnight format
 	 */
-	double UTCDoubleToSeconds(double utc_double);
+	double convertUTCDoubleToSeconds(double utc_double);
 	
 	/**
-	 * @brief Converts UTC time from the without-colon-delimiter format, type double, to Unix Epoch time (a number-of-seconds-since-1970/01/01 format), type time_t (usually 32 bits)
-	 * @param[in] utc_float The double variable representing UTC time in the without-colon-delimiter format
+	 * @brief Converts UTC time from the without-colon-delimiter format to Unix Epoch time (a number-of-seconds-since-1970/01/01 format)
+	 * 
+	 * Note that the type "std::time_t" is usually 32 bits, which also leads to the "Year 2038 Problem".
+	 * @param[in] utc_double Represents UTC time in the without-colon-delimiter format
 	 * @return The time_t variable representing Unix Epoch time
 	 */
-	time_t UTCtoUnix(double utc_double);
+	std::time_t convertUTCtoUnix(double utc_double);
 	
 	/**
-	 * @brief Converts latitude or longitude from the DMS notation (in the without-colon-delimiter format), type double, to the pure degree notation, type double
-	 * @param[in] dms The double variable representing latitude or longitude in the DMS notation (in the without-colon-delimiter format)
-	 * @return The double variable representing latitude or longitude in the pure degree notation
+	 * @brief Converts latitude or longitude from the DMS notation (in the without-colon-delimiter format), to the pure degree notation
+	 * 
+	 * Note that DMS stands for "Degrees, Minutes, Seconds".
+	 * @param[in] dms Represents latitude or longitude in the DMS notation (in the without-colon-delimiter format)
+	 * @return Represents latitude or longitude in the pure degree notation
 	 */
-	double ConvertDMSToDegrees(double dms);
+	double convertDMSToDegrees(double dms);
 	
 	/**
 	 * @brief Transforms Euler angles to a quaternion
@@ -180,14 +198,14 @@ namespace parsing_utilities
 	 * @param[in] roll Roll about the new East-axis
 	 * @return ROS message representing a quaternion
 	 */
-	geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch, double roll); 
+	geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch, double roll); 
 
 	/**
-	 * @brief Transforms the input polling period [milliseconds] into a uint32_t number that can be appended to either sec or msec for mosaic commands
+	 * @brief Transforms the input polling period [milliseconds] into a uint32_t number that can be appended to either sec or msec for Rx commands
 	 * @param[in] period_user Polling period in milliseconds as specified by the ROSaic user
-	 * @return Number to be appended to either sec or msec when sending commands to mosaic
+	 * @return Number to be appended to either sec or msec when sending commands to the Rx
 	 */
-	uint32_t UserPeriodToMosaicPeriod(uint32_t period_user);
+	uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
 }
 
 #endif //PARSING_UTILITIES_HPP
