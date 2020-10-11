@@ -1,7 +1,7 @@
 <map id="include/rosaic/communication/communication_core.hpp" name="include/rosaic/communication/communication_core.hpp">
 <area shape="rect" id="node11" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager. " alt="" coords="757,95,907,136"/>
 <area shape="rect" id="node20" href="$callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="1387,95,1541,136"/>
-<area shape="rect" id="node16" href="$circular__buffer_8hpp.html" title="Declares a class for writing and reading from a circular bufffer. " alt="" coords="489,184,639,225"/>
+<area shape="rect" id="node16" href="$circular__buffer_8hpp.html" title="Declares a class for creating, writing to and reading from a circular bufffer. " alt="" coords="489,184,639,225"/>
 <area shape="rect" id="node25" href="$rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="1927,184,2076,225"/>
 <area shape="rect" id="node37" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="4322,273,4462,315"/>
 <area shape="rect" id="node39" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="4109,363,4249,404"/>

@@ -32,7 +32,7 @@
 
 /**
  * @file crc.c
- * @brief Defines the CRC table and the functions to compute and validate the CRC of a buffer
+ * @brief Defines the CRC table and the functions to compute and validate the CRC of an SBF block
  * @date 17/08/20 
  */
 

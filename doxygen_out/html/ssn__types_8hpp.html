@@ -68,6 +68,9 @@ $(function() {
 <div class="title">ssn_types.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS compilers.  
+<a href="#details">More...</a></p>
 <div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
@@ -75,7 +78,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <map name="include_2rosaic_2packed__structs_2ssn__types_8hppdep" id="include_2rosaic_2packed__structs_2ssn__types_8hppdep">
 <area shape="rect" id="node2" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="86,95,249,136"/>
 <area shape="rect" id="node3" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="105,184,229,225"/>
-<area shape="rect" id="node4" href="crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of a buffer. " alt="" coords="5,281,140,307"/>
+<area shape="rect" id="node4" href="crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of an SBF block..." alt="" coords="5,281,140,307"/>
 <area shape="rect" id="node5" href="rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="165,273,359,315"/>
 <area shape="rect" id="node6" href="rx__message_8cpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="74,363,245,404"/>
 <area shape="rect" id="node7" href="callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="269,363,463,404"/>
@@ -94,7 +97,12 @@ Macros</h2></td></tr>
 <tr class="memitem:a7c5dce8cd2243197e6404febf70c42e9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ssn__types_8hpp.html#a7c5dce8cd2243197e6404febf70c42e9">FW_EXPORT</a></td></tr>
 <tr class="separator:a7c5dce8cd2243197e6404febf70c42e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS compilers. </p>
+<p>MS compilers are disregarded since ROS Windows is not supported. Here we declare Septentrio types and implement common C/C++ types which are not implemented by every compiler. If your compiler does not support the standard C99 types from <code>stdint.h</code> and <code>stdbool.h</code>, please define them for your platform. </p><dl class="section date"><dt>Date</dt><dd>17/08/20 </dd></dl>
+
+<p class="definition">Definition in file <a class="el" href="ssn__types_8hpp_source.html">ssn_types.hpp</a>.</p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a7c5dce8cd2243197e6404febf70c42e9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7c5dce8cd2243197e6404febf70c42e9">&#9670;&nbsp;</a></span>FW_EXPORT</h2>
 
@@ -107,14 +115,14 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ssn__types_8hpp_source.html#l00064">64</a> of file <a class="el" href="ssn__types_8hpp_source.html">ssn_types.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ssn__types_8hpp_source.html#l00065">65</a> of file <a class="el" href="ssn__types_8hpp_source.html">ssn_types.hpp</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Oct 11 2020 16:02:24 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Oct 11 2020 19:10:38 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
