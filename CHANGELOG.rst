@@ -2,8 +2,8 @@
 Changelog for package rosaic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.5 (2020-10-11)
+------------------
 * Merge pull request `#21 <https://github.com/septentrio-gnss/rosaic/issues/21>`_ from septentrio-gnss/local_tibor
   Added rosdoc.yaml file
 * Merge pull request `#20 <https://github.com/septentrio-gnss/rosaic/issues/20>`_ from septentrio-gnss/local_tibor
