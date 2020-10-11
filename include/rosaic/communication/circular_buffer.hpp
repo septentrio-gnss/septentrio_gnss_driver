@@ -40,10 +40,14 @@
 
 /**
  * @file circular_buffer.hpp
- * @brief Declares a class for writing and reading from a circular bufffer
+ * @brief Declares a class for creating, writing to and reading from a circular bufffer
  * @date 25/09/20
  */
 
+/**
+ * @class CircularBuffer
+ * @brief Class for creating, writing to and reading from a circular buffer
+ */
 class CircularBuffer
 {
 	public:

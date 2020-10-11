@@ -10,5 +10,5 @@
 <area shape="rect" id="node21" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="2237,273,2375,300"/>
 <area shape="rect" id="node27" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="2663,273,2805,300"/>
 <area shape="rect" id="node41" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="3268,184,3419,225"/>
-<area shape="rect" id="node42" href="$ssn__types_8hpp.html" title="ssn_types.hpp" alt="" coords="3290,273,3397,300"/>
+<area shape="rect" id="node42" href="$ssn__types_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="3290,273,3397,300"/>
 </map>

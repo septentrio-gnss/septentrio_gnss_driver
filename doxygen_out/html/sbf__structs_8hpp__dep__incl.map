@@ -1,6 +1,6 @@
 <map id="include/rosaic/packed_structs/sbf_structs.hpp" name="include/rosaic/packed_structs/sbf_structs.hpp">
 <area shape="rect" id="node2" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="105,95,229,136"/>
-<area shape="rect" id="node3" href="$crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of a buffer. " alt="" coords="5,191,140,218"/>
+<area shape="rect" id="node3" href="$crc_8c.html" title="Defines the CRC table and the functions to compute and validate the CRC of an SBF block..." alt="" coords="5,191,140,218"/>
 <area shape="rect" id="node4" href="$rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="165,184,359,225"/>
 <area shape="rect" id="node5" href="$rx__message_8cpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="74,273,245,315"/>
 <area shape="rect" id="node6" href="$callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="269,273,463,315"/>

@@ -30,19 +30,20 @@
 
 /*
  * ssntypes.h: 
- *  Declarations of Septentrio types and implementation of common C types which
- *  are not implemented by every compiler.
- *
- *  If your compiler does not support the standard C99 types from \p stdint.h
- *  and \p stdbool.h, please define them for your platform. \n
+ *  
  */
 
 #ifndef SSNTYPES_HPP
 #define SSNTYPES_HPP
 
 /**
- * @file ssntypes.hpp
- * @brief Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS compilers (since ROS Windows is not supported)
+ * @file ssn_types.hpp
+ * @brief Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS compilers
+ * 
+ * MS compilers are disregarded since ROS Windows is not supported.
+ * Here we declare Septentrio types and implement common C/C++ types which are not implemented by every compiler.
+ * If your compiler does not support the standard C99 types from \p stdint.h and \p stdbool.h, please 
+ * define them for your platform.
  * @date 17/08/20 
 */
 
