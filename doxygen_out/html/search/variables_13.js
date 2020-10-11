@@ -1,7 +1,12 @@
 var searchData=
 [
-  ['wacorrinfo',['WACorrInfo',['../struct_p_v_t_cartesian.html#a9955eca5c0038c3d61e528607acd007e',1,'PVTCartesian::WACorrInfo()'],['../struct_p_v_t_geodetic.html#a0c0107743218144bfe91a72d9a26e0e7',1,'PVTGeodetic::WACorrInfo()']]],
-  ['was_5flast_5fgpgga_5fvalid_5f',['was_last_gpgga_valid_',['../class_gpgga_parser.html#a060d3261b1012d111b70934deeb4702e',1,'GpggaParser']]],
-  ['was_5flast_5fgprmc_5fvalid_5f',['was_last_gprmc_valid_',['../class_gprmc_parser.html#ae1ad62c5608e6b00cb902631e85d22ee',1,'GprmcParser']]],
-  ['wnc',['WNc',['../struct_p_v_t_cartesian.html#ad41ebb9a9c02c257576dcb9a2e9d75c0',1,'PVTCartesian::WNc()'],['../struct_p_v_t_geodetic.html#a2b2dc5dce7706429ee13317b88fb4a00',1,'PVTGeodetic::WNc()'],['../struct_att_euler.html#a787c1b9b23134869ec6d5bc29db286f1',1,'AttEuler::WNc()'],['../struct_att_cov_euler.html#ad690615047ed4f689b53edda50d55cef',1,'AttCovEuler::WNc()'],['../struct_channel_status.html#a563aeae46a5399442975803286fedb99',1,'ChannelStatus::WNc()'],['../struct_meas_epoch.html#a202644e0f03b4afade3007b742c062b6',1,'MeasEpoch::WNc()'],['../struct_d_o_p.html#ae437f78f7688562287b772c2df5f298b',1,'DOP::WNc()'],['../struct_pos_cov_cartesian.html#ad35be9f94d575568918fd3669d3d9ad9',1,'PosCovCartesian::WNc()'],['../struct_pos_cov_geodetic.html#a33117db552a919482a9d9aaebe5ec19a',1,'PosCovGeodetic::WNc()'],['../struct_vel_cov_cartesian.html#abb28e69becc6d17807671e4d127952e3',1,'VelCovCartesian::WNc()'],['../struct_vel_cov_geodetic.html#a53ff0d45fb4e55cc26c2aec7d7dc87cd',1,'VelCovGeodetic::WNc()']]]
+  ['v_5faccuracy',['v_accuracy',['../struct_p_v_t_cartesian.html#acad41d7fcf46509ab3ba254e7e3d2968',1,'PVTCartesian::v_accuracy()'],['../struct_p_v_t_geodetic.html#ac5146141a85f976153ed76d4d9a29e7b',1,'PVTGeodetic::v_accuracy()']]],
+  ['vdop',['vdop',['../struct_d_o_p.html#af20d86c00a527e4a81960fb1f84f4f75',1,'DOP']]],
+  ['ve',['ve',['../struct_p_v_t_geodetic.html#a98af92876b7dfd749e7bd1e5bcde0f76',1,'PVTGeodetic']]],
+  ['vn',['vn',['../struct_p_v_t_geodetic.html#a55dced107ad0feb0e86469ab6558110a',1,'PVTGeodetic']]],
+  ['vpl',['vpl',['../struct_d_o_p.html#aabe2828ab4617c8ff2c769110e37b7da',1,'DOP']]],
+  ['vu',['vu',['../struct_p_v_t_geodetic.html#a39e0354565f3525d888f93f6afca105b',1,'PVTGeodetic']]],
+  ['vx',['vx',['../struct_p_v_t_cartesian.html#aa0ce3683bbc6f589133c4358978c9ad1',1,'PVTCartesian']]],
+  ['vy',['vy',['../struct_p_v_t_cartesian.html#a2bbbcd663aba8ac0213dc0317f0673ed',1,'PVTCartesian']]],
+  ['vz',['vz',['../struct_p_v_t_cartesian.html#a9e4fc2528c9d6d29bddf5fd9ed86c99a',1,'PVTCartesian']]]
 ];

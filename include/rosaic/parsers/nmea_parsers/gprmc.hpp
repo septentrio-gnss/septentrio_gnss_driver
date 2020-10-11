@@ -59,23 +59,21 @@
 #ifndef GPRMC_HPP
 #define GPRMC_HPP
 
-// C++ library includes
-#include <cmath> // for round(double x)
 // ROSaic includes
 #include <rosaic/parsers/parser_base_class.hpp>
 #include <rosaic/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <rosaic/Gprmc.h>
 #include <boost/make_shared.hpp>
-#include <ros/ros.h>
+
+extern std::string g_frame_id;
+extern bool g_use_gnss_time;
 
 /**
  * @file gprmc.hpp
  * @brief Derived class for parsing RMC messages
  * @date 28/09/20 
  */
-
-extern std::string frame_id;
 
 /**
  * @class GprmcParser
@@ -95,14 +93,14 @@ class GprmcParser : public BaseParser<rosaic::GprmcPtr>
 		 * @brief Returns the ASCII message ID, here "$GPRMC"
 		 * @return The message ID
 		 */
-		const std::string GetMessageID() const override; 
+		const std::string getMessageID() const override; 
 		
 		/**
 		 * @brief Parses one RMC message 
 		 * @param[in] sentence The RMC message to be parsed
 		 * @return A ROS message pointer of ROS type rosaic::GprmcPtr
 		 */
-		rosaic::GprmcPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
+		rosaic::GprmcPtr parseASCII(const NMEASentence& sentence) noexcept(false) override;
 
 		/**
 		 * @brief Tells us whether the last RMC message was valid/usable or not 
@@ -110,7 +108,7 @@ class GprmcParser : public BaseParser<rosaic::GprmcPtr>
 		 * 
 		 * E.g. if the status is V=Void, then this function will also return false.
 		 */
-		bool WasLastGPRMCValid() const;
+		bool wasLastGPRMCValid() const;
 
 		/**
 		 * @brief Declares the string MESSAGE_ID

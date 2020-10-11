@@ -1,0 +1,14 @@
+<map id="io_comm_rx::RxMessage::NavSatFixCallback" name="io_comm_rx::RxMessage::NavSatFixCallback">
+<area shape="rect" id="node2" href="$classio__comm__rx_1_1_rx_message.html#abc765af1d72b26c5383591af717a6e19" title="Performs the CRC check (if SBF) and populates ROS message &quot;message&quot; with the necessary content..." alt="" coords="224,39,395,80"/>
+<area shape="rect" id="node3" href="$classio__comm__rx_1_1_callback_handler.html#afa587da611029863cc720847723e41cc" title="io_comm_rx::CallbackHandler\l::handle" alt="" coords="443,5,640,47"/>
+<area shape="rect" id="node4" href="$classio__comm__rx_1_1_rx_message.html#a2d4f61c4e66bd0d2c676bf56a59d4fa6" title="Returns the count_ variable. " alt="" coords="456,71,627,112"/>
+<area shape="rect" id="node5" href="$classio__comm__rx_1_1_callback_handlers.html#a0e7fb4e461bc36873a96edcdc16e70d8" title="Searches for Rx messages that could potentially be decoded/parsed/published. " alt="" coords="688,71,892,112"/>
+<area shape="rect" id="node6" href="$classio__comm__rx_1_1_comm___i_o.html#ad05e4d97461fde2d9dd49b890bd9effd" title="Set the I/O manager. " alt="" coords="940,71,1101,112"/>
+<area shape="rect" id="node7" href="$classio__comm__rx_1_1_comm___i_o.html#a275c32a25ed6b40c353211ae89505dfd" title="Initializes the serial port. " alt="" coords="1149,5,1311,47"/>
+<area shape="rect" id="node12" href="$classio__comm__rx_1_1_comm___i_o.html#a109de026b8e7bda8c355dd7c57f7b958" title="Initializes the TCP I/O. " alt="" coords="1149,71,1311,112"/>
+<area shape="rect" id="node13" href="$classio__comm__rx_1_1_comm___i_o.html#a1987583fa8c5b76bbc4f86c55d1b2ae9" title="Reset the Serial I/O port, e.g. after a Rx reset. " alt="" coords="1149,136,1311,177"/>
+<area shape="rect" id="node8" href="$classrosaic__node_1_1_r_o_saic_node.html#a5e8c0a710df92963ed8b2d6a247db8ba" title="Attempts to (re)connect every reconnect_delay_s_ seconds. " alt="" coords="1359,39,1536,80"/>
+<area shape="rect" id="node9" href="$classrosaic__node_1_1_r_o_saic_node.html#a811e5d18f33c13d1e49c2899a540abae" title="Calles the reconnect() method. " alt="" coords="1584,39,1761,80"/>
+<area shape="rect" id="node10" href="$classrosaic__node_1_1_r_o_saic_node.html#a0a7a85ecd1f4a6313711c13fbb659bad" title="Initializes the I/O handling. " alt="" coords="1809,39,1987,80"/>
+<area shape="rect" id="node11" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="2035,39,2212,80"/>
+</map>

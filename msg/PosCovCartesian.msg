@@ -3,17 +3,17 @@
 Header       header
 
 # SBF block header including time header
-BlockHeader  Block_Header   
+BlockHeader  block_header   
 
-uint8        Mode
-uint8        Error        
-float32      Cov_xx
-float32      Cov_yy
-float32      Cov_zz
-float32      Cov_bb
-float32      Cov_xy
-float32      Cov_xz
-float32      Cov_xb
-float32      Cov_yz
-float32      Cov_yb
-float32      Cov_zb
+uint8        mode
+uint8        error        
+float32      cov_xx
+float32      cov_yy
+float32      cov_zz
+float32      cov_bb
+float32      cov_xy
+float32      cov_xz
+float32      cov_xb
+float32      cov_yz
+float32      cov_yb
+float32      cov_zb

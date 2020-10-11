@@ -57,38 +57,24 @@
 // *****************************************************************************
 
 
-#ifndef COMMUNICATION_CORE_HPP // This block is called a conditional group. The controlled text will get included in the preprocessor output iff the macroname is not defined
-#define COMMUNICATION_CORE_HPP // include guards help to avoid the double inclusion of the septentrio.h file, by defining a token = macro
+#ifndef COMMUNICATION_CORE_HPP 	// This block is called a conditional group. The controlled text will get included
+								// in the preprocessor output iff the macroname is not defined.
+#define COMMUNICATION_CORE_HPP 	// Include guards help to avoid the double inclusion of header files, by defining a token = macro.
 
-#define MAX_MSG_SIZE 4096 // See header message length, the preprocessor will replace MAX_MSG_SIZE (a macro) by 4096 (in bytes)
-#define MAX_NOUT_SIZE 4096  // Maximum size of a Septentrio block in bytes (ALMANAC logs are big!)
-
-#define SEP_SYNC_BYTE_1 0x24 //0x24 is ASCII for $ - 1st byte in each message
-#define SEP_SYNC_BYTE_2 0x40 //0x24 is ASCII for @ - 2nd byte to indicate SBF block
-#define SEP_SYNC_BYTE_3 0x50 //0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message
-#define SEP_SYNC_BYTE_4 0x47 //0x47 is ASCII for G - 2nd byte to indicate NMEA-type ASCII message
-
-// ROS includes
-#include <ros/ros.h>
 // Boost includes
 #include <boost/function.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/asio.hpp>
 #include <boost/exception/diagnostic_information.hpp>  // dealing with bad file descriptor error
 #include <boost/bind.hpp>
-#include <boost/format.hpp>
 #include <boost/asio/serial_port.hpp>
 // C++ library includes
 #include <sstream>
-#include <string.h>
 #include <memory>
 #include <unistd.h> // for usleep()
 // ROSaic includes
-#include <rosaic/communication/mosaicMessage.hpp>
 #include <rosaic/communication/async_manager.hpp>
-#include <rosaic/communication/callbackhandlers.hpp>
-#include <rosaic/crc/crc.h>
-
+#include <rosaic/communication/callback_handlers.hpp>
 
 /**
  * @file communication_core.hpp
@@ -97,21 +83,21 @@
  */
  
 /**
- * @namespace io_comm_mosaic
+ * @namespace io_comm_rx
  * This namespace is for the communication interface, handling all aspects related to serial and TCP/IP communication..
  */
-namespace io_comm_mosaic 
+namespace io_comm_rx
 {
 	
-	//! Possible baudrates for mosaic
-	const static uint32_t baudrates[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
+	//! Possible baudrates for the Rx
+	const static uint32_t BAUDRATES[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 
 										115200, 230400, 460800, 500000, 576000, 921600, 
 										1000000, 1152000, 1500000, 2000000, 2500000, 
 										3000000, 3500000, 4000000};
 
 	/**
 	 * @class Comm_IO
-	 * @brief Handles communication with configuration of the mosaic (and beyond) device(s)
+	 * @brief Handles communication with and configuration of the mosaic (and beyond) receiver(s)
 	 */
 	class Comm_IO 
 	{
@@ -131,10 +117,11 @@ namespace io_comm_mosaic
 			 * @brief Initializes the serial port
 			 * @param[in] port The device's port address
 			 * @param[in] baudrate The chosen baud rate of the port
-			 * @param[in] flowcontrol Default is "None", set variable (not yet checked) to "RTS|CTS" to activate hardware flow control (only for mosaic serial ports COM1, COM2 and COM3)
+			 * @param[in] flowcontrol Default is "None", set variable (not yet checked) to "RTS|CTS" to activate hardware 
+			 * flow control (only for serial ports COM1, COM2 and COM3 (for mosaic))
 			 * @return True if connection could be established, false otherwise
 			 */
-			bool InitializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
+			bool initializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
 			
 			/**
 			 * @brief Initializes the TCP I/O.
@@ -142,24 +129,24 @@ namespace io_comm_mosaic
 			 * @param[in] port The TCP port
 			 * @return True if connection could be established, false otherwise
 			 */
-			bool InitializeTCP(std::string host, std::string port);
+			bool initializeTCP(std::string host, std::string port);
 			
 			
 			/**
 			 * @brief Set the I/O manager
 			 * @param[in] manager An I/O handler
 			 */
-			void SetManager(const boost::shared_ptr<Manager>& manager);
+			void setManager(const boost::shared_ptr<Manager>& manager);
 			
 			/**
-			 * @brief Reset the Serial I/O port, e.g. after mosaic reset.
+			 * @brief Reset the Serial I/O port, e.g. after a Rx reset.
 			 * @param[in] port The device's port address
 			 */
-			void ResetSerial(std::string port);
+			void resetSerial(std::string port);
 			
-			CallbackHandlers GetHandlers() const {return handlers_;}
+			CallbackHandlers getHandlers() const {return handlers_;}
 			
-			void Send(std::string cmd);
+			void send(std::string cmd);
 			
 			//! Callback handlers for the inwards streaming messages
 			CallbackHandlers handlers_;
@@ -175,7 +162,7 @@ namespace io_comm_mosaic
 			uint32_t baudrate_;
 			
 			friend class CallbackHandlers;
-			friend class mosaicMessage;
+			friend class RxMessage;
 			
 			//! Host currently connected to
 			std::string host_;
@@ -183,7 +170,7 @@ namespace io_comm_mosaic
 			std::string port_;
 			//! Sleep time in microseconds (there is no Unix command for milliseconds) 
 			//! after setting the baudrate to certain value (important between increments)
-			const static unsigned int set_baudrate_sleep_ = 500000;
+			const static unsigned int SET_BAUDRATE_SLEEP_ = 500000;
 	};
 }
 

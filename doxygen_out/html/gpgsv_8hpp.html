@@ -72,22 +72,20 @@ $(function() {
 
 <p>Derived class for parsing GSV messages.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;cmath&gt;</code><br />
-<code>#include &lt;<a class="el" href="parser__base__class_8hpp_source.html">rosaic/parsers/parser_base_class.hpp</a>&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="parser__base__class_8hpp_source.html">rosaic/parsers/parser_base_class.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="string__utilities_8h_source.html">rosaic/parsers/string_utilities.h</a>&gt;</code><br />
 <code>#include &lt;rosaic/Gpgsv.h&gt;</code><br />
 <code>#include &lt;boost/make_shared.hpp&gt;</code><br />
-<code>#include &lt;ros/ros.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for gpgsv.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="gpgsv_8hpp__incl.png" border="0" usemap="#include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hpp" alt=""/></div>
 <map name="include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hpp" id="include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hpp">
-<area shape="rect" id="node3" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="423,95,567,136"/>
-<area shape="rect" id="node14" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="703,95,843,136"/>
-<area shape="rect" id="node4" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="507,184,646,211"/>
-<area shape="rect" id="node7" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="345,184,483,211"/>
-<area shape="rect" id="node12" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="179,184,321,211"/>
+<area shape="rect" id="node2" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="591,95,735,136"/>
+<area shape="rect" id="node14" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="803,95,943,136"/>
+<area shape="rect" id="node3" href="nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="505,184,644,211"/>
+<area shape="rect" id="node6" href="parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="222,184,359,211"/>
+<area shape="rect" id="node12" href="parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="719,184,862,211"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -96,13 +94,14 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="center"><img src="gpgsv_8hpp__dep__incl.png" border="0" usemap="#include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hppdep" alt=""/></div>
 <map name="include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hppdep" id="include_2rosaic_2parsers_2nmea__parsers_2gpgsv_8hppdep">
 <area shape="rect" id="node2" href="gpgsv_8cpp.html" title="Derived class for parsing GSV messages. " alt="" coords="5,95,177,136"/>
-<area shape="rect" id="node3" href="mosaic_message_8hpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="202,95,397,136"/>
-<area shape="rect" id="node4" href="mosaic_message_8cpp.html" title="Defines a class that can deal with a buffer of size bytes_transferred that is handed over from async_..." alt="" coords="7,184,178,225"/>
-<area shape="rect" id="node5" href="callbackhandlers_8hpp.html" title="Handles callbacks when reading in various NMEA messages and/or SBF blocks. " alt="" coords="202,184,397,225"/>
-<area shape="rect" id="node6" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="269,273,463,315"/>
-<area shape="rect" id="node7" href="communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="187,363,358,404"/>
-<area shape="rect" id="node8" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="382,363,537,404"/>
-<area shape="rect" id="node9" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="393,452,525,493"/>
+<area shape="rect" id="node3" href="rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="202,95,397,136"/>
+<area shape="rect" id="node4" href="rx__message_8cpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="111,184,282,225"/>
+<area shape="rect" id="node5" href="callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="306,184,501,225"/>
+<area shape="rect" id="node6" href="callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="215,273,386,315"/>
+<area shape="rect" id="node7" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="410,273,605,315"/>
+<area shape="rect" id="node8" href="communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="334,363,505,404"/>
+<area shape="rect" id="node9" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="529,363,664,404"/>
+<area shape="rect" id="node10" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="521,452,672,493"/>
 </map>
 </div>
 </div>
@@ -116,9 +115,9 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:aee63db9a1c81df1506964242aacdac88"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gpgsv_8hpp.html#aee63db9a1c81df1506964242aacdac88">frame_id</a></td></tr>
-<tr class="memdesc:aee63db9a1c81df1506964242aacdac88"><td class="mdescLeft">&#160;</td><td class="mdescRight">The frame ID used in the header of every published ROS message.  <a href="#aee63db9a1c81df1506964242aacdac88">More...</a><br /></td></tr>
-<tr class="separator:aee63db9a1c81df1506964242aacdac88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f67396356a304476c028fc449b35874"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gpgsv_8hpp.html#a2f67396356a304476c028fc449b35874">g_frame_id</a></td></tr>
+<tr class="memdesc:a2f67396356a304476c028fc449b35874"><td class="mdescLeft">&#160;</td><td class="mdescRight">The frame ID used in the header of every published ROS message.  <a href="#a2f67396356a304476c028fc449b35874">More...</a><br /></td></tr>
+<tr class="separator:a2f67396356a304476c028fc449b35874"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Derived class for parsing GSV messages. </p>
@@ -126,28 +125,28 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="gpgsv_8hpp_source.html">gpgsv.hpp</a>.</p>
 </div><h2 class="groupheader">Variable Documentation</h2>
-<a id="aee63db9a1c81df1506964242aacdac88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee63db9a1c81df1506964242aacdac88">&#9670;&nbsp;</a></span>frame_id</h2>
+<a id="a2f67396356a304476c028fc449b35874"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f67396356a304476c028fc449b35874">&#9670;&nbsp;</a></span>g_frame_id</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string frame_id</td>
+          <td class="memname">std::string g_frame_id</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>The frame ID used in the header of every published ROS message. </p>
 
-<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00617">617</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rosaic__node_8cpp_source.html#l00677">677</a> of file <a class="el" href="rosaic__node_8cpp_source.html">rosaic_node.cpp</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2020 14:25:11 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Oct 11 2020 16:02:24 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

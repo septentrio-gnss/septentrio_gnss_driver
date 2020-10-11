@@ -1,0 +1,6 @@
+<map id="rosaic_node::ROSaicNode::defineMessages" name="rosaic_node::ROSaicNode::defineMessages">
+<area shape="rect" id="node2" href="$classio__comm__rx_1_1_comm___i_o.html#aeb0ed8482f5c92a88627ceed28f140b9" title="io_comm_rx::Comm_IO\l::getHandlers" alt="" coords="252,5,413,47"/>
+<area shape="rect" id="node4" href="$classio__comm__rx_1_1_callback_handlers.html#ae86460622a7c5cc19b54c9d5b158793a" title="Adds a pair to the multimap &quot;callbackmap_&quot;, with the message_key being the key. " alt="" coords="231,71,435,112"/>
+<area shape="rect" id="node3" href="$classio__comm__rx_1_1_comm___i_o.html#acc8facbed5c71527356fdd7189674771" title="io_comm_rx::Comm_IO\l::send" alt="" coords="503,5,664,47"/>
+<area shape="rect" id="node5" href="$classio__comm__rx_1_1_abstract_callback_handler.html#a1f1cc71d728fcb9615d803b44c50e545" title="io_comm_rx::AbstractCallback\lHandler::handle" alt="" coords="483,71,684,112"/>
+</map>

@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['obsinfo',['ObsInfo',['../struct_meas_epoch_channel_type2.html#a4b9faf4105ec877e21855fe93974fa14',1,'MeasEpochChannelType2::ObsInfo()'],['../struct_meas_epoch_channel_type1.html#a59ae39a553a6c66a6c34c4c3532a2604',1,'MeasEpochChannelType1::ObsInfo()']]],
-  ['offsetsmsb',['OffsetsMSB',['../struct_meas_epoch_channel_type2.html#a16c59f862adee52a56b70a7f514129e0',1,'MeasEpochChannelType2']]]
+  ['obs_5finfo',['obs_info',['../struct_meas_epoch_channel_type2.html#a6752f543881dc2b8ae955842a2a8fa62',1,'MeasEpochChannelType2::obs_info()'],['../struct_meas_epoch_channel_type1.html#a6b18e405989d7d0e34c29d6e6ae56736',1,'MeasEpochChannelType1::obs_info()']]],
+  ['observer',['observer',['../struct_receiver_setup.html#a9ac024cbea4ffac3e9d8fbae626d63f3',1,'ReceiverSetup']]],
+  ['offsets_5fmsb',['offsets_msb',['../struct_meas_epoch_channel_type2.html#a1206380c72decc50079b634774c80e34',1,'MeasEpochChannelType2']]]
 ];

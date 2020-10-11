@@ -38,17 +38,17 @@
 
 const std::string GpggaParser::MESSAGE_ID = "$GPGGA";
 
-const std::string GpggaParser::GetMessageID() const
+const std::string GpggaParser::getMessageID() const
 {
 	return GpggaParser::MESSAGE_ID;
 }
 
 /**
- * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
- * Note: This method is called from within the read() method of the mosaicMessage class by including the checksum part in
+ * Caution: Due to the occurrence of the throw keyword, this method parseASCII should be called within a try / catch framework...
+ * Note: This method is called from within the read() method of the RxMessage class by including the checksum part in
  * the argument "sentence" here, though the checksum is never parsed: It would be sentence.get_body()[15] if anybody ever needs it.
  */
-rosaic::GpggaPtr GpggaParser::ParseASCII(const NMEASentence& sentence) noexcept(false)
+rosaic::GpggaPtr GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 {
 	//ROS_DEBUG("Just testing that first entry is indeed what we expect it to be: %s", sentence.get_body()[0].c_str());
 	// Check the length first, which should be 16 elements.
@@ -61,7 +61,7 @@ rosaic::GpggaPtr GpggaParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	}
 
 	rosaic::GpggaPtr msg = boost::make_shared<rosaic::Gpgga>();
-	msg->header.frame_id = frame_id;
+	msg->header.frame_id = g_frame_id;
 
 	msg->message_id = sentence.get_body()[0];
 
@@ -72,17 +72,27 @@ rosaic::GpggaPtr GpggaParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	else
 	{
 		double utc_double;
-		if (string_utilities::ToDouble(sentence.get_body()[1], utc_double))
+		if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
 		{
-			//ROS_DEBUG("utc_double is %f", (float) utc_double);
-			msg->utc_seconds = parsing_utilities::UTCDoubleToSeconds(utc_double);
-			
-			// The Header's Unix Epoch time stamp
-			time_t unix_time_seconds = parsing_utilities::UTCtoUnix(utc_double);
-			// The following assumes that there are two digits after the decimal point in utc_double, i.e. in the NMEA UTC time.
-			uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; 
-			msg->header.stamp.sec = unix_time_seconds;
-			msg->header.stamp.nsec = unix_time_nanoseconds;
+			if(g_use_gnss_time)
+			{
+				//ROS_DEBUG("utc_double is %f", (float) utc_double);
+				msg->utc_seconds = parsing_utilities::convertUTCDoubleToSeconds(utc_double);
+				
+				// The Header's Unix Epoch time stamp
+				time_t unix_time_seconds = parsing_utilities::convertUTCtoUnix(utc_double);
+				// The following assumes that there are two digits after the decimal point in utc_double, i.e. in the NMEA UTC time.
+				uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; 
+				msg->header.stamp.sec = unix_time_seconds;
+				msg->header.stamp.nsec = unix_time_nanoseconds;
+			}
+			else
+			{
+				ros::Time time_obj;
+				time_obj = ros::Time::now();
+				msg->header.stamp.sec = time_obj.sec;
+				msg->header.stamp.nsec = time_obj.nsec;
+			}
 		}
 		else
 		{
@@ -93,26 +103,26 @@ rosaic::GpggaPtr GpggaParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	bool valid = true;
 
 	double latitude = 0.0;
-	valid = valid && parsing_utilities::ParseDouble(sentence.get_body()[2], latitude);
-	msg->lat = parsing_utilities::ConvertDMSToDegrees(latitude);
+	valid = valid && parsing_utilities::parseDouble(sentence.get_body()[2], latitude);
+	msg->lat = parsing_utilities::convertDMSToDegrees(latitude);
 
 	double longitude = 0.0;
-	valid = valid && parsing_utilities::ParseDouble(sentence.get_body()[4], longitude);
-	msg->lon = parsing_utilities::ConvertDMSToDegrees(longitude);
+	valid = valid && parsing_utilities::parseDouble(sentence.get_body()[4], longitude);
+	msg->lon = parsing_utilities::convertDMSToDegrees(longitude);
 
 	msg->lat_dir = sentence.get_body()[3];
 	msg->lon_dir = sentence.get_body()[5];
-	valid = valid && parsing_utilities::ParseUInt32(sentence.get_body()[6], msg->gps_qual);
-	valid = valid && parsing_utilities::ParseUInt32(sentence.get_body()[7], msg->num_sats);
+	valid = valid && parsing_utilities::parseUInt32(sentence.get_body()[6], msg->gps_qual);
+	valid = valid && parsing_utilities::parseUInt32(sentence.get_body()[7], msg->num_sats);
 	//ROS_INFO("Valid is %s so far with number of satellites in use being %s", valid ? "true" : "false", sentence.get_body()[7].c_str());
 
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[8], msg->hdop);
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[9], msg->alt);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg->hdop);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[9], msg->alt);
 	msg->altitude_units = sentence.get_body()[10];
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[11], msg->undulation);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[11], msg->undulation);
 	msg->undulation_units = sentence.get_body()[12];
 	double diff_age_temp;
-	valid = valid && parsing_utilities::ParseDouble(sentence.get_body()[13], diff_age_temp);
+	valid = valid && parsing_utilities::parseDouble(sentence.get_body()[13], diff_age_temp);
 	msg->diff_age = static_cast<uint32_t>(round(diff_age_temp));
 	msg->station_id = sentence.get_body()[14];
 
@@ -124,11 +134,11 @@ rosaic::GpggaPtr GpggaParser::ParseASCII(const NMEASentence& sentence) noexcept(
 
 	// If we made it this far, we successfully parsed the message and will consider it to be valid.
 	was_last_gpgga_valid_ = true;
-
+	
 	return msg;
 }
 
-bool GpggaParser::WasLastGPGGAValid() const
+bool GpggaParser::wasLastGPGGAValid() const
 {
 	return was_last_gpgga_valid_;
 }

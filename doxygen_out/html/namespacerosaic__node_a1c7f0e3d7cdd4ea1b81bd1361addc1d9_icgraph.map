@@ -1,0 +1,6 @@
+<map id="rosaic_node::getROSInt" name="rosaic_node::getROSInt">
+<area shape="rect" id="node2" href="$namespacerosaic__node.html#acde5f6a2baf3bec2f59a155051558a6b" title="Gets an integer or unsigned integer value from the parameter server. " alt="" coords="223,5,386,32"/>
+<area shape="rect" id="node3" href="$classrosaic__node_1_1_r_o_saic_node.html#ac4214f08ed363f11c5741e7ee5bcdf45" title="Gets the node parameters from the ROS Parameter Server, parts of which are specified in a YAML file..." alt="" coords="216,57,393,98"/>
+<area shape="rect" id="node5" href="$rosaic__node_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="279,123,330,149"/>
+<area shape="rect" id="node4" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="441,57,619,98"/>
+</map>

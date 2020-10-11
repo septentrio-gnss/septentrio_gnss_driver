@@ -1,0 +1,14 @@
+<map id="include/rosaic/communication/rx_message.hpp" name="include/rosaic/communication/rx_message.hpp">
+<area shape="rect" id="node16" href="$gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="2345,95,2485,136"/>
+<area shape="rect" id="node29" href="$string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="2329,184,2469,225"/>
+<area shape="rect" id="node34" href="$gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="2509,95,2649,136"/>
+<area shape="rect" id="node36" href="$gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="2673,95,2813,136"/>
+<area shape="rect" id="node38" href="$gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="2837,95,2977,136"/>
+<area shape="rect" id="node40" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="3002,102,3114,129"/>
+<area shape="rect" id="node17" href="$parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="2494,184,2638,225"/>
+<area shape="rect" id="node18" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="2497,273,2635,300"/>
+<area shape="rect" id="node21" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="2237,273,2375,300"/>
+<area shape="rect" id="node27" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="2663,273,2805,300"/>
+<area shape="rect" id="node41" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="3268,184,3419,225"/>
+<area shape="rect" id="node42" href="$ssn__types_8hpp.html" title="ssn_types.hpp" alt="" coords="3290,273,3397,300"/>
+</map>

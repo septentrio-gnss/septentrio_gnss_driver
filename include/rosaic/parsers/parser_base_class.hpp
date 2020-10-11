@@ -94,7 +94,7 @@ class BaseParser
 	 * 
 	 * @return The ASCII message name.
 	 */
-	virtual const std::string GetMessageID() const = 0;
+	virtual const std::string getMessageID() const = 0;
 
 	/**
 	 * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr) and returns it
@@ -106,7 +106,7 @@ class BaseParser
 	 * @return A valid ROS message pointer
 	 */
 	template <typename SBFStructT>
-	T ParseBinary(const SBFStructT& bin_msg) noexcept(false)
+	T parseBinary(const SBFStructT& bin_msg) noexcept(false)
 	{
 		throw ParseException("ParseBinary not implemented.");
 	};
@@ -119,7 +119,7 @@ class BaseParser
 	 * @param[in] sentence The standardized NMEA sentence to convert, of type NMEASentence
 	 * @return A valid ROS message pointer
 	 */
-	virtual T ParseASCII(const NMEASentence& sentence) noexcept(false)
+	virtual T parseASCII(const NMEASentence& sentence) noexcept(false)
 	{
 		throw ParseException("ParseASCII not implemented.");
 	};

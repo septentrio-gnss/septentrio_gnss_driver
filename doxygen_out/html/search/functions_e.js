@@ -1,13 +1,7 @@
 var searchData=
 [
-  ['timestampsbf',['TimestampSBF',['../namespaceio__comm__mosaic.html#a2a4df6aa119a1255e641501bde7d8637',1,'io_comm_mosaic']]],
-  ['todouble',['ToDouble',['../namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902',1,'string_utilities']]],
-  ['tofloat',['ToFloat',['../namespacestring__utilities.html#ad5cc2567c76c6e65ba80a1299da46dc3',1,'string_utilities']]],
-  ['toint32',['ToInt32',['../namespacestring__utilities.html#adab95cf203b4bf5f30d4c3571ea7b44c',1,'string_utilities']]],
-  ['toint8',['ToInt8',['../namespacestring__utilities.html#ab61c4d79a3acc418216b06da6dd695a0',1,'string_utilities']]],
-  ['toquaternion',['ToQuaternion',['../namespaceparsing__utilities.html#a568506651ce48dda805dd30e5b231634',1,'parsing_utilities']]],
-  ['touint32',['ToUInt32',['../namespacestring__utilities.html#aacef6a9a84e935f1d079161d4dc7a725',1,'string_utilities']]],
-  ['touint8',['ToUInt8',['../namespacestring__utilities.html#aa5b468d169753e68baf953d4aec3c597',1,'string_utilities']]],
-  ['trimstring',['TrimString',['../namespacestring__utilities.html#a3038da1508f0fd84febf54e0776d0df4',1,'string_utilities']]],
-  ['tryparsing',['TryParsing',['../classio__comm__mosaic_1_1_async_manager.html#aa60a8650429061f97ac7af1f70b387b6',1,'io_comm_mosaic::AsyncManager']]]
+  ['wait',['wait',['../classio__comm__rx_1_1_manager.html#abd4e49033c12873599ef7484f466ff2d',1,'io_comm_rx::Manager::wait()'],['../classio__comm__rx_1_1_async_manager.html#a9c2935508cf711725e8cf8b5d79a00a7',1,'io_comm_rx::AsyncManager::wait()'],['../classio__comm__rx_1_1_abstract_callback_handler.html#a462b9d66394e37155f89b6908d0d0e2e',1,'io_comm_rx::AbstractCallbackHandler::Wait()']]],
+  ['waslastgpggavalid',['wasLastGPGGAValid',['../class_gpgga_parser.html#a6c81d509fa73629a43751b3ca1620981',1,'GpggaParser']]],
+  ['waslastgprmcvalid',['wasLastGPRMCValid',['../class_gprmc_parser.html#acb7e35adf2cc008a8c0f7c1d12ce5f32',1,'GprmcParser']]],
+  ['write',['write',['../classio__comm__rx_1_1_async_manager.html#a01b9a040f84fb4a4e173cc53b85a4a22',1,'io_comm_rx::AsyncManager::write()'],['../class_circular_buffer.html#aaeabea80655d80bfe4ef8b6ad91da2bd',1,'CircularBuffer::write()']]]
 ];

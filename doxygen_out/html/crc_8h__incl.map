@@ -1,4 +1,4 @@
 <map id="include/rosaic/crc/crc.h" name="include/rosaic/crc/crc.h">
-<area shape="rect" id="node2" href="$ssntypes_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="5,184,156,225"/>
-<area shape="rect" id="node3" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="63,95,213,136"/>
+<area shape="rect" id="node2" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="5,95,156,136"/>
+<area shape="rect" id="node3" href="$ssn__types_8hpp.html" title="ssn_types.hpp" alt="" coords="27,184,134,211"/>
 </map>

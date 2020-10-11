@@ -47,7 +47,7 @@
 #ifndef NR_OF_ANTENNAS
 #define NR_OF_ANTENNAS 3
 #endif
-//! Maximum number of antennas that mosaic can handle
+//! Maximum number of antennas that mosaic etc. can handle
 #ifndef MAXSB_NBRANTENNA
 #define MAXSB_NBRANTENNA  4
 #endif
@@ -69,7 +69,7 @@
 #endif
 
 // ROSaic includes
-#include "ssntypes.hpp"
+#include "ssn_types.hpp"
 
 #if defined(__GNUC__) || defined(__ARMCC__)
 /* Before the advent of the CPMF platform, double data types were always
@@ -80,9 +80,10 @@
  * encoding/decoding functionality to the CPMF.
  */
 // The aligned variable attribute specifies a minimum alignment for the variable or structure field, measured in bytes.
-// The aligned attribute only increases the alignment for a struct or struct member. For a variable that is not in a structure, 
-// the minimum alignment is the natural alignment of the variable type. To set the alignment in a structure to any value greater than 0, 
-// use the packed variable attribute. Without packed, the minimum alignment is the natural alignment of the variable type.
+// The aligned attribute only increases the alignment for a struct or struct member. For a variable that is not in a 
+// structure, the minimum alignment is the natural alignment of the variable type. To set the alignment in a structure 
+// to any value greater than 0, use the packed variable attribute. Without packed, the minimum alignment is the natural 
+// alignment of the variable type.
 
 #  define SBFDOUBLE double __attribute__((packed, aligned(4)))
 #else
@@ -92,16 +93,20 @@
 
 /* Force packing the structs on 4-byte alignment (needed for GCC 64 bit compilations) */
 #pragma pack(push,4)
-// Clearly, there will be padding bytes for some structs, but those will be ignored by our decoding software, as also suggested in the Ref. Guide
+// Clearly, there will be padding bytes for some structs, but those will be ignored by our decoding software, as also 
+// suggested in the firmware.
 // Example usages of pragma directives:
 // #pragma warn +xxx (To show the warning)
 // #pragma startup func1  and
 // #pragma exit func2  would not work with GCC compilers (just ignored)
-// printf("Size of A is: %ld", sizeof(A));  [%d works fine with signed, unsigned and negative integer values, l stands for long], recall we want structs to avoid wasting = padding
+// printf("Size of A is: %ld", sizeof(A));  [%d works fine with signed, unsigned and negative integer values, l stands 
+// for long], recall we want structs to avoid wasting = padding
 // To force compiler to use 1 byte packaging: #pragma pack(1) 
 // Same result for struct s {int i...} __attribute__((packed)); could be shown via printf("%zu ", offsetof(s, i));
-// #pragma pack()   // n defaults to 8; equivalent to /Zp8, Valid values are 1, 2, 4, 8, and 16, forces the maximum alignment of each field to be the value specified by n
-// push: Pushes the current alignment setting on an internal stack and then optionally sets the new alignment, identifier is also allowed
+// #pragma pack()   // n defaults to 8; equivalent to /Zp8, Valid values are 1, 2, 4, 8, and 16, forces the maximum 
+// alignment of each field to be the value specified by n
+// push: Pushes the current alignment setting on an internal stack and then optionally sets the new alignment, 
+// identifier is also allowed
 
 /**
  * @file sbf_structs.hpp
@@ -114,11 +119,11 @@
  */
 typedef struct
 {
-	uint8_t SYNC1; //!< first sync byte is $ or 0x24
-	uint8_t SYNC2; //!< 2nd sync byte is @ or 0x40
-	uint16_t CRC; //!< the Check Sum !
-	uint16_t ID; //!< The ID is the "Block ID"
-	uint16_t Length; //!< length of the entire message including the header. A multiple of 4 between 8 and 4096
+	uint8_t sync_1; //!< first sync byte is $ or 0x24
+	uint8_t sync_2; //!< 2nd sync byte is @ or 0x40
+	uint16_t crc; //!< The check sum 
+	uint16_t id; //!< This is the block ID
+	uint16_t length; //!< Length of the entire message including the header. A multiple of 4 between 8 and 4096
 } BlockHeader_t;
 
 
@@ -128,38 +133,38 @@ typedef struct
  */
 struct PVTCartesian
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;
-	uint8_t        Error;        
-	SBFDOUBLE      X;            
-	SBFDOUBLE      Y;            
-	SBFDOUBLE      Z;     
-	float          Undulation;
-	float          Vx;           
-	float          Vy;           
-	float          Vz;  
-	float          COG;   
-	SBFDOUBLE      RxClkBias; 
-	float          RxClkDrift;   
-	uint8_t        TimeSystem; 
-	uint8_t        Datum;
-	uint8_t        NrSV; 
-	uint8_t        WACorrInfo;
-	uint16_t       ReferenceID;
-	uint16_t       MeanCorrAge; 
-	uint32_t       SignalInfo;
-	uint8_t        AlertFlag;
-	uint8_t        NrBases;
-	uint16_t       PPPInfo;
-	uint16_t       Latency;
-	uint16_t       HAccuracy;
-	uint16_t       VAccuracy;
-	uint8_t        Misc;	
+	uint8_t        mode;
+	uint8_t        error;        
+	SBFDOUBLE      x;            
+	SBFDOUBLE      y;            
+	SBFDOUBLE      z;     
+	float          undulation;
+	float          vx;           
+	float          vy;           
+	float          vz;  
+	float          cog;   
+	SBFDOUBLE      rx_clk_bias; 
+	float          rx_clk_drift;   
+	uint8_t        time_system; 
+	uint8_t        datum;
+	uint8_t        nr_sv; 
+	uint8_t        wa_corr_info;
+	uint16_t       reference_id;
+	uint16_t       mean_corr_age; 
+	uint32_t       signal_info;
+	uint8_t        alert_flag;
+	uint8_t        nr_bases;
+	uint16_t       ppp_info;
+	uint16_t       latency;
+	uint16_t       h_accuracy;
+	uint16_t       v_accuracy;
+	uint8_t        misc;
 };
 
 /**
@@ -168,38 +173,38 @@ struct PVTCartesian
  */
 struct PVTGeodetic
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;
-	uint8_t        Error;        
-	SBFDOUBLE      Latitude;            
-	SBFDOUBLE      Longitude;            
-	SBFDOUBLE      Height;     
-	float          Undulation;
-	float          Vn;           
-	float          Ve;           
-	float          Vu;  
-	float          COG;   
-	SBFDOUBLE      RxClkBias; 
-	float          RxClkDrift;   
-	uint8_t        TimeSystem; 
-	uint8_t        Datum;
-	uint8_t        NrSV; 
-	uint8_t        WACorrInfo;
-	uint16_t       ReferenceID;
-	uint16_t       MeanCorrAge; 
-	uint32_t       SignalInfo;
-	uint8_t        AlertFlag;
-	uint8_t        NrBases;
-	uint16_t       PPPInfo;
-	uint16_t       Latency;
-	uint16_t       HAccuracy;
-	uint16_t       VAccuracy;
-	uint8_t        Misc;	
+	uint8_t        mode;
+	uint8_t        error;        
+	SBFDOUBLE      latitude;            
+	SBFDOUBLE      longitude;            
+	SBFDOUBLE      height;     
+	float          undulation;
+	float          vn;           
+	float          ve;           
+	float          vu;  
+	float          cog;   
+	SBFDOUBLE      rx_clk_bias; 
+	float          rx_clk_drift;   
+	uint8_t        time_system; 
+	uint8_t        datum;
+	uint8_t        nr_sv; 
+	uint8_t        wa_corr_info;
+	uint16_t       reference_id;
+	uint16_t       mean_corr_age; 
+	uint32_t       signal_info;
+	uint8_t        alert_flag;
+	uint8_t        nr_bases;
+	uint16_t       ppp_info;
+	uint16_t       latency;
+	uint16_t       h_accuracy;
+	uint16_t       v_accuracy;
+	uint8_t        misc;
 };
 
 /**
@@ -208,22 +213,22 @@ struct PVTGeodetic
  */
 struct AttEuler
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        NrSV;
-	uint8_t        Error;   
-	uint16_t       Mode;
-	uint16_t       Reserved;
-	float          Heading;
-	float          Pitch;
-	float          Roll;
-	float          PitchDot;
-	float          RollDot;
-	float          HeadingDot;	
+	uint8_t        nr_sv;
+	uint8_t        error;   
+	uint16_t       mode;
+	uint16_t       reserved;
+	float          heading;
+	float          pitch;
+	float          roll;
+	float          pitch_dot;
+	float          roll_dot;
+	float          heading_dot;
 };
 
 
@@ -233,20 +238,20 @@ struct AttEuler
  */
 struct AttCovEuler
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Reserved;         
-	uint8_t        Error; 
-	float          Cov_HeadHead;
-	float          Cov_PitchPitch;
-	float          Cov_RollRoll;
-	float          Cov_HeadPitch;
-	float          Cov_HeadRoll;
-	float          Cov_PitchRoll;
+	uint8_t        reserved;         
+	uint8_t        error; 
+	float          cov_headhead;
+	float          cov_pitchpitch;
+	float          cov_rollroll;
+	float          cov_headpitch;
+	float          cov_headroll;
+	float          cov_pitchroll;
 };
 
 /**
@@ -255,11 +260,11 @@ struct AttCovEuler
  */
 typedef struct 
 {
-	uint8_t        Antenna;      
-	uint8_t        Reserved;    
-	uint16_t       TrackingStatus;
-	uint16_t       PVTStatus;    
-	uint16_t       PVTInfo;      
+	uint8_t        antenna;      
+	uint8_t        reserved;    
+	uint16_t       tracking_status;
+	uint16_t       pvt_status;    
+	uint16_t       pvt_info;      
 } ChannelStateInfo;
 
 /**
@@ -268,15 +273,15 @@ typedef struct
  */
 typedef struct 
 {
-	uint8_t        SVID;         
-	uint8_t        FreqNr;       
-	uint8_t        Reserved1[2]; 
-	uint16_t       Az_RiseSet;   
-	uint16_t       HealthStatus; 
-	int8_t         Elev;         
-	uint8_t        N2;           
-	uint8_t        Channel;      
-	uint8_t        Reserved2;    
+	uint8_t        sv_id;         
+	uint8_t        freq_nr;       
+	uint8_t        reserved1[2]; 
+	uint16_t       az_rise_set;   
+	uint16_t       health_status; 
+	int8_t         elev;         
+	uint8_t        n2;           
+	uint8_t        channel;      
+	uint8_t        reserved2;    
 } ChannelSatInfo;
 
 //! Max number of bytes that the Data part of the ChannelStatus struct can consist of
@@ -290,17 +295,17 @@ typedef struct
  */
 struct ChannelStatus
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        N;            
-	uint8_t        SB1Size;      
-	uint8_t        SB2Size;      
-	uint8_t        Reserved[3];  
-	uint8_t        Data[SBF_CHANNELSTATUS_DATA_LENGTH];
+	uint8_t        n;            
+	uint8_t        sb1_size;      
+	uint8_t        sb2_size;      
+	uint8_t        reserved[3];  
+	uint8_t        data[SBF_CHANNELSTATUS_DATA_LENGTH];
 };
 
 /**
@@ -309,15 +314,15 @@ struct ChannelStatus
  */
 typedef struct
 {
-  uint8_t        Type;         
-  uint8_t        LockTime;     
-  uint8_t        CN0;          
-  uint8_t        OffsetsMSB;   
-  int8_t         CarrierMSB;   
-  uint8_t        ObsInfo;      
-  uint16_t       CodeOffsetLSB;
-  uint16_t       CarrierLSB;   
-  uint16_t       DopplerOffsetLSB;
+  uint8_t        type;         
+  uint8_t        lock_time;     
+  uint8_t        cn0;          
+  uint8_t        offsets_msb;   
+  int8_t         carrier_msb;   
+  uint8_t        obs_info;      
+  uint16_t       code_offset_lsb;
+  uint16_t       carrier_lsb;   
+  uint16_t       doppler_offset_lsb;
 } MeasEpochChannelType2;
 
 /**
@@ -326,21 +331,21 @@ typedef struct
  */
 typedef struct
 {
-  uint8_t        RXChannel;    
-  uint8_t        Type;         
-  uint8_t        SVID;         
-  uint8_t        Misc;         
-  uint32_t       CodeLSB;      
-  int32_t        Doppler;      
-  uint16_t       CarrierLSB;   
-  int8_t         CarrierMSB;   
-  uint8_t        CN0;          
-  uint16_t       LockTime;     
-  uint8_t        ObsInfo;      
-  uint8_t        N_Type2;      
+  uint8_t        rx_channel;    
+  uint8_t        type;         
+  uint8_t        sv_id;         
+  uint8_t        misc;         
+  uint32_t       code_lsb;      
+  int32_t        doppler;      
+  uint16_t       carrier_lsb;   
+  int8_t         carrier_msb;   
+  uint8_t        cn0;          
+  uint16_t       lock_time;     
+  uint8_t        obs_info;      
+  uint8_t        n_type2;      
 } MeasEpochChannelType1;
 
-//! Max number of bytes that the Data part of the MeasEpoch struct can consist of
+//! Max number of bytes that the data part of the MeasEpoch struct can consist of
 #ifndef MEASEPOCH_DATA_LENGTH
 #define MEASEPOCH_DATA_LENGTH (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) + MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
 #endif 
@@ -351,21 +356,21 @@ typedef struct
  */
 struct MeasEpoch
 {
-  BlockHeader_t  Block_Header;       
+  BlockHeader_t  block_header;       
 
   /* Time Header */
-  uint32_t       TOW;          
-  uint16_t       WNc;          
+  uint32_t       tow;          
+  uint16_t       wnc;          
 
   /* MeasEpoch Header */
-  uint8_t        N;            
-  uint8_t        SB1Size;      
-  uint8_t        SB2Size;      
+  uint8_t        n;            
+  uint8_t        sb1_size;      
+  uint8_t        sb2_size;      
 
-  uint8_t        CommonFlags;  
-  uint8_t        CumClkJumps;  
-  uint8_t        Reserved;     
-  uint8_t        Data[MEASEPOCH_DATA_LENGTH];
+  uint8_t        common_flags;  
+  uint8_t        cum_clk_jumps;  
+  uint8_t        reserved;     
+  uint8_t        data[MEASEPOCH_DATA_LENGTH];
 };
 
 /**
@@ -374,21 +379,102 @@ struct MeasEpoch
  */
 struct DOP
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;   
+	uint32_t       tow;          
+	uint16_t       wnc;   
        
-	uint8_t        NrSV;
-	uint8_t        Reserved;
-	uint16_t       PDOP;
-	uint16_t       TDOP;
-	uint16_t       HDOP;
-	uint16_t       VDOP;
-	float          HPL;
-	float          VPL;
+	uint8_t        nr_sv;
+	uint8_t        reserved;
+	uint16_t       pdop;
+	uint16_t       tdop;
+	uint16_t       hdop;
+	uint16_t       vdop;
+	float          hpl;
+	float          vpl;
 };
+
+/**
+ * @class ReceiverSetup
+ * @brief Struct for the SBF block "ReceiverSetup"
+ */
+struct ReceiverSetup
+{
+	BlockHeader_t  block_header;       
+
+	/* Time Header */
+	uint32_t       tow;          
+	uint16_t       wnc;   
+	
+	uint8_t        reserved[2];
+	char           marker_name[60];
+	char           marker_number[20];
+	char           observer[20];
+	char           agency[40];
+	char           rx_serial_number[20];
+	char           rx_name[20];
+	char           rx_version[20];
+	char           ant_serial_nbr[20];
+	char           ant_type[20];
+	float          delta_h;       /* [m] */
+	float          delta_e;       /* [m] */
+	float          delta_n;       /* [m] */
+	char           marker_type[20];
+	char           gnss_fw_version[40];
+};
+
+/**
+ * @class QualityInd
+ * @brief Struct for the SBF block "QualityInd"
+ */
+struct QualityInd
+{
+	BlockHeader_t  block_header;       
+
+	/* Time Header */
+	uint32_t       tow;          
+	uint16_t       wnc; 
+	
+	uint8_t        n;
+	uint8_t        reserved;
+	uint16_t       indicators[40];
+};
+
+/**
+ * @brief Struct for the SBF sub-block "AGCState"
+ */
+typedef struct
+{
+  uint8_t        frontend_id;   
+  int8_t         gain;         
+  uint8_t        sample_var;    
+  uint8_t        blanking_stat; 
+} AGCState_t;
+
+/**
+ * @class ReceiverStatus
+ * @brief Struct for the SBF block "ReceiverStatus"
+ */
+struct ReceiverStatus
+{
+	BlockHeader_t  block_header;       
+
+	/* Time Header */
+	uint32_t       tow;          
+	uint16_t       wnc; 
+	
+	uint8_t        cpu_load;      
+	uint8_t        ext_error;     
+	uint32_t       up_time;       
+	uint32_t       rx_status;     
+	uint32_t       rx_error;  
+	uint8_t        n;
+	uint8_t        sb_lngth;
+	uint8_t        cmd_count;
+	uint8_t        temperature;
+	AGCState_t     agc_state[18];
+};  
 
 /**
  * @class PosCovCartesian
@@ -396,24 +482,24 @@ struct DOP
  */
 struct PosCovCartesian
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;         
-	uint8_t        Error;        
-	float          Cov_xx;       
-	float          Cov_yy;       
-	float          Cov_zz;       
-	float          Cov_bb;       
-	float          Cov_xy;       
-	float          Cov_xz;       
-	float          Cov_xb;       
-	float          Cov_yz;       
-	float          Cov_yb;       
-	float          Cov_zb;       
+	uint8_t        mode;         
+	uint8_t        error;        
+	float          cov_xx;       
+	float          cov_yy;       
+	float          cov_zz;       
+	float          cov_bb;       
+	float          cov_xy;       
+	float          cov_xz;       
+	float          cov_xb;       
+	float          cov_yz;       
+	float          cov_yb;       
+	float          cov_zb;       
 };
 
 /**
@@ -422,24 +508,24 @@ struct PosCovCartesian
  */
 struct PosCovGeodetic
 {
-	BlockHeader_t  Block_Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;         
-	uint8_t        Error;        
-	float          Cov_latlat;       
-	float          Cov_lonlon;       
-	float          Cov_hgthgt;       
-	float          Cov_bb;       
-	float          Cov_latlon;       
-	float          Cov_lathgt;       
-	float          Cov_latb;       
-	float          Cov_lonhgt;       
-	float          Cov_lonb;       
-	float          Cov_hb;       
+	uint8_t        mode;         
+	uint8_t        error;        
+	float          cov_latlat;       
+	float          cov_lonlon;       
+	float          cov_hgthgt;       
+	float          cov_bb;       
+	float          cov_latlon;       
+	float          cov_lathgt;       
+	float          cov_latb;       
+	float          cov_lonhgt;       
+	float          cov_lonb;       
+	float          cov_hb;       
 };
 
 /**
@@ -448,24 +534,24 @@ struct PosCovGeodetic
  */
 struct VelCovCartesian
 {
-	BlockHeader_t  Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;         
-	uint8_t        Error;        
-	float          Cov_VxVx;     
-	float          Cov_VyVy;     
-	float          Cov_VzVz;     
-	float          Cov_DtDt;     
-	float          Cov_VxVy;     
-	float          Cov_VxVz;     
-	float          Cov_VxDt;     
-	float          Cov_VyVz;     
-	float          Cov_VyDt;     
-	float          Cov_VzDt;     
+	uint8_t        mode;         
+	uint8_t        error;        
+	float          cov_vxvx;     
+	float          cov_vyvy;     
+	float          cov_vzvz;     
+	float          cov_dtdt;     
+	float          cov_vxvy;     
+	float          cov_vxvz;     
+	float          cov_vxdt;     
+	float          cov_vyvz;     
+	float          cov_vydt;     
+	float          cov_vzdt;     
 };
 
 /**
@@ -474,24 +560,24 @@ struct VelCovCartesian
  */
 struct VelCovGeodetic
 {
-	BlockHeader_t  Header;       
+	BlockHeader_t  block_header;       
 
 	/* Time Header */
-	uint32_t       TOW;          
-	uint16_t       WNc;          
+	uint32_t       tow;          
+	uint16_t       wnc;          
 
-	uint8_t        Mode;         
-	uint8_t        Error;        
-	float          Cov_VnVn;     
-	float          Cov_VeVe;     
-	float          Cov_VuVu;     
-	float          Cov_DtDt;     
-	float          Cov_VnVe;     
-	float          Cov_VnVu;     
-	float          Cov_VnDt;     
-	float          Cov_VeVu;     
-	float          Cov_VeDt;     
-	float          Cov_VuDt;     
+	uint8_t        mode;         
+	uint8_t        error;        
+	float          cov_vnvn;     
+	float          cov_veve;     
+	float          cov_vuvu;     
+	float          cov_dtdt;     
+	float          cov_vnve;     
+	float          cov_vnvu;     
+	float          cov_vndt;     
+	float          cov_vevu;     
+	float          cov_vedt;     
+	float          cov_vudt;     
 };
 
 #pragma pack ( pop ) 
@@ -499,9 +585,11 @@ struct VelCovGeodetic
 // push and pop directives. (A pop directive with no prior push results in a warning diagnostic from the compiler.)
 
 /**
- * @brief CRCLookUp provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium 
+ * @brief CRC look-up table for fast computation of the 16-bit CRC for SBF blocks.
+ * 
+ * Provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium.
  */
-static const uint16_t CRCLookUp[256] = {
+static const uint16_t CRC_LOOK_UP[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
     0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
     0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,

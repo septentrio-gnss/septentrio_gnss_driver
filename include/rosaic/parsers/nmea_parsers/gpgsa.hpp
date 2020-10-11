@@ -59,25 +59,20 @@
 #ifndef GPGSA_HPP
 #define GPGSA_HPP
 
-// C++ library includes
-#include <cmath> // for round(double x)
 // ROSaic includes
 #include <rosaic/parsers/parser_base_class.hpp>
 #include <rosaic/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <rosaic/Gpgsa.h>
 #include <boost/make_shared.hpp>
-#include <ros/ros.h>
 
-extern bool use_GNSS_time;
+extern std::string g_frame_id;
 
 /**
  * @file gpgsa.hpp
  * @brief Derived class for parsing GSA messages
  * @date 29/09/20 
  */
-
-extern std::string frame_id;
 
 /**
  * @class GpgsaParser
@@ -97,14 +92,14 @@ class GpgsaParser : public BaseParser<rosaic::GpgsaPtr>
 		 * @brief Returns the ASCII message ID, here "$GPGSA"
 		 * @return The message ID
 		 */
-		const std::string GetMessageID() const override; 
+		const std::string getMessageID() const override; 
 		
 		/**
 		 * @brief Parses one GSA message 
 		 * @param[in] sentence The GSA message to be parsed
 		 * @return A ROS message pointer of ROS type rosaic::GpgsaPtr
 		 */
-		rosaic::GpgsaPtr ParseASCII(const NMEASentence& sentence) noexcept(false) override;
+		rosaic::GpgsaPtr parseASCII(const NMEASentence& sentence) noexcept(false) override;
 		
 		/**
 		 * @brief Declares the string MESSAGE_ID

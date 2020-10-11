@@ -38,20 +38,20 @@
 
 const std::string GprmcParser::MESSAGE_ID = "$GPRMC";
 
-const std::string GprmcParser::GetMessageID() const
+const std::string GprmcParser::getMessageID() const
 {
 	return GprmcParser::MESSAGE_ID;
 }
 
 /**
  * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should be called within a try / catch framework...
- * Note: This method is called from within the read() method of the mosaicMessage class by including the checksum part in
+ * Note: This method is called from within the read() method of the RxMessage class by including the checksum part in
  * the argument "sentence" here, though the checksum is never parsed: It would be sentence.get_body()[13] if anybody ever needs it.
  * The status character can be 'A' (for Active) or 'V' (for Void), signaling whether the GPS was active when the positioning was made. 
  * If it is void, the GPS could not make a good positioning and you should thus ignore it. This usually occurs when the GPS is still 
  * searching for satellites. WasLastGPRMCValid() will return false in this case.
  */
-rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(false)
+rosaic::GprmcPtr GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 {
 	
 	// Checking the length first, it should be between 13 and 14 elements
@@ -69,10 +69,10 @@ rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(
 
 	rosaic::GprmcPtr msg = boost::make_shared<rosaic::Gprmc>();
 	
-	msg->header.frame_id = frame_id;
-
+	msg->header.frame_id = g_frame_id;
+	
 	msg->message_id = sentence.get_body()[0];
-
+	
 	if (sentence.get_body()[1].empty() || sentence.get_body()[1] == "0")
 	{
 		msg->utc_seconds = 0;
@@ -80,17 +80,25 @@ rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	else
 	{
 		double utc_double;
-		if (string_utilities::ToDouble(sentence.get_body()[1], utc_double))
+		if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
 		{
-			//ROS_DEBUG("utc_double is %f", (float) utc_double);
-			msg->utc_seconds = parsing_utilities::UTCDoubleToSeconds(utc_double);
-			
-			// The Header's Unix Epoch time stamp
-			time_t unix_time_seconds = parsing_utilities::UTCtoUnix(utc_double);
-			// The following assumes that there are two digits after the decimal point in utc_double, i.e. in the NMEA UTC time.
-			uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; 
-			msg->header.stamp.sec = unix_time_seconds;
-			msg->header.stamp.nsec = unix_time_nanoseconds;
+			msg->utc_seconds = parsing_utilities::convertUTCDoubleToSeconds(utc_double);
+			if(g_use_gnss_time)
+			{
+				// The Header's Unix Epoch time stamp
+				time_t unix_time_seconds = parsing_utilities::convertUTCtoUnix(utc_double);
+				// The following assumes that there are two digits after the decimal point in utc_double, i.e. in the NMEA UTC time.
+				uint32_t unix_time_nanoseconds = (static_cast<uint32_t>(utc_double*100)%100)*10000; 
+				msg->header.stamp.sec = unix_time_seconds;
+				msg->header.stamp.nsec = unix_time_nanoseconds;
+			}
+			else
+			{
+				ros::Time time_obj;
+				time_obj = ros::Time::now();
+				msg->header.stamp.sec = time_obj.sec;
+				msg->header.stamp.nsec = time_obj.nsec;
+			}
 		}
 		else
 		{
@@ -106,20 +114,20 @@ rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(
 	to_be_ignored &= (sentence.get_body()[3].empty() || sentence.get_body()[5].empty());
 
 	double latitude = 0.0;
-	valid = valid && parsing_utilities::ParseDouble(sentence.get_body()[3], latitude);
-	msg->lat = parsing_utilities::ConvertDMSToDegrees(latitude);
+	valid = valid && parsing_utilities::parseDouble(sentence.get_body()[3], latitude);
+	msg->lat = parsing_utilities::convertDMSToDegrees(latitude);
 
 	double longitude = 0.0;
-	valid = valid && parsing_utilities::ParseDouble(sentence.get_body()[5], longitude);
-	msg->lon = parsing_utilities::ConvertDMSToDegrees(longitude);
+	valid = valid && parsing_utilities::parseDouble(sentence.get_body()[5], longitude);
+	msg->lon = parsing_utilities::convertDMSToDegrees(longitude);
 
 	msg->lat_dir = sentence.get_body()[4];
 	msg->lon_dir = sentence.get_body()[6];
 
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[7], msg->speed);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[7], msg->speed);
 	msg->speed *= KNOTS_TO_MPS;
 
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[8], msg->track);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg->track);
 
 	std::string date_str = sentence.get_body()[9];
 	if (!date_str.empty())
@@ -128,7 +136,7 @@ rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(
                 std::string("-") + date_str.substr(2, 2) +
                 std::string("-") + date_str.substr(0, 2);
 	}
-	valid = valid && parsing_utilities::ParseFloat(sentence.get_body()[10], msg->mag_var);
+	valid = valid && parsing_utilities::parseFloat(sentence.get_body()[10], msg->mag_var);
 	msg->mag_var_direction = sentence.get_body()[11];
 	if (sentence.get_body().size() == LEN_MAX) 
 	{
@@ -147,7 +155,7 @@ rosaic::GprmcPtr GprmcParser::ParseASCII(const NMEASentence& sentence) noexcept(
 }
 
 
-bool GprmcParser::WasLastGPRMCValid() const
+bool GprmcParser::wasLastGPRMCValid() const
 {
 	return was_last_gprmc_valid_;
 }

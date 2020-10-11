@@ -1,20 +1,9 @@
 var searchData=
 [
-  ['parseascii',['ParseASCII',['../class_gpgga_parser.html#a18483c990c6684419c3bbb1aa81b422a',1,'GpggaParser::ParseASCII()'],['../class_gpgsa_parser.html#a51e753594ae1f0163c27e545b5759949',1,'GpgsaParser::ParseASCII()'],['../class_gpgsv_parser.html#a309ba857a2ed74aa31cfc989109c8fcc',1,'GpgsvParser::ParseASCII()'],['../class_gprmc_parser.html#a6442161783f571cb3127049cade7c949',1,'GprmcParser::ParseASCII()'],['../class_base_parser.html#a44f0fb907d81af60c04dd8e56dd89c49',1,'BaseParser::ParseASCII()']]],
-  ['parsebinary',['ParseBinary',['../class_base_parser.html#a9c133339f1af98545ff2c27142cc6089',1,'BaseParser']]],
-  ['parsedouble',['ParseDouble',['../namespaceparsing__utilities.html#a0f61dc63530eea53d820c49fac865dfe',1,'parsing_utilities::ParseDouble(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#a8f8c05f2e54fc6f9b28fe0f7beeaf229',1,'parsing_utilities::ParseDouble(const std::string &amp;string, double &amp;value)']]],
-  ['parseexception',['ParseException',['../class_parse_exception.html#a244bb1c15a6abcb7243f53fce8f75719',1,'ParseException']]],
-  ['parsefloat',['ParseFloat',['../namespaceparsing__utilities.html#ad033480f07c8ac616ed7e03584219eec',1,'parsing_utilities::ParseFloat(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#ad9e637dd744d28544f129ec9fdf343e6',1,'parsing_utilities::ParseFloat(const std::string &amp;string, float &amp;value)']]],
-  ['parseint16',['ParseInt16',['../namespaceparsing__utilities.html#ab134c6492088a09efa10f9dd91081683',1,'parsing_utilities::ParseInt16(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#ab4f72fd91ab5044e5ef123c23d7a2e10',1,'parsing_utilities::ParseInt16(const std::string &amp;string, int16_t &amp;value, int32_t base=10)']]],
-  ['parseint32',['ParseInt32',['../namespaceparsing__utilities.html#af5c9199714754984ed6a89a071782d63',1,'parsing_utilities::ParseInt32(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#aef1a39d59fc423338ffcc335b02d4bb9',1,'parsing_utilities::ParseInt32(const std::string &amp;string, int32_t &amp;value, int32_t base=10)']]],
-  ['parseuint16',['ParseUInt16',['../namespaceparsing__utilities.html#a4f65bfbd80c41bb4c77ac571d027e5fa',1,'parsing_utilities::ParseUInt16(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#a5065c4b0c77b3a81130b6b094026124e',1,'parsing_utilities::ParseUInt16(const std::string &amp;string, uint16_t &amp;value, int32_t base=10)']]],
-  ['parseuint32',['ParseUInt32',['../namespaceparsing__utilities.html#a5449a882bfbc9db638299aeb4fc896b9',1,'parsing_utilities::ParseUInt32(const uint8_t *buffer)'],['../namespaceparsing__utilities.html#a105c12cccda6568142fecc2bc0fe00de',1,'parsing_utilities::ParseUInt32(const std::string &amp;string, uint32_t &amp;value, int32_t base=10)']]],
-  ['parseuint8',['ParseUInt8',['../namespaceparsing__utilities.html#a049ebf9daf86aafe6b915527782cb43a',1,'parsing_utilities']]],
-  ['pos',['Pos',['../classio__comm__mosaic_1_1mosaic_message.html#a6ef713a92226f3af9542dc9d525d3c3f',1,'io_comm_mosaic::mosaicMessage']]],
-  ['poscovcartesiancallback',['PosCovCartesianCallback',['../classio__comm__mosaic_1_1mosaic_message.html#a5136f31e7e748ec626cc95e4bb21dccc',1,'io_comm_mosaic::mosaicMessage']]],
-  ['poscovgeodeticcallback',['PosCovGeodeticCallback',['../classio__comm__mosaic_1_1mosaic_message.html#a4f55c813f6597db39069b9a0e07be55f',1,'io_comm_mosaic::mosaicMessage']]],
-  ['posewithcovariancestampedcallback',['PoseWithCovarianceStampedCallback',['../classio__comm__mosaic_1_1mosaic_message.html#a5c460cc68faa6eafcd9bf32b44654f5d',1,'io_comm_mosaic::mosaicMessage']]],
-  ['publish',['Publish',['../namespacerosaic__node.html#aa9ee6043410b164980f16f530ee22254',1,'rosaic_node']]],
-  ['pvtcartesiancallback',['PVTCartesianCallback',['../classio__comm__mosaic_1_1mosaic_message.html#a8281cd96416a57a4bfe396a671088fc5',1,'io_comm_mosaic::mosaicMessage']]],
-  ['pvtgeodeticcallback',['PVTGeodeticCallback',['../classio__comm__mosaic_1_1mosaic_message.html#aed95c4468a8d1b5959717a18cfacd8bf',1,'io_comm_mosaic::mosaicMessage']]]
+  ['read',['read',['../classio__comm__rx_1_1_async_manager.html#ab1111154be47a210fa8d22500701f5ad',1,'io_comm_rx::AsyncManager::read()'],['../class_circular_buffer.html#ac0d39c8f590584dbb8e98c320e169c88',1,'CircularBuffer::read()'],['../classio__comm__rx_1_1_rx_message.html#abc765af1d72b26c5383591af717a6e19',1,'io_comm_rx::RxMessage::read()']]],
+  ['readcallback',['readCallback',['../classio__comm__rx_1_1_callback_handlers.html#a0e7fb4e461bc36873a96edcdc16e70d8',1,'io_comm_rx::CallbackHandlers']]],
+  ['reconnect',['reconnect',['../classrosaic__node_1_1_r_o_saic_node.html#a5e8c0a710df92963ed8b2d6a247db8ba',1,'rosaic_node::ROSaicNode']]],
+  ['resetserial',['resetSerial',['../classio__comm__rx_1_1_comm___i_o.html#a1987583fa8c5b76bbc4f86c55d1b2ae9',1,'io_comm_rx::Comm_IO']]],
+  ['rosaicnode',['ROSaicNode',['../classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3',1,'rosaic_node::ROSaicNode']]],
+  ['rxmessage',['RxMessage',['../classio__comm__rx_1_1_rx_message.html#a878c21f7f1faee5d3207633a21c909a6',1,'io_comm_rx::RxMessage']]]
 ];

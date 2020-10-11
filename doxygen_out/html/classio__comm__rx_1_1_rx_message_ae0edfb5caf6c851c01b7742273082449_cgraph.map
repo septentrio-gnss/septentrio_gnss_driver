@@ -1,0 +1,5 @@
+<map id="io_comm_rx::RxMessage::isMessage" name="io_comm_rx::RxMessage::isMessage">
+<area shape="rect" id="node2" href="$classio__comm__rx_1_1_rx_message.html#a504892bad09b1ccd4341430433218187" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="224,5,395,47"/>
+<area shape="rect" id="node3" href="$classio__comm__rx_1_1_rx_message.html#ad526fed2d4d8bf4c681f11fb8fb1ad4a" title="Determines size of the message (also command reply) that data_ is currently pointing at..." alt="" coords="224,71,395,112"/>
+<area shape="rect" id="node4" href="$classio__comm__rx_1_1_rx_message.html#a965fedf10e8ca349580d6fc16627d2b4" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="443,71,613,112"/>
+</map>

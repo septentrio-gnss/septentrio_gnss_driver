@@ -1,0 +1,4 @@
+<map id="string_utilities::toInt32" name="string_utilities::toInt32">
+<area shape="rect" id="node2" href="$namespaceparsing__utilities.html#aa6ac47464c634c046f22dd54a4daa89b" title="Interprets the contents of &quot;string&quot; as a integer number of type int16_t. " alt="" coords="204,5,324,47"/>
+<area shape="rect" id="node3" href="$namespaceparsing__utilities.html#a57fd59bf2984155af260d3b71e73d716" title="Interprets the contents of &quot;string&quot; as a integer number of type int32_t. " alt="" coords="204,71,324,112"/>
+</map>
