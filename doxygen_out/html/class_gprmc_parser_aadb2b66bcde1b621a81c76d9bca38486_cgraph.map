@@ -1,6 +1,6 @@
 <map id="GprmcParser::GprmcParser" name="GprmcParser::GprmcParser">
 <area shape="rect" id="node2" href="$class_gprmc_parser.html#adbec95c82c1c5dbf41af7dfa46043f2d" title="Returns the ASCII message ID, here &quot;$GPRMC&quot;. " alt="" coords="259,112,451,139"/>
-<area shape="rect" id="node3" href="$class_gprmc_parser.html#a61a4b520769de66ff44104771d456b74" title="Parses one RMC message. " alt="" coords="267,163,442,189"/>
+<area shape="rect" id="node3" href="$class_gprmc_parser.html#a0ab63824e56564cc127886fb54d648ee" title="Parses one RMC message. " alt="" coords="267,163,442,189"/>
 <area shape="rect" id="node10" href="$class_gprmc_parser.html#acb7e35adf2cc008a8c0f7c1d12ce5f32" title="Tells us whether the last RMC message was valid/usable or not. " alt="" coords="237,213,472,240"/>
 <area shape="rect" id="node4" href="$namespacestring__utilities.html#a451618fdcf8f25a073befba3d2ac5421" title="Interprets the contents of &quot;string&quot; as a floating point number of type double It stores the &quot;string&quot;&#39;..." alt="" coords="539,5,701,32"/>
 <area shape="rect" id="node5" href="$namespaceparsing__utilities.html#a34ee6939c49825173737889032db9b77" title="Converts UTC time from the without&#45;colon&#45;delimiter format to the number&#45;of&#45;seconds&#45;since&#45;midnight for..." alt="" coords="520,57,720,98"/>

@@ -1,5 +1,5 @@
 <map id="parsing_utilities::parseUInt32" name="parsing_utilities::parseUInt32">
-<area shape="rect" id="node2" href="$class_gpgga_parser.html#a6bda3f0b9240ce9a8a6d39361dcc29ec" title="Parses one GGA message. " alt="" coords="173,82,348,109"/>
+<area shape="rect" id="node2" href="$class_gpgga_parser.html#a102f52f282147a6860945d6cd41b6a63" title="Parses one GGA message. " alt="" coords="173,82,348,109"/>
 <area shape="rect" id="node3" href="$class_gpgga_parser.html#a3f58b883fe444f24a76efd7441f178aa" title="Constructor of the class GpggaParser. " alt="" coords="396,53,579,79"/>
 <area shape="rect" id="node4" href="$classio__comm__rx_1_1_rx_message.html#abc765af1d72b26c5383591af717a6e19" title="Performs the CRC check (if SBF) and populates ROS message &quot;message&quot; with the necessary content..." alt="" coords="402,104,573,145"/>
 <area shape="rect" id="node5" href="$classio__comm__rx_1_1_rx_message.html#a2d4f61c4e66bd0d2c676bf56a59d4fa6" title="Returns the count_ variable. " alt="" coords="640,71,811,112"/>
