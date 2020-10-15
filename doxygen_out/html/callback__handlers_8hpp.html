@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ROSaic: include/rosaic/communication/callback_handlers.hpp File Reference</title>
+<title>ROSaic: include/septentrio_gnss_driver/communication/callback_handlers.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -58,7 +58,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_25c9660b5b5a3198a5e6d7e5c352cd64.html">rosaic</a></li><li class="navelem"><a class="el" href="dir_5bcc204dec6afc863ccc0bfd1d0cc55d.html">communication</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_24c25e37805ae5b606fcf1d5308cf817.html">septentrio_gnss_driver</a></li><li class="navelem"><a class="el" href="dir_663c930d896b04ed586d0d3937e9300f.html">communication</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -86,34 +86,34 @@ $(function() {
 <code>#include &lt;boost/format.hpp&gt;</code><br />
 <code>#include &lt;boost/asio/serial_port.hpp&gt;</code><br />
 <code>#include &lt;boost/thread/mutex.hpp&gt;</code><br />
-<code>#include &lt;<a class="el" href="rx__message_8hpp_source.html">rosaic/communication/rx_message.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="rx__message_8hpp_source.html">septentrio_gnss_driver/communication/rx_message.hpp</a>&gt;</code><br />
 <code>#include &lt;algorithm&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for callback_handlers.hpp:</div>
 <div class="dyncontent">
-<div class="center"><img src="callback__handlers_8hpp__incl.png" border="0" usemap="#include_2rosaic_2communication_2callback__handlers_8hpp" alt=""/></div>
-<map name="include_2rosaic_2communication_2callback__handlers_8hpp" id="include_2rosaic_2communication_2callback__handlers_8hpp">
-<area shape="rect" id="node14" href="rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="2071,95,2220,136"/>
-<area shape="rect" id="node27" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="2158,184,2298,225"/>
-<area shape="rect" id="node29" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1529,273,1669,315"/>
-<area shape="rect" id="node34" href="gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="1994,184,2134,225"/>
-<area shape="rect" id="node36" href="gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="1830,184,1970,225"/>
-<area shape="rect" id="node38" href="gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="1666,184,1806,225"/>
-<area shape="rect" id="node40" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="2323,191,2435,218"/>
-<area shape="rect" id="node28" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1828,273,1972,315"/>
-<area shape="rect" id="node41" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="2451,273,2602,315"/>
+<div class="center"><img src="callback__handlers_8hpp__incl.png" border="0" usemap="#include_2septentrio__gnss__driver_2communication_2callback__handlers_8hpp" alt=""/></div>
+<map name="include_2septentrio__gnss__driver_2communication_2callback__handlers_8hpp" id="include_2septentrio__gnss__driver_2communication_2callback__handlers_8hpp">
+<area shape="rect" id="node14" href="rx__message_8hpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="2082,109,2297,151"/>
+<area shape="rect" id="node27" href="gpgga_8hpp.html" title="Derived class for parsing GGA messages. " alt="" coords="2201,199,2356,255"/>
+<area shape="rect" id="node29" href="string__utilities_8h.html" title="Declares lower&#45;level string utility functions used when parsing messages. " alt="" coords="1453,303,1617,344"/>
+<area shape="rect" id="node34" href="gprmc_8hpp.html" title="Derived class for parsing RMC messages. " alt="" coords="2023,199,2177,255"/>
+<area shape="rect" id="node36" href="gpgsa_8hpp.html" title="Derived class for parsing GSA messages. " alt="" coords="1844,199,1999,255"/>
+<area shape="rect" id="node38" href="gpgsv_8hpp.html" title="Derived class for parsing GSV messages. " alt="" coords="1665,199,1820,255"/>
+<area shape="rect" id="node40" href="crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="2381,206,2534,247"/>
+<area shape="rect" id="node28" href="parser__base__class_8hpp.html" title="Declares a base class for parsing NMEA messages and SBF blocks. " alt="" coords="1818,303,2025,344"/>
+<area shape="rect" id="node41" href="sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="2589,303,2798,344"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><img src="callback__handlers_8hpp__dep__incl.png" border="0" usemap="#include_2rosaic_2communication_2callback__handlers_8hppdep" alt=""/></div>
-<map name="include_2rosaic_2communication_2callback__handlers_8hppdep" id="include_2rosaic_2communication_2callback__handlers_8hppdep">
-<area shape="rect" id="node2" href="callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="5,95,176,136"/>
-<area shape="rect" id="node3" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="200,95,395,136"/>
-<area shape="rect" id="node4" href="communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="124,184,295,225"/>
-<area shape="rect" id="node5" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="319,184,454,225"/>
-<area shape="rect" id="node6" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="311,273,462,315"/>
+<div class="center"><img src="callback__handlers_8hpp__dep__incl.png" border="0" usemap="#include_2septentrio__gnss__driver_2communication_2callback__handlers_8hppdep" alt=""/></div>
+<map name="include_2septentrio__gnss__driver_2communication_2callback__handlers_8hppdep" id="include_2septentrio__gnss__driver_2communication_2callback__handlers_8hppdep">
+<area shape="rect" id="node2" href="callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="5,109,160,165"/>
+<area shape="rect" id="node3" href="communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="185,109,373,165"/>
+<area shape="rect" id="node4" href="communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="97,213,268,269"/>
+<area shape="rect" id="node5" href="rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="293,213,459,269"/>
+<area shape="rect" id="node6" href="rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="308,317,444,373"/>
 </map>
 </div>
 </div>
@@ -818,7 +818,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Oct 11 2020 19:19:23 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Oct 15 2020 10:41:02 for ROSaic by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

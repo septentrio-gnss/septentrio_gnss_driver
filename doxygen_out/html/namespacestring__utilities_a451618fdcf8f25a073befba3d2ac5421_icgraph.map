@@ -1,6 +1,6 @@
 <map id="string_utilities::toDouble" name="string_utilities::toDouble">
-<area shape="rect" id="node2" href="$class_gpgga_parser.html#a6bda3f0b9240ce9a8a6d39361dcc29ec" title="Parses one GGA message. " alt="" coords="223,55,397,82"/>
-<area shape="rect" id="node16" href="$class_gprmc_parser.html#a61a4b520769de66ff44104771d456b74" title="Parses one RMC message. " alt="" coords="223,223,397,250"/>
+<area shape="rect" id="node2" href="$class_gpgga_parser.html#a102f52f282147a6860945d6cd41b6a63" title="Parses one GGA message. " alt="" coords="223,55,397,82"/>
+<area shape="rect" id="node16" href="$class_gprmc_parser.html#a0ab63824e56564cc127886fb54d648ee" title="Parses one RMC message. " alt="" coords="223,223,397,250"/>
 <area shape="rect" id="node18" href="$namespaceparsing__utilities.html#aea22e0ab185aac87102acc3d370977b2" title="Interprets the contents of &quot;string&quot; as a floating point number of type double. " alt="" coords="250,157,370,199"/>
 <area shape="rect" id="node19" href="$namespaceio__comm__rx.html#a3e6c00717fcbd21bd24030ed22b3d311" title="Calculates the timestamp, in the Unix Epoch time format This is either done using the TOW as transmit..." alt="" coords="216,106,404,133"/>
 <area shape="rect" id="node3" href="$class_gpgga_parser.html#a3f58b883fe444f24a76efd7441f178aa" title="Constructor of the class GpggaParser. " alt="" coords="453,51,635,78"/>

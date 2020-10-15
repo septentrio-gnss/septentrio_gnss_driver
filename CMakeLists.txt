@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(rosaic)
+project(septentrio_gnss_driver)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -142,11 +142,6 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rosaic.cpp
-# )
-
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -155,7 +150,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/rosaic/node/rosaic_node.cpp src/rosaic/communication/circular_buffer.cpp src/rosaic/parsers/parsing_utilities.cpp src/rosaic/parsers/string_utilities.cpp src/rosaic/parsers/nmea_parsers/gpgga.cpp src/rosaic/parsers/nmea_parsers/gprmc.cpp src/rosaic/parsers/nmea_parsers/gpgsa.cpp src/rosaic/parsers/nmea_parsers/gpgsv.cpp src/rosaic/crc/crc.c src/rosaic/communication/communication_core.cpp src/rosaic/communication/rx_message.cpp src/rosaic/communication/callback_handlers.cpp)
+add_executable(${PROJECT_NAME}_node src/septentrio_gnss_driver/node/rosaic_node.cpp src/septentrio_gnss_driver/communication/circular_buffer.cpp src/septentrio_gnss_driver/parsers/parsing_utilities.cpp src/septentrio_gnss_driver/parsers/string_utilities.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp src/septentrio_gnss_driver/crc/crc.c src/septentrio_gnss_driver/communication/communication_core.cpp src/septentrio_gnss_driver/communication/rx_message.cpp src/septentrio_gnss_driver/communication/callback_handlers.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -217,7 +212,7 @@ install(TARGETS ${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rosaic.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_septentrio_gnss_driver.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

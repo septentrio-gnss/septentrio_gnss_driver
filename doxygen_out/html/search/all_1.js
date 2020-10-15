@@ -1,10 +1,10 @@
 var searchData=
 [
   ['baseparser',['BaseParser',['../class_base_parser.html',1,'BaseParser&lt; T &gt;'],['../class_base_parser.html#a2ca4faef43929a818105c2403cc98132',1,'BaseParser::BaseParser()']]],
-  ['baseparser_3c_20rosaic_3a_3agpggaptr_20_3e',['BaseParser&lt; rosaic::GpggaPtr &gt;',['../class_base_parser.html',1,'']]],
-  ['baseparser_3c_20rosaic_3a_3agpgsaptr_20_3e',['BaseParser&lt; rosaic::GpgsaPtr &gt;',['../class_base_parser.html',1,'']]],
-  ['baseparser_3c_20rosaic_3a_3agpgsvptr_20_3e',['BaseParser&lt; rosaic::GpgsvPtr &gt;',['../class_base_parser.html',1,'']]],
-  ['baseparser_3c_20rosaic_3a_3agprmcptr_20_3e',['BaseParser&lt; rosaic::GprmcPtr &gt;',['../class_base_parser.html',1,'']]],
+  ['baseparser_3c_20septentrio_5fgnss_5fdriver_3a_3agpggaptr_20_3e',['BaseParser&lt; septentrio_gnss_driver::GpggaPtr &gt;',['../class_base_parser.html',1,'']]],
+  ['baseparser_3c_20septentrio_5fgnss_5fdriver_3a_3agpgsaptr_20_3e',['BaseParser&lt; septentrio_gnss_driver::GpgsaPtr &gt;',['../class_base_parser.html',1,'']]],
+  ['baseparser_3c_20septentrio_5fgnss_5fdriver_3a_3agpgsvptr_20_3e',['BaseParser&lt; septentrio_gnss_driver::GpgsvPtr &gt;',['../class_base_parser.html',1,'']]],
+  ['baseparser_3c_20septentrio_5fgnss_5fdriver_3a_3agprmcptr_20_3e',['BaseParser&lt; septentrio_gnss_driver::GprmcPtr &gt;',['../class_base_parser.html',1,'']]],
   ['baudrate_5f',['baudrate_',['../classio__comm__rx_1_1_comm___i_o.html#adb3ae16ba0a968f4f92a27851d6e8b81',1,'io_comm_rx::Comm_IO::baudrate_()'],['../classrosaic__node_1_1_r_o_saic_node.html#ab3c2048302c1ffb76730cc0be20c4f9e',1,'rosaic_node::ROSaicNode::baudrate_()']]],
   ['baudrates',['BAUDRATES',['../namespaceio__comm__rx.html#a779a7ac1170eaf8080fcc0528f0e82f8',1,'io_comm_rx']]],
   ['blanking_5fstat',['blanking_stat',['../struct_a_g_c_state__t.html#a1d450b264fe78d91a014d2efef9d51ea',1,'AGCState_t']]],

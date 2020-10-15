@@ -1,6 +1,6 @@
 <map id="GpggaParser::GpggaParser" name="GpggaParser::GpggaParser">
 <area shape="rect" id="node2" href="$class_gpgga_parser.html#a534807b5bf7622bbbf7a2289bfba4064" title="Returns the ASCII message ID, here &quot;$GPGGA&quot;. " alt="" coords="257,144,447,171"/>
-<area shape="rect" id="node3" href="$class_gpgga_parser.html#a6bda3f0b9240ce9a8a6d39361dcc29ec" title="Parses one GGA message. " alt="" coords="265,195,439,221"/>
+<area shape="rect" id="node3" href="$class_gpgga_parser.html#a102f52f282147a6860945d6cd41b6a63" title="Parses one GGA message. " alt="" coords="265,195,439,221"/>
 <area shape="rect" id="node11" href="$class_gpgga_parser.html#a6c81d509fa73629a43751b3ca1620981" title="Tells us whether the last GGA message was valid or not. " alt="" coords="236,245,468,272"/>
 <area shape="rect" id="node4" href="$namespacestring__utilities.html#a451618fdcf8f25a073befba3d2ac5421" title="Interprets the contents of &quot;string&quot; as a floating point number of type double It stores the &quot;string&quot;&#39;..." alt="" coords="535,5,697,32"/>
 <area shape="rect" id="node5" href="$namespaceparsing__utilities.html#a34ee6939c49825173737889032db9b77" title="Converts UTC time from the without&#45;colon&#45;delimiter format to the number&#45;of&#45;seconds&#45;since&#45;midnight for..." alt="" coords="516,57,716,98"/>
