@@ -1,22 +1,31 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package rosaic
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package septentrio_gnss_driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.0.5 (2020-10-11)
+Forthcoming
+-----------
+
+1.0.5 (2020-10-15)
 ------------------
-* Merge pull request `#21 <https://github.com/septentrio-gnss/rosaic/issues/21>`_ from septentrio-gnss/local_tibor
+* changed repo name
+* v1.0.4
+* 1.0.3
+* Merge pull request `#22 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/22>`_ from septentrio-gnss/local_tibor
+  New changelog
+* New changelog
+* Merge pull request `#21 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/21>`_ from septentrio-gnss/local_tibor
   Added rosdoc.yaml file
-* Merge pull request `#20 <https://github.com/septentrio-gnss/rosaic/issues/20>`_ from septentrio-gnss/local_tibor
+* Merge pull request `#20 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/20>`_ from septentrio-gnss/local_tibor
   Improved doxygen annotations
-* Merge pull request `#19 <https://github.com/septentrio-gnss/rosaic/issues/19>`_ from septentrio-gnss/local_tibor
+* Merge pull request `#19 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/19>`_ from septentrio-gnss/local_tibor
   Improved doxygen annotations
 * Update README.md
-* Merge pull request `#18 <https://github.com/septentrio-gnss/rosaic/issues/18>`_ from septentrio-gnss/local_tibor
+* Merge pull request `#18 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/18>`_ from septentrio-gnss/local_tibor
   Adopted ROS and C++ conventions, added ROS diagnostics msg,
 * Update README.md
 * Update README.md
 * Update README.md
-* Contributors: septentrio-users
+* Contributors: septentrio-users, tibordome
 
 1.0.4 (2020-10-11)
 ------------------
@@ -33,14 +42,14 @@ Changelog for package rosaic
 ------------------
 * Add new config/rover.yaml file
 * Add config/rover.yaml to .gitignore
-* Merge pull request `#17 <https://github.com/septentrio-gnss/rosaic/issues/17>`_ from septentrio-gnss/local_tibor
+* Merge pull request `#17 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/17>`_ from septentrio-gnss/local_tibor
   NTRIP with Datalink, circular buffer, reading connection descriptor..
 * Merge branch 'local_tibor'
 * NTRIP with Datalink, circular buffer, reading connection descriptor, new messages
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#16 <https://github.com/septentrio-gnss/rosaic/issues/16>`_ from septentrio-gnss/local_tibor
+* Merge pull request `#16 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/16>`_ from septentrio-gnss/local_tibor
   NTRIP parameters added, reconnect_delay_s implemented,
 * Update README.md
 * Update README.md
@@ -48,7 +57,7 @@ Changelog for package rosaic
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#15 <https://github.com/septentrio-gnss/rosaic/issues/15>`_ from tibordome/local_tibor
+* Merge pull request `#15 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/15>`_ from tibordome/local_tibor
   GPSFix completed, datum as new parameter
 * Update README.md
 * Update README.md
@@ -63,7 +72,7 @@ Changelog for package rosaic
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#14 <https://github.com/septentrio-gnss/rosaic/issues/14>`_ from tibordome/local_tibor
+* Merge pull request `#14 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/14>`_ from tibordome/local_tibor
   GPSFix completed, datum as new parameter
 * Update README.md
 * Update README.md
@@ -71,9 +80,9 @@ Changelog for package rosaic
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#13 <https://github.com/septentrio-gnss/rosaic/issues/13>`_ from tibordome/local_tibor
+* Merge pull request `#13 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/13>`_ from tibordome/local_tibor
   Added AttCovEuler.msg and AttEuler.msg
-* Merge pull request `#12 <https://github.com/septentrio-gnss/rosaic/issues/12>`_ from tibordome/local_tibor
+* Merge pull request `#12 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/12>`_ from tibordome/local_tibor
   Fixed service field of NavSatStatus
 * Contributors: Tibor Dome, septentrio-users, tibordome
 
@@ -99,26 +108,26 @@ Changelog for package rosaic
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#11 <https://github.com/septentrio-gnss/rosaic/issues/11>`_ from tibordome/local_tibor
+* Merge pull request `#11 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/11>`_ from tibordome/local_tibor
   rosconsole_backend_interface dependency not needed
 * rosconsole_backend_interface dependency not needed
-* Merge pull request `#10 <https://github.com/septentrio-gnss/rosaic/issues/10>`_ from tibordome/local_tibor
+* Merge pull request `#10 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/10>`_ from tibordome/local_tibor
   rosconsole_log4cxx dep not needed
 * rosconsole_log4cxx dep not needed
-* Merge pull request `#9 <https://github.com/septentrio-gnss/rosaic/issues/9>`_ from tibordome/local_tibor
+* Merge pull request `#9 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/9>`_ from tibordome/local_tibor
   rosconsole_log4cxx dep not needed
 * rosconsole_log4cxx dep not needed
-* Merge pull request `#8 <https://github.com/septentrio-gnss/rosaic/issues/8>`_ from tibordome/local_tibor
+* Merge pull request `#8 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/8>`_ from tibordome/local_tibor
   Local tibor
 * Update README.md
-* Merge pull request `#7 <https://github.com/septentrio-gnss/rosaic/issues/7>`_ from tibordome/local_tibor
+* Merge pull request `#7 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/7>`_ from tibordome/local_tibor
   Ready for First Release
 * Update README.md
 * Update README.md
 * Update README.md
-* Merge pull request `#6 <https://github.com/septentrio-gnss/rosaic/issues/6>`_ from tibordome/local_tibor
+* Merge pull request `#6 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/6>`_ from tibordome/local_tibor
   Local tibor
-* Merge pull request `#5 <https://github.com/septentrio-gnss/rosaic/issues/5>`_ from tibordome/local_tibor
+* Merge pull request `#5 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/5>`_ from tibordome/local_tibor
   TCP seems to work
 * Contributors: Tibor Dome, tibordome
 
@@ -133,20 +142,20 @@ Changelog for package rosaic
 * TCP bug removed
 * TCP bug removed
 * TCP seems to work
-* Merge pull request `#4 <https://github.com/septentrio-gnss/rosaic/issues/4>`_ from tibordome/v0.2
+* Merge pull request `#4 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/4>`_ from tibordome/v0.2
   V0.2
 * PVTCartesian and PVTGeodetic publishing works on serial
 * PVTCartesian and PVTGeodetic publishing works on serial
-* Merge pull request `#3 <https://github.com/septentrio-gnss/rosaic/issues/3>`_ from tibordome/v0.2
+* Merge pull request `#3 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/3>`_ from tibordome/v0.2
   Add doxygen_out and Doxyfile 2nd trial
 * Add doxygen_out and Doxyfile 2nd trial
-* Merge pull request `#2 <https://github.com/septentrio-gnss/rosaic/issues/2>`_ from tibordome/v0.1
+* Merge pull request `#2 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/2>`_ from tibordome/v0.1
   Add doxygen_out and Doxyfile
 * Add doxygen_out and Doxyfile
 * Update README.md
 * Create README.md
 * Update LICENSE
-* Merge pull request `#1 <https://github.com/septentrio-gnss/rosaic/issues/1>`_ from tibordome/add-license-1
+* Merge pull request `#1 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/1>`_ from tibordome/add-license-1
   Create LICENSE
 * Create LICENSE
 * Create LICENSE
