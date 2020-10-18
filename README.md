@@ -1,10 +1,10 @@
 # ROSaic = ROS + mosaic
 
 ## Overview
-This repository keeps track of the driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that is compatible with Septentrio's mosaic GNSS receiver family and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2, modifications mainly addressing launch file configurations. 
+This repository keeps track of the driver development process. Our goal is to build a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic - one of Septentrio's cutting-edge GNSS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
 
 Main Features:
-- Supports serial, TCP/IP and USB connections, the latter being compatible with both the serial and the TCP/IP protocols
+- Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
 - Facilitates extension to further ROS messages, see instructions below
 - Supports (as of now) a handful of ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Tested with the mosaic-X5 receiver
@@ -12,19 +12,12 @@ Main Features:
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
 ## Dependencies
-The `master` branch for this driver functions on both ROS Melodic and Noetic. It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that is compatible with your Linux distro.
-We refrained from redefining custom ROS messages that correspond to NMEA messages since those can be readily obtained via<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-nmea-msgs`.<br><br>
-The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). Please install the Boost libraries via<br><br>
+The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
+The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
-Source and header files of the driver have been used as input for [Doxygen](https://www.doxygen.nl/index.html), a lexical scanner for generating documentation from annotated C++ files. The generated on-line HTML documention can be viewed by pointing an HTML browser to the `index.html` file located in `doxygen_out/html`. For best results, a browser that supports cascading style sheets (CSS) should be used, e.g. Mozilla Firefox or Google Chrome. If the driver is extended, e.g. a new SBF block added as detailed below, annotations would ideally be adapted and the documentation regenerated via the shell command `doxygen Doxyfile`, where the configuration file `Doxyfile` need not necessarily be changed. For this to work, Doxygen must be installed, either via<br><br>
-`sudo apt-get install -y doxygen`<br><br>
-or [from source](https://www.doxygen.nl/manual/install.html).
 
 ## Usage
- (We do not yet have a binary release: To install the binary packages, run the following command in a terminal (until now only tested on ROS Melodic):<br><br>
-`sudo apt-get install ros-${ROS_DISTRO}-septentrio-gnss-driver`.)<br><br>
-Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
+(The binary release should become available in the next few days.) Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
 `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic.<br><br>
 The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
 ```
@@ -34,18 +27,17 @@ cd ~/septentrio
 catkin init                                                    # Initialize with a hidden marker file
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo   # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
 cd src
-git clone https://github.com/septentrio-gnss/rosaic
+git clone https://github.com/septentrio-gnss//septentrio_gnss_driver
 rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
 catkin build
 echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc       # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
 source ~/.bashrc 
 ```
 - Notes Before Usage
-  - In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd rosaic`. 
+  - In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
   - The driver assumes the user is logged in to the mosaic with an authorization level set to `User`, not just `Viewer`.
   - Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
-  - The development process of this driver has been performed for mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
-  - Further, at the moment, the driver is only a rover driver. We will add a ROSaic parameter shortly to address this issue, such that one will also be able to adapt the (not-yet-existent) `base.launch` file in the launch directory and configure it as desired.
+  - The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   - ROSaic only works from C++11 onwards due to std::to_string() etc.
   - Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that `gpsfix` accounts for 4 additional streams (`ChannelStatus`, `DOP`, `MeasEpoch` and `VelCovGeodetic` blocks). 
   - Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified). Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
@@ -112,10 +104,9 @@ publish:
   pose: false
   diagnostics: false
 ```
-In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch rosaic rover.launch param_file_name:=rover`.
+In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
-## ROS Wrapper
-### ROSaic Parameters
+## ROSaic Parameters
 The following is a list of ROSaic parameters found in the `rover.yaml` file.
 - Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
@@ -186,7 +177,7 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
   - `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
   - `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
 
-### ROS Topic Publications
+## ROS Topic Publications
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. Only ROS messages `sensor_msgs/NavSatFix` and `gps_common/GPSFix` are published by default. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
 - `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic` and `PosCovGeodetic`
   - The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
