@@ -27,7 +27,7 @@ cd ~/septentrio
 catkin init                                                    # Initialize with a hidden marker file
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo   # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
 cd src
-git clone https://github.com/septentrio-gnss//septentrio_gnss_driver
+git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
 rosdep install . --from-paths -i                               # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
 catkin build
 echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc       # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
