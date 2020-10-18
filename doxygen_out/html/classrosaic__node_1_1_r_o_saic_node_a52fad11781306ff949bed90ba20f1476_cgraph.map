@@ -1,5 +1,0 @@
-<map id="rosaic_node::ROSaicNode::DefineMessages" name="rosaic_node::ROSaicNode::DefineMessages">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_comm___i_o.html#ae9a518bb1d05368df69915969608a15d" title="io_comm_mosaic::Comm\l_IO::GetHandlers" alt="" coords="237,5,407,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_callback_handlers.html#ac2cf074ee8319d2e2fbb66536a803d7c" title="io_comm_mosaic::Callback\lHandlers::Insert" alt="" coords="231,71,413,112"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_comm___i_o.html#a82ad16004dbfd6ca1496fd0b8c453b5e" title="io_comm_mosaic::Comm\l_IO::Send" alt="" coords="461,5,632,47"/>
-</map>

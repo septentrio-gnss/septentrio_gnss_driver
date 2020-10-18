@@ -1,5 +1,0 @@
-<map id="io_comm_mosaic::Comm_IO::Poll" name="io_comm_mosaic::Comm_IO::Poll">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_callback_handlers.html#a77ee1666a0b93b8517d3faa00139150a" title="Stores momentary (polling, not reading) (ROS) message with key &quot;message_key&quot; in &quot;message&quot;, after having waited &quot;timeout&quot; long. " alt="" coords="224,39,407,80"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handler.html#aa4b79cc756c17ac229b7c945935b27e2" title="io_comm_mosaic::Callback\lHandler::Get" alt="" coords="455,5,637,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_abstract_callback_handler.html#a92324342970668ccd9bdc3058ee36a0b" title="io_comm_mosaic::Abstract\lCallbackHandler::Wait" alt="" coords="455,71,637,112"/>
-</map>

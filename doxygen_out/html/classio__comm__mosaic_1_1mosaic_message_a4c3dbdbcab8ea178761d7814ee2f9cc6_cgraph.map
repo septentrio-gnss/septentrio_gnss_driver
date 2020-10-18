@@ -1,6 +1,0 @@
-<map id="io_comm_mosaic::mosaicMessage::Found" name="io_comm_mosaic::mosaicMessage::Found">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#addf5cd9237f4a6e2e4d36246a6ae18eb" title="Determines whether data_ currently points to a connection descriptor (right after initiating TCP conn..." alt="" coords="280,5,507,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="280,71,507,112"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a78a4ac9ad7ce95441a1ba249a3c23f4e" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="280,136,507,177"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a71b8ae8eeec37ef08cc361e567df2936" title="Determines whether data_ currently points to an SBF block. " alt="" coords="280,201,507,243"/>
-</map>

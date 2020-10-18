@@ -1,5 +1,0 @@
-<map id="GpgsvParser::ParseASCII" name="GpgsvParser::ParseASCII">
-<area shape="rect" id="node2" href="$namespaceparsing__utilities.html#ad033480f07c8ac616ed7e03584219eec" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="229,5,349,47"/>
-<area shape="rect" id="node3" href="$namespaceparsing__utilities.html#a049ebf9daf86aafe6b915527782cb43a" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint8_t, stores its value in..." alt="" coords="229,71,349,112"/>
-<area shape="rect" id="node4" href="$namespacestring__utilities.html#aacef6a9a84e935f1d079161d4dc7a725" title="Interprets the contents of &quot;string&quot; as a floating point number of whatever unsigned integer type your..." alt="" coords="397,78,561,105"/>
-</map>

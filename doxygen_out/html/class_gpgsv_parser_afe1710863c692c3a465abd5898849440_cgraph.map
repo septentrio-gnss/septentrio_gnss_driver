@@ -1,7 +1,0 @@
-<map id="GpgsvParser::GpgsvParser" name="GpgsvParser::GpgsvParser">
-<area shape="rect" id="node2" href="$class_gpgsv_parser.html#a01fa82f2791662a7c30a7e6ab8e49cfa" title="Returns the ASCII message ID, here &quot;$GPGSV&quot;. " alt="" coords="236,5,427,32"/>
-<area shape="rect" id="node3" href="$class_gpgsv_parser.html#aaddcfbd4122cdb00ec9142fc3134ad8b" title="Parses one GSV message. " alt="" coords="244,56,419,83"/>
-<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#abce30ad09e9ddb43c7fead910231f96d" title="Interprets the contents of &quot;string&quot; as a unsigned integer number of type uint8_t. ..." alt="" coords="475,15,595,57"/>
-<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#aee4985c19b3a7daedfaba8ab10157c02" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="475,81,595,122"/>
-<area shape="rect" id="node5" href="$namespacestring__utilities.html#acbbf746b675202d910dfbd8596b11e0f" title="Interprets the contents of &quot;string&quot; as a floating point number of whatever unsigned integer type your..." alt="" coords="643,23,803,49"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="io_comm_mosaic::AsyncManager::Wait" name="io_comm_mosaic::AsyncManager::Wait">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_async_manager.html#af75ccbe9e48c6ed6024637ba7dc16095" title="Handles the ROS_INFO throwing (if no incoming message) " alt="" coords="272,5,491,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_async_manager.html#a6af0b2bc94ed4fbb2d6ba4aeef99f5e2" title="Class constructor. " alt="" coords="539,5,757,47"/>
-</map>

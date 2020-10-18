@@ -1,5 +1,0 @@
-<map id="StringValues_Initialize" name="StringValues_Initialize">
-<area shape="rect" id="node2" href="$namespaceio__comm__mosaic.html#a2a4df6aa119a1255e641501bde7d8637" title="Calculates the timestamp, in the Unix Epoch time format, either using the TOW as transmitted with the..." alt="" coords="204,35,427,61"/>
-<area shape="rect" id="node3" href="$namespacestring__utilities.html#a05d8dc034e6f514094b09040f819b902" title="Interprets the contents of &quot;string&quot; as a floating point number of type double, stores its value in &quot;v..." alt="" coords="475,5,641,32"/>
-<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#af37ca3ef65c36f4c1bfa3f899ec83768" title="Converts UTC time from the without&#45;colon&#45;delimiter format, type double, to Unix Epoch time (a number&#45;..." alt="" coords="498,57,618,98"/>
-</map>

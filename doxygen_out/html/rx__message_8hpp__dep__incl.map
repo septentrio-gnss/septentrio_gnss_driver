@@ -1,9 +1,0 @@
-<map id="include/septentrio_gnss_driver/communication/rx_message.hpp" name="include/septentrio_gnss_driver/communication/rx_message.hpp">
-<area shape="rect" id="node2" href="$rx__message_8cpp.html" title="Defines a class that reads messages handed over from the circular buffer. " alt="" coords="5,109,159,165"/>
-<area shape="rect" id="node3" href="$callback__handlers_8hpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="183,109,371,165"/>
-<area shape="rect" id="node4" href="$callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="102,213,257,269"/>
-<area shape="rect" id="node5" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="281,213,469,269"/>
-<area shape="rect" id="node6" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="194,317,365,373"/>
-<area shape="rect" id="node7" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="389,317,556,373"/>
-<area shape="rect" id="node8" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="405,421,541,477"/>
-</map>

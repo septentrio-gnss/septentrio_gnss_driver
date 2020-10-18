@@ -1,6 +1,0 @@
-<map id="include/septentrio_gnss_driver/communication/async_manager.hpp" name="include/septentrio_gnss_driver/communication/async_manager.hpp">
-<area shape="rect" id="node2" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="93,109,281,165"/>
-<area shape="rect" id="node3" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="5,213,176,269"/>
-<area shape="rect" id="node4" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="201,213,367,269"/>
-<area shape="rect" id="node5" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="216,317,352,373"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="io_comm_mosaic::Comm_IO::InitializeSerial" name="io_comm_mosaic::Comm_IO::InitializeSerial">
-<area shape="rect" id="node2" href="$classrosaic__node_1_1_r_o_saic_node.html#a1798ec942a9142e0f04762129d2cee1e" title="Attempts to (re)connect every reconnect_delay_s_ seconds. " alt="" coords="224,5,401,47"/>
-<area shape="rect" id="node3" href="$classrosaic__node_1_1_r_o_saic_node.html#a044027050e227363dbb0185749268d67" title="Calles the Reconnect() method. " alt="" coords="449,5,627,47"/>
-<area shape="rect" id="node4" href="$classrosaic__node_1_1_r_o_saic_node.html#ac06ed02ba77b90ca96015e2dda95ff01" title="Initializes the I/O handling. " alt="" coords="675,5,852,47"/>
-<area shape="rect" id="node5" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="900,5,1077,47"/>
-</map>

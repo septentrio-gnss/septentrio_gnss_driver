@@ -1,5 +1,0 @@
-<map id="rosaic_node::ROSaicNode::ConfigureMosaic" name="rosaic_node::ROSaicNode::ConfigureMosaic">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_comm___i_o.html#a82ad16004dbfd6ca1496fd0b8c453b5e" title="io_comm_mosaic::Comm\l_IO::Send" alt="" coords="236,5,407,47"/>
-<area shape="rect" id="node3" href="$namespacestring__utilities.html#a3038da1508f0fd84febf54e0776d0df4" title="Removes trailing zeros from a string representing a float or double except for the first zero after t..." alt="" coords="236,71,407,98"/>
-<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#ac4077316c1b328f40800f3ebe226fa11" title="Transforms the input polling period [milliseconds] into a uint32_t number that can be appended to eit..." alt="" coords="231,123,412,164"/>
-</map>

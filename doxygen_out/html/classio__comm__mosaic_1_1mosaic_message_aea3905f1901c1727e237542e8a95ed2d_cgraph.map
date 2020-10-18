@@ -1,4 +1,0 @@
-<map id="io_comm_mosaic::mosaicMessage::search" name="io_comm_mosaic::mosaicMessage::search">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#ace5b0345f7bc987bcdef108b4cb6eb91" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="280,5,507,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a786eb05a5effa4a5ffd9707b24c4a38f" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="555,5,781,47"/>
-</map>

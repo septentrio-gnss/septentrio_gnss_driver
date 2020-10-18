@@ -1,6 +1,0 @@
-<map id="GpgsaParser::ParseASCII" name="GpgsaParser::ParseASCII">
-<area shape="rect" id="node2" href="$class_gpgsa_parser.html#a2a763ee35d98dab9a887f04242462fc2" title="Constructor of the class GpgsaParser. " alt="" coords="251,5,434,32"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a1fad65b4a7b7a38b0f02d599ab005eea" title="Performs the CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1..." alt="" coords="229,57,456,98"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77" title="io_comm_mosaic::Callback\lHandler::Handle" alt="" coords="526,23,709,65"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a7c1dcc9704f31eadfa980a66464433a7" title="Returns the count_ variable. " alt="" coords="504,89,731,130"/>
-</map>

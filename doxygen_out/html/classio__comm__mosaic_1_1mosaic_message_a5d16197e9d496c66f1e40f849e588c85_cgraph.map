@@ -1,9 +1,0 @@
-<map id="io_comm_mosaic::mosaicMessage::Search" name="io_comm_mosaic::mosaicMessage::Search">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#addf5cd9237f4a6e2e4d36246a6ae18eb" title="Determines whether data_ currently points to a connection descriptor (right after initiating TCP conn..." alt="" coords="829,5,1056,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="829,71,1056,112"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a78a4ac9ad7ce95441a1ba249a3c23f4e" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="829,180,1056,221"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a71b8ae8eeec37ef08cc361e567df2936" title="Determines whether data_ currently points to an SBF block. " alt="" coords="829,292,1056,333"/>
-<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1mosaic_message.html#a48a7cd28a6d1046cff2ea2a833c2e4e3" title="Goes to the start of the next message based on the calculated length of current message. " alt="" coords="280,151,507,192"/>
-<area shape="rect" id="node7" href="$classio__comm__mosaic_1_1mosaic_message.html#af031e2068413bdcb87a26dbfbabd3282" title="Gets the length of the SBF block. " alt="" coords="555,340,781,381"/>
-<area shape="rect" id="node8" href="$classio__comm__mosaic_1_1mosaic_message.html#a4c3dbdbcab8ea178761d7814ee2f9cc6" title="Has an NMEA message or SBF block been found in the buffer? " alt="" coords="555,121,781,163"/>
-</map>

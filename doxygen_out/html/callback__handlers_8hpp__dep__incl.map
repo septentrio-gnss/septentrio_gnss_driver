@@ -1,7 +1,0 @@
-<map id="include/septentrio_gnss_driver/communication/callback_handlers.hpp" name="include/septentrio_gnss_driver/communication/callback_handlers.hpp">
-<area shape="rect" id="node2" href="$callback__handlers_8cpp.html" title="Handles callbacks when reading NMEA/SBF messages. " alt="" coords="5,109,160,165"/>
-<area shape="rect" id="node3" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="185,109,373,165"/>
-<area shape="rect" id="node4" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="97,213,268,269"/>
-<area shape="rect" id="node5" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="293,213,459,269"/>
-<area shape="rect" id="node6" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="308,317,444,373"/>
-</map>

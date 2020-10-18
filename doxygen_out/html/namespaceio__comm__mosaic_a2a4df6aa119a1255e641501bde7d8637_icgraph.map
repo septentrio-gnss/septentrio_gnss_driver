@@ -1,7 +1,0 @@
-<map id="io_comm_mosaic::TimestampSBF" name="io_comm_mosaic::TimestampSBF">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a1fad65b4a7b7a38b0f02d599ab005eea" title="Performs the CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1..." alt="" coords="276,71,503,112"/>
-<area shape="rect" id="node5" href="$mosaic_message_8hpp.html#a2eab17bf465172185a0ae925d791b255" title="StringValues_Initialize" alt="" coords="314,139,465,166"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77" title="io_comm_mosaic::Callback\lHandler::Handle" alt="" coords="573,5,755,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a7c1dcc9704f31eadfa980a66464433a7" title="Returns the count_ variable. " alt="" coords="551,71,777,112"/>
-<area shape="rect" id="node6" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="575,136,753,177"/>
-</map>

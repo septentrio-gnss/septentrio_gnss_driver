@@ -1,4 +1,0 @@
-<map id="io_comm_mosaic::AbstractCallbackHandler::Wait" name="io_comm_mosaic::AbstractCallbackHandler::Wait">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_callback_handlers.html#a77ee1666a0b93b8517d3faa00139150a" title="Stores momentary (polling, not reading) (ROS) message with key &quot;message_key&quot; in &quot;message&quot;, after having waited &quot;timeout&quot; long. " alt="" coords="235,5,417,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_comm___i_o.html#a6341cde9276096cbe60263597f76ad84" title="Read an NMEA message or SBF block of the given type T, e.g. PVTGeodetic. " alt="" coords="465,5,636,47"/>
-</map>

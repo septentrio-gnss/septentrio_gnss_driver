@@ -1,5 +1,0 @@
-<map id="io_comm_rx::AbstractCallbackHandler::handle" name="io_comm_rx::AbstractCallbackHandler::handle">
-<area shape="rect" id="node2" href="$classio__comm__rx_1_1_callback_handlers.html#ae86460622a7c5cc19b54c9d5b158793a" title="Adds a pair to the multimap &quot;callbackmap_&quot;, with the message_key being the key. " alt="" coords="255,5,459,47"/>
-<area shape="rect" id="node3" href="$classrosaic__node_1_1_r_o_saic_node.html#aef99354347e1de09d8a1ef0f1c792e8a" title="Defines which Rx messages to read and which ROS messages to publish. " alt="" coords="507,5,684,47"/>
-<area shape="rect" id="node4" href="$classrosaic__node_1_1_r_o_saic_node.html#aac8f464de6418f72af432b1b5ebfeda3" title="rosaic_node::ROSaicNode\l::ROSaicNode" alt="" coords="732,5,909,47"/>
-</map>

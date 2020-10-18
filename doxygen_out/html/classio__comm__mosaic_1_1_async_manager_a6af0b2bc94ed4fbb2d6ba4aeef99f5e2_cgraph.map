@@ -1,5 +1,0 @@
-<map id="io_comm_mosaic::AsyncManager::AsyncManager" name="io_comm_mosaic::AsyncManager::AsyncManager">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_async_manager.html#af75ccbe9e48c6ed6024637ba7dc16095" title="Handles the ROS_INFO throwing (if no incoming message) " alt="" coords="272,5,491,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_async_manager.html#aa60a8650429061f97ac7af1f70b387b6" title="Tries parsing SBF/NMEA whenever the boolean class variable &quot;try_parsing&quot; is true. ..." alt="" coords="272,71,491,112"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_async_manager.html#a756faa35e7105eb2204ebcce109b2a4e" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="539,5,757,47"/>
-</map>

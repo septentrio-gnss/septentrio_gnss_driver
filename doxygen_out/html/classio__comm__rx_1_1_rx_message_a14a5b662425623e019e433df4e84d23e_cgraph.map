@@ -1,8 +1,0 @@
-<map id="io_comm_rx::RxMessage::next" name="io_comm_rx::RxMessage::next">
-<area shape="rect" id="node2" href="$classio__comm__rx_1_1_rx_message.html#a2144062267dc80c653f61ee0529e5f82" title="Has an NMEA message, SBF block or command reply been found in the buffer? " alt="" coords="224,111,395,152"/>
-<area shape="rect" id="node3" href="$classio__comm__rx_1_1_rx_message.html#aa2f85e4e3efc8a0717e539f652026b32" title="io_comm_rx::RxMessage\l::isConnectionDescriptor" alt="" coords="443,5,613,47"/>
-<area shape="rect" id="node4" href="$classio__comm__rx_1_1_rx_message.html#a504892bad09b1ccd4341430433218187" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="443,73,613,115"/>
-<area shape="rect" id="node5" href="$classio__comm__rx_1_1_rx_message.html#a965fedf10e8ca349580d6fc16627d2b4" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="443,144,613,185"/>
-<area shape="rect" id="node6" href="$classio__comm__rx_1_1_rx_message.html#a430278d20b0c6dff502734830d3da8cc" title="Determines whether data_ currently points to an SBF block. " alt="" coords="443,220,613,261"/>
-<area shape="rect" id="node7" href="$classio__comm__rx_1_1_rx_message.html#af4004d882c3d5d157897b2744c1db556" title="Gets the length of the SBF block. " alt="" coords="224,279,395,320"/>
-</map>
