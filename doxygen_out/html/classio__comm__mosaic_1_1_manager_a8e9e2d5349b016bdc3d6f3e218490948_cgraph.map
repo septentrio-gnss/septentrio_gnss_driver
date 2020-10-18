@@ -1,6 +1,0 @@
-<map id="io_comm_mosaic::Manager::~Manager" name="io_comm_mosaic::Manager::~Manager">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_manager.html#a53ad719fb4c0c37022d79f72ec220700" title="Determines whether or not the connection is open. " alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c" title="Sends commands to the receiver. " alt="" coords="236,71,419,112"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1_manager.html#a6e56959e3337f056a042b8d38b9119d6" title="Sets the callback function. " alt="" coords="236,136,419,177"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="236,201,419,243"/>
-</map>

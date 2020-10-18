@@ -1,8 +1,0 @@
-<map id="GprmcParser::parseASCII" name="GprmcParser::parseASCII">
-<area shape="rect" id="node2" href="$namespaceparsing__utilities.html#a339d2454d9e3f8a39e1b8a21c3d2e835" title="Converts latitude or longitude from the DMS notation (in the without&#45;colon&#45;delimiter format)..." alt="" coords="249,5,407,47"/>
-<area shape="rect" id="node3" href="$namespaceparsing__utilities.html#a34ee6939c49825173737889032db9b77" title="Converts UTC time from the without&#45;colon&#45;delimiter format to the number&#45;of&#45;seconds&#45;since&#45;midnight for..." alt="" coords="228,71,428,112"/>
-<area shape="rect" id="node4" href="$namespaceparsing__utilities.html#a2cc2dd97f656e434bef521d05e7193e0" title="Converts UTC time from the without&#45;colon&#45;delimiter format to Unix Epoch time (a number&#45;of&#45;seconds&#45;sin..." alt="" coords="263,136,393,177"/>
-<area shape="rect" id="node5" href="$namespaceparsing__utilities.html#afcfb7aecfb6d9fb7f662b7474f454eec" title="Converts an 8&#45;byte&#45;buffer into a double. " alt="" coords="268,201,388,243"/>
-<area shape="rect" id="node6" href="$namespaceparsing__utilities.html#aee4985c19b3a7daedfaba8ab10157c02" title="Converts a 4&#45;byte&#45;buffer into a float. " alt="" coords="268,267,388,308"/>
-<area shape="rect" id="node7" href="$namespacestring__utilities.html#a451618fdcf8f25a073befba3d2ac5421" title="Interprets the contents of &quot;string&quot; as a floating point number of type double It stores the &quot;string&quot;&#39;..." alt="" coords="247,333,409,359"/>
-</map>

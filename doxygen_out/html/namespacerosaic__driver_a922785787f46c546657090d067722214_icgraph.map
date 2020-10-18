@@ -1,7 +1,0 @@
-<map id="rosaic_driver::ConvertDMSToDegrees" name="rosaic_driver::ConvertDMSToDegrees">
-<area shape="rect" id="node2" href="$classrosaic__driver_1_1_gpgga_parser.html#a6b834ffc3f6ed036b9eab045ad15aaf7" title="Parses one GGA message. " alt="" coords="248,71,428,112"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a1fad65b4a7b7a38b0f02d599ab005eea" title="Performs the CRC check (if SBF block) and populates message with the necessary content (mapped 1&#45;to&#45;1..." alt="" coords="476,37,703,79"/>
-<area shape="rect" id="node6" href="$classrosaic__driver_1_1_gpgga_parser.html#ad06e4cc2f85194b92f6691c10f375fcc" title="Constructor of the class GpggaParser. " alt="" coords="499,103,679,144"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a7c1dcc9704f31eadfa980a66464433a7" title="Returns the count_ variable. " alt="" coords="751,5,977,47"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1_callback_handler.html#aede2c290011046078fb743110c608b77" title="io_comm_mosaic::Callback\lHandler::Handle" alt="" coords="773,71,955,112"/>
-</map>

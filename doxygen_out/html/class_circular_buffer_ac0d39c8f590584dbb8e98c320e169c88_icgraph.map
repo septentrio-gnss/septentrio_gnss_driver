@@ -1,6 +1,0 @@
-<map id="CircularBuffer::read" name="CircularBuffer::read">
-<area shape="rect" id="node2" href="$class_circular_buffer.html#a453971561ff89049ab87c9fe801efb17" title="Returns capacity_. " alt="" coords="188,71,347,98"/>
-<area shape="rect" id="node3" href="$class_circular_buffer.html#af2cc92552dc7df25ef2463e651689419" title="Constructor of CircularBuffer. " alt="" coords="395,5,549,47"/>
-<area shape="rect" id="node4" href="$class_circular_buffer.html#aaeabea80655d80bfe4ef8b6ad91da2bd" title="Returns number of bytes written. " alt="" coords="403,71,541,98"/>
-<area shape="rect" id="node5" href="$classio__comm__rx_1_1_async_manager.html#a3b1fa56a49f408d7d708b447bb356b92" title="Handler for async_read_some (Boost library).. " alt="" coords="597,64,785,105"/>
-</map>

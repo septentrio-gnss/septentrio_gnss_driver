@@ -1,6 +1,0 @@
-<map id="io_comm_rx::Manager::~Manager" name="io_comm_rx::Manager::~Manager">
-<area shape="rect" id="node2" href="$classio__comm__rx_1_1_manager.html#a4976424aab68662bbd904760a5a354a3" title="Determines whether or not the connection is open. " alt="" coords="204,5,355,47"/>
-<area shape="rect" id="node3" href="$classio__comm__rx_1_1_manager.html#a8b506970406c794cf7e457051f45b6c8" title="Sends commands to the receiver. " alt="" coords="204,71,355,112"/>
-<area shape="rect" id="node4" href="$classio__comm__rx_1_1_manager.html#a21ce89938f4b4eb1de84335c43d48823" title="Sets the callback function. " alt="" coords="204,136,355,177"/>
-<area shape="rect" id="node5" href="$classio__comm__rx_1_1_manager.html#abd4e49033c12873599ef7484f466ff2d" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="204,201,355,243"/>
-</map>

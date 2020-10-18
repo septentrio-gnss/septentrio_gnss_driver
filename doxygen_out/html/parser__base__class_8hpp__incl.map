@@ -1,5 +1,0 @@
-<map id="include/septentrio_gnss_driver/parsers/parser_base_class.hpp" name="include/septentrio_gnss_driver/parsers/parser_base_class.hpp">
-<area shape="rect" id="node2" href="$nmea__sentence_8hpp.html" title="Defines a struct NMEASentence, into which NMEA sentences &#45; both standardized and proprietary ones &#45; s..." alt="" coords="47,109,185,136"/>
-<area shape="rect" id="node5" href="$parsing__utilities_8hpp.html" title="Declares utility functions used when parsing messages. " alt="" coords="253,109,390,136"/>
-<area shape="rect" id="node11" href="$parse__exception_8hpp.html" title="Declares a derived class of the class &quot;std::runtime_error&quot; for throwing error messages when parsing N..." alt="" coords="577,109,719,136"/>
-</map>

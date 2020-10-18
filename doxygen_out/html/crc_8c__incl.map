@@ -1,5 +1,0 @@
-<map id="src/septentrio_gnss_driver/crc/crc.c" name="src/septentrio_gnss_driver/crc/crc.c">
-<area shape="rect" id="node2" href="$crc_8h.html" title="Declares the functions to compute and validate the CRC of a buffer. " alt="" coords="243,95,396,136"/>
-<area shape="rect" id="node3" href="$sbf__structs_8hpp.html" title="Declares and defines structs into which SBF blocks are unpacked then shipped to handler functions..." alt="" coords="5,184,215,225"/>
-<area shape="rect" id="node4" href="$ssn__types_8hpp.html" title="Aims at making the C++ code as portable as possible, by dealing with all compilers except for MS comp..." alt="" coords="57,273,163,300"/>
-</map>

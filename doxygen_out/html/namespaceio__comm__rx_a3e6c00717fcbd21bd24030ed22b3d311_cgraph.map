@@ -1,4 +1,0 @@
-<map id="io_comm_rx::timestampSBF" name="io_comm_rx::timestampSBF">
-<area shape="rect" id="node2" href="$namespaceparsing__utilities.html#a2cc2dd97f656e434bef521d05e7193e0" title="Converts UTC time from the without&#45;colon&#45;delimiter format to Unix Epoch time (a number&#45;of&#45;seconds&#45;sin..." alt="" coords="257,5,388,47"/>
-<area shape="rect" id="node3" href="$namespacestring__utilities.html#a451618fdcf8f25a073befba3d2ac5421" title="Interprets the contents of &quot;string&quot; as a floating point number of type double It stores the &quot;string&quot;&#39;..." alt="" coords="241,71,404,98"/>
-</map>

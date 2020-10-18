@@ -1,4 +1,0 @@
-<map id="rosaic_node::ROSaicNode::Subscribe" name="rosaic_node::ROSaicNode::Subscribe">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_comm___i_o.html#accdaa8fcccfe32bfd65190da645638f3" title="io_comm_mosaic::Comm\l_IO::get_handlers" alt="" coords="237,5,407,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_callback_handlers.html#a04123af5f873a3219795e85a20c9be4b" title="T would be e.g. PVTGeodetic struct, or nmea_msgs::Gpgga (which is not a struct, maybe internally..." alt="" coords="231,71,413,112"/>
-</map>

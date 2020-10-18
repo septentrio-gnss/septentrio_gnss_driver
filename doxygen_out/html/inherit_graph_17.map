@@ -1,4 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classio__comm__rx_1_1_manager.html" title="Interface (in C++ terms), that could be used for any I/O manager, synchronous and asynchronous alike..." alt="" coords="5,13,156,39"/>
-<area shape="rect" id="node2" href="$classio__comm__rx_1_1_async_manager.html" title="This is the central interface between ROSaic and the Rx(s), managing I/O operations such as reading m..." alt="" coords="204,5,392,47"/>
-</map>

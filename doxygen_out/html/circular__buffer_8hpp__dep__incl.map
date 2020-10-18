@@ -1,8 +1,0 @@
-<map id="include/septentrio_gnss_driver/communication/circular_buffer.hpp" name="include/septentrio_gnss_driver/communication/circular_buffer.hpp">
-<area shape="rect" id="node2" href="$circular__buffer_8cpp.html" title="Defines a class for creating, writing and reading from a circular bufffer. " alt="" coords="5,109,159,165"/>
-<area shape="rect" id="node3" href="$async__manager_8hpp.html" title="Implements asynchronous operations for an I/O manager. " alt="" coords="183,109,371,165"/>
-<area shape="rect" id="node4" href="$communication__core_8hpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="183,213,371,269"/>
-<area shape="rect" id="node5" href="$communication__core_8cpp.html" title="Highest&#45;Level view on communication services. " alt="" coords="95,317,266,373"/>
-<area shape="rect" id="node6" href="$rosaic__node_8hpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="291,317,457,373"/>
-<area shape="rect" id="node7" href="$rosaic__node_8cpp.html" title="The heart of the ROSaic driver: The ROS node that represents it. " alt="" coords="306,421,442,477"/>
-</map>

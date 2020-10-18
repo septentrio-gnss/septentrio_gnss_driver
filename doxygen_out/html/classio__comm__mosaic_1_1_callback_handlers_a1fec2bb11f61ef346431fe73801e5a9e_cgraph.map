@@ -1,7 +1,0 @@
-<map id="io_comm_mosaic::CallbackHandlers::Handle" name="io_comm_mosaic::CallbackHandlers::Handle">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1mosaic_message.html#a4b9a458f76b066adbb83dc354d0bcb54" title="Returns the MessageID of the message where data_ is pointing at at the moment, SBF identifiers embell..." alt="" coords="236,71,463,112"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1mosaic_message.html#a71b8ae8eeec37ef08cc361e567df2936" title="Determines whether data_ currently points to an SBF block. " alt="" coords="511,5,737,47"/>
-<area shape="rect" id="node4" href="$classio__comm__mosaic_1_1mosaic_message.html#a72e775670fd403f6cab7eb08f9a0993c" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="511,71,737,112"/>
-<area shape="rect" id="node5" href="$classio__comm__mosaic_1_1mosaic_message.html#a15c94646e39664b124260f124bb2e8d1" title="Determines size of message that data_ is currently pointing at. " alt="" coords="511,136,737,177"/>
-<area shape="rect" id="node6" href="$classio__comm__mosaic_1_1mosaic_message.html#a78a4ac9ad7ce95441a1ba249a3c23f4e" title="Determines whether data_ currently points to an NMEA message. " alt="" coords="785,136,1012,177"/>
-</map>

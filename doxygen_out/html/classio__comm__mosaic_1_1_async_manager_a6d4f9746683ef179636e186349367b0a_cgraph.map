@@ -1,4 +1,0 @@
-<map id="io_comm_mosaic::AsyncManager::SetCallback" name="io_comm_mosaic::AsyncManager::SetCallback">
-<area shape="rect" id="node2" href="$classio__comm__mosaic_1_1_manager.html#aad0a7b5c470676108d087cbf39bc5b8c" title="Sends commands to the receiver. " alt="" coords="272,5,455,47"/>
-<area shape="rect" id="node3" href="$classio__comm__mosaic_1_1_manager.html#a52276042491cc0d4ba19df9d15c45f82" title="Waits count seconds before throwing ROS_INFO message in case no message from the receiver arrived..." alt="" coords="272,71,455,112"/>
-</map>
