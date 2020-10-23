@@ -76,11 +76,40 @@ void rosaic_node::ROSaicNode::configureRx()
 	boost::mutex::scoped_lock lock(g_response_mutex);
 	boost::mutex::scoped_lock lock_cd(g_cd_mutex);
 	
-	// Escape sequence (escape from correction mode), ensuring that we can send our real commands afterwards...
-	IO.send("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D"); 
-	// We wait for the connection descriptor before we send another command, otherwise the latter would not be processed.
-	g_cd_condition.wait(lock_cd, [](){return g_cd_received;}); 
-	g_cd_received = false;
+	// Determining communication mode: TCP vs USB/Serial
+	unsigned stream = 1;
+	boost::smatch match;
+	boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"));
+	std::string proto(match[1]);
+	std::string rx_port;
+	if (proto == "tcp") 
+	{
+		// Escape sequence (escape from correction mode), ensuring that we can send our real commands afterwards...
+		IO.send("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D"); 
+		// We wait for the connection descriptor before we send another command, otherwise the latter would not be processed.
+		g_cd_condition.wait(lock_cd, [](){return g_cd_received;}); 
+		g_cd_received = false;
+		rx_port = g_rx_tcp_port;
+	}
+	else
+	{
+		rx_port = rx_serial_port_;
+		// After booting, the Rx sends the characters "x?" to all ports, which could potentially mingle with our first command.
+		// Hence send a safeguard command "lif", whose potentially false processing is harmless.
+		IO.send("lif, Identification \x0D");
+		g_response_condition.wait(lock, [](){return g_response_received;});
+		g_response_received = false;
+	}
+	uint32_t rx_period_pvt = parsing_utilities::convertUserPeriodToRxCommand(polling_period_pvt_);
+	uint32_t rx_period_rest = parsing_utilities::convertUserPeriodToRxCommand(polling_period_rest_);
+	std::string pvt_sec_or_msec;
+	std::string rest_sec_or_msec;
+	if (polling_period_pvt_ == 1000 || polling_period_pvt_ == 2000 || polling_period_pvt_ == 5000 || 
+		polling_period_pvt_ == 10000) pvt_sec_or_msec = "sec";
+	else pvt_sec_or_msec = "msec";
+	if (polling_period_rest_ == 1000 || polling_period_rest_ == 2000 || polling_period_rest_ == 5000 || 
+		polling_period_rest_ == 10000) rest_sec_or_msec = "sec";
+	else rest_sec_or_msec = "msec";
 	
 	// Turning off all current SBF/NMEA output 
 	IO.send("sso, all, none, none, off \x0D");
@@ -101,31 +130,6 @@ void rosaic_node::ROSaicNode::configureRx()
 	g_response_received = false;
 	
 	// Setting SBF/NMEA output of Rx
-	unsigned stream = 1;
-	boost::smatch match;
-	boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"));
-	std::string proto(match[1]);
-	std::string rx_port;
-	if (proto == "tcp") 
-	{
-		rx_port = g_rx_tcp_port;
-	}
-	else
-	{
-		rx_port = rx_serial_port_;
-	}
-	uint32_t rx_period_pvt = parsing_utilities::convertUserPeriodToRxCommand(polling_period_pvt_);
-	uint32_t rx_period_rest = parsing_utilities::convertUserPeriodToRxCommand(polling_period_rest_);
-	std::string pvt_sec_or_msec;
-	std::string rest_sec_or_msec;
-	if (polling_period_pvt_ == 1000 || polling_period_pvt_ == 2000 || polling_period_pvt_ == 5000 || 
-		polling_period_pvt_ == 10000) pvt_sec_or_msec = "sec";
-	else pvt_sec_or_msec = "msec";
-	if (polling_period_rest_ == 1000 || polling_period_rest_ == 2000 || polling_period_rest_ == 5000 || 
-		polling_period_rest_ == 10000) rest_sec_or_msec = "sec";
-	else rest_sec_or_msec = "msec";
-	
-	
 	if (publish_gpgga_ == true)
 	{
 		std::stringstream ss;
