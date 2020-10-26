@@ -35,7 +35,7 @@ source ~/.bashrc
 ```
 - Notes Before Usage
   - In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
-  - The driver assumes the user is logged in to the mosaic with an authorization level set to `User`, not just `Viewer`.
+  - The driver assumes the user is logged into the Rx with an authorization level set to `User`, not just `Viewer`.
   - Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
   - The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   - ROSaic only works from C++11 onwards due to std::to_string() etc.
@@ -116,11 +116,11 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
     - default: empty
   - `serial`: specifications for serial communication
     - `serial/baudrate`: serial baud rate to be used in a serial connection 
-    - `serial/mosaic_serial_port`: determines to which (virtual) serial port of mosaic we want to get connected to, e.g. USB1 or COM1
+    - `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     - `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       - `off` to disable UART HW flow control, `RTS|CTS` to enable it
     - default: `115200`, `USB1`, `off`
-  - `frame_id`: name of the ROS tf frame for the mosaic-X5, placed in the header of all published messages
+  - `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `gnss`
   - `datum`: datum that (ellipsoidal) height should be referenced to in all published ROS messages
@@ -148,16 +148,16 @@ The following is a list of ROSaic parameters found in the `rover.yaml` file.
     - default: `true`
   - `ntrip_settings`: determines NTRIP connection parameters
     - The two implemented use cases are 
-      - a) mosaic has internet access, set `mosaic_has_internet` to true, and 
-      - b) mosaic has no internet access, set `mosaic_has_internet` to false, but `Data Link` from Septentrio's RxTools is installed on the computer.
+      - a) The Rx has internet access, set `rx_has_internet` to true, and 
+      - b) The Rx has no internet access, set `rx_has_internet` to false, but `Data Link` from Septentrio's RxTools is installed on the computer.
     - The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client`, `Client-Sapcorda` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. When selecting the `Client-Sapcorda` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required, i.e. all other nested parameters are ignored. Note that the latter mode only works in Europe and North America. Set mode to `off` to disable all correction services.
     - Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
     - Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
     - Further, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster. 
-    - The boolean parameter `mosaic_has_internet` specifies whether mosaic has internet access or not. Note that an Ethernet cable is the only way to enable internet access on mosaic receivers at the moment. In case internet is available, NTRIP will be configured with a simple command `snts, ...` ROSaic sends to the receiver.
+    - The boolean parameter `rx_has_internet` specifies whether the Rx has internet access or not. Note that an Ethernet cable is the only way to enable internet access on mosaic receivers (and most others) at the moment. In case internet is available, NTRIP will be configured with a simple command `snts, ...` ROSaic sends to the receiver.
     - The parameter `rtcm_version` specifies the type of RTCM data transmitted to ROSaic by the NTRIP caster, either `RTCMv2` or `RTCMv3`. It depends on the mountpoint.
-    - In case the connection to the receiver is via TCP, `mosaic_input_corrections_tcp` specifies the port number of the IP server (IPS1) connection that ROSaic establishes on the receiver. Note that ROSaic will send GGA messages on this connection, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `mosaic_input_corrections_tcp`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.
-    - Finally, in case we are facing a serial connection (COM or USB), the parameter `mosaic_input_corrections_serial` analogously determines the port on which corrections could be serially forwarded to mosaic receivers via `Data Link`.
+    - In case the connection to the receiver is via TCP, `rx_input_corrections_tcp` specifies the port number of the IP server (IPS1) connection that ROSaic establishes on the receiver. Note that ROSaic will send GGA messages on this connection, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `rx_input_corrections_tcp`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.
+    - Finally, in case we are facing a serial connection (COM or USB), the parameter `rx_input_corrections_serial` analogously determines the port on which corrections could be serially forwarded to the Rx via `Data Link`.
     - default: `off`, empty, empty, empty, empty, empty, `v2`, `auto`, `false`, `RTCMv2`, `6666`, `USB2`
   
 - Parameters Configuring (Non-)Publishing of ROS Messages 
@@ -194,7 +194,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   - The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
 - `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP`
 - `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler` and `AttCovEuler`
-  - Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command setAntennaLocation, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
+  - Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
   - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
 - `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
 
@@ -203,13 +203,13 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 - Incorporating PCAP: For PCAP connections the ROS parameter `device` could be generalized to accept the path to the .pcap file. In this case, the node could exit automatically after finishing playback.
 - Publishing the topic `/measepoch`: It could accept the custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
 - Publishing the topic `/twist`: It could accept the generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic` and others or via standardized NMEA sentences (cf. the [NMEA driver](https://wiki.ros.org/nmea_navsat_driver)).
-- The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](https://docs.ros.org/melodic/api/robot_localization/html/index.html) nodes of the ROS navigation stack.
+  - The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](https://docs.ros.org/melodic/api/robot_localization/html/index.html) nodes of the ROS navigation stack.
 - Additional ROSaic parameter: endianness of the system.
 - Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 
 ## Adding New SBF Blocks or NMEA Sentences
 Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
-1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file e.g. in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5) of Septentrio's homepage and focus on Chapter 4.
+1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
 2. Add a new `.msg` file to the `septentrio_gnss_driver/msg` folder.
 3. SBF: Add the new struct definition to the `sbf_structs.hpp` file.
 4. Parsing/Processing the message/block:
