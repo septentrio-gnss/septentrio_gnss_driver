@@ -1,5 +1,7 @@
 # ROSaic = ROS + mosaic
 
+<img src="ROSaicLogo.png" width="60%">
+
 ## Overview
 This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic - one of Septentrio's cutting-edge GNSS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
 
