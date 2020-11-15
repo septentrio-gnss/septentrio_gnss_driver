@@ -106,7 +106,7 @@ publish:
   pose: false
   diagnostics: false
 ```
-In order to launch ROSaic, one must specify all `arg` fields in the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence the launch command would read `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
+In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. In practice, the launch command thus reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
 ## ROSaic Parameters
 The following is a list of ROSaic parameters found in the `rover.yaml` file.
