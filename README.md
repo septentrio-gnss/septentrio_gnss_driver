@@ -17,7 +17,9 @@ The serial and TCP/IP communication interface of the ROS driver is established b
 `sudo apt install libboost-all-dev`.<br><br>
 
 ## Usage
-(The binary release should become available in the next few days.) Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
+The binary release is now available for Melodic, yet will take another few days for Noetic. To install the binary package on Melodic, simply run<br><br>
+`sudo apt-get install ros-melodic-septentrio-gnss-driver`.<br><br>
+Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
 `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic.<br><br>
 The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
 ```
