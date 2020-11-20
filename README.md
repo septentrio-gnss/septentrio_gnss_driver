@@ -44,7 +44,7 @@ source ~/.bashrc
   - The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   - ROSaic only works from C++11 onwards due to std::to_string() etc.
   - Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that `gpsfix` accounts for 4 additional streams (`ChannelStatus`, `DOP`, `MeasEpoch` and `VelCovGeodetic` blocks). 
-  - Once the catkin package is installed, adapt the `rover.yaml` file according to your needs (the `rover.launch` need not necessarily be modified). Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
+  - Once the catkin package is installed, adapt the `config/rover.yaml` file according to your needs (the `launch/rover.launch` need not necessarily be modified). Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
 ```
 # Configuration Settings for the Rover Rx
 
@@ -111,7 +111,7 @@ publish:
 In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. In practice, the launch command thus reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
 ## ROSaic Parameters
-The following is a list of ROSaic parameters found in the `rover.yaml` file.
+The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
 - Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
     - for serial connections, the device node, e.g., `/dev/ttyUSB0`
