@@ -201,7 +201,7 @@ namespace rosaic_node
 	{
 		public:
 		
-			//! The constructor initializes and runs the Rosaic node, if all works out fine.
+			//! The constructor initializes and runs the ROSaic node, if everything works fine.
 			//! It loads the user-defined ROS parameters, subscribes to Rx messages, and publishes requested ROS messages...
 			ROSaicNode();
 			
@@ -228,12 +228,18 @@ namespace rosaic_node
 			void initializeIO();
 			
 			/**
+			 * @brief Sets up the stage for SBF file reading
+			 * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+			 */
+			void prepareSBFFileReading(std::string file_name);
+			
+			/**
 			 * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
 			 */
 			void reconnect(const ros::TimerEvent& event);
 			
 			/**
-			 * @brief Calles the reconnect() method
+			 * @brief Calls the reconnect() method
 			 */
 			void connect();
 			

@@ -53,12 +53,15 @@ rosaic_node::ROSaicNode::ROSaicNode()
 	
 	// Sends commands to the Rx regarding which SBF/NMEA messages it should output and sets all 
 	// its necessary corrections-related parameters
-	boost::mutex::scoped_lock lock(connection_mutex_);
-	connection_condition_.wait(lock, [this](){return connected_;});
-	configureRx();
+	if (!g_read_from_sbf_log)
+	{
+		boost::mutex::scoped_lock lock(connection_mutex_);
+		connection_condition_.wait(lock, [this](){return connected_;});
+		configureRx();
+	}
 	
 	// Since we already have a ros::Spin() elsewhere, we use waitForShutdown() here
-	ros::waitForShutdown();	
+	ros::waitForShutdown();
 	ROS_DEBUG("Leaving ROSaicNode() constructor..");
 }
 
@@ -79,7 +82,7 @@ void rosaic_node::ROSaicNode::configureRx()
 	// Determining communication mode: TCP vs USB/Serial
 	unsigned stream = 1;
 	boost::smatch match;
-	boost::regex_match(device_, match, boost::regex("(tcp|udp)://(.+):(\\d+)"));
+	boost::regex_match(device_, match, boost::regex("(tcp)://(.+):(\\d+)"));
 	std::string proto(match[1]);
 	std::string rx_port;
 	if (proto == "tcp") 
@@ -451,9 +454,8 @@ void rosaic_node::ROSaicNode::initializeIO()
 	ROS_DEBUG("Called initializeIO() method");
 	boost::smatch match;
 	// In fact: smatch is a typedef of match_results<string::const_iterator>
-	if (boost::regex_match(device_, match, boost::regex("(tcp)://(.+):(\\d+)"))) 
-	// \d means decimal, however, in the regular expression, the \ is a special character, which needs 
-	// to be escaped on its own as well..
+	if (boost::regex_match(device_, match, boost::regex("(tcp)://(.+):(\\d+)")))
+	// C++ needs \\d instead of \d: Both mean decimal.
 	// Note that regex_match can be used with a smatch object to store results, or without. In any case, 
 	// true is returned if and only if it matches the !complete! string.
 	{
@@ -461,33 +463,61 @@ void rosaic_node::ROSaicNode::initializeIO()
 		// within a target sequence made by a regex, and subsequent sub_matches represent sub-expression 
 		// matches corresponding in sequence to the left parenthesis delimiting the sub-expression in the regex,
 		// i.e. $n Perl is equivalent to m[n] in boost regex.
-		std::string proto(match[1]);
-		if (proto == "tcp") 
-		{
-			tcp_host_ = match[2];
-			tcp_port_ = match[3];
-			
-			serial_ = false;
-			boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
-			temporary_thread.detach();
-		} 
-		else 
-		{
-			{
-				std::stringstream ss;
-				ss << "Protocol '" << proto << "' is unsupported.";
-				ROS_ERROR("%s", ss.str().c_str());
-			}
-		}
-	} 
-	else 
-	{
-		serial_ = true;
+		tcp_host_ = match[2];
+		tcp_port_ = match[3];
+		
+		serial_ = false;
+		g_read_from_sbf_log = false;
 		boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
 		temporary_thread.detach();
 	}
+	else if (boost::regex_match(device_, match, boost::regex("(file_name):(\\w+.sbf)")))
+	{
+		serial_ = false;
+		g_read_from_sbf_log = true;
+		g_unix_time.sec = 0;
+		g_unix_time.nsec = 0;
+		boost::thread temporary_thread(boost::bind(&ROSaicNode::prepareSBFFileReading, this, match[2]));
+		temporary_thread.detach();
+	}
+	else if (boost::regex_match(device_, match, boost::regex("(serial):(.+)")))
+	{
+		serial_ = true;
+		g_read_from_sbf_log = false;
+		std::string proto(match[2]);
+		std::stringstream ss;
+		ss << "Searching for serial port" << proto;
+		ROS_DEBUG("%s", ss.str().c_str());
+		boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
+		temporary_thread.detach();
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
+		ROS_ERROR("%s", ss.str().c_str());
+	}
 	ROS_DEBUG("Leaving initializeIO() method");
 }
+
+void rosaic_node::ROSaicNode::prepareSBFFileReading(std::string file_name)
+{
+	try
+	{
+		std::stringstream ss;
+		ss << "Setting up everything needed to read from" << file_name;
+		ROS_DEBUG("%s", ss.str().c_str());
+		IO.initializeSBFFileReading(file_name);
+	}
+	catch (std::runtime_error& e)
+	{
+		std::stringstream ss;
+		ss << "Comm_IO::initializeSBFFileReading() failed for SBF File" << file_name << " due to: " << e.what();
+		ROS_ERROR("%s", ss.str().c_str());
+	}
+	
+}
+
 
 void rosaic_node::ROSaicNode::connect() 
 {
@@ -568,8 +598,7 @@ void rosaic_node::ROSaicNode::reconnect(const ros::TimerEvent& event)
 //! initializeSerial is not self-contained: The for loop in Callbackhandlers' handle method would 
 //! never open a specific handler unless the handler is added (=inserted) to the C++ map via this 
 //! function. This way, the specific handler can be called, in which in turn RxMessage's read() method is 
-//! called, thereby "message" occupied, and func_ (the handler we insert in this function) called with 
-//! this "message".
+//! called, which publishes the ROS message.
 void rosaic_node::ROSaicNode::defineMessages() 
 {
 	ROS_DEBUG("Called defineMessages() method");
@@ -732,6 +761,11 @@ bool g_attcoveuler_has_arrived_pose;
 bool g_receiverstatus_has_arrived_diagnostics;
 //! For DiagnosticArray: Whether the QualityInd block of the current epoch has arrived or not
 bool g_qualityind_has_arrived_diagnostics;
+//! When reading from an SBF file, the ROS publishing frequency is governed by the time stamps found in the SBF blocks
+//! therein.
+ros::Time g_unix_time;
+//! Whether or not we are reading from an SBF file
+bool g_read_from_sbf_log;
 //! A C++ map for keeping track of the SBF blocks necessary to construct the GPSFix ROS message
 std::map<std::string, uint32_t> g_GPSFixMap;
 //! A C++ map for keeping track of the SBF blocks necessary to construct the NavSatFix ROS message
