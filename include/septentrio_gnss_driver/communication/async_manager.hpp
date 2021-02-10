@@ -115,13 +115,17 @@ namespace io_comm_rx
 			/**
 			 * @brief Class constructor
 			 * @param stream Whether TCP/IP or serial communication, either boost::asio::serial_port or boost::asio::tcp::ip
-			 * @param io_service The io_context object. The io_context represents your program's link to the operating system's I/O services. 
+			 * @param io_service The io_context object. The io_context represents your program's link to the operating system's I/O services 
 			 */
 			AsyncManager(boost::shared_ptr<StreamT> stream, boost::shared_ptr<boost::asio::io_service> io_service, std::size_t buffer_size = 8192);
 			virtual ~AsyncManager();
-	 
+			
+			/**
+			 * @brief Allows to connect to the CallbackHandlers class
+			 * @param callback The function that becomes our callback, typically the readCallback() method of CallbackHandlers
+			 */
 			void setCallback(const Callback& callback) { read_callback_ = callback; }
-	 	 
+			
 			void wait(uint16_t* count);
 			
 			/**
