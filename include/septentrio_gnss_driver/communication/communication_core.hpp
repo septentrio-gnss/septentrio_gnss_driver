@@ -72,6 +72,7 @@
 #include <sstream>
 #include <memory>
 #include <unistd.h> // for usleep()
+#include <fstream>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
 #include <septentrio_gnss_driver/communication/callback_handlers.hpp>
@@ -124,14 +125,18 @@ namespace io_comm_rx
 			bool initializeSerial(std::string port, uint32_t baudrate = 115200, std::string flowcontrol = "None");
 			
 			/**
-			 * @brief Initializes the TCP I/O.
+			 * @brief Initializes the TCP I/O
 			 * @param[in] host The TCP host
 			 * @param[in] port The TCP port
 			 * @return True if connection could be established, false otherwise
 			 */
 			bool initializeTCP(std::string host, std::string port);
 			
-			
+			/**
+			 * @brief Initializes SBF file reading and reads SBF file by repeatedly calling read_callback_()
+			 * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+			 */
+			void initializeSBFFileReading(std::string file_name);
 			/**
 			 * @brief Set the I/O manager
 			 * @param[in] manager An I/O handler
@@ -139,13 +144,21 @@ namespace io_comm_rx
 			void setManager(const boost::shared_ptr<Manager>& manager);
 			
 			/**
-			 * @brief Reset the Serial I/O port, e.g. after a Rx reset.
+			 * @brief Reset the Serial I/O port, e.g. after a Rx reset
 			 * @param[in] port The device's port address
 			 */
 			void resetSerial(std::string port);
 			
+			/**
+			 * @brief Returns the CallbackHandlers instance
+			 * @return The class instance
+			 */
 			CallbackHandlers getHandlers() const {return handlers_;}
 			
+			/**
+			 * @brief Hands over to the send() method of manager_
+			 * @param cmd The command to hand over
+			 */
 			void send(std::string cmd);
 			
 			//! Callback handlers for the inwards streaming messages

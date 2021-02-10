@@ -97,7 +97,60 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
 	return true;
 }
 
- 
+void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
+{
+	ROS_DEBUG("Calling initializeSBFFileReading() method..");
+	std::size_t buffer_size = 8192;
+	uint8_t * to_be_parsed;
+	to_be_parsed = new uint8_t[buffer_size];
+	std::ifstream bin_file(file_name, std::ios::binary);
+	std::vector<uint8_t> vec_buf;
+	if (bin_file.good()) 
+	{
+		/* Reads binary data using streambuffer iterators.
+		Copies all SBF file content into bin_data. */
+		std::vector<uint8_t> v_buf((std::istreambuf_iterator<char>(bin_file)), (std::istreambuf_iterator<char>()));
+		vec_buf = v_buf;
+		bin_file.close();
+	}
+	else 
+	{
+		throw std::runtime_error("I could not find your file. Or it is corrupted.");
+	}
+	// The spec now guarantees that vectors store their elements contiguously.
+	to_be_parsed = &vec_buf[0];
+	std::stringstream ss;
+	ss << "Opened and copied over from " << file_name;
+	ROS_DEBUG("%s", ss.str().c_str());
+	
+	while(1) // Loop will stop if we are done reading the SBF file
+	{
+		try
+		{
+			ROS_DEBUG("Calling read_callback_() method, with number of bytes to be parsed being %li", 
+				buffer_size);
+			handlers_.readCallback(to_be_parsed, buffer_size);
+		}
+		catch (std::size_t& parsing_failed_here) 
+		{
+			if (to_be_parsed - &vec_buf[0] >= vec_buf.size()*sizeof(uint8_t))
+			{
+				break;
+			}
+			to_be_parsed = to_be_parsed + parsing_failed_here;
+			ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
+			continue;
+		}
+		if (to_be_parsed - &vec_buf[0] >= vec_buf.size()*sizeof(uint8_t))
+		{
+			break;
+		}
+		to_be_parsed = to_be_parsed + buffer_size;
+	}
+	delete [] to_be_parsed; // Freeing memory
+	ROS_DEBUG("Leaving initializeSBFFileReading() method..");
+}
+
 bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate, std::string flowcontrol) 
 {
 	ROS_DEBUG("Calling initializeSerial() method..");

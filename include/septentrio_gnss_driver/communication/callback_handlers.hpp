@@ -174,7 +174,7 @@ namespace io_comm_rx
 				boost::mutex::scoped_lock lock(mutex_);
 				try 
 				{
-					if (!rx_message.read<T>(message_, message_key)) 
+					if (!rx_message.read(message_key)) 
 					{
 						std::ostringstream ss;
 						ss << "Read unsuccessful: Rx decoder error for message with ID (empty field if non-determinable)" << 
