@@ -114,8 +114,10 @@ In order to launch ROSaic, one must specify all `arg` fields of the `rover.launc
 The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
 - Parameters Configuring Communication Ports and Processing of GNSS Data
   - `device`: location of device connection
-    - for serial connections, the device node, e.g., `/dev/ttyUSB0`
-    - for TCP/IP connections, a `host:port` specification
+    - `serial:xxx` format for serial connections, where `xxx` is the device node, e.g. `serial:/dev/ttyUSB0`
+    - `file_name:path/to/file.sbf` format for publishing from an SBF log
+      - Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
+    - `tcp:://host:port` format for TCP/IP connections
       - `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
     - default: empty
   - `serial`: specifications for serial communication
