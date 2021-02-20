@@ -115,6 +115,10 @@ void rosaic_node::ROSaicNode::configureRx()
 	else rest_sec_or_msec = "msec";
 	
 	// Turning off all current SBF/NMEA output 
+	// Authentication, leaving anonymous mode
+	IO.send("login, Tibor, Tibor \x0D");
+	g_response_condition.wait(lock, [](){return g_response_received;});
+	g_response_received = false;
 	IO.send("sso, all, none, none, off \x0D");
 	g_response_condition.wait(lock, [](){return g_response_received;});
 	g_response_received = false;
@@ -694,7 +698,7 @@ void rosaic_node::ROSaicNode::defineMessages()
 
 //! If true, the ROS message headers' unix time field is constructed from the TOW (in the SBF case) 
 //! and UTC (in the NMEA case) data. 
-//! If false, times are constructed within the driver via time(NULL) of the <ctime> library.
+//! If false, times are constructed within the driver via time(NULL) of the \<ctime\> library.
 bool g_use_gnss_time;
 //! Whether or not to publish the sensor_msgs::TimeReference message with GPST
 bool g_publish_gpst;

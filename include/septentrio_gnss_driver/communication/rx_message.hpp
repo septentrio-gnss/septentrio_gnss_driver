@@ -281,7 +281,7 @@ namespace io_comm_rx
 			void next();
 			
 			/**
-			 * @brief Performs the CRC check (if SBF) and populates ROS message "message" with the necessary content
+			 * @brief Performs the CRC check (if SBF) and publishes ROS messages
 			 * @return True if read was successful, false otherwise
 			 */
 			bool read(std::string message_key, bool search = false); 

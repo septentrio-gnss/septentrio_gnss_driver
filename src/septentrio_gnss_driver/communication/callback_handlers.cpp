@@ -337,18 +337,13 @@ namespace io_comm_rx
 			}
 			if (rx_message.isNMEA())
 			{
-				boost::char_separator<char> sep("\r");
+				boost::char_separator<char> sep("\r"); // Carriage Return (CR)
 				typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 				std::size_t nmea_size = rx_message.messageSize();
-				if (nmea_size < MIN_NMEA_SIZE || nmea_size > MAX_NMEA_SIZE)
-				{
-					ROS_DEBUG("Not a valid NMEA message, parts of the message are yet to be received. Ignore..");
-					throw (static_cast<std::size_t>(rx_message.getPosBuffer() - data));
-				}
 				// Syntax: new_string_name (const char* s, size_t n); size_t is either 2 or 8 bytes, depending on your system
 				std::string block_in_string(reinterpret_cast<const char*>(rx_message.getPosBuffer()), nmea_size);
 				tokenizer tokens(block_in_string, sep);
-				ROS_DEBUG("The NMEA message is ready to be parsed. It reads: %s", (*tokens.begin()).c_str());
+				ROS_DEBUG("The NMEA message contains %li bytes and is ready to be parsed. It reads: %s", nmea_size, (*tokens.begin()).c_str());
 			}
 			if (rx_message.isResponse()) // If the response is not sent at once, only first part is ROS_DEBUG-printed
 			{
@@ -382,14 +377,13 @@ namespace io_comm_rx
 				}
 				continue;
 			}
-			//ROS_DEBUG("Handing over from readcallback to handle while count is %li", rx_message.getCount());
 			try
 			{
 				handle(rx_message);
 			}
 			catch (std::runtime_error& e) 
 			{
-				ROS_DEBUG("Without a (circular) buffer and a new thread, we would have faced an incomplete message right now. %s", e.what());
+				ROS_DEBUG("Incomplete message: %s", e.what());
 				throw (static_cast<std::size_t>(rx_message.getPosBuffer() - data));
 			}
 		}
