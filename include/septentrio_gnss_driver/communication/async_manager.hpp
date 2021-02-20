@@ -116,6 +116,7 @@ namespace io_comm_rx
 			 * @brief Class constructor
 			 * @param stream Whether TCP/IP or serial communication, either boost::asio::serial_port or boost::asio::tcp::ip
 			 * @param io_service The io_context object. The io_context represents your program's link to the operating system's I/O services 
+			 * @param[in] buffer_size Size of the circular buffer in bytes
 			 */
 			AsyncManager(boost::shared_ptr<StreamT> stream, boost::shared_ptr<boost::asio::io_service> io_service, std::size_t buffer_size = 8192);
 			virtual ~AsyncManager();

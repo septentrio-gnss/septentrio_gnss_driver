@@ -78,6 +78,7 @@ namespace string_utilities
 	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The int32_t variable that should be overwritten by the floating point number found in "string"
+	 * @param[in] base The conversion assumes this base, here: decimal
 	 * @return True if all went fine, false if not
 	 */ 
 	bool toInt32(const std::string& string, int32_t& value, int32_t base = 10);
@@ -88,6 +89,7 @@ namespace string_utilities
 	 * It stores the "string"'s value in "value" and returns whether or not all went well.
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The uint32_t variable that should be overwritten by the floating point number found in "string"
+	 * @param[in] base The conversion assumes this base, here: decimal
 	 * @return True if all went fine, false if not
 	 */ 
 	bool toUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
@@ -98,6 +100,7 @@ namespace string_utilities
 	 * It stores the "string"'s value in "value".
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The int8_t variable that should be overwritten by the floating point number found in "string"
+	 * @param[in] base The conversion assumes this base, here: decimal
 	 * @return The value found in "string"
 	 */ 
 	int8_t toInt8(const std::string& string, int8_t& value, int32_t base = 10);
@@ -108,6 +111,7 @@ namespace string_utilities
 	 * It stores the "string"'s value in "value".
 	 * @param[in] string The string whose content should be interpreted as a floating point number
 	 * @param[out] value The uint8_t variable that should be overwritten by the floating point number found in "string"
+	 * @param[in] base The conversion assumes this base, here: decimal
 	 * @return The value found in "string"
 	 */ 
 	uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);

@@ -59,14 +59,6 @@
 #ifndef CALLBACK_HANDLERS_HPP
 #define CALLBACK_HANDLERS_HPP
 
-#ifndef MIN_NMEA_SIZE 
-#define MIN_NMEA_SIZE 9 // Minimum size of an NMEA message in bytes (e.g. proprietary "$PSSN,HRP")
-#endif
-
-#ifndef MAX_NMEA_SIZE
-#define MAX_NMEA_SIZE 89 // Maximum size of an NMEA message in bytes
-#endif
-
 // Boost includes
 #include <boost/foreach.hpp> 
 // In C++, writing a loop that iterates over a sequence is tedious --> BOOST_FOREACH(char ch, "Hello World")
@@ -177,19 +169,17 @@ namespace io_comm_rx
 					if (!rx_message.read(message_key)) 
 					{
 						std::ostringstream ss;
-						ss << "Read unsuccessful: Rx decoder error for message with ID (empty field if non-determinable)" << 
+						ss << "Rx decoder error for message with ID (empty field if non-determinable)" << 
 							rx_message.messageID() << ". Reason unknown.";
 						throw std::runtime_error(ss.str());
-						ROS_INFO("%s", ss.str().c_str());
 						return;
 					}
 				} catch (std::runtime_error& e) 
 				{
 					std::ostringstream ss;
-					ss << "Read unsuccessful: Rx decoder error for message with ID " << 
+					ss << "Rx decoder error for message with ID " << 
 						rx_message.messageID() << ".\n" << e.what();
 					throw std::runtime_error(ss.str());
-					ROS_INFO("%s", ss.str().c_str());
 					return;
 				}
 				
@@ -221,7 +211,6 @@ namespace io_comm_rx
 			 * T would be a (custom or not) ROS message, e.g. septentrio_gnss_driver::PVTGeodetic, or nmea_msgs::GPGGA.
 			 * Note that "typename" could be omitted in the argument.
 			 * @param message_key The pair's key
-			 * @param callback The key's counterpart
 			 * @return The modified multimap "callbackmap_"
 			 */
 			template <typename T> 

@@ -101,7 +101,7 @@ namespace rosaic_node
 	 * @param[in] min The minimum for this value
 	 * @param[in] max The maximum for this value
 	 * @param[in] name The name of the parameter
-	 * @throws std::runtime_error if it is out of bounds
+	 * @throws std::runtime_error if the parameter is out of bounds
 	 */
 	template <typename V, typename T>
 	void checkRange(V val, T min, T max, std::string name) 
@@ -120,6 +120,7 @@ namespace rosaic_node
 	 * @param[in] min The minimum for this value
 	 * @param[in] max The maximum for this value
 	 * @param[in] name The name of the parameter
+	 * @throws std::runtime_error if the parameter is out of bounds
 	 */
 	template <typename V, typename T>
 	void checkRange(std::vector<V> val, T min, T max, std::string name) 
@@ -136,7 +137,6 @@ namespace rosaic_node
 	 * @brief Gets an integer or unsigned integer value from the parameter server
 	 * @param[in] key The key to be used in the parameter server's dictionary
 	 * @param[out] u Storage for the retrieved value, of type U, which can be either unsigned int or int
-	 * @throws std::runtime_error if the parameter is out of bounds
 	 * @return True if found, false if not found
 	 */
 	template <typename U>
@@ -163,8 +163,7 @@ namespace rosaic_node
 	 * @brief Gets an integer or unsigned integer value from the parameter server
 	 * @param[in] key The key to be used in the parameter server's dictionary
 	 * @param[out] u Storage for the retrieved value, of type U, which can be either unsigned int or int
-	 * @param[in] val Value to use if the server doesn't contain this parameter
-	 * @throws std::runtime_error if the parameter is out of bounds
+	 * @param[in] default_val Value to use if the server doesn't contain this parameter
 	 * @return True if found, false if not found
 	 */
 	template <typename U>
@@ -172,25 +171,6 @@ namespace rosaic_node
 	{
 		if(!getROSInt(key, u))
 			u = default_val;
-	}
-
-	/**
-	 * @brief Gets an unsigned integer or integer vector from the parameter server
-	 * @param[in] key The key to be used in the parameter server's dictionary
-	 * @param[out] u Storage for the retrieved value, of type std::vector<U>, where U can be either unsigned int or int
-	 * @throws std::runtime_error if the parameter is out of bounds
-	 * @return True if found, false if not found
-	 */
-	template <typename U>
-	bool getROSInt(const std::string& key, std::vector<U> &u) 
-	{
-		std::vector<int> param;
-		if (!g_nh->getParam(key, param)) return false;
-		U min = std::numeric_limits<U>::lowest();
-		U max = std::numeric_limits<U>::max();
-		checkRange(param, min, max, key);
-		u.insert(u.begin(), param.begin(), param.end());
-		return true;
 	}
 	
 	/**
