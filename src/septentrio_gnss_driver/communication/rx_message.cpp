@@ -762,7 +762,7 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 	return msg;
 }
 	
-/// If the current time shall be employed, it is calculated via the time(NULL) function found in the <ctime> library
+/// If the current time shall be employed, it is calculated via the time(NULL) function found in the \<ctime\> library
 /// At the time of writing the code (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt 
 /// the g_leap_seconds ROSaic parameter accordingly as soon as the next leap second is inserted into the UTC time.
 ros::Time io_comm_rx::timestampSBF(uint32_t tow, bool use_gnss)
@@ -1119,17 +1119,13 @@ void io_comm_rx::RxMessage::next()
 
 
 /**
- * Note that the boost::call_traits<T>::reference is more robust than the traditional T&.
- * Note that this function can also deal with the appropriate !derived! parser in case T is an NMEA message.
  * Note that putting the default in the definition's argument list instead of the declaration's is an added 
  * extra that is not available for function templates, hence no search = false here.
- * Also note that it is bad practice (one gets undefined reference to .. error) to separate the definition of 
- * template functions into the source file and declarations into header file. 
  * Also note that the SBF block header part of the SBF-echoing ROS messages have ID fields that only show 
  * the block number as found in the firmware (e.g. 4007 for PVTGeodetic), without the revision number.
  * NMEA 0183 messages are at most 82 characters long in principle, but most Septentrio Rxs by default increase
  * precision on lat/lon s.t. the maximum allowed e.g. for GGA seems to be 89 on a mosaic-x5. 
- * Luckily, when parsing we do not care since we just search for <LF><CR>.
+ * Luckily, when parsing we do not care since we just search for \<LF\>\<CR\>.
  */
 bool io_comm_rx::RxMessage::read(std::string message_key, bool search) 
 {
@@ -1141,7 +1137,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		crc_check_ = isValid(data_);
 		if (!crc_check_)
 		{
-			throw std::runtime_error("CRC Check returned False. Not a valid data block, perhaps noisy. Ignore..");
+			throw std::runtime_error("CRC Check returned False. Not a valid data block. Retrieving full SBF block..");
 		}
 	}
 	switch(rx_id_map[message_key])
