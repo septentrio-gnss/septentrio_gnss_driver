@@ -516,7 +516,7 @@ void rosaic_node::ROSaicNode::initializeIO()
         boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
         temporary_thread.detach();
     } else if (boost::regex_match(device_, match,
-                                  boost::regex("(file_name):(\\w+.sbf)")))
+                                  boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
         serial_ = false;
         g_read_from_sbf_log = true;
