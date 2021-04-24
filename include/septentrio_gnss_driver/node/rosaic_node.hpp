@@ -220,6 +220,11 @@ namespace rosaic_node {
         void prepareSBFFileReading(std::string file_name);
 
         /**
+         * // TODO: add documentation
+         */
+        void preparePCAPFileReading(std::string file_name);
+
+        /**
          * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
          */
         void reconnect(const ros::TimerEvent& event);
