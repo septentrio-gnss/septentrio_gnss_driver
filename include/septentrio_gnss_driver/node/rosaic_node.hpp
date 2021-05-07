@@ -220,7 +220,8 @@ namespace rosaic_node {
         void prepareSBFFileReading(std::string file_name);
 
         /**
-         * // TODO: add documentation
+         * @brief Sets up the stage for PCAP file reading
+         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
          */
         void preparePCAPFileReading(std::string file_name);
 
