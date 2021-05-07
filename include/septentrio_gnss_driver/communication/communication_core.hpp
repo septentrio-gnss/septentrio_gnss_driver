@@ -142,6 +142,14 @@ namespace io_comm_rx {
          * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
          */
         void initializeSBFFileReading(std::string file_name);
+
+        /**
+         * @brief Initializes PCAP file reading and reads PCAP file by repeatedly
+         * calling read_callback_()
+         * @param[in] file_name The name of (or path to) the PCAP file, e.g. "/tmp/capture.pcap"
+         */
+        void initializePCAPFileReading(std::string file_name);
+
         /**
          * @brief Set the I/O manager
          * @param[in] manager An I/O handler

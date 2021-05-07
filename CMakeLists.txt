@@ -24,6 +24,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread regex)
 
+find_library(libpcap_LIBRARIES pcap)
+if ("${libpcap_LIBRARIES}" STREQUAL "pcap-NOTFOUND")
+    set(libpcap_FOUND FALSE)
+else ()
+    set(libpcap_FOUND TRUE)
+endif ()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -150,7 +156,21 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/septentrio_gnss_driver/node/rosaic_node.cpp src/septentrio_gnss_driver/communication/circular_buffer.cpp src/septentrio_gnss_driver/parsers/parsing_utilities.cpp src/septentrio_gnss_driver/parsers/string_utilities.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp src/septentrio_gnss_driver/crc/crc.c src/septentrio_gnss_driver/communication/communication_core.cpp src/septentrio_gnss_driver/communication/rx_message.cpp src/septentrio_gnss_driver/communication/callback_handlers.cpp)
+add_executable(${PROJECT_NAME}_node 
+    src/septentrio_gnss_driver/node/rosaic_node.cpp 
+    src/septentrio_gnss_driver/communication/circular_buffer.cpp 
+    src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
+    src/septentrio_gnss_driver/parsers/string_utilities.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
+    src/septentrio_gnss_driver/crc/crc.c 
+    src/septentrio_gnss_driver/communication/communication_core.cpp 
+    src/septentrio_gnss_driver/communication/rx_message.cpp 
+    src/septentrio_gnss_driver/communication/callback_handlers.cpp
+    src/septentrio_gnss_driver/communication/pcap_reader.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -164,7 +184,7 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node 
-   ${catkin_LIBRARIES} ${Boost_LIBRARIES}
+   ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${libpcap_LIBRARIES}
 )
 
 #############

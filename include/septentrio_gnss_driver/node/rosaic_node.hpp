@@ -220,6 +220,12 @@ namespace rosaic_node {
         void prepareSBFFileReading(std::string file_name);
 
         /**
+         * @brief Sets up the stage for PCAP file reading
+         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
+         */
+        void preparePCAPFileReading(std::string file_name);
+
+        /**
          * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
          */
         void reconnect(const ros::TimerEvent& event);

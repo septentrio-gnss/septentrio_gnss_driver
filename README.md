@@ -17,6 +17,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
+Compatiblity with PCAP captures are incorporate through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the same via<br><br>
+`sudo apt install libpcap-dev`.<br><br>
 
 ## Usage
 The binary release is now available for Melodic, yet will take another few days for Noetic. To install the binary package on Melodic, simply run<br><br>
@@ -116,6 +118,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `device`: location of device connection
     - `serial:xxx` format for serial connections, where `xxx` is the device node, e.g. `serial:/dev/ttyUSB0`
     - `file_name:path/to/file.sbf` format for publishing from an SBF log
+    - `file_name:path/to/file.pcap` format for publishing from PCAP capture.
       - Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     - `tcp://host:port` format for TCP/IP connections
       - `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
@@ -206,7 +209,6 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 
 ## Suggestions for Improvements
 - Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
-- Incorporating PCAP: For PCAP connections the ROS parameter `device` could be generalized to accept the path to the .pcap file. In this case, the node could exit automatically after finishing playback.
 - Publishing the topic `/measepoch`: It could accept the custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
 - Publishing the topic `/twist`: It could accept the generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic` and others or via standardized NMEA sentences (cf. the [NMEA driver](https://wiki.ros.org/nmea_navsat_driver)).
   - The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](https://docs.ros.org/melodic/api/robot_localization/html/index.html) nodes of the ROS navigation stack.
