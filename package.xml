@@ -55,7 +55,7 @@
   <depend>geometry_msgs</depend>
   <depend>gps_common</depend>
   <depend>boost</depend>
-  <depend>pcap</depend>
+  <depend>libpcap</depend>
    
 
   <build_depend>cpp_common</build_depend>
