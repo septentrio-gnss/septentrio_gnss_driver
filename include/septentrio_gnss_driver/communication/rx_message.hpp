@@ -172,6 +172,7 @@ extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
+extern bool g_read_from_pcap;
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field

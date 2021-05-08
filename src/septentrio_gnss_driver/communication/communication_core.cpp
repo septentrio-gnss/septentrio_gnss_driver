@@ -159,6 +159,11 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
     ROS_DEBUG("Leaving initializeSBFFileReading() method..");
 }
 
+void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
+{
+    // TODO: Implement
+}
+
 bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
                                            std::string flowcontrol)
 {
