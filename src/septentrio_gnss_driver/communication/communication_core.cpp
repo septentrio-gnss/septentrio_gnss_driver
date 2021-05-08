@@ -29,6 +29,7 @@
 // *****************************************************************************
 
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
+#include <septentrio_gnss_driver/communication/pcap_reader.hpp>
 
 /**
  * @file communication_core.cpp
@@ -161,7 +162,54 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
 
 void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
 {
-    // TODO: Implement
+    ROS_DEBUG("Calling initializePCAPFileReading() method..");
+    pcapReader::buffer_t vec_buf;
+    pcapReader::PcapDevice device(vec_buf);
+
+    if (!device.connect(file_name.c_str()))
+    {
+        ROS_ERROR("Unable to find file or either it is corrupted");
+        return;
+    }
+
+    ROS_INFO("Reading ...");
+    while (device.isConnected() && device.read() == pcapReader::READ_SUCCESS)
+        ;
+    device.disconnect();
+
+    std::size_t buffer_size = pcapReader::PcapDevice::BUFFSIZE;
+    uint8_t* to_be_parsed = new uint8_t[buffer_size];
+    to_be_parsed = &vec_buf[0];
+
+    while (1) // Loop will stop if we are done reading the SBF file
+    {
+        try
+        {
+            ROS_DEBUG(
+                "Calling read_callback_() method, with number of bytes to be parsed being %li",
+                buffer_size);
+            handlers_.readCallback(to_be_parsed, buffer_size);
+        } catch (std::size_t& parsing_failed_here)
+        {
+            if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+            {
+                break;
+            }
+            if (!parsing_failed_here)
+                parsing_failed_here = 1;
+
+            to_be_parsed = to_be_parsed + parsing_failed_here;
+            ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
+            continue;
+        }
+        if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+        {
+            break;
+        }
+        to_be_parsed = to_be_parsed + buffer_size;
+    }
+    delete[] to_be_parsed;
+    ROS_DEBUG("Leaving initializePCAPFileReading() method..");
 }
 
 bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
