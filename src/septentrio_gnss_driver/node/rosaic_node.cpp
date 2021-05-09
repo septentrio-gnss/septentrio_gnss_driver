@@ -53,7 +53,7 @@ rosaic_node::ROSaicNode::ROSaicNode()
 
     // Sends commands to the Rx regarding which SBF/NMEA messages it should output
     // and sets all its necessary corrections-related parameters
-    if (!g_read_from_sbf_log)
+    if (!g_read_from_sbf_log && !g_read_from_pcap)
     {
         boost::mutex::scoped_lock lock(connection_mutex_);
         connection_condition_.wait(lock, [this]() { return connected_; });
@@ -513,6 +513,7 @@ void rosaic_node::ROSaicNode::initializeIO()
 
         serial_ = false;
         g_read_from_sbf_log = false;
+        g_read_from_pcap = false;
         boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
         temporary_thread.detach();
     } else if (boost::regex_match(device_, match,
@@ -520,15 +521,31 @@ void rosaic_node::ROSaicNode::initializeIO()
     {
         serial_ = false;
         g_read_from_sbf_log = true;
+        g_read_from_pcap = false;
         g_unix_time.sec = 0;
         g_unix_time.nsec = 0;
         boost::thread temporary_thread(
             boost::bind(&ROSaicNode::prepareSBFFileReading, this, match[2]));
         temporary_thread.detach();
+
+    } else if (boost::regex_match(
+                   device_, match,
+                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+    {
+        serial_ = false;
+        g_read_from_sbf_log = false;
+        g_read_from_pcap = true;
+        g_unix_time.sec = 0;
+        g_unix_time.nsec = 0;
+        boost::thread temporary_thread(
+            boost::bind(&ROSaicNode::preparePCAPFileReading, this, match[2]));
+        temporary_thread.detach();
+
     } else if (boost::regex_match(device_, match, boost::regex("(serial):(.+)")))
     {
         serial_ = true;
         g_read_from_sbf_log = false;
+        g_read_from_pcap = false;
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
@@ -556,6 +573,23 @@ void rosaic_node::ROSaicNode::prepareSBFFileReading(std::string file_name)
     {
         std::stringstream ss;
         ss << "Comm_IO::initializeSBFFileReading() failed for SBF File" << file_name
+           << " due to: " << e.what();
+        ROS_ERROR("%s", ss.str().c_str());
+    }
+}
+
+void rosaic_node::ROSaicNode::preparePCAPFileReading(std::string file_name)
+{
+    try
+    {
+        std::stringstream ss;
+        ss << "Setting up everything needed to read from " << file_name;
+        ROS_DEBUG("%s", ss.str().c_str());
+        IO.initializePCAPFileReading(file_name);
+    } catch (std::runtime_error& e)
+    {
+        std::stringstream ss;
+        ss << "CommIO::initializePCAPFileReading() failed for SBF File " << file_name
            << " due to: " << e.what();
         ROS_ERROR("%s", ss.str().c_str());
     }
@@ -855,6 +889,8 @@ bool g_qualityind_has_arrived_diagnostics;
 ros::Time g_unix_time;
 //! Whether or not we are reading from an SBF file
 bool g_read_from_sbf_log;
+//! Whether or not we are reading from a PCAP file
+bool g_read_from_pcap;
 //! A C++ map for keeping track of the SBF blocks necessary to construct the GPSFix
 //! ROS message
 std::map<std::string, uint32_t> g_GPSFixMap;
