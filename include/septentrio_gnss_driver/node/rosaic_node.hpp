@@ -81,6 +81,10 @@ extern bool g_publish_atteuler;
 extern bool g_publish_attcoveuler;
 extern bool g_publish_gpst;
 extern bool g_publish_navsatfix;
+//INS
+extern bool g_publish_insnavcart;
+extern bool g_publish_insnavgeod;
+
 extern ros::Timer g_reconnect_timer_;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
@@ -332,6 +336,10 @@ namespace rosaic_node {
         std::string tcp_port_;
         //! Whether yet-to-be-established connection to Rx will be serial or TCP
         bool serial_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
+        bool publish_insnavcart_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
+        bool publish_insnavgeod_;
     };
 } // namespace rosaic_node
 
