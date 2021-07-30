@@ -1,0 +1,8 @@
+prefix=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel
+
+Name: septentrio_gnss_driver
+Description: Description of septentrio_gnss_driver
+Version: 1.0.6
+Cflags: -I/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include -I/home/chandan/catkin_ws/src/septentrio_gnss_driver/include -I/usr/include
+Libs: -L${prefix}/lib /usr/lib/x86_64-linux-gnu/libboost_system.so /usr/lib/x86_64-linux-gnu/libboost_thread.so /usr/lib/x86_64-linux-gnu/libboost_regex.so /usr/lib/x86_64-linux-gnu/libboost_chrono.so /usr/lib/x86_64-linux-gnu/libboost_date_time.so /usr/lib/x86_64-linux-gnu/libboost_atomic.so /usr/lib/x86_64-linux-gnu/libpthread.so
+Requires: cpp_common rosconsole roscpp roscpp_serialization rostime xmlrpcpp message_runtime

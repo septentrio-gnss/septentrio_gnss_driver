@@ -132,6 +132,10 @@
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+// INS include
+#include <septentrio_gnss_driver/INSNavCart.h>
+#include <septentrio_gnss_driver/INSNavGeod.h>
+
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.hpp>
@@ -168,6 +172,9 @@ extern bool g_attcoveuler_has_arrived_gpsfix;
 extern bool g_attcoveuler_has_arrived_pose;
 extern bool g_receiverstatus_has_arrived_diagnostics;
 extern bool g_qualityind_has_arrived_diagnostics;
+extern bool g_insnavgeod_has_arrived_gpsfix;
+extern bool g_insnavgeod_has_arrived_navsatfix;
+extern bool g_insnavgeod_has_arrived_pose;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
@@ -218,7 +225,9 @@ enum RxID_Enum
     evDiagnosticArray,
     evReceiverStatus,
     evQualityInd,
-    evReceiverSetup
+    evReceiverSetup,
+    evINSNavCart,
+    evINSNavGeod,
 };
 
 namespace io_comm_rx {
@@ -433,6 +442,12 @@ namespace io_comm_rx {
          */
         static ReceiverSetup last_receiversetup_;
 
+        /**
+         * @brief Since NavSatFix etc. need INSNavGeod, incoming INSNavGeod blocks
+         * need to be stored
+         */
+        static INSNavGeod last_insnavgeod_;
+        
         //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
         //! to an enum value
         typedef std::map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
@@ -538,6 +553,24 @@ namespace io_comm_rx {
          * diagnostic_msgs::DiagnosticArray just created
          */
         diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
+
+        /**
+         * @brief Callback function when reading INSNavCart blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message INSNavCart
+         * @return A smart pointer to the ROS message INSNavCart just created
+         */
+        septentrio_gnss_driver::INSNavCartPtr
+        INSNavCartCallback(INSNavCart& data);
+
+        /**
+         * @brief Callback function when reading INSNavGeod blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message INSNavGeod
+         * @return A smart pointer to the ROS message INSNavGeod just created
+         */
+        septentrio_gnss_driver::INSNavGeodPtr
+        INSNavGeodCallback(INSNavGeod& data);
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

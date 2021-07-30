@@ -118,6 +118,9 @@ extern bool g_attcoveuler_has_arrived_gpsfix;
 extern bool g_attcoveuler_has_arrived_pose;
 extern bool g_receiverstatus_has_arrived_diagnostics;
 extern bool g_qualityind_has_arrived_diagnostics;
+extern bool g_insnavgeod_has_arrived_gpsfix;
+extern bool g_insnavgeod_has_arrived_navsatfix;
+extern bool g_insnavgeod_has_arrived_pose;
 
 extern bool g_publish_navsatfix;
 extern bool g_publish_gpsfix;

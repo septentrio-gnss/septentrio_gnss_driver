@@ -586,7 +586,115 @@ struct VelCovGeodetic
     float cov_vedt;
     float cov_vudt;
 };
+struct INSNavCart
+{
+    BlockHeader_t block_header;
 
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     x;
+    SBFDOUBLE     y;
+    SBFDOUBLE     z;
+    uint16_t      accuracy;
+    uint16_t      latency;
+    uint8_t       datum;
+    uint8_t       reserved;
+    uint16_t      sb_list;
+
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
+
+    float     xy_cov;
+    float     xz_cov;
+    float     yz_cov;
+
+    float     heading;
+    float     pitch;
+    float     roll;
+
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+
+    float     vx;
+    float     vy;
+    float     vz;
+
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+
+    float     vx_vy_cov;
+    float     vx_vz_cov;
+    float     vy_vz_cov;
+
+};
+
+struct INSNavGeod
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     latitude;
+    SBFDOUBLE     longitude;
+    SBFDOUBLE     height;
+    float         undulation;
+    uint16_t      accuracy;
+    uint16_t      latency;
+    uint8_t       datum;
+    uint8_t       reserved;
+    uint16_t      sb_list;
+
+    float     latitude_std_dev;
+    float     longitude_std_dev;
+    float     height_std_dev;
+
+    float     latitude_longitude_cov;
+    float     latitude_height_cov;
+    float     longitude_height_cov;
+
+    float     heading;
+    float     pitch;
+    float     roll;
+
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+
+    float     ve;
+    float     vn;
+    float     vu;
+
+    float     ve_std_dev;
+    float     vn_std_dev;
+    float     vu_std_dev;
+
+    float     ve_vn_cov;
+    float     ve_vu_cov;
+    float     vn_vu_cov;
+};
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type
 // declarations between push and pop directives. (A pop directive with no prior push

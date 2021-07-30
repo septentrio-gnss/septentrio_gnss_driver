@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_c54ae/fast"
+/usr/bin/make -f CMakeFiles/cmTC_c54ae.dir/build.make CMakeFiles/cmTC_c54ae.dir/build
+make[1]: Entering directory '/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c54ae.dir/CheckSymbolExists.c.o
+/usr/bin/x86_64-linux-gnu-gcc-7    -o CMakeFiles/cmTC_c54ae.dir/CheckSymbolExists.c.o   -c /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_c54ae
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c54ae.dir/link.txt --verbose=1
+/usr/bin/x86_64-linux-gnu-gcc-7      -rdynamic CMakeFiles/cmTC_c54ae.dir/CheckSymbolExists.c.o  -o cmTC_c54ae 
+CMakeFiles/cmTC_c54ae.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_c54ae.dir/build.make:97: recipe for target 'cmTC_c54ae' failed
+make[1]: *** [cmTC_c54ae] Error 1
+make[1]: Leaving directory '/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_c54ae/fast' failed
+make: *** [cmTC_c54ae/fast] Error 2
+
+File /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_83bf4/fast"
+/usr/bin/make -f CMakeFiles/cmTC_83bf4.dir/build.make CMakeFiles/cmTC_83bf4.dir/build
+make[1]: Entering directory '/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_83bf4.dir/CheckFunctionExists.c.o
+/usr/bin/x86_64-linux-gnu-gcc-7   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_83bf4.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_83bf4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_83bf4.dir/link.txt --verbose=1
+/usr/bin/x86_64-linux-gnu-gcc-7  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_83bf4.dir/CheckFunctionExists.c.o  -o cmTC_83bf4 -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_83bf4.dir/build.make:97: recipe for target 'cmTC_83bf4' failed
+make[1]: *** [cmTC_83bf4] Error 1
+make[1]: Leaving directory '/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_83bf4/fast' failed
+make: *** [cmTC_83bf4/fast] Error 2
+
+
