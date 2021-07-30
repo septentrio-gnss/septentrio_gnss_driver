@@ -32,21 +32,24 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `ant_serial_nr`: serial number of your antenna
  
   **------ To be Implemented------**
+  -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default`, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
     - If orientation is set to `manual`, the receiver will use parameters `ThetaX`, `ThetaY` and `ThetaZ` to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `ThetaZ` first, then `ThetaY`, then `ThetaX`.
   - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
     - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame
     - **Note**: For an accurate navigation it is essential to provide an accurate `ins_ant_lever_arm`
-  - `set_insinitial_heading`: Speed up the INS heading calibration
-    - `auto`: This mode will store the heading determined from GNSS measurements.
-    - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.  
-  - `ins_nav_config`: The INS navigation filter
-    - The `output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations . If set to `none`, only the INS position is computed and output in the INSNavGeod and INSNavCart SBF blocks.
-    - The INS solution can either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle, as set with the `output_location` parameter. The lever arms from the IMU to the main antenna and to the POI must be specified with the `ins_ant_lever_arm` and `ins_poi_lever_arm` parameter
   - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
     - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
+  - `ins_nav_config`: The INS navigation filter
+    - The `output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations . If set to `none`, only the INS position is computed and output in the INSNavGeod and INSNavCart SBF blocks.
+    - `output_type`: This parameter will publish all the sub-blocks related to INS blocks for e.g. `insnavgeodatt= true` will publish the insnavgeodatt data. 
+    - `default`: Publish all the blocks including sub-blocks.
+    - The INS solution can either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle, as set with the `output_location` parameter. The lever arms from the IMU to the main antenna and to the POI must be specified with the `ins_ant_lever_arm` and `ins_poi_lever_arm` parameter
+  - `set_insinitial_heading`: Speed up the INS heading calibration
+    - `auto`: This mode will store the heading determined from GNSS measurements.
+    - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
 
      **------ Till here------**
   - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
