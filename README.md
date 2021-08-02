@@ -47,11 +47,19 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - The below image illustrates a case where the lever arm X and Y components are positive, while the Z component is negative. In some cases, you might want the navigator to compute the position of your user-defined point of interest (POI). In this case you can enter the X, Y, Z offset values from the IMU Reference Point to Point of Interest.
     
       ![imu](https://user-images.githubusercontent.com/62261460/127847744-f6056be4-9917-4a3e-9c91-63609fb97fc2.jpg)
-  - `ins_nav_config`: The INS navigation filter
-    - The `output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations . If set to `none`, only the INS position is computed and output in the INSNavGeod and INSNavCart SBF blocks.
-    - `output_type`: This parameter will publish all the sub-blocks related to INS blocks for e.g. `insnavgeodatt= true` will publish the insnavgeodatt data. 
-    - `default`: Publish all the blocks including sub-blocks.
-    - The INS solution can either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle, as set with the `output_location` parameter. The lever arms from the IMU to the main antenna and to the POI must be specified with the `ins_ant_lever_arm` and `ins_poi_lever_arm` parameter
+  - `ins_output_type`: The INS navigation filter
+    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. for e.g. from `INSNavGeod` SBF blocks will publish the following:
+      - pos_std_dev: true
+      - pos_cov: true
+      - att: true
+      - att_std_dev: true
+      - att_cov:false: true
+      - vel: true
+      - vel_std_dev: true
+      - vel_cov: true
+    - If set to `default`, only the INS position is computed and output in the INSNavGeod and INSNavCart SBF blocks. 
+    - `default`: This paramters will output the data of `latitude`, `longitude` and `height` in the case of `INSNavGeod` SBF block.
+    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The lever arms from the IMU to the main antenna and to the POI must be specified with the `ins_ant_lever_arm` and `ins_poi_lever_arm` parameter
   - `set_insinitial_heading`: This parameters obtains the initial INS/GNSS integrated heading during the alignment phase. Normally the vehicle needs to move around a bit for the IMU to calibrate heading so that it coincides with the GNSS heading.
     - `auto`: This mode will store the heading determined from GNSS measurements.
     - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
