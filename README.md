@@ -37,12 +37,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
    **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default`, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
-    - If orientation is set to `manual`, the receiver will use parameters `ThetaX`, `ThetaY` and `ThetaZ` to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `ThetaZ` first, then `ThetaY`, then `ThetaX`.
+    - If orientation is set to `manual`, the receiver will use parameters `thetaX`, `thetaY` and `thetaZ` to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `thetaZ` first, then `thetaY`, then `thetaX`.
   - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
-    - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame
+    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame
     - **Note**: For an accurate navigation it is essential to provide an accurate `ins_ant_lever_arm`
   - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
-    - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame
+    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
   - The below image illustrates a case where the lever arm X and Y components are positive, while the Z component is negative. In some cases, you might want the navigator to compute the position of your user-defined point of interest (POI). In this case you can enter the X, Y, Z offset values from the IMU Reference Point to Point of Interest.
     
