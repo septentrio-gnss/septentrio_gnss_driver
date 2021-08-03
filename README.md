@@ -46,7 +46,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
  
       ![Screenshot from 2021-08-03 10-13-55](https://user-images.githubusercontent.com/62261460/127984732-76e67470-5c38-4e5b-8036-b932fe63ce62.png)
       
-  - The Steps should be followed to configure the receiver in INS integration mode:
+  - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
     - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This is done using the `ins_ant_lever_arm` parameter
     - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_poi_lever_arm` parameter
