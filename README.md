@@ -45,8 +45,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
  
       ![Screenshot from 2021-08-03 10-13-55](https://user-images.githubusercontent.com/62261460/127984732-76e67470-5c38-4e5b-8036-b932fe63ce62.png)
-
-   **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
+      
+  - The Steps should be followed to configure the receiver in INS integration mode:
+    - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
+    - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This is done using the `ins_ant_lever_arm` parameter
+    - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_poi_lever_arm` parameter
+    - Make sure that the INS/GNSS integration filter is enabled :`ins_output_type`
+   
+  **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default`, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
     - If orientation is set to `manual`, the receiver will use parameters `thetaX`, `thetaY` and `thetaZ` to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `thetaZ` first, then `thetaY`, then `thetaX`.
