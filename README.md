@@ -33,7 +33,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
  
   **------ To be Implemented------**
   -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
- 
+  - Measure and Compensate for Antenna Lever arm:
+    - The antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP). In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
+    - The below image illustrates the relative IMU/antenna position in the vehicle’s frame (in blue). In this example, the lever arm X and Y components are equal to X’ and Y’(positive), while the Z component is Z’ (negative) + 1.7cm.
+  - Compensate for deviations in the antenna orientation:
+    - the receiver determines the attitude angles assuming that the baseline between the antenna ARP is parallel to the longitudinal axis of the vehicle. Attitude biases appear when this is not the case. The user can provide the value of the attitude offset angles in `config.yaml` file
+  - Compensate IMU/Receiver orientations:
+    - It is important to take into consideration the mounting direction of the receiver, therefore the IMU, in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, it will be necessary to compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. 
+    - The IMU’s orientation can be changed by specifying the orientation angles`thetaX`,`thetaY`and `thetaZ` in the `config.yaml` file under the `imu_orientation/manual`
    **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default`, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
