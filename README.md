@@ -36,7 +36,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - Measure and Compensate for Antenna Lever arm:
     - The antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP). In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
     - The below image illustrates the relative IMU/antenna position in the vehicle’s frame (in blue). In this example, the lever arm X and Y components are equal to X’ and Y’(positive), while the Z component is Z’ (negative) + 1.7cm.
-    -  The IMU/antenna position can be changed by specifying the lever arm `x`,`y`and `z` in the `config.yaml` file under the `ins_ant_lever_arm` paramter 
+    -  The IMU/antenna position can be changed by specifying the lever arm `x`,`y`and `z` in the `config.yaml` file under the `ins_ant_lever_arm` parameter 
     
        ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
   - Compensate for IMU/Receiver orientations:
