@@ -322,6 +322,10 @@ namespace rosaic_node {
         bool publish_atteuler_;
         //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
         bool publish_attcoveuler_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
+        bool publish_insnavcart_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
+        bool publish_insnavgeod_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..
@@ -336,10 +340,6 @@ namespace rosaic_node {
         std::string tcp_port_;
         //! Whether yet-to-be-established connection to Rx will be serial or TCP
         bool serial_;
-        //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
-        bool publish_insnavcart_;
-        //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
-        bool publish_insnavgeod_;
     };
 } // namespace rosaic_node
 

@@ -9,6 +9,7 @@
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel:$CMAKE_PREFIX_PATH"
 export LD_LIBRARY_PATH="/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/chandan/catkin_ws/src/septentrio_gnss_driver/build'
 export PYTHONPATH="/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/lib/python2.7/dist-packages:$PYTHONPATH"
 export ROSLISP_PACKAGE_DIRECTORIES="/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"

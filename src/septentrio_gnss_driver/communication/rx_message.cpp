@@ -48,6 +48,7 @@ VelCovGeodetic io_comm_rx::RxMessage::last_velcovgeodetic_ = VelCovGeodetic();
 ReceiverStatus io_comm_rx::RxMessage::last_receiverstatus_ = ReceiverStatus();
 QualityInd io_comm_rx::RxMessage::last_qualityind_ = QualityInd();
 ReceiverSetup io_comm_rx::RxMessage::last_receiversetup_ = ReceiverSetup();
+INSNavGeod io_comm_rx::RxMessage::last_insnavgeod_ = INSNavGeod();
 
 //! Pair of iterators to facilitate initialization of the map
 std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
@@ -91,7 +92,9 @@ std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
     std::make_pair("DiagnosticArray", evDiagnosticArray),
     std::make_pair("4014", evReceiverStatus),
     std::make_pair("4082", evQualityInd),
-    std::make_pair("5902", evReceiverSetup)};
+    std::make_pair("5902", evReceiverSetup),
+    std::make_pair("4225",evINSNavCart),
+    std::make_pair("4226",evINSNavGeod)};
 
 io_comm_rx::RxMessage::RxIDMap
     io_comm_rx::RxMessage::rx_id_map(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
@@ -275,6 +278,140 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->cov_headpitch = data.cov_headpitch;
     msg->cov_headroll = data.cov_headroll;
     msg->cov_pitchroll = data.cov_pitchroll;
+    return msg;
+};
+
+septentrio_gnss_driver::INSNavCartPtr
+io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
+{
+    septentrio_gnss_driver::INSNavCartPtr msg =
+        boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+    
+    msg->block_header.sync_1 = data.block_header.sync_1;
+    msg->block_header.sync_2 = data.block_header.sync_2;
+    msg->block_header.crc = data.block_header.crc;
+    msg->block_header.id = data.block_header.id;
+    msg->block_header.length = data.block_header.length;
+    msg->block_header.tow = data.tow;
+    msg->block_header.wnc = data.wnc;
+    msg->gnss_mode = data.gnss_mode;
+    msg->info = data.info;
+    msg->gnss_age = data.gnss_age;
+    msg->x = data.x;
+    msg->y = data.y;
+    msg->z = data.z;
+    msg->accuracy = data.accuracy;
+    msg->latency = data.latency;
+    msg->datum = data.datum;
+    msg->sb_list = data.sb_list;
+    // msg->x_std_dev = data.x_std_dev;
+    // msg->y_std_dev = data.y_std_dev;
+    // msg->z_std_dev = data.z_std_dev;
+    // msg->xy_cov = data.xy_cov;
+    // msg->xz_cov = data.xz_cov;
+    // msg->heading = data.heading;
+    // msg->pitch = data.pitch;
+    // msg->roll  = data.pitch;
+    // msg->heading_std_dev = data.heading_std_dev;
+    // msg->pitch_std_dev = data.pitch_std_dev;
+    // msg->roll_std_dev = data.roll_std_dev;
+    // msg->heading_pitch_cov = data.heading_pitch_cov;
+    // msg->heading_roll_cov = data.heading_roll_cov;
+    // msg->pitch_roll_cov = data.pitch_roll_cov;
+    // msg->vx = data.vx;
+    // msg->vy = data.vy;
+    // msg->vz = data.vz;
+    // msg->vx_std_dev = data.vx_std_dev;
+    // msg->vy_std_dev = data.vy_std_dev;
+    // msg->vz_std_dev = data.vz_std_dev;
+    // msg->vx_vy_cov = data.vx_vy_cov;
+    // msg->vx_vz_cov = data.vx_vz_cov;
+    // msg->vy_vz_cov = data.vy_vz_cov;
+    return msg;
+};
+septentrio_gnss_driver::INSNavGeodPtr
+io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
+{
+    septentrio_gnss_driver::INSNavGeodPtr msg =
+        boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+    
+    msg->block_header.sync_1 = data.block_header.sync_1;
+    msg->block_header.sync_2 = data.block_header.sync_2;
+    msg->block_header.crc = data.block_header.crc;
+    msg->block_header.id = data.block_header.id;
+    msg->block_header.length = data.block_header.length;
+    msg->block_header.tow = data.tow;
+    msg->block_header.wnc = data.wnc;
+    msg->gnss_mode = data.gnss_mode;
+    msg->info = data.info;
+    msg->gnss_age = data.gnss_age;
+    msg->latitude = data.latitude;
+    msg->longitude = data.longitude;
+    msg->height = data.height;
+    msg->undulation = data.undulation;
+    msg->accuracy = data.accuracy;
+    msg->latency = data.latency;
+    msg->datum = data.datum;
+    msg->sb_list = data.sb_list;
+            // Define INSNavCart struct for the corresponding sub-block
+    INSNavGeod* ins_nav_geod = reinterpret_cast<INSNavGeod*>(&last_insnavgeod_.sb_list);
+    //uint16_t check_sblist = 0;
+    if ((ins_nav_geod->sb_list & 1) !=0)
+    {
+        //INSNavGeodPosStdDev
+        msg->latitude_std_dev= data.latitude_std_dev;
+        msg->longitude_std_dev = data.longitude_std_dev;
+        msg->height_std_dev = data.height_std_dev;
+    }
+    if ((ins_nav_geod->sb_list & 2) !=0)
+    {
+        //INSNavGeodPosCov
+        msg->latitude_longitude_cov = data.latitude_longitude_cov;
+        msg->latitude_height_cov = data.latitude_height_cov;
+        msg->longitude_height_cov = data.longitude_height_cov;
+    }
+    if ((ins_nav_geod->sb_list & 4) !=0)
+    {
+        //INSNavGeodAtt
+        msg->heading = data.heading;
+        msg->pitch = data.pitch;
+        msg->roll = data.roll;
+    }
+    if ((ins_nav_geod->sb_list & 8) !=0)
+    {
+        //INSNavGeodAttStdDev
+        msg->heading_std_dev = data.heading_std_dev;
+        msg->pitch_std_dev = data.pitch_std_dev;
+        msg->roll_std_dev = data.roll_std_dev;
+    }
+    if ((ins_nav_geod->sb_list & 10) !=0)
+    {
+        //INSNavGeodAttCov
+        msg->heading_pitch_cov = data.heading_pitch_cov;
+        msg->heading_roll_cov = data.heading_roll_cov;
+        msg->pitch_roll_cov = data.pitch_roll_cov;
+    }
+    if ((ins_nav_geod->sb_list & 20) !=0)
+    {
+        //INSNavGeodVel
+        msg->ve = data.ve;
+        msg->vn = data.vn;
+        msg->vu = data.vu;
+    }
+    if ((ins_nav_geod->sb_list & 40) !=0)
+    {
+        //INSNavGeodVelStdDev
+        msg->ve_std_dev = data.ve_std_dev;
+        msg->vn_std_dev = data.vn_std_dev;
+        msg->vu_std_dev = data.vu_std_dev;
+    }
+    if ((ins_nav_geod->sb_list & 80) !=0)
+    {
+        //INSNavGeodVelCov
+        msg->ve_vn_cov = data.ve_vn_cov;
+        msg->ve_vu_cov = data.ve_vu_cov;
+        msg->vn_vu_cov = data.vn_vu_cov;
+    }
     return msg;
 };
 
@@ -464,91 +601,91 @@ diagnostic_msgs::DiagnosticArrayPtr io_comm_rx::RxMessage::DiagnosticArrayCallba
 sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
 {
     sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
-    uint16_t mask = 15; // We extract the first four bits using this mask.
-    uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
-    switch (type_of_pvt_map[type_of_pvt])
-    {
-    case evNoPVT:
-    {
-        msg->status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
-        break;
-    }
-    case evStandAlone:
-    case evFixed:
-    {
-        msg->status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
-        break;
-    }
-    case evDGPS:
-    case evRTKFixed:
-    case evRTKFloat:
-    case evMovingBaseRTKFixed:
-    case evMovingBaseRTKFloat:
-    case evPPP:
-    {
-        msg->status.status = sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
-        break;
-    }
-    case evSBAS:
-    {
-        msg->status.status = sensor_msgs::NavSatStatus::STATUS_SBAS_FIX;
-        break;
-    }
-    default:
-    {
-        throw std::runtime_error(
-            "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
-    }
-    }
-    bool gps_in_pvt = false;
-    bool glo_in_pvt = false;
-    bool com_in_pvt = false;
-    bool gal_in_pvt = false;
-    uint32_t mask_2 = 1;
-    for (int bit = 0; bit != 31; ++bit)
-    {
-        bool in_use = last_pvtgeodetic_.signal_info & mask_2;
-        if (bit <= 5 && in_use)
+        uint16_t mask = 15; // We extract the first four bits using this mask.
+        uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
+        switch (type_of_pvt_map[type_of_pvt])
         {
-            gps_in_pvt = true;
+        case evNoPVT:
+        {
+            msg->status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
+            break;
         }
-        if (8 <= bit && bit <= 12 && in_use)
-            glo_in_pvt = true;
-        if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) && in_use)
-            com_in_pvt = true;
-        if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
-            gal_in_pvt = true;
-        mask_2 *= 2;
-    }
-    // Below, booleans will be promoted to integers automatically.
-    uint16_t service =
-        gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
-    msg->status.service = service;
-    msg->latitude = last_pvtgeodetic_.latitude * 360 /
-                    (2 * boost::math::constants::pi<double>());
-    msg->longitude = last_pvtgeodetic_.longitude * 360 /
-                     (2 * boost::math::constants::pi<double>());
-    msg->altitude = last_pvtgeodetic_.height;
-    msg->position_covariance[0] =
-        static_cast<double>(last_poscovgeodetic_.cov_lonlon);
-    msg->position_covariance[1] =
-        static_cast<double>(last_poscovgeodetic_.cov_latlon);
-    msg->position_covariance[2] =
-        static_cast<double>(last_poscovgeodetic_.cov_lonhgt);
-    msg->position_covariance[3] =
-        static_cast<double>(last_poscovgeodetic_.cov_latlon);
-    msg->position_covariance[4] =
-        static_cast<double>(last_poscovgeodetic_.cov_latlat);
-    msg->position_covariance[5] =
-        static_cast<double>(last_poscovgeodetic_.cov_lathgt);
-    msg->position_covariance[6] =
-        static_cast<double>(last_poscovgeodetic_.cov_lonhgt);
-    msg->position_covariance[7] =
-        static_cast<double>(last_poscovgeodetic_.cov_lathgt);
-    msg->position_covariance[8] =
-        static_cast<double>(last_poscovgeodetic_.cov_hgthgt);
-    msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
-    return msg;
+        case evStandAlone:
+        case evFixed:
+        {
+            msg->status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
+            break;
+        }
+        case evDGPS:
+        case evRTKFixed:
+        case evRTKFloat:
+        case evMovingBaseRTKFixed:
+        case evMovingBaseRTKFloat:
+        case evPPP:
+        {
+            msg->status.status = sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
+            break;
+        }
+        case evSBAS:
+        {
+            msg->status.status = sensor_msgs::NavSatStatus::STATUS_SBAS_FIX;
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error(
+                "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+        }
+        }
+        bool gps_in_pvt = false;
+        bool glo_in_pvt = false;
+        bool com_in_pvt = false;
+        bool gal_in_pvt = false;
+        uint32_t mask_2 = 1;
+        for (int bit = 0; bit != 31; ++bit)
+        {
+            bool in_use = last_pvtgeodetic_.signal_info & mask_2;
+            if (bit <= 5 && in_use)
+            {
+                gps_in_pvt = true;
+            }
+            if (8 <= bit && bit <= 12 && in_use)
+                glo_in_pvt = true;
+            if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) && in_use)
+                com_in_pvt = true;
+            if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
+                gal_in_pvt = true;
+            mask_2 *= 2;
+        }
+        // Below, booleans will be promoted to integers automatically.
+        uint16_t service =
+            gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
+        msg->status.service = service;
+        msg->latitude = last_pvtgeodetic_.latitude * 360 /
+                        (2 * boost::math::constants::pi<double>());
+        msg->longitude = last_pvtgeodetic_.longitude * 360 /
+                        (2 * boost::math::constants::pi<double>());
+        msg->altitude = last_pvtgeodetic_.height;
+        msg->position_covariance[0] =
+            static_cast<double>(last_poscovgeodetic_.cov_lonlon);
+        msg->position_covariance[1] =
+            static_cast<double>(last_poscovgeodetic_.cov_latlon);
+        msg->position_covariance[2] =
+            static_cast<double>(last_poscovgeodetic_.cov_lonhgt);
+        msg->position_covariance[3] =
+            static_cast<double>(last_poscovgeodetic_.cov_latlon);
+        msg->position_covariance[4] =
+            static_cast<double>(last_poscovgeodetic_.cov_latlat);
+        msg->position_covariance[5] =
+            static_cast<double>(last_poscovgeodetic_.cov_lathgt);
+        msg->position_covariance[6] =
+            static_cast<double>(last_poscovgeodetic_.cov_lonhgt);
+        msg->position_covariance[7] =
+            static_cast<double>(last_poscovgeodetic_.cov_lathgt);
+        msg->position_covariance[8] =
+            static_cast<double>(last_poscovgeodetic_.cov_hgthgt);
+        msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
+        return msg;
 }
 
 /**
@@ -1505,6 +1642,88 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         publisher.publish(*msg);
         break;
     }
+    case evINSNavCart:
+    {
+        septentrio_gnss_driver::INSNavCartPtr msg =
+            boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+        INSNavCart insnavcart;
+        memcpy(&insnavcart, data_, sizeof(insnavcart));
+        msg = INSNavCartCallback(insnavcart);
+        msg->header.frame_id = g_frame_id;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4225;
+        static ros::Publisher publisher = 
+            g_nh->advertise<septentrio_gnss_driver::INSNavCart>(
+                "/insnavcart", g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
+    case evINSNavGeod:
+    {
+        septentrio_gnss_driver::INSNavGeodPtr msg =
+            boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+        memcpy(&last_insnavgeod_, data_, sizeof(last_insnavgeod_));
+        msg = INSNavGeodCallback(last_insnavgeod_);
+        msg->header.frame_id = g_frame_id;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4226;
+        g_insnavgeod_has_arrived_gpsfix = true;
+        g_insnavgeod_has_arrived_navsatfix = true;
+        g_insnavgeod_has_arrived_pose = true;
+        static ros::Publisher publisher =
+            g_nh->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
+                                                                 g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
     case evGPST:
     {
         sensor_msgs::TimeReferencePtr msg =
@@ -1802,6 +2021,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         msg->header.stamp.nsec = time_obj.nsec;
         g_pvtgeodetic_has_arrived_navsatfix = false;
         g_poscovgeodetic_has_arrived_navsatfix = false;
+        g_insnavgeod_has_arrived_navsatfix = false;
         static ros::Publisher publisher =
             g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
         // Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -1856,6 +2076,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         g_velcovgeodetic_has_arrived_gpsfix = false;
         g_atteuler_has_arrived_gpsfix = false;
         g_attcoveuler_has_arrived_gpsfix = false;
+        g_insnavgeod_has_arrived_gpsfix = false;
         static ros::Publisher publisher =
             g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
         // Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -1902,6 +2123,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         g_poscovgeodetic_has_arrived_pose = false;
         g_atteuler_has_arrived_pose = false;
         g_attcoveuler_has_arrived_pose = false;
+        g_insnavgeod_has_arrived_pose = false;
         static ros::Publisher publisher =
             g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
                 "/pose", g_ROS_QUEUE_SIZE);

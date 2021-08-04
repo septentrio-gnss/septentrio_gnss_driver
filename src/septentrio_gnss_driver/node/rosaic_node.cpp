@@ -259,6 +259,29 @@ void rosaic_node::ROSaicNode::configureRx()
         g_response_condition.wait(lock, []() { return g_response_received; });
         g_response_received = false;
     }
+    //INS
+    if (publish_insnavcart_ == true)
+    {
+        std::stringstream ss;
+        ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+           << ", INSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+           << "\x0D";
+        IO.send(ss.str());
+        ++stream;
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
+    if (publish_insnavgeod_ == true)
+    {
+        std::stringstream ss;
+        ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+           << ", INSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+           << "\x0D";
+        IO.send(ss.str());
+        ++stream;
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
     if (g_publish_gpsfix == true)
     {
         std::stringstream ss;
@@ -486,6 +509,8 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("publish/poscovgeodetic", publish_poscovgeodetic_, true);
     g_nh->param("publish/atteuler", publish_atteuler_, true);
     g_nh->param("publish/attcoveuler", publish_attcoveuler_, true);
+    g_nh->param("publish/insnavcart", publish_insnavcart_, true);
+    g_nh->param("publish/insnavgeod", publish_insnavgeod_, true);
 
     // To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix
     // mode...
@@ -741,13 +766,24 @@ void rosaic_node::ROSaicNode::defineMessages()
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<septentrio_gnss_driver::AttCovEuler>("5939");
     }
+    //INS
+    if (publish_insnavcart_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::INSNavCart>("4225");
+    }
+    if (publish_insnavgeod_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::INSNavGeod>("4226");
+    }
     if (g_publish_gpst == true)
     {
         IO.handlers_.callbackmap_ = IO.getHandlers().insert<int32_t>("GPST");
     }
     if (g_publish_navsatfix == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_insnavgeod_ == false)
         {
             ROS_ERROR(
                 "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
@@ -757,7 +793,7 @@ void rosaic_node::ROSaicNode::defineMessages()
     }
     if (g_publish_gpsfix == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_insnavgeod_ == false)
         {
             ROS_ERROR(
                 "For a proper GPSFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
@@ -778,7 +814,7 @@ void rosaic_node::ROSaicNode::defineMessages()
     if (g_publish_pose == true)
     {
         if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false ||
-            publish_atteuler_ == false || publish_attcoveuler_ == false)
+            publish_atteuler_ == false || publish_attcoveuler_ == false || publish_insnavgeod_ == false)
         {
             ROS_ERROR(
                 "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
@@ -860,12 +896,17 @@ bool g_velcovgeodetic_has_arrived_gpsfix;
 bool g_atteuler_has_arrived_gpsfix;
 //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
 bool g_attcoveuler_has_arrived_gpsfix;
+//! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+bool g_insnavgeod_has_arrived_gpsfix;
 //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
 //! not
 bool g_pvtgeodetic_has_arrived_navsatfix;
 //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
 //! or not
 bool g_poscovgeodetic_has_arrived_navsatfix;
+//! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
+//! or not
+bool g_insnavgeod_has_arrived_navsatfix;
 //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
 //! has arrived or not
 bool g_pvtgeodetic_has_arrived_pose;
@@ -878,6 +919,9 @@ bool g_atteuler_has_arrived_pose;
 //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
 //! has arrived or not
 bool g_attcoveuler_has_arrived_pose;
+//! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
+//! has arrived or not
+bool g_insnavgeod_has_arrived_pose;
 //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
 //! arrived or not
 bool g_receiverstatus_has_arrived_diagnostics;
@@ -945,6 +989,9 @@ int main(int argc, char** argv)
     g_attcoveuler_has_arrived_pose = false;
     g_receiverstatus_has_arrived_diagnostics = false;
     g_qualityind_has_arrived_diagnostics = false;
+    g_insnavgeod_has_arrived_gpsfix = false;
+    g_insnavgeod_has_arrived_navsatfix = false;
+    g_insnavgeod_has_arrived_pose = false;
 
     // The info logging level seems to be default, hence we modify log level
     // momentarily.. The following is the C++ version of
