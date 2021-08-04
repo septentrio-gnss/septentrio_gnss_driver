@@ -32,14 +32,15 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `ant_serial_nr`: serial number of your antenna
  
   **------ To be Implemented------**
-  -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
+  -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information from Inertial Measurement Unit (IMU) to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
+  - The IMU is typically made up of a 3-axis accelerometer, a 3-axiss gyroscope and sometimes a 3-axis magnetometer and measures the system's angular rate and acceleration. The computational unit used to determine the attitude, position, and velocity of the system based on the raw measurements from the IMU given an initial starting position and attitude.
   - Measure and Compensate for Antenna Lever arm:
     - The antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP). In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
     - The below image illustrates the relative IMU/antenna position in the vehicle’s frame (in blue). In this example, the lever arm X and Y components are equal to X’ and Y’(positive), while the Z component is Z’ (negative) + 1.7cm.
     -  The IMU/antenna position can be changed by specifying the lever arm `x`,`y`and `z` in the `config.yaml` file under the `ins_ant_lever_arm` parameter 
     
        ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
-  - Compensate for IMU/Receiver orientations:
+  - Compensate for IMU/Receiver orientations: 
     - It is important to take into consideration the mounting direction of the receiver, therefore the IMU, in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, it will be necessary to compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. 
     - The IMU’s orientation can be changed by specifying the orientation angles`thetaX`,`thetaY`and `thetaZ` in the `config.yaml` file under the `imu_orientation/manual`
     - The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
@@ -63,8 +64,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - The parameters `x`,`y` and `z` refers to the vehicle reference  frame
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
   - The below image illustrates a case where the lever arm X and Y components are positive, while the Z component is negative. In some cases, you might want the navigator to compute the position of your user-defined point of interest (POI). In this case you can enter the X, Y, Z offset values from the IMU Reference Point to Point of Interest.
-    
-      ![imu](https://user-images.githubusercontent.com/62261460/127847744-f6056be4-9917-4a3e-9c91-63609fb97fc2.jpg)
   - `ins_output_type`: The INS navigation filter
     - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. for e.g. from `INSNavGeod` SBF blocks will publish the following:
       - pos_std_dev: true
@@ -75,9 +74,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       - vel: true
       - vel_std_dev: true
       - vel_cov: true
-    - If set to `default`, only the INS position is computed and output in the INSNavGeod and INSNavCart SBF blocks. 
-    - `default`: This paramters will output the data of `latitude`, `longitude` and `height` in the case of `INSNavGeod` SBF block.
-    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The lever arms from the IMU to the main antenna and to the POI must be specified with the `ins_ant_lever_arm` and `ins_poi_lever_arm` parameter
+    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as`output_location: ant1` or user defined point of interest as `output_location: poi1` in `config.yaml` file.
   - `set_insinitial_heading`: This parameters obtains the initial INS/GNSS integrated heading during the alignment phase. Normally the vehicle needs to move around a bit for the IMU to calibrate heading so that it coincides with the GNSS heading.
     - `auto`: This mode will store the heading determined from GNSS measurements.
     - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
