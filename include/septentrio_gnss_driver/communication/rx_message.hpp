@@ -108,6 +108,8 @@
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
 
+#define MAX_SBFSIZE 65535
+
 // C++ libraries
 #include <cassert> // for assert
 #include <cstddef>

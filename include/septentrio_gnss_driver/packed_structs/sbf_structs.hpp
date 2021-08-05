@@ -70,6 +70,16 @@
      (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1))
 #endif
 
+//! Max number of bytes that INSNavGeod sub-block can consist of
+#ifndef SBF_INSNAVGEOD_LENGTH_1 
+#define SBF_INSNAVGEOD_LENGTH_1 16 
+#endif
+//! Max number of bytes that INSNavCart sub-block can consist of
+#ifndef SBF_INSNAVCART_LENGTH_1 
+#define SBF_INSNAVCART_LENGTH_1 16 
+#endif
+
+
 // ROSaic includes
 #include "ssn_types.hpp"
 
@@ -586,7 +596,78 @@ struct VelCovGeodetic
     float cov_vedt;
     float cov_vudt;
 };
-struct INSNavCart
+
+// -----------------------------INSNavCart-------------------------------------------------------------------------------
+
+typedef struct 
+{
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
+}INSNavCartPosStdDev_1;
+
+typedef struct
+{
+    float     xy_cov;
+    float     xz_cov;
+    float     yz_cov;
+}INSNavCartPosCov_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;
+}INSNavCartAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+}INSNavCartAttStdDev_1;
+
+typedef struct
+{
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+}INSNavCartAttCov_1;
+
+typedef struct
+{
+    float     vx;
+    float     vy;
+    float     vz;
+}INSNavCartVel_1;
+
+typedef struct
+{
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+}INSNavCartVelStdDev_1;
+
+typedef struct
+{
+    float     vx_vy_cov;
+    float     vx_vz_cov;
+    float     vy_vz_cov;
+}INSNavCartVelCov_1;
+
+typedef union
+{
+  INSNavCartPosStdDev_1 PosStdDev;    
+  INSNavCartPosCov_1 PosCov;       
+  INSNavCartAtt_1 Att;          
+  INSNavCartAttStdDev_1 AttStdDev;    
+  INSNavCartAttCov_1 AttCov;       
+  INSNavCartVel_1 Vel;          
+  INSNavCartVelStdDev_1 VelStdDev;    
+  INSNavCartVelCov_1 VelCov;       
+} INSNavCartData_1;
+
+typedef struct
 {
     BlockHeader_t block_header;
 
@@ -607,41 +688,101 @@ struct INSNavCart
     uint8_t       reserved;
     uint16_t      sb_list;
 
-    float     x_std_dev;
-    float     y_std_dev;
-    float     z_std_dev;
+    INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];
+}INSNavCart_1;
 
-    float     xy_cov;
-    float     xz_cov;
-    float     yz_cov;
+typedef INSNavCartPosStdDev_1 INSNavCartPosStdDev;
 
+typedef INSNavCartPosCov_1 INSNavCartPosCov;
+
+typedef INSNavCartAtt_1 INSNavCartAtt;
+
+typedef INSNavCartAttStdDev_1 INSNavCartAttStdDev;
+
+typedef INSNavCartAttCov_1 INSNavCartAttCov;
+
+typedef INSNavCartVel_1 INSNavCartVel;
+
+typedef INSNavCartVelStdDev_1 INSNavCartVelStdDev;
+
+typedef INSNavCartVelCov_1 INSNavCartVelCov;
+
+typedef INSNavCartData_1 INSNavCartData;
+
+#define SBF_INSNAVCART_LENGTH SBF_INSNAVCART_LENGTH_1
+typedef INSNavCart_1 INSNavCart;
+
+
+//-----------------------INSNavGeod---------------------------------------------------------------
+typedef struct
+{
+    float     latitude_std_dev;
+    float     longitude_std_dev;
+    float     height_std_dev;
+}INSNavGeodPosStdDev_1;
+
+typedef struct
+{
+    float     latitude_longitude_cov;
+    float     latitude_height_cov;
+    float     longitude_height_cov;
+} INSNavGeodPosCov_1;
+
+typedef struct
+{
     float     heading;
     float     pitch;
-    float     roll;
+    float     roll;     
+} INSNavGeodAtt_1;
 
+typedef struct
+{
     float     heading_std_dev;
     float     pitch_std_dev;
     float     roll_std_dev;
+}INSNavGeodAttStdDev_1;
 
+typedef struct
+{
     float     heading_pitch_cov;
     float     heading_roll_cov;
     float     pitch_roll_cov;
+}INSNavGeodAttCov_1;
 
-    float     vx;
-    float     vy;
-    float     vz;
+typedef struct
+{
+    float     ve;
+    float     vn;
+    float     vu;
+}INSNavGeodVel_1;
 
-    float     vx_std_dev;
-    float     vy_std_dev;
-    float     vz_std_dev;
+typedef struct 
+{
+    float     ve_std_dev;
+    float     vn_std_dev;
+    float     vu_std_dev;
+}INSNavGeodVelStdDev_1;
 
-    float     vx_vy_cov;
-    float     vx_vz_cov;
-    float     vy_vz_cov;
+typedef struct
+{
+    float     ve_vn_cov;
+    float     ve_vu_cov;
+    float     vn_vu_cov;
+}INSNavGeodVelCov_1;
 
-};
+typedef union
+{
+    INSNavGeodPosStdDev_1 PosStdDev;    
+    INSNavGeodPosCov_1 PosCov;       
+    INSNavGeodAtt_1 Att; 
+    INSNavGeodAttStdDev_1 AttStdDev;
+    INSNavGeodAttCov_1 AttCov;
+    INSNavGeodVel_1 Vel;
+    INSNavGeodVelStdDev_1 VelStdDev;
+    INSNavGeodVelCov_1 VelCov;
+}INSNavGeodData_1;
 
-struct INSNavGeod
+typedef struct
 {
     BlockHeader_t block_header;
 
@@ -663,38 +804,29 @@ struct INSNavGeod
     uint8_t       reserved;
     uint16_t      sb_list;
 
-    float     latitude_std_dev;
-    float     longitude_std_dev;
-    float     height_std_dev;
+    INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
+}INSNavGeod_1;
 
-    float     latitude_longitude_cov;
-    float     latitude_height_cov;
-    float     longitude_height_cov;
+typedef INSNavGeodPosStdDev_1 INSNavGeodPosStdDev;
 
-    float     heading;
-    float     pitch;
-    float     roll;
+typedef INSNavGeodPosCov_1 INSNavGeodPosCov;
 
-    float     heading_std_dev;
-    float     pitch_std_dev;
-    float     roll_std_dev;
+typedef INSNavGeodAtt_1 INSNavGeodAtt;
 
-    float     heading_pitch_cov;
-    float     heading_roll_cov;
-    float     pitch_roll_cov;
+typedef INSNavGeodAttStdDev_1 INSNavGeodAttStdDev;
 
-    float     ve;
-    float     vn;
-    float     vu;
+typedef INSNavGeodAttCov_1 INSNavGeodAttCov;
 
-    float     ve_std_dev;
-    float     vn_std_dev;
-    float     vu_std_dev;
+typedef INSNavGeodVel_1 INSNavGeodVel;
 
-    float     ve_vn_cov;
-    float     ve_vu_cov;
-    float     vn_vu_cov;
-};
+typedef INSNavGeodVelStdDev_1 INSNavGeodVelStdDev;
+
+typedef INSNavGeodVelCov_1 INSNavGeodVelCov;
+
+typedef INSNavGeodData_1 INSNavGeodData;
+
+#define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
+typedef INSNavGeod_1 INSNavGeod;
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type
 // declarations between push and pop directives. (A pop directive with no prior push

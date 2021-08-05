@@ -294,8 +294,8 @@ namespace io_comm_rx {
                         g_poscovgeodetic_has_arrived_gpsfix,
                         g_velcovgeodetic_has_arrived_gpsfix,
                         g_atteuler_has_arrived_gpsfix,
-                        g_attcoveuler_has_arrived_gpsfix,
-                        g_insnavgeod_has_arrived_gpsfix};
+                        g_attcoveuler_has_arrived_gpsfix};
+                        //g_insnavgeod_has_arrived_gpsfix
                     gpsfix_vec.erase(gpsfix_vec.begin() + gpsfix_map[ID_temp]);
                     // Checks whether all entries in gpsfix_vec are true
                     if (std::all_of(gpsfix_vec.begin(), gpsfix_vec.end(),
@@ -309,8 +309,8 @@ namespace io_comm_rx {
                 {
                     std::vector<bool> navsatfix_vec = {
                         g_pvtgeodetic_has_arrived_navsatfix,
-                        g_poscovgeodetic_has_arrived_navsatfix,
-                        g_insnavgeod_has_arrived_navsatfix};
+                        g_poscovgeodetic_has_arrived_navsatfix};
+                        //g_insnavgeod_has_arrived_navsatfix};
                     navsatfix_vec.erase(navsatfix_vec.begin() +
                                         navsatfix_map[ID_temp]);
                     // Checks whether all entries in navsatfix_vec are true
@@ -327,8 +327,8 @@ namespace io_comm_rx {
                     std::vector<bool> pose_vec = {g_pvtgeodetic_has_arrived_pose,
                                                   g_poscovgeodetic_has_arrived_pose,
                                                   g_atteuler_has_arrived_pose,
-                                                  g_attcoveuler_has_arrived_pose,
-                                                  g_insnavgeod_has_arrived_pose};
+                                                  g_attcoveuler_has_arrived_pose};
+                                                  //g_insnavgeod_has_arrived_pose};
                     pose_vec.erase(pose_vec.begin() + pose_map[ID_temp]);
                     // Checks whether all entries in pose_vec are true
                     if (std::all_of(pose_vec.begin(), pose_vec.end(),

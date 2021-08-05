@@ -29,7 +29,6 @@
 // *****************************************************************************
 
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
-
 /**
  * @file rx_message.cpp
  * @date 20/08/20
@@ -284,6 +283,7 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
 septentrio_gnss_driver::INSNavCartPtr
 io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
 {
+    int SBI_dx = 0;
     septentrio_gnss_driver::INSNavCartPtr msg =
         boost::make_shared<septentrio_gnss_driver::INSNavCart>();
     
@@ -304,6 +304,22 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->latency = data.latency;
     msg->datum = data.datum;
     msg->sb_list = data.sb_list;
+
+    if((msg->sb_list & 1) !=0)
+    {
+        msg->x_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.x_std_dev;
+        msg->y_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.y_std_dev;
+        msg->z_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.z_std_dev;
+        SBI_dx++;
+    }
+
+    // if((msg->sb_list & 2) !=0)
+    // {
+    //     msg->xy_cov = data.INSNavCartData[SBI_dx].PosCov.xy_cov;
+    //     msg->xz_cov = data.INSNavCartData[SBI_dx].PosCov.xz_cov;
+    //     msg->yz_cov = data.INSNavCartData[SBI_dx].PosCov.yz_cov;
+    //     SBI_dx++;
+    // }
     // msg->x_std_dev = data.x_std_dev;
     // msg->y_std_dev = data.y_std_dev;
     // msg->z_std_dev = data.z_std_dev;
@@ -353,65 +369,72 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->latency = data.latency;
     msg->datum = data.datum;
     msg->sb_list = data.sb_list;
-            // Define INSNavCart struct for the corresponding sub-block
-    INSNavGeod* ins_nav_geod = reinterpret_cast<INSNavGeod*>(&last_insnavgeod_.sb_list);
-    //uint16_t check_sblist = 0;
-    if ((ins_nav_geod->sb_list & 1) !=0)
+
+    int SBIdx = 0;
+    if((msg->sb_list & 1) !=0)
     {
-        //INSNavGeodPosStdDev
-        msg->latitude_std_dev= data.latitude_std_dev;
-        msg->longitude_std_dev = data.longitude_std_dev;
-        msg->height_std_dev = data.height_std_dev;
+        msg->latitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.latitude_std_dev;
+        msg->longitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.longitude_std_dev;
+        msg->height_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.height_std_dev;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 2) !=0)
+
+    if((msg->sb_list & 2) !=0)
     {
-        //INSNavGeodPosCov
-        msg->latitude_longitude_cov = data.latitude_longitude_cov;
-        msg->latitude_height_cov = data.latitude_height_cov;
-        msg->longitude_height_cov = data.longitude_height_cov;
+        msg->latitude_longitude_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov;
+        msg->latitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_height_cov;
+        msg->longitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.longitude_height_cov;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 4) !=0)
+
+    if((msg->sb_list & 2) !=0)
     {
-        //INSNavGeodAtt
-        msg->heading = data.heading;
-        msg->pitch = data.pitch;
-        msg->roll = data.roll;
+        msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
+        msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;
+        msg->roll = data.INSNavGeodData[SBIdx].Att.roll;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 8) !=0)
+
+    if((msg->sb_list & 4) !=0)
     {
-        //INSNavGeodAttStdDev
-        msg->heading_std_dev = data.heading_std_dev;
-        msg->pitch_std_dev = data.pitch_std_dev;
-        msg->roll_std_dev = data.roll_std_dev;
+        msg->heading_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
+        msg->pitch_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.roll_std_dev;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 10) !=0)
+
+    if((msg->sb_list & 16) !=0)
     {
-        //INSNavGeodAttCov
-        msg->heading_pitch_cov = data.heading_pitch_cov;
-        msg->heading_roll_cov = data.heading_roll_cov;
-        msg->pitch_roll_cov = data.pitch_roll_cov;
+        msg->heading_pitch_cov = data.INSNavGeodData[SBIdx].AttCov.heading_pitch_cov;
+        msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
+        msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 20) !=0)
+
+    if((msg->sb_list & 8) !=0)
     {
-        //INSNavGeodVel
-        msg->ve = data.ve;
-        msg->vn = data.vn;
-        msg->vu = data.vu;
+        msg->ve = data.INSNavGeodData[SBIdx].Vel.ve;
+        msg->vn = data.INSNavGeodData[SBIdx].Vel.vn;
+        msg->vu = data.INSNavGeodData[SBIdx].Vel.vu;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 40) !=0)
+
+    if((msg->sb_list & 16) !=0)
     {
-        //INSNavGeodVelStdDev
-        msg->ve_std_dev = data.ve_std_dev;
-        msg->vn_std_dev = data.vn_std_dev;
-        msg->vu_std_dev = data.vu_std_dev;
+        msg->ve_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
+        msg->vn_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
+        msg->vu_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
+        SBIdx++;
     }
-    if ((ins_nav_geod->sb_list & 80) !=0)
+
+    if((msg->sb_list & 128) !=0)
     {
-        //INSNavGeodVelCov
-        msg->ve_vn_cov = data.ve_vn_cov;
-        msg->ve_vu_cov = data.ve_vu_cov;
-        msg->vn_vu_cov = data.vn_vu_cov;
+        msg->ve_vn_cov = data.INSNavGeodData[SBIdx].VelCov.ve_vn_cov;
+        msg->ve_vu_cov = data.INSNavGeodData[SBIdx].VelCov.ve_vu_cov;
+        msg->vn_vu_cov = data.INSNavGeodData[SBIdx].VelCov.vn_vu_cov;
+        SBIdx++;
     }
+
     return msg;
 };
 
