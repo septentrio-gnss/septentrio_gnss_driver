@@ -387,7 +387,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 2) !=0)
+    if((msg->sb_list & 4) !=0)
     {
         msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
         msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;
@@ -395,7 +395,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 4) !=0)
+    if((msg->sb_list & 8) !=0)
     {
         msg->heading_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
         msg->pitch_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
@@ -411,7 +411,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 8) !=0)
+    if((msg->sb_list & 32) !=0)
     {
         msg->ve = data.INSNavGeodData[SBIdx].Vel.ve;
         msg->vn = data.INSNavGeodData[SBIdx].Vel.vn;
@@ -419,7 +419,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 16) !=0)
+    if((msg->sb_list & 64) !=0)
     {
         msg->ve_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
         msg->vn_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
