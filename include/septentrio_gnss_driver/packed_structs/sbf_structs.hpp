@@ -801,7 +801,6 @@ typedef struct
     uint16_t      accuracy;
     uint16_t      latency;
     uint8_t       datum;
-    uint8_t       reserved;
     uint16_t      sb_list;
 
     INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     

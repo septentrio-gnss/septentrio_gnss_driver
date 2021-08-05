@@ -313,36 +313,61 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         SBI_dx++;
     }
 
-    // if((msg->sb_list & 2) !=0)
-    // {
-    //     msg->xy_cov = data.INSNavCartData[SBI_dx].PosCov.xy_cov;
-    //     msg->xz_cov = data.INSNavCartData[SBI_dx].PosCov.xz_cov;
-    //     msg->yz_cov = data.INSNavCartData[SBI_dx].PosCov.yz_cov;
-    //     SBI_dx++;
-    // }
-    // msg->x_std_dev = data.x_std_dev;
-    // msg->y_std_dev = data.y_std_dev;
-    // msg->z_std_dev = data.z_std_dev;
-    // msg->xy_cov = data.xy_cov;
-    // msg->xz_cov = data.xz_cov;
-    // msg->heading = data.heading;
-    // msg->pitch = data.pitch;
-    // msg->roll  = data.pitch;
-    // msg->heading_std_dev = data.heading_std_dev;
-    // msg->pitch_std_dev = data.pitch_std_dev;
-    // msg->roll_std_dev = data.roll_std_dev;
-    // msg->heading_pitch_cov = data.heading_pitch_cov;
-    // msg->heading_roll_cov = data.heading_roll_cov;
-    // msg->pitch_roll_cov = data.pitch_roll_cov;
-    // msg->vx = data.vx;
-    // msg->vy = data.vy;
-    // msg->vz = data.vz;
-    // msg->vx_std_dev = data.vx_std_dev;
-    // msg->vy_std_dev = data.vy_std_dev;
-    // msg->vz_std_dev = data.vz_std_dev;
-    // msg->vx_vy_cov = data.vx_vy_cov;
-    // msg->vx_vz_cov = data.vx_vz_cov;
-    // msg->vy_vz_cov = data.vy_vz_cov;
+    if((msg->sb_list & 2) !=0)
+    {
+        msg->heading = data.INSNavCartData[SBI_dx].Att.heading;
+        msg->pitch= data.INSNavCartData[SBI_dx].Att.pitch;
+        msg->roll = data.INSNavCartData[SBI_dx].Att.roll;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 4) !=0)
+    {
+        msg->heading_std_dev = data.INSNavCartData[SBI_dx].AttStdDev.heading_std_dev;
+        msg->pitch_std_dev= data.INSNavCartData[SBI_dx].AttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.INSNavCartData[SBI_dx].AttStdDev.roll_std_dev;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 8) !=0)
+    {
+        msg->vx = data.INSNavCartData[SBI_dx].Vel.vx;
+        msg->vy = data.INSNavCartData[SBI_dx].Vel.vy;
+        msg->vz = data.INSNavCartData[SBI_dx].Vel.vz;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 16) !=0)
+    {
+        msg->vx_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vx_std_dev;
+        msg->vy_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vy_std_dev;
+        msg->vz_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vz_std_dev;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 32) !=0)
+    {
+        msg->xy_cov = data.INSNavCartData[SBI_dx].PosCov.xy_cov;
+        msg->xz_cov = data.INSNavCartData[SBI_dx].PosCov.xz_cov;
+        msg->yz_cov = data.INSNavCartData[SBI_dx].PosCov.yz_cov;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 64) !=0)
+    {
+        msg->heading_pitch_cov = data.INSNavCartData[SBI_dx].AttCov.heading_pitch_cov;
+        msg->heading_roll_cov = data.INSNavCartData[SBI_dx].AttCov.heading_roll_cov;
+        msg->pitch_roll_cov = data.INSNavCartData[SBI_dx].AttCov.pitch_roll_cov;
+        SBI_dx++;
+    }
+
+    if((msg->sb_list & 128) !=0)
+    {
+        msg->vx_vy_cov = data.INSNavCartData[SBI_dx].VelCov.vx_vy_cov;
+        msg->vx_vz_cov = data.INSNavCartData[SBI_dx].VelCov.vx_vz_cov;
+        msg->vy_vz_cov = data.INSNavCartData[SBI_dx].VelCov.vy_vz_cov;
+        SBI_dx++;
+    }
     return msg;
 };
 septentrio_gnss_driver::INSNavGeodPtr
@@ -381,21 +406,13 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->latitude_longitude_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov;
-        msg->latitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_height_cov;
-        msg->longitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.longitude_height_cov;
-        SBIdx++;
-    }
-
-    if((msg->sb_list & 4) !=0)
-    {
         msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
         msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;
         msg->roll = data.INSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
 
-    if((msg->sb_list & 8) !=0)
+    if((msg->sb_list & 4) !=0)
     {
         msg->heading_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
         msg->pitch_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
@@ -403,15 +420,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 16) !=0)
-    {
-        msg->heading_pitch_cov = data.INSNavGeodData[SBIdx].AttCov.heading_pitch_cov;
-        msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
-        msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
-        SBIdx++;
-    }
-
-    if((msg->sb_list & 32) !=0)
+    if((msg->sb_list & 8) !=0)
     {
         msg->ve = data.INSNavGeodData[SBIdx].Vel.ve;
         msg->vn = data.INSNavGeodData[SBIdx].Vel.vn;
@@ -419,11 +428,27 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         SBIdx++;
     }
 
-    if((msg->sb_list & 64) !=0)
+    if((msg->sb_list & 16) !=0)
     {
         msg->ve_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
         msg->vn_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
         msg->vu_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
+        SBIdx++;
+    }
+
+    if((msg->sb_list & 32) !=0)
+    {
+        msg->latitude_longitude_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov;
+        msg->latitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.latitude_height_cov;
+        msg->longitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.longitude_height_cov;
+        SBIdx++;
+    }
+
+    if((msg->sb_list & 64) !=0)
+    {
+        msg->heading_pitch_cov = data.INSNavGeodData[SBIdx].AttCov.heading_pitch_cov;
+        msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
+        msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
         SBIdx++;
     }
 
