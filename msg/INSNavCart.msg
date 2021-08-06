@@ -16,7 +16,7 @@ float64     z
 uint16      accuracy
 uint16      latency
 uint8       datum
-uint8       reserved
+#uint8       reserved
 uint16      sb_list
 
 # INSNavCartPosStdDev sub-block definition:

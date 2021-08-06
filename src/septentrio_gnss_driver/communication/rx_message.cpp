@@ -305,12 +305,20 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->datum = data.datum;
     msg->sb_list = data.sb_list;
 
+    // Reading sub-block from corresponding SBF block
     if((msg->sb_list & 1) !=0)
     {
         msg->x_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.x_std_dev;
         msg->y_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.y_std_dev;
         msg->z_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.z_std_dev;
         SBI_dx++;
+    }
+    // if this sub block is not available then output DO_NOT_USE_VALUE
+    else
+    {
+        msg->x_std_dev = DO_NOT_USE_VALUE;
+        msg->y_std_dev = DO_NOT_USE_VALUE;
+        msg->z_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 2) !=0)
@@ -320,6 +328,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->roll = data.INSNavCartData[SBI_dx].Att.roll;
         SBI_dx++;
     }
+    else
+    {
+        msg->heading = DO_NOT_USE_VALUE;
+        msg->pitch = DO_NOT_USE_VALUE;
+        msg->roll = DO_NOT_USE_VALUE;
+    }
 
     if((msg->sb_list & 4) !=0)
     {
@@ -327,6 +341,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->pitch_std_dev= data.INSNavCartData[SBI_dx].AttStdDev.pitch_std_dev;
         msg->roll_std_dev = data.INSNavCartData[SBI_dx].AttStdDev.roll_std_dev;
         SBI_dx++;
+    }
+    else
+    {
+        msg->heading_std_dev = DO_NOT_USE_VALUE;
+        msg->pitch_std_dev = DO_NOT_USE_VALUE;
+        msg->roll_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 8) !=0)
@@ -336,6 +356,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->vz = data.INSNavCartData[SBI_dx].Vel.vz;
         SBI_dx++;
     }
+    else
+    {
+        msg->vx = DO_NOT_USE_VALUE;
+        msg->vy = DO_NOT_USE_VALUE;
+        msg->vz = DO_NOT_USE_VALUE;
+    }
 
     if((msg->sb_list & 16) !=0)
     {
@@ -343,6 +369,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->vy_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vy_std_dev;
         msg->vz_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vz_std_dev;
         SBI_dx++;
+    }
+    else
+    {
+        msg->vx_std_dev = DO_NOT_USE_VALUE;
+        msg->vy_std_dev = DO_NOT_USE_VALUE;
+        msg->vz_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 32) !=0)
@@ -352,6 +384,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->yz_cov = data.INSNavCartData[SBI_dx].PosCov.yz_cov;
         SBI_dx++;
     }
+    else
+    {
+        msg->xy_cov = DO_NOT_USE_VALUE;
+        msg->xz_cov = DO_NOT_USE_VALUE;
+        msg->yz_cov = DO_NOT_USE_VALUE;
+    }
 
     if((msg->sb_list & 64) !=0)
     {
@@ -359,6 +397,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->heading_roll_cov = data.INSNavCartData[SBI_dx].AttCov.heading_roll_cov;
         msg->pitch_roll_cov = data.INSNavCartData[SBI_dx].AttCov.pitch_roll_cov;
         SBI_dx++;
+    }
+    else
+    {
+        msg->heading_pitch_cov = DO_NOT_USE_VALUE;
+        msg->heading_roll_cov = DO_NOT_USE_VALUE;
+        msg->pitch_roll_cov = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 128) !=0)
@@ -368,11 +412,18 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
         msg->vy_vz_cov = data.INSNavCartData[SBI_dx].VelCov.vy_vz_cov;
         SBI_dx++;
     }
+    else
+    {
+        msg->vx_vy_cov = DO_NOT_USE_VALUE;
+        msg->vx_vz_cov = DO_NOT_USE_VALUE;
+        msg->vy_vz_cov = DO_NOT_USE_VALUE;
+    }
     return msg;
 };
 septentrio_gnss_driver::INSNavGeodPtr
 io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 {
+    int SBIdx = 0;
     septentrio_gnss_driver::INSNavGeodPtr msg =
         boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
     
@@ -395,13 +446,20 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->datum = data.datum;
     msg->sb_list = data.sb_list;
 
-    int SBIdx = 0;
+    // Reading sub-block from corresponding SBF block
     if((msg->sb_list & 1) !=0)
     {
         msg->latitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.latitude_std_dev;
         msg->longitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.longitude_std_dev;
         msg->height_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.height_std_dev;
         SBIdx++;
+    }
+    // if this sub block is not available then output DO_NOT_USE_VALUE
+    else
+    {
+        msg->latitude_std_dev = DO_NOT_USE_VALUE;
+        msg->longitude_std_dev = DO_NOT_USE_VALUE;
+        msg->height_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 2) !=0)
@@ -411,6 +469,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->roll = data.INSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
+    else
+    {
+        msg->heading = DO_NOT_USE_VALUE;
+        msg->pitch = DO_NOT_USE_VALUE;
+        msg->roll = DO_NOT_USE_VALUE;
+    }
 
     if((msg->sb_list & 4) !=0)
     {
@@ -418,6 +482,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->pitch_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
         msg->roll_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.roll_std_dev;
         SBIdx++;
+    }
+    else
+    {
+        msg->heading_std_dev = DO_NOT_USE_VALUE;
+        msg->pitch_std_dev = DO_NOT_USE_VALUE;
+        msg->roll_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 8) !=0)
@@ -427,6 +497,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->vu = data.INSNavGeodData[SBIdx].Vel.vu;
         SBIdx++;
     }
+    else
+    {
+        msg->ve = DO_NOT_USE_VALUE;
+        msg->vn = DO_NOT_USE_VALUE;
+        msg->vu = DO_NOT_USE_VALUE;
+    }
 
     if((msg->sb_list & 16) !=0)
     {
@@ -434,6 +510,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->vn_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
         msg->vu_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
         SBIdx++;
+    }
+    else
+    {
+        msg->ve_std_dev = DO_NOT_USE_VALUE;
+        msg->vn_std_dev = DO_NOT_USE_VALUE;
+        msg->vu_std_dev = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 32) !=0)
@@ -443,6 +525,13 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->longitude_height_cov = data.INSNavGeodData[SBIdx].PosCov.longitude_height_cov;
         SBIdx++;
     }
+    else
+    {
+        msg->latitude_longitude_cov = DO_NOT_USE_VALUE;
+        msg->latitude_height_cov = DO_NOT_USE_VALUE;
+        msg->longitude_height_cov = DO_NOT_USE_VALUE;
+    }
+
 
     if((msg->sb_list & 64) !=0)
     {
@@ -450,6 +539,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
         msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
         SBIdx++;
+    }
+    else
+    {
+        msg->heading_pitch_cov = DO_NOT_USE_VALUE;
+        msg->heading_roll_cov = DO_NOT_USE_VALUE;
+        msg->pitch_roll_cov = DO_NOT_USE_VALUE;
     }
 
     if((msg->sb_list & 128) !=0)
@@ -459,7 +554,12 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
         msg->vn_vu_cov = data.INSNavGeodData[SBIdx].VelCov.vn_vu_cov;
         SBIdx++;
     }
-
+    else
+    {
+        msg->ve_vn_cov = DO_NOT_USE_VALUE;
+        msg->ve_vu_cov = DO_NOT_USE_VALUE;
+        msg->vn_vu_cov = DO_NOT_USE_VALUE;
+    }
     return msg;
 };
 

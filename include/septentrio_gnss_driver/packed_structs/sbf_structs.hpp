@@ -685,7 +685,6 @@ typedef struct
     uint16_t      accuracy;
     uint16_t      latency;
     uint8_t       datum;
-    uint8_t       reserved;
     uint16_t      sb_list;
 
     INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];

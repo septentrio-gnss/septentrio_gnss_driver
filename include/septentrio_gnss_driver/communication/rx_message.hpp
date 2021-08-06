@@ -107,8 +107,11 @@
 #ifndef CONNECTION_DESCRIPTOR_BYTE_2
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
-
-#define MAX_SBFSIZE 65535
+// -2e10 is do-not-use values, 
+//When a INS solution is not available, INS-related SBF Sub-blocks are still output with all the numeric fields set to DO_NOT_USE_VALUE
+#ifndef DO_NOT_USE_VALUE
+#define DO_NOT_USE_VALUE -2e10
+#endif
 
 // C++ libraries
 #include <cassert> // for assert

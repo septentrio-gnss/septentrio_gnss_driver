@@ -17,7 +17,7 @@ float32     undulation
 uint16      accuracy
 uint16      latency
 uint8       datum
-uint8       reserved
+#uint8       reserved
 uint16      sb_list
 
 # INSNavGeodPosStdDev sub-block definition:
