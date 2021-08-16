@@ -31,7 +31,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - default: `Unknown`
   - `ant_serial_nr`: serial number of your antenna
  
-  **------ To be Implemented------**
+  **------ Need feedback------**
   -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information from Inertial Measurement Unit (IMU) to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
   - The IMU is typically made up of a 3-axis accelerometer, a 3-axiss gyroscope and sometimes a 3-axis magnetometer and measures the system's angular rate and acceleration. The computational unit used to determine the attitude, position, and velocity of the system based on the raw measurements from the IMU given an initial starting position and attitude.
   - Measure and Compensate for Antenna Lever arm:
@@ -54,31 +54,34 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - Make sure that the INS/GNSS integration filter is enabled :`ins_output_type`
    
   **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
-  - `imu_orientation`: IMU sensor orientation
-    - If orientation is set to `sensor_default`, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
-    - If orientation is set to `manual`, the receiver will use parameters `thetaX`, `thetaY` and `thetaZ` to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `thetaZ` first, then `thetaY`, then `thetaX`.
-  - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
-    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame
+  **------ Implemented------**
+  - `IMU_orientation`: IMU sensor orientation
+    - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `thetaX`, `thetaY` and `thetaZ` under `angles` param should be equal to zero
+    - If orientation is set to `manual` to true, the receiver will use parameters `thetaX`, `thetaY` and `thetaZ` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `thetaZ` first, then `thetaY`, then `thetaX`. (The value should be in degrees)
+  - `INS_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
+    - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame (The value should be in meter)
     - **Note**: For an accurate navigation it is essential to provide an accurate `ins_ant_lever_arm`
-  - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
-    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame
+  - `INS_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
+    - The parameters `POI_X`,`POI_Y` and `POI_Z` refers to the vehicle reference  frame (The value should be in meter)
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
-  - The below image illustrates a case where the lever arm X and Y components are positive, while the Z component is negative. In some cases, you might want the navigator to compute the position of your user-defined point of interest (POI). In this case you can enter the X, Y, Z offset values from the IMU Reference Point to Point of Interest.
+  - `INS_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
+    - The parameters `VSM_X`,`VSM_Y` and `VSM_Z` refers to the vehicle reference  frame (The value should be in meter)
+  - `Attitude_offset`: if the antenna baseline is not align perfectly with the vehicle’s longitudinal axis or its perpendicular and in these circumstances the provided `Attitude_offset` value can also be used to compensate for small angular deviations.
+    - `heading`:
+    - `pitch`: 
   - `ins_output_type`: The INS navigation filter
-    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. for e.g. from `INSNavGeod` SBF blocks will publish the following:
-      - pos_std_dev: true
-      - pos_cov: true
-      - att: true
-      - att_std_dev: true
-      - att_cov:false: true
-      - vel: true
-      - vel_std_dev: true
-      - vel_cov: true
-    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as`output_location: ant1` or user defined point of interest as `output_location: poi1` in `config.yaml` file.
-  - `set_insinitial_heading`: This parameters obtains the initial INS/GNSS integrated heading during the alignment phase. Normally the vehicle needs to move around a bit for the IMU to calibrate heading so that it coincides with the GNSS heading.
+    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as `output_location: MainAnt` or to user defined point of interest as `output_location: POI1`
+    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data.
+      - PosStdDev: true
+      - Att: true
+      - AttStdDev: true
+      - Vel: true
+      - VelStdDev: true
+  **---- To be Implemented----**
+  - `INS_initial_heading`: This parameters obtains the initial INS/GNSS integrated heading during the alignment phase. Normally the vehicle needs to move around a bit for the IMU to calibrate heading so that it coincides with the GNSS heading.
     - `auto`: This mode will store the heading determined from GNSS measurements.
     - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
-
+  - `INS_stdDev_mask`: The standard deviation mask of the INS navigation filter
      **------ Till here------**
   - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
     - At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_GNSS_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
@@ -121,9 +124,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
   - `publish/pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
   - `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
-        **------ To be Implemented------**
   - `publish/insnavcart`: `true` to publish `insnavcart_msgs/INSNavCart.msg` message into the topic`/insnavcart` 
   - `publish/insnavgeod`: `true` to publish `insnavgeod_msgs/INSNavGeod.msg` message into the topic`/insnavgeod` 
+       **------ To be Implemented------**
   - `publish/exteventinsnavcart`: `true` to publish `exteventinsnavcart_msgs/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
   - `publish/exteventinsnavgeod`: `true` to publish `exteventinsnavgeod_msgs/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod` 
   - `publish/imusetup`: `true` to publish `imusetup_msgs/IMUSetup.msg` message into the topic`/imusetup` 
