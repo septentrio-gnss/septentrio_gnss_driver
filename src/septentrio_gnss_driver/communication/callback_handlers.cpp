@@ -39,15 +39,14 @@
 std::pair<std::string, uint32_t> gpsfix_pairs[] = {
     std::make_pair("4013", 0), std::make_pair("4027", 1), std::make_pair("4001", 2),
     std::make_pair("4007", 3), std::make_pair("5906", 4), std::make_pair("5908", 5),
-    std::make_pair("5938", 6), std::make_pair("5939", 7), std::make_pair("4226",8)};
+    std::make_pair("5938", 6), std::make_pair("5939", 7)};
 
 std::pair<std::string, uint32_t> navsatfix_pairs[] = {std::make_pair("4007", 0),
-                                                      std::make_pair("5906", 1),
-                                                      std::make_pair("4226",2)};
+                                                      std::make_pair("5906", 1)};
 
 std::pair<std::string, uint32_t> pose_pairs[] = {
     std::make_pair("4007", 0), std::make_pair("5906", 1), std::make_pair("5938", 2),
-    std::make_pair("5939", 3), std::make_pair("4226",4)};
+    std::make_pair("5939", 3)};
 
 std::pair<std::string, uint32_t> diagnosticarray_pairs[] = {
     std::make_pair("4014", 0), std::make_pair("4082", 1)};
@@ -56,11 +55,11 @@ namespace io_comm_rx {
     boost::mutex CallbackHandlers::callback_mutex_;
 
     CallbackHandlers::GPSFixMap CallbackHandlers::gpsfix_map(gpsfix_pairs,
-                                                             gpsfix_pairs + 9);
+                                                             gpsfix_pairs + 8);
     CallbackHandlers::NavSatFixMap
-        CallbackHandlers::navsatfix_map(navsatfix_pairs, navsatfix_pairs + 3);
+        CallbackHandlers::navsatfix_map(navsatfix_pairs, navsatfix_pairs + 2);
     CallbackHandlers::PoseWithCovarianceStampedMap
-        CallbackHandlers::pose_map(pose_pairs, pose_pairs + 5);
+        CallbackHandlers::pose_map(pose_pairs, pose_pairs + 4);
     CallbackHandlers::DiagnosticArrayMap
         CallbackHandlers::diagnosticarray_map(diagnosticarray_pairs,
                                               diagnosticarray_pairs + 2);
@@ -109,6 +108,7 @@ namespace io_comm_rx {
             CallbackMap::key_type key = "NavSatFix";
             std::string ID_temp = rx_message.messageID();
             if (ID_temp == do_navsatfix_)
+            //if (ID_temp == "4007" || ID_temp == "4226")
             // The last incoming block among PVTGeodetic and PosCovGeodetic triggers
             // the publishing of NavSatFix.
             {
@@ -133,6 +133,7 @@ namespace io_comm_rx {
             CallbackMap::key_type key = "PoseWithCovarianceStamped";
             std::string ID_temp = rx_message.messageID();
             if (ID_temp == do_pose_)
+            //if (ID_temp == "4007" || ID_temp == "4226")
             // The last incoming block among PVTGeodetic, PosCovGeodetic, AttEuler
             // and AttCovEuler triggers the publishing of PoseWithCovarianceStamped.
             {
@@ -196,7 +197,7 @@ namespace io_comm_rx {
             std::string ID_temp = rx_message.messageID();
             // If no new PVTGeodetic block is coming in, there is no need to publish
             // sensor_msgs::TimeReference (with GPST) anew.
-            if (ID_temp == "4007" && ID_temp == "4226")
+            if (ID_temp == "4007")
             {
                 for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                      callback != callbackmap_.upper_bound(key1); ++callback)
@@ -217,7 +218,7 @@ namespace io_comm_rx {
             std::string ID_temp = rx_message.messageID();
             CallbackMap::key_type key1 = rx_message.messageID();
             if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
-                ID_temp == "5908" || ID_temp == "4226")
+                ID_temp == "5908")
             // Even though we are not interested in publishing ChannelStatus (4013),
             // MeasEpoch (4027), DOP (4001) and VelCovGeodetic (5908) ROS messages,
             // we have to save some contents of these incoming blocks in order to
@@ -284,7 +285,7 @@ namespace io_comm_rx {
                 if (g_publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
                      ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5908" ||
-                     ID_temp == "5938" || ID_temp == "5939" || ID_temp == "4226"))
+                     ID_temp == "5938" || ID_temp == "5939"))
                 {
                     std::vector<bool> gpsfix_vec = {
                         g_channelstatus_has_arrived_gpsfix,
@@ -305,7 +306,7 @@ namespace io_comm_rx {
                     }
                 }
                 if (g_publish_navsatfix == true &&
-                    (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "4226"))
+                    (ID_temp == "4007" || ID_temp == "5906"))
                 {
                     std::vector<bool> navsatfix_vec = {
                         g_pvtgeodetic_has_arrived_navsatfix,
@@ -322,7 +323,7 @@ namespace io_comm_rx {
                 }
                 if (g_publish_pose == true &&
                     (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5938" ||
-                     ID_temp == "5939" || ID_temp == "4226"))
+                     ID_temp == "5939"))
                 {
                     std::vector<bool> pose_vec = {g_pvtgeodetic_has_arrived_pose,
                                                   g_poscovgeodetic_has_arrived_pose,

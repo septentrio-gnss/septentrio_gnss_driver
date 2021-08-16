@@ -2171,7 +2171,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         msg->header.stamp.nsec = time_obj.nsec;
         g_pvtgeodetic_has_arrived_navsatfix = false;
         g_poscovgeodetic_has_arrived_navsatfix = false;
-        g_insnavgeod_has_arrived_navsatfix = false;
+        //g_insnavgeod_has_arrived_navsatfix = false;
         static ros::Publisher publisher =
             g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
         // Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2226,7 +2226,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         g_velcovgeodetic_has_arrived_gpsfix = false;
         g_atteuler_has_arrived_gpsfix = false;
         g_attcoveuler_has_arrived_gpsfix = false;
-        g_insnavgeod_has_arrived_gpsfix = false;
+        //g_insnavgeod_has_arrived_gpsfix = false;
         static ros::Publisher publisher =
             g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
         // Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2273,7 +2273,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         g_poscovgeodetic_has_arrived_pose = false;
         g_atteuler_has_arrived_pose = false;
         g_attcoveuler_has_arrived_pose = false;
-        g_insnavgeod_has_arrived_pose = false;
+        //g_insnavgeod_has_arrived_pose = false;
         static ros::Publisher publisher =
             g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
                 "/pose", g_ROS_QUEUE_SIZE);

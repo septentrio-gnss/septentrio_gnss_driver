@@ -99,6 +99,21 @@
 #define PITCH_MIN -90
 #endif
 
+#ifndef ATTSTD_DEV_MIN
+#define ATTSTD_DEV_MIN 0
+#endif
+
+#ifndef ATTSTD_DEV_MAX
+#define ATTSTD_DEV_MAX 5
+#endif
+
+#ifndef POSSTD_DEV_MIN
+#define POSSTD_DEV_MIN 0
+#endif
+
+#ifndef POSSTD_DEV_MAX
+#define POSSTD_DEV_MAX 100
+#endif
 /**
  * @file rosaic_node.hpp
  * @date 21/08/20
@@ -347,6 +362,13 @@ namespace rosaic_node {
         bool VelStdDev_;
         std::string insnavconfig_;
         std::string output_location_;
+
+        //INS_initial heading
+        std::string ins_initial_heading_;
+
+        //INS_std_dev_mask
+        float att_std_dev_;
+        float pos_std_dev_;
         
         //! Type of NTRIP connection
         std::string mode_;

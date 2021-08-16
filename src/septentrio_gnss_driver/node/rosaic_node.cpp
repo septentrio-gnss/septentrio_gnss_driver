@@ -521,6 +521,43 @@ void rosaic_node::ROSaicNode::configureRx()
         ROS_ERROR("Please specify a valid parameter for ins_output_type");
     }
 
+    //INS_initial_heading
+    {
+        std::stringstream ss;
+        if(ins_initial_heading_ == "auto")
+        {
+            ss << "siih, " << ins_initial_heading_ << " \x0D";
+            IO.send(ss.str());
+        }
+        else if (ins_initial_heading_ == "stored")
+        {
+            ss << "siih, " << ins_initial_heading_ << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Invalid mode specified for INS_initial_heading.");
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
+
+    //INS_stdDev_mask
+    {
+        if(att_std_dev_ >=ATTSTD_DEV_MIN && att_std_dev_ <= ATTSTD_DEV_MAX && 
+           pos_std_dev_ >= POSSTD_DEV_MIN && pos_std_dev_ <= POSSTD_DEV_MAX)
+        {
+            std::stringstream ss;
+            ss << "sism, " << string_utilities::trimString(std::to_string(att_std_dev_)) << ", " << string_utilities::trimString(std::to_string(pos_std_dev_))
+            << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Please specify a valid AttStsDev and PosStdDev");
+        }
+    }
+
     // Configuring the NTRIP connection
     // First disable any existing NTRIP connection on NTR1
     {
@@ -670,6 +707,12 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("Attitude_offset/heading", heading_, 0.0f);
     g_nh->param("Attitude_offset/pitch", pitch_, 0.0f);
 
+    //INS_initial_heading param
+    g_nh->param("INS_initial_heading", ins_initial_heading_, std::string("auto"));
+
+    //INS_std_dev_mask
+    g_nh->param("INS_std_dev_mask/Att_Std_Dev", att_std_dev_, 0.0f);
+    g_nh->param("INS_std_dev_mask/Pos_Std_Dev", pos_std_dev_, 0.0f);
 
     //INS solution parameters
     g_nh->param("INS_output_type/PosStdDev", PosStdDev_, false);
@@ -981,7 +1024,7 @@ void rosaic_node::ROSaicNode::defineMessages()
     }
     if (g_publish_navsatfix == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_insnavgeod_ == false)
+        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
         {
             ROS_ERROR(
                 "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
@@ -991,7 +1034,7 @@ void rosaic_node::ROSaicNode::defineMessages()
     }
     if (g_publish_gpsfix == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_insnavgeod_ == false)
+        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
         {
             ROS_ERROR(
                 "For a proper GPSFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
@@ -1012,7 +1055,7 @@ void rosaic_node::ROSaicNode::defineMessages()
     if (g_publish_pose == true)
     {
         if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false ||
-            publish_atteuler_ == false || publish_attcoveuler_ == false || publish_insnavgeod_ == false)
+            publish_atteuler_ == false || publish_attcoveuler_ == false)
         {
             ROS_ERROR(
                 "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
