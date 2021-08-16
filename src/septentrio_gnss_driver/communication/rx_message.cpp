@@ -295,6 +295,7 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->gnss_mode = data.gnss_mode;
+    msg->error = data.error;
     msg->info = data.info;
     msg->gnss_age = data.gnss_age;
     msg->x = data.x;
@@ -435,6 +436,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->gnss_mode = data.gnss_mode;
+    msg->error = data.error;
     msg->info = data.info;
     msg->gnss_age = data.gnss_age;
     msg->latitude = data.latitude;

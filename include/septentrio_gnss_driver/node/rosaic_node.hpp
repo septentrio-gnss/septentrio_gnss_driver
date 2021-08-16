@@ -59,6 +59,46 @@
 #ifndef ROSAIC_NODE_HPP
 #define ROSAIC_NODE_HPP
 
+#ifndef ANGLE_MAX
+#define ANGLE_MAX 180
+#endif
+
+#ifndef ANGLE_MIN
+#define ANGLE_MIN -180
+#endif
+
+#ifndef THETA_Y_MAX
+#define THETA_Y_MAX 90
+#endif
+
+#ifndef THETA_Y_MIN
+#define THETA_Y_MIN -90
+#endif
+
+#ifndef LEVER_ARM_MAX
+#define LEVER_ARM_MAX 100
+#endif
+
+#ifndef LEVER_ARM_MIN
+#define LEVER_ARM_MIN -100
+#endif
+
+#ifndef HEADING_MAX
+#define HEADING_MAX 360
+#endif
+
+#ifndef HEADING_MIN
+#define HEADING_MIN -360
+#endif
+
+#ifndef PITCH_MAX
+#define PITCH_MAX 90
+#endif
+
+#ifndef PITCH_MIN
+#define PITCH_MIN -90
+#endif
+
 /**
  * @file rosaic_node.hpp
  * @date 21/08/20
@@ -271,6 +311,43 @@ namespace rosaic_node {
         std::string ant_type_;
         //! Serial number of your particular antenna
         std::string ant_serial_nr_;
+
+        //IMU orientation
+        bool  sensor_default_; 
+        std::string orientation_mode; 
+        bool  manual_;
+        float thetaX_;
+        float thetaY_;
+        float thetaZ_;
+
+        //INS antenna lever arm
+        float x_;
+        float y_;
+        float z_;
+
+        //INS antenna lever arm
+        float poi_x_;
+        float poi_y_;
+        float poi_z_;
+
+        // INS Velocity sensor lever arm
+        float vsm_x_;
+        float vsm_y_;
+        float vsm_z_;
+
+        // Attitude Determination
+        float heading_;
+        float pitch_;
+
+        //INS parameters
+        bool PosStdDev_;
+        bool Att_;
+        bool AttStdDev_;
+        bool Vel_;
+        bool VelStdDev_;
+        std::string insnavconfig_;
+        std::string output_location_;
+        
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to

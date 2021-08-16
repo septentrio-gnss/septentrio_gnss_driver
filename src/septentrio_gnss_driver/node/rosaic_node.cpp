@@ -358,6 +358,169 @@ void rosaic_node::ROSaicNode::configureRx()
     g_response_condition.wait(lock, []() { return g_response_received; });
     g_response_received = false;
 
+    //IMU orientation
+    {
+        std::stringstream ss;
+        if(sensor_default_ || manual_ == true)
+        {
+            if(sensor_default_)
+            {
+                orientation_mode = "SensorDefault";
+            }
+            else
+            {
+                orientation_mode = "manual";
+            }
+            if(thetaX_ >= ANGLE_MIN && thetaX_<= ANGLE_MAX && thetaY_ >= THETA_Y_MIN && thetaY_ <= THETA_Y_MAX && 
+                thetaZ_ >= ANGLE_MIN && thetaZ_ <= ANGLE_MAX)
+            {
+                ss <<" sio, " <<orientation_mode << ", " << string_utilities::trimString(std::to_string(thetaX_))<< ", " 
+                << string_utilities::trimString(std::to_string(thetaY_))<< ", " 
+                << string_utilities::trimString(std::to_string(thetaZ_))<< " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a correct value for IMU_orientation angles");
+            }
+        }
+       
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // INS antenna lever arm
+    {
+        if(x_>=LEVER_ARM_MIN && x_<=LEVER_ARM_MAX && y_>=LEVER_ARM_MIN && y_<=LEVER_ARM_MAX 
+            && z_>=LEVER_ARM_MIN && z_<=LEVER_ARM_MAX)
+        {
+            std::stringstream ss;
+            ss << "sial, " << string_utilities::trimString(std::to_string(x_))
+            << ", " << string_utilities::trimString(std::to_string(y_)) << ", "
+            << string_utilities::trimString(std::to_string(z_)) << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Please specify a correct value for X, Y and Z in config file under INS_antenna_lever_arm");
+        }
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // INS point of interest
+    {
+        if(poi_x_>=LEVER_ARM_MIN && poi_x_<=LEVER_ARM_MAX && poi_y_>=LEVER_ARM_MIN && poi_y_<=LEVER_ARM_MAX 
+            && poi_z_>=LEVER_ARM_MIN && poi_z_<=LEVER_ARM_MAX)
+        {
+            std::stringstream ss;
+            ss << "sipl, POI1, " << string_utilities::trimString(std::to_string(poi_x_))
+            << ", " << string_utilities::trimString(std::to_string(poi_y_)) << ", "
+            << string_utilities::trimString(std::to_string(poi_z_)) << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Please specify a correct value for POI_X, POI_Y and POI_Z in config file under INS_point_of_interest");
+        }
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // INS Velocity sensor lever arm
+    {
+        if(vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX 
+            && vsm_z_>=LEVER_ARM_MIN && vsm_z_<=LEVER_ARM_MAX)
+        {
+            std::stringstream ss;
+            ss << "sivl, VSM1, " << string_utilities::trimString(std::to_string(vsm_x_))
+            << ", " << string_utilities::trimString(std::to_string(vsm_y_)) << ", "
+            << string_utilities::trimString(std::to_string(vsm_z_)) << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Please specify a correct value for VSM_X, VSM_Y and VSM_Z in config file under INS_vel_sensor_lever_arm");
+        }
+        
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // Attitude Determination
+    {
+        if(heading_ >= HEADING_MIN && heading_<= HEADING_MAX && pitch_ >= PITCH_MIN && pitch_ <= PITCH_MAX)
+        {
+            std::stringstream ss;
+            ss << "sto, " << string_utilities::trimString(std::to_string(heading_))
+            << ", " << string_utilities::trimString(std::to_string(pitch_)) << " \x0D";
+            IO.send(ss.str());
+        }
+        else
+        {
+            ROS_ERROR("Please specify a valid parameter for heading_offset and pitch_offset");
+        }
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+    
+    // INS Solution configuration
+    // First disable any existing INS sub-block connection
+    {
+        std::stringstream ss;
+        ss << "sinc, off, all, MainAnt \x0D";
+        IO.send(ss.str());
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    if(PosStdDev_ || Att_ || AttStdDev_ || Vel_ || VelStdDev_ == true)
+    {
+        std::stringstream ss;
+        {
+            if(PosStdDev_)
+            {
+                insnavconfig_ = " PosStdDev ";
+            }
+            if(Att_)
+            {
+                insnavconfig_ += "+Att";
+            }
+            if(AttStdDev_)
+            {
+                insnavconfig_ += "+AttStdDev";
+            }
+            if(Vel_)
+            {
+                insnavconfig_ += "+Vel";
+            }
+            if(VelStdDev_)
+            {
+                insnavconfig_ += "+VelStdDev";
+            }
+            if(output_location_ == "POI1")
+            {
+                ss << "sinc, on, " << string_utilities::trimString(insnavconfig_) <<", " <<output_location_ << " \x0D";
+                IO.send(ss.str());
+            }
+            else if(output_location_ == "MainAnt")
+            {
+                ss << "sinc, on, " << string_utilities::trimString(insnavconfig_) <<", " <<output_location_ << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Invalid output location selected !");
+            }
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
+    else
+    {
+        ROS_ERROR("Please specify a valid parameter for ins_output_type");
+    }
+
     // Configuring the NTRIP connection
     // First disable any existing NTRIP connection on NTR1
     {
@@ -480,6 +643,41 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
     g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+
+    //IMU orientation parameter
+    g_nh->param("IMU_orientation/sensor_default", sensor_default_,false);
+    g_nh->param("IMU_orientation/manual", manual_,false);
+    g_nh->param("IMU_orientation/angles/thetaX", thetaX_,0.0f);
+    g_nh->param("IMU_orientation/angles/thetaY", thetaY_,0.0f);
+    g_nh->param("IMU_orientation/angles/thetaZ", thetaZ_,0.0f);
+
+    //INS antenna lever arm parameter
+    g_nh->param("INS_antenna_lever_arm/X", x_, 0.0f);
+    g_nh->param("INS_antenna_lever_arm/Y", y_, 0.0f);
+    g_nh->param("INS_antenna_lever_arm/Z", z_, 0.0f);
+
+    //INS POI paramter
+    g_nh->param("INS_point_of_interest/POI_X", poi_x_, 0.0f);
+    g_nh->param("INS_point_of_interest/POI_Y", poi_y_, 0.0f);
+    g_nh->param("INS_point_of_interest/POI_Z", poi_z_, 0.0f);
+
+    //INS velocity sensor lever arm parameter
+    g_nh->param("INS_vel_sensor_lever_arm/VSM_X", vsm_x_, 0.0f);
+    g_nh->param("INS_vel_sensor_lever_arm/VSM_Y", vsm_y_, 0.0f);
+    g_nh->param("INS_vel_sensor_lever_arm/VSM_Z", vsm_z_, 0.0f);
+    
+    // Attitude Determination parameter
+    g_nh->param("Attitude_offset/heading", heading_, 0.0f);
+    g_nh->param("Attitude_offset/pitch", pitch_, 0.0f);
+
+
+    //INS solution parameters
+    g_nh->param("INS_output_type/PosStdDev", PosStdDev_, false);
+    g_nh->param("INS_output_type/Att", Att_, false);
+    g_nh->param("INS_output_type/AttStdDev", AttStdDev_, false);
+    g_nh->param("INS_output_type/Vel", Vel_, false);
+    g_nh->param("INS_output_type/VelStdDev", VelStdDev_, false);
+    g_nh->param("INS_output_type/output_location", output_location_, std::string("POI1"));
 
     // Correction service parameters
     g_nh->param("ntrip_settings/mode", mode_, std::string("off"));
