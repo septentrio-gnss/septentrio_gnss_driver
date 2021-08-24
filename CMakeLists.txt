@@ -209,4 +209,4 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ## Mark other files or directories for installation (e.g. launch and bag files, etc.)
-install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY config launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
