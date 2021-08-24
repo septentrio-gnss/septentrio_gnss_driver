@@ -599,12 +599,12 @@ void rosaic_node::ROSaicNode::connect()
 {
     ROS_DEBUG("Called connect() method");
     ROS_DEBUG(
-        "Setting ROS timer for calling reconnect() method until connection succeds");
+        "Setting ROS timer for calling reconnect() method until connection succeeds");
     reconnect_timer_ = g_nh->createTimer(ros::Duration(reconnect_delay_s_),
                                          &ROSaicNode::reconnect, this);
     reconnect_timer_.start();
     ROS_DEBUG(
-        "Started ROS timer for calling reconnect() method until connection succeds");
+        "Started ROS timer for calling reconnect() method until connection succeeds");
     ros::spin();
     ROS_DEBUG("Leaving connect() method"); // This will never be output since
                                            // ros::spin() is on the line above.
