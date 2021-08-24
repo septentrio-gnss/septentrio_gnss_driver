@@ -125,11 +125,7 @@ void rosaic_node::ROSaicNode::configureRx()
     else
         rest_sec_or_msec = "msec";
 
-    // Turning off all current SBF/NMEA output
-    // Authentication, leaving anonymous mode
-    IO.send("login, Tibor, Tibor \x0D");
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
+    // Turning off all current SBF/NMEA output    
     IO.send("sso, all, none, none, off \x0D");
     g_response_condition.wait(lock, []() { return g_response_received; });
     g_response_received = false;
@@ -464,6 +460,12 @@ void rosaic_node::ROSaicNode::getROSParams()
     getROSInt("ntrip_settings/caster_port", caster_port_, static_cast<uint32_t>(0));
     g_nh->param("ntrip_settings/username", username_, std::string());
     g_nh->param("ntrip_settings/password", password_, std::string());
+    if (password_.empty())
+    {
+        uint32_t pwd_tmp;
+        getROSInt("ntrip_settings/password", pwd_tmp, static_cast<uint32_t>(0));
+        password_ = std::to_string(pwd_tmp);
+    }
     g_nh->param("ntrip_settings/mountpoint", mountpoint_, std::string());
     g_nh->param("ntrip_settings/ntrip_version", ntrip_version_, std::string("v2"));
     g_nh->param("ntrip_settings/send_gga", send_gga_, std::string("auto"));
