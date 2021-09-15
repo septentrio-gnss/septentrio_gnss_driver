@@ -1,6 +1,6 @@
 # Configuration Settings for the Rover Rx
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+device: serial:/dev/ttyACM0
 
 serial:
   baudrate: 115200
