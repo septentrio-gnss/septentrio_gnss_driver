@@ -15,6 +15,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       - `off` to disable UART HW flow control, `RTS|CTS` to enable it
     - default: `115200`, `USB1`, `off`
+
+
+   **Newely Implemented**
+  - `receiver_type`: This parameter is to select the type of Septentrio receiver
+    - `GNSS`: If the `receiver_type` is GNSS then ROS can only output data related to GNSS receivers.
+    - `INS`: If the `receiver_type` is INS then ROS can only output data related to INS receivers.
+   
+   **Till here**
   - `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `gnss`
@@ -56,6 +64,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
    
   **Note**: Before using the Septentrio INS receivers, Please make sure to set up the below paramters in `config.yaml` file.  
   **------ Implemented------**
+  
   - `Attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
     - `heading`:The perpendicular axis can be compensated for by adjusting the `heading` parameter
     - `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
@@ -84,6 +93,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       - AttStdDev: true
       - Vel: true
       - VelStdDev: true
+ 
      **------ Till here------**
   - `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
     - At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_GNSS_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
