@@ -274,15 +274,28 @@ namespace io_comm_rx {
         //! ROS message arrives last and thus launches its construction
         static std::string do_gpsfix_;
 
+        //! Determines which of the INS integrated SBF blocks necessary for the gps_common::GPSFix
+        //! ROS message arrives last and thus launches its construction
+        static std::string do_insgpsfix_;
+
         //! Determines which of the SBF blocks necessary for the
         //! sensor_msgs::NavSatFix ROS message arrives last and thus launches its
         //! construction
         static std::string do_navsatfix_;
 
+        //! Determines which of the INS integrated SBF blocks necessary for the
+        //! sensor_msgs::NavSatFix ROS message arrives last and thus launches its construction
+        static std::string do_insnavsatfix_;
+
         //! Determines which of the SBF blocks necessary for the
         //! geometry_msgs/PoseWithCovarianceStamped ROS message arrives last and thus
         //! launches its construction
         static std::string do_pose_;
+
+        //! Determines which of the INS integrated SBF blocks necessary for the
+        //! geometry_msgs/PoseWithCovarianceStamped ROS message arrives last and thus
+        //! launches its construction
+        static std::string do_inspose_;
 
         //! Determines which of the SBF blocks necessary for the
         //! diagnostic_msgs/DiagnosticArray ROS message arrives last and thus

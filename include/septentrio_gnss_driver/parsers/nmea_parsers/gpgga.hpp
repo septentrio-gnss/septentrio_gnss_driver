@@ -67,6 +67,7 @@
 #include <septentrio_gnss_driver/Gpgga.h>
 
 extern std::string g_frame_id;
+extern std::string g_frame_id_ins;
 extern bool g_use_gnss_time;
 
 /**

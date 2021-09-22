@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "septentrio_gnss_driver: 14 messages, 0 services")
+message(STATUS "septentrio_gnss_driver: 16 messages, 0 services")
 
 set(MSG_I_FLAGS "-Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg;-Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg;-Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg;-Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg;-Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg")
 
@@ -22,9 +22,19 @@ add_custom_target(_septentrio_gnss_driver_generate_messages_check_deps_${_filena
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "septentrio_gnss_driver" "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" "septentrio_gnss_driver/BlockHeader:std_msgs/Header"
 )
 
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_custom_target(_septentrio_gnss_driver_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "septentrio_gnss_driver" "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" "septentrio_gnss_driver/BlockHeader:std_msgs/Header"
+)
+
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
 add_custom_target(_septentrio_gnss_driver_generate_messages_check_deps_${_filename}
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "septentrio_gnss_driver" "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" "septentrio_gnss_driver/BlockHeader:std_msgs/Header"
+)
+
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
+add_custom_target(_septentrio_gnss_driver_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "septentrio_gnss_driver" "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" "septentrio_gnss_driver/BlockHeader:std_msgs/Header"
 )
 
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
@@ -106,7 +116,19 @@ _generate_msg_cpp(septentrio_gnss_driver
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/septentrio_gnss_driver
 )
 _generate_msg_cpp(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_cpp(septentrio_gnss_driver
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_cpp(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
   "${MSG_I_FLAGS}"
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/septentrio_gnss_driver
@@ -194,7 +216,11 @@ add_dependencies(septentrio_gnss_driver_generate_messages septentrio_gnss_driver
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_cpp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_cpp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_cpp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_cpp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_cpp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
@@ -243,7 +269,19 @@ _generate_msg_eus(septentrio_gnss_driver
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/septentrio_gnss_driver
 )
 _generate_msg_eus(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_eus(septentrio_gnss_driver
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_eus(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
   "${MSG_I_FLAGS}"
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/septentrio_gnss_driver
@@ -331,7 +369,11 @@ add_dependencies(septentrio_gnss_driver_generate_messages septentrio_gnss_driver
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_eus _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_eus _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_eus _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_eus _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_eus _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
@@ -380,7 +422,19 @@ _generate_msg_lisp(septentrio_gnss_driver
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/septentrio_gnss_driver
 )
 _generate_msg_lisp(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_lisp(septentrio_gnss_driver
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_lisp(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
   "${MSG_I_FLAGS}"
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/septentrio_gnss_driver
@@ -468,7 +522,11 @@ add_dependencies(septentrio_gnss_driver_generate_messages septentrio_gnss_driver
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_lisp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_lisp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_lisp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_lisp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_lisp _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
@@ -517,7 +575,19 @@ _generate_msg_nodejs(septentrio_gnss_driver
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/septentrio_gnss_driver
 )
 _generate_msg_nodejs(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_nodejs(septentrio_gnss_driver
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_nodejs(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
   "${MSG_I_FLAGS}"
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/septentrio_gnss_driver
@@ -605,7 +675,11 @@ add_dependencies(septentrio_gnss_driver_generate_messages septentrio_gnss_driver
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_nodejs _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_nodejs _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_nodejs _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_nodejs _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_nodejs _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
@@ -654,7 +728,19 @@ _generate_msg_py(septentrio_gnss_driver
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/septentrio_gnss_driver
 )
 _generate_msg_py(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_py(septentrio_gnss_driver
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg"
+  "${MSG_I_FLAGS}"
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/septentrio_gnss_driver
+)
+_generate_msg_py(septentrio_gnss_driver
+  "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
   "${MSG_I_FLAGS}"
   "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/septentrio_gnss_driver
@@ -742,7 +828,11 @@ add_dependencies(septentrio_gnss_driver_generate_messages septentrio_gnss_driver
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavCart.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_py _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_py _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/AttCovEuler.msg" NAME_WE)
+add_dependencies(septentrio_gnss_driver_generate_messages_py _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_py _septentrio_gnss_driver_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gpgsv.msg" NAME_WE)
 add_dependencies(septentrio_gnss_driver_generate_messages_py _septentrio_gnss_driver_generate_messages_check_deps_${_filename})

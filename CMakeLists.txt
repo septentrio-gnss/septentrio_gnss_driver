@@ -78,6 +78,8 @@ add_message_files(
    GpgsvSatellite.msg
    INSNavCart.msg
    INSNavGeod.msg
+   IMUSetup.msg
+   VelSensorSetup.msg
 )
 
 ## Generate services in the 'srv' folder

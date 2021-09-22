@@ -711,7 +711,6 @@ typedef INSNavCartData_1 INSNavCartData;
 #define SBF_INSNAVCART_LENGTH SBF_INSNAVCART_LENGTH_1
 typedef INSNavCart_1 INSNavCart;
 
-
 //-----------------------INSNavGeod---------------------------------------------------------------
 typedef struct
 {
@@ -780,7 +779,10 @@ typedef union
     INSNavGeodVelStdDev_1 VelStdDev;
     INSNavGeodVelCov_1 VelCov;
 }INSNavGeodData_1;
-
+/**
+ * @class INSNavGeod
+ * @brief Struct for the SBF block "INSNavGeod"
+ */
 typedef struct
 {
     BlockHeader_t block_header;
@@ -825,6 +827,46 @@ typedef INSNavGeodData_1 INSNavGeodData;
 
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 typedef INSNavGeod_1 INSNavGeod;
+
+/**
+ * @class IMUSetup
+ * @brief Struct for the SBF block "IMUSetup"
+ */
+struct IMUSetup
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t  serial_port;
+    float ant_lever_arm_X;
+    float ant_lever_arm_Y;
+    float ant_lever_arm_Z;
+    float theta_X;
+    float theta_Y;
+    float theta_Z;
+};
+
+/**
+ * @class VelSensorSetup
+ * @brief Struct for the SBF block "IMUSetup"
+ */
+struct VelSensorSetup
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t port;
+    float   lever_arm_X;
+    float   lever_arm_Y;
+    float   lever_arm_Z;
+};
+
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type
 // declarations between push and pop directives. (A pop directive with no prior push

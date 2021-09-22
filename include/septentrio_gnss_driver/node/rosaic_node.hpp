@@ -139,10 +139,13 @@ extern bool g_publish_navsatfix;
 //INS
 extern bool g_publish_insnavcart;
 extern bool g_publish_insnavgeod;
+extern bool g_publish_imusetup;
+extern bool g_publish_velsensorsetup;
 
 extern ros::Timer g_reconnect_timer_;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
+extern std::string septentrio_receiver_type_;
 
 /**
  * @namespace rosaic_node
@@ -327,7 +330,12 @@ namespace rosaic_node {
         //! Serial number of your particular antenna
         std::string ant_serial_nr_;
 
-        //IMU orientation
+        /**
+         * IMU receiver orientation
+         * if imu is align with vechile reference frame or
+         * if imu is not align with vehivle reference frame then
+         * it can be changed by specifying the orientation angles
+         */
         bool  sensor_default_; 
         std::string orientation_mode; 
         bool  manual_;
@@ -335,41 +343,59 @@ namespace rosaic_node {
         float thetaY_;
         float thetaZ_;
 
-        //INS antenna lever arm
+        //INS antenna lever arm offset in X Y and Z dimension
         float x_;
         float y_;
         float z_;
 
-        //INS antenna lever arm
+        //INS point of interest offset in X, Y and Z dimension
         float poi_x_;
         float poi_y_;
         float poi_z_;
 
-        // INS Velocity sensor lever arm
+        // INS Velocity sensor lever arm offset in X, Y and Z dimension
         float vsm_x_;
         float vsm_y_;
         float vsm_z_;
 
-        // Attitude Determination
+        /**
+         * Attitude offset Determination
+         * if antenna base line is not align with vehicle’s longitudinal axis
+         * Horizontal offsets can be compensated for by adjusting the heading_
+         * Vertical offsets can be compensated for by adjusting the pitch_
+         */
         float heading_;
         float pitch_;
 
-        //INS parameters
+        /**
+         * Output type
+         * for enabling or disabling the output of INS attitude, position, and velocity
+         * and associated standard deviation respectively
+         */
+        std::string insnavconfig_;
+        std::string output_location_;
         bool PosStdDev_;
         bool Att_;
         bool AttStdDev_;
         bool Vel_;
         bool VelStdDev_;
-        std::string insnavconfig_;
-        std::string output_location_;
 
-        //INS_initial heading
+        //! For the computation of heading when unit is powered cycled
         std::string ins_initial_heading_;
 
-        //INS_std_dev_mask
+        //! For the computation of INS navigation filter
         float att_std_dev_;
         float pos_std_dev_;
-        
+
+        // Velocity sensor Measurement
+        // std::string pssn_vsm_;
+        // float   gps_time_;
+        // float   x_x_;
+        // float   y_y_;
+        // float   std_x_x_;
+        // float   std_y_y_;
+        // std::string hh_;
+
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to
@@ -425,6 +451,10 @@ namespace rosaic_node {
         bool publish_insnavcart_;
         //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
         bool publish_insnavgeod_;
+        //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
+        bool publish_imusetup_;
+        //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
+        bool publish_velsensorsetup_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..

@@ -140,6 +140,8 @@
 // INS include
 #include <septentrio_gnss_driver/INSNavCart.h>
 #include <septentrio_gnss_driver/INSNavGeod.h>
+#include <septentrio_gnss_driver/IMUSetup.h>
+#include <septentrio_gnss_driver/VelSensorSetup.h>
 
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
@@ -175,9 +177,6 @@ extern bool g_atteuler_has_arrived_gpsfix;
 extern bool g_atteuler_has_arrived_pose;
 extern bool g_attcoveuler_has_arrived_gpsfix;
 extern bool g_attcoveuler_has_arrived_pose;
-extern bool g_insnavgeod_has_arrived_gpsfix;
-extern bool g_insnavgeod_has_arrived_navsatfix;
-extern bool g_insnavgeod_has_arrived_pose;
 extern bool g_receiverstatus_has_arrived_diagnostics;
 extern bool g_qualityind_has_arrived_diagnostics;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
@@ -185,6 +184,11 @@ extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
 extern bool g_read_from_pcap;
+extern bool g_insnavgeod_has_arrived_gpsfix;
+extern bool g_insnavgeod_has_arrived_navsatfix;
+extern bool g_insnavgeod_has_arrived_pose;
+extern std::string septentrio_receiver_type_;
+
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field
@@ -208,8 +212,11 @@ enum TypeOfPVT_Enum
 enum RxID_Enum
 {
     evNavSatFix,
+    evINSNavSatFix,
     evGPSFix,
+    evINSGPSFix,
     evPoseWithCovarianceStamped,
+    evINSPoseWithCovarianceStamped,
     evGPGGA,
     evGPRMC,
     evGPGSA,
@@ -224,6 +231,8 @@ enum RxID_Enum
     evAttCovEuler,
     evINSNavCart,
     evINSNavGeod,
+    evIMUSetup,
+    evVelSensorSetup,
     evGPST,
     evChannelStatus,
     evMeasEpoch,
@@ -407,7 +416,7 @@ namespace io_comm_rx {
         static AttCovEuler last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix etc. need INSNavGeod, incoming INSNavGeod blocks
+         * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
         static INSNavGeod last_insnavgeod_;
@@ -549,6 +558,24 @@ namespace io_comm_rx {
         INSNavGeodCallback(INSNavGeod& data);
 
         /**
+         * @brief Callback function when reading IMUSetup blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message IMUSetup
+         * @return A smart pointer to the ROS message IMUSetup just created
+         */
+        septentrio_gnss_driver::IMUSetupPtr
+        IMUSetupCallback(IMUSetup& data);
+
+        /**
+         * @brief Callback function when reading VelSensorSetup blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message VelSensorSetup
+         * @return A smart pointer to the ROS message VelSensorSetup just created
+         */
+        septentrio_gnss_driver::VelSensorSetupPtr
+        VelSensorSetupCallback(VelSensorSetup& data);
+
+        /**
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
@@ -576,6 +603,7 @@ namespace io_comm_rx {
          * diagnostic_msgs::DiagnosticArray just created
          */
         diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
+        
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

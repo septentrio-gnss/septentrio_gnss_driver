@@ -113,17 +113,6 @@ install/fast: preinstall/fast
 	/usr/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target test
 test:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
@@ -134,6 +123,17 @@ test:
 test/fast: test
 
 .PHONY : test/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -389,6 +389,19 @@ sensor_msgs_generate_messages_py/fast:
 .PHONY : sensor_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named _septentrio_gnss_driver_generate_messages_check_deps_IMUSetup
+
+# Build rule for target.
+_septentrio_gnss_driver_generate_messages_check_deps_IMUSetup: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _septentrio_gnss_driver_generate_messages_check_deps_IMUSetup
+.PHONY : _septentrio_gnss_driver_generate_messages_check_deps_IMUSetup
+
+# fast build rule for target.
+_septentrio_gnss_driver_generate_messages_check_deps_IMUSetup/fast:
+	$(MAKE) -f CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_IMUSetup.dir/build.make CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_IMUSetup.dir/build
+.PHONY : _septentrio_gnss_driver_generate_messages_check_deps_IMUSetup/fast
+
+#=============================================================================
 # Target rules for targets named clean_test_results
 
 # Build rule for target.
@@ -465,6 +478,19 @@ download_extra_data: cmake_check_build_system
 download_extra_data/fast:
 	$(MAKE) -f CMakeFiles/download_extra_data.dir/build.make CMakeFiles/download_extra_data.dir/build
 .PHONY : download_extra_data/fast
+
+#=============================================================================
+# Target rules for targets named nav_msgs_generate_messages_nodejs
+
+# Build rule for target.
+nav_msgs_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_nodejs
+.PHONY : nav_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+nav_msgs_generate_messages_nodejs/fast:
+	$(MAKE) -f CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build.make CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build
+.PHONY : nav_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
 # Target rules for targets named _septentrio_gnss_driver_generate_messages_check_deps_AttEuler
@@ -623,6 +649,19 @@ septentrio_gnss_driver_generate_messages_nodejs/fast:
 .PHONY : septentrio_gnss_driver_generate_messages_nodejs/fast
 
 #=============================================================================
+# Target rules for targets named std_msgs_generate_messages_eus
+
+# Build rule for target.
+std_msgs_generate_messages_eus: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 std_msgs_generate_messages_eus
+.PHONY : std_msgs_generate_messages_eus
+
+# fast build rule for target.
+std_msgs_generate_messages_eus/fast:
+	$(MAKE) -f CMakeFiles/std_msgs_generate_messages_eus.dir/build.make CMakeFiles/std_msgs_generate_messages_eus.dir/build
+.PHONY : std_msgs_generate_messages_eus/fast
+
+#=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_nodejs
 
 # Build rule for target.
@@ -738,19 +777,6 @@ _septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite: cmake_check
 _septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite/fast:
 	$(MAKE) -f CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite.dir/build.make CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite.dir/build
 .PHONY : _septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite/fast
-
-#=============================================================================
-# Target rules for targets named std_msgs_generate_messages_eus
-
-# Build rule for target.
-std_msgs_generate_messages_eus: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 std_msgs_generate_messages_eus
-.PHONY : std_msgs_generate_messages_eus
-
-# fast build rule for target.
-std_msgs_generate_messages_eus/fast:
-	$(MAKE) -f CMakeFiles/std_msgs_generate_messages_eus.dir/build.make CMakeFiles/std_msgs_generate_messages_eus.dir/build
-.PHONY : std_msgs_generate_messages_eus/fast
 
 #=============================================================================
 # Target rules for targets named nav_msgs_generate_messages_py
@@ -933,6 +959,19 @@ _septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler: cmake_check_bu
 _septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler/fast:
 	$(MAKE) -f CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler.dir/build.make CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler.dir/build
 .PHONY : _septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler/fast
+
+#=============================================================================
+# Target rules for targets named _septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup
+
+# Build rule for target.
+_septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup
+.PHONY : _septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup
+
+# fast build rule for target.
+_septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup/fast:
+	$(MAKE) -f CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup.dir/build.make CMakeFiles/_septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup.dir/build
+.PHONY : _septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup/fast
 
 #=============================================================================
 # Target rules for targets named _septentrio_gnss_driver_generate_messages_check_deps_PosCovGeodetic
@@ -1141,19 +1180,6 @@ septentrio_gnss_driver_node: cmake_check_build_system
 septentrio_gnss_driver_node/fast:
 	$(MAKE) -f CMakeFiles/septentrio_gnss_driver_node.dir/build.make CMakeFiles/septentrio_gnss_driver_node.dir/build
 .PHONY : septentrio_gnss_driver_node/fast
-
-#=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_nodejs
-
-# Build rule for target.
-nav_msgs_generate_messages_nodejs: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_nodejs
-.PHONY : nav_msgs_generate_messages_nodejs
-
-# fast build rule for target.
-nav_msgs_generate_messages_nodejs/fast:
-	$(MAKE) -f CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build.make CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build
-.PHONY : nav_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
 # Target rules for targets named gmock_main
@@ -1586,12 +1612,15 @@ help:
 	@echo "... diagnostic_msgs_generate_messages_cpp"
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... sensor_msgs_generate_messages_py"
+	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_IMUSetup"
 	@echo "... clean_test_results"
 	@echo "... septentrio_gnss_driver_gencpp"
 	@echo "... std_msgs_generate_messages_cpp"
 	@echo "... run_tests"
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... download_extra_data"
+	@echo "... test"
+	@echo "... nav_msgs_generate_messages_nodejs"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_AttEuler"
 	@echo "... geometry_msgs_generate_messages_nodejs"
 	@echo "... tests"
@@ -1604,6 +1633,8 @@ help:
 	@echo "... rosgraph_msgs_generate_messages_cpp"
 	@echo "... rosgraph_msgs_generate_messages_eus"
 	@echo "... septentrio_gnss_driver_generate_messages_nodejs"
+	@echo "... edit_cache"
+	@echo "... std_msgs_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_lisp"
 	@echo "... gps_common_generate_messages_lisp"
@@ -1613,8 +1644,6 @@ help:
 	@echo "... nav_msgs_generate_messages_eus"
 	@echo "... nav_msgs_generate_messages_lisp"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_GpgsvSatellite"
-	@echo "... std_msgs_generate_messages_eus"
-	@echo "... edit_cache"
 	@echo "... nav_msgs_generate_messages_py"
 	@echo "... actionlib_msgs_generate_messages_cpp"
 	@echo "... septentrio_gnss_driver_generate_messages_lisp"
@@ -1629,6 +1658,7 @@ help:
 	@echo "... septentrio_gnss_driver_generate_messages"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_INSNavCart"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_AttCovEuler"
+	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_VelSensorSetup"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_PosCovGeodetic"
 	@echo "... _septentrio_gnss_driver_generate_messages_check_deps_Gpgga"
 	@echo "... rosgraph_msgs_generate_messages_lisp"
@@ -1645,8 +1675,6 @@ help:
 	@echo "... septentrio_gnss_driver_generate_messages_py"
 	@echo "... roscpp_generate_messages_py"
 	@echo "... septentrio_gnss_driver_node"
-	@echo "... nav_msgs_generate_messages_nodejs"
-	@echo "... test"
 	@echo "... gmock_main"
 	@echo "... gmock"
 	@echo "... gtest_main"
