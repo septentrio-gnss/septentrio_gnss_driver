@@ -101,7 +101,7 @@ publish:
   poscovgeodetic: false
   atteuler: false
   attcoveuler: false
-  # Available for GNSS and INS receivers
+  # Available for both GNSS and INS receivers
   gpst : false
   navsatfix: false
   gpsfix: false
