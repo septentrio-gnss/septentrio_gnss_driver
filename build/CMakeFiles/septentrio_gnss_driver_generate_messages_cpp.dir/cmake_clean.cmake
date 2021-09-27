@@ -12,10 +12,13 @@ file(REMOVE_RECURSE
   "devel/include/septentrio_gnss_driver/AttEuler.h"
   "devel/include/septentrio_gnss_driver/PVTGeodetic.h"
   "devel/include/septentrio_gnss_driver/Gprmc.h"
+  "devel/include/septentrio_gnss_driver/ExtSensorMeas.h"
+  "devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h"
   "devel/include/septentrio_gnss_driver/PosCovCartesian.h"
   "devel/include/septentrio_gnss_driver/PosCovGeodetic.h"
   "devel/include/septentrio_gnss_driver/PVTCartesian.h"
   "devel/include/septentrio_gnss_driver/BlockHeader.h"
+  "devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h"
 )
 
 # Per-language clean rules from dependency scanning.

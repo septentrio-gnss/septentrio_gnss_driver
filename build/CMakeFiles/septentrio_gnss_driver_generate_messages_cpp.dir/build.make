@@ -65,10 +65,13 @@ CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentri
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/AttEuler.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PVTGeodetic.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/Gprmc.h
+CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtSensorMeas.h
+CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PosCovCartesian.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PosCovGeodetic.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PVTCartesian.h
 CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/BlockHeader.h
+CMakeFiles/septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h
 
 
 devel/include/septentrio_gnss_driver/INSNavGeod.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
@@ -162,12 +165,28 @@ devel/include/septentrio_gnss_driver/Gprmc.h: /opt/ros/melodic/share/gencpp/msg.
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Generating C++ code from septentrio_gnss_driver/Gprmc.msg"
 	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gprmc.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
 
+devel/include/septentrio_gnss_driver/ExtSensorMeas.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+devel/include/septentrio_gnss_driver/ExtSensorMeas.h: ../msg/ExtSensorMeas.msg
+devel/include/septentrio_gnss_driver/ExtSensorMeas.h: ../msg/BlockHeader.msg
+devel/include/septentrio_gnss_driver/ExtSensorMeas.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+devel/include/septentrio_gnss_driver/ExtSensorMeas.h: /opt/ros/melodic/share/gencpp/msg.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Generating C++ code from septentrio_gnss_driver/ExtSensorMeas.msg"
+	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtSensorMeas.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
+
+devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h: ../msg/ExtEventINSNavGeod.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h: ../msg/BlockHeader.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h: /opt/ros/melodic/share/gencpp/msg.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Generating C++ code from septentrio_gnss_driver/ExtEventINSNavGeod.msg"
+	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavGeod.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
+
 devel/include/septentrio_gnss_driver/PosCovCartesian.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
 devel/include/septentrio_gnss_driver/PosCovCartesian.h: ../msg/PosCovCartesian.msg
 devel/include/septentrio_gnss_driver/PosCovCartesian.h: ../msg/BlockHeader.msg
 devel/include/septentrio_gnss_driver/PosCovCartesian.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
 devel/include/septentrio_gnss_driver/PosCovCartesian.h: /opt/ros/melodic/share/gencpp/msg.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Generating C++ code from septentrio_gnss_driver/PosCovCartesian.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Generating C++ code from septentrio_gnss_driver/PosCovCartesian.msg"
 	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PosCovCartesian.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
 
 devel/include/septentrio_gnss_driver/PosCovGeodetic.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
@@ -175,7 +194,7 @@ devel/include/septentrio_gnss_driver/PosCovGeodetic.h: ../msg/PosCovGeodetic.msg
 devel/include/septentrio_gnss_driver/PosCovGeodetic.h: ../msg/BlockHeader.msg
 devel/include/septentrio_gnss_driver/PosCovGeodetic.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
 devel/include/septentrio_gnss_driver/PosCovGeodetic.h: /opt/ros/melodic/share/gencpp/msg.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Generating C++ code from septentrio_gnss_driver/PosCovGeodetic.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Generating C++ code from septentrio_gnss_driver/PosCovGeodetic.msg"
 	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PosCovGeodetic.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
 
 devel/include/septentrio_gnss_driver/PVTCartesian.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
@@ -183,14 +202,22 @@ devel/include/septentrio_gnss_driver/PVTCartesian.h: ../msg/PVTCartesian.msg
 devel/include/septentrio_gnss_driver/PVTCartesian.h: ../msg/BlockHeader.msg
 devel/include/septentrio_gnss_driver/PVTCartesian.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
 devel/include/septentrio_gnss_driver/PVTCartesian.h: /opt/ros/melodic/share/gencpp/msg.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Generating C++ code from septentrio_gnss_driver/PVTCartesian.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Generating C++ code from septentrio_gnss_driver/PVTCartesian.msg"
 	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PVTCartesian.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
 
 devel/include/septentrio_gnss_driver/BlockHeader.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
 devel/include/septentrio_gnss_driver/BlockHeader.h: ../msg/BlockHeader.msg
 devel/include/septentrio_gnss_driver/BlockHeader.h: /opt/ros/melodic/share/gencpp/msg.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Generating C++ code from septentrio_gnss_driver/BlockHeader.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Generating C++ code from septentrio_gnss_driver/BlockHeader.msg"
 	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
+
+devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h: ../msg/ExtEventINSNavCart.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h: ../msg/BlockHeader.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h: /opt/ros/melodic/share/gencpp/msg.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Generating C++ code from septentrio_gnss_driver/ExtEventINSNavCart.msg"
+	cd /home/chandan/catkin_ws/src/septentrio_gnss_driver && /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavCart.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/include/septentrio_gnss_driver -e /opt/ros/melodic/share/gencpp/cmake/..
 
 septentrio_gnss_driver_generate_messages_cpp: CMakeFiles/septentrio_gnss_driver_generate_messages_cpp
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/INSNavGeod.h
@@ -205,10 +232,13 @@ septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driv
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/AttEuler.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PVTGeodetic.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/Gprmc.h
+septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtSensorMeas.h
+septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtEventINSNavGeod.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PosCovCartesian.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PosCovGeodetic.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/PVTCartesian.h
 septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/BlockHeader.h
+septentrio_gnss_driver_generate_messages_cpp: devel/include/septentrio_gnss_driver/ExtEventINSNavCart.h
 septentrio_gnss_driver_generate_messages_cpp: CMakeFiles/septentrio_gnss_driver_generate_messages_cpp.dir/build.make
 
 .PHONY : septentrio_gnss_driver_generate_messages_cpp

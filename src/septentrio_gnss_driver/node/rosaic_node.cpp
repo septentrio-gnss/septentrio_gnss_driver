@@ -266,6 +266,28 @@ void rosaic_node::ROSaicNode::configureRx()
             g_response_condition.wait(lock, []() { return g_response_received; });
             g_response_received = false;
         }
+        if (publish_exteventinsnavgeod_ == true)
+        {
+            std::stringstream ss;
+            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            << ", ExtEventINSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_exteventinsnavcart_ == true)
+        {
+            std::stringstream ss;
+            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            << ", ExtEventINSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
     }
     if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))  
     {
@@ -835,6 +857,8 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("publish/insnavgeod", publish_insnavgeod_, true);
     g_nh->param("publish/imusetup", publish_imusetup_, true);
     g_nh->param("publish/velsensorsetup", publish_velsensorsetup_, true);
+    g_nh->param("publish/exteventinsnavgeod", publish_exteventinsnavgeod_, true);
+    g_nh->param("publish/exteventinsnavcart", publish_exteventinsnavcart_, true);
 
     // To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix
     // mode...
@@ -1113,6 +1137,16 @@ void rosaic_node::ROSaicNode::defineMessages()
     {
         IO.handlers_.callbackmap_ = 
             IO.getHandlers().insert<septentrio_gnss_driver::VelSensorSetup>("4244");
+    }
+    if (publish_exteventinsnavgeod_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavGeod>("4230");
+    }
+    if (publish_exteventinsnavcart_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
     }
     if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
     {

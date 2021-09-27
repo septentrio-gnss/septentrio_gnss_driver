@@ -12,10 +12,13 @@ file(REMOVE_RECURSE
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/AttEuler.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTGeodetic.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/Gprmc.lisp"
+  "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp"
+  "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp"
   "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/BlockHeader.lisp"
+  "devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp"
 )
 
 # Per-language clean rules from dependency scanning.

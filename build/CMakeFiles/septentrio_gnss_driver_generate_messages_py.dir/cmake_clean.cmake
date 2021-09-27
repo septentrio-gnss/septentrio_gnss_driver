@@ -12,10 +12,13 @@ file(REMOVE_RECURSE
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_AttEuler.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_PVTGeodetic.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_Gprmc.py"
+  "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_ExtSensorMeas.py"
+  "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_ExtEventINSNavGeod.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_PosCovCartesian.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_PosCovGeodetic.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_PVTCartesian.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_BlockHeader.py"
+  "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/_ExtEventINSNavCart.py"
   "devel/lib/python2.7/dist-packages/septentrio_gnss_driver/msg/__init__.py"
 )
 

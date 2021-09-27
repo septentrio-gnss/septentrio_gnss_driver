@@ -96,6 +96,8 @@ std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
     std::make_pair("5902", evReceiverSetup),
     std::make_pair("4225",evINSNavCart),
     std::make_pair("4226",evINSNavGeod),
+    std::make_pair("4230",evExtEventINSNavGeod),
+    std::make_pair("4229",evExtEventINSNavCart),
     std::make_pair("4224",evIMUSetup),
     std::make_pair("4244",evVelSensorSetup)};
 
@@ -608,6 +610,205 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->lever_arm_X = data.lever_arm_X;
     msg->lever_arm_Y = data.lever_arm_Y;
     msg->lever_arm_Z = data.lever_arm_Z;
+    return msg;
+};
+
+septentrio_gnss_driver::ExtEventINSNavGeodPtr
+io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
+{
+    int SBIdx = 0;
+    septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
+        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+    
+    msg->block_header.sync_1 = data.block_header.sync_1;
+    msg->block_header.sync_2 = data.block_header.sync_2;
+    msg->block_header.crc = data.block_header.crc;
+    msg->block_header.id = data.block_header.id;
+    msg->block_header.length = data.block_header.length;
+    msg->block_header.tow = data.tow;
+    msg->block_header.wnc = data.wnc;
+    msg->gnss_mode = data.gnss_mode;
+    msg->error = data.error;
+    msg->info = data.info;
+    msg->gnss_age = data.gnss_age;
+    msg->latitude = data.latitude;
+    msg->longitude = data.longitude;
+    msg->height = data.height;
+    msg->undulation = data.undulation;
+    msg->accuracy = data.accuracy;
+    msg->datum = data.datum;
+    msg->sb_list = data.sb_list;
+
+    // Reading sub-block from corresponding SBF block
+    if((msg->sb_list & 1) !=0)
+    {
+        msg->latitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.latitude_std_dev;
+        msg->longitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.longitude_std_dev;
+        msg->height_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.height_std_dev;
+        SBIdx++;
+    }
+    // if this sub block is not available then output DO_NOT_USE_VALUE
+    else
+    {
+        msg->latitude_std_dev = DO_NOT_USE_VALUE;
+        msg->longitude_std_dev = DO_NOT_USE_VALUE;
+        msg->height_std_dev = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 2) !=0)
+    {
+        msg->heading = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.heading;
+        msg->pitch = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.pitch;
+        msg->roll = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.roll;
+        SBIdx++;
+    }
+    else
+    {
+        msg->heading = DO_NOT_USE_VALUE;
+        msg->pitch = DO_NOT_USE_VALUE;
+        msg->roll = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 4) !=0)
+    {
+        msg->heading_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.heading_std_dev;
+        msg->pitch_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.roll_std_dev;
+        SBIdx++;
+    }
+    else
+    {
+        msg->heading_std_dev = DO_NOT_USE_VALUE;
+        msg->pitch_std_dev = DO_NOT_USE_VALUE;
+        msg->roll_std_dev = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 8) !=0)
+    {
+        msg->ve = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.ve;
+        msg->vn = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.vn;
+        msg->vu = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.vu;
+        SBIdx++;
+    }
+    else
+    {
+        msg->ve = DO_NOT_USE_VALUE;
+        msg->vn = DO_NOT_USE_VALUE;
+        msg->vu = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 16) !=0)
+    {
+        msg->ve_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.ve_std_dev;
+        msg->vn_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.vn_std_dev;
+        msg->vu_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.vu_std_dev;
+        SBIdx++;
+    }
+    else
+    {
+        msg->ve_std_dev = DO_NOT_USE_VALUE;
+        msg->vn_std_dev = DO_NOT_USE_VALUE;
+        msg->vu_std_dev = DO_NOT_USE_VALUE;
+    }
+    return msg;
+};
+
+septentrio_gnss_driver::ExtEventINSNavCartPtr
+io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
+{
+    int SBI_dx = 0;
+    septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
+        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+    
+    msg->block_header.sync_1 = data.block_header.sync_1;
+    msg->block_header.sync_2 = data.block_header.sync_2;
+    msg->block_header.crc = data.block_header.crc;
+    msg->block_header.id = data.block_header.id;
+    msg->block_header.length = data.block_header.length;
+    msg->block_header.tow = data.tow;
+    msg->block_header.wnc = data.wnc;
+    msg->gnss_mode = data.gnss_mode;
+    msg->error = data.error;
+    msg->info = data.info;
+    msg->gnss_age = data.gnss_age;
+    msg->x = data.x;
+    msg->y = data.y;
+    msg->z = data.z;
+    msg->accuracy = data.accuracy;
+    msg->datum = data.datum;
+    msg->sb_list = data.sb_list;
+
+    // Reading sub-block from corresponding SBF block
+    if((msg->sb_list & 1) !=0)
+    {
+        msg->x_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.x_std_dev;
+        msg->y_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.y_std_dev;
+        msg->z_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.z_std_dev;
+        SBI_dx++;
+    }
+    // if this sub block is not available then output DO_NOT_USE_VALUE
+    else
+    {
+        msg->x_std_dev = DO_NOT_USE_VALUE;
+        msg->y_std_dev = DO_NOT_USE_VALUE;
+        msg->z_std_dev = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 2) !=0)
+    {
+        msg->heading = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading;
+        msg->pitch= data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;
+        msg->roll = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.roll;
+        SBI_dx++;
+    }
+    else
+    {
+        msg->heading = DO_NOT_USE_VALUE;
+        msg->pitch = DO_NOT_USE_VALUE;
+        msg->roll = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 4) !=0)
+    {
+        msg->heading_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.heading_std_dev;
+        msg->pitch_std_dev= data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.roll_std_dev;
+        SBI_dx++;
+    }
+    else
+    {
+        msg->heading_std_dev = DO_NOT_USE_VALUE;
+        msg->pitch_std_dev = DO_NOT_USE_VALUE;
+        msg->roll_std_dev = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 8) !=0)
+    {
+        msg->vx = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vx;
+        msg->vy = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vy;
+        msg->vz = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vz;
+        SBI_dx++;
+    }
+    else
+    {
+        msg->vx = DO_NOT_USE_VALUE;
+        msg->vy = DO_NOT_USE_VALUE;
+        msg->vz = DO_NOT_USE_VALUE;
+    }
+
+    if((msg->sb_list & 16) !=0)
+    {
+        msg->vx_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vx_std_dev;
+        msg->vy_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vy_std_dev;
+        msg->vz_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vz_std_dev;
+        SBI_dx++;
+    }
+    else
+    {
+        msg->vx_std_dev = DO_NOT_USE_VALUE;
+        msg->vy_std_dev = DO_NOT_USE_VALUE;
+        msg->vz_std_dev = DO_NOT_USE_VALUE;
+    }
     return msg;
 };
 
@@ -2629,6 +2830,88 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         break;
     }
 
+    case evExtEventINSNavGeod: // Velocity sensor lever arm
+    {
+        septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
+            boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+        ExtEventINSNavGeod exteventinsnavgeod;
+        memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
+        msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
+        msg->header.frame_id = g_frame_id_ins;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4230;
+        static ros::Publisher publisher = 
+            g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod", 
+                                                            g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
+
+    case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
+                        // frame)
+    {
+        septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
+            boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+        ExtEventINSNavCart exteventinsnavcart;
+        memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
+        msg = ExtEventINSNavCartCallback(exteventinsnavcart);
+        msg->header.frame_id = g_frame_id_ins;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4229;
+        static ros::Publisher publisher = 
+            g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavCart>(
+                "/exteventinsnavcart", g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
     if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
     {
         case evGPST:

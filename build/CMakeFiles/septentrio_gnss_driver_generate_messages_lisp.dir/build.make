@@ -65,10 +65,13 @@ CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lis
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/AttEuler.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTGeodetic.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/Gprmc.lisp
+CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp
+CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp
 CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/BlockHeader.lisp
+CMakeFiles/septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp
 
 
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/INSNavGeod.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
@@ -150,31 +153,52 @@ devel/share/common-lisp/ros/septentrio_gnss_driver/msg/Gprmc.lisp: /opt/ros/melo
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Generating Lisp code from septentrio_gnss_driver/Gprmc.msg"
 	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/Gprmc.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
 
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp: ../msg/ExtSensorMeas.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp: ../msg/BlockHeader.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Generating Lisp code from septentrio_gnss_driver/ExtSensorMeas.msg"
+	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtSensorMeas.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
+
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp: ../msg/ExtEventINSNavGeod.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp: ../msg/BlockHeader.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Generating Lisp code from septentrio_gnss_driver/ExtEventINSNavGeod.msg"
+	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavGeod.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
+
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp: ../msg/PosCovCartesian.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp: ../msg/BlockHeader.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Generating Lisp code from septentrio_gnss_driver/PosCovCartesian.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Generating Lisp code from septentrio_gnss_driver/PosCovCartesian.msg"
 	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PosCovCartesian.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
 
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp: ../msg/PosCovGeodetic.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp: ../msg/BlockHeader.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Generating Lisp code from septentrio_gnss_driver/PosCovGeodetic.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Generating Lisp code from septentrio_gnss_driver/PosCovGeodetic.msg"
 	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PosCovGeodetic.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
 
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp: ../msg/PVTCartesian.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp: ../msg/BlockHeader.msg
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Generating Lisp code from septentrio_gnss_driver/PVTCartesian.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Generating Lisp code from septentrio_gnss_driver/PVTCartesian.msg"
 	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/PVTCartesian.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
 
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/BlockHeader.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
 devel/share/common-lisp/ros/septentrio_gnss_driver/msg/BlockHeader.lisp: ../msg/BlockHeader.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Generating Lisp code from septentrio_gnss_driver/BlockHeader.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Generating Lisp code from septentrio_gnss_driver/BlockHeader.msg"
 	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/BlockHeader.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
+
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp: ../msg/ExtEventINSNavCart.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp: ../msg/BlockHeader.msg
+devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/chandan/catkin_ws/src/septentrio_gnss_driver/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Generating Lisp code from septentrio_gnss_driver/ExtEventINSNavCart.msg"
+	catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavCart.msg -Iseptentrio_gnss_driver:/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -Idiagnostic_msgs:/opt/ros/melodic/share/diagnostic_msgs/cmake/../msg -Igps_common:/opt/ros/melodic/share/gps_common/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Inav_msgs:/opt/ros/melodic/share/nav_msgs/cmake/../msg -Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg -p septentrio_gnss_driver -o /home/chandan/catkin_ws/src/septentrio_gnss_driver/build/devel/share/common-lisp/ros/septentrio_gnss_driver/msg
 
 septentrio_gnss_driver_generate_messages_lisp: CMakeFiles/septentrio_gnss_driver_generate_messages_lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/INSNavGeod.lisp
@@ -189,10 +213,13 @@ septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septe
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/AttEuler.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTGeodetic.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/Gprmc.lisp
+septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtSensorMeas.lisp
+septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovCartesian.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PosCovGeodetic.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/PVTCartesian.lisp
 septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/BlockHeader.lisp
+septentrio_gnss_driver_generate_messages_lisp: devel/share/common-lisp/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.lisp
 septentrio_gnss_driver_generate_messages_lisp: CMakeFiles/septentrio_gnss_driver_generate_messages_lisp.dir/build.make
 
 .PHONY : septentrio_gnss_driver_generate_messages_lisp

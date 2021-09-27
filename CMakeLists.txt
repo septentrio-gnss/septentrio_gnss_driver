@@ -80,6 +80,9 @@ add_message_files(
    INSNavGeod.msg
    IMUSetup.msg
    VelSensorSetup.msg
+   ExtEventINSNavGeod.msg
+   ExtEventINSNavCart.msg
+   ExtSensorMeas.msg
 )
 
 ## Generate services in the 'srv' folder

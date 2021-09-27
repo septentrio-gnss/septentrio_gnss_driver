@@ -79,6 +79,14 @@
 #define SBF_INSNAVCART_LENGTH_1 16 
 #endif
 
+//! Max number of bytes that INSNavGeod sub-block can consist of
+#ifndef SBF_EXTEVENTINSNAVGEOD_LENGTH_1 
+#define SBF_EXTEVENTINSNAVGEOD_LENGTH_1 16 
+#endif
+//! Max number of bytes that INSNavCart sub-block can consist of
+#ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1 
+#define SBF_EXTEVENTINSNAVCART_LENGTH_1 16 
+#endif
 
 // ROSaic includes
 #include "ssn_types.hpp"
@@ -866,6 +874,175 @@ struct VelSensorSetup
     float   lever_arm_Y;
     float   lever_arm_Z;
 };
+
+//------------------------------ExtEventINSNavGeod
+
+typedef struct
+{
+    float     latitude_std_dev;
+    float     longitude_std_dev;
+    float     height_std_dev;
+}ExtEventINSNavGeodPosStdDev_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;     
+}ExtEventINSNavGeodAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+}ExtEventINSNavGeodAttStdDev_1;
+
+typedef struct
+{
+    float     ve;
+    float     vn;
+    float     vu;
+}ExtEventINSNavGeodVel_1;
+
+typedef struct 
+{
+    float     ve_std_dev;
+    float     vn_std_dev;
+    float     vu_std_dev;
+}ExtEventINSNavGeodVelStdDev_1;
+typedef union
+{
+    ExtEventINSNavGeodPosStdDev_1 ExtEventPosStdDev;         
+    ExtEventINSNavGeodAtt_1 ExtEventAtt; 
+    ExtEventINSNavGeodAttStdDev_1 ExtEventAttStdDev;
+    ExtEventINSNavGeodVel_1 ExtEventVel;
+    ExtEventINSNavGeodVelStdDev_1 ExtEventVelStdDev;
+}ExtEventINSNavGeodData_1;
+/**
+ * @class INSNavGeod
+ * @brief Struct for the SBF block "INSNavGeod"
+ */
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     latitude;
+    SBFDOUBLE     longitude;
+    SBFDOUBLE     height;
+    float         undulation;
+    uint16_t      accuracy;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    ExtEventINSNavGeodData_1   ExtEventINSNavGeodData[SBF_EXTEVENTINSNAVGEOD_LENGTH_1];     
+}ExtEventINSNavGeod_1;
+
+typedef ExtEventINSNavGeodPosStdDev_1 ExtEventINSNavGeodPosStdDev;
+
+typedef ExtEventINSNavGeodAtt_1 ExtEventINSNavGeodAtt;
+
+typedef ExtEventINSNavGeodAttStdDev_1 ExtEventINSNavGeodAttStdDev;
+
+typedef ExtEventINSNavGeodVel_1 ExtEventINSNavGeodVel;
+
+typedef ExtEventINSNavGeodVelStdDev_1 ExtEventINSNavGeodVelStdDev;
+
+typedef ExtEventINSNavGeodData_1 ExtEventINSNavGeodData;
+
+#define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
+typedef ExtEventINSNavGeod_1 ExtEventINSNavGeod;
+
+//----------------------------------ExtEventINSNavCart--------------------------
+typedef struct 
+{
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
+}ExtEventINSNavCartPosStdDev_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;
+}ExtEventINSNavCartAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+}ExtEventINSNavCartAttStdDev_1;
+
+typedef struct
+{
+    float     vx;
+    float     vy;
+    float     vz;
+}ExtEventINSNavCartVel_1;
+
+typedef struct
+{
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+}ExtEventINSNavCartVelStdDev_1;
+
+typedef union
+{
+  ExtEventINSNavCartPosStdDev_1 ExtEventPosStdDev;         
+  ExtEventINSNavCartAtt_1 ExtEventAtt;          
+  ExtEventINSNavCartAttStdDev_1 ExtEventAttStdDev;    
+  ExtEventINSNavCartVel_1 ExtEventVel;          
+  ExtEventINSNavCartVelStdDev_1 ExtEventVelStdDev;      
+} ExtEventINSNavCartData_1;
+
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     x;
+    SBFDOUBLE     y;
+    SBFDOUBLE     z;
+    uint16_t      accuracy;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    ExtEventINSNavCartData_1 ExtEventINSNavCartData[SBF_EXTEVENTINSNAVCART_LENGTH_1];
+}ExtEventINSNavCart_1;
+
+typedef ExtEventINSNavCartPosStdDev_1 ExtEventINSNavCartPosStdDev;
+
+typedef ExtEventINSNavCartAtt_1 ExtEventINSNavCartAtt;
+
+typedef ExtEventINSNavCartAttStdDev_1 ExtEventINSNavCartAttStdDev;
+
+typedef ExtEventINSNavCartVel_1 ExtEventINSNavCartVel;
+
+typedef ExtEventINSNavCartVelStdDev_1 ExtEventINSNavCartVelStdDev;
+
+
+typedef ExtEventINSNavCartData_1 ExtEventINSNavCartData;
+
+#define SBF_EXTEVENTINSNAVCART_LENGTH SBF_EXTEVENTINSNAVCART_LENGTH_1
+typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
 
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type

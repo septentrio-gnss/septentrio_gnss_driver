@@ -12,10 +12,13 @@ file(REMOVE_RECURSE
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/AttEuler.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/PVTGeodetic.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/Gprmc.js"
+  "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/ExtSensorMeas.js"
+  "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/PosCovCartesian.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/PosCovGeodetic.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/PVTCartesian.js"
   "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/BlockHeader.js"
+  "devel/share/gennodejs/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.js"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -142,6 +142,8 @@
 #include <septentrio_gnss_driver/INSNavGeod.h>
 #include <septentrio_gnss_driver/IMUSetup.h>
 #include <septentrio_gnss_driver/VelSensorSetup.h>
+#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
+#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
@@ -233,6 +235,8 @@ enum RxID_Enum
     evINSNavGeod,
     evIMUSetup,
     evVelSensorSetup,
+    evExtEventINSNavGeod,
+    evExtEventINSNavCart,
     evGPST,
     evChannelStatus,
     evMeasEpoch,
@@ -574,6 +578,24 @@ namespace io_comm_rx {
          */
         septentrio_gnss_driver::VelSensorSetupPtr
         VelSensorSetupCallback(VelSensorSetup& data);
+
+        /**
+         * @brief Callback function when reading ExtEventINSNavGeod blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtEventINSNavGeod
+         * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
+         */
+        septentrio_gnss_driver::ExtEventINSNavGeodPtr
+        ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
+
+        /**
+         * @brief Callback function when reading ExtEventINSNavCart blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtEventINSNavCart
+         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
+         */
+        septentrio_gnss_driver::ExtEventINSNavCartPtr
+        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages

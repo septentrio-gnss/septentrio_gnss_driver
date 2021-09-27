@@ -1,0 +1,118 @@
+# Configuration Settings for the Rover Rx
+
+device: tcp://192.168.109.88:28784
+
+serial:
+  baudrate: 115200
+  rx_serial_port: USB1
+  hw_flow_control: off
+
+frame_id: gnss
+ins_frame_id: INS
+
+
+receiver_type: INS  #GNSS
+
+datum: ETRS89
+
+marker_to_arp:
+  delta_e: 0.0
+  delta_n: 0.0
+  delta_u: 0.0
+  
+ant_type: Unknown
+ant_serial_nr: Unknown
+
+# INS configuration
+
+Attitude_offset:
+  heading: 0.0
+  pitch: 0.0
+
+IMU_orientation:
+  sensor_default: false
+  manual: true
+  angles:
+    thetaX: 180.0
+    thetaY: 0.0
+    thetaZ: 0.0
+
+INS_point_of_interest:
+  POI_X: 0.0
+  POI_Y: 0.0
+  POI_Z: 0.0
+
+INS_antenna_lever_arm:
+  X: 0.60
+  Y: 0.50
+  Z: 1.0
+  
+INS_vel_sensor_lever_arm:
+  VSM_X: 0.0
+  VSM_Y: 0.0
+  VSM_Z: 0.0
+
+INS_initial_heading: auto  # /stored
+
+INS_std_dev_mask:
+  Att_Std_Dev: 5
+  Pos_Std_Dev: 100
+
+INS_output_type:
+  output_location: MainAnt # /POI1
+  PosStdDev: true
+  Att: true
+  AttStdDev: true
+  Vel: true
+  VelStdDev: true
+
+leap_seconds: 18
+
+polling_period:
+  pvt: 500
+  rest: 500
+
+reconnect_delay_s: 2
+
+use_gnss_time: false
+
+ntrip_settings:
+  mode: off
+  caster: 0
+  caster_port: 0
+  username: 0
+  password: 0
+  mountpoint: 0
+  ntrip_version: v2
+  send_gga: auto
+  rx_has_internet: false
+  rtcm_version: RTCMv2
+  rx_input_corrections_tcp: 6666
+  rx_input_corrections_serial: USB2
+
+publish:
+  gpgga: false
+  gprmc: false
+  gpgsa: false
+  gpgsv: false
+  pvtcartesian: false
+  pvtgeodetic: false
+  poscovcartesian: false
+  poscovgeodetic: false
+  atteuler: false
+  attcoveuler: false
+  # Available for GNSS and INS receivers
+  gpst : false
+  navsatfix: false
+  gpsfix: false
+  pose: false
+  diagnostics: false
+  #INS messages
+  insnavcart: true
+  insnavgeod: true
+  imusetup: true
+  velsensorsetup: true
+  exteventinsnavgeod: true
+  exteventinsnavcart: true
+  
+

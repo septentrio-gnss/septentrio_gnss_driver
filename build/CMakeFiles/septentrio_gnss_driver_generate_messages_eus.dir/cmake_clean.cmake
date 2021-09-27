@@ -12,10 +12,13 @@ file(REMOVE_RECURSE
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/AttEuler.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/PVTGeodetic.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/Gprmc.l"
+  "devel/share/roseus/ros/septentrio_gnss_driver/msg/ExtSensorMeas.l"
+  "devel/share/roseus/ros/septentrio_gnss_driver/msg/ExtEventINSNavGeod.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/PosCovCartesian.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/PosCovGeodetic.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/PVTCartesian.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/msg/BlockHeader.l"
+  "devel/share/roseus/ros/septentrio_gnss_driver/msg/ExtEventINSNavCart.l"
   "devel/share/roseus/ros/septentrio_gnss_driver/manifest.l"
 )
 

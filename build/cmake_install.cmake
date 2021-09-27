@@ -146,6 +146,9 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/INSNavGeod.msg"
     "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/IMUSetup.msg"
     "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/VelSensorSetup.msg"
+    "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavGeod.msg"
+    "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtEventINSNavCart.msg"
+    "/home/chandan/catkin_ws/src/septentrio_gnss_driver/msg/ExtSensorMeas.msg"
     )
 endif()
 
