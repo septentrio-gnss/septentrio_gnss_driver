@@ -816,21 +816,13 @@ typedef struct
 }INSNavGeod_1;
 
 typedef INSNavGeodPosStdDev_1 INSNavGeodPosStdDev;
-
 typedef INSNavGeodPosCov_1 INSNavGeodPosCov;
-
 typedef INSNavGeodAtt_1 INSNavGeodAtt;
-
 typedef INSNavGeodAttStdDev_1 INSNavGeodAttStdDev;
-
 typedef INSNavGeodAttCov_1 INSNavGeodAttCov;
-
 typedef INSNavGeodVel_1 INSNavGeodVel;
-
 typedef INSNavGeodVelStdDev_1 INSNavGeodVelStdDev;
-
 typedef INSNavGeodVelCov_1 INSNavGeodVelCov;
-
 typedef INSNavGeodData_1 INSNavGeodData;
 
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
@@ -911,13 +903,14 @@ typedef struct
     float     vn_std_dev;
     float     vu_std_dev;
 }ExtEventINSNavGeodVelStdDev_1;
+
 typedef union
 {
-    ExtEventINSNavGeodPosStdDev_1 ExtEventPosStdDev;         
-    ExtEventINSNavGeodAtt_1 ExtEventAtt; 
-    ExtEventINSNavGeodAttStdDev_1 ExtEventAttStdDev;
-    ExtEventINSNavGeodVel_1 ExtEventVel;
-    ExtEventINSNavGeodVelStdDev_1 ExtEventVelStdDev;
+    ExtEventINSNavGeodPosStdDev_1 PosStdDev;         
+    ExtEventINSNavGeodAtt_1 Att; 
+    ExtEventINSNavGeodAttStdDev_1 AttStdDev;
+    ExtEventINSNavGeodVel_1 Vel;
+    ExtEventINSNavGeodVelStdDev_1 VelStdDev;
 }ExtEventINSNavGeodData_1;
 /**
  * @class INSNavGeod
@@ -947,15 +940,10 @@ typedef struct
 }ExtEventINSNavGeod_1;
 
 typedef ExtEventINSNavGeodPosStdDev_1 ExtEventINSNavGeodPosStdDev;
-
 typedef ExtEventINSNavGeodAtt_1 ExtEventINSNavGeodAtt;
-
 typedef ExtEventINSNavGeodAttStdDev_1 ExtEventINSNavGeodAttStdDev;
-
 typedef ExtEventINSNavGeodVel_1 ExtEventINSNavGeodVel;
-
 typedef ExtEventINSNavGeodVelStdDev_1 ExtEventINSNavGeodVelStdDev;
-
 typedef ExtEventINSNavGeodData_1 ExtEventINSNavGeodData;
 
 #define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
@@ -1029,20 +1017,90 @@ typedef struct
 }ExtEventINSNavCart_1;
 
 typedef ExtEventINSNavCartPosStdDev_1 ExtEventINSNavCartPosStdDev;
-
 typedef ExtEventINSNavCartAtt_1 ExtEventINSNavCartAtt;
-
 typedef ExtEventINSNavCartAttStdDev_1 ExtEventINSNavCartAttStdDev;
-
 typedef ExtEventINSNavCartVel_1 ExtEventINSNavCartVel;
-
 typedef ExtEventINSNavCartVelStdDev_1 ExtEventINSNavCartVelStdDev;
-
-
 typedef ExtEventINSNavCartData_1 ExtEventINSNavCartData;
-
 #define SBF_EXTEVENTINSNAVCART_LENGTH SBF_EXTEVENTINSNAVCART_LENGTH_1
 typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
+
+typedef struct
+{
+    SBFDOUBLE  acceleration_X;
+    SBFDOUBLE  acceleration_Y;
+    SBFDOUBLE  acceleration_Z;
+}ExtSensorMeasAcceleration_1;
+
+typedef struct
+{
+    SBFDOUBLE  angular_rate_X;
+    SBFDOUBLE  angular_rate_Y;
+    SBFDOUBLE  angular_rate_Z;
+}ExtSensorMeasAngularRate_1;
+
+typedef struct
+{
+    float velocity_X;
+    float velocity_Y;
+    float velocity_Z;
+    float std_dev_X;
+    float std_dev_Y;
+    float std_dev_Z;
+}ExtSensorMeasVelocity_1;
+
+typedef struct
+{
+    int16_t   sensor_temperature;
+}ExtSensorMeasInfo_1;
+
+typedef struct
+{
+    SBFDOUBLE zero_velocity_flag;
+}ExtSensorMeasZeroVelocityFlag_1;
+
+typedef union
+{
+  ExtSensorMeasAcceleration_1 Acceleration; 
+  ExtSensorMeasAngularRate_1 AngularRate;  
+  ExtSensorMeasVelocity_1   Velocity;
+  ExtSensorMeasInfo_1 Info;         
+  ExtSensorMeasZeroVelocityFlag_1 ZeroVelocityFlag;
+} ExtSensorMeasData_1;
+
+typedef struct
+{
+  uint8_t        Source;       
+  uint8_t        SensorModel;  
+  uint8_t        type;         
+  uint8_t        ObsInfo;      
+  ExtSensorMeasData_1 ExtSensorMeasData;
+} ExtSensorMeasSet_1;
+#ifndef SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 
+#define SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 4 
+#endif
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;        
+
+    uint8_t n;            
+    uint8_t sb_length;       
+    ExtSensorMeasSet_1 ExtSensorMeas[SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH];
+} ExtSensorMeas_1;
+
+typedef ExtSensorMeasAcceleration_1 ExtSensorMeasAcceleration;
+typedef ExtSensorMeasAngularRate_1 ExtSensorMeasAngularRate;
+typedef ExtSensorMeasVelocity_1 ExtSensorMeasVelocity;
+typedef ExtSensorMeasInfo_1 ExtSensorMeasInfo;
+typedef ExtSensorMeasZeroVelocityFlag_1 ExtSensorMeasZeroVelocityFlag;
+typedef ExtSensorMeasData_1 ExtSensorMeasData;
+typedef ExtSensorMeasSet_1 ExtSensorMeasSet;
+#define SBF_EXTSENSORMEAS_1_EXTSENSORMEAS_LENGTH SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH
+typedef ExtSensorMeas_1 ExtSensorMeas;
 
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type

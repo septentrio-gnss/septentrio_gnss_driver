@@ -96,23 +96,24 @@ publish:
   gpgsa: false
   gpgsv: false
   pvtcartesian: false
-  pvtgeodetic: false
+  pvtgeodetic: true
   poscovcartesian: false
-  poscovgeodetic: false
-  atteuler: false
-  attcoveuler: false
+  poscovgeodetic: true
+  atteuler: true
+  attcoveuler: true
   # Available for both GNSS and INS receivers
   gpst : false
-  navsatfix: false
-  gpsfix: false
-  pose: false
+  navsatfix: true
+  gpsfix: true
+  pose: true
   diagnostics: false
   #INS messages
-  insnavcart: true
-  insnavgeod: true
-  imusetup: true
-  velsensorsetup: true
-  exteventinsnavgeod: true
-  exteventinsnavcart: true
+  insnavcart: false
+  insnavgeod: false
+  extsensormeas: false
+  imusetup: false
+  velsensorsetup: false
+  exteventinsnavcart: false
+  exteventinsnavgeod: false
   
 

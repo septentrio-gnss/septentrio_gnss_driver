@@ -143,6 +143,7 @@ extern bool g_publish_imusetup;
 extern bool g_publish_velsensorsetup;
 extern bool g_publish_exteventinsnavgeod;
 extern bool g_publish_exteventinsnavcart;
+extern bool g_publish_extsensormeas;
 
 extern ros::Timer g_reconnect_timer_;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
@@ -461,6 +462,8 @@ namespace rosaic_node {
         bool publish_exteventinsnavgeod_;
          //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
         bool publish_exteventinsnavcart_;
+         //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
+        bool publish_extsensormeas_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..

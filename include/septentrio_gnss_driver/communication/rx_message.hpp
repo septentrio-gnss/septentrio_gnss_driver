@@ -144,6 +144,7 @@
 #include <septentrio_gnss_driver/VelSensorSetup.h>
 #include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
 #include <septentrio_gnss_driver/ExtEventINSNavCart.h>
+#include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
@@ -237,6 +238,7 @@ enum RxID_Enum
     evVelSensorSetup,
     evExtEventINSNavGeod,
     evExtEventINSNavCart,
+    evExtSensorMeas,
     evGPST,
     evChannelStatus,
     evMeasEpoch,
@@ -580,6 +582,15 @@ namespace io_comm_rx {
         VelSensorSetupCallback(VelSensorSetup& data);
 
         /**
+         * @brief Callback function when reading ExtEventINSNavCart blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtEventINSNavCart
+         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
+         */
+        septentrio_gnss_driver::ExtEventINSNavCartPtr
+        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
+
+        /**
          * @brief Callback function when reading ExtEventINSNavGeod blocks
          * @param[in] data The (packed and aligned) struct instance used to populate
          * the ROS message ExtEventINSNavGeod
@@ -589,13 +600,13 @@ namespace io_comm_rx {
         ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
 
         /**
-         * @brief Callback function when reading ExtEventINSNavCart blocks
+         * @brief Callback function when reading ExtSensorMeas blocks
          * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavCart
-         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
+         * the ROS message ExtSensorMeas
+         * @return A smart pointer to the ROS message ExtSensorMeas just created
          */
-        septentrio_gnss_driver::ExtEventINSNavCartPtr
-        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
+        septentrio_gnss_driver::ExtSensorMeasPtr
+        ExtSensorMeasCallback(ExtSensorMeas& data);
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages

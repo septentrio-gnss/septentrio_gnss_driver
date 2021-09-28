@@ -99,7 +99,8 @@ std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
     std::make_pair("4230",evExtEventINSNavGeod),
     std::make_pair("4229",evExtEventINSNavCart),
     std::make_pair("4224",evIMUSetup),
-    std::make_pair("4244",evVelSensorSetup)};
+    std::make_pair("4244",evVelSensorSetup),
+    std::make_pair("4050",evExtSensorMeas)};
 
 io_comm_rx::RxMessage::RxIDMap
     io_comm_rx::RxMessage::rx_id_map(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
@@ -642,9 +643,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     // Reading sub-block from corresponding SBF block
     if((msg->sb_list & 1) !=0)
     {
-        msg->latitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.latitude_std_dev;
-        msg->longitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.longitude_std_dev;
-        msg->height_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventPosStdDev.height_std_dev;
+        msg->latitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.latitude_std_dev;
+        msg->longitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.longitude_std_dev;
+        msg->height_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.height_std_dev;
         SBIdx++;
     }
     // if this sub block is not available then output DO_NOT_USE_VALUE
@@ -657,9 +658,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->heading = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.heading;
-        msg->pitch = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.pitch;
-        msg->roll = data.ExtEventINSNavGeodData[SBIdx].ExtEventAtt.roll;
+        msg->heading = data.ExtEventINSNavGeodData[SBIdx].Att.heading;
+        msg->pitch = data.ExtEventINSNavGeodData[SBIdx].Att.pitch;
+        msg->roll = data.ExtEventINSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
     else
@@ -671,9 +672,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 4) !=0)
     {
-        msg->heading_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.heading_std_dev;
-        msg->pitch_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventAttStdDev.roll_std_dev;
+        msg->heading_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
+        msg->pitch_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.roll_std_dev;
         SBIdx++;
     }
     else
@@ -685,9 +686,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 8) !=0)
     {
-        msg->ve = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.ve;
-        msg->vn = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.vn;
-        msg->vu = data.ExtEventINSNavGeodData[SBIdx].ExtEventVel.vu;
+        msg->ve = data.ExtEventINSNavGeodData[SBIdx].Vel.ve;
+        msg->vn = data.ExtEventINSNavGeodData[SBIdx].Vel.vn;
+        msg->vu = data.ExtEventINSNavGeodData[SBIdx].Vel.vu;
         SBIdx++;
     }
     else
@@ -699,9 +700,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 16) !=0)
     {
-        msg->ve_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.ve_std_dev;
-        msg->vn_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.vn_std_dev;
-        msg->vu_std_dev = data.ExtEventINSNavGeodData[SBIdx].ExtEventVelStdDev.vu_std_dev;
+        msg->ve_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
+        msg->vn_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
+        msg->vu_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
         SBIdx++;
     }
     else
@@ -812,6 +813,51 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     return msg;
 };
 
+septentrio_gnss_driver::ExtSensorMeasPtr
+io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
+{
+    int i =0;
+    septentrio_gnss_driver::ExtSensorMeasPtr msg=
+        boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+
+    msg->block_header.sync_1 = data.block_header.sync_1;
+    msg->block_header.sync_2 = data.block_header.sync_2;
+    msg->block_header.crc = data.block_header.crc;
+    msg->block_header.id = data.block_header.id;
+    msg->block_header.length = data.block_header.length;
+    msg->block_header.tow = data.tow;
+    msg->block_header.wnc = data.wnc;
+    msg->n = data.n;
+    msg->sb_length = data.sb_length;
+    
+    for (i=0; i<msg->n;i++)
+    {
+        msg->source = data.ExtSensorMeas[i].Source;
+        msg->sensor_model = data.ExtSensorMeas[i].SensorModel;
+        msg->type = data.ExtSensorMeas[i].type;
+        msg->obs_info = data.ExtSensorMeas[i].ObsInfo;
+
+        msg->acceleration_X = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_X;
+        msg->acceleration_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Y;
+        msg->acceleration_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Z;
+
+        msg->angular_rate_X = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_X;
+        msg->angular_rate_Y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Y;
+        msg->angular_rate_Z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Z;
+
+        msg->velocity_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_X;
+        msg->velocity_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Y;
+        msg->velocity_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Z;
+        msg->std_dev_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_X;
+        msg->std_dev_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Y;
+        msg->std_dev_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Z;
+
+        msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
+
+        msg->zero_velocity_flag = data.ExtSensorMeas[i].ExtSensorMeasData.ZeroVelocityFlag.zero_velocity_flag;
+    }
+    return msg;
+};
 /**
  * The position_covariance array is populated in row-major order, where the basis of
  * the correspond matrix is (E, N, U, Roll, Pitch, Heading). Important: The Euler
@@ -2830,47 +2876,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         break;
     }
 
-    case evExtEventINSNavGeod: // Velocity sensor lever arm
-    {
-        septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
-            boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
-        ExtEventINSNavGeod exteventinsnavgeod;
-        memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
-        msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
-        msg->header.frame_id = g_frame_id_ins;
-        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-        ros::Time time_obj;
-        time_obj = timestampSBF(tow, g_use_gnss_time);
-        msg->header.stamp.sec = time_obj.sec;
-        msg->header.stamp.nsec = time_obj.nsec;
-        msg->block_header.id = 4230;
-        static ros::Publisher publisher = 
-            g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod", 
-                                                            g_ROS_QUEUE_SIZE);
-        // Wait as long as necessary (only when reading from SBF/PCAP file)
-        if (g_read_from_sbf_log || g_read_from_pcap)
-        {
-            ros::Time unix_old = g_unix_time;
-            g_unix_time = time_obj;
-            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-                (g_unix_time.sec != unix_old.sec ||
-                 g_unix_time.nsec != unix_old.nsec))
-            {
-                std::stringstream ss;
-                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-                   << " seconds and "
-                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-                   << " microseconds";
-                ROS_DEBUG("%s", ss.str().c_str());
-                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-                usleep(static_cast<uint32_t>(
-                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-            }
-        }
-        publisher.publish(*msg);
-        break;
-    }
-
     case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
                         // frame)
     {
@@ -2912,6 +2917,89 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         publisher.publish(*msg);
         break;
     }
+
+    case evExtEventINSNavGeod:
+    {
+        septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
+            boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+        ExtEventINSNavGeod exteventinsnavgeod;
+        memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
+        msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
+        msg->header.frame_id = g_frame_id_ins;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4230;
+        static ros::Publisher publisher =
+            g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod",
+                                                                  g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
+
+    case evExtSensorMeas:
+    {
+        septentrio_gnss_driver::ExtSensorMeasPtr msg =
+            boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+        ExtSensorMeas extsensormeas;
+        memcpy(&extsensormeas, data_, sizeof(extsensormeas));
+        msg = ExtSensorMeasCallback(extsensormeas);
+        msg->header.frame_id = g_frame_id_ins;
+        uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+        ros::Time time_obj;
+        time_obj = timestampSBF(tow, g_use_gnss_time);
+        msg->header.stamp.sec = time_obj.sec;
+        msg->header.stamp.nsec = time_obj.nsec;
+        msg->block_header.id = 4050;
+        static ros::Publisher publisher =
+            g_nh->advertise<septentrio_gnss_driver::ExtSensorMeas>("/extsensormeas",
+                                                                  g_ROS_QUEUE_SIZE);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (g_read_from_sbf_log || g_read_from_pcap)
+        {
+            ros::Time unix_old = g_unix_time;
+            g_unix_time = time_obj;
+            if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+                (g_unix_time.sec != unix_old.sec ||
+                 g_unix_time.nsec != unix_old.nsec))
+            {
+                std::stringstream ss;
+                ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+                   << " seconds and "
+                   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+                   << " microseconds";
+                ROS_DEBUG("%s", ss.str().c_str());
+                sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+                usleep(static_cast<uint32_t>(
+                    abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+            }
+        }
+        publisher.publish(*msg);
+        break;
+    }
+
     if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
     {
         case evGPST:
