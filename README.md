@@ -88,37 +88,37 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
    
   **------ Implemented------**
   
-  **ROSaic INS parameter**
+  **ROSaic INS parameters**
   
   The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
-  - `Attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
+  - `attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
     - `heading`:The perpendicular axis can be compensated for by adjusting the `heading` parameter
     - `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
-  - `IMU_orientation`: IMU sensor orientation
-    - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `thetaX`, `thetaY` and `thetaZ` under `angles` param should be equal to zero
-    - If orientation is set to `manual` to true, the receiver will use parameters `thetaX`, `thetaY` and `thetaZ` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `thetaZ` first, then `thetaY`, then `thetaX`. (The value should be in degrees) 
-  - `INS_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
-    - The parameters `POI_X`,`POI_Y` and `POI_Z` refers to the vehicle reference  frame (The value should be in meter)
+  - `imu_orientation`: IMU sensor orientation
+    - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `theta_x`, `theta_y` and `theta_z` under `angles` param should be equal to zero
+    - If orientation is set to `manual` to true, the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
+  - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
+    - The parameters `poi_x`,`poi_y` and `poi_z` refers to the vehicle reference  frame (The value should be in meter)
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
-  - `INS_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
-    - The parameters `X`,`Y` and `Z` refers to the vehicle reference  frame (The value should be in meter)
+  - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
+    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame (The value should be in meter)
     - **Note**: For an accurate navigation it is essential to provide an accurate `ins_ant_lever_arm`
-  - `INS_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
-    - The parameters `VSM_X`,`VSM_Y` and `VSM_Z` refers to the vehicle reference  frame (The value should be in meter)
-  - `INS_initial_heading`: This parameter enables the use of last computed headings when unit is power cycled
+  - `ins_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
+    - The parameters `vsm_x`,`vsm_y` and `vsm_z` refers to the vehicle reference  frame (The value should be in meter)
+  - `ins_initial_heading`: This parameter enables the use of last computed headings when unit is power cycled
     - `auto`: This mode will store the vehicle heading,whenever the vehicle is in static
     - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
-  - `INS_stdDev_mask`: This parameter represent the maximum accepted accuracy. By providing the parameter value will let the receiver compansate for the offset before calculating the attitude by sbstracting them from the measured attitude angles 
-    - `Att_Std_Dev`: This parameter confiures an ouput limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
-    - `Pos_Std_Dev`: This parameter confiures an ouput limit on standard deviation of the position (max accuracy range between -100m to 100m)
+  - `ins_std_dev_mask`: This parameter represent the maximum accepted accuracy. By providing the parameter value will let the receiver compansate for the offset before calculating the attitude by sbstracting them from the measured attitude angles. If standard deviation exceed then INS position and INS attitude won't be available in the output. 
+    - `att_std_dev`: This parameter confiures an ouput limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
+    - `pos_std_dev`: This parameter confiures an ouput limit on standard deviation of the position (max accuracy range between -100m to 100m)
   - `ins_output_type`: The INS navigation filter
     - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as `output_location: MainAnt` or to user defined point of interest as `output_location: POI1`
-    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data.
-      - PosStdDev: true
-      - Att: true
-      - AttStdDev: true
-      - Vel: true
-      - VelStdDev: true
+    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. For e.g. if `pos_std_dev: false` then the value of position standard deviation block in the topic /insnavcart and /insnavgeod will be NaN and even these parameters will affect the ROS standard messages, so make sure to set all these param to true.
+      - pos_std_dev: true
+      - att: true
+      - att_std_dev: true
+      - vel: true
+      - vel_std_dev: true
  
      **------ Till here------**
  
@@ -138,14 +138,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
   - `publish/pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
   - `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
-  - `publish/insnavcart`: `true` to publish `insnavcart_msgs/INSNavCart.msg` message into the topic`/insnavcart` 
-  - `publish/insnavgeod`: `true` to publish `insnavgeod_msgs/INSNavGeod.msg` message into the topic`/insnavgeod`  
-  - `publish/imusetup`: `true` to publish `imusetup_msgs/IMUSetup.msg` message into the topic`/imusetup` 
-  - `publish/velsensorsetup`: `true` to publish `velsensorsetup_msg/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
-       **------ To be Implemented------**
-  - `publish/exteventinsnavcart`: `true` to publish `exteventinsnavcart_msgs/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
-  - `publish/exteventinsnavgeod`: `true` to publish `exteventinsnavgeod_msgs/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
-       **------ Till here------**
+  - `publish/insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
+  - `publish/insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
+  - `publish/extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
+  - `publish/imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
+  - `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
+  - **Note:** The topic /exteventinsnavcart and /exteventinsnavgeod has not been tested but if there is any external event detected by the receiver then this topic can be utilize to output the INS position and INS attitude at that event.
+  - `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
+  - `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
 
 ## ROS Topic Publications
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
@@ -166,10 +166,16 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 - `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` and `INSNavGeod`
 - `/insnavcart`: publish custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
 - `/insnavgeod`: publish custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
-- `/exteventinsnavcart`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
-- `/exteventinsnavgeod`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
+- `/extsensormeas`: publish custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 
 - `/imusetup`: publish custom ROS message `septentrio_gnss_driver/IMUSetup.msg`, corresponding to SBF block `IMUSetup` 
 - `/velsensorsetup`: publish custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup` 
+
+
+     **------ To be Implemented------**
+- `/exteventinsnavcart`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
+- `/exteventinsnavgeod`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
+
+     **------ Till here------**
   - Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
   - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
 - `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`

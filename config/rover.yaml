@@ -1,6 +1,6 @@
 # Configuration Settings for the Rover Rx
 
-device: tcp://192.168.109.88:28784
+device: tcp://xxx.xxx.xxx.xxx:xxxx
 
 serial:
   baudrate: 115200
@@ -111,7 +111,11 @@ publish:
   insnavcart: true
   insnavgeod: true
   extsensormeas: true
+<<<<<<< HEAD
   imusetup: true
+=======
+  imusetup: false
+>>>>>>> de83c06fac9487f7455abe2f4a7857ac688eb897
   velsensorsetup: true
   exteventinsnavcart: false
   exteventinsnavgeod: false
