@@ -501,7 +501,8 @@ void rosaic_node::ROSaicNode::configureRx()
         }
     }
     ROS_DEBUG("Leaving configureRx() method");
-
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
     // Setting the INS receiver related command 
     if (septentrio_receiver_type_ == "INS")
     {
@@ -787,47 +788,47 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
 
     //IMU orientation parameter
-    g_nh->param("IMU_orientation/sensor_default", sensor_default_,false);
-    g_nh->param("IMU_orientation/manual", manual_,false);
-    g_nh->param("IMU_orientation/angles/thetaX", thetaX_,0.0f);
-    g_nh->param("IMU_orientation/angles/thetaY", thetaY_,0.0f);
-    g_nh->param("IMU_orientation/angles/thetaZ", thetaZ_,0.0f);
+    g_nh->param("imu_orientation/sensor_default", sensor_default_,false);
+    g_nh->param("imu_orientation/manual", manual_,false);
+    g_nh->param("imu_orientation/angles/theta_x", thetaX_,0.0f);
+    g_nh->param("imu_orientation/angles/theta_y", thetaY_,0.0f);
+    g_nh->param("imu_orientation/angles/theta_z", thetaZ_,0.0f);
 
     //INS antenna lever arm offset parameter
-    g_nh->param("INS_antenna_lever_arm/X", x_, 0.0f);
-    g_nh->param("INS_antenna_lever_arm/Y", y_, 0.0f);
-    g_nh->param("INS_antenna_lever_arm/Z", z_, 0.0f);
+    g_nh->param("ins_antenna_lever_arm/x", x_, 0.0f);
+    g_nh->param("ins_antenna_lever_arm/y", y_, 0.0f);
+    g_nh->param("ins_antenna_lever_arm/z", z_, 0.0f);
 
     g_nh->param("receiver_type", septentrio_receiver_type_, std::string("INS"));
 
     //INS POI ofset paramter
-    g_nh->param("INS_point_of_interest/POI_X", poi_x_, 0.0f);
-    g_nh->param("INS_point_of_interest/POI_Y", poi_y_, 0.0f);
-    g_nh->param("INS_point_of_interest/POI_Z", poi_z_, 0.0f);
+    g_nh->param("ins_point_of_interest/poi_x", poi_x_, 0.0f);
+    g_nh->param("ins_point_of_interest/poi_y", poi_y_, 0.0f);
+    g_nh->param("ins_point_of_interest/poi_z", poi_z_, 0.0f);
 
     //INS velocity sensor lever arm offset parameter
-    g_nh->param("INS_vel_sensor_lever_arm/VSM_X", vsm_x_, 0.0f);
-    g_nh->param("INS_vel_sensor_lever_arm/VSM_Y", vsm_y_, 0.0f);
-    g_nh->param("INS_vel_sensor_lever_arm/VSM_Z", vsm_z_, 0.0f);
+    g_nh->param("ins_vel_sensor_lever_arm/vsm_x", vsm_x_, 0.0f);
+    g_nh->param("ins_vel_sensor_lever_arm/vsm_y", vsm_y_, 0.0f);
+    g_nh->param("ins_vel_sensor_lever_arm/vsm_z", vsm_z_, 0.0f);
     
     // Attitude Determination parameter
-    g_nh->param("Attitude_offset/heading", heading_, 0.0f);
-    g_nh->param("Attitude_offset/pitch", pitch_, 0.0f);
+    g_nh->param("attitude_offset/heading", heading_, 0.0f);
+    g_nh->param("attitude_offset/pitch", pitch_, 0.0f);
 
     //INS_initial_heading param
-    g_nh->param("INS_initial_heading", ins_initial_heading_, std::string("auto"));
+    g_nh->param("ins_initial_heading", ins_initial_heading_, std::string("auto"));
 
     //INS_std_dev_mask
-    g_nh->param("INS_std_dev_mask/Att_Std_Dev", att_std_dev_, 0.0f);
-    g_nh->param("INS_std_dev_mask/Pos_Std_Dev", pos_std_dev_, 0.0f);
+    g_nh->param("ins_std_dev_mask/att_std_dev", att_std_dev_, 0.0f);
+    g_nh->param("ins_std_dev_mask/pos_std_dev", pos_std_dev_, 0.0f);
 
     //INS output  parameters
-    g_nh->param("INS_output_type/PosStdDev", PosStdDev_, false);
-    g_nh->param("INS_output_type/Att", Att_, false);
-    g_nh->param("INS_output_type/AttStdDev", AttStdDev_, false);
-    g_nh->param("INS_output_type/Vel", Vel_, false);
-    g_nh->param("INS_output_type/VelStdDev", VelStdDev_, false);
-    g_nh->param("INS_output_type/output_location", output_location_, std::string("POI1"));
+    g_nh->param("ins_output_type/pos_std_dev", PosStdDev_, false);
+    g_nh->param("ins_output_type/att", Att_, false);
+    g_nh->param("ins_output_type/att_std_dev", AttStdDev_, false);
+    g_nh->param("ins_output_type/vel", Vel_, false);
+    g_nh->param("ins_output_type/vel_std_dev", VelStdDev_, false);
+    g_nh->param("ins_output_type/output_location", output_location_, std::string("POI1"));
 
     // // Velocity Sensor Measurement
     // g_nh->param("Velocity_sensor_measurement/time_stamp", gps_time_, 0.0f);

@@ -25,46 +25,46 @@ ant_serial_nr: Unknown
 
 # INS configuration
 
-Attitude_offset:
+attitude_offset:
   heading: 0.0
   pitch: 0.0
 
-IMU_orientation:
+imu_orientation:
   sensor_default: false
   manual: true
   angles:
-    thetaX: 180.0
-    thetaY: 0.0
-    thetaZ: 0.0
+    theta_x: 180.0
+    theta_y: 0.0
+    theta_z: 0.0
 
-INS_point_of_interest:
-  POI_X: 0.0
-  POI_Y: 0.0
-  POI_Z: 0.0
+ins_point_of_interest:
+  poi_x: 0.0
+  poi_y: 0.0
+  poi_z: 0.0
 
-INS_antenna_lever_arm:
-  X: 0.60
-  Y: 0.50
-  Z: 1.0
+ins_antenna_lever_arm:
+  x: 0.70
+  y: 0.0
+  z: 0.0
   
-INS_vel_sensor_lever_arm:
-  VSM_X: 0.0
-  VSM_Y: 0.0
-  VSM_Z: 0.0
+ins_vel_sensor_lever_arm:
+  vsm_x: 0.0
+  vsm_y: 0.0
+  vsm_z: 0.0
 
-INS_initial_heading: auto  # /stored
+ins_initial_heading: auto  # /stored
 
-INS_std_dev_mask:
-  Att_Std_Dev: 5
-  Pos_Std_Dev: 100
+ins_std_dev_mask:
+  att_std_dev: 5
+  pos_std_dev: 100
 
-INS_output_type:
-  output_location: MainAnt # /POI1
-  PosStdDev: true
-  Att: true
-  AttStdDev: true
-  Vel: true
-  VelStdDev: true
+ins_output_type:
+  output_location: MainAnt #MainAnt # /POI1
+  pos_std_dev: true
+  att: true
+  att_std_dev: true
+  vel: true
+  vel_std_dev: true
 
 leap_seconds: 18
 
@@ -108,11 +108,11 @@ publish:
   pose: true
   diagnostics: false
   #INS messages
-  insnavcart: false
-  insnavgeod: false
-  extsensormeas: false
-  imusetup: false
-  velsensorsetup: false
+  insnavcart: true
+  insnavgeod: true
+  extsensormeas: true
+  imusetup: true
+  velsensorsetup: true
   exteventinsnavcart: false
   exteventinsnavgeod: false
   
