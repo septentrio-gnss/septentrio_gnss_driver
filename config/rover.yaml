@@ -11,7 +11,7 @@ frame_id: gnss
 ins_frame_id: INS
 
 
-receiver_type: INS  #GNSS
+receiver_type: INS  #INS #GNSS
 
 datum: ETRS89
 
@@ -52,14 +52,14 @@ ins_vel_sensor_lever_arm:
   vsm_y: 0.0
   vsm_z: 0.0
 
-ins_initial_heading: auto  # /stored
+ins_initial_heading: auto  #auto #stored
 
 ins_std_dev_mask:
   att_std_dev: 5
   pos_std_dev: 100
 
 ins_output_type:
-  output_location: MainAnt #MainAnt # /POI1
+  output_location: MainAnt #MainAnt #POI1
   pos_std_dev: true
   att: true
   att_std_dev: true
@@ -111,11 +111,7 @@ publish:
   insnavcart: true
   insnavgeod: true
   extsensormeas: true
-<<<<<<< HEAD
   imusetup: true
-=======
-  imusetup: false
->>>>>>> de83c06fac9487f7455abe2f4a7857ac688eb897
   velsensorsetup: true
   exteventinsnavcart: false
   exteventinsnavgeod: false
