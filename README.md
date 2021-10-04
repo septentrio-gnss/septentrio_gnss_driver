@@ -19,8 +19,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 
    **Newly Implemented**
   - `receiver_type`: This parameter is to select the type of Septentrio receiver
-    - `GNSS`: If the `receiver_type` is GNSS then ROS can only output data related to GNSS receivers.
-    - `INS`: If the `receiver_type` is INS then ROS can only output data related to INS receivers.
+    - `GNSS`: If the `receiver_type: GNSS` then ROS can only output data related to GNSS receivers.
+    - `INS`: If the `receiver_type: INS` then ROS can only output data related to INS receivers.
    
    **Till here**
   - `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
@@ -74,11 +74,11 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
        ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
   - Compensate for IMU/Receiver orientations: 
     - It is important to take into consideration the mounting direction of the receiver, therefore the IMU, in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, it will be necessary to compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. 
-    - The IMU’s orientation can be changed by specifying the orientation angles`thetaX`,`thetaY`and `thetaZ` in the `config.yaml` file under the `imu_orientation/manual`
+    - The IMU’s orientation can be changed by specifying the orientation angles`theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `imu_orientation/angles`
     - The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
  
-      ![Screenshot from 2021-08-03 10-13-55](https://user-images.githubusercontent.com/62261460/127984732-76e67470-5c38-4e5b-8036-b932fe63ce62.png)
-      
+      ![Capture](https://user-images.githubusercontent.com/62261460/135846517-91a01072-0c4d-499b-a04d-d5ae826faac8.PNG)
+    - For further more information about Antenna Lever Arm and IMU Orientation, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) 
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the `receiver_type:INS`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
@@ -90,13 +90,13 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   **ROSaic INS parameters**
   
-  The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
+  The following is a list of ROSaic INS parameters found in the `config/rover.yaml` file.
   - `attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
     - `heading`:The perpendicular axis can be compensated for by adjusting the `heading` parameter
     - `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `theta_x`, `theta_y` and `theta_z` under `angles` param should be equal to zero
-    - If orientation is set to `manual` to true, the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
+    - If orientation is set to `manual: true` , the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
   - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
     - The parameters `poi_x`,`poi_y` and `poi_z` refers to the vehicle reference  frame (The value should be in meter)
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
@@ -109,8 +109,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - `auto`: This mode will store the vehicle heading,whenever the vehicle is in static
     - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
   - `ins_std_dev_mask`: This parameter represent the maximum accepted accuracy. By providing the parameter value will let the receiver compansate for the offset before calculating the attitude by sbstracting them from the measured attitude angles. If standard deviation exceed then INS position and INS attitude won't be available in the output. 
-    - `att_std_dev`: This parameter confiures an ouput limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
-    - `pos_std_dev`: This parameter confiures an ouput limit on standard deviation of the position (max accuracy range between -100m to 100m)
+    - `att_std_dev`: This parameter configures an output limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
+    - `pos_std_dev`: This parameter configures an output limit on standard deviation of the position (max accuracy range between -100m to 100m)
   - `ins_output_type`: The INS navigation filter
     - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as `output_location: MainAnt` or to user defined point of interest as `output_location: POI1`
     - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. For e.g. if `pos_std_dev: false` then the value of position standard deviation block in the topic /insnavcart and /insnavgeod will be NaN and even these parameters will affect the ROS standard messages, so make sure to set all these param to true.
