@@ -77,7 +77,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - The IMU’s orientation can be changed by specifying the orientation angles`theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `imu_orientation/angles`
     - The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
  
-      ![Capture](https://user-images.githubusercontent.com/62261460/135846517-91a01072-0c4d-499b-a04d-d5ae826faac8.PNG)
+      ![Capture (1)](https://user-images.githubusercontent.com/62261460/135855781-96459583-5268-4cf0-8995-f00cd0bd91e9.jpg)
     - For further more information about Antenna Lever Arm and IMU Orientation, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) 
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the `receiver_type:INS`
