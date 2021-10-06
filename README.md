@@ -15,14 +15,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       - `off` to disable UART HW flow control, `RTS|CTS` to enable it
     - default: `115200`, `USB1`, `off`
-
-
-   **Newly Implemented**
   - `receiver_type`: This parameter is to select the type of Septentrio receiver
     - `GNSS`: If the `receiver_type: GNSS` then ROS can only output data related to GNSS receivers.
     - `INS`: If the `receiver_type: INS` then ROS can only output data related to INS receivers.
-   
-   **Till here**
   - `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     - In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     - default: `gnss`
@@ -63,7 +58,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - Finally, in case we are facing a serial connection (COM or USB), the parameter `rx_input_corrections_serial` analogously determines the port on which corrections could be serially forwarded to the Rx via `Data Link`.
     - default: `off`, empty, empty, empty, empty, empty, `v2`, `auto`, `false`, `RTCMv2`, `6666`, `USB2`
   # Inertial Navigation System (INS)
-  **------ Need feedback------**
   -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information from Inertial Measurement Unit (IMU) to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
   - The IMU is typically made up of a 3-axis accelerometer, a 3-axiss gyroscope and sometimes a 3-axis magnetometer and measures the system's angular rate and acceleration. The computational unit used to determine the attitude, position, and velocity of the system based on the raw measurements from the IMU given an initial starting position and attitude.
   - Measure and Compensate for Antenna Lever arm:
@@ -82,11 +76,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the `receiver_type:INS`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
-    - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This can be done by `ins_ant_lever_arm` parameter
-    - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_poi_lever_arm` parameter
+    - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This can be done by `ins_poi_of_interest` parameter
+    - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_poi_of_interest` parameter
     - Make sure that the INS/GNSS integration filter is enabled :`ins_output_type`
-   
-  **------ Implemented------**
   
   **ROSaic INS parameters**
   
@@ -97,12 +89,11 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `imu_orientation`: IMU sensor orientation
     - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `theta_x`, `theta_y` and `theta_z` under `angles` param should be equal to zero
     - If orientation is set to `manual: true` , the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
-  - `ins_poi_lever_arm`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
+  - `ins_poi_of_interest`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
     - The parameters `poi_x`,`poi_y` and `poi_z` refers to the vehicle reference  frame (The value should be in meter)
     - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
   - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
     - The parameters `x`,`y` and `z` refers to the vehicle reference  frame (The value should be in meter)
-    - **Note**: For an accurate navigation it is essential to provide an accurate `ins_ant_lever_arm`
   - `ins_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
     - The parameters `vsm_x`,`vsm_y` and `vsm_z` refers to the vehicle reference  frame (The value should be in meter)
   - `ins_initial_heading`: This parameter enables the use of last computed headings when unit is power cycled
@@ -119,9 +110,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       - att_std_dev: true
       - vel: true
       - vel_std_dev: true
- 
-     **------ Till here------**
- 
+  
 - Parameters Configuring (Non-)Publishing of ROS Messages 
   - `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
   - `publish/gprmc`: `true` to publish `septentrio_gnss_driver/GPRMC.msg` messages into the topic `/gprmc`
@@ -143,7 +132,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - `publish/extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
   - `publish/imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
   - `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
-  - **Note:** The topic /exteventinsnavcart and /exteventinsnavgeod has not been tested but if there is any external event detected by the receiver then this topic can be utilize to output the INS position and INS attitude at that event.
   - `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
   - `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
 
