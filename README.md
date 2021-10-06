@@ -86,7 +86,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the `receiver_type:INS`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
-    - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This can be done by `ins_poi_of_interest` parameter
+    - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This can be done by `ins_ant_lever_arm` parameter
     - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_point_of_interest` parameter
     - Make sure that the INS/GNSS integration filter is enabled :`ins_output_type`
   
@@ -170,7 +170,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 
       </details>
   
-  - For further more information about receiver and their parameters, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) [`refrence_guide`](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf)
+  - For further more information about receiver and their parameters, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) [`reference_guide`](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf)
   
 ## Parameters Configuring (Non-)Publishing of ROS Messages 
   - `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
