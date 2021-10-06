@@ -60,58 +60,119 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   # Inertial Navigation System (INS)
   -  Inertial Navigation System (INS) is a device which measures rotation and acceleration and uses this information from Inertial Measurement Unit (IMU) to calculate its position relative to the starting point and provides continuous positioning even during short GNSS outages.
   - The IMU is typically made up of a 3-axis accelerometer, a 3-axiss gyroscope and sometimes a 3-axis magnetometer and measures the system's angular rate and acceleration. The computational unit used to determine the attitude, position, and velocity of the system based on the raw measurements from the IMU given an initial starting position and attitude.
-  - Measure and Compensate for Antenna Lever arm:
-    - The antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP), measured in the vehicle frame.
-    - In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position.
-    -  The IMU/antenna position can be changed by specifying the lever arm `x`,`y`and `z` in the `config.yaml` file under the `ins_ant_lever_arm` parameter 
-    
-       ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
-  - Compensate for IMU/Receiver orientations: 
-    - It is important to take into consideration the mounting direction of the receiver, therefore the IMU, in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, it will be necessary to compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. 
-    - The IMU’s orientation can be changed by specifying the orientation angles`theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `imu_orientation/angles`
-    - The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
+
+    <details>
+    <summary>Measure and Compensate for Antenna Lever arm</summary>
+  
+    + The antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP), measured in the vehicle frame.
+    + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position.
+    + The IMU/antenna position can be changed by specifying the lever arm `x`,`y`and `z` in the `config.yaml` file under the `ins_ant_lever_arm` parameter 
+  
+      ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
+  
+    </details>
+
+      <details>
+    <summary>Compensate for IMU/Receiver Orientations</summary>
+
+    + It is important to take into consideration the mounting direction of the receiver, therefore the IMU, in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, it will be necessary to compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame.
+    + The IMU’s orientation can be changed by specifying the orientation angles`theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `imu_orientation/angles`
+    + The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
+
+    ![Capture (1)](https://user-images.githubusercontent.com/62261460/135855781-96459583-5268-4cf0-8995-f00cd0bd91e9.jpg)
+
+    </details>
  
-      ![Capture (1)](https://user-images.githubusercontent.com/62261460/135855781-96459583-5268-4cf0-8995-f00cd0bd91e9.jpg)
-    - For further more information about Antenna Lever Arm and IMU Orientation, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) 
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify the `receiver_type:INS`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `imu_orientation` parameter
     - Specify the antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna This can be done by `ins_poi_of_interest` parameter
-    - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_poi_of_interest` parameter
+    - If the point of interest is not the IMU, the vector between the IMU and the point of interest can be provided with the `ins_point_of_interest` parameter
     - Make sure that the INS/GNSS integration filter is enabled :`ins_output_type`
   
   **ROSaic INS parameters**
   
-  The following is a list of ROSaic INS parameters found in the `config/rover.yaml` file.
-  - `attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
-    - `heading`:The perpendicular axis can be compensated for by adjusting the `heading` parameter
-    - `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
-  - `imu_orientation`: IMU sensor orientation
-    - If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `theta_x`, `theta_y` and `theta_z` under `angles` param should be equal to zero
-    - If orientation is set to `manual: true` , the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
-  - `ins_poi_of_interest`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
-    - The parameters `poi_x`,`poi_y` and `poi_z` refers to the vehicle reference  frame (The value should be in meter)
-    - The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
-  - `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
-    - The parameters `x`,`y` and `z` refers to the vehicle reference  frame (The value should be in meter)
-  - `ins_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
-    - The parameters `vsm_x`,`vsm_y` and `vsm_z` refers to the vehicle reference  frame (The value should be in meter)
-  - `ins_initial_heading`: This parameter enables the use of last computed headings when unit is power cycled
-    - `auto`: This mode will store the vehicle heading,whenever the vehicle is in static
-    - `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
-  - `ins_std_dev_mask`: This parameter represent the maximum accepted accuracy. By providing the parameter value will let the receiver compansate for the offset before calculating the attitude by sbstracting them from the measured attitude angles. If standard deviation exceed then INS position and INS attitude won't be available in the output. 
-    - `att_std_dev`: This parameter configures an output limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
-    - `pos_std_dev`: This parameter configures an output limit on standard deviation of the position (max accuracy range between -100m to 100m)
-  - `ins_output_type`: The INS navigation filter
-    - `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as `output_location: MainAnt` or to user defined point of interest as `output_location: POI1`
-    - The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. For e.g. if `pos_std_dev: false` then the value of position standard deviation block in the topic /insnavcart and /insnavgeod will be NaN and even these parameters will affect the ROS standard messages, so make sure to set all these param to true.
-      - pos_std_dev: true
-      - att: true
-      - att_std_dev: true
-      - vel: true
-      - vel_std_dev: true
+  - The following is a list of ROSaic INS parameters found in the `config/rover.yaml` file.
   
-- Parameters Configuring (Non-)Publishing of ROS Messages 
+  - Tested with the AsteRx-SBi3 Pro receiver
+  
+     <details>
+    <summary>attitude_offset</summary>
+
+    + `attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
+        + `heading`:The perpendicular axis can be compensated for by adjusting the `heading` parameter
+        + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
+    </details>
+    
+     <details>
+    <summary>imu_orientation</summary>
+
+    + `imu_orientation`: IMU sensor orientation
+        + If orientation is set to `sensor_default` to true, the receiver assumes that the IMU is attached to the vehicle in the nominal orientation, i.e. horizontally, upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle. In this case the value of `theta_x`, `theta_y` and `theta_z` under `angles` param should be equal to zero
+        + If orientation is set to `manual: true` , the receiver will use parameters `theta_x`, `theta_y` and `theta_z` under `angles` param to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation. The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`. (The value should be in degrees) 
+
+    </details>
+   
+       <details>
+    <summary>ins_poi_of_interest</summary>
+
+    + `ins_point_of_interest`: The lever arm from the IMU reference point to a user-defined point of interest in the vehicle
+        + The parameters `poi_x`,`poi_y` and `poi_z` refers to the vehicle reference  frame (The value should be in meter)
+        + The reference point of the navigation output in the insnavcart and insnavgeod of ROS /topic is either the main GNSS antenna, or POI. By default, POI is colocated with the IMU reference point (lever arm is zero by default)
+
+      </details>
+
+         <details>
+      <summary>ins_ant_lever_arm</summary>
+
+      + `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
+          + The parameters `x`,`y` and `z` refers to the vehicle reference  frame (The value should be in meter)
+
+      </details>
+
+      <details>
+      <summary>ins_vel_sensor_lever_arm</summary>
+
+      + `ins_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
+      + The parameters `vsm_x`,`vsm_y` and `vsm_z` refers to the vehicle reference  frame (The value should be in meter)
+
+      </details>
+
+      <details>
+      <summary>ins_initial_heading</summary>
+
+      + `ins_initial_heading`: This parameter enables the use of last computed headings when unit is power cycled
+          + `auto`: This mode will store the vehicle heading,whenever the vehicle is in static
+          + `stored`: This mode is used to store the last heading alignment when the vehicle stopped before switching of the receiver.
+
+      </details>
+
+      <details>
+      <summary>ins_std_dev_mask</summary>
+
+      + `ins_std_dev_mask`: This parameter represent the maximum accepted accuracy. By providing the parameter value will let the receiver compansate for the offset before calculating the attitude by sbstracting them from the measured attitude angles. If standard deviation exceed then INS position and INS attitude won't be available in the output.
+          + `att_std_dev`: This parameter configures an output limit on standard deviation of the attitude angles (max accuracy accepted: 5 degree)
+          + `pos_std_dev`: This parameter configures an output limit on standard deviation of the position (max accuracy range between -100m to 100m)
+
+      </details>
+
+      <details>
+      <summary>ins_output_type</summary>
+
+      + `ins_output_type`: The INS navigation filter
+          + `output_location`: This parameter either refer to the main GNSS antenna ARP or to a user-defined point of interest (POI) on the vehicle. The user can either use lever arms from the IMU to main antenna as `output_location: MainAnt` or to user defined point of interest as `output_location: POI1`
+          + The `ins_output_type` parameter enables or disables the computation of INS attitude or velocity and the associated standard deviations, and publish the following INS related data. For e.g. if `pos_std_dev: false` then the value of position standard deviation block in the topic /insnavcart and /insnavgeod will be NaN and even these parameters will affect the ROS standard messages, so make sure to set all these param to true.
+          + pos_std_dev: true
+          + att: true
+          + att_std_dev: true
+          + vel: true
+          + vel_std_dev: true
+
+      </details>
+  
+  - For further more information about receiver and their parameters, visit [`ins_user_manual`](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) [`refrence_guide`](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf)
+  
+## Parameters Configuring (Non-)Publishing of ROS Messages 
   - `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
   - `publish/gprmc`: `true` to publish `septentrio_gnss_driver/GPRMC.msg` messages into the topic `/gprmc`
   - `publish/gpgsa`: `true` to publish `septentrio_gnss_driver/GPGSA.msg` messages into the topic `/gpgsa`
@@ -157,13 +218,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 - `/extsensormeas`: publish custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 
 - `/imusetup`: publish custom ROS message `septentrio_gnss_driver/IMUSetup.msg`, corresponding to SBF block `IMUSetup` 
 - `/velsensorsetup`: publish custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup` 
-
-
-     **------ To be Implemented------**
 - `/exteventinsnavcart`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
 - `/exteventinsnavgeod`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
-
-     **------ Till here------**
   - Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
   - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
 - `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
