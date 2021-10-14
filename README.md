@@ -3,12 +3,14 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic - one of Septentrio's cutting-edge GNSS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
+This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
-- Facilitates extension to further ROS messages, see instructions below
-- Supports (as of now) a handful of ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
+- Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
+- Easy to add support for more log types
+- Can play back PCAP capture logs for testing purposes
+- Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` messages
 - Tested with the mosaic-X5 receiver and the AsteRx-SBi3 Pro receiver
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
@@ -21,96 +23,110 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 `sudo apt install libpcap-dev`.<br><br>
 
 ## Usage
-The binary release is now available for Melodic, yet will take another few days for Noetic. To install the binary package on Melodic, simply run<br><br>
-`sudo apt-get install ros-melodic-septentrio-gnss-driver`.<br><br>
-Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command<br><br>
-`sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic.<br><br>
-The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:<br><br>
-```
-source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
-mkdir -p ~/septentrio/src                                           # Note: Change accordingly dependending on where you want your package to be installed.
-cd ~/septentrio
-catkin init                                                         # Initialize with a hidden marker file
-catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
-cd src
-git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
-catkin build                                                        # If catkin cannot find empy, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
-echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
-source ~/.bashrc 
-```
-- Notes Before Usage
-  - In future bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
-  - The driver assumes the user is logged into the Rx with an authorization level set to `User`, not just `Viewer`.
-  - Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
-  - The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
-  - ROSaic only works from C++11 onwards due to std::to_string() etc.
-  - Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that `gpsfix` accounts for 4 additional streams (`ChannelStatus`, `DOP`, `MeasEpoch` and `VelCovGeodetic` blocks). 
-  - Once the catkin package is installed, adapt the `config/rover.yaml` file according to your needs (the `launch/rover.launch` need not necessarily be modified). Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
-```
-# Configuration Settings for the Rover Rx
-
-device: tcp://xxx.xxx.xxx.xxx:xxxx
-
-serial:
-  baudrate: 115200
-  rx_serial_port: USB1
-  hw_flow_control: off
-
-frame_id: gnss
-
-datum: ETRS89
-
-marker_to_arp:
-  delta_e: 0.0
-  delta_n: 0.0
-  delta_u: 0.0
+<details>
+<summary>Binary Install</summary>
   
-ant_type: Unknown
-ant_serial_nr: Unknown
+  The binary release is now available for Melodic and Noetic. To install the binary package on Melodic for instance, simply run `sudo apt-get install ros-melodic-septentrio-gnss-driver`.
+</details>
 
-leap_seconds: 18
+<details>
+<summary>Build from Source </summary>
+  
+  Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command
+  `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic. The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:
 
-polling_period:
-  pvt: 500
-  rest: 500
+  ```
+  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly dependending on where you want your package to be installed.
+  cd ~/septentrio
+  catkin init                                                         # Initialize with a hidden marker file
+  catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
+  cd src
+  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
+  rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
+  catkin build                                                        # If catkin cannot find empy, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
+  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
+  source ~/.bashrc 
+  ```
+</details>
 
-reconnect_delay_s: 2
+<details>
+<summary>Notes Before Usage</summary>
 
-use_gnss_time: false
+  + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
+  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. 
+  + Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
+  + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
+  + ROSaic only works from C++11 onwards due to std::to_string() etc.
+  + Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that `gpsfix` accounts for 4 additional streams (`ChannelStatus`, `DOP`, `MeasEpoch` and `VelCovGeodetic` blocks), for instance.
+  + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
 
-ntrip_settings:
-  mode: off
-  caster: 0
-  caster_port: 0
-  username: 0
-  password: 0
-  mountpoint: 0
-  ntrip_version: v2
-  send_gga: auto
-  rx_has_internet: false
-  rtcm_version: RTCMv2
-  rx_input_corrections_tcp: 6666
-  rx_input_corrections_serial: USB2
+  ```
+  # Configuration Settings for the Rover Rx
 
-publish:
-  gpgga: false
-  gprmc: false
-  gpgsa: false
-  gpgsv: false
-  pvtcartesian: false
-  pvtgeodetic: true
-  poscovcartesian: false
-  poscovgeodetic: true
-  atteuler: true
-  attcoveuler: true
-  gpst : false
-  navsatfix: true
-  gpsfix: false
-  pose: false
-  diagnostics: false
-```
-In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now 
+  device: tcp://xxx.xxx.xxx.xxx:xxxx
+
+  serial:
+    baudrate: 115200
+    rx_serial_port: USB1
+    hw_flow_control: off
+
+  frame_id: gnss
+
+  datum: ETRS89
+
+  marker_to_arp:
+    delta_e: 0.0
+    delta_n: 0.0
+    delta_u: 0.0
+
+  ant_type: Unknown
+  ant_serial_nr: Unknown
+
+  leap_seconds: 18
+
+  polling_period:
+    pvt: 500
+    rest: 500
+
+  reconnect_delay_s: 2
+
+  use_gnss_time: false
+
+  ntrip_settings:
+    mode: off
+    caster: 0
+    caster_port: 0
+    username: 0
+    password: 0
+    mountpoint: 0
+    ntrip_version: v2
+    send_gga: auto
+    rx_has_internet: false
+    rtcm_version: RTCMv2
+    rx_input_corrections_tcp: 6666
+    rx_input_corrections_serial: USB2
+
+  publish:
+    gpgga: false
+    gprmc: false
+    gpgsa: false
+    gpgsv: false
+    pvtcartesian: false
+    pvtgeodetic: true
+    poscovcartesian: false
+    poscovgeodetic: true
+    atteuler: true
+    attcoveuler: true
+    gpst : false
+    navsatfix: true
+    gpsfix: false
+    pose: false
+    diagnostics: false
+  ```
+  In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command thus reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
+
+</details>
 
 # Inertial Navigation System (INS): Basics
   -  An Inertial Navigation System (INS) is a device which takes the rotation and acceleration solutions as obtained from its Inertial Measurement Unit (IMU) and combines those with position and velocity information from the GNSS module. Compared to a GNSS system with 7D or 8D (dual-antenna systems) phase space solutions, the combined, Kalman-filtered 9D phase space solution (3 for position, 3 for velocity, 3 for orientation) of an INS is more accurate, more precise and more stable against GNSS outages.
@@ -247,7 +263,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
   
   <details>
-    <summary>INS Specs</summary>
+  <summary>INS Specs</summary>
 
     + `ins_spatial_config`: Spatial configuration of INS/IMU
       + `attitude_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
@@ -278,59 +294,63 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `2` degrees, `100` meters
-      </details>
+  </details>
   
 * Parameters Configuring (Non-)Publishing of ROS Messages
-<details>
+  <details>
   <summary>NMEA/SBF Messages to be Published</summary>
-  + `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
-  + `publish/gprmc`: `true` to publish `septentrio_gnss_driver/GPRMC.msg` messages into the topic `/gprmc`
-  + `publish/gpgsa`: `true` to publish `septentrio_gnss_driver/GPGSA.msg` messages into the topic `/gpgsa`
-  + `publish/gpgsv`: `true` to publish `septentrio_gnss_driver/GPGSV.msg` messages into the topic `/gpgsv`
-  + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
-  + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
-  + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
-  + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
-  + `publish/atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
-  + `publish/attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
-  + `publish/gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
-  + `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
-  + `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
-  + `publish/pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
-  + `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
-  + `publish/insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
-  + `publish/insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
-  + `publish/extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
-  + `publish/imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
-  + `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
-  + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
-  + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
-</details>
+  
+    + `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
+    + `publish/gprmc`: `true` to publish `septentrio_gnss_driver/GPRMC.msg` messages into the topic `/gprmc`
+    + `publish/gpgsa`: `true` to publish `septentrio_gnss_driver/GPGSA.msg` messages into the topic `/gpgsa`
+    + `publish/gpgsv`: `true` to publish `septentrio_gnss_driver/GPGSV.msg` messages into the topic `/gpgsv`
+    + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
+    + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
+    + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
+    + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
+    + `publish/atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
+    + `publish/attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
+    + `publish/gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
+    + `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
+    + `publish/gpsfix`: `true` to publish `gps_common/GPSFix.msg` messages into the topic `/gpsfix`
+    + `publish/pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
+    + `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
+    + `publish/insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
+    + `publish/insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
+    + `publish/extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
+    + `publish/imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
+    + `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
+    + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
+    + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
+  </details>
 
 ## ROS Topic Publications
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
-- `/gpgga`: publishes custom ROS message `septentrio_gnss_driver/Gpgga.msg` - equivalent to [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA
-- `/gprmc`: publishes custom ROS message `septentrio_gnss_driver/Gprmc.msg` - equivalent to [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC
-- `/gpgsa`: publishes custom ROS message `septentrio_gnss_driver/Gpgsa.msg` - equivalent to [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA
-- `/gpgsv`: publishes custom ROS message `septentrio_gnss_driver/Gpgsv.msg` - equivalent to [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV
-- `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`
-- `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic`
-- `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian`
-- `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`
-- `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`
-- `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`
-- `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` block's GPS time information, stored in its header, or - if `use_gnss_time` is set to `false` - from the systems's wall-clock time
-- `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` and `INSNavGeod`
-  - The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
-- `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `INSNavGeod` and `DOP`
-- `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` and `INSNavGeod`
-- `/insnavcart`: publish custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
-- `/insnavgeod`: publish custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
-- `/extsensormeas`: publish custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 
-- `/imusetup`: publish custom ROS message `septentrio_gnss_driver/IMUSetup.msg`, corresponding to SBF block `IMUSetup` 
-- `/velsensorsetup`: publish custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup` 
-- `/exteventinsnavcart`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
-- `/exteventinsnavgeod`: publish custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
-  - Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
-  - In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
-- `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
+<details>
+  <summary>Available ROS Topics</summary>
+  + `/gpgga`: publishes custom ROS message `septentrio_gnss_driver/Gpgga.msg` - equivalent to [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA
+  + `/gprmc`: publishes custom ROS message `septentrio_gnss_driver/Gprmc.msg` - equivalent to [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC
+  + `/gpgsa`: publishes custom ROS message `septentrio_gnss_driver/Gpgsa.msg` - equivalent to [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA
+  + `/gpgsv`: publishes custom ROS message `septentrio_gnss_driver/Gpgsv.msg` - equivalent to [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV
+  + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case)
+  + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case)
+  + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case)
+  + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case)
+  + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler` (GNSS case) or `INSNavGeod` (INS case)
+  + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case)
+  + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its header, or - if `use_gnss_time` is set to `false` - from the systems's wall-clock time
+  + `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case)
+    + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
+  + `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case)
+  + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case)
+    + Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
+    + In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
+  + `/insnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
+  + `/insnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
+  + `/extsensormeas`: publishes custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 
+  + `/imusetup`: publishes custom ROS message `septentrio_gnss_driver/IMUSetup.msg`, corresponding to SBF block `IMUSetup` 
+  + `/velsensorsetup`: publishes custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup` 
+  + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
+  + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
+  + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
+</details>
