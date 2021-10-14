@@ -2,6 +2,7 @@
 The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
 * Parameters Configuring Communication Ports and Processing of GNSS and INS Data
   - `device`: location of device connection
+  <details>
     - `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
     - `file_name:path/to/file.sbf` format for publishing from an SBF log
     - `file_name:path/to/file.pcap` format for publishing from PCAP capture.
@@ -9,6 +10,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     - `tcp://host:port` format for TCP/IP connections
       - `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
     - default: empty
+  </details>
   - `serial`: specifications for serial communication
     - `serial/baudrate`: serial baud rate to be used in a serial connection 
     - `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
