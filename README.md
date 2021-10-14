@@ -2,21 +2,25 @@
 The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
 * Parameters Configuring Communication Ports and Processing of GNSS and INS Data
   <details>
-  <summary> *device*: location of device connection </summary>
-    - `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
-    - `file_name:path/to/file.sbf` format for publishing from an SBF log
-    - `file_name:path/to/file.pcap` format for publishing from PCAP capture.
-      - Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
-    - `tcp://host:port` format for TCP/IP connections
-      - `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
-    - default: empty
+  <summary>Connectivity Specs</summary>
+
+  + `device`: location of device connection
+    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
+    + `file_name:path/to/file.sbf` format for publishing from an SBF log
+    + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
+      + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
+    + `tcp://host:port` format for TCP/IP connections
+      + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
+    + default: empty
+  + `serial`: specifications for serial communication
+    + `serial/baudrate`: serial baud rate to be used in a serial connection 
+    + `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
+    + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
+      + `off` to disable UART HW flow control, `RTS|CTS` to enable it
+    + default: `115200`, `USB1`, `off`
   </details>
-  - `serial`: specifications for serial communication
-    - `serial/baudrate`: serial baud rate to be used in a serial connection 
-    - `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
-    - `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
-      - `off` to disable UART HW flow control, `RTS|CTS` to enable it
-    - default: `115200`, `USB1`, `off`
+       
+  
   - `receiver_type`: This parameter is to select the type of Septentrio receiver
     - `GNSS`: If the `receiver_type: GNSS` then ROS can only output data related to GNSS receivers.
     - `INS`: If the `receiver_type: INS` then ROS can only output data related to INS receivers.
