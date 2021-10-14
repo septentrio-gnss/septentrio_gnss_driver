@@ -356,8 +356,9 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
 </details>
 
+## Suggestions for Improvements
 <details>
-  <summary>Suggestions for Improvements</summary>
+  <summary>Some Ideas</summary>
 
   + Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
   + Publishing the topic `/measepoch`: It could accept the custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
@@ -367,8 +368,9 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 </details>
 
+## Adding New SBF Blocks or NMEA Sentences
 <details>
-  <summary>Adding New SBF Blocks or NMEA Sentences</summary>
+  <summary>Steps to Follow</summary>
 
   Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
   1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
