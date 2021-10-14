@@ -20,7 +20,7 @@ The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04)
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
-`sudo apt install libpcap-dev`.<br><br>
+`sudo apt install libpcap-dev`.
 
 ## Usage
 <details>
@@ -124,7 +124,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     pose: false
     diagnostics: false
   ```
-  In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command thus reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
+  In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
 </details>
 
@@ -328,6 +328,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
 <details>
   <summary>Available ROS Topics</summary>
+  
   + `/gpgga`: publishes custom ROS message `septentrio_gnss_driver/Gpgga.msg` - equivalent to [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA
   + `/gprmc`: publishes custom ROS message `septentrio_gnss_driver/Gprmc.msg` - equivalent to [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC
   + `/gpgsa`: publishes custom ROS message `septentrio_gnss_driver/Gpgsa.msg` - equivalent to [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA
