@@ -226,8 +226,7 @@ namespace io_comm_rx {
     template <typename StreamT>
     void AsyncManager<StreamT>::tryParsing()
     {
-        uint8_t* to_be_parsed;
-        to_be_parsed = new uint8_t[buffer_size_];
+        uint8_t* to_be_parsed = new uint8_t[buffer_size_];
         to_be_parsed_ = to_be_parsed;
         bool timed_out = false;
         std::size_t shift_bytes = 0;
@@ -267,7 +266,7 @@ namespace io_comm_rx {
                                                // caught, which should never happen..
                 {
                     delete[] to_be_parsed; // Freeing memory
-                    to_be_parsed = new uint8_t[buffer_size_];
+                    uint8_t* to_be_parsed = new uint8_t[buffer_size_];
                     to_be_parsed_ = to_be_parsed;
                     shift_bytes = 0;
                     arg_for_read_callback = 0;
@@ -277,7 +276,7 @@ namespace io_comm_rx {
                 continue;
             }
             delete[] to_be_parsed; // Freeing memory
-            to_be_parsed = new uint8_t[buffer_size_];
+            uint8_t* to_be_parsed = new uint8_t[buffer_size_];
             to_be_parsed_ = to_be_parsed;
             shift_bytes = 0;
             arg_for_read_callback = 0;
@@ -326,7 +325,7 @@ namespace io_comm_rx {
         stopping_(false), try_parsing_(false), allow_writing_(true),
         do_read_count_(0), buffer_size_(buffer_size), count_max_(6),
         circular_buffer_(buffer_size)
-    // Since buffer_size = 8912 in declaration, no need in definition any more (even
+    // Since buffer_size = 8192 in declaration, no need in definition any more (even
     // yields error message, since "overwrite").
     {
         ROS_DEBUG(

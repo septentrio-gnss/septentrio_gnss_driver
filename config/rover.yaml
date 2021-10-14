@@ -1,6 +1,8 @@
 # Configuration Settings for the Rover Rx
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+# GNSS/INS parameters
+
+device: tcp://84.198.152.185:22784
 
 serial:
   baudrate: 115200
@@ -8,10 +10,8 @@ serial:
   hw_flow_control: off
 
 frame_id: gnss
-ins_frame_id: INS
 
-
-receiver_type: INS  #INS #GNSS
+receiver_type: gnss
 
 datum: ETRS89
 
@@ -23,65 +23,20 @@ marker_to_arp:
 ant_type: Unknown
 ant_serial_nr: Unknown
 
-# INS configuration
-
-attitude_offset:
-  heading: 0.0
-  pitch: 0.0
-
-imu_orientation:
-  sensor_default: false
-  manual: true
-  angles:
-    theta_x: 180.0
-    theta_y: 0.0
-    theta_z: 0.0
-
-ins_point_of_interest:
-  poi_x: 0.0
-  poi_y: 0.0
-  poi_z: 0.0
-
-ins_antenna_lever_arm:
-  x: 0.70
-  y: 0.0
-  z: 0.0
-  
-ins_vel_sensor_lever_arm:
-  vsm_x: 0.0
-  vsm_y: 0.0
-  vsm_z: 0.0
-
-ins_initial_heading: auto  #auto #stored
-
-ins_std_dev_mask:
-  att_std_dev: 5
-  pos_std_dev: 100
-
-ins_output_type:
-  output_location: MainAnt #MainAnt #POI1
-  pos_std_dev: true
-  att: true
-  att_std_dev: true
-  vel: true
-  vel_std_dev: true
-
 leap_seconds: 18
 
 polling_period:
   pvt: 500
   rest: 500
 
-reconnect_delay_s: 2
-
 use_gnss_time: false
 
 ntrip_settings:
-  mode: off
-  caster: 0
-  caster_port: 0
-  username: 0
-  password: 0
+  mode: Client
+  caster: flepos.vlaanderen.be
+  caster_port: 2101
+  username: 17080a012
+  password: 46314
   mountpoint: 0
   ntrip_version: v2
   send_gga: auto
@@ -91,29 +46,59 @@ ntrip_settings:
   rx_input_corrections_serial: USB2
 
 publish:
+  # For both GNSS and INS Rxs
+  navsatfix: false
+  gpsfix: true
   gpgga: false
   gprmc: false
-  gpgsa: false
-  gpgsv: false
+  gpst : false
   pvtcartesian: false
   pvtgeodetic: true
   poscovcartesian: false
   poscovgeodetic: true
   atteuler: true
   attcoveuler: true
-  # Available for both GNSS and INS receivers
-  gpst : false
-  navsatfix: true
-  gpsfix: true
-  pose: true
+  pose: false
   diagnostics: false
-  #INS messages
-  insnavcart: true
-  insnavgeod: true
-  extsensormeas: true
-  imusetup: true
-  velsensorsetup: true
+  # For GNSS Rx only
+  gpgsa: false
+  gpgsv: false
+  # For INS Rx only
+  insnavcart: false
+  insnavgeod: false
+  extsensormeas: false
+  imusetup: false
+  velsensorsetup: false
   exteventinsnavcart: false
   exteventinsnavgeod: false
-  
 
+# INS-Specific Parameters
+
+ins_spatial_config:
+  attitude_offset:
+    heading: 0.0
+    pitch: 0.0
+  imu_orientation:
+    theta_x: 0.0
+    theta_y: 0.0
+    theta_z: 0.0
+  ins_point_of_interest:
+    poi_x: 0.0
+    poi_y: 0.0
+    poi_z: 0.0
+  ins_antenna_lever_arm:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  ins_vel_sensor_lever_arm:
+    vsm_x: 0.0
+    vsm_y: 0.0
+    vsm_z: 0.0
+
+ins_initial_heading: auto
+
+ins_std_dev_mask:
+  att_std_dev: 0.0
+  pos_std_dev: 0.0
+
+ins_poi: MainAnt

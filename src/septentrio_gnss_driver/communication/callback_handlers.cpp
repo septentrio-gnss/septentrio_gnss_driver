@@ -104,34 +104,33 @@ namespace io_comm_rx {
             }
         }
         // Call NavSatFix callback function if it was added for GNSS 
-        if (septentrio_receiver_type_ == "GNSS")
-        {
-            if (g_publish_navsatfix)
-            {
-                CallbackMap::key_type key = "NavSatFix";
-                std::string ID_temp = rx_message.messageID();
-                if (ID_temp == do_navsatfix_)
-                //if (ID_temp == "4007" || ID_temp == "4226")
-                // The last incoming block among PVTGeodetic and PosCovGeodetic triggers
-                // the publishing of NavSatFix.
-                {
-                    for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
-                        callback != callbackmap_.upper_bound(key); ++callback)
-                    {
-                        try
-                        {
-                            callback->second->handle(rx_message, callback->first);
-                        } catch (std::runtime_error& e)
-                        {
-                            throw std::runtime_error(e.what());
-                        }
-                    }
-                    do_navsatfix_ = std::string();
-                }
-            }
-        }
+		if (septentrio_receiver_type_ == "ins")
+		{
+			if (g_publish_navsatfix)
+			{
+				CallbackMap::key_type key = "NavSatFix";
+				std::string ID_temp = rx_message.messageID();
+				if (ID_temp == do_navsatfix_)
+				// The last incoming block PVTGeodetic triggers
+				// the publishing of NavSatFix.
+				{
+					for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
+						callback != callbackmap_.upper_bound(key); ++callback)
+					{
+						try
+						{
+							callback->second->handle(rx_message, callback->first);
+						} catch (std::runtime_error& e)
+						{
+							throw std::runtime_error(e.what());
+						}
+					}
+					do_navsatfix_ = std::string();
+				}
+			}
+		}
         // Call NavSatFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "INS")
+        if (septentrio_receiver_type_ == "ins")
         {
             if (g_publish_navsatfix)
             {
@@ -158,7 +157,7 @@ namespace io_comm_rx {
         }
         // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
         // added for GNSS
-        if (septentrio_receiver_type_ == "GNSS")
+        if (septentrio_receiver_type_ == "gnss")
         {
             if (g_publish_pose)
             {
@@ -185,7 +184,7 @@ namespace io_comm_rx {
         }
         // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
         // added for INS
-        if (septentrio_receiver_type_ == "INS")
+        if (septentrio_receiver_type_ == "ins")
         {
             if (g_publish_pose)
             {
@@ -211,7 +210,7 @@ namespace io_comm_rx {
         }
         // Call diagnostic_msgs::DiagnosticArray callback function if it was added
         // for the both type of receivers
-        if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
+        if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))
         {
             if (g_publish_diagnostics)
             {
@@ -253,7 +252,7 @@ namespace io_comm_rx {
         }
         // Call sensor_msgs::TimeReference (with GPST) callback function if it was
         // added
-        if (septentrio_receiver_type_ == "GNSS")
+        if (septentrio_receiver_type_ == "gnss")
         {
             if (g_publish_gpst)
             {
@@ -277,7 +276,7 @@ namespace io_comm_rx {
                 }
             }
         }
-        if (septentrio_receiver_type_ == "INS")
+        if (septentrio_receiver_type_ == "ins")
         {
             if (g_publish_gpst)
             {
@@ -302,7 +301,7 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for GNSS
-        if (septentrio_receiver_type_ == "GNSS")
+        if (septentrio_receiver_type_ == "gnss")
         {
             if (g_publish_gpsfix)
             {
@@ -349,7 +348,7 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "INS")
+        if (septentrio_receiver_type_ == "ins")
         {
             if (g_publish_gpsfix)
             {
@@ -420,7 +419,7 @@ namespace io_comm_rx {
                     throw(
                         static_cast<std::size_t>(rx_message.getPosBuffer() - data));
                 }
-                if (septentrio_receiver_type_ == "GNSS")
+                if (septentrio_receiver_type_ == "gnss")
                 {
                     if (g_publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
@@ -445,7 +444,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "INS")
+                if (septentrio_receiver_type_ == "ins")
                 {
                     if (g_publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" || ID_temp == "4226"))
@@ -464,7 +463,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "GNSS")
+                if (septentrio_receiver_type_ == "gnss")
                 {
                     if (g_publish_navsatfix == true &&
                     (ID_temp == "4007" || ID_temp == "5906"))
@@ -482,7 +481,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "INS")
+                if (septentrio_receiver_type_ == "ins")
                 {
                     if (g_publish_navsatfix == true &&
                     (ID_temp == "4226"))
@@ -499,7 +498,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "GNSS")
+                if (septentrio_receiver_type_ == "gnss")
                 {
                     if (g_publish_pose == true &&
                     (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5938" ||
@@ -518,7 +517,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "INS")
+                if (septentrio_receiver_type_ == "ins")
                 {
                     if (g_publish_pose == true &&
                     (ID_temp == "4226"))
@@ -534,7 +533,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
+                if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))
                 {
                     if (g_publish_diagnostics == true &&
                     (ID_temp == "4014" || ID_temp == "4082"))

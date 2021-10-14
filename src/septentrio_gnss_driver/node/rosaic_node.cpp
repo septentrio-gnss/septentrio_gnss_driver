@@ -149,7 +149,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
     // Setting SBF/NMEA output of Rx depending on the receiver type
     // if GNSS then.....
-    if (septentrio_receiver_type_ == "GNSS")
+    if (septentrio_receiver_type_ == "gnss")
     {
         if (publish_pvtcartesian_ == true)
         {
@@ -220,12 +220,12 @@ void rosaic_node::ROSaicNode::configureRx()
     }
     // Setting SBF/NMEA output of Rx depending on the receiver type
     // if INS then.....
-    if (septentrio_receiver_type_ == "INS")
+    if (septentrio_receiver_type_ == "ins")
     {
         if (publish_insnavcart_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", INSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -236,7 +236,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_insnavgeod_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", INSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -247,7 +247,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_imusetup_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", IMUSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -258,7 +258,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_velsensorsetup_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", VelSensorSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -269,7 +269,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_exteventinsnavgeod_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", ExtEventINSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -280,7 +280,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_exteventinsnavcart_ == true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", ExtEventINSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -291,7 +291,7 @@ void rosaic_node::ROSaicNode::configureRx()
         if (publish_extsensormeas_== true)
         {
             std::stringstream ss;
-            ss <<"sso, Stream" <<std::to_string(stream) << " , " << rx_port
+            ss <<"sso, Stream" <<std::to_string(stream) << ", " << rx_port
             << ", ExtSensorMeas, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
             << "\x0D";
             IO.send(ss.str());
@@ -300,7 +300,7 @@ void rosaic_node::ROSaicNode::configureRx()
             g_response_received = false;
         }
     }
-    if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))  
+    if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))  
     {
         if (publish_gpgga_ == true)
         {
@@ -416,8 +416,8 @@ void rosaic_node::ROSaicNode::configureRx()
         std::stringstream ss;
         ss << "sao, Main, " << string_utilities::trimString(std::to_string(delta_e_))
            << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
-           << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
-           << ant_type_ << "\", \"" << ant_serial_nr_ << "\", 0 \x0D";
+           << string_utilities::trimString(std::to_string(delta_u_)) << ", "
+           << ant_type_ << ", " << ant_serial_nr_ << "\x0D";
         IO.send(ss.str());
     }
     g_response_condition.wait(lock, []() { return g_response_received; });
@@ -503,36 +503,33 @@ void rosaic_node::ROSaicNode::configureRx()
     ROS_DEBUG("Leaving configureRx() method");
             g_response_condition.wait(lock, []() { return g_response_received; });
             g_response_received = false;
-    // Setting the INS receiver related command 
-    if (septentrio_receiver_type_ == "INS")
+    
+	// Setting the INS receiver related command 
+    if (septentrio_receiver_type_ == "ins")
     {
-        //IMU orientation 
-        //To change angle of oreintation of the receiver
+        // IMU orientation 
         {
             std::stringstream ss;
-            if(sensor_default_ || manual_ == true)
-            {
-                if(sensor_default_)
-                {
-                    orientation_mode = "SensorDefault";
-                }
-                else
-                {
-                    orientation_mode = "manual";
-                }
-                if(thetaX_ >= ANGLE_MIN && thetaX_<= ANGLE_MAX && thetaY_ >= THETA_Y_MIN && thetaY_ <= THETA_Y_MAX && 
-                    thetaZ_ >= ANGLE_MIN && thetaZ_ <= ANGLE_MAX)
-                {
-                    ss <<" sio, " <<orientation_mode << ", " << string_utilities::trimString(std::to_string(thetaX_))<< ", " 
-                    << string_utilities::trimString(std::to_string(thetaY_))<< ", " 
-                    << string_utilities::trimString(std::to_string(thetaZ_))<< " \x0D";
-                    IO.send(ss.str());
-                }
-                else
-                {
-                    ROS_ERROR("Please specify a correct value for IMU_orientation angles");
-                }
-            }
+			if (manual_ == false)
+			{
+				orientation_mode_ = "SensorDefault";
+			}
+			else
+			{
+				orientation_mode_ = "manual";
+			}
+			if (theta_x_ >= ANGLE_MIN && theta_x_<= ANGLE_MAX && theta_y_ >= THETA_Y_MIN && theta_y_ <= THETA_Y_MAX && 
+				theta_z_ >= ANGLE_MIN && theta_z_ <= ANGLE_MAX)
+			{
+				ss << " sio, " <<orientation_mode_ << ", " << string_utilities::trimString(std::to_string(theta_x_)) << ", " 
+					<< string_utilities::trimString(std::to_string(theta_y_)) << ", " 
+					<< string_utilities::trimString(std::to_string(theta_z_)) << " \x0D";
+				IO.send(ss.str());
+			}
+			else
+			{
+				ROS_ERROR("Please specify a correct value for IMU_orientation angles");
+			}
         
         }
         g_response_condition.wait(lock, []() { return g_response_received; });
@@ -540,7 +537,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
         // setting the INS antenna lever arm offset
         {
-            if(x_>=LEVER_ARM_MIN && x_<=LEVER_ARM_MAX && y_>=LEVER_ARM_MIN && y_<=LEVER_ARM_MAX 
+            if (x_>=LEVER_ARM_MIN && x_<=LEVER_ARM_MAX && y_>=LEVER_ARM_MIN && y_<=LEVER_ARM_MAX 
                 && z_>=LEVER_ARM_MIN && z_<=LEVER_ARM_MAX)
             {
                 std::stringstream ss;
@@ -559,7 +556,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
         // setting the user defined point offset
         {
-            if(poi_x_>=LEVER_ARM_MIN && poi_x_<=LEVER_ARM_MAX && poi_y_>=LEVER_ARM_MIN && poi_y_<=LEVER_ARM_MAX 
+            if (poi_x_>=LEVER_ARM_MIN && poi_x_<=LEVER_ARM_MAX && poi_y_>=LEVER_ARM_MIN && poi_y_<=LEVER_ARM_MAX 
                 && poi_z_>=LEVER_ARM_MIN && poi_z_<=LEVER_ARM_MAX)
             {
                 std::stringstream ss;
@@ -578,7 +575,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
         // setting the Velocity sensor lever arm offset
         {
-            if(vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX 
+            if (vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX 
                 && vsm_z_>=LEVER_ARM_MIN && vsm_z_<=LEVER_ARM_MAX)
             {
                 std::stringstream ss;
@@ -597,10 +594,8 @@ void rosaic_node::ROSaicNode::configureRx()
         g_response_received = false;
 
         // Setting the Attitude Determination
-        //heading
-        //pitch
         {
-            if(heading_ >= HEADING_MIN && heading_<= HEADING_MAX && pitch_ >= PITCH_MIN && pitch_ <= PITCH_MAX)
+            if (heading_ >= HEADING_MIN && heading_<= HEADING_MAX && pitch_ >= PITCH_MIN && pitch_ <= PITCH_MAX)
             {
                 std::stringstream ss;
                 ss << "sto, " << string_utilities::trimString(std::to_string(heading_))
@@ -615,8 +610,7 @@ void rosaic_node::ROSaicNode::configureRx()
         g_response_condition.wait(lock, []() { return g_response_received; });
         g_response_received = false;
         
-        //Setting the INS Output type
-        // INS Solution configuration
+        // Setting the INS Solution Reference Point: MainAnt or POI1
         // First disable any existing INS sub-block connection
         {
             std::stringstream ss;
@@ -625,60 +619,38 @@ void rosaic_node::ROSaicNode::configureRx()
         }
         g_response_condition.wait(lock, []() { return g_response_received; });
         g_response_received = false;
-
-        if(PosStdDev_ || Att_ || AttStdDev_ || Vel_ || VelStdDev_ == true)
-        {
-            std::stringstream ss;
-            {
-                if(PosStdDev_)
-                {
-                    insnavconfig_ = " PosStdDev ";
-                }
-                if(Att_)
-                {
-                    insnavconfig_ += "+Att";
-                }
-                if(AttStdDev_)
-                {
-                    insnavconfig_ += "+AttStdDev";
-                }
-                if(Vel_)
-                {
-                    insnavconfig_ += "+Vel";
-                }
-                if(VelStdDev_)
-                {
-                    insnavconfig_ += "+VelStdDev";
-                }
-                if(output_location_ == "POI1")
-                {
-                    ss << "sinc, on, " << string_utilities::trimString(insnavconfig_) <<", " <<output_location_ << " \x0D";
-                    IO.send(ss.str());
-                }
-                else if(output_location_ == "MainAnt")
-                {
-                    ss << "sinc, on, " << string_utilities::trimString(insnavconfig_) <<", " <<output_location_ << " \x0D";
-                    IO.send(ss.str());
-                }
-                else
-                {
-                    ROS_ERROR("Invalid output location selected !");
-                }
-            }
+		
+		// INS solution reference point
+		{
+			std::stringstream ss;
+			std::string insnavconfig;
+			insnavconfig = " PosStdDev ";
+			insnavconfig += "+Att";
+			insnavconfig += "+AttStdDev";
+			insnavconfig += "+Vel";
+			insnavconfig += "+VelStdDev";
+			if (ins_poi_ == "POI1")
+			{
+				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) <<", " <<ins_poi_ << " \x0D";
+				IO.send(ss.str());
+			}
+			else if (ins_poi_ == "MainAnt")
+			{
+				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) <<", " <<ins_poi_ << " \x0D";
+				IO.send(ss.str());
+			}
+			else
+			{
+				ROS_ERROR("Invalid INS solution reference point selected! Only MainAnt and POI1 are allowed.");
+			}
             g_response_condition.wait(lock, []() { return g_response_received; });
             g_response_received = false;
-        }
-        else
-        {
-            ROS_ERROR("Please specify a valid parameter for ins_output_type");
-        }
+		}
 
-        //Setting the INS heading
-        //auto
-        //stored
+        // Setting the INS heading
         {
             std::stringstream ss;
-            if(ins_initial_heading_ == "auto")
+            if (ins_initial_heading_ == "auto")
             {
                 ss << "siih, " << ins_initial_heading_ << " \x0D";
                 IO.send(ss.str());
@@ -698,7 +670,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
         //Setting the INS navigation filter
         {
-            if(att_std_dev_ >=ATTSTD_DEV_MIN && att_std_dev_ <= ATTSTD_DEV_MAX && 
+            if (att_std_dev_ >=ATTSTD_DEV_MIN && att_std_dev_ <= ATTSTD_DEV_MAX && 
             pos_std_dev_ >= POSSTD_DEV_MIN && pos_std_dev_ <= POSSTD_DEV_MAX)
             {
                 std::stringstream ss;
@@ -714,35 +686,8 @@ void rosaic_node::ROSaicNode::configureRx()
         g_response_condition.wait(lock, []() { return g_response_received; });
         g_response_received = false;
     }
+};
 
-    // Velocity sensor Measurement
-
-    // {
-    //     if (proto == "tcp")
-    //     {
-    //         {
-    //             std::stringstream ss;
-    //             ss << "sdio, COM1, NMEA \x0D";
-    //             IO.send(ss.str());
-    //         }
-    //         g_response_condition.wait(lock, []() { return g_response_received; });
-    //         g_response_received = false;
-    //         // {
-    //         //     std::stringstream ss;
-    //         //     pssn_vsm_ = "PSSN,VSM";
-    //         //     hh_ = "*4D";
-    //         //     ss << pssn_vsm_ << ", " << string_utilities::trimString(std::to_string(gps_time_)) << ", " << string_utilities::trimString(std::to_string(x_x_)) << ", "
-    //         //         << string_utilities::trimString(std::to_string(y_y_)) << ", " << string_utilities::trimString(std::to_string(std_x_x_)) << ", "
-    //         //         << string_utilities::trimString(std::to_string(std_y_y_)) << hh_ << " \x0D";
-    //         //     IO.send(ss.str());
-    //         //     ROS_INFO("VSM_1 it's working");
-    //         // }
-    //         // g_response_condition.wait(lock, []() { return g_response_received; });
-    //         // g_response_received = false;
-    //     }
-        
-    // }
-}
 void rosaic_node::ROSaicNode::getROSParams()
 {
     // Communication parameters
@@ -750,9 +695,9 @@ void rosaic_node::ROSaicNode::getROSParams()
     getROSInt("serial/baudrate", baudrate_, static_cast<uint32_t>(115200));
     g_nh->param("serial/hw_flow_control", hw_flow_control_, std::string("off"));
     g_nh->param("serial/rx_serial_port", rx_serial_port_, std::string("USB1"));
-
-    g_nh->param("reconnect_delay_s", reconnect_delay_s_, 4.0f);
-
+    reconnect_delay_s_ = 2.0f; // Removed from ROS parameter list.
+    g_nh->param("receiver_type", septentrio_receiver_type_, std::string("ins"));
+	
     // Polling period parameters
     getROSInt("polling_period/pvt", polling_period_pvt_,
               static_cast<uint32_t>(1000));
@@ -786,56 +731,41 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
     g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+	
+	// INS Spatial Configuration
+    // IMU orientation parameter
+    g_nh->param("ins_spatial_config/imu_orientation/theta_x", theta_x_, 0.0f);
+    g_nh->param("ins_spatial_config/imu_orientation/theta_y", theta_y_, 0.0f);
+    g_nh->param("ins_spatial_config/imu_orientation/theta_z", theta_z_, 0.0f);
+	
+    // INS antenna lever arm offset parameter
+    g_nh->param("ins_spatial_config/ins_antenna_lever_arm/x", x_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_antenna_lever_arm/y", y_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_antenna_lever_arm/z", z_, 0.0f);
 
-    //IMU orientation parameter
-    g_nh->param("imu_orientation/sensor_default", sensor_default_,false);
-    g_nh->param("imu_orientation/manual", manual_,false);
-    g_nh->param("imu_orientation/angles/theta_x", thetaX_,0.0f);
-    g_nh->param("imu_orientation/angles/theta_y", thetaY_,0.0f);
-    g_nh->param("imu_orientation/angles/theta_z", thetaZ_,0.0f);
+    // INS POI ofset paramter
+    g_nh->param("ins_spatial_config/ins_point_of_interest/poi_x", poi_x_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_point_of_interest/poi_y", poi_y_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_point_of_interest/poi_z", poi_z_, 0.0f);
 
-    //INS antenna lever arm offset parameter
-    g_nh->param("ins_antenna_lever_arm/x", x_, 0.0f);
-    g_nh->param("ins_antenna_lever_arm/y", y_, 0.0f);
-    g_nh->param("ins_antenna_lever_arm/z", z_, 0.0f);
-
-    g_nh->param("receiver_type", septentrio_receiver_type_, std::string("INS"));
-
-    //INS POI ofset paramter
-    g_nh->param("ins_point_of_interest/poi_x", poi_x_, 0.0f);
-    g_nh->param("ins_point_of_interest/poi_y", poi_y_, 0.0f);
-    g_nh->param("ins_point_of_interest/poi_z", poi_z_, 0.0f);
-
-    //INS velocity sensor lever arm offset parameter
-    g_nh->param("ins_vel_sensor_lever_arm/vsm_x", vsm_x_, 0.0f);
-    g_nh->param("ins_vel_sensor_lever_arm/vsm_y", vsm_y_, 0.0f);
-    g_nh->param("ins_vel_sensor_lever_arm/vsm_z", vsm_z_, 0.0f);
+    // INS velocity sensor lever arm offset parameter
+    g_nh->param("ins_spatial_config/ins_vel_sensor_lever_arm/vsm_x", vsm_x_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_vel_sensor_lever_arm/vsm_y", vsm_y_, 0.0f);
+    g_nh->param("ins_spatial_config/ins_vel_sensor_lever_arm/vsm_z", vsm_z_, 0.0f);
     
     // Attitude Determination parameter
-    g_nh->param("attitude_offset/heading", heading_, 0.0f);
-    g_nh->param("attitude_offset/pitch", pitch_, 0.0f);
+    g_nh->param("ins_spatial_config/attitude_offset/heading", heading_, 0.0f);
+    g_nh->param("ins_spatial_config/attitude_offset/pitch", pitch_, 0.0f);
 
-    //INS_initial_heading param
+    // INS_initial_heading param
     g_nh->param("ins_initial_heading", ins_initial_heading_, std::string("auto"));
 
-    //INS_std_dev_mask
+    // INS_std_dev_mask
     g_nh->param("ins_std_dev_mask/att_std_dev", att_std_dev_, 0.0f);
     g_nh->param("ins_std_dev_mask/pos_std_dev", pos_std_dev_, 0.0f);
 
-    //INS output  parameters
-    g_nh->param("ins_output_type/pos_std_dev", PosStdDev_, false);
-    g_nh->param("ins_output_type/att", Att_, false);
-    g_nh->param("ins_output_type/att_std_dev", AttStdDev_, false);
-    g_nh->param("ins_output_type/vel", Vel_, false);
-    g_nh->param("ins_output_type/vel_std_dev", VelStdDev_, false);
-    g_nh->param("ins_output_type/output_location", output_location_, std::string("POI1"));
-
-    // // Velocity Sensor Measurement
-    // g_nh->param("Velocity_sensor_measurement/time_stamp", gps_time_, 0.0f);
-    // g_nh->param("Velocity_sensor_measurement/x_direction", x_x_, 0.0f);
-    // g_nh->param("Velocity_sensor_measurement/y_direction", y_y_, 0.0f);
-    // g_nh->param("Velocity_sensor_measurement/std_x_direction", std_x_x_, 0.0f);
-    // g_nh->param("Velocity_sensor_measurement/std_y_direction", std_y_y_, 0.0f);
+    // INS solution reference point
+    g_nh->param("ins_poi", ins_poi_, std::string("POI1"));
 
     // Correction service parameters
     g_nh->param("ntrip_settings/mode", mode_, std::string("off"));
@@ -876,7 +806,7 @@ void rosaic_node::ROSaicNode::getROSParams()
     // To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix
     // mode...
     ROS_DEBUG("Finished getROSParams() method");
-}
+};
 
 void rosaic_node::ROSaicNode::initializeIO()
 {
@@ -1071,7 +1001,7 @@ void rosaic_node::ROSaicNode::reconnect(const ros::TimerEvent& event)
 void rosaic_node::ROSaicNode::defineMessages()
 {
     ROS_DEBUG("Called defineMessages() method");
-    if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))  
+    if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))  
     {
         if (publish_gpgga_ == true)
         {
@@ -1130,7 +1060,8 @@ void rosaic_node::ROSaicNode::defineMessages()
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<septentrio_gnss_driver::AttCovEuler>("5939");
     }
-    //INS related SBF blocks
+    
+	// INS-related SBF blocks
     if (publish_insnavcart_ == true)
     {
         IO.handlers_.callbackmap_ = 
@@ -1166,14 +1097,14 @@ void rosaic_node::ROSaicNode::defineMessages()
         IO.handlers_.callbackmap_ = 
             IO.getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
     }
-    if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))
+    if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))
     {
         if (g_publish_gpst == true)
         {
             IO.handlers_.callbackmap_ = IO.getHandlers().insert<int32_t>("GPST");
         }
     }
-    if(septentrio_receiver_type_ == "GNSS")
+    if (septentrio_receiver_type_ == "gnss")
     {
         if (g_publish_navsatfix == true)
         {
@@ -1186,7 +1117,7 @@ void rosaic_node::ROSaicNode::defineMessages()
                 IO.getHandlers().insert<sensor_msgs::NavSatFix>("NavSatFix");
         }
     }
-    if(septentrio_receiver_type_ == "INS")
+    if (septentrio_receiver_type_ == "ins")
     {
         if (g_publish_navsatfix == true)
         {
@@ -1199,7 +1130,7 @@ void rosaic_node::ROSaicNode::defineMessages()
                 IO.getHandlers().insert<sensor_msgs::NavSatFix>("INSNavSatFix");
         }
     }
-    if(septentrio_receiver_type_ == "GNSS")
+    if (septentrio_receiver_type_ == "gnss")
     {
         if (g_publish_gpsfix == true)
         {
@@ -1222,19 +1153,17 @@ void rosaic_node::ROSaicNode::defineMessages()
                 IO.getHandlers().insert<int32_t>("5908"); // VelCovGeodetic block
         }
     }
-    if(septentrio_receiver_type_ == "INS")
+    if (septentrio_receiver_type_ == "ins")
     {
         if (g_publish_gpsfix == true)
         {
             if (publish_insnavgeod_ == false)
             {
                 ROS_ERROR(
-                        "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
+                        "For a proper GPSFix message, please set the publish/insnavgeod to true.");
             }
             IO.handlers_.callbackmap_ =
                 IO.getHandlers().insert<gps_common::GPSFix>("INSGPSFix");
-            // The following blocks are never published, yet are needed for the
-            // construction of the GPSFix message, hence we have empty callbacks.
             IO.handlers_.callbackmap_ =
                 IO.getHandlers().insert<int32_t>("4013"); // ChannelStatus block
             IO.handlers_.callbackmap_ =
@@ -1243,7 +1172,7 @@ void rosaic_node::ROSaicNode::defineMessages()
                 IO.getHandlers().insert<int32_t>("4001"); // DOP block
         }
     }
-    if(septentrio_receiver_type_ == "GNSS")
+    if (septentrio_receiver_type_ == "gnss")
     {
         if (g_publish_pose == true)
         {
@@ -1258,7 +1187,7 @@ void rosaic_node::ROSaicNode::defineMessages()
                     "PoseWithCovarianceStamped");
         }
     }
-    if(septentrio_receiver_type_ == "INS")
+    if (septentrio_receiver_type_ == "ins")
     {
         if (g_publish_pose == true)
         {
@@ -1272,7 +1201,7 @@ void rosaic_node::ROSaicNode::defineMessages()
                     "INSPoseWithCovarianceStamped");
         }
     }
-    if ((septentrio_receiver_type_ == "GNSS") || (septentrio_receiver_type_ == "INS"))  
+    if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))  
     {
         if (g_publish_diagnostics == true)
         {
@@ -1308,8 +1237,6 @@ bool g_publish_pose;
 bool g_publish_diagnostics;
 //! The frame ID used in the header of every published ROS message
 std::string g_frame_id;
-//! The frame ID used in the header of every published ROS INS message
-std::string g_frame_id_ins;
 //! The number of leap seconds that have been inserted into the UTC time
 uint32_t g_leap_seconds;
 //! Mutex to control changes of global variable "g_response_received"
@@ -1417,7 +1344,6 @@ int main(int argc, char** argv)
     g_nh.reset(new ros::NodeHandle("~"));
     g_nh->param("use_gnss_time", g_use_gnss_time, true);
     g_nh->param("frame_id", g_frame_id, (std::string) "gnss");
-    g_nh->param("ins_frame_id", g_frame_id_ins, (std::string) "INS");
     g_nh->param("publish/gpst", g_publish_gpst, true);
     g_nh->param("publish/navsatfix", g_publish_navsatfix, true);
     g_nh->param("publish/gpsfix", g_publish_gpsfix, true);

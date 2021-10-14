@@ -332,73 +332,46 @@ namespace rosaic_node {
         std::string ant_type_;
         //! Serial number of your particular antenna
         std::string ant_serial_nr_;
-
-        /**
-         * IMU receiver orientation
-         * if imu is align with vechile reference frame or
-         * if imu is not align with vehivle reference frame then
-         * it can be changed by specifying the orientation angles
-         */
-        bool  sensor_default_; 
-        std::string orientation_mode; 
-        bool  manual_;
-        float thetaX_;
-        float thetaY_;
-        float thetaZ_;
-
-        //INS antenna lever arm offset in X Y and Z dimension
+        //! IMU orientation mode
+        std::string orientation_mode_;
+        //! IMU orientation mode helper variable
+        bool manual_;
+		//! IMU orientation x-angle
+        float theta_x_;
+		//! IMU orientation y-angle
+        float theta_y_;
+		//! IMU orientation z-angle
+        float theta_z_;
+        //! INS antenna lever arm x-offset
         float x_;
+        //! INS antenna lever arm y-offset
         float y_;
+        //! INS antenna lever arm z-offset
         float z_;
-
-        //INS point of interest offset in X, Y and Z dimension
+        //! INS POI offset in x-dimension
         float poi_x_;
+        //! INS POI offset in y-dimension
         float poi_y_;
+        //! INS POI offset in z-dimension
         float poi_z_;
-
-        // INS Velocity sensor lever arm offset in X, Y and Z dimension
+        //! INS velocity sensor lever arm x-offset
         float vsm_x_;
+        //! INS velocity sensor lever arm y-offset
         float vsm_y_;
+        //! INS velocity sensor lever arm z-offset
         float vsm_z_;
-
-        /**
-         * Attitude offset Determination
-         * if antenna base line is not align with vehicle’s longitudinal axis
-         * Horizontal offsets can be compensated for by adjusting the heading_
-         * Vertical offsets can be compensated for by adjusting the pitch_
-         */
+        //! Attitude offset determination in longitudinal direction
         float heading_;
+        //! Attitude offset determination in latitudinal direction
         float pitch_;
-
-        /**
-         * Output type
-         * for enabling or disabling the output of INS attitude, position, and velocity
-         * and associated standard deviation respectively
-         */
-        std::string insnavconfig_;
-        std::string output_location_;
-        bool PosStdDev_;
-        bool Att_;
-        bool AttStdDev_;
-        bool Vel_;
-        bool VelStdDev_;
-
-        //! For the computation of heading when unit is powered cycled
+        //! INS solution reference point
+        std::string ins_poi_;
+        //! For heading computation when unit is powered-cycled
         std::string ins_initial_heading_;
-
-        //! For the computation of INS navigation filter
+		//! Attitude deviation mask
         float att_std_dev_;
+		//! Position deviation mask
         float pos_std_dev_;
-
-        // Velocity sensor Measurement
-        // std::string pssn_vsm_;
-        // float   gps_time_;
-        // float   x_x_;
-        // float   y_y_;
-        // float   std_x_x_;
-        // float   std_y_y_;
-        // std::string hh_;
-
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to
