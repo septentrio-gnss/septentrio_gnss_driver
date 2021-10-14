@@ -1,8 +1,8 @@
 # ROSaic Parameters
 The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
 * Parameters Configuring Communication Ports and Processing of GNSS and INS Data
-  - `device`: location of device connection
   <details>
+  <summary> *device*: location of device connection </summary>
     - `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
     - `file_name:path/to/file.sbf` format for publishing from an SBF log
     - `file_name:path/to/file.pcap` format for publishing from PCAP capture.
