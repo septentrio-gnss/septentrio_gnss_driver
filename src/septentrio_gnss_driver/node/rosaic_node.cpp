@@ -329,7 +329,19 @@ void rosaic_node::ROSaicNode::configureRx()
         ss << "sao, Main, " << string_utilities::trimString(std::to_string(delta_e_))
            << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
            << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
-           << ant_type_ << "\", \"" << ant_serial_nr_ << "\", 0 \x0D";
+           << ant_type_ << "\", \"" << ant_serial_nr_ << "\"\x0D";
+        IO.send(ss.str());
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // Configure Aux1 antenna
+    {
+        std::stringstream ss;
+        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(delta_e_))
+           << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
+           << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
+           << ant_aux1_type_ << "\", \"" << ant_aux1_serial_nr_ << "\"\x0D";
         IO.send(ss.str());
     }
     g_response_condition.wait(lock, []() { return g_response_received; });
@@ -453,7 +465,9 @@ void rosaic_node::ROSaicNode::getROSParams()
     // Datum and marker-to-ARP offset
     g_nh->param("datum", datum_, std::string("ETRS89"));
     g_nh->param("ant_type", ant_type_, std::string("Unknown"));
+    g_nh->param("ant_aux1_type", ant_aux1_type_, std::string("Unknown"));
     g_nh->param("ant_serial_nr", ant_serial_nr_, std::string("Unknown"));
+    g_nh->param("ant_aux1_serial_nr", ant_aux1_serial_nr_, std::string("Unknown"));
     g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
     g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);

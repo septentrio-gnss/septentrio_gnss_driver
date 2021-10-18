@@ -263,11 +263,16 @@ namespace rosaic_node {
         float delta_n_;
         //! Marker-to-ARP offset in the upward direction
         float delta_u_;
-        //! Antenna type, from the list returned by the command "lstAntennaInfo,
+        //! Main antenna type, from the list returned by the command "lstAntennaInfo,
         //! Overview"
         std::string ant_type_;
-        //! Serial number of your particular antenna
+        //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
+        //! Overview"
+        std::string ant_aux1_type_;
+        //! Serial number of your particular Main antenna
         std::string ant_serial_nr_;
+        //! Serial number of your particular Aux1 antenna
+        std::string ant_aux1_serial_nr_;
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to
