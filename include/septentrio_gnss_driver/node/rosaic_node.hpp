@@ -76,6 +76,7 @@ extern bool g_publish_gpgga;
 extern bool g_publish_pvtcartesian;
 extern bool g_publish_pvtgeodetic;
 extern bool g_publish_poscovgeodetic;
+extern bool g_publish_velcovgeodetic;
 extern bool g_publish_poscovcartesian;
 extern bool g_publish_atteuler;
 extern bool g_publish_attcoveuler;
@@ -314,6 +315,9 @@ namespace rosaic_node {
         //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
         //! message
         bool publish_poscovgeodetic_;
+        //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
+        //! message
+        bool publish_velcovgeodetic_;
         //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
         bool publish_atteuler_;
         //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message

@@ -102,6 +102,7 @@ publish:
   pvtgeodetic: true
   poscovcartesian: false
   poscovgeodetic: true
+  velcovgeodetic: true
   atteuler: true
   attcoveuler: true
   gpst : false

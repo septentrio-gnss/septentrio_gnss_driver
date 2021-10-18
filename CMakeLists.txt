@@ -69,6 +69,7 @@ add_message_files(
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   VelCovGeodetic.msg
    AttEuler.msg
    AttCovEuler.msg
    Gpgga.msg

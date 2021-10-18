@@ -1,6 +1,6 @@
 # Configuration Settings for the Rover Rx
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+device: tcp://xxx.xxx.xxx.xxx:28784
 
 serial:
   baudrate: 115200
@@ -52,6 +52,7 @@ publish:
   pvtgeodetic: true
   poscovcartesian: false
   poscovgeodetic: true
+  velcovgeodetic: true
   atteuler: true
   attcoveuler: true
   gpst : false

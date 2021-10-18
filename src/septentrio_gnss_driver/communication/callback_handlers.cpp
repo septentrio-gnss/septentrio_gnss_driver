@@ -79,8 +79,7 @@ namespace io_comm_rx {
         CallbackMap::key_type key = rx_message.messageID();
         std::string ID_temp = rx_message.messageID();
         if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
-              ID_temp == "5908" || ID_temp == "4014" || ID_temp == "4082" ||
-              ID_temp == "5902"))
+              ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902"))
         // We only want to handle ChannelStatus, MeasEpoch, DOP, VelCovGeodetic,
         // ReceiverStatus, QualityInd and ReceiverSetup blocks in case GPSFix and
         // DiagnosticArray messages are to be published, respectively, see few lines
