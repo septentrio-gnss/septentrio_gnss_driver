@@ -263,6 +263,12 @@ namespace rosaic_node {
         float delta_n_;
         //! Marker-to-ARP offset in the upward direction
         float delta_u_;
+        //! Marker-to-Aux1-ARP offset in the eastward direction
+        float delta_aux1_e_;
+        //! Marker-to-Aux1-ARP offset in the northward direction
+        float delta_aux1_n_;
+        //! Marker-to-Aux1-ARP offset in the upward direction
+        float delta_aux1_u_;
         //! Main antenna type, from the list returned by the command "lstAntennaInfo,
         //! Overview"
         std::string ant_type_;

@@ -15,6 +15,11 @@ marker_to_arp:
   delta_e: 0.0
   delta_n: 0.0
   delta_u: 0.0
+
+marker_to_aux1_arp:
+  delta_e: 0.0
+  delta_n: 0.0
+  delta_u: 0.0
   
 ant_type: Unknown
 ant_serial_nr: "Unknown"

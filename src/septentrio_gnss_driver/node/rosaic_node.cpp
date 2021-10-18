@@ -338,9 +338,9 @@ void rosaic_node::ROSaicNode::configureRx()
     // Configure Aux1 antenna
     {
         std::stringstream ss;
-        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(delta_e_))
-           << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
-           << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
+        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(delta_aux1_e_))
+           << ", " << string_utilities::trimString(std::to_string(delta_aux1_n_)) << ", "
+           << string_utilities::trimString(std::to_string(delta_aux1_u_)) << ", \""
            << ant_aux1_type_ << "\", \"" << ant_aux1_serial_nr_ << "\"\x0D";
         IO.send(ss.str());
     }
@@ -471,6 +471,9 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
     g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_e", delta_aux1_e_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_n", delta_aux1_n_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_u", delta_aux1_u_, 0.0f);
 
     // Correction service parameters
     g_nh->param("ntrip_settings/mode", mode_, std::string("off"));
