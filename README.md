@@ -274,17 +274,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
         + The nominal orientation is where the IMU is upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
         + default: `0.0`, `0.0`, `0.0` (degrees)
+      + `ins_poi`: The lever arm from the IMU reference point to a user-defined POI
+        + Parameters `poi_x`,`poi_y` and `poi_z` refer to the vehicle reference frame
+        + default: `0.0`, `0.0`, `0.0` (meters)
       + `ins_ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
         + The parameters `x`,`y` and `z` refer to the vehicle reference frame
         + default: `0.0`, `0.0`, `0.0` (meters)
       + `ins_vel_sensor_lever_arm`: The lever arm from the IMU reference point to the velocity sensor
         + The parameters `vsm_x`,`vsm_y` and `vsm_z` refer to the vehicle reference frame 
-        + default: `0.0`, `0.0`, `0.0` (meters)
-    + `ins_solution`: The point at which the INS navigation solution should be calculated
-      + `reference_point`: The reference point (e.g. in `insnavgeod` ROS topic) is either the main GNSS antenna (`main_ant`) or the POI (`poi`) specified below
-        + default: `main_ant`
-      + `poi_to_imu`: The lever arm from the IMU reference point to a user-defined POI
-        + Parameters `poi_x`,`poi_y` and `poi_z` refer to the vehicle reference frame
         + default: `0.0`, `0.0`, `0.0` (meters)
     + `ins_initial_heading`: How the receiver obtains the initial INS/GNSS integrated heading during the alignment phase
         + In case it is `auto`, the initial integrated heading is determined from GNSS measurements.
@@ -294,6 +291,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `2` degrees, `100` meters
+    + `ins_use_poi`: Whether or not to use the POI defined in `ins_poi`
+      + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above, otherwise it'll be the main GNSS antenna.
+      + default: `false`
   </details>
   
 * Parameters Configuring (Non-)Publishing of ROS Messages
