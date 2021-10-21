@@ -498,6 +498,8 @@ void rosaic_node::ROSaicNode::initializeIO()
 {
     ROS_DEBUG("Called initializeIO() method");
     boost::smatch match;
+
+	ROS_DEBUG_STREAM("DEVICE: " << device_);
     // In fact: smatch is a typedef of match_results<string::const_iterator>
     if (boost::regex_match(device_, match, boost::regex("(tcp)://(.+):(\\d+)")))
     // C++ needs \\d instead of \d: Both mean decimal.
@@ -551,6 +553,7 @@ void rosaic_node::ROSaicNode::initializeIO()
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
+		device_ = proto;
         ROS_DEBUG("%s", ss.str().c_str());
         boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
         temporary_thread.detach();
