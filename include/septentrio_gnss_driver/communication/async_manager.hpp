@@ -251,15 +251,15 @@ namespace io_comm_rx {
 
             try
             {
-			    ROS_DEBUG(
+		ROS_DEBUG(
                     "Calling read_callback_() method, with number of bytes to be parsed being %li",
                     arg_for_read_callback);
                 read_callback_(to_be_parsed_, arg_for_read_callback);
             } catch (std::size_t& parsing_failed_here)
             {
-			    to_be_parsed_ += parsing_failed_here;
-			    arg_for_read_callback -= parsing_failed_here;
-				ROS_DEBUG(
+		to_be_parsed_ += parsing_failed_here;
+		arg_for_read_callback -= parsing_failed_here;
+		ROS_DEBUG(
                     "Current buffer size is %li and parsing_failed_here is %li",
                     current_buffer_size, parsing_failed_here);
                 if (arg_for_read_callback < 0) // In case some parsing error was not
