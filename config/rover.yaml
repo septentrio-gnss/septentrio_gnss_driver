@@ -40,7 +40,7 @@ ntrip_settings:
   mountpoint: 0
   ntrip_version: v2
   send_gga: auto
-  rx_has_internet: false
+  rx_has_internet: true
   rtcm_version: RTCMv2
   rx_input_corrections_tcp: 6666
   rx_input_corrections_serial: USB2
