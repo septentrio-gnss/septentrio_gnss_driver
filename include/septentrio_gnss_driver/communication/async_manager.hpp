@@ -259,7 +259,7 @@ namespace io_comm_rx {
             {
                 to_be_parsed_ += parsing_failed_here;
                 arg_for_read_callback -= parsing_failed_here;
-				ROS_DEBUG(
+                ROS_DEBUG(
                     "Current buffer size is %li and parsing_failed_here is %li",
                     current_buffer_size, parsing_failed_here);
                 if (arg_for_read_callback < 0) // In case some parsing error was not
