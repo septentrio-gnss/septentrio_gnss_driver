@@ -573,6 +573,7 @@ void rosaic_node::ROSaicNode::initializeIO()
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
+	device_ = proto;
         ROS_DEBUG("%s", ss.str().c_str());
         boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
         temporary_thread.detach();
