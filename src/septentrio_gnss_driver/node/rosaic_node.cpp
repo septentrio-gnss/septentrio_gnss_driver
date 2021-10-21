@@ -233,6 +233,18 @@ void rosaic_node::ROSaicNode::configureRx()
         g_response_condition.wait(lock, []() { return g_response_received; });
         g_response_received = false;
     }
+    if (publish_velcovgeodetic_ == true)
+    {
+        std::stringstream ss;
+        ss.str(std::string());
+        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+           << ", VelCovGeodetic, " << pvt_sec_or_msec
+           << std::to_string(rx_period_pvt) << "\x0D";
+        IO.send(ss.str());
+        ++stream;
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
     if (publish_atteuler_ == true)
     {
         std::stringstream ss;
@@ -279,15 +291,7 @@ void rosaic_node::ROSaicNode::configureRx()
         IO.send(ss.str());
         ++stream;
         g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-        ss.str(std::string());
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", VelCovGeodetic, " << pvt_sec_or_msec
-           << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
+        g_response_received = false;        
     }
     if (g_publish_diagnostics == true)
     {
@@ -325,7 +329,19 @@ void rosaic_node::ROSaicNode::configureRx()
         ss << "sao, Main, " << string_utilities::trimString(std::to_string(delta_e_))
            << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
            << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
-           << ant_type_ << "\", \"" << ant_serial_nr_ << "\", 0 \x0D";
+           << ant_type_ << "\", \"" << ant_serial_nr_ << "\"\x0D";
+        IO.send(ss.str());
+    }
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
+
+    // Configure Aux1 antenna
+    {
+        std::stringstream ss;
+        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(delta_aux1_e_))
+           << ", " << string_utilities::trimString(std::to_string(delta_aux1_n_)) << ", "
+           << string_utilities::trimString(std::to_string(delta_aux1_u_)) << ", \""
+           << ant_aux1_type_ << "\", \"" << ant_aux1_serial_nr_ << "\"\x0D";
         IO.send(ss.str());
     }
     g_response_condition.wait(lock, []() { return g_response_received; });
@@ -449,10 +465,15 @@ void rosaic_node::ROSaicNode::getROSParams()
     // Datum and marker-to-ARP offset
     g_nh->param("datum", datum_, std::string("ETRS89"));
     g_nh->param("ant_type", ant_type_, std::string("Unknown"));
+    g_nh->param("ant_aux1_type", ant_aux1_type_, std::string("Unknown"));
     g_nh->param("ant_serial_nr", ant_serial_nr_, std::string("Unknown"));
+    g_nh->param("ant_aux1_serial_nr", ant_aux1_serial_nr_, std::string("Unknown"));
     g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
     g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
     g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_e", delta_aux1_e_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_n", delta_aux1_n_, 0.0f);
+    g_nh->param("marker_to_aux1_arp/delta_u", delta_aux1_u_, 0.0f);
 
     // Correction service parameters
     g_nh->param("ntrip_settings/mode", mode_, std::string("off"));
@@ -486,6 +507,7 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("publish/pvtgeodetic", publish_pvtgeodetic_, true);
     g_nh->param("publish/poscovcartesian", publish_poscovcartesian_, true);
     g_nh->param("publish/poscovgeodetic", publish_poscovgeodetic_, true);
+    g_nh->param("publish/velcovgeodetic", publish_velcovgeodetic_, true);
     g_nh->param("publish/atteuler", publish_atteuler_, true);
     g_nh->param("publish/attcoveuler", publish_attcoveuler_, true);
 
@@ -734,6 +756,11 @@ void rosaic_node::ROSaicNode::defineMessages()
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<septentrio_gnss_driver::PosCovGeodetic>("5906");
     }
+    if (publish_velcovgeodetic_ == true)
+    {
+        IO.handlers_.callbackmap_ =
+            IO.getHandlers().insert<septentrio_gnss_driver::VelCovGeodetic>("5908");
+    }
     if (publish_atteuler_ == true)
     {
         IO.handlers_.callbackmap_ =
@@ -760,10 +787,10 @@ void rosaic_node::ROSaicNode::defineMessages()
     }
     if (g_publish_gpsfix == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_velcovgeodetic_ == false)
         {
             ROS_ERROR(
-                "For a proper GPSFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
+                "For a proper GPSFix message, please set the publish/pvtgeodetic, the publish/poscovgeodetic, and the publish/velcovgeodetic ROSaic parameters both to true.");
         }
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<gps_common::GPSFix>("GPSFix");
@@ -775,8 +802,6 @@ void rosaic_node::ROSaicNode::defineMessages()
             IO.getHandlers().insert<int32_t>("4027"); // MeasEpoch block
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<int32_t>("4001"); // DOP block
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("5908"); // VelCovGeodetic block
     }
     if (g_publish_pose == true)
     {

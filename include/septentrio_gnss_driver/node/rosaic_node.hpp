@@ -76,6 +76,7 @@ extern bool g_publish_gpgga;
 extern bool g_publish_pvtcartesian;
 extern bool g_publish_pvtgeodetic;
 extern bool g_publish_poscovgeodetic;
+extern bool g_publish_velcovgeodetic;
 extern bool g_publish_poscovcartesian;
 extern bool g_publish_atteuler;
 extern bool g_publish_attcoveuler;
@@ -262,11 +263,22 @@ namespace rosaic_node {
         float delta_n_;
         //! Marker-to-ARP offset in the upward direction
         float delta_u_;
-        //! Antenna type, from the list returned by the command "lstAntennaInfo,
+        //! Marker-to-Aux1-ARP offset in the eastward direction
+        float delta_aux1_e_;
+        //! Marker-to-Aux1-ARP offset in the northward direction
+        float delta_aux1_n_;
+        //! Marker-to-Aux1-ARP offset in the upward direction
+        float delta_aux1_u_;
+        //! Main antenna type, from the list returned by the command "lstAntennaInfo,
         //! Overview"
         std::string ant_type_;
-        //! Serial number of your particular antenna
+        //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
+        //! Overview"
+        std::string ant_aux1_type_;
+        //! Serial number of your particular Main antenna
         std::string ant_serial_nr_;
+        //! Serial number of your particular Aux1 antenna
+        std::string ant_aux1_serial_nr_;
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to
@@ -314,6 +326,9 @@ namespace rosaic_node {
         //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
         //! message
         bool publish_poscovgeodetic_;
+        //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
+        //! message
+        bool publish_velcovgeodetic_;
         //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
         bool publish_atteuler_;
         //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message

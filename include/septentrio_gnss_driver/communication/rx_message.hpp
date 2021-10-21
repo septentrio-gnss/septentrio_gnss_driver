@@ -132,6 +132,7 @@
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/VelCovGeodetic.h>
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.hpp>
@@ -492,6 +493,15 @@ namespace io_comm_rx {
          */
         septentrio_gnss_driver::PosCovGeodeticPtr
         PosCovGeodeticCallback(PosCovGeodetic& data);
+
+        /**
+         * @brief Callback function when reading VelCovGeodetic blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message VelCovGeodetic
+         * @return A smart pointer to the ROS message VelCovGeodetic just created
+         */
+        septentrio_gnss_driver::VelCovGeodeticPtr
+        VelCovGeodeticCallback(VelCovGeodetic& data);
 
         /**
          * @brief Callback function when reading AttEuler blocks

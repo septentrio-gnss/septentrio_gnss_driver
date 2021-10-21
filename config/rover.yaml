@@ -1,6 +1,6 @@
 # Configuration Settings for the Rover Rx
 
-device: serial:/dev/ttyACM0
+device: tcp://xxx.xxx.xxx.xxx:28784
 
 serial:
   baudrate: 115200
@@ -15,9 +15,17 @@ marker_to_arp:
   delta_e: 0.0
   delta_n: 0.0
   delta_u: 0.0
+
+marker_to_aux1_arp:
+  delta_e: 0.0
+  delta_n: 0.0
+  delta_u: 0.0
   
 ant_type: Unknown
-ant_serial_nr: Unknown
+ant_serial_nr: "Unknown"
+
+ant_aux1_type: Unknown
+ant_aux1_serial_nr: "Unknown"
 
 leap_seconds: 18
 
@@ -52,6 +60,7 @@ publish:
   pvtgeodetic: true
   poscovcartesian: false
   poscovgeodetic: true
+  velcovgeodetic: true
   atteuler: true
   attcoveuler: true
   gpst : false
