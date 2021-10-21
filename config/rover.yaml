@@ -82,11 +82,11 @@ ins_spatial_config:
     theta_x: 0.0
     theta_y: 0.0
     theta_z: 0.0
-  ins_point_of_interest:
+  ins_poi:
     poi_x: 0.0
     poi_y: 0.0
     poi_z: 0.0
-  ins_antenna_lever_arm:
+  ins_ant_lever_arm:
     x: 0.0
     y: 0.0
     z: 0.0
@@ -101,4 +101,4 @@ ins_std_dev_mask:
   att_std_dev: 0.0
   pos_std_dev: 0.0
 
-ins_poi: MainAnt
+ins_use_poi: false
