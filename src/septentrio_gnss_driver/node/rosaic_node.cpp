@@ -698,7 +698,7 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("serial/hw_flow_control", hw_flow_control_, std::string("off"));
     g_nh->param("serial/rx_serial_port", rx_serial_port_, std::string("USB1"));
     reconnect_delay_s_ = 2.0f; // Removed from ROS parameter list.
-    g_nh->param("receiver_type", septentrio_receiver_type_, std::string("ins"));
+    g_nh->param("receiver_type", septentrio_receiver_type_, std::string("gnss"));
 	
     // Polling period parameters
     getROSInt("polling_period/pvt", polling_period_pvt_,
