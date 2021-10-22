@@ -58,7 +58,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   + Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
-  + Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that `gpsfix` accounts for 4 additional streams (`ChannelStatus`, `DOP`, `MeasEpoch` and `VelCovGeodetic` blocks), for instance.
+  + Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that in the GNSS case `gpsfix` accounts for 3 additional streams (`ChannelStatus`, `DOP` and `MeasEpoch` blocks), for instance.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
 
   ```
