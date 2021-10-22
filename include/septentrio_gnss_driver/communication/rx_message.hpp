@@ -107,6 +107,11 @@
 #ifndef CONNECTION_DESCRIPTOR_BYTE_2
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
+//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
+//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
+#ifndef DO_NOT_USE_VALUE
+#define DO_NOT_USE_VALUE -2e10
+#endif
 
 // C++ libraries
 #include <cassert> // for assert
@@ -139,6 +144,14 @@
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gprmc.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
+// INS includes
+#include <septentrio_gnss_driver/INSNavCart.h>
+#include <septentrio_gnss_driver/INSNavGeod.h>
+#include <septentrio_gnss_driver/IMUSetup.h>
+#include <septentrio_gnss_driver/VelSensorSetup.h>
+#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
+#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
+#include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 #ifndef RX_MESSAGE_HPP
 #define RX_MESSAGE_HPP
@@ -174,6 +187,10 @@ extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
 extern bool g_read_from_pcap;
+extern bool g_insnavgeod_has_arrived_gpsfix;
+extern bool g_insnavgeod_has_arrived_navsatfix;
+extern bool g_insnavgeod_has_arrived_pose;
+extern std::string septentrio_receiver_type_;
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field
@@ -197,8 +214,11 @@ enum TypeOfPVT_Enum
 enum RxID_Enum
 {
     evNavSatFix,
+    evINSNavSatFix,
     evGPSFix,
+    evINSGPSFix,
     evPoseWithCovarianceStamped,
+    evINSPoseWithCovarianceStamped,
     evGPGGA,
     evGPRMC,
     evGPGSA,
@@ -211,6 +231,13 @@ enum RxID_Enum
     evPosCovGeodetic,
     evAttEuler,
     evAttCovEuler,
+    evINSNavCart,
+    evINSNavGeod,
+    evIMUSetup,
+    evVelSensorSetup,
+    evExtEventINSNavGeod,
+    evExtEventINSNavCart,
+    evExtSensorMeas,
     evGPST,
     evChannelStatus,
     evMeasEpoch,
@@ -394,6 +421,12 @@ namespace io_comm_rx {
         static AttCovEuler last_attcoveuler_;
 
         /**
+         * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
+         * need to be stored
+         */
+        static INSNavGeod last_insnavgeod_;
+
+        /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
          * need to be stored
          */
@@ -519,6 +552,69 @@ namespace io_comm_rx {
          */
         septentrio_gnss_driver::AttCovEulerPtr
         AttCovEulerCallback(AttCovEuler& data);
+
+        /**
+         * @brief Callback function when reading INSNavCart blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message INSNavCart
+         * @return A smart pointer to the ROS message INSNavCart just created
+         */
+        septentrio_gnss_driver::INSNavCartPtr
+        INSNavCartCallback(INSNavCart& data);
+
+        /**
+         * @brief Callback function when reading INSNavGeod blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message INSNavGeod
+         * @return A smart pointer to the ROS message INSNavGeod just created
+         */
+        septentrio_gnss_driver::INSNavGeodPtr
+        INSNavGeodCallback(INSNavGeod& data);
+
+        /**
+         * @brief Callback function when reading IMUSetup blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message IMUSetup
+         * @return A smart pointer to the ROS message IMUSetup just created
+         */
+        septentrio_gnss_driver::IMUSetupPtr
+        IMUSetupCallback(IMUSetup& data);
+
+        /**
+         * @brief Callback function when reading VelSensorSetup blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message VelSensorSetup
+         * @return A smart pointer to the ROS message VelSensorSetup just created
+         */
+        septentrio_gnss_driver::VelSensorSetupPtr
+        VelSensorSetupCallback(VelSensorSetup& data);
+
+        /**
+         * @brief Callback function when reading ExtEventINSNavCart blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtEventINSNavCart
+         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
+         */
+        septentrio_gnss_driver::ExtEventINSNavCartPtr
+        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
+
+        /**
+         * @brief Callback function when reading ExtEventINSNavGeod blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtEventINSNavGeod
+         * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
+         */
+        septentrio_gnss_driver::ExtEventINSNavGeodPtr
+        ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
+
+        /**
+         * @brief Callback function when reading ExtSensorMeas blocks
+         * @param[in] data The (packed and aligned) struct instance used to populate
+         * the ROS message ExtSensorMeas
+         * @return A smart pointer to the ROS message ExtSensorMeas just created
+         */
+        septentrio_gnss_driver::ExtSensorMeasPtr
+        ExtSensorMeasCallback(ExtSensorMeas& data);
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages

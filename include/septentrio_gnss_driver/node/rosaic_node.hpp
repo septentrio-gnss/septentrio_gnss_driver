@@ -59,6 +59,62 @@
 #ifndef ROSAIC_NODE_HPP
 #define ROSAIC_NODE_HPP
 
+#ifndef ANGLE_MAX
+#define ANGLE_MAX 180
+#endif
+
+#ifndef ANGLE_MIN
+#define ANGLE_MIN -180
+#endif
+
+#ifndef THETA_Y_MAX
+#define THETA_Y_MAX 90
+#endif
+
+#ifndef THETA_Y_MIN
+#define THETA_Y_MIN -90
+#endif
+
+#ifndef LEVER_ARM_MAX
+#define LEVER_ARM_MAX 100
+#endif
+
+#ifndef LEVER_ARM_MIN
+#define LEVER_ARM_MIN -100
+#endif
+
+#ifndef HEADING_MAX
+#define HEADING_MAX 360
+#endif
+
+#ifndef HEADING_MIN
+#define HEADING_MIN -360
+#endif
+
+#ifndef PITCH_MAX
+#define PITCH_MAX 90
+#endif
+
+#ifndef PITCH_MIN
+#define PITCH_MIN -90
+#endif
+
+#ifndef ATTSTD_DEV_MIN
+#define ATTSTD_DEV_MIN 0
+#endif
+
+#ifndef ATTSTD_DEV_MAX
+#define ATTSTD_DEV_MAX 5
+#endif
+
+#ifndef POSSTD_DEV_MIN
+#define POSSTD_DEV_MIN 0
+#endif
+
+#ifndef POSSTD_DEV_MAX
+#define POSSTD_DEV_MAX 100
+#endif
+
 /**
  * @file rosaic_node.hpp
  * @date 21/08/20
@@ -85,6 +141,16 @@ extern bool g_publish_navsatfix;
 extern ros::Timer g_reconnect_timer_;
 extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
+extern std::string septentrio_receiver_type_;
+
+//INS
+extern bool g_publish_insnavcart;
+extern bool g_publish_insnavgeod;
+extern bool g_publish_imusetup;
+extern bool g_publish_velsensorsetup;
+extern bool g_publish_exteventinsnavgeod;
+extern bool g_publish_exteventinsnavcart;
+extern bool g_publish_extsensormeas;
 
 /**
  * @namespace rosaic_node
@@ -279,6 +345,46 @@ namespace rosaic_node {
         std::string ant_serial_nr_;
         //! Serial number of your particular Aux1 antenna
         std::string ant_aux1_serial_nr_;
+        //! IMU orientation mode
+        std::string orientation_mode_;
+        //! IMU orientation mode helper variable
+        bool manual_;
+		//! IMU orientation x-angle
+        float theta_x_;
+		//! IMU orientation y-angle
+        float theta_y_;
+		//! IMU orientation z-angle
+        float theta_z_;
+        //! INS antenna lever arm x-offset
+        float x_;
+        //! INS antenna lever arm y-offset
+        float y_;
+        //! INS antenna lever arm z-offset
+        float z_;
+        //! INS POI offset in x-dimension
+        float poi_x_;
+        //! INS POI offset in y-dimension
+        float poi_y_;
+        //! INS POI offset in z-dimension
+        float poi_z_;
+        //! INS velocity sensor lever arm x-offset
+        float vsm_x_;
+        //! INS velocity sensor lever arm y-offset
+        float vsm_y_;
+        //! INS velocity sensor lever arm z-offset
+        float vsm_z_;
+        //! Attitude offset determination in longitudinal direction
+        float heading_;
+        //! Attitude offset determination in latitudinal direction
+        float pitch_;
+        //! INS solution reference point
+        std::string ins_use_poi_;
+        //! For heading computation when unit is powered-cycled
+        std::string ins_initial_heading_;
+		//! Attitude deviation mask
+        float att_std_dev_;
+		//! Position deviation mask
+        float pos_std_dev_;
         //! Type of NTRIP connection
         std::string mode_;
         //! Hostname or IP address of the NTRIP caster to connect to
@@ -333,6 +439,20 @@ namespace rosaic_node {
         bool publish_atteuler_;
         //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
         bool publish_attcoveuler_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
+        bool publish_insnavcart_;
+        //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
+        bool publish_insnavgeod_;
+        //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
+        bool publish_imusetup_;
+        //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
+        bool publish_velsensorsetup_;
+        //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavGeod message
+        bool publish_exteventinsnavgeod_;
+         //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
+        bool publish_exteventinsnavcart_;
+         //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
+        bool publish_extsensormeas_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..

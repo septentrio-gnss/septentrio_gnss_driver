@@ -65,10 +65,47 @@
 #endif
 //! Max number of bytes that MeasEpochChannelType2 sub-block can consist of
 #ifndef MAXSB_MEASEPOCH_T2
-#define MAXSB_MEASEPOCH_T2                                                          \
-    ((MAXSB_MEASEPOCH_T1) *                                                         \
-     (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1))
+#define MAXSB_MEASEPOCH_T2 ((MAXSB_MEASEPOCH_T1) * (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1))
 #endif
+//! Max number of bytes that INSNavGeod sub-block can consist of
+#ifndef SBF_INSNAVGEOD_LENGTH_1 
+#define SBF_INSNAVGEOD_LENGTH_1 16 
+#endif
+//! Max number of bytes that INSNavCart sub-block can consist of
+#ifndef SBF_INSNAVCART_LENGTH_1 
+#define SBF_INSNAVCART_LENGTH_1 16 
+#endif
+//! Max number of bytes that INSNavGeod sub-block can consist of
+#ifndef SBF_EXTEVENTINSNAVGEOD_LENGTH_1 
+#define SBF_EXTEVENTINSNAVGEOD_LENGTH_1 16 
+#endif
+//! Max number of bytes that INSNavCart sub-block can consist of
+#ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1 
+#define SBF_EXTEVENTINSNAVCART_LENGTH_1 16 
+#endif
+//! Max number of bytes that the Data part of the ChannelStatus struct can consist of
+#ifndef SBF_CHANNELSTATUS_DATA_LENGTH
+#define SBF_CHANNELSTATUS_DATA_LENGTH                                               \
+    MAXSB_CHANNELSATINFO * sizeof(ChannelSatInfo) +                                 \
+        MAXSB_CHANNELSTATEINFO * sizeof(ChannelStateInfo)
+#endif
+//! Max number of bytes that the data part of the MeasEpoch struct can consist of
+#ifndef MEASEPOCH_DATA_LENGTH
+#define MEASEPOCH_DATA_LENGTH                                                       \
+    (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) +                           \
+     MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
+#endif
+//! Max size for ExtSensorMeasSet_1 sub-block
+#ifndef SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 
+#define SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 4 
+#endif
+
+// Couple of redefinitions
+#define SBF_INSNAVCART_LENGTH SBF_INSNAVCART_LENGTH_1
+#define SBF_EXTSENSORMEAS_1_EXTSENSORMEAS_LENGTH SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH
+#define SBF_EXTEVENTINSNAVCART_LENGTH SBF_EXTEVENTINSNAVCART_LENGTH_1
+#define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
+#define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 
 // ROSaic includes
 #include "ssn_types.hpp"
@@ -287,13 +324,6 @@ typedef struct
     uint8_t reserved2;
 } ChannelSatInfo;
 
-//! Max number of bytes that the Data part of the ChannelStatus struct can consist of
-#ifndef SBF_CHANNELSTATUS_DATA_LENGTH
-#define SBF_CHANNELSTATUS_DATA_LENGTH                                               \
-    MAXSB_CHANNELSATINFO * sizeof(ChannelSatInfo) +                                 \
-        MAXSB_CHANNELSTATEINFO * sizeof(ChannelStateInfo)
-#endif
-
 /**
  * @class ChannelStatus
  * @brief Struct for the SBF block "ChannelStatus"
@@ -349,13 +379,6 @@ typedef struct
     uint8_t obs_info;
     uint8_t n_type2;
 } MeasEpochChannelType1;
-
-//! Max number of bytes that the data part of the MeasEpoch struct can consist of
-#ifndef MEASEPOCH_DATA_LENGTH
-#define MEASEPOCH_DATA_LENGTH                                                       \
-    (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) +                           \
-     MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
-#endif
 
 /**
  * @class MeasEpoch
@@ -586,6 +609,496 @@ struct VelCovGeodetic
     float cov_vedt;
     float cov_vudt;
 };
+
+// -----------------------------INSNavCart---------------------------------
+
+typedef struct 
+{
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
+} INSNavCartPosStdDev_1;
+
+typedef struct
+{
+    float     xy_cov;
+    float     xz_cov;
+    float     yz_cov;
+} INSNavCartPosCov_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;
+} INSNavCartAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+} INSNavCartAttStdDev_1;
+
+typedef struct
+{
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+} INSNavCartAttCov_1;
+
+typedef struct
+{
+    float     vx;
+    float     vy;
+    float     vz;
+} INSNavCartVel_1;
+
+typedef struct
+{
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+} INSNavCartVelStdDev_1;
+
+typedef struct
+{
+    float     vx_vy_cov;
+    float     vx_vz_cov;
+    float     vy_vz_cov;
+} INSNavCartVelCov_1;
+
+typedef union
+{
+  INSNavCartPosStdDev_1 PosStdDev;    
+  INSNavCartPosCov_1 PosCov;       
+  INSNavCartAtt_1 Att;          
+  INSNavCartAttStdDev_1 AttStdDev;    
+  INSNavCartAttCov_1 AttCov;       
+  INSNavCartVel_1 Vel;          
+  INSNavCartVelStdDev_1 VelStdDev;    
+  INSNavCartVelCov_1 VelCov;       
+} INSNavCartData_1;
+
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     x;
+    SBFDOUBLE     y;
+    SBFDOUBLE     z;
+    uint16_t      accuracy;
+    uint16_t      latency;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];
+} INSNavCart_1;
+
+typedef INSNavCartPosStdDev_1 INSNavCartPosStdDev;
+
+typedef INSNavCartPosCov_1 INSNavCartPosCov;
+
+typedef INSNavCartAtt_1 INSNavCartAtt;
+
+typedef INSNavCartAttStdDev_1 INSNavCartAttStdDev;
+
+typedef INSNavCartAttCov_1 INSNavCartAttCov;
+
+typedef INSNavCartVel_1 INSNavCartVel;
+
+typedef INSNavCartVelStdDev_1 INSNavCartVelStdDev;
+
+typedef INSNavCartVelCov_1 INSNavCartVelCov;
+
+typedef INSNavCartData_1 INSNavCartData;
+
+typedef INSNavCart_1 INSNavCart;
+
+//-----------------------INSNavGeod---------------------------------
+typedef struct
+{
+    float     latitude_std_dev;
+    float     longitude_std_dev;
+    float     height_std_dev;
+} INSNavGeodPosStdDev_1;
+
+typedef struct
+{
+    float     latitude_longitude_cov;
+    float     latitude_height_cov;
+    float     longitude_height_cov;
+} INSNavGeodPosCov_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;     
+} INSNavGeodAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+} INSNavGeodAttStdDev_1;
+
+typedef struct
+{
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+} INSNavGeodAttCov_1;
+
+typedef struct
+{
+    float     ve;
+    float     vn;
+    float     vu;
+} INSNavGeodVel_1;
+
+typedef struct 
+{
+    float     ve_std_dev;
+    float     vn_std_dev;
+    float     vu_std_dev;
+} INSNavGeodVelStdDev_1;
+
+typedef struct
+{
+    float     ve_vn_cov;
+    float     ve_vu_cov;
+    float     vn_vu_cov;
+} INSNavGeodVelCov_1;
+
+typedef union
+{
+    INSNavGeodPosStdDev_1 PosStdDev;    
+    INSNavGeodPosCov_1 PosCov;       
+    INSNavGeodAtt_1 Att; 
+    INSNavGeodAttStdDev_1 AttStdDev;
+    INSNavGeodAttCov_1 AttCov;
+    INSNavGeodVel_1 Vel;
+    INSNavGeodVelStdDev_1 VelStdDev;
+    INSNavGeodVelCov_1 VelCov;
+} INSNavGeodData_1;
+
+/**
+ * @class INSNavGeod
+ * @brief Struct for the SBF block "INSNavGeod"
+ */
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     latitude;
+    SBFDOUBLE     longitude;
+    SBFDOUBLE     height;
+    float         undulation;
+    uint16_t      accuracy;
+    uint16_t      latency;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
+} INSNavGeod_1;
+
+typedef INSNavGeodPosStdDev_1 INSNavGeodPosStdDev;
+typedef INSNavGeodPosCov_1 INSNavGeodPosCov;
+typedef INSNavGeodAtt_1 INSNavGeodAtt;
+typedef INSNavGeodAttStdDev_1 INSNavGeodAttStdDev;
+typedef INSNavGeodAttCov_1 INSNavGeodAttCov;
+typedef INSNavGeodVel_1 INSNavGeodVel;
+typedef INSNavGeodVelStdDev_1 INSNavGeodVelStdDev;
+typedef INSNavGeodVelCov_1 INSNavGeodVelCov;
+typedef INSNavGeodData_1 INSNavGeodData;
+typedef INSNavGeod_1 INSNavGeod;
+
+/**
+ * @class IMUSetup
+ * @brief Struct for the SBF block "IMUSetup"
+ */
+struct IMUSetup
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t  serial_port;
+    float ant_lever_arm_X;
+    float ant_lever_arm_Y;
+    float ant_lever_arm_Z;
+    float theta_X;
+    float theta_Y;
+    float theta_Z;
+};
+
+/**
+ * @class VelSensorSetup
+ * @brief Struct for the SBF block "IMUSetup"
+ */
+struct VelSensorSetup
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t port;
+    float   lever_arm_X;
+    float   lever_arm_Y;
+    float   lever_arm_Z;
+};
+
+//------------------------------ExtEventINSNavGeod
+
+typedef struct
+{
+    float     latitude_std_dev;
+    float     longitude_std_dev;
+    float     height_std_dev;
+} ExtEventINSNavGeodPosStdDev_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;     
+} ExtEventINSNavGeodAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+} ExtEventINSNavGeodAttStdDev_1;
+
+typedef struct
+{
+    float     ve;
+    float     vn;
+    float     vu;
+} ExtEventINSNavGeodVel_1;
+
+typedef struct 
+{
+    float     ve_std_dev;
+    float     vn_std_dev;
+    float     vu_std_dev;
+} ExtEventINSNavGeodVelStdDev_1;
+
+typedef union
+{
+    ExtEventINSNavGeodPosStdDev_1 PosStdDev;         
+    ExtEventINSNavGeodAtt_1 Att; 
+    ExtEventINSNavGeodAttStdDev_1 AttStdDev;
+    ExtEventINSNavGeodVel_1 Vel;
+    ExtEventINSNavGeodVelStdDev_1 VelStdDev;
+} ExtEventINSNavGeodData_1;
+
+/**
+ * @class INSNavGeod
+ * @brief Struct for the SBF block "INSNavGeod"
+ */
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     latitude;
+    SBFDOUBLE     longitude;
+    SBFDOUBLE     height;
+    float         undulation;
+    uint16_t      accuracy;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    ExtEventINSNavGeodData_1   ExtEventINSNavGeodData[SBF_EXTEVENTINSNAVGEOD_LENGTH_1];     
+} ExtEventINSNavGeod_1;
+
+typedef ExtEventINSNavGeodPosStdDev_1 ExtEventINSNavGeodPosStdDev;
+typedef ExtEventINSNavGeodAtt_1 ExtEventINSNavGeodAtt;
+typedef ExtEventINSNavGeodAttStdDev_1 ExtEventINSNavGeodAttStdDev;
+typedef ExtEventINSNavGeodVel_1 ExtEventINSNavGeodVel;
+typedef ExtEventINSNavGeodVelStdDev_1 ExtEventINSNavGeodVelStdDev;
+typedef ExtEventINSNavGeodData_1 ExtEventINSNavGeodData;
+typedef ExtEventINSNavGeod_1 ExtEventINSNavGeod;
+
+//----------------------------------ExtEventINSNavCart--------------------------
+typedef struct 
+{
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
+} ExtEventINSNavCartPosStdDev_1;
+
+typedef struct
+{
+    float     heading;
+    float     pitch;
+    float     roll;
+} ExtEventINSNavCartAtt_1;
+
+typedef struct
+{
+    float     heading_std_dev;
+    float     pitch_std_dev;
+    float     roll_std_dev;
+} ExtEventINSNavCartAttStdDev_1;
+
+typedef struct
+{
+    float     vx;
+    float     vy;
+    float     vz;
+} ExtEventINSNavCartVel_1;
+
+typedef struct
+{
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+} ExtEventINSNavCartVelStdDev_1;
+
+typedef union
+{
+  ExtEventINSNavCartPosStdDev_1 ExtEventPosStdDev;         
+  ExtEventINSNavCartAtt_1 ExtEventAtt;          
+  ExtEventINSNavCartAttStdDev_1 ExtEventAttStdDev;    
+  ExtEventINSNavCartVel_1 ExtEventVel;          
+  ExtEventINSNavCartVelStdDev_1 ExtEventVelStdDev;      
+} ExtEventINSNavCartData_1;
+
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;
+
+    uint8_t       gnss_mode;
+    uint8_t       error;
+    uint16_t      info;
+    uint16_t      gnss_age;
+    SBFDOUBLE     x;
+    SBFDOUBLE     y;
+    SBFDOUBLE     z;
+    uint16_t      accuracy;
+    uint8_t       datum;
+    uint16_t      sb_list;
+
+    ExtEventINSNavCartData_1 ExtEventINSNavCartData[SBF_EXTEVENTINSNAVCART_LENGTH_1];
+} ExtEventINSNavCart_1;
+
+typedef ExtEventINSNavCartPosStdDev_1 ExtEventINSNavCartPosStdDev;
+typedef ExtEventINSNavCartAtt_1 ExtEventINSNavCartAtt;
+typedef ExtEventINSNavCartAttStdDev_1 ExtEventINSNavCartAttStdDev;
+typedef ExtEventINSNavCartVel_1 ExtEventINSNavCartVel;
+typedef ExtEventINSNavCartVelStdDev_1 ExtEventINSNavCartVelStdDev;
+typedef ExtEventINSNavCartData_1 ExtEventINSNavCartData;
+typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
+
+typedef struct
+{
+    SBFDOUBLE  acceleration_X;
+    SBFDOUBLE  acceleration_Y;
+    SBFDOUBLE  acceleration_Z;
+} ExtSensorMeasAcceleration_1;
+
+typedef struct
+{
+    SBFDOUBLE  angular_rate_X;
+    SBFDOUBLE  angular_rate_Y;
+    SBFDOUBLE  angular_rate_Z;
+} ExtSensorMeasAngularRate_1;
+
+typedef struct
+{
+    float velocity_X;
+    float velocity_Y;
+    float velocity_Z;
+    float std_dev_X;
+    float std_dev_Y;
+    float std_dev_Z;
+} ExtSensorMeasVelocity_1;
+
+typedef struct
+{
+    int16_t   sensor_temperature;
+} ExtSensorMeasInfo_1;
+
+typedef struct
+{
+    SBFDOUBLE zero_velocity_flag;
+} ExtSensorMeasZeroVelocityFlag_1;
+
+typedef union
+{
+  ExtSensorMeasAcceleration_1 Acceleration; 
+  ExtSensorMeasAngularRate_1 AngularRate;  
+  ExtSensorMeasVelocity_1   Velocity;
+  ExtSensorMeasInfo_1 Info;         
+  ExtSensorMeasZeroVelocityFlag_1 ZeroVelocityFlag;
+} ExtSensorMeasData_1;
+
+typedef struct
+{
+  uint8_t        Source;       
+  uint8_t        SensorModel;  
+  uint8_t        type;         
+  uint8_t        ObsInfo;      
+  ExtSensorMeasData_1 ExtSensorMeasData;
+} ExtSensorMeasSet_1;
+
+typedef struct
+{
+    BlockHeader_t block_header;
+
+    /* Time Header */
+    uint32_t tow;
+    uint16_t wnc;        
+
+    uint8_t n;            
+    uint8_t sb_length;       
+    ExtSensorMeasSet_1 ExtSensorMeas[SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH];
+} ExtSensorMeas_1;
+
+typedef ExtSensorMeasAcceleration_1 ExtSensorMeasAcceleration;
+typedef ExtSensorMeasAngularRate_1 ExtSensorMeasAngularRate;
+typedef ExtSensorMeasVelocity_1 ExtSensorMeasVelocity;
+typedef ExtSensorMeasInfo_1 ExtSensorMeasInfo;
+typedef ExtSensorMeasZeroVelocityFlag_1 ExtSensorMeasZeroVelocityFlag;
+typedef ExtSensorMeasData_1 ExtSensorMeasData;
+typedef ExtSensorMeasSet_1 ExtSensorMeasSet;
+typedef ExtSensorMeas_1 ExtSensorMeas;
 
 #pragma pack(pop)
 // The above form of the pack pragma affects only class, struct, and union type

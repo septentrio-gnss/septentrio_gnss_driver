@@ -144,182 +144,264 @@ void rosaic_node::ROSaicNode::configureRx()
     g_response_condition.wait(lock, []() { return g_response_received; });
     g_response_received = false;
 
-    // Setting SBF/NMEA output of Rx
-    if (publish_gpgga_ == true)
+    // Setting SBF/NMEA output of Rx depending on the receiver type
+    // If GNSS then...
+    if (septentrio_receiver_type_ == "gnss")
     {
-        std::stringstream ss;
+        if (publish_pvtcartesian_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", PVTCartesian, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_pvtgeodetic_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", PVTGeodetic, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_poscovcartesian_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", PosCovCartesian, " << pvt_sec_or_msec
+            << std::to_string(rx_period_pvt) << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_poscovgeodetic_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", PosCovGeodetic, " << pvt_sec_or_msec
+            << std::to_string(rx_period_pvt) << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_atteuler_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", AttEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_attcoveuler_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", AttCovEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+    }
+    // Setting SBF/NMEA output of Rx depending on the receiver type
+    // If INS then...
+    if (septentrio_receiver_type_ == "ins")
+    {
+        if (publish_insnavcart_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", INSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_insnavgeod_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", INSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_imusetup_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", IMUSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_velsensorsetup_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", VelSensorSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_exteventinsnavgeod_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", ExtEventINSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_exteventinsnavcart_ == true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", ExtEventINSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+        if (publish_extsensormeas_== true)
+        {
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+            << ", ExtSensorMeas, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
+            << "\x0D";
+            IO.send(ss.str());
+            ++stream;
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+    }
+	if (publish_gpgga_ == true)
+	{
+		std::stringstream ss;
 
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GGA, "
-           << pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_gprmc_ == true)
-    {
-        std::stringstream ss;
+		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GGA, "
+		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}
+	if (publish_gprmc_ == true)
+	{
+		std::stringstream ss;
 
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", RMC, "
-           << pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_gpgsa_ == true)
-    {
-        std::stringstream ss;
+		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", RMC, "
+		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}
+	if (publish_gpgsa_ == true)
+	{
+		std::stringstream ss;
 
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSA, "
-           << pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_gpgsv_ == true)
-    {
-        std::stringstream ss;
+		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSA, "
+		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}
+	if (publish_gpgsv_ == true)
+	{
+		std::stringstream ss;
 
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSV, "
-           << rest_sec_or_msec << std::to_string(rx_period_rest) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_pvtcartesian_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", PVTCartesian, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_pvtgeodetic_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", PVTGeodetic, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_poscovcartesian_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", PosCovCartesian, " << pvt_sec_or_msec
-           << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_poscovgeodetic_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", PosCovGeodetic, " << pvt_sec_or_msec
-           << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_velcovgeodetic_ == true)
-    {
-        std::stringstream ss;
-        ss.str(std::string());
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", VelCovGeodetic, " << pvt_sec_or_msec
-           << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_atteuler_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", AttEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (publish_attcoveuler_ == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", AttCovEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
-    if (g_publish_gpsfix == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", ChannelStatus, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-        ss.str(std::string()); // avoids invoking the std::string constructor
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", MeasEpoch, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-        ss.str(std::string());
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ", DOP, "
-           << pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;        
-    }
-    if (g_publish_diagnostics == true)
-    {
-        std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", ReceiverStatus, " << rest_sec_or_msec
-           << std::to_string(rx_period_rest) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-        ss.str(std::string());
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", QualityInd, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-           << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-        ss.str(std::string());
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-           << ", ReceiverSetup, " << rest_sec_or_msec
-           << std::to_string(rx_period_rest) << "\x0D";
-        IO.send(ss.str());
-        ++stream;
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
-    }
+		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSV, "
+		<< rest_sec_or_msec << std::to_string(rx_period_rest) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}
+	if (g_publish_gpsfix == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", ChannelStatus, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+		<< "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+		ss.str(std::string()); // avoids invoking the std::string constructor
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", MeasEpoch, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+		<< "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+		ss.str(std::string());
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ", DOP, "
+		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+		ss.str(std::string());
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", VelCovGeodetic, " << pvt_sec_or_msec
+		<< std::to_string(rx_period_pvt) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}  
+	if (g_publish_diagnostics == true)
+	{
+		std::stringstream ss;
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", ReceiverStatus, " << rest_sec_or_msec
+		<< std::to_string(rx_period_rest) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+		ss.str(std::string());
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", QualityInd, " << rest_sec_or_msec << std::to_string(rx_period_rest)
+		<< "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+		ss.str(std::string());
+		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+		<< ", ReceiverSetup, " << rest_sec_or_msec
+		<< std::to_string(rx_period_rest) << "\x0D";
+		IO.send(ss.str());
+		++stream;
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
+	}
 
     // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
     // ReceiverSetup, ..." command, since the latter is only generated when a
@@ -423,9 +505,191 @@ void rosaic_node::ROSaicNode::configureRx()
             }
             IO.send(ss.str());
         }
+		g_response_condition.wait(lock, []() { return g_response_received; });
+		g_response_received = false;
     }
-    ROS_DEBUG("Leaving configureRx() method");
-}
+    
+	// Setting the INS-related commands
+    if (septentrio_receiver_type_ == "ins")
+    {
+        // IMU orientation 
+        {
+            std::stringstream ss;
+			if (manual_ == false)
+			{
+				orientation_mode_ = "SensorDefault";
+			}
+			else
+			{
+				orientation_mode_ = "manual";
+			}
+			if (theta_x_ >= ANGLE_MIN && theta_x_<= ANGLE_MAX && theta_y_ >= THETA_Y_MIN && theta_y_ <= THETA_Y_MAX && 
+				theta_z_ >= ANGLE_MIN && theta_z_ <= ANGLE_MAX)
+			{
+				ss << " sio, " <<orientation_mode_ << ", " << string_utilities::trimString(std::to_string(theta_x_)) << ", " 
+					<< string_utilities::trimString(std::to_string(theta_y_)) << ", " 
+					<< string_utilities::trimString(std::to_string(theta_z_)) << " \x0D";
+				IO.send(ss.str());
+			}
+			else
+			{
+				ROS_ERROR("Please specify a correct value for IMU orientation angles");
+			}
+        
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+
+        // Setting the INS antenna lever arm offset
+        {
+            if (x_>=LEVER_ARM_MIN && x_<=LEVER_ARM_MAX && y_>=LEVER_ARM_MIN && y_<=LEVER_ARM_MAX 
+                && z_>=LEVER_ARM_MIN && z_<=LEVER_ARM_MAX)
+            {
+                std::stringstream ss;
+                ss << "sial, " << string_utilities::trimString(std::to_string(x_))
+                << ", " << string_utilities::trimString(std::to_string(y_)) << ", "
+                << string_utilities::trimString(std::to_string(z_)) << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a correct value for x, y and z in the config file under ant_lever_arm");
+            }
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+
+        // Setting the user defined point offset
+        {
+            if (poi_x_>=LEVER_ARM_MIN && poi_x_<=LEVER_ARM_MAX && poi_y_>=LEVER_ARM_MIN && poi_y_<=LEVER_ARM_MAX 
+                && poi_z_>=LEVER_ARM_MIN && poi_z_<=LEVER_ARM_MAX)
+            {
+                std::stringstream ss;
+                ss << "sipl, POI1, " << string_utilities::trimString(std::to_string(poi_x_))
+                << ", " << string_utilities::trimString(std::to_string(poi_y_)) << ", "
+                << string_utilities::trimString(std::to_string(poi_z_)) << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
+            }
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+
+        // Setting the Velocity sensor lever arm offset
+        {
+            if (vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX 
+                && vsm_z_>=LEVER_ARM_MIN && vsm_z_<=LEVER_ARM_MAX)
+            {
+                std::stringstream ss;
+                ss << "sivl, VSM1, " << string_utilities::trimString(std::to_string(vsm_x_))
+                << ", " << string_utilities::trimString(std::to_string(vsm_y_)) << ", "
+                << string_utilities::trimString(std::to_string(vsm_z_)) << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
+            }
+            
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+
+        // Setting the Attitude Determination
+        {
+            if (heading_ >= HEADING_MIN && heading_<= HEADING_MAX && pitch_ >= PITCH_MIN && pitch_ <= PITCH_MAX)
+            {
+                std::stringstream ss;
+                ss << "sto, " << string_utilities::trimString(std::to_string(heading_))
+                << ", " << string_utilities::trimString(std::to_string(pitch_)) << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a valid parameter for heading and pitch");
+            }
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+        
+        // Setting the INS Solution Reference Point: MainAnt or POI1
+        // First disable any existing INS sub-block connection
+        {
+            std::stringstream ss;
+            ss << "sinc, off, all, MainAnt \x0D";
+            IO.send(ss.str());
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+		
+		// INS solution reference point
+		{
+			std::stringstream ss;
+			std::string insnavconfig;
+			insnavconfig = " PosStdDev ";
+			insnavconfig += "+Att";
+			insnavconfig += "+AttStdDev";
+			insnavconfig += "+Vel";
+			insnavconfig += "+VelStdDev";
+			if (ins_use_poi_ == true)
+			{
+				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "POI1" << " \x0D";
+				IO.send(ss.str());
+			}
+			else
+			{
+				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "MainAnt" << " \x0D";
+				IO.send(ss.str());
+			}
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+		}
+
+        // Setting the INS heading
+        {
+            std::stringstream ss;
+            if (ins_initial_heading_ == "auto")
+            {
+                ss << "siih, " << ins_initial_heading_ << " \x0D";
+                IO.send(ss.str());
+            }
+            else if (ins_initial_heading_ == "stored")
+            {
+                ss << "siih, " << ins_initial_heading_ << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Invalid mode specified for ins_initial_heading.");
+            }
+            g_response_condition.wait(lock, []() { return g_response_received; });
+            g_response_received = false;
+        }
+
+        // Setting the INS navigation filter
+        {
+            if (att_std_dev_ >=ATTSTD_DEV_MIN && att_std_dev_ <= ATTSTD_DEV_MAX && 
+            pos_std_dev_ >= POSSTD_DEV_MIN && pos_std_dev_ <= POSSTD_DEV_MAX)
+            {
+                std::stringstream ss;
+                ss << "sism, " << string_utilities::trimString(std::to_string(att_std_dev_)) << ", " << string_utilities::trimString(std::to_string(pos_std_dev_))
+                << " \x0D";
+                IO.send(ss.str());
+            }
+            else
+            {
+                ROS_ERROR("Please specify a valid AttStsDev and PosStdDev");
+            }
+        }
+        g_response_condition.wait(lock, []() { return g_response_received; });
+        g_response_received = false;
+    }
+	ROS_DEBUG("Leaving configureRx() method");
+};
+
 void rosaic_node::ROSaicNode::getROSParams()
 {
     // Communication parameters
@@ -433,9 +697,9 @@ void rosaic_node::ROSaicNode::getROSParams()
     getROSInt("serial/baudrate", baudrate_, static_cast<uint32_t>(115200));
     g_nh->param("serial/hw_flow_control", hw_flow_control_, std::string("off"));
     g_nh->param("serial/rx_serial_port", rx_serial_port_, std::string("USB1"));
-
-    g_nh->param("reconnect_delay_s", reconnect_delay_s_, 4.0f);
-
+    reconnect_delay_s_ = 2.0f; // Removed from ROS parameter list.
+    g_nh->param("receiver_type", septentrio_receiver_type_, std::string("ins"));
+	
     // Polling period parameters
     getROSInt("polling_period/pvt", polling_period_pvt_,
               static_cast<uint32_t>(1000));
@@ -468,12 +732,47 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("ant_aux1_type", ant_aux1_type_, std::string("Unknown"));
     g_nh->param("ant_serial_nr", ant_serial_nr_, std::string("Unknown"));
     g_nh->param("ant_aux1_serial_nr", ant_aux1_serial_nr_, std::string("Unknown"));
-    g_nh->param("marker_to_arp/delta_e", delta_e_, 0.0f);
-    g_nh->param("marker_to_arp/delta_n", delta_n_, 0.0f);
-    g_nh->param("marker_to_arp/delta_u", delta_u_, 0.0f);
-    g_nh->param("marker_to_aux1_arp/delta_e", delta_aux1_e_, 0.0f);
-    g_nh->param("marker_to_aux1_arp/delta_n", delta_aux1_n_, 0.0f);
-    g_nh->param("marker_to_aux1_arp/delta_u", delta_aux1_u_, 0.0f);
+    g_nh->param("poi_to_arp/delta_e", delta_e_, 0.0f);
+    g_nh->param("poi_to_arp/delta_n", delta_n_, 0.0f);
+    g_nh->param("poi_to_arp/delta_u", delta_u_, 0.0f);
+    g_nh->param("poi_to_aux1_arp/delta_e", delta_aux1_e_, 0.0f);
+    g_nh->param("poi_to_aux1_arp/delta_n", delta_aux1_n_, 0.0f);
+    g_nh->param("poi_to_aux1_arp/delta_u", delta_aux1_u_, 0.0f);
+	
+	// INS Spatial Configuration
+    // IMU orientation parameter
+    g_nh->param("ins_spatial_config/imu_orientation/theta_x", theta_x_, 0.0f);
+    g_nh->param("ins_spatial_config/imu_orientation/theta_y", theta_y_, 0.0f);
+    g_nh->param("ins_spatial_config/imu_orientation/theta_z", theta_z_, 0.0f);
+	
+    // INS antenna lever arm offset parameter
+    g_nh->param("ins_spatial_config/ant_lever_arm/x", x_, 0.0f);
+    g_nh->param("ins_spatial_config/ant_lever_arm/y", y_, 0.0f);
+    g_nh->param("ins_spatial_config/ant_lever_arm/z", z_, 0.0f);
+
+    // INS POI ofset paramter
+    g_nh->param("ins_spatial_config/poi_to_imu/delta_x", poi_x_, 0.0f);
+    g_nh->param("ins_spatial_config/poi_to_imu/delta_y", poi_y_, 0.0f);
+    g_nh->param("ins_spatial_config/poi_to_imu/delta_z", poi_z_, 0.0f);
+
+    // INS velocity sensor lever arm offset parameter
+    g_nh->param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", vsm_x_, 0.0f);
+    g_nh->param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", vsm_y_, 0.0f);
+    g_nh->param("ins_spatial_config/vel_sensor_lever_arm/vsm_z", vsm_z_, 0.0f);
+    
+    // Attitude Determination parameter
+    g_nh->param("ins_spatial_config/att_offset/heading", heading_, 0.0f);
+    g_nh->param("ins_spatial_config/att_offset/pitch", pitch_, 0.0f);
+
+    // ins_initial_heading param
+    g_nh->param("ins_initial_heading", ins_initial_heading_, std::string("auto"));
+
+    // ins_std_dev_mask
+    g_nh->param("ins_std_dev_mask/att_std_dev", att_std_dev_, 0.0f);
+    g_nh->param("ins_std_dev_mask/pos_std_dev", pos_std_dev_, 0.0f);
+
+    // INS solution reference point
+    g_nh->param("ins_use_poi", ins_use_poi_, false);
 
     // Correction service parameters
     g_nh->param("ntrip_settings/mode", mode_, std::string("off"));
@@ -507,14 +806,20 @@ void rosaic_node::ROSaicNode::getROSParams()
     g_nh->param("publish/pvtgeodetic", publish_pvtgeodetic_, true);
     g_nh->param("publish/poscovcartesian", publish_poscovcartesian_, true);
     g_nh->param("publish/poscovgeodetic", publish_poscovgeodetic_, true);
-    g_nh->param("publish/velcovgeodetic", publish_velcovgeodetic_, true);
+	g_nh->param("publish/velcovgeodetic", publish_velcovgeodetic_, true);
     g_nh->param("publish/atteuler", publish_atteuler_, true);
     g_nh->param("publish/attcoveuler", publish_attcoveuler_, true);
-
-    // To be implemented: RTCM, setting datum, raw data settings, PPP, SBAS, fix
-    // mode...
+    g_nh->param("publish/insnavcart", publish_insnavcart_, true);
+    g_nh->param("publish/insnavgeod", publish_insnavgeod_, true);
+    g_nh->param("publish/imusetup", publish_imusetup_, true);
+    g_nh->param("publish/velsensorsetup", publish_velsensorsetup_, true);
+    g_nh->param("publish/exteventinsnavgeod", publish_exteventinsnavgeod_, true);
+    g_nh->param("publish/exteventinsnavcart", publish_exteventinsnavcart_, true);
+    g_nh->param("publish/extsensormeas", publish_extsensormeas_, true);
+	
+    // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     ROS_DEBUG("Finished getROSParams() method");
-}
+};
 
 void rosaic_node::ROSaicNode::initializeIO()
 {
@@ -573,7 +878,7 @@ void rosaic_node::ROSaicNode::initializeIO()
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
-	device_ = proto;
+		device_ = proto;
         ROS_DEBUG("%s", ss.str().c_str());
         boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
         temporary_thread.detach();
@@ -771,63 +1076,157 @@ void rosaic_node::ROSaicNode::defineMessages()
         IO.handlers_.callbackmap_ =
             IO.getHandlers().insert<septentrio_gnss_driver::AttCovEuler>("5939");
     }
-    if (g_publish_gpst == true)
+    
+	// INS-related SBF blocks
+    if (publish_insnavcart_ == true)
     {
-        IO.handlers_.callbackmap_ = IO.getHandlers().insert<int32_t>("GPST");
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::INSNavCart>("4225");
     }
-    if (g_publish_navsatfix == true)
+    if (publish_insnavgeod_ == true)
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::INSNavGeod>("4226");
+    }
+    if (publish_imusetup_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::IMUSetup>("4224");
+    }
+    if (publish_extsensormeas_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::ExtSensorMeas>("4050");
+    }
+    if (publish_exteventinsnavgeod_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavGeod>("4230");
+    }
+    if (publish_velsensorsetup_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::VelSensorSetup>("4244");
+    }
+    if (publish_exteventinsnavcart_ == true)
+    {
+        IO.handlers_.callbackmap_ = 
+            IO.getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
+    }
+	if (g_publish_gpst == true)
+	{
+		IO.handlers_.callbackmap_ = IO.getHandlers().insert<int32_t>("GPST");
+	}
+    if (septentrio_receiver_type_ == "gnss")
+    {
+        if (g_publish_navsatfix == true)
         {
-            ROS_ERROR(
-                "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
+            if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+            {
+                ROS_ERROR(
+                    "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<sensor_msgs::NavSatFix>("NavSatFix");
         }
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<sensor_msgs::NavSatFix>("NavSatFix");
     }
-    if (g_publish_gpsfix == true)
+    if (septentrio_receiver_type_ == "ins")
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false || publish_velcovgeodetic_ == false)
+        if (g_publish_navsatfix == true)
         {
-            ROS_ERROR(
-                "For a proper GPSFix message, please set the publish/pvtgeodetic, the publish/poscovgeodetic, and the publish/velcovgeodetic ROSaic parameters both to true.");
+            if (publish_insnavgeod_ == false)
+            {
+                ROS_ERROR(
+                    "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<sensor_msgs::NavSatFix>("INSNavSatFix");
         }
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<gps_common::GPSFix>("GPSFix");
-        // The following blocks are never published, yet are needed for the
-        // construction of the GPSFix message, hence we have empty callbacks.
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("4013"); // ChannelStatus block
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("4027"); // MeasEpoch block
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("4001"); // DOP block
     }
-    if (g_publish_pose == true)
+    if (septentrio_receiver_type_ == "gnss")
     {
-        if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false ||
-            publish_atteuler_ == false || publish_attcoveuler_ == false)
+        if (g_publish_gpsfix == true)
         {
-            ROS_ERROR(
-                "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
+            if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
+            {
+                ROS_ERROR(
+                    "For a proper GPSFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<gps_common::GPSFix>("GPSFix");
+            // The following blocks are never published, yet are needed for the
+            // construction of the GPSFix message, hence we have empty callbacks.
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4013"); // ChannelStatus block
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4027"); // MeasEpoch block
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4001"); // DOP block
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("5908"); // VelCovGeodetic block
         }
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<geometry_msgs::PoseWithCovarianceStamped>(
-                "PoseWithCovarianceStamped");
     }
-    if (g_publish_diagnostics == true)
+    if (septentrio_receiver_type_ == "ins")
     {
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<diagnostic_msgs::DiagnosticArray>(
-                "DiagnosticArray");
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("4014"); // ReceiverStatus block
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("4082"); // QualityInd block
-        IO.handlers_.callbackmap_ =
-            IO.getHandlers().insert<int32_t>("5902"); // ReceiverSetup block
+        if (g_publish_gpsfix == true)
+        {
+            if (publish_insnavgeod_ == false)
+            {
+                ROS_ERROR(
+                        "For a proper GPSFix message, please set the publish/insnavgeod to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<gps_common::GPSFix>("INSGPSFix");
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4013"); // ChannelStatus block
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4027"); // MeasEpoch block
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<int32_t>("4001"); // DOP block
+        }
     }
-    // so on and so forth...
+    if (septentrio_receiver_type_ == "gnss")
+    {
+        if (g_publish_pose == true)
+        {
+            if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false ||
+                publish_atteuler_ == false || publish_attcoveuler_ == false)
+            {
+                ROS_ERROR(
+                    "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<geometry_msgs::PoseWithCovarianceStamped>(
+                    "PoseWithCovarianceStamped");
+        }
+    }
+    if (septentrio_receiver_type_ == "ins")
+    {
+        if (g_publish_pose == true)
+        {
+            if (publish_insnavgeod_ == false)
+            {
+                ROS_ERROR(
+                    "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
+            }
+            IO.handlers_.callbackmap_ =
+                IO.getHandlers().insert<geometry_msgs::PoseWithCovarianceStamped>(
+                    "INSPoseWithCovarianceStamped");
+        }
+    }
+	if (g_publish_diagnostics == true)
+	{
+		IO.handlers_.callbackmap_ =
+			IO.getHandlers().insert<diagnostic_msgs::DiagnosticArray>(
+				"DiagnosticArray");
+		IO.handlers_.callbackmap_ =
+			IO.getHandlers().insert<int32_t>("4014"); // ReceiverStatus block
+		IO.handlers_.callbackmap_ =
+			IO.getHandlers().insert<int32_t>("4082"); // QualityInd block
+		IO.handlers_.callbackmap_ =
+			IO.getHandlers().insert<int32_t>("5902"); // ReceiverSetup block
+	}
+	// so on and so forth...
     ROS_DEBUG("Leaving defineMessages() method");
 }
 
@@ -888,12 +1287,17 @@ bool g_velcovgeodetic_has_arrived_gpsfix;
 bool g_atteuler_has_arrived_gpsfix;
 //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
 bool g_attcoveuler_has_arrived_gpsfix;
+//! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+bool g_insnavgeod_has_arrived_gpsfix;
 //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
 //! not
 bool g_pvtgeodetic_has_arrived_navsatfix;
 //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
 //! or not
 bool g_poscovgeodetic_has_arrived_navsatfix;
+//! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
+//! or not
+bool g_insnavgeod_has_arrived_navsatfix;
 //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
 //! has arrived or not
 bool g_pvtgeodetic_has_arrived_pose;
@@ -906,6 +1310,9 @@ bool g_atteuler_has_arrived_pose;
 //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
 //! has arrived or not
 bool g_attcoveuler_has_arrived_pose;
+//! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
+//! has arrived or not
+bool g_insnavgeod_has_arrived_pose;
 //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
 //! arrived or not
 bool g_receiverstatus_has_arrived_diagnostics;
@@ -938,6 +1345,8 @@ std::map<std::string, uint32_t> g_DiagnosticArrayMap;
 boost::shared_ptr<ros::NodeHandle> g_nh;
 //! Queue size for ROS publishers
 const uint32_t g_ROS_QUEUE_SIZE = 1;
+//! Septentrio receiver type, either "gnss" or "ins"
+std::string septentrio_receiver_type_;
 
 int main(int argc, char** argv)
 {
@@ -973,7 +1382,10 @@ int main(int argc, char** argv)
     g_attcoveuler_has_arrived_pose = false;
     g_receiverstatus_has_arrived_diagnostics = false;
     g_qualityind_has_arrived_diagnostics = false;
-
+    g_insnavgeod_has_arrived_gpsfix = false;
+    g_insnavgeod_has_arrived_navsatfix = false;
+    g_insnavgeod_has_arrived_pose = false;
+	
     // The info logging level seems to be default, hence we modify log level
     // momentarily.. The following is the C++ version of
     // rospy.init_node('my_ros_node', log_level=rospy.DEBUG)

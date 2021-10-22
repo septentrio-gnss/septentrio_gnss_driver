@@ -226,8 +226,7 @@ namespace io_comm_rx {
     template <typename StreamT>
     void AsyncManager<StreamT>::tryParsing()
     {
-        uint8_t* to_be_parsed;
-        to_be_parsed = new uint8_t[buffer_size_];
+        uint8_t* to_be_parsed = new uint8_t[buffer_size_];
         to_be_parsed_ = to_be_parsed;
         bool timed_out = false;
         std::size_t shift_bytes = 0;
@@ -258,16 +257,16 @@ namespace io_comm_rx {
                 read_callback_(to_be_parsed_, arg_for_read_callback);
             } catch (std::size_t& parsing_failed_here)
             {
-                to_be_parsed_ = to_be_parsed + parsing_failed_here;
+                to_be_parsed_ += parsing_failed_here;
+                arg_for_read_callback -= parsing_failed_here;
                 ROS_DEBUG(
                     "Current buffer size is %li and parsing_failed_here is %li",
                     current_buffer_size, parsing_failed_here);
-                arg_for_read_callback = arg_for_read_callback - parsing_failed_here;
                 if (arg_for_read_callback < 0) // In case some parsing error was not
                                                // caught, which should never happen..
                 {
                     delete[] to_be_parsed; // Freeing memory
-                    to_be_parsed = new uint8_t[buffer_size_];
+					uint8_t* to_be_parsed = new uint8_t[buffer_size_];
                     to_be_parsed_ = to_be_parsed;
                     shift_bytes = 0;
                     arg_for_read_callback = 0;
@@ -277,7 +276,7 @@ namespace io_comm_rx {
                 continue;
             }
             delete[] to_be_parsed; // Freeing memory
-            to_be_parsed = new uint8_t[buffer_size_];
+            uint8_t* to_be_parsed = new uint8_t[buffer_size_];
             to_be_parsed_ = to_be_parsed;
             shift_bytes = 0;
             arg_for_read_callback = 0;
@@ -326,8 +325,8 @@ namespace io_comm_rx {
         stopping_(false), try_parsing_(false), allow_writing_(true),
         do_read_count_(0), buffer_size_(buffer_size), count_max_(6),
         circular_buffer_(buffer_size)
-    // Since buffer_size = 8912 in declaration, no need in definition any more (even
-    // yields error message, since "overwrite").
+    // Since buffer_size = 8192 in declaration, no need in definition anymore (even
+    // yields error message, due to "overwrite").
     {
         ROS_DEBUG(
             "Setting the private stream variable of the AsyncManager instance.");
