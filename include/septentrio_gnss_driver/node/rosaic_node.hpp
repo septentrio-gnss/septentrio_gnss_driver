@@ -378,7 +378,7 @@ namespace rosaic_node {
         //! Attitude offset determination in latitudinal direction
         float pitch_;
         //! INS solution reference point
-        std::string ins_use_poi_;
+        bool ins_use_poi_;
         //! For heading computation when unit is powered-cycled
         std::string ins_initial_heading_;
 		//! Attitude deviation mask

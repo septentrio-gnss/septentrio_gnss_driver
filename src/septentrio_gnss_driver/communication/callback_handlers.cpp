@@ -70,7 +70,7 @@ namespace io_comm_rx {
     std::string CallbackHandlers::do_pose_ = "4007";
     std::string CallbackHandlers::do_diagnostics_ = "4014";
     
-	std::string CallbackHandlers::do_insgpsfix_ = "4226";
+    std::string CallbackHandlers::do_insgpsfix_ = "4226";
     std::string CallbackHandlers::do_insnavsatfix_ = "4226"; 
     std::string CallbackHandlers::do_inspose_ = "4226";  
 
@@ -103,7 +103,7 @@ namespace io_comm_rx {
                 }
             }
         }
-		// Call NavSatFix callback function if it was added for GNSS 
+        // Call NavSatFix callback function if it was added for GNSS 
 		if (septentrio_receiver_type_ == "gnss")
 		{
 			if (g_publish_navsatfix)
@@ -353,7 +353,7 @@ namespace io_comm_rx {
                 CallbackMap::key_type key1 = rx_message.messageID();
                 if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
                 // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027)and DOP (4001) ROS messages,
+                // MeasEpoch (4027) and DOP (4001) ROS messages,
                 // we have to save some contents of these incoming blocks in order to
                 // publish the GPSFix message.
                 {
@@ -530,24 +530,21 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if ((septentrio_receiver_type_ == "gnss") || (septentrio_receiver_type_ == "ins"))
-                {
-                    if (g_publish_diagnostics == true &&
-                    (ID_temp == "4014" || ID_temp == "4082"))
-                    {
-                        std::vector<bool> diagnostics_vec = {
-                            g_receiverstatus_has_arrived_diagnostics,
-                            g_qualityind_has_arrived_diagnostics};
-                        diagnostics_vec.erase(diagnostics_vec.begin() +
-                                            diagnosticarray_map[ID_temp]);
-                        // Checks whether all entries in diagnostics_vec are true
-                        if (std::all_of(diagnostics_vec.begin(), diagnostics_vec.end(),
-                                        [](bool v) { return v; }) == true)
-                        {
-                            do_diagnostics_ = ID_temp;
-                        }
-                    }
-                }
+				if (g_publish_diagnostics == true &&
+				(ID_temp == "4014" || ID_temp == "4082"))
+				{
+					std::vector<bool> diagnostics_vec = {
+						g_receiverstatus_has_arrived_diagnostics,
+						g_qualityind_has_arrived_diagnostics};
+					diagnostics_vec.erase(diagnostics_vec.begin() +
+										diagnosticarray_map[ID_temp]);
+					// Checks whether all entries in diagnostics_vec are true
+					if (std::all_of(diagnostics_vec.begin(), diagnostics_vec.end(),
+									[](bool v) { return v; }) == true)
+					{
+						do_diagnostics_ = ID_temp;
+					}
+				}
             }
             if (rx_message.isNMEA())
             {

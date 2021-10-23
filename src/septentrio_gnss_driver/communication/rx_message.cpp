@@ -899,7 +899,7 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
  * position is given in. The cross-covariances are hence (apart from the fact that
  * e.g. mosaic receivers do not calculate these quantities) set to zero. The position
  * and the partial (with 2 antennas) or full (for INS receivers) orientation have
- * covariances matrices available e.g. in the PosCovGeodetic or AttCovEuler blocks,
+ * covariance matrices available e.g. in the PosCovGeodetic or AttCovEuler blocks,
  * yet those are separate computations.
  */
 geometry_msgs::PoseWithCovarianceStampedPtr
@@ -2249,46 +2249,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     }
     switch (rx_id_map[message_key])
     {
-        case evVelCovGeodetic:
-		{
-			septentrio_gnss_driver::VelCovGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
-			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
-			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
-			msg->block_header.id = 5908;
-			g_velcovgeodetic_has_arrived_gpsfix = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::VelCovGeodetic>(
-					"/velcovgeodetic", g_ROS_QUEUE_SIZE);
-			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
-			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
-			}
-			publisher.publish(*msg);
-			break;
-		}
 		case evPVTCartesian: // Position and velocity in XYZ
 		{   // The curly bracket here is crucial: Declarations inside a block remain
 		    // inside, and will die at
@@ -3451,8 +3411,42 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evVelCovGeodetic:
 		{
+			septentrio_gnss_driver::VelCovGeodeticPtr msg =
+				boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
 			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
+			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
+			msg->header.frame_id = g_frame_id;
+			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
+			ros::Time time_obj;
+			time_obj = timestampSBF(tow, g_use_gnss_time);
+			msg->header.stamp.sec = time_obj.sec;
+			msg->header.stamp.nsec = time_obj.nsec;
+			msg->block_header.id = 5908;
 			g_velcovgeodetic_has_arrived_gpsfix = true;
+			static ros::Publisher publisher =
+				g_nh->advertise<septentrio_gnss_driver::VelCovGeodetic>(
+					"/velcovgeodetic", g_ROS_QUEUE_SIZE);
+			// Wait as long as necessary (only when reading from SBF/PCAP file)
+			if (g_read_from_sbf_log || g_read_from_pcap)
+			{
+				ros::Time unix_old = g_unix_time;
+				g_unix_time = time_obj;
+				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+					(g_unix_time.sec != unix_old.sec ||
+					 g_unix_time.nsec != unix_old.nsec))
+				{
+					std::stringstream ss;
+					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
+					   << " seconds and "
+					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
+					   << " microseconds";
+					ROS_DEBUG("%s", ss.str().c_str());
+					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
+					usleep(static_cast<uint32_t>(
+						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
+				}
+			}
+			publisher.publish(*msg);
 			break;
 		}
 		case evDiagnosticArray:

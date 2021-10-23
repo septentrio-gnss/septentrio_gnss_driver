@@ -580,7 +580,7 @@ void rosaic_node::ROSaicNode::configureRx()
 
         // Setting the Velocity sensor lever arm offset
         {
-            if (vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX 
+            if (vsm_x_>=LEVER_ARM_MIN && vsm_x_<=LEVER_ARM_MAX && vsm_y_>=LEVER_ARM_MIN && vsm_y_<=LEVER_ARM_MAX
                 && vsm_z_>=LEVER_ARM_MIN && vsm_z_<=LEVER_ARM_MAX)
             {
                 std::stringstream ss;
@@ -1150,7 +1150,7 @@ void rosaic_node::ROSaicNode::defineMessages()
             if (publish_pvtgeodetic_ == false || publish_poscovgeodetic_ == false)
             {
                 ROS_ERROR(
-                    "For a proper GPSFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
+                    "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
             }
             IO.handlers_.callbackmap_ =
                 IO.getHandlers().insert<gps_common::GPSFix>("GPSFix");
@@ -1162,8 +1162,6 @@ void rosaic_node::ROSaicNode::defineMessages()
                 IO.getHandlers().insert<int32_t>("4027"); // MeasEpoch block
             IO.handlers_.callbackmap_ =
                 IO.getHandlers().insert<int32_t>("4001"); // DOP block
-            IO.handlers_.callbackmap_ =
-                IO.getHandlers().insert<int32_t>("5908"); // VelCovGeodetic block
         }
     }
     if (septentrio_receiver_type_ == "ins")

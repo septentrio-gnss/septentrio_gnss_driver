@@ -241,7 +241,7 @@ namespace io_comm_rx {
         }
 
         /**
-         * @brief Ćalled every time rx_message is found to contain some potentially
+         * @brief Called every time rx_message is found to contain some potentially
          * useful message
          * @param rx_message
          */

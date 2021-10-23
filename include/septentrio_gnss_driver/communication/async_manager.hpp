@@ -266,7 +266,7 @@ namespace io_comm_rx {
                                                // caught, which should never happen..
                 {
                     delete[] to_be_parsed; // Freeing memory
-					uint8_t* to_be_parsed = new uint8_t[buffer_size_];
+                    uint8_t* to_be_parsed = new uint8_t[buffer_size_];
                     to_be_parsed_ = to_be_parsed;
                     shift_bytes = 0;
                     arg_for_read_callback = 0;
