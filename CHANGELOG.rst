@@ -2,6 +2,13 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+1.0.8 (2021-10-23)
+------------------
+* Added INS Support
+
 1.0.6 (2020-10-16)
 ------------------
 
