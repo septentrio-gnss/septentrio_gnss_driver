@@ -1,3 +1,0 @@
-- builder: doxygen
-  file_patterns: '*.c *.cpp *.h *.hpp *.msg *.md'
-  use_mdfile_as_mainpage: README.md
