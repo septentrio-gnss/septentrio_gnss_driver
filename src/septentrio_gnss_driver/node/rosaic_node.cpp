@@ -410,8 +410,8 @@ void rosaic_node::ROSaicNode::configureRx()
         std::stringstream ss;
         ss << "sao, Main, " << string_utilities::trimString(std::to_string(delta_e_))
            << ", " << string_utilities::trimString(std::to_string(delta_n_)) << ", "
-           << string_utilities::trimString(std::to_string(delta_u_)) << ", "
-           << ant_type_ << ", " << ant_serial_nr_ << "\x0D";
+           << string_utilities::trimString(std::to_string(delta_u_)) << ", \""
+           << ant_type_ << "\", " << ant_serial_nr_ << "\x0D";
         IO.send(ss.str());
     }
     g_response_condition.wait(lock, []() { return g_response_received; });
@@ -422,8 +422,8 @@ void rosaic_node::ROSaicNode::configureRx()
         std::stringstream ss;
         ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(delta_aux1_e_))
            << ", " << string_utilities::trimString(std::to_string(delta_aux1_n_)) << ", "
-           << string_utilities::trimString(std::to_string(delta_aux1_u_)) << ", "
-           << ant_aux1_type_ << ", " << ant_aux1_serial_nr_ << "\x0D";
+           << string_utilities::trimString(std::to_string(delta_aux1_u_)) << ", \""
+           << ant_aux1_type_ << "\", " << ant_aux1_serial_nr_ << "\x0D";
         IO.send(ss.str());
     }
     g_response_condition.wait(lock, []() { return g_response_received; });
