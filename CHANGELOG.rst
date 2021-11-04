@@ -4,6 +4,13 @@ Changelog for package septentrio_gnss_driver
 
 Forthcoming
 -----------
+* Updated Changelog
+* Merge pull request #40 from thomasemter/dev
+  Fixes for velcovgeodetic publishing and setting of antenna type
+* Fix gpsfix and velcovgeodetic interconnections
+* Fix missing quotes for antenna type
+* Increased buffer size from 8192 to 16384 bytes
+* Contributors: Thomas Emter, Tibor Dome, tibordome
 
 1.0.8 (2021-10-23)
 ------------------
