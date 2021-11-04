@@ -84,12 +84,10 @@ namespace io_comm_rx {
         CallbackMap::key_type key = rx_message.messageID();
         std::string ID_temp = rx_message.messageID();
         if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
-              ID_temp == "5908" || ID_temp == "4014" || ID_temp == "4082" ||
-              ID_temp == "5902"))
-        // We only want to handle ChannelStatus, MeasEpoch, DOP, VelCovGeodetic,
-        // ReceiverStatus, QualityInd and ReceiverSetup blocks in case GPSFix and
-        // DiagnosticArray messages are to be published, respectively, see few lines
-        // below.
+              ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902"))
+        // We only want to handle ChannelStatus, MeasEpoch, DOP, ReceiverStatus, 
+        // QualityInd and ReceiverSetup blocks in case GPSFix and DiagnosticArray 
+        // messages are to be published, respectively, see few lines below.
         {
             for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
                  callback != callbackmap_.upper_bound(key); ++callback)
@@ -304,12 +302,10 @@ namespace io_comm_rx {
             {
                 std::string ID_temp = rx_message.messageID();
                 CallbackMap::key_type key1 = rx_message.messageID();
-                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
-                    ID_temp == "5908")
+                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
                 // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027), DOP (4001) and VelCovGeodetic (5908) ROS messages,
-                // we have to save some contents of these incoming blocks in order to
-                // publish the GPSFix message.
+                // MeasEpoch (4027), and DOP (4001) ROS messages, we have to save some 
+                // contents of these incoming blocks in order to publish the GPSFix message.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                         callback != callbackmap_.upper_bound(key1); ++callback)
@@ -326,8 +322,7 @@ namespace io_comm_rx {
                 CallbackMap::key_type key2 = "GPSFix";
                 if (ID_temp == do_gpsfix_)
                 // The last incoming block among ChannelStatus (4013), MeasEpoch (4027),
-                // DOP (4001) and VelCovGeodetic (5908) triggers the publishing of
-                // GPSFix.
+                // and DOP (4001) triggers the publishing of GPSFix.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key2);
                         callback != callbackmap_.upper_bound(key2); ++callback)
