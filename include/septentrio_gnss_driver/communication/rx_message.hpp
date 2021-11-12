@@ -260,7 +260,7 @@ namespace io_comm_rx {
      * used, otherwise the current time
      * @return ros::Time object containing seconds and nanoseconds since last epoch
      */
-    ros::Time timestampSBF(uint32_t tow, bool use_gnss);
+    ros::Time timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss);
 
     /**
      * @class RxMessage
