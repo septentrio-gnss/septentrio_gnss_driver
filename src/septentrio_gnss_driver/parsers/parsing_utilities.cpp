@@ -33,6 +33,8 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // C++ library includes
 #include <limits>
+// Boost
+#include <boost/endian/buffers.hpp>
 
 /**
  * @file parsing_utilities.cpp
@@ -42,7 +44,7 @@
 
 namespace parsing_utilities {
 
-    /**
+     /**
      * The function assumes that the bytes in the buffer are already arranged with
      * the same endianness as the local platform. It copies the elements in the range
      * [buffer,buffer + sizeof(double)) into the range beginning at
@@ -180,17 +182,14 @@ namespace parsing_utilities {
     }
 
     /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 2) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
+     * @brief 
+     * 
+     * @param buffer 
+     * @return * Get uint16_t
      */
     uint16_t parseUInt16(const uint8_t* buffer)
     {
-        uint16_t number;
-        std::copy(buffer, buffer + 2, reinterpret_cast<uint8_t*>(&number));
-        return number;
+        return reinterpret_cast<const boost::endian::little_uint16_buf_t*>(buffer)->value();
     }
 
     /**
@@ -218,17 +217,14 @@ namespace parsing_utilities {
     }
 
     /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 4) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
+     * @brief 
+     * 
+     * @param buffer 
+     * @return * Get uint16_t
      */
     uint32_t parseUInt32(const uint8_t* buffer)
     {
-        uint32_t diff_loc;
-        std::copy(buffer, buffer + 4, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        reinterpret_cast<const boost::endian::little_uint32_buf_t*>(data)->value();
     }
 
     /**
@@ -354,5 +350,26 @@ namespace parsing_utilities {
         {
             return period_user / 1000;
         }
+    }
+
+    uint16_t getId(const uint8_t* buffer)
+    {
+        // Defines bit mask..
+        // It is not as stated in the firmware: !first! three bits are for revision
+        // (not last 3), and rest for block number
+        static uint16_t mask = 8191;
+        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
+
+        return parseUInt16(buffer + 4)  & mask;
+    }
+
+    uint32_t getTow(const uint8_t* buffer)
+    {
+        return parseUInt32(buffer + 8);
+    }
+
+    uint16_t getWnc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 12);
     }
 } // namespace parsing_utilities

@@ -114,48 +114,6 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/endian/buffers.hpp>
-
-/* Get uint16_t
- */
-inline uint16_t getUint16(const uint8_t* data)
-{
-	return reinterpret_cast<const boost::endian::little_uint16_buf_t*>(data)->value();
-}
-
-/* Get uint32_t
- */
-inline uint16_t getUint32(const uint8_t* data)
-{
-	return reinterpret_cast<const boost::endian::little_uint32_buf_t*>(data)->value();
-}
-
-/* Get SBF message ID
- */
-inline uint16_t getId(const uint8_t* data)
-{
-	// Defines bit mask..
-    // It is not as stated in the firmware: !first! three bits are for revision
-    // (not last 3), and rest for block number
-    static uint16_t mask = 8191;
-    // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
-
-	return getUint16(data + 4)  & mask;
-}
-
-/* Get SBF message time of week
- */
-inline uint32_t getTow(const uint8_t* data)
-{
-	return getUint32(data + 8);
-}
-
-/* Get SBF message GPS week counter
- */
-inline uint16_t getWnc(const uint8_t* data)
-{
-	return getUint16(data + 12);
-}
 
 #if defined(__GNUC__) || defined(__ARMCC__)
 /* Before the advent of the CPMF platform, double data types were always

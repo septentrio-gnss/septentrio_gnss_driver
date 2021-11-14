@@ -1968,7 +1968,7 @@ bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
 {
     if (this->isSBF())
     {
-        return (getId(data_) == static_cast<const uint16_t>(id));
+        return (parsing_utilities::getId(data_) == static_cast<const uint16_t>(id));
     } 
 	else
     {
@@ -2091,7 +2091,7 @@ std::string io_comm_rx::RxMessage::messageID()
     if (this->isSBF())
     {
         std::stringstream ss;
-        ss << getId(data_);
+        ss << parsing_utilities::getId(data_);
         return ss.str();
     }
     if (this->isNMEA())
@@ -2716,8 +2716,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			sensor_msgs::TimeReferencePtr msg =
 				boost::make_shared<sensor_msgs::TimeReference>();
-			uint32_t tow = getTow(data_);
-			uint16_t wnc = getWnc(data_);
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
 			ros::Time time_obj = timestampSBF(tow, wnc, true); // We need the GPS time, hence true
 			msg->time_ref.sec = time_obj.sec;
 			msg->time_ref.nsec = time_obj.nsec;
@@ -3019,8 +3019,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3065,8 +3065,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3113,8 +3113,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = g_frame_id;
 				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->status.header.stamp.sec = time_obj.sec;
@@ -3170,8 +3170,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = g_frame_id;
 				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->status.header.stamp.sec = time_obj.sec;
@@ -3222,8 +3222,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3272,8 +3272,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = getTow(data_);
-				uint16_t wnc = getWnc(data_);
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
 				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3381,8 +3381,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				msg->header.frame_id = g_frame_id;
 			}
-			uint32_t tow = getTow(data_);
-			uint16_t wnc = getWnc(data_);
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
 			ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
