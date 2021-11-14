@@ -1968,19 +1968,9 @@ bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
 {
     if (this->isSBF())
     {
-        uint16_t mask = 8191;
-        if (*(reinterpret_cast<const uint16_t*>(data_ + 4)) &
-            mask == static_cast<const uint16_t>(id))
-        // Caution: reinterpret_cast is the most dangerous cast. It's used primarily
-        // for particularly weird conversions and bit manipulations, like turning a
-        // raw data stream into actual data.
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
-    } else
+        return (getId(data_) == static_cast<const uint16_t>(id));
+    } 
+	else
     {
         return false;
     }
@@ -2100,14 +2090,8 @@ std::string io_comm_rx::RxMessage::messageID()
 {
     if (this->isSBF())
     {
-        // Defines bit mask..
-        // It is not as stated in the firmware: !first! three bits are for revision
-        // (not last 3), and rest for block number
-        uint16_t mask = 8191;
-        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
-        uint16_t value = (*(reinterpret_cast<const uint16_t*>(data_ + 4))) & mask;
         std::stringstream ss;
-        ss << value;
+        ss << getId(data_);
         return ss.str();
     }
     if (this->isNMEA())
@@ -2133,7 +2117,7 @@ uint16_t io_comm_rx::RxMessage::getBlockLength()
         uint16_t block_length;
         // Note that static_cast<uint16_t>(data_[6]) would just take the one byte
         // "data_[6]" and cast it as requested, !neglecting! the byte "data_[7]".
-        block_length = *(reinterpret_cast<const uint16_t*>(data_ + 6));
+        block_length = getUint16(data_ + 6);
         return block_length;
     } else
     {
@@ -2224,10 +2208,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
 			msg = PVTCartesianCallback(pvtcartesian);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(pvtcartesian.tow, pvtcartesian.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4006;
@@ -2265,10 +2246,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4007;
@@ -2309,10 +2287,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&poscovcartesian, data_, sizeof(poscovcartesian));
 			msg = PosCovCartesianCallback(poscovcartesian);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(poscovcartesian.tow, poscovcartesian.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5905;
@@ -2349,10 +2324,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
 			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_poscovgeodetic_.tow, last_poscovgeodetic_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5906;
@@ -2392,10 +2364,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
 			msg = AttEulerCallback(last_atteuler_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_atteuler_.tow, last_atteuler_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5938;
@@ -2434,10 +2403,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
 			msg = AttCovEulerCallback(last_attcoveuler_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_attcoveuler_.tow, last_attcoveuler_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5939;
@@ -2478,10 +2444,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&insnavcart, data_, sizeof(insnavcart));
 			msg = INSNavCartCallback(insnavcart);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(insnavcart.tow, insnavcart.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4225;
@@ -2519,10 +2482,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_insnavgeod_, data_, sizeof(last_insnavgeod_));
 			msg = INSNavGeodCallback(last_insnavgeod_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4226;
@@ -2564,10 +2524,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&imusetup, data_, sizeof(imusetup));
 			msg = IMUSetupCallback(imusetup);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(imusetup.tow, imusetup.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4224;
@@ -2606,10 +2563,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&velsensorsetup, data_, sizeof(velsensorsetup));
 			msg = VelSensorSetupCallback(velsensorsetup);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(velsensorsetup.tow, velsensorsetup.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4244;
@@ -2649,10 +2603,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
 			msg = ExtEventINSNavCartCallback(exteventinsnavcart);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(exteventinsnavcart.tow, exteventinsnavcart.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4229;
@@ -2691,10 +2642,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
 			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(exteventinsnavgeod.tow, exteventinsnavgeod.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4230;
@@ -2733,10 +2681,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&extsensormeas, data_, sizeof(extsensormeas));
 			msg = ExtSensorMeasCallback(extsensormeas);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(extsensormeas.tow, extsensormeas.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4050;
@@ -2771,10 +2716,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			sensor_msgs::TimeReferencePtr msg =
 				boost::make_shared<sensor_msgs::TimeReference>();
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint32_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, true); // We need the GPS time, hence true
+			uint32_t tow = getTow(data_);
+			uint16_t wnc = getWnc(data_);
+			ros::Time time_obj = timestampSBF(tow, wnc, true); // We need the GPS time, hence true
 			msg->time_ref.sec = time_obj.sec;
 			msg->time_ref.nsec = time_obj.nsec;
 			msg->source = "GPST";
@@ -2953,15 +2897,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			if (septentrio_receiver_type_ == "gnss")
 			{
-				ros::Time time_obj;
-				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
+				ros::Time time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
 			if (septentrio_receiver_type_ == "ins")
 			{
-				ros::Time time_obj;
-				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, g_use_gnss_time);
+				ros::Time time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
@@ -3026,15 +2968,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			if (septentrio_receiver_type_ == "gnss")
 			{
-				ros::Time time_obj;
-				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
+				ros::Time time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
 			if (septentrio_receiver_type_ == "ins")
 			{
-				ros::Time time_obj;
-				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, g_use_gnss_time);
+				ros::Time time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
@@ -3079,10 +3019,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_pvtgeodetic_has_arrived_navsatfix = false;
@@ -3126,10 +3065,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_insnavgeod_has_arrived_navsatfix = false;
@@ -3175,10 +3113,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = g_frame_id;
 				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->status.header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3233,10 +3170,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = g_frame_id;
 				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->status.header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
@@ -3286,10 +3222,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_pvtgeodetic_has_arrived_pose = false;
@@ -3337,10 +3272,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					throw std::runtime_error(e.what());
 				}
 				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+				uint32_t tow = getTow(data_);
+				uint16_t wnc = getWnc(data_);
+				ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_insnavgeod_has_arrived_pose = false;
@@ -3397,10 +3331,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
 			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
 			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			ros::Time time_obj = timestampSBF(last_velcovgeodetic_.tow, last_velcovgeodetic_.wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5908;
@@ -3450,10 +3381,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				msg->header.frame_id = g_frame_id;
 			}
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			uint16_t wnc = *(reinterpret_cast<const uint16_t*>(data_ + 12));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
+			uint32_t tow = getTow(data_);
+			uint16_t wnc = getWnc(data_);
+			ros::Time time_obj = timestampSBF(tow, wnc, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			g_receiverstatus_has_arrived_diagnostics = false;

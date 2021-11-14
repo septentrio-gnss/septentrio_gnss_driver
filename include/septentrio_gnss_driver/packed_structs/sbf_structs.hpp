@@ -110,6 +110,53 @@
 // ROSaic includes
 #include "ssn_types.hpp"
 
+// Boost
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/endian/buffers.hpp>
+
+/* Get uint16_t
+ */
+inline uint16_t getUint16(const uint8_t* data)
+{
+	return reinterpret_cast<const boost::endian::little_uint16_buf_t*>(data)->value();
+}
+
+/* Get uint32_t
+ */
+inline uint16_t getUint32(const uint8_t* data)
+{
+	return reinterpret_cast<const boost::endian::little_uint32_buf_t*>(data)->value();
+}
+
+/* Get SBF message ID
+ */
+inline uint16_t getId(const uint8_t* data)
+{
+	// Defines bit mask..
+    // It is not as stated in the firmware: !first! three bits are for revision
+    // (not last 3), and rest for block number
+    static uint16_t mask = 8191;
+    // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
+
+	return getUint16(data + 4)  & mask;
+}
+
+/* Get SBF message time of week
+ */
+inline uint32_t getTow(const uint8_t* data)
+{
+	return getUint32(data + 8);
+}
+
+/* Get SBF message GPS week counter
+ */
+inline uint16_t getWnc(const uint8_t* data)
+{
+	return getUint16(data + 12);
+}
+
 #if defined(__GNUC__) || defined(__ARMCC__)
 /* Before the advent of the CPMF platform, double data types were always
  * 32-bit aligned, meaning that the struct were aligned to an address
@@ -1137,5 +1184,114 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x9de8, 0x8dc9, 0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
     0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36,
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
+
+BOOST_FUSION_ADAPT_STRUCT(
+BlockHeader_t,
+    (uint8_t, sync_1),
+    (uint8_t, sync_2),
+    (uint16_t, crc),
+    (uint16_t, id),
+    (uint16_t, length)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+PVTCartesian,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (double, x),
+    (double, y),
+    (double, z),
+    (float, undulation),
+    (float, vx),
+    (float, vy),
+    (float, vz),
+    (float, cog),
+    (double, rx_clk_bias),
+    (float, rx_clk_drift),
+    (uint8_t, time_system),
+    (uint8_t, datum),
+    (uint8_t, nr_sv),
+    (uint8_t, wa_corr_info),
+    (uint16_t, reference_id),
+    (uint16_t, mean_corr_age),
+    (uint32_t, signal_info),
+    (uint8_t, alert_flag),
+    (uint8_t, nr_bases),
+    (uint16_t, ppp_info),
+    (uint16_t, latency),
+    (uint16_t, h_accuracy),
+    (uint16_t, v_accuracy),
+    (uint8_t, misc)
+)
+
+template<typename Iterator>
+struct BlockHeaderGrammar : boost::spirit::qi::grammar<Iterator, BlockHeader()>
+{
+	BlockHeaderGrammar() : BlockHeaderGrammar::base_type(blockHeader)
+	{
+		namespace qi = boost::spirit::qi;
+
+		using qi::byte_;
+
+		blockHeader %= byte_
+		            >> byte_
+		            >> little_word
+		            >> little_word
+                    >> little_word
+		;
+	}
+
+	boost::spirit::qi::rule<Iterator, BlockHeader_t()> blockHeader;
+};
+
+template<typename Iterator>
+struct PVTCartesianGrammar : boost::spirit::qi::grammar<Iterator, PVTCartesian()>
+{
+	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
+	{
+		namespace qi = boost::spirit::qi;
+
+		using qi::byte_;
+
+		pvtCartesian %= header
+		             >> little_dword
+		             >> little_word
+                     >> byte_
+                     >> byte_
+                     >> little_bin_double
+                     >> little_bin_double
+                     >> little_bin_double
+                     >> little_bin_float
+                     >> little_bin_float
+                     >> little_bin_float
+                     >> little_bin_float
+                     >> little_bin_float
+                     >> little_bin_double
+                     >> little_bin_float
+                     >> byte_
+                     >> byte_
+                     >> byte_
+                     >> byte_
+                     >> little_word
+                     >> little_word
+                     >> little_dword
+                     >> byte_
+                     >> byte_
+                     >> little_word
+                     >> little_word
+                     >> little_word
+                     >> little_word
+                     >> byte_
+		;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	boost::spirit::qi::rule<Iterator, PVTCartesian()> pvtCartesian;
+};
+
 
 #endif // SBFStructs_HPP
