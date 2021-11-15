@@ -22,7 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system thread regex)
+find_package(Boost REQUIRED) # bug with 1.71: spirit is not found ... COMPONENTS system thread regex spirit)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -174,7 +174,7 @@ add_executable(${PROJECT_NAME}_node
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-    src/septentrio_gnss_driver/crc/crc.c 
+    src/septentrio_gnss_driver/crc/crc.cpp
     src/septentrio_gnss_driver/communication/communication_core.cpp 
     src/septentrio_gnss_driver/communication/rx_message.cpp 
     src/septentrio_gnss_driver/communication/callback_handlers.cpp

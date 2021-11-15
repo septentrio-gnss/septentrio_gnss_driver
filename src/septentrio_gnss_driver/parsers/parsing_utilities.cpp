@@ -34,7 +34,7 @@
 // C++ library includes
 #include <limits>
 // Boost
-#include <boost/endian/buffers.hpp>
+#include <boost/spirit/include/qi_binary.hpp>
 
 /**
  * @file parsing_utilities.cpp
@@ -44,19 +44,13 @@
 
 namespace parsing_utilities {
 
-     /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + sizeof(double)) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
+    namespace qi = boost::spirit::qi;
+
     double parseDouble(const uint8_t* buffer)
     {
-        double diff_loc;
-        std::copy(buffer, buffer + sizeof(double),
-                  reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        double val;
+        qi::parse(buffer, buffer + 8, qi::little_bin_double, val);
+        return val;
     }
 
     /**
@@ -69,19 +63,11 @@ namespace parsing_utilities {
         return string_utilities::toDouble(string, value) || string.empty();
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + sizeof(double)) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     float parseFloat(const uint8_t* buffer)
     {
-        float diff_loc;
-        std::copy(buffer, buffer + sizeof(float),
-                  reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        float val;
+        qi::parse(buffer, buffer + 4, qi::little_bin_float, val);
+        return val;
     }
 
     /**
@@ -103,9 +89,9 @@ namespace parsing_utilities {
      */
     int16_t parseInt16(const uint8_t* buffer)
     {
-        int16_t diff_loc;
-        std::copy(buffer, buffer + 2, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        int16_t val;
+        qi::parse(buffer, buffer + 2, qi::little_word, val);
+        return val;
     }
 
     /**
@@ -133,18 +119,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 4) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     int32_t parseInt32(const uint8_t* buffer)
     {
-        int32_t diff_loc;
-        std::copy(buffer, buffer + 4, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        int32_t val;
+        qi::parse(buffer, buffer + 4, qi::little_dword, val);
+        return val;
     }
 
     /**
@@ -181,15 +160,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * @brief 
-     * 
-     * @param buffer 
-     * @return * Get uint16_t
-     */
     uint16_t parseUInt16(const uint8_t* buffer)
     {
-        return reinterpret_cast<const boost::endian::little_uint16_buf_t*>(buffer)->value();
+        uint16_t val;
+        qi::parse(buffer, buffer + 2, qi::little_word, val);
+        return val;
     }
 
     /**
@@ -216,15 +191,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * @brief 
-     * 
-     * @param buffer 
-     * @return * Get uint16_t
-     */
     uint32_t parseUInt32(const uint8_t* buffer)
     {
-        reinterpret_cast<const boost::endian::little_uint32_buf_t*>(data)->value();
+        uint32_t val;
+        qi::parse(buffer, buffer + 4, qi::little_dword, val);
+        return val;
     }
 
     /**

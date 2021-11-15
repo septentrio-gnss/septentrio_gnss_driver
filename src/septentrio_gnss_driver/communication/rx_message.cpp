@@ -2117,7 +2117,7 @@ uint16_t io_comm_rx::RxMessage::getBlockLength()
         uint16_t block_length;
         // Note that static_cast<uint16_t>(data_[6]) would just take the one byte
         // "data_[6]" and cast it as requested, !neglecting! the byte "data_[7]".
-        block_length = getUint16(data_ + 6);
+        block_length = parsing_utilities::parseUInt16(data_ + 6);
         return block_length;
     } else
     {
