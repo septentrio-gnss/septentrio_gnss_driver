@@ -259,6 +259,14 @@ namespace parsing_utilities {
     uint16_t getId(const uint8_t* buffer);
 
     /**
+     * @brief Get the length of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message length 
+     */
+    uint16_t getLength(const uint8_t* buffer);
+
+    /**
      * @brief Get the time of week in ms of the SBF message
      * 
      * @param[in] buffer A pointer to a buffer containing an SBF message

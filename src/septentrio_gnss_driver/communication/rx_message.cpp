@@ -2195,8 +2195,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			septentrio_gnss_driver::PVTCartesianPtr msg =
 				boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
 			PVTCartesian pvtcartesian;
-			std::vector<uint8_t> dvec(sizeof(pvtcartesian));
-			memcpy(dvec.data(), data_, sizeof(pvtcartesian));			
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), pvtcartesian))
 			{
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTCartesian");
@@ -2240,8 +2240,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			septentrio_gnss_driver::PVTGeodeticPtr msg =
 				boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
 			PVTGeodetic pvtGeodetic;
-			std::vector<uint8_t> dvec(sizeof(last_pvtgeodetic_));
-			memcpy(dvec.data(), data_, sizeof(last_pvtgeodetic_));			
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), pvtGeodetic))
 			{
 				last_pvtgeodetic_ = pvtGeodetic;
@@ -2369,8 +2369,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			septentrio_gnss_driver::AttEulerPtr msg =
 				boost::make_shared<septentrio_gnss_driver::AttEuler>();
 			AttEuler attEuler;
-			std::vector<uint8_t> dvec(sizeof(last_atteuler_));
-			memcpy(dvec.data(), data_, sizeof(last_atteuler_));			
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), attEuler))
 			{
 				last_atteuler_ = attEuler;
@@ -2419,8 +2419,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			septentrio_gnss_driver::AttCovEulerPtr msg =
 				boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
 			AttCovEuler attCovEuler;
-			std::vector<uint8_t> dvec(sizeof(last_attcoveuler_));
-			memcpy(dvec.data(), data_, sizeof(last_attcoveuler_));			
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), attCovEuler))
 			{
 				last_attcoveuler_ = attCovEuler;

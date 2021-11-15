@@ -334,6 +334,11 @@ namespace parsing_utilities {
         return parseUInt16(buffer + 4)  & mask;
     }
 
+    uint16_t getLength(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 6);
+    }
+
     uint32_t getTow(const uint8_t* buffer)
     {
         return parseUInt32(buffer + 8);
