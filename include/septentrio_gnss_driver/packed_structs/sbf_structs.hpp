@@ -188,15 +188,15 @@ struct PVTCartesian
 
     uint8_t mode;
     uint8_t error;
-    SBFDOUBLE x;
-    SBFDOUBLE y;
-    SBFDOUBLE z;
+    double x;
+    double y;
+    double z;
     float undulation;
     float vx;
     float vy;
     float vz;
     float cog;
-    SBFDOUBLE rx_clk_bias;
+    double rx_clk_bias;
     float rx_clk_drift;
     uint8_t time_system;
     uint8_t datum;
@@ -228,15 +228,15 @@ struct PVTGeodetic
 
     uint8_t mode;
     uint8_t error;
-    SBFDOUBLE latitude;
-    SBFDOUBLE longitude;
-    SBFDOUBLE height;
+    double latitude;
+    double longitude;
+    double height;
     float undulation;
     float vn;
     float ve;
     float vu;
     float cog;
-    SBFDOUBLE rx_clk_bias;
+    double rx_clk_bias;
     float rx_clk_drift;
     uint8_t time_system;
     uint8_t datum;
@@ -1200,7 +1200,7 @@ PVTGeodetic,
     (float, undulation),
     (float, vn),
     (float, ve),
-    (float, value_at_key),
+    (float, vu),
     (float, cog),
     (double, rx_clk_bias),
     (float, rx_clk_drift),
@@ -1478,13 +1478,13 @@ struct ChannelStateInfoGrammar : qi::grammar<Iterator, ChannelStateInfo()>
 	ChannelStateInfoGrammar() : ChannelStateInfoGrammar::base_type(channelStateInfo)
 	{
         using namespace qi::labels;
-        
+
 		channelStateInfo %= qi::byte_
                          >> qi::byte_
                          >> qi::little_word
                          >> qi::little_word
                          >> qi::little_word
-                         >> repository::qi::advance(_r1 - 8) //padding
+                         >> repository::qi::advance(_r1 - 8) // skip padding
 		;
 	}
 
@@ -1514,7 +1514,7 @@ struct ChannelSatInfoGrammar : qi::grammar<Iterator, ChannelSatInfo()>
                        >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSTATEINFO), _a = boost::spirit::_1]
                        >> qi::byte_
                        >> qi::byte_
-                       >> repository::qi::advance(_r1 - 11) //padding
+                       >> repository::qi::advance(_r1 - 11) // skip padding
 		               >> qi::repeat(_a)[channelStateInfo(phoenix::ref(_r2))]
 		;
 

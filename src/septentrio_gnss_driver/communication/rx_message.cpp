@@ -1446,22 +1446,15 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 	svid_pvt.clear();
 	std::vector<int32_t> ordering;
 	{
-		uint8_t sb1_size = last_channelstatus_.sb1_size;
-		uint8_t sb2_size = last_channelstatus_.sb2_size;
-		uint8_t* sb_start = &last_channelstatus_.data[0];
-		int32_t index = sb_start - &last_channelstatus_.block_header.sync_1;
-		// ROS_DEBUG("index is %i", index); // yields 20, as expected
-
-		uint16_t azimuth_mask = 511;
-		for (int32_t i = 0; i < static_cast<int32_t>(last_channelstatus_.n); i++)
+		svid_in_sync_2.reserve(last_channelstatus_.satInfo.size());
+		elevation_tracked.reserve(last_channelstatus_.satInfo.size());
+		azimuth_tracked.reserve(last_channelstatus_.satInfo.size());
+		for (auto channel_sat_info : last_channelstatus_.satInfo)
 		{
-			// Define ChannelSatInfo struct for the corresponding sub-block
-			ChannelSatInfo* channel_sat_info = reinterpret_cast<ChannelSatInfo*>(
-				&last_channelstatus_.block_header.sync_1 + index);
 			bool to_be_added = false;
 			for (int32_t j = 0; j < static_cast<int32_t>(svid_in_sync.size()); ++j)
 			{
-				if (svid_in_sync[j] == static_cast<int32_t>(channel_sat_info->sv_id))
+				if (svid_in_sync[j] == static_cast<int32_t>(channel_sat_info.sv_id))
 				{
 					ordering.push_back(j);
 					to_be_added = true;
@@ -1471,25 +1464,23 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 			if (to_be_added)
 			{
 				svid_in_sync_2.push_back(
-					static_cast<int32_t>(channel_sat_info->sv_id));
+					static_cast<int32_t>(channel_sat_info.sv_id));
 				elevation_tracked.push_back(
-					static_cast<int32_t>(channel_sat_info->elev));
+					static_cast<int32_t>(channel_sat_info.elev));
+				static uint16_t azimuth_mask = 511;		
 				azimuth_tracked.push_back(static_cast<int32_t>(
-					(channel_sat_info->az_rise_set & azimuth_mask)));
+					(channel_sat_info.az_rise_set & azimuth_mask)));
 			}
-			index += sb1_size;
-			for (int32_t j = 0; j < static_cast<int32_t>(channel_sat_info->n2); j++)
+			svid_pvt.reserve(channel_sat_info.stateInfo.size());
+			for (auto channel_state_info : channel_sat_info.stateInfo)
 			{
 				// Define ChannelStateInfo struct for the corresponding sub-block
-				ChannelStateInfo* channel_state_info =
-					reinterpret_cast<ChannelStateInfo*>(
-						&last_channelstatus_.block_header.sync_1 + index);
 				bool pvt_status = false;
 				uint16_t pvt_status_mask = std::pow(2, 15) + std::pow(2, 14);
 				for (int k = 15; k != -1; k -= 2)
 				{
 					uint16_t pvt_status_value =
-						(channel_state_info->pvt_status & pvt_status_mask) >> k - 1;
+						(channel_state_info.pvt_status & pvt_status_mask) >> k - 1;
 					if (pvt_status_value == 2)
 					{
 						pvt_status = true;
@@ -1504,9 +1495,8 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 				if (pvt_status)
 				{
 					svid_pvt.push_back(
-						static_cast<int32_t>(channel_sat_info->sv_id));
+						static_cast<int32_t>(channel_sat_info.sv_id));
 				}
-				index += sb2_size;
 			}
 		}
 	}
@@ -2205,7 +2195,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			septentrio_gnss_driver::PVTCartesianPtr msg =
 				boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
 			PVTCartesian pvtcartesian;
-			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
+			std::vector<uint8_t> dvec(sizeof(pvtcartesian));
+			memcpy(dvec.data(), data_, sizeof(pvtcartesian));			
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), pvtcartesian))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTCartesian");
+				break;
+			}
 			msg = PVTCartesianCallback(pvtcartesian);
 			msg->header.frame_id = g_frame_id;
 			ros::Time time_obj = timestampSBF(pvtcartesian.tow, pvtcartesian.wnc, g_use_gnss_time);
@@ -2243,7 +2239,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			septentrio_gnss_driver::PVTGeodeticPtr msg =
 				boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
-			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
+			PVTGeodetic pvtGeodetic;
+			std::vector<uint8_t> dvec(sizeof(last_pvtgeodetic_));
+			memcpy(dvec.data(), data_, sizeof(last_pvtgeodetic_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), pvtGeodetic))
+			{
+				last_pvtgeodetic_ = pvtGeodetic;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTGeodetic");
+				break;
+			}
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
 			msg->header.frame_id = g_frame_id;
 			ros::Time time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, g_use_gnss_time);
@@ -2361,7 +2368,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			septentrio_gnss_driver::AttEulerPtr msg =
 				boost::make_shared<septentrio_gnss_driver::AttEuler>();
-			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
+			AttEuler attEuler;
+			std::vector<uint8_t> dvec(sizeof(last_atteuler_));
+			memcpy(dvec.data(), data_, sizeof(last_atteuler_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), attEuler))
+			{
+				last_atteuler_ = attEuler;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttEuler");
+				break;
+			}
 			msg = AttEulerCallback(last_atteuler_);
 			msg->header.frame_id = g_frame_id;
 			ros::Time time_obj = timestampSBF(last_atteuler_.tow, last_atteuler_.wnc, g_use_gnss_time);
@@ -2400,7 +2418,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			septentrio_gnss_driver::AttCovEulerPtr msg =
 				boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
-			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
+			AttCovEuler attCovEuler;
+			std::vector<uint8_t> dvec(sizeof(last_attcoveuler_));
+			memcpy(dvec.data(), data_, sizeof(last_attcoveuler_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), attCovEuler))
+			{
+				last_attcoveuler_ = attCovEuler;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttCovEuler");
+				break;
+			}
+
 			msg = AttCovEulerCallback(last_attcoveuler_);
 			msg->header.frame_id = g_frame_id;
 			ros::Time time_obj = timestampSBF(last_attcoveuler_.tow, last_attcoveuler_.wnc, g_use_gnss_time);
