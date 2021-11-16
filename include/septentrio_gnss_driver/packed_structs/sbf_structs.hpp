@@ -321,7 +321,7 @@ typedef struct
 {
     uint8_t sv_id;
     uint8_t freq_nr;
-    uint8_t reserved1[2];
+    std::vector<uint8_t> reserved1; // size = 2
     uint16_t az_rise_set;
     uint16_t health_status;
     int8_t elev;
@@ -346,7 +346,7 @@ struct ChannelStatus
     uint8_t n;
     uint8_t sb1_size;
     uint8_t sb2_size;
-    uint8_t reserved[3];
+    std::vector<uint8_t> reserved; // size = 3
     std::vector<ChannelSatInfo> satInfo;
 };
 
@@ -1265,13 +1265,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 ChannelSatInfo,
     (uint8_t, sv_id),
     (uint8_t, freq_nr),
-    (uint8_t, reserved1[2]),
+    (std::vector<uint8_t>, reserved1),
     (uint16_t, az_rise_set),
     (uint16_t, health_status),
     (int8_t, elev),
     (uint8_t, n2),
     (uint8_t, channel),
-    (uint8_t, reserved2),
+    (uint8_t, reserved2)
     (std::vector<ChannelStateInfo>, stateInfo)
 )
 
@@ -1283,13 +1283,13 @@ ChannelStatus,
     (uint8_t, n),
     (uint8_t, sb1_size),
     (uint8_t, sb2_size),
-    (uint8_t, reserved[3]),
+    (std::vector<uint8_t>, reserved),
     (std::vector<ChannelSatInfo>, satInfo)
 )
 
-namespace qi = boost::spirit::qi;
-namespace repository = boost::spirit::repository;
-namespace phoenix = boost::phoenix;
+namespace qi  = boost::spirit::qi;
+namespace rep = boost::spirit::repository;
+namespace phx = boost::phoenix;
 
 /**
  * @struct BlockHeaderGrammar
@@ -1306,8 +1306,7 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader_t()>
 		            >> qi::byte_[_pass = (boost::spirit::_1 == 0x40)]
 		            >> qi::little_word
 		            >> qi::little_word
-                    >> qi::little_word
-		;
+                    >> qi::little_word;
 	}
 
 	qi::rule<Iterator, BlockHeader_t()> blockHeader;
@@ -1353,8 +1352,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
                      >> qi::little_word
                      >> qi::little_word
                      >> qi::byte_
-                     >> qi::repeat[qi::omit[qi::byte_]] //skip padding
-		;
+                     >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -1400,8 +1398,7 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
                     >> qi::little_word
                     >> qi::little_word
                     >> qi::byte_
-                    >> qi::repeat[qi::omit[qi::byte_]] //skip padding
-		;
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -1430,8 +1427,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
-                 >> qi::repeat[qi::omit[qi::byte_]] //skip padding
-		;
+                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -1459,8 +1455,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
                     >> qi::little_bin_float
                     >> qi::little_bin_float
                     >> qi::little_bin_float
-                    >> qi::repeat[qi::omit[qi::byte_]] //skip padding
-		;
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -1473,24 +1468,22 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
  * @brief Spirit grammar for the SBF block "ChannelStateInfo"
  */
 template<typename Iterator>
-struct ChannelStateInfoGrammar : qi::grammar<Iterator, ChannelStateInfo()>
+struct ChannelStateInfoGrammar : qi::grammar<Iterator, ChannelStateInfo(unsigned const&)>
 {
 	ChannelStateInfoGrammar() : ChannelStateInfoGrammar::base_type(channelStateInfo)
 	{
         using namespace qi::labels;
 
-		channelStateInfo %= qi::byte_
+        channelStateInfo %= qi::byte_
                          >> qi::byte_
                          >> qi::little_word
                          >> qi::little_word
                          >> qi::little_word
-                         >> repository::qi::advance(_r1 - 8) // skip padding
+                         >> rep::qi::advance(_r1 - 8) // skip padding: sb2_size - 8 bytes
 		;
 	}
-
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, ChannelStateInfo()> channelStateInfo;
+    
+    qi::rule<Iterator, ChannelStateInfo(unsigned const&)> channelStateInfo;
 };
 
 /**
@@ -1498,33 +1491,32 @@ struct ChannelStateInfoGrammar : qi::grammar<Iterator, ChannelStateInfo()>
  * @brief Spirit grammar for the SBF block "ChannelSatInfo"
  */
 template<typename Iterator>
-struct ChannelSatInfoGrammar : qi::grammar<Iterator, ChannelSatInfo()>
+struct ChannelSatInfoGrammar : qi::grammar<Iterator, ChannelSatInfo(/*unsigned const&, unsigned const&*/)>
 {
 	ChannelSatInfoGrammar() : ChannelSatInfoGrammar::base_type(channelSatInfo)
 	{
 		using namespace qi::labels;
 		
-        channelSatInfo %= header
-                       >> qi::byte_
-                       >> qi::byte_
-                       >> qi::repeat(2)[qi::byte_]
-                       >> qi::little_word
-                       >> qi::little_word
-                       >> qi::byte_
-                       >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSTATEINFO), _a = boost::spirit::_1]
-                       >> qi::byte_
-                       >> qi::byte_
-                       >> repository::qi::advance(_r1 - 11) // skip padding
-		               >> qi::repeat(_a)[channelStateInfo(phoenix::ref(_r2))]
+        channelSatInfoTemp %= qi::byte_
+                           >> qi::byte_
+                           >> qi::repeat(2)[qi::byte_]
+                           >> qi::little_word
+                           >> qi::little_word
+                           >> qi::char_
+                           >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSTATEINFO), _a = boost::spirit::_1] // n2
+                           >> qi::byte_
+                           >> qi::byte_
+                           >> rep::qi::advance(/*_r1 - */12) // skip padding: sb1_size - 12 
+                           >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
+		                   >> qi::repeat(_a)[channelStateInfo(/*_r2*/_a)]
 		;
 
         channelSatInfo %= channelSatInfoTemp;
 	}
 
-    BlockHeaderGrammar<Iterator> header;
     ChannelStateInfoGrammar<Iterator> channelStateInfo;
 
-	qi::rule<Iterator, qi::locals<unsigned>, ChannelSatInfo()> channelSatInfoTemp;
+    qi::rule<Iterator, qi::locals<unsigned>, ChannelSatInfo(/*unsigned const&, unsigned const&*/)> channelSatInfoTemp;
 	qi::rule<Iterator, ChannelSatInfo()> channelSatInfo;
 };
 
@@ -1543,11 +1535,12 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
 		                  >> qi::little_dword
 		                  >> qi::little_word
                           >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSATINFO), _a = boost::spirit::_1] // n
-                          >> qi::byte_[_b = boost::spirit::_1] // sb1_size
-                          >> qi::byte_[_c = boost::spirit::_1] // sb2_size
+                          >> qi::byte_//[_b = boost::spirit::_1] // sb1_size
+                          >> qi::byte_//[_c = boost::spirit::_1] // sb2_size
                           >> qi::repeat(3)[qi::byte_]
-                          >> qi::repeat(_a)[channelSatInfo(phoenix::ref(_b), phoenix::ref(_c))]
-                          >> qi::repeat[qi::omit[qi::byte_]] //skip padding
+                          >> qi::eps[phx::reserve(phx::at_c<7>(_val), _a)]
+                          >> qi::repeat(_a)[channelSatInfo/*(_b, _c)*/]
+                          >> qi::repeat[qi::omit[qi::byte_]] // skip padding
 		;
 
         channelStatus %= channelStatusTemp;

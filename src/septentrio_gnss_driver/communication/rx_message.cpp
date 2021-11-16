@@ -3338,8 +3338,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evChannelStatus:
 		{
-			memcpy(&last_channelstatus_, data_, sizeof(last_channelstatus_));
-			g_channelstatus_has_arrived_gpsfix = true;
+			ChannelStatus channelStatus;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), channelStatus))
+			{
+				last_channelstatus_ = channelStatus;
+				g_channelstatus_has_arrived_gpsfix = true;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ChannelStatus");
+				break;
+			}
 			break;
 		}
 		case evMeasEpoch:
