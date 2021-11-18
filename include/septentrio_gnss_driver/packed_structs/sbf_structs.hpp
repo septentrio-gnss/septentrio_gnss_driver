@@ -1271,7 +1271,7 @@ ChannelSatInfo,
     (int8_t, elev),
     (uint8_t, n2),
     (uint8_t, channel),
-    (uint8_t, reserved2)
+    (uint8_t, reserved2),
     (std::vector<ChannelStateInfo>, stateInfo)
 )
 
@@ -1464,63 +1464,6 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 };
 
 /**
- * @struct ChannelStateInfoGrammar
- * @brief Spirit grammar for the SBF block "ChannelStateInfo"
- */
-template<typename Iterator>
-struct ChannelStateInfoGrammar : qi::grammar<Iterator, ChannelStateInfo(unsigned const&)>
-{
-	ChannelStateInfoGrammar() : ChannelStateInfoGrammar::base_type(channelStateInfo)
-	{
-        using namespace qi::labels;
-
-        channelStateInfo %= qi::byte_
-                         >> qi::byte_
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> rep::qi::advance(_r1 - 8) // skip padding: sb2_size - 8 bytes
-		;
-	}
-    
-    qi::rule<Iterator, ChannelStateInfo(unsigned const&)> channelStateInfo;
-};
-
-/**
- * @struct ChannelSatInfoGrammar
- * @brief Spirit grammar for the SBF block "ChannelSatInfo"
- */
-template<typename Iterator>
-struct ChannelSatInfoGrammar : qi::grammar<Iterator, ChannelSatInfo(/*unsigned const&, unsigned const&*/)>
-{
-	ChannelSatInfoGrammar() : ChannelSatInfoGrammar::base_type(channelSatInfo)
-	{
-		using namespace qi::labels;
-		
-        channelSatInfoTemp %= qi::byte_
-                           >> qi::byte_
-                           >> qi::repeat(2)[qi::byte_]
-                           >> qi::little_word
-                           >> qi::little_word
-                           >> qi::char_
-                           >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSTATEINFO), _a = boost::spirit::_1] // n2
-                           >> qi::byte_
-                           >> qi::byte_
-                           >> rep::qi::advance(/*_r1 - */12) // skip padding: sb1_size - 12 
-                           >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
-		                   >> qi::repeat(_a)[channelStateInfo(/*_r2*/_a)]
-		;
-
-        channelSatInfo %= channelSatInfoTemp;
-	}
-
-    ChannelStateInfoGrammar<Iterator> channelStateInfo;
-
-    qi::rule<Iterator, qi::locals<unsigned>, ChannelSatInfo(/*unsigned const&, unsigned const&*/)> channelSatInfoTemp;
-	qi::rule<Iterator, ChannelSatInfo()> channelSatInfo;
-};
-
-/**
  * @struct ChannelStatusGrammar
  * @brief Spirit grammar for the SBF block "ChannelStatus"
  */
@@ -1529,27 +1472,47 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
 {
 	ChannelStatusGrammar() : ChannelStatusGrammar::base_type(channelStatus)
 	{
-		using namespace qi::labels;
+        using namespace qi::labels;
 
-        channelStatusTemp %= header
-		                  >> qi::little_dword
-		                  >> qi::little_word
-                          >> qi::byte_[_pass = (boost::spirit::_1 <= MAXSB_CHANNELSATINFO), _a = boost::spirit::_1] // n
-                          >> qi::byte_//[_b = boost::spirit::_1] // sb1_size
-                          >> qi::byte_//[_c = boost::spirit::_1] // sb2_size
-                          >> qi::repeat(3)[qi::byte_]
-                          >> qi::eps[phx::reserve(phx::at_c<7>(_val), _a)]
-                          >> qi::repeat(_a)[channelSatInfo/*(_b, _c)*/]
-                          >> qi::repeat[qi::omit[qi::byte_]] // skip padding
-		;
+        channelStateInfo %= qi::byte_
+                         >> qi::byte_
+                         >> qi::little_word
+                         >> qi::little_word
+                         >> qi::little_word
+                         >> rep::qi::advance(_r1 - 8); // skip padding: sb2_size - 8 bytes
 
-        channelStatus %= channelStatusTemp;
+		channelSatInfo %= qi::byte_
+                       >> qi::byte_
+                       >> qi::repeat(2)[qi::byte_]
+                       >> qi::little_word
+                       >> qi::little_word
+                       >> qi::char_
+                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), _a = qi::_1] // n2
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> rep::qi::advance(_r1 - 12) // skip padding: sb1_size - 12 
+                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
+		               >> qi::repeat(_a)[channelStateInfo(_r2)]; // pass sb2_size
+
+        channelStatusLocal %= header
+		                   >> qi::little_dword
+		                   >> qi::little_word
+                           >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), _a = qi::_1] // n
+                           >> qi::byte_[_b = qi::_1] // sb1_size
+                           >> qi::byte_[_c = qi::_1] // sb2_size
+                           >> qi::repeat(3)[qi::byte_]
+                           >> qi::eps[phx::reserve(phx::at_c<7>(_val), _a)]
+                           >> qi::repeat(_a)[channelSatInfo(_b, _c)] // pass sb1_size and sb2_size
+                           >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+
+        channelStatus %= channelStatusLocal;
 	}
 
     BlockHeaderGrammar<Iterator> header;
-    ChannelSatInfoGrammar<Iterator> channelSatInfo;
 
-    qi::rule<Iterator, qi::locals<unsigned>, ChannelStatus()> channelStatusTemp;
+    qi::rule<Iterator, ChannelStateInfo(uint8_t)> channelStateInfo;
+    qi::rule<Iterator, qi::locals<uint8_t>, ChannelSatInfo(uint8_t, uint8_t)> channelSatInfo;
+	qi::rule<Iterator, qi::locals<uint8_t, uint8_t, uint8_t>, ChannelStatus()> channelStatusLocal;
 	qi::rule<Iterator, ChannelStatus()> channelStatus;
 };
 
