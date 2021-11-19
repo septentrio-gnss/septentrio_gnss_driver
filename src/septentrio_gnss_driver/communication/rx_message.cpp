@@ -116,7 +116,7 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -157,7 +157,7 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -198,7 +198,7 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -225,7 +225,7 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -252,7 +252,7 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -279,7 +279,7 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -303,7 +303,7 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -327,7 +327,7 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -469,7 +469,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -611,7 +611,7 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -634,7 +634,7 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -655,7 +655,7 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -755,7 +755,7 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -854,7 +854,7 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;

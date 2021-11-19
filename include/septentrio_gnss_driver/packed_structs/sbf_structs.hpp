@@ -116,44 +116,6 @@
 // ROSaic includes
 #include "ssn_types.hpp"
 
-#if defined(__GNUC__) || defined(__ARMCC__)
-/* Before the advent of the CPMF platform, double data types were always
- * 32-bit aligned, meaning that the struct were aligned to an address
- * that was divisible by 4. On the CPMF, double data types are 64-bit
- * aligned. The "packed, aligned(4)" attribute combination is necessary
- * to enforce 32-bit alignment for double data types and to port the SBF
- * encoding/decoding functionality to the CPMF.
- */
-// The aligned variable attribute specifies a minimum alignment for the variable or
-// structure field, measured in bytes. The aligned attribute only increases the
-// alignment for a struct or struct member. For a variable that is not in a
-// structure, the minimum alignment is the natural alignment of the variable type. To
-// set the alignment in a structure to any value greater than 0, use the packed
-// variable attribute. Without packed, the minimum alignment is the natural alignment
-// of the variable type.
-
-#define SBFDOUBLE double __attribute__((packed, aligned(4)))
-#else
-#define SBFDOUBLE double
-#endif
-
-/* Force packing the structs on 4-byte alignment (needed for GCC 64 bit compilations)
- */
-#pragma pack(push, 4)
-// Clearly, there will be padding bytes for some structs, but those will be ignored
-// by our decoding software, as also suggested in the firmware. Example usages of
-// pragma directives: #pragma warn +xxx (To show the warning) #pragma startup func1
-// and #pragma exit func2  would not work with GCC compilers (just ignored)
-// printf("Size of A is: %ld", sizeof(A));  [%d works fine with signed, unsigned and
-// negative integer values, l stands for long], recall we want structs to avoid
-// wasting = padding To force compiler to use 1 byte packaging: #pragma pack(1) Same
-// result for struct s {int i...} __attribute__((packed)); could be shown via
-// printf("%zu ", offsetof(s, i)); #pragma pack()   // n defaults to 8; equivalent to
-// /Zp8, Valid values are 1, 2, 4, 8, and 16, forces the maximum alignment of each
-// field to be the value specified by n push: Pushes the current alignment setting on
-// an internal stack and then optionally sets the new alignment, identifier is also
-// allowed
-
 /**
  * @file sbf_structs.hpp
  * @brief Declares and defines structs into which SBF blocks are unpacked then
@@ -169,7 +131,15 @@ typedef struct
     uint8_t sync_1;  //!< first sync byte is $ or 0x24
     uint8_t sync_2;  //!< 2nd sync byte is @ or 0x40
     uint16_t crc;    //!< The check sum
-    uint16_t id;     //!< This is the block ID
+    union
+    {
+        uint16_t null; //!< This is only used for parsing
+        struct
+        {
+            uint16_t id : 13;
+            uint8_t rev :  3;
+        } ID; //!< This is the block ID, separated in id and rev
+    };
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
 } BlockHeader_t;
@@ -695,17 +665,17 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     x;
-    SBFDOUBLE     y;
-    SBFDOUBLE     z;
-    uint16_t      accuracy;
-    uint16_t      latency;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   x;
+    double   y;
+    double   z;
+    uint16_t accuracy;
+    uint16_t latency;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];
 } INSNavCart_1;
@@ -811,18 +781,18 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     latitude;
-    SBFDOUBLE     longitude;
-    SBFDOUBLE     height;
-    float         undulation;
-    uint16_t      accuracy;
-    uint16_t      latency;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   latitude;
+    double   longitude;
+    double   height;
+    float    undulation;
+    uint16_t accuracy;
+    uint16_t latency;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
 } INSNavGeod_1;
@@ -935,17 +905,17 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     latitude;
-    SBFDOUBLE     longitude;
-    SBFDOUBLE     height;
-    float         undulation;
-    uint16_t      accuracy;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   latitude;
+    double   longitude;
+    double   height;
+    float    undulation;
+    uint16_t accuracy;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     ExtEventINSNavGeodData_1   ExtEventINSNavGeodData[SBF_EXTEVENTINSNAVGEOD_LENGTH_1];     
 } ExtEventINSNavGeod_1;
@@ -1011,16 +981,16 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     x;
-    SBFDOUBLE     y;
-    SBFDOUBLE     z;
-    uint16_t      accuracy;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   x;
+    double   y;
+    double   z;
+    uint16_t accuracy;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     ExtEventINSNavCartData_1 ExtEventINSNavCartData[SBF_EXTEVENTINSNAVCART_LENGTH_1];
 } ExtEventINSNavCart_1;
@@ -1035,16 +1005,16 @@ typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
 
 typedef struct
 {
-    SBFDOUBLE  acceleration_X;
-    SBFDOUBLE  acceleration_Y;
-    SBFDOUBLE  acceleration_Z;
+    double  acceleration_X;
+    double  acceleration_Y;
+    double  acceleration_Z;
 } ExtSensorMeasAcceleration_1;
 
 typedef struct
 {
-    SBFDOUBLE  angular_rate_X;
-    SBFDOUBLE  angular_rate_Y;
-    SBFDOUBLE  angular_rate_Z;
+    double  angular_rate_X;
+    double  angular_rate_Y;
+    double  angular_rate_Z;
 } ExtSensorMeasAngularRate_1;
 
 typedef struct
@@ -1064,7 +1034,7 @@ typedef struct
 
 typedef struct
 {
-    SBFDOUBLE zero_velocity_flag;
+    double zero_velocity_flag;
 } ExtSensorMeasZeroVelocityFlag_1;
 
 typedef union
@@ -1107,11 +1077,6 @@ typedef ExtSensorMeasData_1 ExtSensorMeasData;
 typedef ExtSensorMeasSet_1 ExtSensorMeasSet;
 typedef ExtSensorMeas_1 ExtSensorMeas;
 
-#pragma pack(pop)
-// The above form of the pack pragma affects only class, struct, and union type
-// declarations between push and pop directives. (A pop directive with no prior push
-// results in a warning diagnostic from the compiler.)
-
 /**
  * @brief CRC look-up table for fast computation of the 16-bit CRC for SBF blocks.
  *
@@ -1150,7 +1115,7 @@ BlockHeader_t,
     (uint8_t, sync_1),
     (uint8_t, sync_2),
     (uint16_t, crc),
-    (uint16_t, id),
+    (uint16_t, null),
     (uint16_t, length)
 )
 
@@ -1305,7 +1270,7 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader_t()>
         blockHeader %= qi::byte_[_pass = (boost::spirit::_1 == 0x24)]
 		            >> qi::byte_[_pass = (boost::spirit::_1 == 0x40)]
 		            >> qi::little_word
-		            >> qi::little_word
+		            >> qi::little_word // TODO  mask = 8191 3 bits for revision
                     >> qi::little_word;
 	}
 

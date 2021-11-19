@@ -323,13 +323,17 @@ namespace parsing_utilities {
         }
     }
 
+    uint16_t getCrc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 2);
+    }
+
     uint16_t getId(const uint8_t* buffer)
     {
         // Defines bit mask..
-        // It is not as stated in the firmware: !first! three bits are for revision
-        // (not last 3), and rest for block number
+        // Highest three bits are for revision and rest for block number
         static uint16_t mask = 8191;
-        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
+        // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
 
         return parseUInt16(buffer + 4)  & mask;
     }
@@ -337,7 +341,7 @@ namespace parsing_utilities {
     uint16_t getLength(const uint8_t* buffer)
     {
         return parseUInt16(buffer + 6);
-    }
+    }   
 
     uint32_t getTow(const uint8_t* buffer)
     {
