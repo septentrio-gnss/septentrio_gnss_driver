@@ -182,7 +182,6 @@ extern bool g_attcoveuler_has_arrived_gpsfix;
 extern bool g_attcoveuler_has_arrived_pose;
 extern bool g_receiverstatus_has_arrived_diagnostics;
 extern bool g_qualityind_has_arrived_diagnostics;
-extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
@@ -276,10 +275,11 @@ namespace io_comm_rx {
          * The const-ness of the argument just means the function promises not to
          * change it.. Recall: static_cast by the way can remove or add const-ness,
          * no other C++ cast is capable of removing it (not even reinterpret_cast)
+         * @param[in] pNh  Pointer to the node handle
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(const uint8_t* data, std::size_t& size) : data_(data), count_(size)
+        RxMessage(std::shared_ptr<ros::NodeHandle> pNh, const uint8_t* data, std::size_t& size) : pNh_(pNh), data_(data), count_(size)
         {
             found_ = false;
             crc_check_ = false;
@@ -369,6 +369,11 @@ namespace io_comm_rx {
         bool found_;
 
     private:
+        /**
+         * @brief Pointer to the node handle
+         */
+        std::shared_ptr<ros::NodeHandle> pNh_;
+
         /**
          * @brief Pointer to the buffer of messages
          */

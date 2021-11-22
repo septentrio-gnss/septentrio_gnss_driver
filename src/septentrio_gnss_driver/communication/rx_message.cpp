@@ -2266,7 +2266,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4006;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PVTCartesian>("/pvtcartesian",
+				pNh_->advertise<septentrio_gnss_driver::PVTCartesian>("/pvtcartesian",
 																	  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2309,7 +2309,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_pvtgeodetic_has_arrived_navsatfix = true;
 			g_pvtgeodetic_has_arrived_pose = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PVTGeodetic>("/pvtgeodetic",
+				pNh_->advertise<septentrio_gnss_driver::PVTGeodetic>("/pvtgeodetic",
 																	 g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2349,7 +2349,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5905;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PosCovCartesian>(
+				pNh_->advertise<septentrio_gnss_driver::PosCovCartesian>(
 					"/poscovcartesian", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2391,7 +2391,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_poscovgeodetic_has_arrived_navsatfix = true;
 			g_poscovgeodetic_has_arrived_pose = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PosCovGeodetic>(
+				pNh_->advertise<septentrio_gnss_driver::PosCovGeodetic>(
 					"/poscovgeodetic", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2432,7 +2432,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_atteuler_has_arrived_gpsfix = true;
 			g_atteuler_has_arrived_pose = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::AttEuler>("/atteuler",
+				pNh_->advertise<septentrio_gnss_driver::AttEuler>("/atteuler",
 																  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2473,7 +2473,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_attcoveuler_has_arrived_gpsfix = true;
 			g_attcoveuler_has_arrived_pose = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::AttCovEuler>("/attcoveuler",
+				pNh_->advertise<septentrio_gnss_driver::AttCovEuler>("/attcoveuler",
 																	 g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2514,7 +2514,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4225;
 			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::INSNavCart>(
+				pNh_->advertise<septentrio_gnss_driver::INSNavCart>(
 					"/insnavcart", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2557,7 +2557,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_insnavgeod_has_arrived_navsatfix = true;
 			g_insnavgeod_has_arrived_pose = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
+				pNh_->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
 																	 g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2598,7 +2598,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4224;
 			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::IMUSetup>("/imusetup", 
+				pNh_->advertise<septentrio_gnss_driver::IMUSetup>("/imusetup", 
 																g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2639,7 +2639,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4244;
 			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::VelSensorSetup>("/velsensorsetup", 
+				pNh_->advertise<septentrio_gnss_driver::VelSensorSetup>("/velsensorsetup", 
 																g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2681,7 +2681,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4229;
 			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavCart>(
+				pNh_->advertise<septentrio_gnss_driver::ExtEventINSNavCart>(
 					"/exteventinsnavcart", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2722,7 +2722,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4230;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod",
+				pNh_->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod",
 																	  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2763,7 +2763,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4050;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::ExtSensorMeas>("/extsensormeas",
+				pNh_->advertise<septentrio_gnss_driver::ExtSensorMeas>("/extsensormeas",
 																	  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2800,7 +2800,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->time_ref.nsec = time_obj.nsec;
 			msg->source = "GPST";
 			static ros::Publisher publisher =
-				g_nh->advertise<sensor_msgs::TimeReference>("/gpst", g_ROS_QUEUE_SIZE);
+				pNh_->advertise<sensor_msgs::TimeReference>("/gpst", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
@@ -2859,7 +2859,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				throw std::runtime_error(e.what());
 			}
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgga>("/gpgga",
+				pNh_->advertise<septentrio_gnss_driver::Gpgga>("/gpgga",
 															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2916,7 +2916,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				throw std::runtime_error(e.what());
 			}
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gprmc>("/gprmc",
+				pNh_->advertise<septentrio_gnss_driver::Gprmc>("/gprmc",
 															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -2989,7 +2989,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgsa>("/gpgsa",
+				pNh_->advertise<septentrio_gnss_driver::Gpgsa>("/gpgsa",
 															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -3064,7 +3064,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgsv>("/gpgsv",
+				pNh_->advertise<septentrio_gnss_driver::Gpgsv>("/gpgsv",
 															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -3112,7 +3112,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				g_pvtgeodetic_has_arrived_navsatfix = false;
 				g_poscovgeodetic_has_arrived_navsatfix = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
+					pNh_->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
@@ -3157,7 +3157,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_insnavgeod_has_arrived_navsatfix = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
+					pNh_->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
@@ -3215,7 +3215,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				g_atteuler_has_arrived_gpsfix = false;
 				g_attcoveuler_has_arrived_gpsfix = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
+					pNh_->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
@@ -3268,7 +3268,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				g_dop_has_arrived_gpsfix = false;
 				g_insnavgeod_has_arrived_gpsfix = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
+					pNh_->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
@@ -3317,7 +3317,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				g_atteuler_has_arrived_pose = false;
 				g_attcoveuler_has_arrived_pose = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
+					pNh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
 						"/pose", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
@@ -3364,7 +3364,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 				g_insnavgeod_has_arrived_pose = false;
 				static ros::Publisher publisher =
-					g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
+					pNh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
 						"/pose", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
@@ -3424,7 +3424,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->block_header.id = 5908;
 			g_velcovgeodetic_has_arrived_gpsfix = true;
 			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::VelCovGeodetic>(
+				pNh_->advertise<septentrio_gnss_driver::VelCovGeodetic>(
 					"/velcovgeodetic", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
@@ -3476,7 +3476,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			g_receiverstatus_has_arrived_diagnostics = false;
 			g_qualityind_has_arrived_diagnostics = false;
 			static ros::Publisher publisher =
-				g_nh->advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics",
+				pNh_->advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics",
 																g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)

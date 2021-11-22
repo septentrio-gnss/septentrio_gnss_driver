@@ -139,7 +139,6 @@ extern bool g_publish_attcoveuler;
 extern bool g_publish_gpst;
 extern bool g_publish_navsatfix;
 extern ros::Timer g_reconnect_timer_;
-extern boost::shared_ptr<ros::NodeHandle> g_nh;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern std::string septentrio_receiver_type_;
 
@@ -158,9 +157,6 @@ extern bool g_publish_extsensormeas;
  * ROS parameters, ROS message publishing etc.
  */
 namespace rosaic_node {
-    //! Handles communication with the Rx
-    io_comm_rx::Comm_IO IO;
-
     /**
      * @brief Checks whether the parameter is in the given range
      * @param[in] val The value to check
@@ -202,16 +198,17 @@ namespace rosaic_node {
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
+     * @param[in] pNh Node handle pointer
      * @param[in] key The key to be used in the parameter server's dictionary
      * @param[out] u Storage for the retrieved value, of type U, which can be either
      * unsigned int or int
      * @return True if found, false if not found
      */
     template <typename U>
-    bool getROSInt(const std::string& key, U& u)
+    bool getROSInt(std::shared_ptr<ros::NodeHandle> pNh, const std::string& key, U& u)
     {
         int param;
-        if (!g_nh->getParam(key, param))
+        if (!pNh->getParam(key, param))
             return false;
         U min = std::numeric_limits<U>::lowest();
         U max = std::numeric_limits<U>::max();
@@ -230,6 +227,7 @@ namespace rosaic_node {
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
+     * @param[in] pNh Node handle pointer
      * @param[in] key The key to be used in the parameter server's dictionary
      * @param[out] u Storage for the retrieved value, of type U, which can be either
      * unsigned int or int
@@ -238,9 +236,9 @@ namespace rosaic_node {
      * @return True if found, false if not found
      */
     template <typename U>
-    void getROSInt(const std::string& key, U& u, U default_val)
+    void getROSInt(std::shared_ptr<ros::NodeHandle> pNh, const std::string& key, U& u, U default_val)
     {
-        if (!getROSInt(key, u))
+        if (!getROSInt(pNh, key, u))
             u = default_val;
     }
 
@@ -303,6 +301,10 @@ namespace rosaic_node {
         void connect();
 
     private:
+        //! Node handle pointer
+        std::shared_ptr<ros::NodeHandle> pNh_;
+        //! Handles communication with the Rx
+        io_comm_rx::Comm_IO IO_;
         //! Device port
         std::string device_;
         //! Baudrate

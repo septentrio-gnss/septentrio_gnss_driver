@@ -212,7 +212,8 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers() = default;
+        CallbackHandlers(std::shared_ptr<ros::NodeHandle> pNh) : pNh_(pNh)
+        {}
 
         /**
          * @brief Adds a pair to the multimap "callbackmap_", with the message_key
@@ -262,6 +263,9 @@ namespace io_comm_rx {
         CallbackMap callbackmap_;
 
     private:
+        //! Node handle pointer
+        std::shared_ptr<ros::NodeHandle> pNh_;
+
         //! The "static" keyword resolves construct-by-copying issues related to this
         //! mutex by making it available throughout the code unit. The mutex
         //! constructor list contains "mutex (const mutex&) = delete", hence

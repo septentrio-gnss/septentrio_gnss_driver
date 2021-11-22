@@ -389,7 +389,7 @@ namespace io_comm_rx {
 
     void CallbackHandlers::readCallback(const uint8_t* data, std::size_t& size)
     {
-        RxMessage rx_message(data, size);
+        RxMessage rx_message(pNh_, data, size);
         // Read !all! (there might be many) messages in the buffer
         while (rx_message.search() != rx_message.getEndBuffer() &&
                rx_message.found())

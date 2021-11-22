@@ -109,7 +109,7 @@ namespace io_comm_rx {
         /**
          * @brief Default constructor of the class Comm_IO
          */
-        Comm_IO();
+        Comm_IO(std::shared_ptr<ros::NodeHandle> pNh);
 
         /**
          * @brief Default destructor of the class Comm_IO

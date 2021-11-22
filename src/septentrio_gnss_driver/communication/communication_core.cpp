@@ -37,7 +37,7 @@
  * @brief Highest-Level view on communication services
  */
 
-io_comm_rx::Comm_IO::Comm_IO() : handlers_() {}
+io_comm_rx::Comm_IO::Comm_IO(std::shared_ptr<ros::NodeHandle> pNh) : handlers_(pNh) {}
 
 void io_comm_rx::Comm_IO::send(std::string cmd)
 {
