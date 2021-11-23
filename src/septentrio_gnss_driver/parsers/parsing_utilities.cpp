@@ -355,4 +355,25 @@ namespace parsing_utilities {
             return period_user / 1000;
         }
     }
+
+    uint16_t getId(const uint8_t* buffer)
+    {
+        // Defines bit mask..
+        // It is not as stated in the firmware: !first! three bits are for revision
+        // (not last 3), and rest for block number
+        static uint16_t mask = 8191;
+        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
+
+        return parseUInt16(buffer + 4)  & mask;
+    }
+
+    uint32_t getTow(const uint8_t* buffer)
+    {
+        return parseUInt32(buffer + 8);
+    }
+
+    uint16_t getWnc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 12);
+    }
 } // namespace parsing_utilities
