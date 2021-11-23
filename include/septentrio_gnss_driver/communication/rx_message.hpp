@@ -167,7 +167,6 @@ extern bool g_read_cd;
 extern uint32_t g_cd_count;
 extern uint32_t g_leap_seconds;
 extern const uint32_t g_ROS_QUEUE_SIZE;
-extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
 extern bool g_read_from_pcap;
 extern std::string septentrio_receiver_type_;

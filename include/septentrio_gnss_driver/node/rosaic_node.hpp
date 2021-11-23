@@ -128,28 +128,11 @@
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 
-extern bool g_publish_gpgga;
-extern bool g_publish_pvtcartesian;
-extern bool g_publish_pvtgeodetic;
-extern bool g_publish_poscovgeodetic;
-extern bool g_publish_velcovgeodetic;
-extern bool g_publish_poscovcartesian;
-extern bool g_publish_atteuler;
-extern bool g_publish_attcoveuler;
 extern bool g_publish_gpst;
 extern bool g_publish_navsatfix;
 extern ros::Timer g_reconnect_timer_;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern std::string septentrio_receiver_type_;
-
-//INS
-extern bool g_publish_insnavcart;
-extern bool g_publish_insnavgeod;
-extern bool g_publish_imusetup;
-extern bool g_publish_velsensorsetup;
-extern bool g_publish_exteventinsnavgeod;
-extern bool g_publish_exteventinsnavcart;
-extern bool g_publish_extsensormeas;
 
 /**
  * @namespace rosaic_node
