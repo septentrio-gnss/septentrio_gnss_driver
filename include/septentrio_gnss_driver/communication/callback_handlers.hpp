@@ -102,25 +102,6 @@
  * @brief Handles callbacks when reading NMEA/SBF messages
  */
 
-extern bool g_channelstatus_has_arrived_gpsfix;
-extern bool g_measepoch_has_arrived_gpsfix;
-extern bool g_dop_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_navsatfix;
-extern bool g_pvtgeodetic_has_arrived_pose;
-extern bool g_poscovgeodetic_has_arrived_gpsfix;
-extern bool g_poscovgeodetic_has_arrived_navsatfix;
-extern bool g_poscovgeodetic_has_arrived_pose;
-extern bool g_velcovgeodetic_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_pose;
-extern bool g_attcoveuler_has_arrived_gpsfix;
-extern bool g_attcoveuler_has_arrived_pose;
-extern bool g_insnavgeod_has_arrived_gpsfix;
-extern bool g_insnavgeod_has_arrived_navsatfix;
-extern bool g_insnavgeod_has_arrived_pose;
-extern bool g_receiverstatus_has_arrived_diagnostics;
-extern bool g_qualityind_has_arrived_diagnostics;
 extern bool g_publish_navsatfix;
 extern bool g_publish_gpsfix;
 extern bool g_publish_gpst;
@@ -212,7 +193,7 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers(std::shared_ptr<ros::NodeHandle> pNh) : pNh_(pNh)
+        CallbackHandlers(std::shared_ptr<ros::NodeHandle> pNh) : rx_message_(pNh)
         {}
 
         /**
@@ -263,8 +244,8 @@ namespace io_comm_rx {
         CallbackMap callbackmap_;
 
     private:
-        //! Node handle pointer
-        std::shared_ptr<ros::NodeHandle> pNh_;
+        //! RxMessage parser
+         RxMessage rx_message_;
 
         //! The "static" keyword resolves construct-by-copying issues related to this
         //! mutex by making it available throughout the code unit. The mutex

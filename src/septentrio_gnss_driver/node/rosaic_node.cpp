@@ -44,25 +44,6 @@ rosaic_node::ROSaicNode::ROSaicNode() :
     g_cd_received = false;
     g_read_cd = true;
     g_cd_count = 0;
-    g_channelstatus_has_arrived_gpsfix = false;
-    g_measepoch_has_arrived_gpsfix = false;
-    g_dop_has_arrived_gpsfix = false;
-    g_pvtgeodetic_has_arrived_gpsfix = false;
-    g_pvtgeodetic_has_arrived_navsatfix = false;
-    g_pvtgeodetic_has_arrived_pose = false;
-    g_poscovgeodetic_has_arrived_gpsfix = false;
-    g_poscovgeodetic_has_arrived_navsatfix = false;
-    g_poscovgeodetic_has_arrived_pose = false;
-    g_velcovgeodetic_has_arrived_gpsfix = false;
-    g_atteuler_has_arrived_gpsfix = false;
-    g_atteuler_has_arrived_pose = false;
-    g_attcoveuler_has_arrived_gpsfix = false;
-    g_attcoveuler_has_arrived_pose = false;
-    g_receiverstatus_has_arrived_diagnostics = false;
-    g_qualityind_has_arrived_diagnostics = false;
-    g_insnavgeod_has_arrived_gpsfix = false;
-    g_insnavgeod_has_arrived_navsatfix = false;
-    g_insnavgeod_has_arrived_pose = false;
 
     ROS_DEBUG("Called ROSaicNode() constructor..");
 
@@ -1306,57 +1287,6 @@ std::string g_rx_tcp_port;
 //! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
 //! to count the connection descriptors
 uint32_t g_cd_count;
-//! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
-//! not
-bool g_channelstatus_has_arrived_gpsfix;
-//! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
-bool g_measepoch_has_arrived_gpsfix;
-//! For GPSFix: Whether the DOP block of the current epoch has arrived or not
-bool g_dop_has_arrived_gpsfix;
-//! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
-bool g_pvtgeodetic_has_arrived_gpsfix;
-//! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
-//! not
-bool g_poscovgeodetic_has_arrived_gpsfix;
-//! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
-//! not
-bool g_velcovgeodetic_has_arrived_gpsfix;
-//! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
-bool g_atteuler_has_arrived_gpsfix;
-//! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
-bool g_attcoveuler_has_arrived_gpsfix;
-//! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
-bool g_insnavgeod_has_arrived_gpsfix;
-//! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
-//! not
-bool g_pvtgeodetic_has_arrived_navsatfix;
-//! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
-//! or not
-bool g_poscovgeodetic_has_arrived_navsatfix;
-//! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
-//! or not
-bool g_insnavgeod_has_arrived_navsatfix;
-//! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
-//! has arrived or not
-bool g_pvtgeodetic_has_arrived_pose;
-//! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
-//! epoch has arrived or not
-bool g_poscovgeodetic_has_arrived_pose;
-//! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
-//! has arrived or not
-bool g_atteuler_has_arrived_pose;
-//! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
-//! has arrived or not
-bool g_attcoveuler_has_arrived_pose;
-//! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
-//! has arrived or not
-bool g_insnavgeod_has_arrived_pose;
-//! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
-//! arrived or not
-bool g_receiverstatus_has_arrived_diagnostics;
-//! For DiagnosticArray: Whether the QualityInd block of the current epoch has
-//! arrived or not
-bool g_qualityind_has_arrived_diagnostics;
 //! When reading from an SBF file, the ROS publishing frequency is governed by the
 //! time stamps found in the SBF blocks therein.
 ros::Time g_unix_time;

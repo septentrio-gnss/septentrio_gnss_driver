@@ -166,29 +166,10 @@ extern bool g_use_gnss_time;
 extern bool g_read_cd;
 extern uint32_t g_cd_count;
 extern uint32_t g_leap_seconds;
-extern bool g_channelstatus_has_arrived_gpsfix;
-extern bool g_measepoch_has_arrived_gpsfix;
-extern bool g_dop_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_navsatfix;
-extern bool g_pvtgeodetic_has_arrived_pose;
-extern bool g_poscovgeodetic_has_arrived_gpsfix;
-extern bool g_poscovgeodetic_has_arrived_navsatfix;
-extern bool g_poscovgeodetic_has_arrived_pose;
-extern bool g_velcovgeodetic_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_pose;
-extern bool g_attcoveuler_has_arrived_gpsfix;
-extern bool g_attcoveuler_has_arrived_pose;
-extern bool g_receiverstatus_has_arrived_diagnostics;
-extern bool g_qualityind_has_arrived_diagnostics;
 extern const uint32_t g_ROS_QUEUE_SIZE;
 extern ros::Time g_unix_time;
 extern bool g_read_from_sbf_log;
 extern bool g_read_from_pcap;
-extern bool g_insnavgeod_has_arrived_gpsfix;
-extern bool g_insnavgeod_has_arrived_navsatfix;
-extern bool g_insnavgeod_has_arrived_pose;
 extern std::string septentrio_receiver_type_;
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
@@ -279,8 +260,77 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(std::shared_ptr<ros::NodeHandle> pNh, const uint8_t* data, std::size_t& size) : pNh_(pNh), data_(data), count_(size)
+        RxMessage(std::shared_ptr<ros::NodeHandle> pNh) : pNh_(pNh)
         {
+            found_ = false;
+            crc_check_ = false;
+            message_size_ = 0;
+                    
+            //! Pair of iterators to facilitate initialization of the map
+            std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
+            std::make_pair(static_cast<uint16_t>(0), evNoPVT),
+            std::make_pair(static_cast<uint16_t>(1), evStandAlone),
+            std::make_pair(static_cast<uint16_t>(2), evDGPS),
+            std::make_pair(static_cast<uint16_t>(3), evFixed),
+            std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
+            std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
+            std::make_pair(static_cast<uint16_t>(6), evSBAS),
+            std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
+            std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
+            std::make_pair(static_cast<uint16_t>(10), evPPP)};
+
+            type_of_pvt_map = TypeOfPVTMap(type_of_pvt_pairs, type_of_pvt_pairs + evPPP + 1);
+            
+            //! Pair of iterators to facilitate initialization of the map
+            std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
+            std::make_pair("NavSatFix", evNavSatFix),
+            std::make_pair("INSNavSatFix", evINSNavSatFix),   
+            std::make_pair("GPSFix", evGPSFix),
+            std::make_pair("INSGPSFix", evINSGPSFix),
+            std::make_pair("PoseWithCovarianceStamped", evPoseWithCovarianceStamped),
+            std::make_pair("INSPoseWithCovarianceStamped", evINSPoseWithCovarianceStamped),
+            std::make_pair("$GPGGA", evGPGGA),
+            std::make_pair("$GPRMC", evGPRMC),
+            std::make_pair("$GPGSA", evGPGSA),
+            std::make_pair("$GPGSV", evGPGSV),
+            std::make_pair("$GLGSV", evGLGSV),
+            std::make_pair("$GAGSV", evGAGSV),
+            std::make_pair("4006", evPVTCartesian),
+            std::make_pair("4007", evPVTGeodetic),
+            std::make_pair("5905", evPosCovCartesian),
+            std::make_pair("5906", evPosCovGeodetic),
+            std::make_pair("5938", evAttEuler),
+            std::make_pair("5939", evAttCovEuler),
+            std::make_pair("GPST", evGPST),
+            std::make_pair("4013", evChannelStatus),
+            std::make_pair("4027", evMeasEpoch),
+            std::make_pair("4001", evDOP),
+            std::make_pair("5908", evVelCovGeodetic),
+            std::make_pair("DiagnosticArray", evDiagnosticArray),
+            std::make_pair("4014", evReceiverStatus),
+            std::make_pair("4082", evQualityInd),
+            std::make_pair("5902", evReceiverSetup),
+            std::make_pair("4225", evINSNavCart),
+            std::make_pair("4226", evINSNavGeod),
+            std::make_pair("4230", evExtEventINSNavGeod),
+            std::make_pair("4229", evExtEventINSNavCart),
+            std::make_pair("4224", evIMUSetup),
+            std::make_pair("4244", evVelSensorSetup),
+            std::make_pair("4050", evExtSensorMeas)
+            };
+
+            rx_id_map = RxIDMap(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
+        }
+
+         /**
+         * @brief Put new data
+         * @param[in] data Pointer to the buffer that is about to be analyzed
+         * @param[in] size Size of the buffer (as handed over by async_read_some)
+         */
+        void newData(const uint8_t* data, std::size_t& size)
+        {
+            data_ = data;
+            count_ = size;
             found_ = false;
             crc_check_ = false;
             message_size_ = 0;
@@ -368,6 +418,41 @@ namespace io_comm_rx {
          */
         bool found_;
 
+         /**
+         * @brief Wether all blocks from GNSS have arrived for GpsFix Message
+         */
+        bool gnss_gpsfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for GpsFix Message
+         */
+        bool ins_gpsfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from GNSS have arrived for NavSatFix Message
+         */
+        bool gnss_navsatfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for NavSatFix Message
+         */
+        bool ins_navsatfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from GNSS have arrived for Pose Message
+         */
+        bool gnss_pose_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for Pose Message
+         */
+        bool ins_pose_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks have arrived for Diagnostics Message
+         */
+        bool diagnostics_complete(uint32_t id);
+
     private:
         /**
          * @brief Pointer to the node handle
@@ -399,78 +484,78 @@ namespace io_comm_rx {
         /**
          * @brief Number of times the gps_common::GPSFix message has been published
          */
-        static uint32_t count_gpsfix_;
+        uint32_t count_gpsfix_ = 0;
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
          * need to be stored
          */
-        static PVTGeodetic last_pvtgeodetic_;
+        PVTGeodetic last_pvtgeodetic_;
 
         /**
          * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic
          * blocks need to be stored
          */
-        static PosCovGeodetic last_poscovgeodetic_;
+        PosCovGeodetic last_poscovgeodetic_;
 
         /**
          * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to
          * be stored
          */
-        static AttEuler last_atteuler_;
+        AttEuler last_atteuler_;
 
         /**
          * @brief Since GPSFix etc. need AttCovEuler, incoming AttCovEuler blocks
          * need to be stored
          */
-        static AttCovEuler last_attcoveuler_;
+        AttCovEuler last_attcoveuler_;
 
         /**
          * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
-        static INSNavGeod last_insnavgeod_;
+        INSNavGeod last_insnavgeod_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
          * need to be stored
          */
-        static ChannelStatus last_channelstatus_;
+        ChannelStatus last_channelstatus_;
 
         /**
          * @brief Since GPSFix needs MeasEpoch (for SNRs), incoming MeasEpoch blocks
          * need to be stored
          */
-        static MeasEpoch last_measepoch_;
+        MeasEpoch last_measepoch_;
 
         /**
          * @brief Since GPSFix needs DOP, incoming DOP blocks need to be stored
          */
-        static DOP last_dop_;
+        DOP last_dop_;
 
         /**
          * @brief Since GPSFix needs VelCovGeodetic, incoming VelCovGeodetic blocks
          * need to be stored
          */
-        static VelCovGeodetic last_velcovgeodetic_;
+        VelCovGeodetic last_velcovgeodetic_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverStatus, incoming ReceiverStatus
          * blocks need to be stored
          */
-        static ReceiverStatus last_receiverstatus_;
+        ReceiverStatus last_receiverstatus_;
 
         /**
          * @brief Since DiagnosticArray needs QualityInd, incoming QualityInd blocks
          * need to be stored
          */
-        static QualityInd last_qualityind_;
+        QualityInd last_qualityind_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverSetup, incoming ReceiverSetup
          * blocks need to be stored
          */
-        static ReceiverSetup last_receiversetup_;
+        ReceiverSetup last_receiversetup_;
 
         //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
         //! to an enum value
@@ -480,7 +565,7 @@ namespace io_comm_rx {
          * @brief All instances of the RxMessage class shall have access to the map
          * without reinitializing it, hence static
          */
-        static TypeOfPVTMap type_of_pvt_map;
+        TypeOfPVTMap type_of_pvt_map;
 
         //! Shorthand for the map responsible for matching ROS message identifiers to
         //! an enum value
@@ -494,7 +579,7 @@ namespace io_comm_rx {
          * enumeration and makes the switch-case formalism in rx_message.hpp more
          * explicit.
          */
-        static RxIDMap rx_id_map;
+        RxIDMap rx_id_map;
 
         /**
          * @brief Callback function when reading PVTCartesian blocks
@@ -649,6 +734,64 @@ namespace io_comm_rx {
          * diagnostic_msgs::DiagnosticArray just created
          */
         diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
+
+        /**
+         * @brief Wether all elements are true
+         */
+        bool allTrue(std::vector<bool>& vec, uint32_t id);
+
+
+         //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
+        //! not
+        bool channelstatus_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
+        bool measepoch_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
+        bool dop_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
+        bool pvtgeodetic_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool poscovgeodetic_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool velcovgeodetic_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
+        bool atteuler_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
+        bool attcoveuler_has_arrived_gpsfix_ = false;
+        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+        bool insnavgeod_has_arrived_gpsfix_ = false;
+        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
+        //! not
+        bool pvtgeodetic_has_arrived_navsatfix_ = false;
+        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
+        //! or not
+        bool poscovgeodetic_has_arrived_navsatfix_ = false;
+        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
+        //! or not
+        bool insnavgeod_has_arrived_navsatfix_ = false;
+        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
+        //! has arrived or not
+        bool pvtgeodetic_has_arrived_pose_ = false;
+        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
+        //! epoch has arrived or not
+        bool poscovgeodetic_has_arrived_pose_ = false;
+        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
+        //! has arrived or not
+        bool atteuler_has_arrived_pose_ = false;
+        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
+        //! has arrived or not
+        bool attcoveuler_has_arrived_pose_ = false;
+        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_pose_ = false;
+        //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
+        //! arrived or not
+        bool receiverstatus_has_arrived_diagnostics_ = false;
+        //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
+        //! arrived or not
+        bool qualityind_has_arrived_diagnostics_ = false;
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

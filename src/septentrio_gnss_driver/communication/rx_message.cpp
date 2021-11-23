@@ -36,78 +36,6 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-uint32_t io_comm_rx::RxMessage::count_gpsfix_ = 0;
-PVTGeodetic io_comm_rx::RxMessage::last_pvtgeodetic_ = PVTGeodetic();
-PosCovGeodetic io_comm_rx::RxMessage::last_poscovgeodetic_ = PosCovGeodetic();
-AttEuler io_comm_rx::RxMessage::last_atteuler_ = AttEuler();
-AttCovEuler io_comm_rx::RxMessage::last_attcoveuler_ = AttCovEuler();
-ChannelStatus io_comm_rx::RxMessage::last_channelstatus_ = ChannelStatus();
-MeasEpoch io_comm_rx::RxMessage::last_measepoch_ = MeasEpoch();
-DOP io_comm_rx::RxMessage::last_dop_ = DOP();
-VelCovGeodetic io_comm_rx::RxMessage::last_velcovgeodetic_ = VelCovGeodetic();
-ReceiverStatus io_comm_rx::RxMessage::last_receiverstatus_ = ReceiverStatus();
-QualityInd io_comm_rx::RxMessage::last_qualityind_ = QualityInd();
-ReceiverSetup io_comm_rx::RxMessage::last_receiversetup_ = ReceiverSetup();
-INSNavGeod io_comm_rx::RxMessage::last_insnavgeod_ = INSNavGeod();
-
-//! Pair of iterators to facilitate initialization of the map
-std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
-    std::make_pair(static_cast<uint16_t>(0), evNoPVT),
-    std::make_pair(static_cast<uint16_t>(1), evStandAlone),
-    std::make_pair(static_cast<uint16_t>(2), evDGPS),
-    std::make_pair(static_cast<uint16_t>(3), evFixed),
-    std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
-    std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
-    std::make_pair(static_cast<uint16_t>(6), evSBAS),
-    std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
-    std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
-    std::make_pair(static_cast<uint16_t>(10), evPPP)};
-
-io_comm_rx::RxMessage::TypeOfPVTMap
-    io_comm_rx::RxMessage::type_of_pvt_map(type_of_pvt_pairs,
-                                           type_of_pvt_pairs + evPPP + 1);
-
-//! Pair of iterators to facilitate initialization of the map
-std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
-    std::make_pair("NavSatFix", evNavSatFix),
-    std::make_pair("INSNavSatFix", evINSNavSatFix),   
-    std::make_pair("GPSFix", evGPSFix),
-    std::make_pair("INSGPSFix", evINSGPSFix),
-    std::make_pair("PoseWithCovarianceStamped", evPoseWithCovarianceStamped),
-    std::make_pair("INSPoseWithCovarianceStamped", evINSPoseWithCovarianceStamped),
-    std::make_pair("$GPGGA", evGPGGA),
-    std::make_pair("$GPRMC", evGPRMC),
-    std::make_pair("$GPGSA", evGPGSA),
-    std::make_pair("$GPGSV", evGPGSV),
-    std::make_pair("$GLGSV", evGLGSV),
-    std::make_pair("$GAGSV", evGAGSV),
-    std::make_pair("4006", evPVTCartesian),
-    std::make_pair("4007", evPVTGeodetic),
-    std::make_pair("5905", evPosCovCartesian),
-    std::make_pair("5906", evPosCovGeodetic),
-    std::make_pair("5938", evAttEuler),
-    std::make_pair("5939", evAttCovEuler),
-    std::make_pair("GPST", evGPST),
-    std::make_pair("4013", evChannelStatus),
-    std::make_pair("4027", evMeasEpoch),
-    std::make_pair("4001", evDOP),
-    std::make_pair("5908", evVelCovGeodetic),
-    std::make_pair("DiagnosticArray", evDiagnosticArray),
-    std::make_pair("4014", evReceiverStatus),
-    std::make_pair("4082", evQualityInd),
-    std::make_pair("5902", evReceiverSetup),
-    std::make_pair("4225",evINSNavCart),
-    std::make_pair("4226",evINSNavGeod),
-    std::make_pair("4230",evExtEventINSNavGeod),
-    std::make_pair("4229",evExtEventINSNavCart),
-    std::make_pair("4224",evIMUSetup),
-    std::make_pair("4244",evVelSensorSetup),
-    std::make_pair("4050",evExtSensorMeas)
-};
-
-io_comm_rx::RxMessage::RxIDMap
-    io_comm_rx::RxMessage::rx_id_map(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
-
 septentrio_gnss_driver::PVTGeodeticPtr
 io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
@@ -2305,9 +2233,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4007;
-			g_pvtgeodetic_has_arrived_gpsfix = true;
-			g_pvtgeodetic_has_arrived_navsatfix = true;
-			g_pvtgeodetic_has_arrived_pose = true;
+			pvtgeodetic_has_arrived_gpsfix_ = true;
+			pvtgeodetic_has_arrived_navsatfix_ = true;
+			pvtgeodetic_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::PVTGeodetic>("/pvtgeodetic",
 																	 g_ROS_QUEUE_SIZE);
@@ -2387,9 +2315,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5906;
-			g_poscovgeodetic_has_arrived_gpsfix = true;
-			g_poscovgeodetic_has_arrived_navsatfix = true;
-			g_poscovgeodetic_has_arrived_pose = true;
+			poscovgeodetic_has_arrived_gpsfix_ = true;
+			poscovgeodetic_has_arrived_navsatfix_ = true;
+			poscovgeodetic_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::PosCovGeodetic>(
 					"/poscovgeodetic", g_ROS_QUEUE_SIZE);
@@ -2429,8 +2357,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5938;
-			g_atteuler_has_arrived_gpsfix = true;
-			g_atteuler_has_arrived_pose = true;
+			atteuler_has_arrived_gpsfix_ = true;
+			atteuler_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::AttEuler>("/atteuler",
 																  g_ROS_QUEUE_SIZE);
@@ -2470,8 +2398,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5939;
-			g_attcoveuler_has_arrived_gpsfix = true;
-			g_attcoveuler_has_arrived_pose = true;
+			attcoveuler_has_arrived_gpsfix_ = true;
+			attcoveuler_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::AttCovEuler>("/attcoveuler",
 																	 g_ROS_QUEUE_SIZE);
@@ -2553,9 +2481,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4226;
-			g_insnavgeod_has_arrived_gpsfix = true;
-			g_insnavgeod_has_arrived_navsatfix = true;
-			g_insnavgeod_has_arrived_pose = true;
+			insnavgeod_has_arrived_gpsfix_ = true;
+			insnavgeod_has_arrived_navsatfix_ = true;
+			insnavgeod_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
 																	 g_ROS_QUEUE_SIZE);
@@ -3109,8 +3037,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				time_obj = timestampSBF(tow, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
-				g_pvtgeodetic_has_arrived_navsatfix = false;
-				g_poscovgeodetic_has_arrived_navsatfix = false;
+				pvtgeodetic_has_arrived_navsatfix_ = false;
+				poscovgeodetic_has_arrived_navsatfix_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -3155,7 +3083,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				time_obj = timestampSBF(tow, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
-				g_insnavgeod_has_arrived_navsatfix = false;
+				insnavgeod_has_arrived_navsatfix_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -3206,14 +3134,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 				msg->status.header.stamp.nsec = time_obj.nsec;
 				++count_gpsfix_;
-				g_channelstatus_has_arrived_gpsfix = false;
-				g_measepoch_has_arrived_gpsfix = false;
-				g_dop_has_arrived_gpsfix = false;
-				g_pvtgeodetic_has_arrived_gpsfix = false;
-				g_poscovgeodetic_has_arrived_gpsfix = false;
-				g_velcovgeodetic_has_arrived_gpsfix = false;
-				g_atteuler_has_arrived_gpsfix = false;
-				g_attcoveuler_has_arrived_gpsfix = false;
+				channelstatus_has_arrived_gpsfix_ = false;
+				measepoch_has_arrived_gpsfix_ = false;
+				dop_has_arrived_gpsfix_ = false;
+				pvtgeodetic_has_arrived_gpsfix_ = false;
+				poscovgeodetic_has_arrived_gpsfix_ = false;
+				velcovgeodetic_has_arrived_gpsfix_ = false;
+				atteuler_has_arrived_gpsfix_ = false;
+				attcoveuler_has_arrived_gpsfix_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -3263,10 +3191,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 				msg->status.header.stamp.nsec = time_obj.nsec;
 				++count_gpsfix_;
-				g_channelstatus_has_arrived_gpsfix = false;
-				g_measepoch_has_arrived_gpsfix = false;
-				g_dop_has_arrived_gpsfix = false;
-				g_insnavgeod_has_arrived_gpsfix = false;
+				channelstatus_has_arrived_gpsfix_ = false;
+				measepoch_has_arrived_gpsfix_ = false;
+				dop_has_arrived_gpsfix_ = false;
+				insnavgeod_has_arrived_gpsfix_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -3312,10 +3240,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				time_obj = timestampSBF(tow, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
-				g_pvtgeodetic_has_arrived_pose = false;
-				g_poscovgeodetic_has_arrived_pose = false;
-				g_atteuler_has_arrived_pose = false;
-				g_attcoveuler_has_arrived_pose = false;
+				pvtgeodetic_has_arrived_pose_ = false;
+				poscovgeodetic_has_arrived_pose_ = false;
+				atteuler_has_arrived_pose_ = false;
+				attcoveuler_has_arrived_pose_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
 						"/pose", g_ROS_QUEUE_SIZE);
@@ -3362,7 +3290,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				time_obj = timestampSBF(tow, g_use_gnss_time);
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
-				g_insnavgeod_has_arrived_pose = false;
+				insnavgeod_has_arrived_pose_ = false;
 				static ros::Publisher publisher =
 					pNh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
 						"/pose", g_ROS_QUEUE_SIZE);
@@ -3394,19 +3322,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evChannelStatus:
 		{
 			memcpy(&last_channelstatus_, data_, sizeof(last_channelstatus_));
-			g_channelstatus_has_arrived_gpsfix = true;
+			channelstatus_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evMeasEpoch:
 		{
 			memcpy(&last_measepoch_, data_, sizeof(last_measepoch_));
-			g_measepoch_has_arrived_gpsfix = true;
+			measepoch_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evDOP:
 		{
 			memcpy(&last_dop_, data_, sizeof(last_dop_));
-			g_dop_has_arrived_gpsfix = true;
+			dop_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evVelCovGeodetic:
@@ -3422,7 +3350,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5908;
-			g_velcovgeodetic_has_arrived_gpsfix = true;
+			velcovgeodetic_has_arrived_gpsfix_ = true;
 			static ros::Publisher publisher =
 				pNh_->advertise<septentrio_gnss_driver::VelCovGeodetic>(
 					"/velcovgeodetic", g_ROS_QUEUE_SIZE);
@@ -3473,8 +3401,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			time_obj = timestampSBF(tow, g_use_gnss_time);
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
-			g_receiverstatus_has_arrived_diagnostics = false;
-			g_qualityind_has_arrived_diagnostics = false;
+			receiverstatus_has_arrived_diagnostics_ = false;
+			qualityind_has_arrived_diagnostics_ = false;
 			static ros::Publisher publisher =
 				pNh_->advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics",
 																g_ROS_QUEUE_SIZE);
@@ -3504,13 +3432,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evReceiverStatus:
 		{
 			memcpy(&last_receiverstatus_, data_, sizeof(last_receiverstatus_));
-			g_receiverstatus_has_arrived_diagnostics = true;
+			receiverstatus_has_arrived_diagnostics_ = true;
 			break;
 		}
 		case evQualityInd:
 		{
 			memcpy(&last_qualityind_, data_, sizeof(last_qualityind_));
-			g_qualityind_has_arrived_diagnostics = true;
+			qualityind_has_arrived_diagnostics_ = true;
 			break;
 		}
 		case evReceiverSetup:
@@ -3522,4 +3450,74 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		// Many more to be implemented...
     }
     return true;
+}
+
+bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)
+{
+	std::vector<bool> gpsfix_vec = {
+	channelstatus_has_arrived_gpsfix_,
+	measepoch_has_arrived_gpsfix_,
+	dop_has_arrived_gpsfix_,
+	pvtgeodetic_has_arrived_gpsfix_,
+	poscovgeodetic_has_arrived_gpsfix_,
+	velcovgeodetic_has_arrived_gpsfix_,
+	atteuler_has_arrived_gpsfix_,
+	attcoveuler_has_arrived_gpsfix_};
+	return allTrue(gpsfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_gpsfix_complete(uint32_t id)
+{
+	std::vector<bool> gpsfix_vec = {
+	channelstatus_has_arrived_gpsfix_,
+	measepoch_has_arrived_gpsfix_,
+	dop_has_arrived_gpsfix_,
+	insnavgeod_has_arrived_gpsfix_};
+	return allTrue(gpsfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::gnss_navsatfix_complete(uint32_t id)
+{
+	std::vector<bool> navsatfix_vec = {
+		pvtgeodetic_has_arrived_navsatfix_,
+		poscovgeodetic_has_arrived_navsatfix_};
+	return allTrue(navsatfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_navsatfix_complete(uint32_t id)
+{
+	std::vector<bool> navsatfix_vec = {
+	insnavgeod_has_arrived_navsatfix_};
+	return allTrue(navsatfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::gnss_pose_complete(uint32_t id)
+{
+	std::vector<bool> pose_vec = {pvtgeodetic_has_arrived_pose_,
+								poscovgeodetic_has_arrived_pose_,
+								atteuler_has_arrived_pose_,
+								attcoveuler_has_arrived_pose_};
+	return allTrue(pose_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_pose_complete(uint32_t id)
+{
+	 std::vector<bool> pose_vec = {insnavgeod_has_arrived_pose_};
+	return allTrue(pose_vec, id);
+}
+
+bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
+{
+	std::vector<bool> diagnostics_vec = {
+		receiverstatus_has_arrived_diagnostics_,
+		qualityind_has_arrived_diagnostics_};
+	return allTrue(diagnostics_vec, id);
+}
+
+bool io_comm_rx::RxMessage::allTrue(std::vector<bool>& vec, uint32_t id)
+{
+	vec.erase(vec.begin() + id);
+	// Checks whether all entries in vec are true
+	return (std::all_of(vec.begin(), vec.end(),
+						[](bool v) { return v; }) == true);
 }
