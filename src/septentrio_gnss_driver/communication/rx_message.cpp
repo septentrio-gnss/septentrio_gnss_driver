@@ -2199,22 +2199,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2242,22 +2227,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2282,22 +2252,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2324,22 +2279,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2365,22 +2305,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2406,22 +2331,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2447,22 +2357,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2490,22 +2385,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2531,22 +2411,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2572,22 +2437,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2614,22 +2464,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2655,22 +2490,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2696,22 +2516,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2732,22 +2537,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2792,23 +2582,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				ros::Time time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2849,23 +2624,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				ros::Time time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2922,23 +2682,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				ros::Time time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -2997,23 +2742,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				ros::Time time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -3044,22 +2774,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3089,22 +2804,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3147,22 +2847,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3200,22 +2885,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3250,22 +2920,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3297,22 +2952,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (g_read_from_sbf_log || g_read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
 				publisher.publish(*msg);
 				break;
@@ -3357,22 +2997,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break;
@@ -3409,22 +3034,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (g_read_from_sbf_log || g_read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
 			publisher.publish(*msg);
 			break; 
@@ -3450,6 +3060,26 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		// Many more to be implemented...
     }
     return true;
+}
+
+void io_comm_rx::RxMessage::wait(const ros::Time& time_obj)
+{
+	ros::Time unix_old = unix_time_;
+	unix_time_ = time_obj;
+	if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
+		(unix_time_.sec != unix_old.sec ||
+			unix_time_.nsec != unix_old.nsec))
+	{
+		std::stringstream ss;
+		ss << "Waiting for " << unix_time_.sec - unix_old.sec
+			<< " seconds and "
+			<< abs(int((unix_time_.nsec - unix_old.nsec) / 1000))
+			<< " microseconds";
+		ROS_DEBUG("%s", ss.str().c_str());
+		sleep((unsigned int)(unix_time_.sec - unix_old.sec));
+		usleep(static_cast<uint32_t>(
+			abs(int((unix_time_.nsec - unix_old.nsec) / 1000))));
+	}
 }
 
 bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)

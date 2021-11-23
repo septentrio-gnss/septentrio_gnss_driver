@@ -260,7 +260,9 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(std::shared_ptr<ros::NodeHandle> pNh) : pNh_(pNh)
+        RxMessage(std::shared_ptr<ros::NodeHandle> pNh) :
+            pNh_(pNh),
+            unix_time_(0)
         {
             found_ = false;
             crc_check_ = false;
@@ -581,6 +583,79 @@ namespace io_comm_rx {
          */
         RxIDMap rx_id_map;
 
+        //! When reading from an SBF file, the ROS publishing frequency is governed by the
+        //! time stamps found in the SBF blocks therein.
+        ros::Time unix_time_;
+
+        //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
+        //! not
+        bool channelstatus_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
+        bool measepoch_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
+        bool dop_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
+        bool pvtgeodetic_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool poscovgeodetic_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool velcovgeodetic_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
+        bool atteuler_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
+        bool attcoveuler_has_arrived_gpsfix_ = false;
+
+        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+        bool insnavgeod_has_arrived_gpsfix_ = false;
+
+        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
+        //! not
+        bool pvtgeodetic_has_arrived_navsatfix_ = false;
+
+        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
+        //! or not
+        bool poscovgeodetic_has_arrived_navsatfix_ = false;
+
+        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
+        //! or not
+        bool insnavgeod_has_arrived_navsatfix_ = false;
+        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
+        //! has arrived or not
+        bool pvtgeodetic_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
+        //! epoch has arrived or not
+        bool poscovgeodetic_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
+        //! has arrived or not
+        bool atteuler_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
+        //! has arrived or not
+        bool attcoveuler_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_pose_ = false;
+
+        //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
+        //! arrived or not
+        bool receiverstatus_has_arrived_diagnostics_ = false;
+        
+        //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
+        //! arrived or not
+        bool qualityind_has_arrived_diagnostics_ = false;
+
         /**
          * @brief Callback function when reading PVTCartesian blocks
          * @param[in] data The (packed and aligned) struct instance used to populate
@@ -735,63 +810,15 @@ namespace io_comm_rx {
          */
         diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
 
+         /**
+         * @brief Waits according to time when reading from file
+         */
+        void wait(const ros::Time& time_obj);
+
         /**
          * @brief Wether all elements are true
          */
-        bool allTrue(std::vector<bool>& vec, uint32_t id);
-
-
-         //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
-        //! not
-        bool channelstatus_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
-        bool measepoch_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
-        bool dop_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
-        bool pvtgeodetic_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
-        //! not
-        bool poscovgeodetic_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
-        //! not
-        bool velcovgeodetic_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
-        bool atteuler_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
-        bool attcoveuler_has_arrived_gpsfix_ = false;
-        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
-        bool insnavgeod_has_arrived_gpsfix_ = false;
-        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
-        //! not
-        bool pvtgeodetic_has_arrived_navsatfix_ = false;
-        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
-        //! or not
-        bool poscovgeodetic_has_arrived_navsatfix_ = false;
-        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
-        //! or not
-        bool insnavgeod_has_arrived_navsatfix_ = false;
-        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
-        //! has arrived or not
-        bool pvtgeodetic_has_arrived_pose_ = false;
-        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
-        //! epoch has arrived or not
-        bool poscovgeodetic_has_arrived_pose_ = false;
-        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
-        //! has arrived or not
-        bool atteuler_has_arrived_pose_ = false;
-        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
-        //! has arrived or not
-        bool attcoveuler_has_arrived_pose_ = false;
-        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
-        //! has arrived or not
-        bool insnavgeod_has_arrived_pose_ = false;
-        //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
-        //! arrived or not
-        bool receiverstatus_has_arrived_diagnostics_ = false;
-        //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
-        //! arrived or not
-        bool qualityind_has_arrived_diagnostics_ = false;
+        bool allTrue(std::vector<bool>& vec, uint32_t id);        
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

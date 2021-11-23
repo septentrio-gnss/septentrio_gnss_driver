@@ -872,8 +872,6 @@ void rosaic_node::ROSaicNode::initializeIO()
         serial_ = false;
         g_read_from_sbf_log = true;
         g_read_from_pcap = false;
-        g_unix_time.sec = 0;
-        g_unix_time.nsec = 0;
         boost::thread temporary_thread(
             boost::bind(&ROSaicNode::prepareSBFFileReading, this, match[2]));
         temporary_thread.detach();
@@ -885,8 +883,6 @@ void rosaic_node::ROSaicNode::initializeIO()
         serial_ = false;
         g_read_from_sbf_log = false;
         g_read_from_pcap = true;
-        g_unix_time.sec = 0;
-        g_unix_time.nsec = 0;
         boost::thread temporary_thread(
             boost::bind(&ROSaicNode::preparePCAPFileReading, this, match[2]));
         temporary_thread.detach();
@@ -1287,9 +1283,6 @@ std::string g_rx_tcp_port;
 //! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
 //! to count the connection descriptors
 uint32_t g_cd_count;
-//! When reading from an SBF file, the ROS publishing frequency is governed by the
-//! time stamps found in the SBF blocks therein.
-ros::Time g_unix_time;
 //! Whether or not we are reading from an SBF file
 bool g_read_from_sbf_log;
 //! Whether or not we are reading from a PCAP file
