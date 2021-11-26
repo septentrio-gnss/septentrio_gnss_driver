@@ -54,7 +54,7 @@ rosaic_node::ROSaicNode::ROSaicNode() :
 
     // Sends commands to the Rx regarding which SBF/NMEA messages it should output
     // and sets all its necessary corrections-related parameters
-    if (!g_read_from_sbf_log && !g_read_from_pcap)
+    if (!settings_.read_from_sbf_log && !settings_.read_from_pcap)
     {
         IO_.configureRx();
     }
@@ -73,7 +73,7 @@ void rosaic_node::ROSaicNode::getROSParams()
     pNh_->param("publish/gpsfix", settings_.publish_gpsfix, true);
     pNh_->param("publish/pose", settings_.publish_pose, true);
     pNh_->param("publish/diagnostics", settings_.publish_diagnostics, true);
-    getROSInt(pNh_, "leap_seconds", g_leap_seconds,
+    getROSInt(pNh_, "leap_seconds", settings_.leap_seconds,
                            static_cast<uint32_t>(18));
 
     // Communication parameters
@@ -205,18 +205,11 @@ void rosaic_node::ROSaicNode::getROSParams()
     ROS_DEBUG("Finished getROSParams() method");
 };
 
-//! The number of leap seconds that have been inserted into the UTC time
-uint32_t g_leap_seconds;
 //! Rx TCP port, e.g. IP10 or IP11, to which ROSaic is connected to
 std::string g_rx_tcp_port;
 //! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
 //! to count the connection descriptors
 uint32_t g_cd_count;
-//! Whether or not we are reading from an SBF file
-bool g_read_from_sbf_log;
-//! Whether or not we are reading from a PCAP file
-bool g_read_from_pcap;
-
 
 int main(int argc, char** argv)
 {

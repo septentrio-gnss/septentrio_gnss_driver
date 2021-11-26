@@ -144,16 +144,16 @@ void io_comm_rx::Comm_IO::initializeIO()
         tcp_port_ = match[3];
 
         serial_ = false;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = false;
+        settings_->read_from_sbf_log = false;
+        settings_->read_from_pcap = false;
         boost::thread temporary_thread(boost::bind(&Comm_IO::connect, this));
         temporary_thread.detach();
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
         serial_ = false;
-        g_read_from_sbf_log = true;
-        g_read_from_pcap = false;
+        settings_->read_from_sbf_log = true;
+        settings_->read_from_pcap = false;
         boost::thread temporary_thread(
             boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2]));
         temporary_thread.detach();
@@ -163,8 +163,8 @@ void io_comm_rx::Comm_IO::initializeIO()
                    boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
     {
         serial_ = false;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = true;
+        settings_->read_from_sbf_log = false;
+        settings_->read_from_pcap = true;
         boost::thread temporary_thread(
             boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2]));
         temporary_thread.detach();
@@ -172,8 +172,8 @@ void io_comm_rx::Comm_IO::initializeIO()
     } else if (boost::regex_match(settings_->device, match, boost::regex("(serial):(.+)")))
     {
         serial_ = true;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = false;
+        settings_->read_from_sbf_log = false;
+        settings_->read_from_pcap = false;
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;

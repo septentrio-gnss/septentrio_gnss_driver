@@ -164,9 +164,6 @@
 
 extern bool g_read_cd;
 extern uint32_t g_cd_count;
-extern uint32_t g_leap_seconds;
-extern bool g_read_from_sbf_log;
-extern bool g_read_from_pcap;
 
 //! Settings struct
 struct Settings
@@ -335,6 +332,12 @@ struct Settings
     bool use_gnss_time;
     //! The frame ID used in the header of every published ROS message
     std::string frame_id;
+    //! The number of leap seconds that have been inserted into the UTC time
+    uint32_t leap_seconds;
+    //! Whether or not we are reading from an SBF file
+    bool read_from_sbf_log;
+    //! Whether or not we are reading from a PCAP file
+    bool read_from_pcap;
 };
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
@@ -395,18 +398,7 @@ enum RxID_Enum
 };
 
 namespace io_comm_rx {
-    /**
-     * @brief Calculates the timestamp, in the Unix Epoch time format
-     * This is either done using the TOW as transmitted with the SBF block (if
-     * "use_gnss" is true), or using the current time.
-     * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
-     * beginning of the current GPS week as transmitted by the SBF block
-     * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
-     * used, otherwise the current time
-     * @return ros::Time object containing seconds and nanoseconds since last epoch
-     */
-    ros::Time timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss);
-
+   
     /**
      * @class RxMessage
      * @brief Can search buffer for messages, read/parse them, and so on
@@ -989,7 +981,21 @@ namespace io_comm_rx {
         /**
          * @brief Settings struct
          */
-        Settings* settings_;      
+        Settings* settings_;  
+
+        /**
+         * @brief Calculates the timestamp, in the Unix Epoch time format
+         * This is either done using the TOW as transmitted with the SBF block (if
+         * "use_gnss" is true), or using the current time.
+         * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
+         * beginning of the current GPS week as transmitted by the SBF block
+         * @param[in] wnc (Week Number Counter) counts the number of complete weeks 
+         * elapsed since January 6, 1980
+         * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
+         * used, otherwise the current time
+         * @return ros::Time object containing seconds and nanoseconds since last epoch
+         */
+        ros::Time timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);    
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP
