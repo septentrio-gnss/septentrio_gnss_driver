@@ -76,7 +76,7 @@ namespace io_comm_rx {
 
     //! The for loop forwards to a ROS message specific handle if the latter was
     //! added via callbackmap_.insert at some earlier point.
-    void CallbackHandlers::handle(RxMessage& rx_message_)
+    void CallbackHandlers::handle()
     {
         // Find the ROS message callback handler for the equivalent Rx message
         // (SBF/NMEA) at hand & call it
@@ -102,7 +102,7 @@ namespace io_comm_rx {
             }
         }
         // Call NavSatFix callback function if it was added for GNSS 
-		if (septentrio_receiver_type_ == "gnss")
+		if (settings_->septentrio_receiver_type == "gnss")
 		{
 			if (g_publish_navsatfix)
 			{
@@ -128,7 +128,7 @@ namespace io_comm_rx {
 			}
 		}
         // Call NavSatFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
             if (g_publish_navsatfix)
             {
@@ -155,7 +155,7 @@ namespace io_comm_rx {
         }
         // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
         // added for GNSS
-        if (septentrio_receiver_type_ == "gnss")
+        if (settings_->septentrio_receiver_type == "gnss")
         {
             if (g_publish_pose)
             {
@@ -182,7 +182,7 @@ namespace io_comm_rx {
         }
         // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
         // added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
             if (g_publish_pose)
             {
@@ -247,7 +247,7 @@ namespace io_comm_rx {
 		}
         // Call sensor_msgs::TimeReference (with GPST) callback function if it was
         // added
-        if (septentrio_receiver_type_ == "gnss")
+        if (settings_->septentrio_receiver_type == "gnss")
         {
             if (g_publish_gpst)
             {
@@ -271,7 +271,7 @@ namespace io_comm_rx {
                 }
             }
         }
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
             if (g_publish_gpst)
             {
@@ -296,7 +296,7 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for GNSS
-        if (septentrio_receiver_type_ == "gnss")
+        if (settings_->septentrio_receiver_type == "gnss")
         {
             if (g_publish_gpsfix)
             {
@@ -340,7 +340,7 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
             if (g_publish_gpsfix)
             {
@@ -411,7 +411,7 @@ namespace io_comm_rx {
                     throw(
                         static_cast<std::size_t>(rx_message_.getPosBuffer() - data));
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
                     if (g_publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
@@ -424,7 +424,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
                     if (g_publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" || ID_temp == "4226"))
@@ -435,7 +435,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
                     if (g_publish_navsatfix == true &&
                     (ID_temp == "4007" || ID_temp == "5906"))
@@ -446,7 +446,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
                     if (g_publish_navsatfix == true &&
                     (ID_temp == "4226"))
@@ -457,7 +457,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
                     if (g_publish_pose == true &&
                     (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5938" ||
@@ -469,7 +469,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
                     if (g_publish_pose == true &&
                     (ID_temp == "4226"))
@@ -547,7 +547,7 @@ namespace io_comm_rx {
             }
             try
             {
-                handle(rx_message_);
+                handle();
             } catch (std::runtime_error& e)
             {
                 ROS_DEBUG("Incomplete message: %s", e.what());

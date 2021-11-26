@@ -166,10 +166,161 @@ extern bool g_use_gnss_time;
 extern bool g_read_cd;
 extern uint32_t g_cd_count;
 extern uint32_t g_leap_seconds;
-extern const uint32_t g_ROS_QUEUE_SIZE;
 extern bool g_read_from_sbf_log;
 extern bool g_read_from_pcap;
-extern std::string septentrio_receiver_type_;
+
+//! Settings struct
+struct Settings
+{
+    //! Device port
+    std::string device;
+    //! Delay in seconds between reconnection attempts to the connection type
+    //! specified in the parameter connection_type
+    float reconnect_delay_s;
+    //! Baudrate
+    uint32_t baudrate;
+    //! HW flow control
+    std::string hw_flow_control;
+    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
+    //! serial port connected to, e.g. USB1 or COM1
+    std::string rx_serial_port;
+    //! Datum to be used
+    std::string datum;
+    //! Polling period for PVT-related SBF blocks
+    uint32_t polling_period_pvt;
+    //! Polling period for all other SBF blocks and NMEA messages
+    uint32_t polling_period_rest;
+    //! Marker-to-ARP offset in the eastward direction
+    float delta_e;
+    //! Marker-to-ARP offset in the northward direction
+    float delta_n;
+    //! Marker-to-ARP offset in the upward direction
+    float delta_u;
+    //! Marker-to-Aux1-ARP offset in the eastward direction
+    float delta_aux1_e;
+    //! Marker-to-Aux1-ARP offset in the northward direction
+    float delta_aux1_n;
+    //! Marker-to-Aux1-ARP offset in the upward direction
+    float delta_aux1_u;
+    //! Main antenna type, from the list returned by the command "lstAntennaInfo,
+    //! Overview"
+    std::string ant_type;
+    //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
+    //! Overview"
+    std::string ant_aux1_type;
+    //! Serial number of your particular Main antenna
+    std::string ant_serial_nr;
+    //! Serial number of your particular Aux1 antenna
+    std::string ant_aux1_serial_nr;
+    //! IMU orientation mode helper variable
+    bool manual;
+    //! IMU orientation x-angle
+    float theta_x;
+    //! IMU orientation y-angle
+    float theta_y_;
+    //! IMU orientation z-angle
+    float theta_z;
+    //! INS antenna lever arm x-offset
+    float ant_lever_x;
+    //! INS antenna lever arm y-offset
+    float ant_lever_y;
+    //! INS antenna lever arm z-offset
+    float ant_lever_z;
+    //! INS POI offset in x-dimension
+    float poi_x;
+    //! INS POI offset in y-dimension
+    float poi_y;
+    //! INS POI offset in z-dimension
+    float poi_z;
+    //! INS velocity sensor lever arm x-offset
+    float vsm_x;
+    //! INS velocity sensor lever arm y-offset
+    float vsm_y;
+    //! INS velocity sensor lever arm z-offset
+    float vsm_z;
+    //! Attitude offset determination in longitudinal direction
+    float heading_offset;
+    //! Attitude offset determination in latitudinal direction
+    float pitch_offset;
+    //! INS solution reference point
+    bool ins_use_poi;
+    //! For heading computation when unit is powered-cycled
+    std::string ins_initial_heading;
+    //! Attitude deviation mask
+    float att_std_dev;
+    //! Position deviation mask
+    float pos_std_dev;
+    //! Type of NTRIP connection
+    std::string ntrip_mode;
+    //! Hostname or IP address of the NTRIP caster to connect to
+    std::string caster;
+    //! IP port number of NTRIP caster to connect to
+    uint32_t caster_port;
+    //! Username for NTRIP service
+    std::string ntrip_username;
+    //! Password for NTRIP service
+    std::string ntrip_password;
+    //! Mountpoint for NTRIP service
+    std::string mountpoint;
+    //! NTRIP version for NTRIP service
+    std::string ntrip_version;
+    //! Whether Rx has internet or not
+    bool rx_has_internet;
+    //! RTCM version for NTRIP service (if Rx does not have internet)
+    std::string rtcm_version;
+    //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
+    //! (can't be the same as main connection unless localhost concept is used)
+    uint32_t rx_input_corrections_tcp;
+    //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
+    //! the same as main connection unless localhost concept is used)
+    std::string rx_input_corrections_serial;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string send_gga;
+    //! Whether or not to publish the GGA message
+    bool publish_gpgga;
+    //! Whether or not to publish the RMC message
+    bool publish_gprmc;
+    //! Whether or not to publish the GSA message
+    bool publish_gpgsa;
+    //! Whether or not to publish the GSV message
+    bool publish_gpgsv;
+    //! Whether or not to publish the septentrio_gnss_driver::PVTCartesian
+    //! message
+    bool publish_pvtcartesian;
+    //! Whether or not to publish the septentrio_gnss_driver::PVTGeodetic message
+    bool publish_pvtgeodetic;
+    //! Whether or not to publish the septentrio_gnss_driver::PosCovCartesian
+    //! message
+    bool publish_poscovcartesian;
+    //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
+    //! message
+    bool publish_poscovgeodetic;
+    //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
+    //! message
+    bool publish_velcovgeodetic;
+    //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
+    bool publish_atteuler;
+    //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
+    bool publish_attcoveuler;
+    //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
+    bool publish_insnavcart;
+    //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
+    bool publish_insnavgeod;
+    //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
+    bool publish_imusetup;
+    //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
+    bool publish_velsensorsetup;
+    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavGeod message
+    bool publish_exteventinsnavgeod;
+    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
+    bool publish_exteventinsnavcart;
+    //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
+    bool publish_extsensormeas;
+    //! Queue size for ROS publishers
+    const uint32_t g_ROS_QUEUE_SIZE = 1;
+    //! Septentrio receiver type, either "gnss" or "ins"
+    std::string septentrio_receiver_type;
+};
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field
@@ -259,8 +410,9 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(std::shared_ptr<ros::NodeHandle> pNh) :
+        RxMessage(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
             pNh_(pNh),
+            settings_(settings),
             unix_time_(0)
         {
             found_ = false;
@@ -817,7 +969,12 @@ namespace io_comm_rx {
         /**
          * @brief Wether all elements are true
          */
-        bool allTrue(std::vector<bool>& vec, uint32_t id);        
+        bool allTrue(std::vector<bool>& vec, uint32_t id);  
+
+        /**
+         * @brief Settings struct
+         */
+        Settings* settings_;      
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

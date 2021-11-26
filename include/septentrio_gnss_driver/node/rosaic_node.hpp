@@ -72,9 +72,6 @@
 
 extern bool g_publish_gpst;
 extern bool g_publish_navsatfix;
-extern ros::Timer g_reconnect_timer_;
-extern const uint32_t g_ROS_QUEUE_SIZE;
-extern std::string septentrio_receiver_type_;
 
 /**
  * @namespace rosaic_node
@@ -185,63 +182,15 @@ namespace rosaic_node {
          *
          * The other ROSaic parameters are specified via the command line.
          */
-        void getROSParams();
-
-        /**
-         * @brief Initializes the I/O handling
-         */
-        void initializeIO();
-
-        /**
-         * @brief Sets up the stage for SBF file reading
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
-         */
-        void prepareSBFFileReading(std::string file_name);
-
-        /**
-         * @brief Sets up the stage for PCAP file reading
-         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
-         */
-        void preparePCAPFileReading(std::string file_name);
-
-        /**
-         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
-         */
-        void reconnect(const ros::TimerEvent& event);
-
-        /**
-         * @brief Calls the reconnect() method
-         */
-        void connect();
+        void getROSParams();        
 
     private:
         //! Node handle pointer
         std::shared_ptr<ros::NodeHandle> pNh_;
         //! Settings
         Settings settings_;
-        //! Whether connecting to Rx was successful
-        bool connected_;
-        //! Delay in seconds between reconnection attempts to the connection type
-        //! specified in the parameter connection_type
-        float reconnect_delay_s_;
-        //! Our ROS timer governing the reconnection
-        ros::Timer reconnect_timer_;    
         //! Handles communication with the Rx
         io_comm_rx::Comm_IO IO_;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated mutex..
-        boost::mutex connection_mutex_;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated condition variable..
-        boost::condition_variable connection_condition_;
-        //! Host name of TCP server
-        std::string tcp_host_;
-        //! TCP port number
-        std::string tcp_port_;
-        //! Whether yet-to-be-established connection to Rx will be serial or TCP
-        bool serial_;
     };
 } // namespace rosaic_node
 

@@ -193,7 +193,9 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers(std::shared_ptr<ros::NodeHandle> pNh) : rx_message_(pNh)
+        CallbackHandlers(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
+            rx_message_(pNh, settings),
+            settings_(settings)
         {}
 
         /**
@@ -225,9 +227,8 @@ namespace io_comm_rx {
         /**
          * @brief Called every time rx_message is found to contain some potentially
          * useful message
-         * @param rx_message
          */
-        void handle(RxMessage& rx_message);
+        void handle();
 
         /**
          * @brief Searches for Rx messages that could potentially be
@@ -246,6 +247,9 @@ namespace io_comm_rx {
     private:
         //! RxMessage parser
          RxMessage rx_message_;
+
+        //! Settings
+        Settings* settings_;
 
         //! The "static" keyword resolves construct-by-copying issues related to this
         //! mutex by making it available throughout the code unit. The mutex

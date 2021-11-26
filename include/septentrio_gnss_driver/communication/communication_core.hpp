@@ -85,151 +85,6 @@
  * @brief Highest-Level view on communication services
  */
 
-struct Settings
-{
-    //! Device port
-    std::string device;
-    //! Baudrate
-    uint32_t baudrate;
-    //! HW flow control
-    std::string hw_flow_control;
-    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
-    //! serial port connected to, e.g. USB1 or COM1
-    std::string rx_serial_port;
-    //! Datum to be used
-    std::string datum;
-    //! Polling period for PVT-related SBF blocks
-    uint32_t polling_period_pvt;
-    //! Polling period for all other SBF blocks and NMEA messages
-    uint32_t polling_period_rest;
-    //! Marker-to-ARP offset in the eastward direction
-    float delta_e;
-    //! Marker-to-ARP offset in the northward direction
-    float delta_n;
-    //! Marker-to-ARP offset in the upward direction
-    float delta_u;
-    //! Marker-to-Aux1-ARP offset in the eastward direction
-    float delta_aux1_e;
-    //! Marker-to-Aux1-ARP offset in the northward direction
-    float delta_aux1_n;
-    //! Marker-to-Aux1-ARP offset in the upward direction
-    float delta_aux1_u;
-    //! Main antenna type, from the list returned by the command "lstAntennaInfo,
-    //! Overview"
-    std::string ant_type;
-    //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
-    //! Overview"
-    std::string ant_aux1_type;
-    //! Serial number of your particular Main antenna
-    std::string ant_serial_nr;
-    //! Serial number of your particular Aux1 antenna
-    std::string ant_aux1_serial_nr;
-    //! IMU orientation mode helper variable
-    bool manual;
-    //! IMU orientation x-angle
-    float theta_x;
-    //! IMU orientation y-angle
-    float theta_y_;
-    //! IMU orientation z-angle
-    float theta_z;
-    //! INS antenna lever arm x-offset
-    float ant_lever_x;
-    //! INS antenna lever arm y-offset
-    float ant_lever_y;
-    //! INS antenna lever arm z-offset
-    float ant_lever_z;
-    //! INS POI offset in x-dimension
-    float poi_x;
-    //! INS POI offset in y-dimension
-    float poi_y;
-    //! INS POI offset in z-dimension
-    float poi_z;
-    //! INS velocity sensor lever arm x-offset
-    float vsm_x;
-    //! INS velocity sensor lever arm y-offset
-    float vsm_y;
-    //! INS velocity sensor lever arm z-offset
-    float vsm_z;
-    //! Attitude offset determination in longitudinal direction
-    float heading_offset;
-    //! Attitude offset determination in latitudinal direction
-    float pitch_offset;
-    //! INS solution reference point
-    bool ins_use_poi;
-    //! For heading computation when unit is powered-cycled
-    std::string ins_initial_heading;
-    //! Attitude deviation mask
-    float att_std_dev;
-    //! Position deviation mask
-    float pos_std_dev;
-    //! Type of NTRIP connection
-    std::string ntrip_mode;
-    //! Hostname or IP address of the NTRIP caster to connect to
-    std::string caster;
-    //! IP port number of NTRIP caster to connect to
-    uint32_t caster_port;
-    //! Username for NTRIP service
-    std::string ntrip_username;
-    //! Password for NTRIP service
-    std::string ntrip_password;
-    //! Mountpoint for NTRIP service
-    std::string mountpoint;
-    //! NTRIP version for NTRIP service
-    std::string ntrip_version;
-    //! Whether Rx has internet or not
-    bool rx_has_internet;
-    //! RTCM version for NTRIP service (if Rx does not have internet)
-    std::string rtcm_version;
-    //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
-    //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rx_input_corrections_tcp;
-    //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
-    //! the same as main connection unless localhost concept is used)
-    std::string rx_input_corrections_serial;
-    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string send_gga;
-    //! Whether or not to publish the GGA message
-    bool publish_gpgga;
-    //! Whether or not to publish the RMC message
-    bool publish_gprmc;
-    //! Whether or not to publish the GSA message
-    bool publish_gpgsa;
-    //! Whether or not to publish the GSV message
-    bool publish_gpgsv;
-    //! Whether or not to publish the septentrio_gnss_driver::PVTCartesian
-    //! message
-    bool publish_pvtcartesian;
-    //! Whether or not to publish the septentrio_gnss_driver::PVTGeodetic message
-    bool publish_pvtgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::PosCovCartesian
-    //! message
-    bool publish_poscovcartesian;
-    //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
-    //! message
-    bool publish_poscovgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
-    //! message
-    bool publish_velcovgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
-    bool publish_atteuler;
-    //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
-    bool publish_attcoveuler;
-    //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
-    bool publish_insnavcart;
-    //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
-    bool publish_insnavgeod;
-    //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
-    bool publish_imusetup;
-    //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
-    bool publish_velsensorsetup;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavGeod message
-    bool publish_exteventinsnavgeod;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
-    bool publish_exteventinsnavcart;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
-    bool publish_extsensormeas;
-};
-
 /**
  * @namespace io_comm_rx
  * This namespace is for the communication interface, handling all aspects related to
@@ -254,7 +109,7 @@ namespace io_comm_rx {
         /**
          * @brief Default constructor of the class Comm_IO
          */
-        Comm_IO(std::shared_ptr<ros::NodeHandle> pNh);
+        Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings);
 
         /**
          * @brief Default destructor of the class Comm_IO
@@ -262,17 +117,22 @@ namespace io_comm_rx {
         virtual ~Comm_IO() = default;
 
         /**
+         * @brief Initializes the I/O handling
+         */
+        void initializeIO();
+
+        /**
          * @brief Configures Rx: Which SBF/NMEA messages it should output and later
          * correction settings
          * @param[in] settings The device's settings
          * */
-        void configureRx(const Settings& settings);
+        void configureRx();
 
         /**
          * @brief Defines which Rx messages to read and which ROS messages to publish
          * @param[in] settings The device's settings
          * */
-        void defineMessages(const Settings& settings);
+        void defineMessages();
 
         /**
          * @brief Initializes the serial port
@@ -336,6 +196,46 @@ namespace io_comm_rx {
         CallbackHandlers handlers_;
 
     private:
+        /**
+         * @brief Sets up the stage for SBF file reading
+         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+         */
+        void prepareSBFFileReading(std::string file_name);
+
+        /**
+         * @brief Sets up the stage for PCAP file reading
+         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
+         */
+        void preparePCAPFileReading(std::string file_name);
+
+        /**
+         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
+         */
+        void reconnect();
+
+        /**
+         * @brief Calls the reconnect() method
+         */
+        void connect();
+
+        //! Settings
+        Settings* settings_;
+        //! Whether connecting to Rx was successful
+        bool connected_ = false;
+        //! Since the configureRx() method should only be called once the connection
+        //! was established, we need the threads to communicate this to each other.
+        //! Associated mutex..
+        boost::mutex connection_mutex_;
+        //! Since the configureRx() method should only be called once the connection
+        //! was established, we need the threads to communicate this to each other.
+        //! Associated condition variable..
+        boost::condition_variable connection_condition_;
+        //! Host name of TCP server
+        std::string tcp_host_;
+        //! TCP port number
+        std::string tcp_port_;
+        //! Whether yet-to-be-established connection to Rx will be serial or TCP
+        bool serial_;
         //! Saves the port description
         std::string serial_port_;
         //! Processes I/O stream data

@@ -28,9 +28,6 @@
 //
 // ****************************************************************************
 
-// Boost includes
-#include <boost/regex.hpp>
-
 #include <septentrio_gnss_driver/node/rosaic_node.hpp>
 
 /**
@@ -41,28 +38,25 @@
 
 rosaic_node::ROSaicNode::ROSaicNode() :
     pNh_(new ros::NodeHandle("~")),
-    IO_(pNh_)
+    IO_(pNh_, &settings_)
 {
     ROS_DEBUG("Called ROSaicNode() constructor..");
 
     // Parameters must be set before initializing IO
-    connected_ = false;
     getROSParams();
 
     // Initializes Connection
-    initializeIO();
+    IO_.initializeIO();
 
     // Subscribes to all requested Rx messages by adding entries to the C++ multimap
     // storing the callback handlers and publishes ROS messages
-    IO_.defineMessages(settings_);
+    IO_.defineMessages();
 
     // Sends commands to the Rx regarding which SBF/NMEA messages it should output
     // and sets all its necessary corrections-related parameters
     if (!g_read_from_sbf_log && !g_read_from_pcap)
     {
-        boost::mutex::scoped_lock lock(connection_mutex_);
-        connection_condition_.wait(lock, [this]() { return connected_; });
-        IO_.configureRx(settings_);
+        IO_.configureRx();
     }
 
     // Since we already have a ros::Spin() elsewhere, we use waitForShutdown() here
@@ -87,8 +81,8 @@ void rosaic_node::ROSaicNode::getROSParams()
     getROSInt(pNh_, "serial/baudrate", settings_.baudrate, static_cast<uint32_t>(115200));
     pNh_->param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
     pNh_->param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
-    reconnect_delay_s_ = 2.0f; // Removed from ROS parameter list.
-    pNh_->param("receiver_type", septentrio_receiver_type_, std::string("gnss"));
+    settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
+    pNh_->param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
 	
     // Polling period parameters
     getROSInt(pNh_, "polling_period/pvt", settings_.polling_period_pvt,
@@ -211,187 +205,6 @@ void rosaic_node::ROSaicNode::getROSParams()
     ROS_DEBUG("Finished getROSParams() method");
 };
 
-void rosaic_node::ROSaicNode::initializeIO()
-{
-    ROS_DEBUG("Called initializeIO() method");
-    boost::smatch match;
-    // In fact: smatch is a typedef of match_results<string::const_iterator>
-    if (boost::regex_match(settings_.device, match, boost::regex("(tcp)://(.+):(\\d+)")))
-    // C++ needs \\d instead of \d: Both mean decimal.
-    // Note that regex_match can be used with a smatch object to store results, or
-    // without. In any case, true is returned if and only if it matches the
-    // !complete! string.
-    {
-        // The first sub_match (index 0) contained in a match_result always
-        // represents the full match within a target sequence made by a regex, and
-        // subsequent sub_matches represent sub-expression matches corresponding in
-        // sequence to the left parenthesis delimiting the sub-expression in the
-        // regex, i.e. $n Perl is equivalent to m[n] in boost regex.
-        tcp_host_ = match[2];
-        tcp_port_ = match[3];
-
-        serial_ = false;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = false;
-        boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
-        temporary_thread.detach();
-    } else if (boost::regex_match(settings_.device, match,
-                                  boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
-    {
-        serial_ = false;
-        g_read_from_sbf_log = true;
-        g_read_from_pcap = false;
-        boost::thread temporary_thread(
-            boost::bind(&ROSaicNode::prepareSBFFileReading, this, match[2]));
-        temporary_thread.detach();
-
-    } else if (boost::regex_match(
-                   settings_.device, match,
-                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
-    {
-        serial_ = false;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = true;
-        boost::thread temporary_thread(
-            boost::bind(&ROSaicNode::preparePCAPFileReading, this, match[2]));
-        temporary_thread.detach();
-
-    } else if (boost::regex_match(settings_.device, match, boost::regex("(serial):(.+)")))
-    {
-        serial_ = true;
-        g_read_from_sbf_log = false;
-        g_read_from_pcap = false;
-        std::string proto(match[2]);
-        std::stringstream ss;
-        ss << "Searching for serial port" << proto;
-		settings_.device = proto;
-        ROS_DEBUG("%s", ss.str().c_str());
-        boost::thread temporary_thread(boost::bind(&ROSaicNode::connect, this));
-        temporary_thread.detach();
-    } else
-    {
-        std::stringstream ss;
-        ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-        ROS_ERROR("%s", ss.str().c_str());
-    }
-    ROS_DEBUG("Leaving initializeIO() method");
-}
-
-void rosaic_node::ROSaicNode::prepareSBFFileReading(std::string file_name)
-{
-    try
-    {
-        std::stringstream ss;
-        ss << "Setting up everything needed to read from" << file_name;
-        ROS_DEBUG("%s", ss.str().c_str());
-        IO_.initializeSBFFileReading(file_name);
-    } catch (std::runtime_error& e)
-    {
-        std::stringstream ss;
-        ss << "Comm_IO::initializeSBFFileReading() failed for SBF File" << file_name
-           << " due to: " << e.what();
-        ROS_ERROR("%s", ss.str().c_str());
-    }
-}
-
-void rosaic_node::ROSaicNode::preparePCAPFileReading(std::string file_name)
-{
-    try
-    {
-        std::stringstream ss;
-        ss << "Setting up everything needed to read from " << file_name;
-        ROS_DEBUG("%s", ss.str().c_str());
-        IO_.initializePCAPFileReading(file_name);
-    } catch (std::runtime_error& e)
-    {
-        std::stringstream ss;
-        ss << "CommIO::initializePCAPFileReading() failed for SBF File " << file_name
-           << " due to: " << e.what();
-        ROS_ERROR("%s", ss.str().c_str());
-    }
-}
-
-void rosaic_node::ROSaicNode::connect()
-{
-    ROS_DEBUG("Called connect() method");
-    ROS_DEBUG(
-        "Setting ROS timer for calling reconnect() method until connection succeeds");
-    reconnect_timer_ = pNh_->createTimer(ros::Duration(reconnect_delay_s_),
-                                         &ROSaicNode::reconnect, this);
-    reconnect_timer_.start();
-    ROS_DEBUG(
-        "Started ROS timer for calling reconnect() method until connection succeeds");
-    ros::spin();
-    ROS_DEBUG("Leaving connect() method"); // This will never be output since
-                                           // ros::spin() is on the line above.
-}
-
-//! In serial mode (not USB, since the Rx port is then called USB1 or USB2), please
-//! ensure that you are connected to the Rx's COM1, COM2 or COM3 port, !if! you
-//! employ UART hardware flow control.
-void rosaic_node::ROSaicNode::reconnect(const ros::TimerEvent& event)
-{
-    ROS_DEBUG("Called reconnect() method");
-    if (connected_ == true)
-    {
-        reconnect_timer_.stop();
-        ROS_DEBUG("Stopped ROS timer since successully connected.");
-    } else
-    {
-        if (serial_)
-        {
-            bool initialize_serial_return = false;
-            try
-            {
-                ROS_INFO("Connecting serially to device %s, targeted baudrate: %u",
-                         settings_.device.c_str(), settings_.baudrate);
-                initialize_serial_return =
-                    IO_.initializeSerial(settings_.device, settings_.baudrate, settings_.hw_flow_control);
-            } catch (std::runtime_error& e)
-            {
-                {
-                    std::stringstream ss;
-                    ss << "IO_.initializeSerial() failed for device " << settings_.device
-                       << " due to: " << e.what();
-                    ROS_ERROR("%s", ss.str().c_str());
-                }
-            }
-            if (initialize_serial_return)
-            {
-                boost::mutex::scoped_lock lock(connection_mutex_);
-                connected_ = true;
-                lock.unlock();
-                connection_condition_.notify_one();
-            }
-        } else
-        {
-            bool initialize_tcp_return = false;
-            try
-            {
-                ROS_INFO("Connecting to tcp://%s:%s ...", tcp_host_.c_str(),
-                         tcp_port_.c_str());
-                initialize_tcp_return = IO_.initializeTCP(tcp_host_, tcp_port_);
-            } catch (std::runtime_error& e)
-            {
-                {
-                    std::stringstream ss;
-                    ss << "IO_.initializeTCP() failed for host " << tcp_host_
-                       << " on port " << tcp_port_ << " due to: " << e.what();
-                    ROS_ERROR("%s", ss.str().c_str());
-                }
-            }
-            if (initialize_tcp_return)
-            {
-                boost::mutex::scoped_lock lock(connection_mutex_);
-                connected_ = true;
-                lock.unlock();
-                connection_condition_.notify_one();
-            }
-        }
-    }
-    ROS_DEBUG("Leaving reconnect() method");
-}
-
 //! If true, the ROS message headers' unix time field is constructed from the TOW (in
 //! the SBF case) and UTC (in the NMEA case) data. If false, times are constructed
 //! within the driver via time(NULL) of the \<ctime\> library.
@@ -419,22 +232,7 @@ uint32_t g_cd_count;
 bool g_read_from_sbf_log;
 //! Whether or not we are reading from a PCAP file
 bool g_read_from_pcap;
-//! A C++ map for keeping track of the SBF blocks necessary to construct the GPSFix
-//! ROS message
-std::map<std::string, uint32_t> g_GPSFixMap;
-//! A C++ map for keeping track of the SBF blocks necessary to construct the
-//! NavSatFix ROS message
-std::map<std::string, uint32_t> g_NavSatFixMap;
-//! A C++ map for keeping track of SBF blocks necessary to construct the
-//! PoseWithCovarianceStamped ROS message
-std::map<std::string, uint32_t> g_PoseWithCovarianceStampedMap;
-//! A C++ map for keeping track of SBF blocks necessary to construct the
-//! DiagnosticArray ROS message
-std::map<std::string, uint32_t> g_DiagnosticArrayMap;
-//! Queue size for ROS publishers
-const uint32_t g_ROS_QUEUE_SIZE = 1;
-//! Septentrio receiver type, either "gnss" or "ins"
-std::string septentrio_receiver_type_;
+
 
 int main(int argc, char** argv)
 {
@@ -450,5 +248,7 @@ int main(int argc, char** argv)
 
     rosaic_node::ROSaicNode
         rx_node; // This launches everything we need, in theory :)
+    ros::spin();
+    
     return 0;
 }
