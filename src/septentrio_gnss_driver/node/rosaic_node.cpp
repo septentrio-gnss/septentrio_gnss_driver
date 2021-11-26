@@ -126,7 +126,7 @@ void rosaic_node::ROSaicNode::getROSParams()
 	// INS Spatial Configuration
     // IMU orientation parameter
     pNh_->param("ins_spatial_config/imu_orientation/theta_x", settings_.theta_x, 0.0f);
-    pNh_->param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y_, 0.0f);
+    pNh_->param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y, 0.0f);
     pNh_->param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0f);
 	
     // INS antenna lever arm offset parameter

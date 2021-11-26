@@ -213,7 +213,7 @@ struct Settings
     //! IMU orientation x-angle
     float theta_x;
     //! IMU orientation y-angle
-    float theta_y_;
+    float theta_y;
     //! IMU orientation z-angle
     float theta_z;
     //! INS antenna lever arm x-offset
