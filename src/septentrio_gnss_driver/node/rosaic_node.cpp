@@ -205,12 +205,6 @@ void rosaic_node::ROSaicNode::getROSParams()
     ROS_DEBUG("Finished getROSParams() method");
 };
 
-//! Rx TCP port, e.g. IP10 or IP11, to which ROSaic is connected to
-std::string g_rx_tcp_port;
-//! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
-//! to count the connection descriptors
-uint32_t g_cd_count;
-
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "septentrio_gnss");

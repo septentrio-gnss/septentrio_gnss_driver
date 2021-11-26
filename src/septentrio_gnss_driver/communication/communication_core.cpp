@@ -113,6 +113,11 @@ boost::condition_variable g_cd_condition;
 //! Whether or not we still want to read the connection descriptor, which we only
 //! want in the very beginning to know whether it is IP10, IP11 etc.
 bool g_read_cd;
+//! Rx TCP port, e.g. IP10 or IP11, to which ROSaic is connected to
+std::string g_rx_tcp_port;
+//! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
+//! to count the connection descriptors
+uint32_t g_cd_count;
 
 io_comm_rx::Comm_IO::Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
     handlers_(pNh, settings),
