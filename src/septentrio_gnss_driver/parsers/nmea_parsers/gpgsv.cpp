@@ -51,7 +51,7 @@ const std::string GpgsvParser::getMessageID() const
  * message with 4 Svs it would be sentence.get_body()[20] if anybody ever needs it.
  */
 septentrio_gnss_driver::GpgsvPtr
-GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpgsvParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/) noexcept(false)
 {
 
     const size_t MIN_LENGTH = 4;
@@ -65,7 +65,7 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
     }
     septentrio_gnss_driver::GpgsvPtr msg =
         boost::make_shared<septentrio_gnss_driver::Gpgsv>();
-    msg->header.frame_id = g_frame_id;
+    msg->header.frame_id = frame_id;
     msg->message_id = sentence.get_body()[0];
     if (!parsing_utilities::parseUInt8(sentence.get_body()[1], msg->n_msgs))
     {

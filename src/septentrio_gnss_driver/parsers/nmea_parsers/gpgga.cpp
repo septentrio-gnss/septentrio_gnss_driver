@@ -51,7 +51,7 @@ const std::string GpggaParser::getMessageID() const
  * sentence.get_body()[15] if anybody ever needs it.
  */
 septentrio_gnss_driver::GpggaPtr
-GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
     // %s", sentence.get_body()[0].c_str());
@@ -67,7 +67,7 @@ GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 
     septentrio_gnss_driver::GpggaPtr msg =
         boost::make_shared<septentrio_gnss_driver::Gpgga>();
-    msg->header.frame_id = g_frame_id;
+    msg->header.frame_id = frame_id;
 
     msg->message_id = sentence.get_body()[0];
 
@@ -79,7 +79,7 @@ GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         double utc_double;
         if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
         {
-            if (g_use_gnss_time)
+            if (use_gnss_time)
             {
                 // ROS_DEBUG("utc_double is %f", (float) utc_double);
                 msg->utc_seconds =

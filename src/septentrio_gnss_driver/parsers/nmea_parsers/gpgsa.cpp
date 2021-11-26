@@ -51,7 +51,7 @@ const std::string GpgsaParser::getMessageID() const
  * sentence.get_body()[18] if anybody ever needs it.
  */
 septentrio_gnss_driver::GpgsaPtr
-GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/) noexcept(false)
 {
 
     // Checking the length first, it should be 19 elements
@@ -66,7 +66,7 @@ GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
 
     septentrio_gnss_driver::GpgsaPtr msg =
         boost::make_shared<septentrio_gnss_driver::Gpgsa>();
-    msg->header.frame_id = g_frame_id;
+    msg->header.frame_id = frame_id;
     msg->message_id = sentence.get_body()[0];
     msg->auto_manual_mode = sentence.get_body()[1];
     parsing_utilities::parseUInt8(sentence.get_body()[2], msg->fix_mode);

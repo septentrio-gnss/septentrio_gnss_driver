@@ -66,8 +66,6 @@
 #include <boost/make_shared.hpp>
 #include <septentrio_gnss_driver/Gpgsv.h>
 
-extern std::string g_frame_id;
-
 /**
  * @file gpgsv.hpp
  * @brief Derived class for parsing GSV messages
@@ -99,7 +97,7 @@ public:
      * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
      */
     septentrio_gnss_driver::GpgsvPtr
-    parseASCII(const NMEASentence& sentence) noexcept(false) override;
+    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID

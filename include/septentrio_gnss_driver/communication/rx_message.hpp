@@ -162,7 +162,6 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-extern bool g_use_gnss_time;
 extern bool g_read_cd;
 extern uint32_t g_cd_count;
 extern uint32_t g_leap_seconds;
@@ -320,6 +319,12 @@ struct Settings
     const uint32_t g_ROS_QUEUE_SIZE = 1;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
+    //! If true, the ROS message headers' unix time field is constructed from the TOW (in
+    //! the SBF case) and UTC (in the NMEA case) data. If false, times are constructed
+    //! within the driver via time(NULL) of the \<ctime\> library.
+    bool use_gnss_time;
+    //! The frame ID used in the header of every published ROS message
+    std::string frame_id;
 };
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
