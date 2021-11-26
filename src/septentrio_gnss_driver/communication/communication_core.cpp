@@ -593,7 +593,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		g_response_condition.wait(lock, []() { return g_response_received; });
 		g_response_received = false;
 	}
-	if (g_publish_gpsfix == true)
+	if (settings_->publish_gpsfix == true)
 	{
 		std::stringstream ss;
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
@@ -619,7 +619,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		g_response_condition.wait(lock, []() { return g_response_received; });
 		g_response_received = false;
 	}  
-	if (g_publish_diagnostics == true)
+	if (settings_->publish_diagnostics == true)
 	{
 		std::stringstream ss;
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
@@ -1042,13 +1042,13 @@ void io_comm_rx::Comm_IO::defineMessages()
         handlers_.callbackmap_ = 
             getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
     }
-	if (g_publish_gpst == true)
+	if (settings_->publish_gpst == true)
 	{
 		handlers_.callbackmap_ = getHandlers().insert<int32_t>("GPST");
 	}
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (g_publish_navsatfix == true)
+        if (settings_->publish_navsatfix == true)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false)
             {
@@ -1061,7 +1061,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (g_publish_navsatfix == true)
+        if (settings_->publish_navsatfix == true)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -1074,7 +1074,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (g_publish_gpsfix == true)
+        if (settings_->publish_gpsfix == true)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false || settings_->publish_velcovgeodetic == false)
             {
@@ -1095,7 +1095,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (g_publish_gpsfix == true)
+        if (settings_->publish_gpsfix == true)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -1114,7 +1114,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (g_publish_pose == true)
+        if (settings_->publish_pose == true)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false ||
                 settings_->publish_atteuler == false || settings_->publish_attcoveuler == false)
@@ -1129,7 +1129,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (g_publish_pose == true)
+        if (settings_->publish_pose == true)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -1141,7 +1141,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "INSPoseWithCovarianceStamped");
         }
     }
-	if (g_publish_diagnostics == true)
+	if (settings_->publish_diagnostics == true)
 	{
 		handlers_.callbackmap_ =
 			getHandlers().insert<diagnostic_msgs::DiagnosticArray>(

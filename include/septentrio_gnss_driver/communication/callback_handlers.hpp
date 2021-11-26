@@ -102,11 +102,6 @@
  * @brief Handles callbacks when reading NMEA/SBF messages
  */
 
-extern bool g_publish_navsatfix;
-extern bool g_publish_gpsfix;
-extern bool g_publish_gpst;
-extern bool g_publish_pose;
-extern bool g_publish_diagnostics;
 extern bool g_response_received;
 extern boost::mutex g_response_mutex;
 extern boost::condition_variable g_response_condition;

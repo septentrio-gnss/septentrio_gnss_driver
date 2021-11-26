@@ -68,11 +68,11 @@ void rosaic_node::ROSaicNode::getROSParams()
 {
     pNh_->param("use_gnss_time", settings_.use_gnss_time, true);
     pNh_->param("frame_id", settings_.frame_id, (std::string) "gnss");
-    pNh_->param("publish/gpst", g_publish_gpst, true);
-    pNh_->param("publish/navsatfix", g_publish_navsatfix, true);
-    pNh_->param("publish/gpsfix", g_publish_gpsfix, true);
-    pNh_->param("publish/pose", g_publish_pose, true);
-    pNh_->param("publish/diagnostics", g_publish_diagnostics, true);
+    pNh_->param("publish/gpst", settings_.publish_gpst, true);
+    pNh_->param("publish/navsatfix", settings_.publish_navsatfix, true);
+    pNh_->param("publish/gpsfix", settings_.publish_gpsfix, true);
+    pNh_->param("publish/pose", settings_.publish_pose, true);
+    pNh_->param("publish/diagnostics", settings_.publish_diagnostics, true);
     getROSInt(pNh_, "leap_seconds", g_leap_seconds,
                            static_cast<uint32_t>(18));
 
@@ -205,16 +205,6 @@ void rosaic_node::ROSaicNode::getROSParams()
     ROS_DEBUG("Finished getROSParams() method");
 };
 
-//! Whether or not to publish the sensor_msgs::TimeReference message with GPST
-bool g_publish_gpst;
-//! Whether or not to publish the sensor_msgs::NavSatFix message
-bool g_publish_navsatfix;
-//! Whether or not to publish the gps_common::GPSFix message
-bool g_publish_gpsfix;
-//! Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message
-bool g_publish_pose;
-//! Whether or not to publish the diagnostic_msgs::DiagnosticArray message
-bool g_publish_diagnostics;
 //! The number of leap seconds that have been inserted into the UTC time
 uint32_t g_leap_seconds;
 //! Rx TCP port, e.g. IP10 or IP11, to which ROSaic is connected to

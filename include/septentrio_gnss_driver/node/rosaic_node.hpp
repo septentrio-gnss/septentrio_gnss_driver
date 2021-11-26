@@ -70,9 +70,6 @@
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 
-extern bool g_publish_gpst;
-extern bool g_publish_navsatfix;
-
 /**
  * @namespace rosaic_node
  * This namespace is for the ROSaic node, handling all aspects regarding

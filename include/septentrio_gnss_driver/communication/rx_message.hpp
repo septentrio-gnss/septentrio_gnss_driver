@@ -315,6 +315,16 @@ struct Settings
     bool publish_exteventinsnavcart;
     //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
     bool publish_extsensormeas;
+    //! Whether or not to publish the sensor_msgs::TimeReference message with GPST
+    bool publish_gpst;
+    //! Whether or not to publish the sensor_msgs::NavSatFix message
+    bool publish_navsatfix;
+    //! Whether or not to publish the gps_common::GPSFix message
+    bool publish_gpsfix;
+    //! Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message
+    bool publish_pose;
+    //! Whether or not to publish the diagnostic_msgs::DiagnosticArray message
+    bool publish_diagnostics;
     //! Queue size for ROS publishers
     const uint32_t g_ROS_QUEUE_SIZE = 1;
     //! Septentrio receiver type, either "gnss" or "ins"

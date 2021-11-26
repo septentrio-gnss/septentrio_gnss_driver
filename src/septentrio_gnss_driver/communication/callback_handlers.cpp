@@ -104,7 +104,7 @@ namespace io_comm_rx {
         // Call NavSatFix callback function if it was added for GNSS 
 		if (settings_->septentrio_receiver_type == "gnss")
 		{
-			if (g_publish_navsatfix)
+			if (settings_->publish_navsatfix)
 			{
 				CallbackMap::key_type key = "NavSatFix";
 				std::string ID_temp = rx_message_.messageID();
@@ -130,7 +130,7 @@ namespace io_comm_rx {
         // Call NavSatFix callback function if it was added for INS
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_navsatfix)
+            if (settings_->publish_navsatfix)
             {
                 CallbackMap::key_type key = "INSNavSatFix";
                 std::string ID_temp = rx_message_.messageID();
@@ -157,7 +157,7 @@ namespace io_comm_rx {
         // added for GNSS
         if (settings_->septentrio_receiver_type == "gnss")
         {
-            if (g_publish_pose)
+            if (settings_->publish_pose)
             {
                 CallbackMap::key_type key = "PoseWithCovarianceStamped";
                 std::string ID_temp = rx_message_.messageID();
@@ -184,7 +184,7 @@ namespace io_comm_rx {
         // added for INS
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_pose)
+            if (settings_->publish_pose)
             {
                 CallbackMap::key_type key = "INSPoseWithCovarianceStamped";
                 std::string ID_temp = rx_message_.messageID();
@@ -208,7 +208,7 @@ namespace io_comm_rx {
         }
         // Call diagnostic_msgs::DiagnosticArray callback function if it was added
         // for the both type of receivers
-		if (g_publish_diagnostics)
+		if (settings_->publish_diagnostics)
 		{
 			CallbackMap::key_type key1 = rx_message_.messageID();
 			std::string ID_temp = rx_message_.messageID();
@@ -249,7 +249,7 @@ namespace io_comm_rx {
         // added
         if (settings_->septentrio_receiver_type == "gnss")
         {
-            if (g_publish_gpst)
+            if (settings_->publish_gpst)
             {
                 CallbackMap::key_type key1 = "GPST";
                 std::string ID_temp = rx_message_.messageID();
@@ -273,7 +273,7 @@ namespace io_comm_rx {
         }
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_gpst)
+            if (settings_->publish_gpst)
             {
                 CallbackMap::key_type key1 = "GPST";
                 std::string ID_temp = rx_message_.messageID();
@@ -298,7 +298,7 @@ namespace io_comm_rx {
         // Call GPSFix callback function if it was added for GNSS
         if (settings_->septentrio_receiver_type == "gnss")
         {
-            if (g_publish_gpsfix)
+            if (settings_->publish_gpsfix)
             {
                 std::string ID_temp = rx_message_.messageID();
                 CallbackMap::key_type key1 = rx_message_.messageID();
@@ -342,7 +342,7 @@ namespace io_comm_rx {
         // Call GPSFix callback function if it was added for INS
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_gpsfix)
+            if (settings_->publish_gpsfix)
             {
                 std::string ID_temp = rx_message_.messageID();
                 CallbackMap::key_type key1 = rx_message_.messageID();
@@ -413,7 +413,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_gpsfix == true &&
+                    if (settings_->publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
                      ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5908" ||
                      ID_temp == "5938" || ID_temp == "5939"))
@@ -426,7 +426,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_gpsfix == true &&
+                    if (settings_->publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" || ID_temp == "4226"))
                     {
                         if (rx_message_.ins_gpsfix_complete(gpsfix_map[ID_temp]))
@@ -437,7 +437,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_navsatfix == true &&
+                    if (settings_->publish_navsatfix == true &&
                     (ID_temp == "4007" || ID_temp == "5906"))
                     {
                         if (rx_message_.gnss_navsatfix_complete(navsatfix_map[ID_temp]))
@@ -448,7 +448,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_navsatfix == true &&
+                    if (settings_->publish_navsatfix == true &&
                     (ID_temp == "4226"))
                     {
                         if (rx_message_.ins_navsatfix_complete(navsatfix_map[ID_temp]))
@@ -459,7 +459,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_pose == true &&
+                    if (settings_->publish_pose == true &&
                     (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5938" ||
                      ID_temp == "5939"))
                     {
@@ -471,7 +471,7 @@ namespace io_comm_rx {
                 }
                 if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_pose == true &&
+                    if (settings_->publish_pose == true &&
                     (ID_temp == "4226"))
                     {
                         if (rx_message_.ins_pose_complete(pose_map[ID_temp]))
@@ -480,7 +480,7 @@ namespace io_comm_rx {
                         }
                     }
                 }
-				if (g_publish_diagnostics == true &&
+				if (settings_->publish_diagnostics == true &&
 				(ID_temp == "4014" || ID_temp == "4082"))
 				{
 					if (rx_message_.diagnostics_complete(diagnosticarray_map[ID_temp]))
