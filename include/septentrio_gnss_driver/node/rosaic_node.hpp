@@ -59,62 +59,6 @@
 #ifndef ROSAIC_NODE_HPP
 #define ROSAIC_NODE_HPP
 
-#ifndef ANGLE_MAX
-#define ANGLE_MAX 180
-#endif
-
-#ifndef ANGLE_MIN
-#define ANGLE_MIN -180
-#endif
-
-#ifndef THETA_Y_MAX
-#define THETA_Y_MAX 90
-#endif
-
-#ifndef THETA_Y_MIN
-#define THETA_Y_MIN -90
-#endif
-
-#ifndef LEVER_ARM_MAX
-#define LEVER_ARM_MAX 100
-#endif
-
-#ifndef LEVER_ARM_MIN
-#define LEVER_ARM_MIN -100
-#endif
-
-#ifndef HEADING_MAX
-#define HEADING_MAX 360
-#endif
-
-#ifndef HEADING_MIN
-#define HEADING_MIN -360
-#endif
-
-#ifndef PITCH_MAX
-#define PITCH_MAX 90
-#endif
-
-#ifndef PITCH_MIN
-#define PITCH_MIN -90
-#endif
-
-#ifndef ATTSTD_DEV_MIN
-#define ATTSTD_DEV_MIN 0
-#endif
-
-#ifndef ATTSTD_DEV_MAX
-#define ATTSTD_DEV_MAX 5
-#endif
-
-#ifndef POSSTD_DEV_MIN
-#define POSSTD_DEV_MIN 0
-#endif
-
-#ifndef POSSTD_DEV_MAX
-#define POSSTD_DEV_MAX 100
-#endif
-
 /**
  * @file rosaic_node.hpp
  * @date 21/08/20
@@ -123,8 +67,6 @@
 
 // ROS includes
 #include <ros/console.h>
-// Boost includes
-#include <boost/regex.hpp>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 
@@ -246,17 +188,6 @@ namespace rosaic_node {
         void getROSParams();
 
         /**
-         * @brief Defines which Rx messages to read and which ROS messages to publish
-         */
-        void defineMessages();
-
-        /**
-         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
-         * correction settings
-         */
-        void configureRx();
-
-        /**
          * @brief Initializes the I/O handling
          */
         void initializeIO();
@@ -286,158 +217,17 @@ namespace rosaic_node {
     private:
         //! Node handle pointer
         std::shared_ptr<ros::NodeHandle> pNh_;
-        //! Handles communication with the Rx
-        io_comm_rx::Comm_IO IO_;
-        //! Device port
-        std::string device_;
-        //! Baudrate
-        uint32_t baudrate_;
-        //! HW flow control
-        std::string hw_flow_control_;
-        //! In case of serial communication to Rx, rx_serial_port_ specifies Rx's
-        //! serial port connected to, e.g. USB1 or COM1
-        std::string rx_serial_port_;
+        //! Settings
+        Settings settings_;
         //! Whether connecting to Rx was successful
         bool connected_;
-        //! Datum to be used
-        std::string datum_;
-        //! Polling period for PVT-related SBF blocks
-        uint32_t polling_period_pvt_;
-        //! Polling period for all other SBF blocks and NMEA messages
-        uint32_t polling_period_rest_;
         //! Delay in seconds between reconnection attempts to the connection type
         //! specified in the parameter connection_type
         float reconnect_delay_s_;
-        //! Marker-to-ARP offset in the eastward direction
-        float delta_e_;
-        //! Marker-to-ARP offset in the northward direction
-        float delta_n_;
-        //! Marker-to-ARP offset in the upward direction
-        float delta_u_;
-        //! Marker-to-Aux1-ARP offset in the eastward direction
-        float delta_aux1_e_;
-        //! Marker-to-Aux1-ARP offset in the northward direction
-        float delta_aux1_n_;
-        //! Marker-to-Aux1-ARP offset in the upward direction
-        float delta_aux1_u_;
-        //! Main antenna type, from the list returned by the command "lstAntennaInfo,
-        //! Overview"
-        std::string ant_type_;
-        //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
-        //! Overview"
-        std::string ant_aux1_type_;
-        //! Serial number of your particular Main antenna
-        std::string ant_serial_nr_;
-        //! Serial number of your particular Aux1 antenna
-        std::string ant_aux1_serial_nr_;
-        //! IMU orientation mode
-        std::string orientation_mode_;
-        //! IMU orientation mode helper variable
-        bool manual_;
-		//! IMU orientation x-angle
-        float theta_x_;
-		//! IMU orientation y-angle
-        float theta_y_;
-		//! IMU orientation z-angle
-        float theta_z_;
-        //! INS antenna lever arm x-offset
-        float x_;
-        //! INS antenna lever arm y-offset
-        float y_;
-        //! INS antenna lever arm z-offset
-        float z_;
-        //! INS POI offset in x-dimension
-        float poi_x_;
-        //! INS POI offset in y-dimension
-        float poi_y_;
-        //! INS POI offset in z-dimension
-        float poi_z_;
-        //! INS velocity sensor lever arm x-offset
-        float vsm_x_;
-        //! INS velocity sensor lever arm y-offset
-        float vsm_y_;
-        //! INS velocity sensor lever arm z-offset
-        float vsm_z_;
-        //! Attitude offset determination in longitudinal direction
-        float heading_;
-        //! Attitude offset determination in latitudinal direction
-        float pitch_;
-        //! INS solution reference point
-        bool ins_use_poi_;
-        //! For heading computation when unit is powered-cycled
-        std::string ins_initial_heading_;
-		//! Attitude deviation mask
-        float att_std_dev_;
-		//! Position deviation mask
-        float pos_std_dev_;
-        //! Type of NTRIP connection
-        std::string mode_;
-        //! Hostname or IP address of the NTRIP caster to connect to
-        std::string caster_;
-        //! IP port number of NTRIP caster to connect to
-        uint32_t caster_port_;
-        //! Username for NTRIP service
-        std::string username_;
-        //! Password for NTRIP service
-        std::string password_;
-        //! Mountpoint for NTRIP service
-        std::string mountpoint_;
-        //! NTRIP version for NTRIP service
-        std::string ntrip_version_;
-        //! Whether Rx has internet or not
-        bool rx_has_internet_;
-        //! RTCM version for NTRIP service (if Rx does not have internet)
-        std::string rtcm_version_;
-        //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
-        //! (can't be the same as main connection unless localhost concept is used)
-        uint32_t rx_input_corrections_tcp_;
-        //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
-        //! the same as main connection unless localhost concept is used)
-        std::string rx_input_corrections_serial_;
         //! Our ROS timer governing the reconnection
-        ros::Timer reconnect_timer_;
-        //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-        std::string send_gga_;
-        //! Whether or not to publish the GGA message
-        bool publish_gpgga_;
-        //! Whether or not to publish the RMC message
-        bool publish_gprmc_;
-        //! Whether or not to publish the GSA message
-        bool publish_gpgsa_;
-        //! Whether or not to publish the GSV message
-        bool publish_gpgsv_;
-        //! Whether or not to publish the septentrio_gnss_driver::PVTCartesian
-        //! message
-        bool publish_pvtcartesian_;
-        //! Whether or not to publish the septentrio_gnss_driver::PVTGeodetic message
-        bool publish_pvtgeodetic_;
-        //! Whether or not to publish the septentrio_gnss_driver::PosCovCartesian
-        //! message
-        bool publish_poscovcartesian_;
-        //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
-        //! message
-        bool publish_poscovgeodetic_;
-        //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
-        //! message
-        bool publish_velcovgeodetic_;
-        //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
-        bool publish_atteuler_;
-        //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
-        bool publish_attcoveuler_;
-        //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
-        bool publish_insnavcart_;
-        //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
-        bool publish_insnavgeod_;
-        //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
-        bool publish_imusetup_;
-        //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
-        bool publish_velsensorsetup_;
-        //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavGeod message
-        bool publish_exteventinsnavgeod_;
-         //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
-        bool publish_exteventinsnavcart_;
-         //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
-        bool publish_extsensormeas_;
+        ros::Timer reconnect_timer_;    
+        //! Handles communication with the Rx
+        io_comm_rx::Comm_IO IO_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..
