@@ -321,11 +321,7 @@ void io_comm_rx::Comm_IO::configureRx()
         connection_condition_.wait(lock, [this]() { return connected_; });
     }       
 
-    // It is imperative to hold a lock on the mutex "g_response_mutex" while
-    // modifying the variable "g_response_received". Same for "g_cd_mutex" and
-    // "g_cd_received".
-    boost::mutex::scoped_lock lock(g_response_mutex);
-    boost::mutex::scoped_lock lock_cd(g_cd_mutex);
+    
 
     // Determining communication mode: TCP vs USB/Serial
     unsigned stream = 1;
@@ -335,9 +331,13 @@ void io_comm_rx::Comm_IO::configureRx()
     std::string rx_port;
     if (proto == "tcp")
     {
+        // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
+        // modifying the variable and "g_cd_received".
+        boost::mutex::scoped_lock lock_cd(g_cd_mutex);
         // Escape sequence (escape from correction mode), ensuring that we can send
         // our real commands afterwards...
-        send("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+        std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+        manager_.get()->send(cmd, cmd.size());
         // We wait for the connection descriptor before we send another command,
         // otherwise the latter would not be processed.
         g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
@@ -350,8 +350,6 @@ void io_comm_rx::Comm_IO::configureRx()
         // potentially mingle with our first command. Hence send a safeguard command
         // "lif", whose potentially false processing is harmless.
         send("lif, Identification \x0D");
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
     }
     uint32_t rx_period_pvt =
         parsing_utilities::convertUserPeriodToRxCommand(settings_->polling_period_pvt);
@@ -372,11 +370,7 @@ void io_comm_rx::Comm_IO::configureRx()
 
     // Turning off all current SBF/NMEA output    
     send("sso, all, none, none, off \x0D");
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
     send("sno, all, none, none, off \x0D");
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
 
     // Setting the datum to be used by the Rx (not the NMEA output though, which only
     // provides MSL and undulation (by default with respect to WGS84), but not
@@ -386,8 +380,6 @@ void io_comm_rx::Comm_IO::configureRx()
         ss << "sgd, " << settings_->datum << "\x0D";
         send(ss.str());
     }
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
 
     // Setting SBF/NMEA output of Rx depending on the receiver type
     // If GNSS then...
@@ -401,8 +393,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_pvtgeodetic == true)
         {
@@ -412,8 +402,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_poscovcartesian == true)
         {
@@ -423,8 +411,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << std::to_string(rx_period_pvt) << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_poscovgeodetic == true)
         {
@@ -434,8 +420,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << std::to_string(rx_period_pvt) << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_velcovgeodetic == true)
         {
@@ -446,8 +430,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << std::to_string(rx_period_pvt) << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_atteuler == true)
         {
@@ -457,8 +439,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_attcoveuler == true)
         {
@@ -468,8 +448,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
     }
     // Setting SBF/NMEA output of Rx depending on the receiver type
@@ -484,8 +462,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_insnavgeod == true)
         {
@@ -495,8 +471,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_imusetup == true)
         {
@@ -506,8 +480,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_velsensorsetup == true)
         {
@@ -517,8 +489,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_exteventinsnavgeod == true)
         {
@@ -528,8 +498,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_exteventinsnavcart == true)
         {
@@ -539,8 +507,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         if (settings_->publish_extsensormeas== true)
         {
@@ -550,8 +516,6 @@ void io_comm_rx::Comm_IO::configureRx()
             << "\x0D";
             send(ss.str());
             ++stream;
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
     }
 	if (settings_->publish_gpgga == true)
@@ -562,8 +526,6 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}
 	if (settings_->publish_gprmc == true)
 	{
@@ -573,8 +535,6 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}
 	if (settings_->publish_gpgsa == true)
 	{
@@ -584,8 +544,6 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}
 	if (settings_->publish_gpgsv == true)
 	{
@@ -595,8 +553,6 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< rest_sec_or_msec << std::to_string(rx_period_rest) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}
 	if (settings_->publish_gpsfix == true)
 	{
@@ -606,23 +562,17 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 		ss.str(std::string()); // avoids invoking the std::string constructor
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
 		<< ", MeasEpoch, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
 		<< "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 		ss.str(std::string());
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ", DOP, "
 		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}  
 	if (settings_->publish_diagnostics == true)
 	{
@@ -632,24 +582,18 @@ void io_comm_rx::Comm_IO::configureRx()
 		<< std::to_string(rx_period_rest) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 		ss.str(std::string());
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
 		<< ", QualityInd, " << rest_sec_or_msec << std::to_string(rx_period_rest)
 		<< "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 		ss.str(std::string());
 		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
 		<< ", ReceiverSetup, " << rest_sec_or_msec
 		<< std::to_string(rx_period_rest) << "\x0D";
 		send(ss.str());
 		++stream;
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
 	}
 
     // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
@@ -663,8 +607,6 @@ void io_comm_rx::Comm_IO::configureRx()
            << settings_->ant_type << "\", " << settings_->ant_serial_nr << "\x0D";
         send(ss.str());
     }
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
 
     // Configure Aux1 antenna
     {
@@ -675,8 +617,6 @@ void io_comm_rx::Comm_IO::configureRx()
            << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr << "\x0D";
         send(ss.str());
     }
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
 
     // Configuring the NTRIP connection
     // First disable any existing NTRIP connection on NTR1
@@ -685,8 +625,6 @@ void io_comm_rx::Comm_IO::configureRx()
         ss << "snts, NTR1, off \x0D";
         send(ss.str());
     }
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
     if (settings_->rx_has_internet)
     {
         if (settings_->ntrip_mode == "off")
@@ -701,8 +639,6 @@ void io_comm_rx::Comm_IO::configureRx()
                    << ", " << settings_->send_gga << " \x0D";
                 send(ss.str());
             }
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         } else if (settings_->ntrip_mode == "Client-Sapcorda")
         {
             {
@@ -710,8 +646,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ss << "snts, NTR1, Client-Sapcorda, , , , , , , , \x0D";
                 send(ss.str());
             }
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         } else
         {
             ROS_ERROR("Invalid mode specified for NTRIP settings_->");
@@ -730,8 +664,6 @@ void io_comm_rx::Comm_IO::configureRx()
                    << ", TCP2Way \x0D";
                 send(ss.str());
             }
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
             {
                 std::stringstream ss;
                 ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, "
@@ -739,8 +671,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ++stream;
                 send(ss.str());
             }
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
         {
             std::stringstream ss;
@@ -754,8 +684,6 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             send(ss.str());
         }
-		g_response_condition.wait(lock, []() { return g_response_received; });
-		g_response_received = false;
     }
     
 	// Setting the INS-related commands
@@ -787,8 +715,6 @@ void io_comm_rx::Comm_IO::configureRx()
 			}
         
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
 
         // Setting the INS antenna lever arm offset
         {
@@ -806,8 +732,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ROS_ERROR("Please specify a correct value for x, y and z in the config file under ant_lever_arm");
             }
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
 
         // Setting the user defined point offset
         {
@@ -825,8 +749,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ROS_ERROR("Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
             }
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
 
         // Setting the Velocity sensor lever arm offset
         {
@@ -845,8 +767,6 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
 
         // Setting the Attitude Determination
         {
@@ -862,8 +782,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ROS_ERROR("Please specify a valid parameter for heading and pitch");
             }
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
         
         // Setting the INS Solution Reference Point: MainAnt or POI1
         // First disable any existing INS sub-block connection
@@ -872,8 +790,6 @@ void io_comm_rx::Comm_IO::configureRx()
             ss << "sinc, off, all, MainAnt \x0D";
             send(ss.str());
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
 		
 		// INS solution reference point
 		{
@@ -894,8 +810,6 @@ void io_comm_rx::Comm_IO::configureRx()
 				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "MainAnt" << " \x0D";
 				send(ss.str());
 			}
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
 		}
 
         // Setting the INS heading
@@ -915,8 +829,6 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 ROS_ERROR("Invalid mode specified for ins_initial_heading.");
             }
-            g_response_condition.wait(lock, []() { return g_response_received; });
-            g_response_received = false;
         }
 
         // Setting the INS navigation filter
@@ -934,8 +846,6 @@ void io_comm_rx::Comm_IO::configureRx()
                 ROS_ERROR("Please specify a valid AttStsDev and PosStdDev");
             }
         }
-        g_response_condition.wait(lock, []() { return g_response_received; });
-        g_response_received = false;
     }
 	ROS_DEBUG("Leaving configureRx() method");
 }
@@ -1165,8 +1075,13 @@ void io_comm_rx::Comm_IO::defineMessages()
 
 void io_comm_rx::Comm_IO::send(std::string cmd)
 {
+    // It is imperative to hold a lock on the mutex "g_response_mutex" while
+    // modifying the variable "g_response_received".
+    boost::mutex::scoped_lock lock(g_response_mutex);
     // Determine byte size of cmd and hand over to send() method of manager_
     manager_.get()->send(cmd, cmd.size());
+    g_response_condition.wait(lock, []() { return g_response_received; });
+    g_response_received = false;
 }
 
 bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
