@@ -132,7 +132,30 @@ namespace io_comm_rx {
          * @brief Defines which Rx messages to read and which ROS messages to publish
          * @param[in] settings The device's settings
          * */
-        void defineMessages();
+        void defineMessages();        
+
+    private:
+        /**
+         * @brief Sets up the stage for SBF file reading
+         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+         */
+        void prepareSBFFileReading(std::string file_name);
+
+        /**
+         * @brief Sets up the stage for PCAP file reading
+         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
+         */
+        void preparePCAPFileReading(std::string file_name);
+
+        /**
+         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
+         */
+        void reconnect();
+
+        /**
+         * @brief Calls the reconnect() method
+         */
+        void connect();
 
         /**
          * @brief Initializes the serial port
@@ -181,12 +204,6 @@ namespace io_comm_rx {
         void resetSerial(std::string port);
 
         /**
-         * @brief Returns the CallbackHandlers instance
-         * @return The class instance
-         */
-        CallbackHandlers getHandlers() const { return handlers_; }
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
@@ -194,30 +211,6 @@ namespace io_comm_rx {
 
         //! Callback handlers for the inwards streaming messages
         CallbackHandlers handlers_;
-
-    private:
-        /**
-         * @brief Sets up the stage for SBF file reading
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
-         */
-        void prepareSBFFileReading(std::string file_name);
-
-        /**
-         * @brief Sets up the stage for PCAP file reading
-         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
-         */
-        void preparePCAPFileReading(std::string file_name);
-
-        /**
-         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
-         */
-        void reconnect();
-
-        /**
-         * @brief Calls the reconnect() method
-         */
-        void connect();
-
         //! Settings
         Settings* settings_;
         //! Whether connecting to Rx was successful

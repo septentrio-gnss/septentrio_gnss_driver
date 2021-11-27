@@ -952,104 +952,104 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_gpgga == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgga>("$GPGGA");
+            handlers_.insert<septentrio_gnss_driver::Gpgga>("$GPGGA");
     }
     if (settings_->publish_gprmc == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gprmc>("$GPRMC");
+            handlers_.insert<septentrio_gnss_driver::Gprmc>("$GPRMC");
     }
     if (settings_->publish_gpgsa == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgsa>("$GPGSA");
+            handlers_.insert<septentrio_gnss_driver::Gpgsa>("$GPGSA");
     }
     if (settings_->publish_gpgsv == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgsv>("$GPGSV");
+            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GPGSV");
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgsv>("$GLGSV");
+            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GLGSV");
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgsv>("$GAGSV");
+            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GAGSV");
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::Gpgsv>("$GBGSV");
+            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GBGSV");
     }
     if (settings_->publish_pvtcartesian == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::PVTCartesian>("4006");
+            handlers_.insert<septentrio_gnss_driver::PVTCartesian>("4006");
     }
     if (settings_->publish_pvtgeodetic == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::PVTGeodetic>("4007");
+            handlers_.insert<septentrio_gnss_driver::PVTGeodetic>("4007");
     }
     if (settings_->publish_poscovcartesian == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::PosCovCartesian>("5905");
+            handlers_.insert<septentrio_gnss_driver::PosCovCartesian>("5905");
     }
     if (settings_->publish_poscovgeodetic == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::PosCovGeodetic>("5906");
+            handlers_.insert<septentrio_gnss_driver::PosCovGeodetic>("5906");
     }
     if (settings_->publish_velcovgeodetic == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::VelCovGeodetic>("5908");
+            handlers_.insert<septentrio_gnss_driver::VelCovGeodetic>("5908");
     }
     if (settings_->publish_atteuler == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::AttEuler>("5938");
+            handlers_.insert<septentrio_gnss_driver::AttEuler>("5938");
     }
     if (settings_->publish_attcoveuler == true)
     {
         handlers_.callbackmap_ =
-            getHandlers().insert<septentrio_gnss_driver::AttCovEuler>("5939");
+            handlers_.insert<septentrio_gnss_driver::AttCovEuler>("5939");
     }
     
 	// INS-related SBF blocks
     if (settings_->publish_insnavcart == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::INSNavCart>("4225");
+            handlers_.insert<septentrio_gnss_driver::INSNavCart>("4225");
     }
     if (settings_->publish_insnavgeod == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::INSNavGeod>("4226");
+            handlers_.insert<septentrio_gnss_driver::INSNavGeod>("4226");
     }
     if (settings_->publish_imusetup == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::IMUSetup>("4224");
+            handlers_.insert<septentrio_gnss_driver::IMUSetup>("4224");
     }
     if (settings_->publish_extsensormeas == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::ExtSensorMeas>("4050");
+            handlers_.insert<septentrio_gnss_driver::ExtSensorMeas>("4050");
     }
     if (settings_->publish_exteventinsnavgeod == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavGeod>("4230");
+            handlers_.insert<septentrio_gnss_driver::ExtEventINSNavGeod>("4230");
     }
     if (settings_->publish_velsensorsetup == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::VelSensorSetup>("4244");
+            handlers_.insert<septentrio_gnss_driver::VelSensorSetup>("4244");
     }
     if (settings_->publish_exteventinsnavcart == true)
     {
         handlers_.callbackmap_ = 
-            getHandlers().insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
+            handlers_.insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
     }
 	if (settings_->publish_gpst == true)
 	{
-		handlers_.callbackmap_ = getHandlers().insert<int32_t>("GPST");
+		handlers_.callbackmap_ = handlers_.insert<int32_t>("GPST");
 	}
     if (settings_->septentrio_receiver_type == "gnss")
     {
@@ -1061,7 +1061,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<sensor_msgs::NavSatFix>("NavSatFix");
+                handlers_.insert<sensor_msgs::NavSatFix>("NavSatFix");
         }
     }
     if (settings_->septentrio_receiver_type == "ins")
@@ -1074,7 +1074,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<sensor_msgs::NavSatFix>("INSNavSatFix");
+                handlers_.insert<sensor_msgs::NavSatFix>("INSNavSatFix");
         }
     }
     if (settings_->septentrio_receiver_type == "gnss")
@@ -1087,15 +1087,15 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<gps_common::GPSFix>("GPSFix");
+                handlers_.insert<gps_common::GPSFix>("GPSFix");
             // The following blocks are never published, yet are needed for the
             // construction of the GPSFix message, hence we have empty callbacks.
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4013"); // ChannelStatus block
+                handlers_.insert<int32_t>("4013"); // ChannelStatus block
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4027"); // MeasEpoch block
+                handlers_.insert<int32_t>("4027"); // MeasEpoch block
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4001"); // DOP block
+                handlers_.insert<int32_t>("4001"); // DOP block
         }
     }
     if (settings_->septentrio_receiver_type == "ins")
@@ -1108,13 +1108,13 @@ void io_comm_rx::Comm_IO::defineMessages()
                         "For a proper GPSFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<gps_common::GPSFix>("INSGPSFix");
+                handlers_.insert<gps_common::GPSFix>("INSGPSFix");
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4013"); // ChannelStatus block
+                handlers_.insert<int32_t>("4013"); // ChannelStatus block
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4027"); // MeasEpoch block
+                handlers_.insert<int32_t>("4027"); // MeasEpoch block
             handlers_.callbackmap_ =
-                getHandlers().insert<int32_t>("4001"); // DOP block
+                handlers_.insert<int32_t>("4001"); // DOP block
         }
     }
     if (settings_->septentrio_receiver_type == "gnss")
@@ -1128,7 +1128,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<geometry_msgs::PoseWithCovarianceStamped>(
+                handlers_.insert<geometry_msgs::PoseWithCovarianceStamped>(
                     "PoseWithCovarianceStamped");
         }
     }
@@ -1142,21 +1142,21 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                getHandlers().insert<geometry_msgs::PoseWithCovarianceStamped>(
+                handlers_.insert<geometry_msgs::PoseWithCovarianceStamped>(
                     "INSPoseWithCovarianceStamped");
         }
     }
 	if (settings_->publish_diagnostics == true)
 	{
 		handlers_.callbackmap_ =
-			getHandlers().insert<diagnostic_msgs::DiagnosticArray>(
+			handlers_.insert<diagnostic_msgs::DiagnosticArray>(
 				"DiagnosticArray");
 		handlers_.callbackmap_ =
-			getHandlers().insert<int32_t>("4014"); // ReceiverStatus block
+			handlers_.insert<int32_t>("4014"); // ReceiverStatus block
 		handlers_.callbackmap_ =
-			getHandlers().insert<int32_t>("4082"); // QualityInd block
+			handlers_.insert<int32_t>("4082"); // QualityInd block
 		handlers_.callbackmap_ =
-			getHandlers().insert<int32_t>("5902"); // ReceiverSetup block
+			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	}
 	// so on and so forth...
     ROS_DEBUG("Leaving defineMessages() method");
