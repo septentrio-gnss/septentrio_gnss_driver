@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(septentrio_gnss_driver)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+## Compile as C++14, supported in ROS Melodic and newer
+add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -174,7 +174,7 @@ add_executable(${PROJECT_NAME}_node
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-    src/septentrio_gnss_driver/crc/crc.c 
+    src/septentrio_gnss_driver/crc/crc.cpp
     src/septentrio_gnss_driver/communication/communication_core.cpp 
     src/septentrio_gnss_driver/communication/rx_message.cpp 
     src/septentrio_gnss_driver/communication/callback_handlers.cpp
