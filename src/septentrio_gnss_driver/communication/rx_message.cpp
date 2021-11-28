@@ -245,12 +245,12 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     return msg;
 };
 
-septentrio_gnss_driver::INSNavCartPtr
+INSNavCartMsgPtr
 io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
 {
     int SBI_dx = 0;
-    septentrio_gnss_driver::INSNavCartPtr msg =
-        boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+    INSNavCartMsgPtr msg =
+        boost::make_shared<INSNavCartMsg>();
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -387,12 +387,12 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     return msg;
 };
 
-septentrio_gnss_driver::INSNavGeodPtr
+INSNavGeodMsgPtr
 io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 {
     int SBIdx = 0;
-    septentrio_gnss_driver::INSNavGeodPtr msg =
-        boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+    INSNavGeodMsgPtr msg =
+        boost::make_shared<INSNavGeodMsg>();
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -531,11 +531,11 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     return msg;
 };
 
-septentrio_gnss_driver::IMUSetupPtr
+IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
-    septentrio_gnss_driver::IMUSetupPtr msg = 
-        boost::make_shared<septentrio_gnss_driver::IMUSetup>();
+    IMUSetupMsgPtr msg = 
+        boost::make_shared<IMUSetupMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -553,11 +553,11 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     return msg;
 };
 
-septentrio_gnss_driver::VelSensorSetupPtr
+VelSensorSetupMsgPtr
 io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
 {
-    septentrio_gnss_driver::VelSensorSetupPtr msg = 
-        boost::make_shared<septentrio_gnss_driver::VelSensorSetup>();
+    VelSensorSetupMsgPtr msg = 
+        boost::make_shared<VelSensorSetupMsg>();
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -573,12 +573,12 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     return msg;
 };
 
-septentrio_gnss_driver::ExtEventINSNavGeodPtr
+ExtEventINSNavGeodMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 {
     int SBIdx = 0;
-    septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
-        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+    ExtEventINSNavGeodMsgPtr msg =
+        boost::make_shared<ExtEventINSNavGeodMsg>();
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -673,12 +673,12 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     return msg;
 };
 
-septentrio_gnss_driver::ExtEventINSNavCartPtr
+ExtEventINSNavCartMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 {
     int SBI_dx = 0;
-    septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
-        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+    ExtEventINSNavCartMsgPtr msg =
+        boost::make_shared<ExtEventINSNavCartMsg>();
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -772,12 +772,12 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     return msg;
 };
 
-septentrio_gnss_driver::ExtSensorMeasPtr
+ExtSensorMeasMsgPtr
 io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 {
     int i =0;
-    septentrio_gnss_driver::ExtSensorMeasPtr msg=
-        boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+    ExtSensorMeasMsgPtr msg=
+        boost::make_shared<ExtSensorMeasMsg>();
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -2303,8 +2303,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::INSNavCartPtr msg =
-				boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+			INSNavCartMsgPtr msg =
+				boost::make_shared<INSNavCartMsg>();
 			INSNavCart insnavcart;
 			memcpy(&insnavcart, data_, sizeof(insnavcart));
 			msg = INSNavCartCallback(insnavcart);
@@ -2317,7 +2317,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4225;
 			static ros::Publisher publisher = 
-				pNh_->advertise<septentrio_gnss_driver::INSNavCart>(
+				pNh_->advertise<INSNavCartMsg>(
 					"/insnavcart", settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2330,8 +2330,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::INSNavGeodPtr msg =
-				boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+			INSNavGeodMsgPtr msg =
+				boost::make_shared<INSNavGeodMsg>();
 			memcpy(&last_insnavgeod_, data_, sizeof(last_insnavgeod_));
 			msg = INSNavGeodCallback(last_insnavgeod_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2346,7 +2346,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
+				pNh_->advertise<INSNavGeodMsg>("/insnavgeod",
 																	 settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2359,8 +2359,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evIMUSetup: // IMU orientation and lever arm 
 		{
-			septentrio_gnss_driver::IMUSetupPtr msg =
-				boost::make_shared<septentrio_gnss_driver::IMUSetup>();
+			IMUSetupMsgPtr msg =
+				boost::make_shared<IMUSetupMsg>();
 			IMUSetup imusetup;
 			memcpy(&imusetup, data_, sizeof(imusetup));
 			msg = IMUSetupCallback(imusetup);
@@ -2373,7 +2373,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4224;
 			static ros::Publisher publisher = 
-				pNh_->advertise<septentrio_gnss_driver::IMUSetup>("/imusetup", 
+				pNh_->advertise<IMUSetupMsg>("/imusetup", 
 																settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2386,8 +2386,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evVelSensorSetup: // Velocity sensor lever arm
 		{
-			septentrio_gnss_driver::VelSensorSetupPtr msg =
-				boost::make_shared<septentrio_gnss_driver::VelSensorSetup>();
+			VelSensorSetupMsgPtr msg =
+				boost::make_shared<VelSensorSetupMsg>();
 			VelSensorSetup velsensorsetup;
 			memcpy(&velsensorsetup, data_, sizeof(velsensorsetup));
 			msg = VelSensorSetupCallback(velsensorsetup);
@@ -2400,7 +2400,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4244;
 			static ros::Publisher publisher = 
-				pNh_->advertise<septentrio_gnss_driver::VelSensorSetup>("/velsensorsetup", 
+				pNh_->advertise<VelSensorSetupMsg>("/velsensorsetup", 
 																settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2414,8 +2414,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+			ExtEventINSNavCartMsgPtr msg =
+				boost::make_shared<ExtEventINSNavCartMsg>();
 			ExtEventINSNavCart exteventinsnavcart;
 			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
 			msg = ExtEventINSNavCartCallback(exteventinsnavcart);
@@ -2428,7 +2428,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4229;
 			static ros::Publisher publisher = 
-				pNh_->advertise<septentrio_gnss_driver::ExtEventINSNavCart>(
+				pNh_->advertise<ExtEventINSNavCartMsg>(
 					"/exteventinsnavcart", settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2441,8 +2441,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evExtEventINSNavGeod:
 		{
-			septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+			ExtEventINSNavGeodMsgPtr msg =
+				boost::make_shared<ExtEventINSNavGeodMsg>();
 			ExtEventINSNavGeod exteventinsnavgeod;
 			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
 			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
@@ -2455,7 +2455,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4230;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod",
+				pNh_->advertise<ExtEventINSNavGeodMsg>("/exteventinsnavgeod",
 																	  settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2468,8 +2468,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evExtSensorMeas:
 		{
-			septentrio_gnss_driver::ExtSensorMeasPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+			ExtSensorMeasMsgPtr msg =
+				boost::make_shared<ExtSensorMeasMsg>();
 			ExtSensorMeas extsensormeas;
 			memcpy(&extsensormeas, data_, sizeof(extsensormeas));
 			msg = ExtSensorMeasCallback(extsensormeas);
@@ -2482,7 +2482,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4050;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::ExtSensorMeas>("/extsensormeas",
+				pNh_->advertise<ExtSensorMeasMsg>("/extsensormeas",
 																	  settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)

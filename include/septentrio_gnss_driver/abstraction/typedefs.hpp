@@ -88,4 +88,19 @@ typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
 typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
 
+typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
+typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
+typedef septentrio_gnss_driver::INSNavGeod            INSNavGeodMsg;
+typedef septentrio_gnss_driver::INSNavGeodPtr         INSNavGeodMsgPtr;
+typedef septentrio_gnss_driver::IMUSetup              IMUSetupMsg;
+typedef septentrio_gnss_driver::IMUSetupPtr           IMUSetupMsgPtr;
+typedef septentrio_gnss_driver::VelSensorSetup        VelSensorSetupMsg;
+typedef septentrio_gnss_driver::VelSensorSetupPtr     VelSensorSetupMsgPtr;
+typedef septentrio_gnss_driver::ExtEventINSNavGeod    ExtEventINSNavGeodMsg;
+typedef septentrio_gnss_driver::ExtEventINSNavGeodPtr ExtEventINSNavGeodMsgPtr;
+typedef septentrio_gnss_driver::ExtEventINSNavCart    ExtEventINSNavCartMsg;
+typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
+typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
+typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
+
 #endif // Typedefs_HPP

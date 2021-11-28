@@ -925,37 +925,37 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_insnavcart == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::INSNavCart>("4225");
+            handlers_.insert<INSNavCartMsg>("4225");
     }
     if (settings_->publish_insnavgeod == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::INSNavGeod>("4226");
+            handlers_.insert<INSNavGeodMsg>("4226");
     }
     if (settings_->publish_imusetup == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::IMUSetup>("4224");
+            handlers_.insert<IMUSetupMsg>("4224");
     }
     if (settings_->publish_extsensormeas == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::ExtSensorMeas>("4050");
+            handlers_.insert<ExtSensorMeasMsg>("4050");
     }
     if (settings_->publish_exteventinsnavgeod == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::ExtEventINSNavGeod>("4230");
+            handlers_.insert<ExtEventINSNavGeodMsg>("4230");
     }
     if (settings_->publish_velsensorsetup == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::VelSensorSetup>("4244");
+            handlers_.insert<VelSensorSetupMsg>("4244");
     }
     if (settings_->publish_exteventinsnavcart == true)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<septentrio_gnss_driver::ExtEventINSNavCart>("4229");
+            handlers_.insert<ExtEventINSNavCartMsg>("4229");
     }
 	if (settings_->publish_gpst == true)
 	{
