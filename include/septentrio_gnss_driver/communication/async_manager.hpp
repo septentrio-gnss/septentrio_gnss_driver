@@ -369,11 +369,11 @@ namespace io_comm_rx {
     AsyncManager<StreamT>::~AsyncManager()
     {
         close();
-        try_parsing_ = true;
-        parsing_condition_.notify_all();
-        waiting_thread_->join();
-        parsing_thread_->join();
         io_service_->stop();
+        try_parsing_ = true;
+        parsing_condition_.notify_one();
+        parsing_thread_->join();
+        waiting_thread_->join();
         async_background_thread_->join();
     }
 
