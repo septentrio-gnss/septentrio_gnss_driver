@@ -73,4 +73,19 @@ typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;
 typedef sensor_msgs::TimeReference                  TimeReferenceMsg;
 typedef sensor_msgs::TimeReferencePtr               TimeReferenceMsgPtr;
 
+typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
+typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
+typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
+typedef septentrio_gnss_driver::AttEulerPtr        AttEulerMsgPtr;
+typedef septentrio_gnss_driver::PVTCartesian       PVTCartesianMsg;
+typedef septentrio_gnss_driver::PVTCartesianPtr    PVTCartesianMsgPtr;
+typedef septentrio_gnss_driver::PVTGeodetic        PVTGeodeticMsg;
+typedef septentrio_gnss_driver::PVTGeodeticPtr     PVTGeodeticMsgPtr;
+typedef septentrio_gnss_driver::PosCovCartesian    PosCovCartesianMsg;
+typedef septentrio_gnss_driver::PosCovCartesianPtr PosCovCartesianMsgPtr;
+typedef septentrio_gnss_driver::PosCovGeodetic     PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
+typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
+
 #endif // Typedefs_HPP

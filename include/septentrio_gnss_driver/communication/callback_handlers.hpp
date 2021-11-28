@@ -199,7 +199,7 @@ namespace io_comm_rx {
          *
          * This method is called by "handlers_" in rosaic_node.cpp.
          * T would be a (custom or not) ROS message, e.g.
-         * septentrio_gnss_driver::PVTGeodetic, or nmea_msgs::GPGGA. Note that
+         * PVTGeodeticMsg, or nmea_msgs::GPGGA. Note that
          * "typename" could be omitted in the argument.
          * @param message_key The pair's key
          * @return The modified multimap "callbackmap_"

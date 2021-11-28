@@ -36,11 +36,11 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-septentrio_gnss_driver::PVTGeodeticPtr
+PVTGeodeticMsgPtr
 io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
-    septentrio_gnss_driver::PVTGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
+    PVTGeodeticMsgPtr msg =
+        boost::make_shared<PVTGeodeticMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -77,11 +77,11 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::PVTCartesianPtr
+PVTCartesianMsgPtr
 io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
 {
-    septentrio_gnss_driver::PVTCartesianPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
+    PVTCartesianMsgPtr msg =
+        boost::make_shared<PVTCartesianMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -118,11 +118,11 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     return msg;
 }
 
-septentrio_gnss_driver::PosCovCartesianPtr
+PosCovCartesianMsgPtr
 io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
 {
-    septentrio_gnss_driver::PosCovCartesianPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PosCovCartesian>();
+    PosCovCartesianMsgPtr msg =
+        boost::make_shared<PosCovCartesianMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -145,11 +145,11 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     return msg;
 }
 
-septentrio_gnss_driver::PosCovGeodeticPtr
+PosCovGeodeticMsgPtr
 io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
 {
-    septentrio_gnss_driver::PosCovGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PosCovGeodetic>();
+    PosCovGeodeticMsgPtr msg =
+        boost::make_shared<PosCovGeodeticMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -172,11 +172,11 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::VelCovGeodeticPtr
+VelCovGeodeticMsgPtr
 io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
 {
-    septentrio_gnss_driver::VelCovGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
+    VelCovGeodeticMsgPtr msg =
+        boost::make_shared<VelCovGeodeticMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -199,11 +199,11 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::AttEulerPtr
+AttEulerMsgPtr
 io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
 {
-    septentrio_gnss_driver::AttEulerPtr msg =
-        boost::make_shared<septentrio_gnss_driver::AttEuler>();
+    AttEulerMsgPtr msg =
+        boost::make_shared<AttEulerMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -223,11 +223,11 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     return msg;
 };
 
-septentrio_gnss_driver::AttCovEulerPtr
+AttCovEulerMsgPtr
 io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
 {
-    septentrio_gnss_driver::AttCovEulerPtr msg =
-        boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
+    AttCovEulerMsgPtr msg =
+        boost::make_shared<AttCovEulerMsg>();
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -2139,8 +2139,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{   // The curly bracket here is crucial: Declarations inside a block remain
 		    // inside, and will die at
 			// the end of the block. Otherwise variable overloading etc.
-			septentrio_gnss_driver::PVTCartesianPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
+			PVTCartesianMsgPtr msg =
+				boost::make_shared<PVTCartesianMsg>();
 			PVTCartesian pvtcartesian;
 			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
 			msg = PVTCartesianCallback(pvtcartesian);
@@ -2153,7 +2153,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4006;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::PVTCartesian>("/pvtcartesian",
+				pNh_->advertise<PVTCartesianMsg>("/pvtcartesian",
 																	  settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2166,8 +2166,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::PVTGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
+			PVTGeodeticMsgPtr msg =
+				boost::make_shared<PVTGeodeticMsg>();
 			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2182,7 +2182,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			pvtgeodetic_has_arrived_navsatfix_ = true;
 			pvtgeodetic_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::PVTGeodetic>("/pvtgeodetic",
+				pNh_->advertise<PVTGeodeticMsg>("/pvtgeodetic",
 																	 settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2194,8 +2194,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evPosCovCartesian:
 		{
-			septentrio_gnss_driver::PosCovCartesianPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PosCovCartesian>();
+			PosCovCartesianMsgPtr msg =
+				boost::make_shared<PosCovCartesianMsg>();
 			PosCovCartesian poscovcartesian;
 			memcpy(&poscovcartesian, data_, sizeof(poscovcartesian));
 			msg = PosCovCartesianCallback(poscovcartesian);
@@ -2208,7 +2208,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5905;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::PosCovCartesian>(
+				pNh_->advertise<PosCovCartesianMsg>(
 					"/poscovcartesian", settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2220,8 +2220,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evPosCovGeodetic:
 		{
-			septentrio_gnss_driver::PosCovGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PosCovGeodetic>();
+			PosCovGeodeticMsgPtr msg =
+				boost::make_shared<PosCovGeodeticMsg>();
 			memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
 			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2236,7 +2236,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			poscovgeodetic_has_arrived_navsatfix_ = true;
 			poscovgeodetic_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::PosCovGeodetic>(
+				pNh_->advertise<PosCovGeodeticMsg>(
 					"/poscovgeodetic", settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2248,8 +2248,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evAttEuler:
 		{
-			septentrio_gnss_driver::AttEulerPtr msg =
-				boost::make_shared<septentrio_gnss_driver::AttEuler>();
+			AttEulerMsgPtr msg =
+				boost::make_shared<AttEulerMsg>();
 			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
 			msg = AttEulerCallback(last_atteuler_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2263,7 +2263,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			atteuler_has_arrived_gpsfix_ = true;
 			atteuler_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::AttEuler>("/atteuler",
+				pNh_->advertise<AttEulerMsg>("/atteuler",
 																  settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2275,8 +2275,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evAttCovEuler:
 		{
-			septentrio_gnss_driver::AttCovEulerPtr msg =
-				boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
+			AttCovEulerMsgPtr msg =
+				boost::make_shared<AttCovEulerMsg>();
 			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
 			msg = AttCovEulerCallback(last_attcoveuler_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2290,7 +2290,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			attcoveuler_has_arrived_gpsfix_ = true;
 			attcoveuler_has_arrived_pose_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::AttCovEuler>("/attcoveuler",
+				pNh_->advertise<AttCovEulerMsg>("/attcoveuler",
 																	 settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2953,8 +2953,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evVelCovGeodetic:
 		{
-			septentrio_gnss_driver::VelCovGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
+			VelCovGeodeticMsgPtr msg =
+				boost::make_shared<VelCovGeodeticMsg>();
 			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
 			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2967,7 +2967,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->block_header.id = 5908;
 			velcovgeodetic_has_arrived_gpsfix_ = true;
 			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::VelCovGeodetic>(
+				pNh_->advertise<VelCovGeodeticMsg>(
 					"/velcovgeodetic", settings_->g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)

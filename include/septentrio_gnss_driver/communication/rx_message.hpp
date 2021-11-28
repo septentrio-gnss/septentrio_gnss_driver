@@ -259,23 +259,23 @@ struct Settings
     bool publish_gpgsa;
     //! Whether or not to publish the GSV message
     bool publish_gpgsv;
-    //! Whether or not to publish the septentrio_gnss_driver::PVTCartesian
+    //! Whether or not to publish the PVTCartesianMsg
     //! message
     bool publish_pvtcartesian;
-    //! Whether or not to publish the septentrio_gnss_driver::PVTGeodetic message
+    //! Whether or not to publish the PVTGeodeticMsg message
     bool publish_pvtgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::PosCovCartesian
+    //! Whether or not to publish the PosCovCartesianMsg
     //! message
     bool publish_poscovcartesian;
-    //! Whether or not to publish the septentrio_gnss_driver::PosCovGeodetic
+    //! Whether or not to publish the PosCovGeodeticMsg
     //! message
     bool publish_poscovgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::VelCovGeodetic
+    //! Whether or not to publish the VelCovGeodeticMsg
     //! message
     bool publish_velcovgeodetic;
-    //! Whether or not to publish the septentrio_gnss_driver::AttEuler message
+    //! Whether or not to publish the AttEulerMsg message
     bool publish_atteuler;
-    //! Whether or not to publish the septentrio_gnss_driver::AttCovEuler message
+    //! Whether or not to publish the AttCovEulerMsg message
     bool publish_attcoveuler;
     //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
     bool publish_insnavcart;
@@ -799,7 +799,7 @@ namespace io_comm_rx {
          * the ROS message PVTCartesian
          * @return A smart pointer to the ROS message PVTCartesian just created
          */
-        septentrio_gnss_driver::PVTCartesianPtr
+        PVTCartesianMsgPtr
         PVTCartesianCallback(PVTCartesian& data);
 
         /**
@@ -808,7 +808,7 @@ namespace io_comm_rx {
          * the ROS message PVTGeodetic
          * @return A smart pointer to the ROS message PVTGeodetic just created
          */
-        septentrio_gnss_driver::PVTGeodeticPtr
+        PVTGeodeticMsgPtr
         PVTGeodeticCallback(PVTGeodetic& data);
 
         /**
@@ -817,7 +817,7 @@ namespace io_comm_rx {
          * the ROS message PosCovCartesian
          * @return A smart pointer to the ROS message PosCovCartesian just created
          */
-        septentrio_gnss_driver::PosCovCartesianPtr
+        PosCovCartesianMsgPtr
         PosCovCartesianCallback(PosCovCartesian& data);
 
         /**
@@ -826,7 +826,7 @@ namespace io_comm_rx {
          * the ROS message PosCovGeodetic
          * @return A smart pointer to the ROS message PosCovGeodetic just created
          */
-        septentrio_gnss_driver::PosCovGeodeticPtr
+        PosCovGeodeticMsgPtr
         PosCovGeodeticCallback(PosCovGeodetic& data);
 
         /**
@@ -835,7 +835,7 @@ namespace io_comm_rx {
          * the ROS message VelCovGeodetic
          * @return A smart pointer to the ROS message VelCovGeodetic just created
          */
-        septentrio_gnss_driver::VelCovGeodeticPtr
+        VelCovGeodeticMsgPtr
         VelCovGeodeticCallback(VelCovGeodetic& data);
 
         /**
@@ -844,7 +844,7 @@ namespace io_comm_rx {
          * the ROS message AttEuler
          * @return A smart pointer to the ROS message AttEuler just created
          */
-        septentrio_gnss_driver::AttEulerPtr AttEulerCallback(AttEuler& data);
+        AttEulerMsgPtr AttEulerCallback(AttEuler& data);
 
         /**
          * @brief Callback function when reading AttCovEuler blocks
@@ -852,7 +852,7 @@ namespace io_comm_rx {
          * the ROS message AttCovEuler
          * @return A smart pointer to the ROS message AttCovEuler just created
          */
-        septentrio_gnss_driver::AttCovEulerPtr
+        AttCovEulerMsgPtr
         AttCovEulerCallback(AttCovEuler& data);
 
         /**

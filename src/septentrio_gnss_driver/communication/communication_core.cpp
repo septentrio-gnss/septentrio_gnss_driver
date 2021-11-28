@@ -888,37 +888,37 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_pvtcartesian == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::PVTCartesian>("4006");
+            handlers_.insert<PVTCartesianMsg>("4006");
     }
     if (settings_->publish_pvtgeodetic == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::PVTGeodetic>("4007");
+            handlers_.insert<PVTGeodeticMsg>("4007");
     }
     if (settings_->publish_poscovcartesian == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::PosCovCartesian>("5905");
+            handlers_.insert<PosCovCartesianMsg>("5905");
     }
     if (settings_->publish_poscovgeodetic == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::PosCovGeodetic>("5906");
+            handlers_.insert<PosCovGeodeticMsg>("5906");
     }
     if (settings_->publish_velcovgeodetic == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::VelCovGeodetic>("5908");
+            handlers_.insert<VelCovGeodeticMsg>("5908");
     }
     if (settings_->publish_atteuler == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::AttEuler>("5938");
+            handlers_.insert<AttEulerMsg>("5938");
     }
     if (settings_->publish_attcoveuler == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::AttCovEuler>("5939");
+            handlers_.insert<AttCovEulerMsg>("5939");
     }
     
 	// INS-related SBF blocks
