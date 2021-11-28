@@ -114,7 +114,11 @@ namespace io_comm_rx {
         /**
          * @brief Default destructor of the class Comm_IO
          */
-        virtual ~Comm_IO() = default;
+        ~Comm_IO()
+        {
+            stopping_ = true;
+            connectionThread_->join();
+        }
 
         /**
          * @brief Initializes the I/O handling
@@ -236,6 +240,11 @@ namespace io_comm_rx {
         boost::shared_ptr<Manager> manager_;
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
+
+        //! Connection or reading thread
+        std::unique_ptr<boost::thread> connectionThread_;
+        //! Indicator for threads to exit
+        std::atomic<bool> stopping_;
 
         friend class CallbackHandlers;
         friend class RxMessage;

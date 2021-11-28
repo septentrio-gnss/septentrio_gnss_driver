@@ -121,7 +121,8 @@ uint32_t g_cd_count;
 
 io_comm_rx::Comm_IO::Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
     handlers_(pNh, settings),
-    settings_(settings)
+    settings_(settings),
+    stopping_(false)
 {
     g_response_received = false;
     g_cd_received = false;
@@ -151,17 +152,15 @@ void io_comm_rx::Comm_IO::initializeIO()
         serial_ = false;
         settings_->read_from_sbf_log = false;
         settings_->read_from_pcap = false;
-        boost::thread temporary_thread(boost::bind(&Comm_IO::connect, this));
-        temporary_thread.detach();
+        connectionThread_.reset(new  boost::thread (boost::bind(&Comm_IO::connect, this)));
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
         serial_ = false;
         settings_->read_from_sbf_log = true;
         settings_->read_from_pcap = false;
-        boost::thread temporary_thread(
-            boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2]));
-        temporary_thread.detach();
+        connectionThread_.reset(new  boost::thread (
+            boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2])));
 
     } else if (boost::regex_match(
                    settings_->device, match,
@@ -170,9 +169,8 @@ void io_comm_rx::Comm_IO::initializeIO()
         serial_ = false;
         settings_->read_from_sbf_log = false;
         settings_->read_from_pcap = true;
-        boost::thread temporary_thread(
-            boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2]));
-        temporary_thread.detach();
+        connectionThread_.reset(new  boost::thread (
+            boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2])));
 
     } else if (boost::regex_match(settings_->device, match, boost::regex("(serial):(.+)")))
     {
@@ -184,8 +182,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         ss << "Searching for serial port" << proto;
 		settings_->device = proto;
         ROS_DEBUG("%s", ss.str().c_str());
-        boost::thread temporary_thread(boost::bind(&Comm_IO::connect, this));
-        temporary_thread.detach();
+        connectionThread_.reset(new  boost::thread (boost::bind(&Comm_IO::connect, this)));
     } else
     {
         std::stringstream ss;
@@ -237,7 +234,7 @@ void io_comm_rx::Comm_IO::connect()
 
     boost::asio::io_service io;
     boost::posix_time::millisec wait_ms(static_cast<uint32_t>(settings_->reconnect_delay_s * 1000));
-    while (!connected_)
+    while (!connected_ && !stopping_)
     {
         boost::asio::deadline_timer t(io, wait_ms);
         reconnect();
@@ -1166,12 +1163,12 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
         throw std::runtime_error("I could not find your file. Or it is corrupted.");
     }
     // The spec now guarantees that vectors store their elements contiguously.
-    to_be_parsed = &vec_buf[0];
+    to_be_parsed = vec_buf.data();
     std::stringstream ss;
     ss << "Opened and copied over from " << file_name;
     ROS_DEBUG("%s", ss.str().c_str());
 
-    while (1) // Loop will stop if we are done reading the SBF file
+    while (!stopping_) // Loop will stop if we are done reading the SBF file
     {
         try
         {
@@ -1181,7 +1178,7 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
             handlers_.readCallback(to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
         {
-            if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+            if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
             {
                 break;
             }
@@ -1189,13 +1186,12 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
             ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
             continue;
         }
-        if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+        if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
         {
             break;
         }
         to_be_parsed = to_be_parsed + buffer_size;
     }
-    delete[] to_be_parsed; // Freeing memory
     ROS_DEBUG("Leaving initializeSBFFileReading() method..");
 }
 
@@ -1218,9 +1214,9 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
 
     std::size_t buffer_size = pcapReader::PcapDevice::BUFFSIZE;
     uint8_t* to_be_parsed = new uint8_t[buffer_size];
-    to_be_parsed = &vec_buf[0];
+    to_be_parsed = vec_buf.data();
 
-    while (1) // Loop will stop if we are done reading the SBF file
+    while (!stopping_) // Loop will stop if we are done reading the SBF file
     {
         try
         {
@@ -1230,7 +1226,7 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
             handlers_.readCallback(to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
         {
-            if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+            if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
             {
                 break;
             }
@@ -1241,13 +1237,12 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
             ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
             continue;
         }
-        if (to_be_parsed - &vec_buf[0] >= vec_buf.size() * sizeof(uint8_t))
+        if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
         {
             break;
         }
         to_be_parsed = to_be_parsed + buffer_size;
     }
-    delete[] to_be_parsed;
     ROS_DEBUG("Leaving initializePCAPFileReading() method..");
 }
 
