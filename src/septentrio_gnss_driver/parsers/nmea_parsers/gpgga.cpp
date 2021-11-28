@@ -96,8 +96,8 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                 msg->header.stamp.nsec = unix_time_nanoseconds;
             } else
             {
-                ros::Time time_obj;
-                time_obj = ros::Time::now();
+                Timestamp time_obj;
+                time_obj = Timestamp::now();
                 msg->header.stamp.sec = time_obj.sec;
                 msg->header.stamp.nsec = time_obj.nsec;
             }

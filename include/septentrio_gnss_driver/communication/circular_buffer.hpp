@@ -29,7 +29,7 @@
 // *****************************************************************************
 
 // ROS includes
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 // C++ library includes
 #include <algorithm>

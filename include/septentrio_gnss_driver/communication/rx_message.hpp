@@ -123,35 +123,14 @@
 #include <boost/format.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/tokenizer.hpp>
-// ROS includes
-#include <diagnostic_msgs/DiagnosticArray.h>
-#include <diagnostic_msgs/DiagnosticStatus.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <gps_common/GPSFix.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/TimeReference.h>
 // ROSaic includes
-#include <septentrio_gnss_driver/AttCovEuler.h>
-#include <septentrio_gnss_driver/AttEuler.h>
-#include <septentrio_gnss_driver/PVTCartesian.h>
-#include <septentrio_gnss_driver/PVTGeodetic.h>
-#include <septentrio_gnss_driver/PosCovCartesian.h>
-#include <septentrio_gnss_driver/PosCovGeodetic.h>
-#include <septentrio_gnss_driver/VelCovGeodetic.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gprmc.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
-// INS includes
-#include <septentrio_gnss_driver/INSNavCart.h>
-#include <septentrio_gnss_driver/INSNavGeod.h>
-#include <septentrio_gnss_driver/IMUSetup.h>
-#include <septentrio_gnss_driver/VelSensorSetup.h>
-#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
-#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
-#include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 #ifndef RX_MESSAGE_HPP
 #define RX_MESSAGE_HPP
@@ -312,15 +291,15 @@ struct Settings
     bool publish_exteventinsnavcart;
     //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
     bool publish_extsensormeas;
-    //! Whether or not to publish the sensor_msgs::TimeReference message with GPST
+    //! Whether or not to publish the TimeReferenceMsg message with GPST
     bool publish_gpst;
-    //! Whether or not to publish the sensor_msgs::NavSatFix message
+    //! Whether or not to publish the NavSatFixMsg message
     bool publish_navsatfix;
-    //! Whether or not to publish the gps_common::GPSFix message
+    //! Whether or not to publish the GPSFixMsg message
     bool publish_gpsfix;
-    //! Whether or not to publish the geometry_msgs::PoseWithCovarianceStamped message
+    //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;
-    //! Whether or not to publish the diagnostic_msgs::DiagnosticArray message
+    //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
     //! Queue size for ROS publishers
     const uint32_t g_ROS_QUEUE_SIZE = 1;
@@ -642,7 +621,7 @@ namespace io_comm_rx {
         std::size_t message_size_;
 
         /**
-         * @brief Number of times the gps_common::GPSFix message has been published
+         * @brief Number of times the GPSFixMsg message has been published
          */
         uint32_t count_gpsfix_ = 0;
 
@@ -743,7 +722,7 @@ namespace io_comm_rx {
 
         //! When reading from an SBF file, the ROS publishing frequency is governed by the
         //! time stamps found in the SBF blocks therein.
-        ros::Time unix_time_;
+        Timestamp unix_time_;
 
         //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
         //! not
@@ -943,13 +922,13 @@ namespace io_comm_rx {
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
-        sensor_msgs::NavSatFixPtr NavSatFixCallback();
+        NavSatFixMsgPtr NavSatFixCallback();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
          * @return A smart pointer to the ROS message GPSFix just created
          */
-        gps_common::GPSFixPtr GPSFixCallback();
+        GPSFixMsgPtr GPSFixCallback();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
@@ -957,21 +936,21 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        geometry_msgs::PoseWithCovarianceStampedPtr
+        PoseWithCovarianceStampedMsgPtr
         PoseWithCovarianceStampedCallback();
 
         /**
          * @brief "Callback" function when constructing
-         * diagnostic_msgs::DiagnosticArray messages
+         * DiagnosticArrayMsg messages
          * @return A smart pointer to the ROS message
-         * diagnostic_msgs::DiagnosticArray just created
+         * DiagnosticArrayMsg just created
          */
-        diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
+        DiagnosticArrayMsgPtr DiagnosticArrayCallback();
 
          /**
          * @brief Waits according to time when reading from file
          */
-        void wait(const ros::Time& time_obj);
+        void wait(const Timestamp& time_obj);
 
         /**
          * @brief Wether all elements are true
@@ -993,9 +972,9 @@ namespace io_comm_rx {
          * elapsed since January 6, 1980
          * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
          * used, otherwise the current time
-         * @return ros::Time object containing seconds and nanoseconds since last epoch
+         * @return Timestamp object containing seconds and nanoseconds since last epoch
          */
-        ros::Time timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);    
+        Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);    
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

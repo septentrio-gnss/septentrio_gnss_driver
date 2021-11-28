@@ -971,7 +971,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<sensor_msgs::NavSatFix>("NavSatFix");
+                handlers_.insert<NavSatFixMsg>("NavSatFix");
         }
     }
     if (settings_->septentrio_receiver_type == "ins")
@@ -984,7 +984,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<sensor_msgs::NavSatFix>("INSNavSatFix");
+                handlers_.insert<NavSatFixMsg>("INSNavSatFix");
         }
     }
     if (settings_->septentrio_receiver_type == "gnss")
@@ -997,7 +997,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<gps_common::GPSFix>("GPSFix");
+                handlers_.insert<GPSFixMsg>("GPSFix");
             // The following blocks are never published, yet are needed for the
             // construction of the GPSFix message, hence we have empty callbacks.
             handlers_.callbackmap_ =
@@ -1018,7 +1018,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                         "For a proper GPSFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<gps_common::GPSFix>("INSGPSFix");
+                handlers_.insert<GPSFixMsg>("INSGPSFix");
             handlers_.callbackmap_ =
                 handlers_.insert<int32_t>("4013"); // ChannelStatus block
             handlers_.callbackmap_ =
@@ -1038,7 +1038,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<geometry_msgs::PoseWithCovarianceStamped>(
+                handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "PoseWithCovarianceStamped");
         }
     }
@@ -1052,14 +1052,14 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
-                handlers_.insert<geometry_msgs::PoseWithCovarianceStamped>(
+                handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "INSPoseWithCovarianceStamped");
         }
     }
 	if (settings_->publish_diagnostics == true)
 	{
 		handlers_.callbackmap_ =
-			handlers_.insert<diagnostic_msgs::DiagnosticArray>(
+			handlers_.insert<DiagnosticArrayMsg>(
 				"DiagnosticArray");
 		handlers_.callbackmap_ =
 			handlers_.insert<int32_t>("4014"); // ReceiverStatus block

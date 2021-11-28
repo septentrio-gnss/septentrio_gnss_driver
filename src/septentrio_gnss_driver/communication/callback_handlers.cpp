@@ -153,7 +153,7 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
+        // Call PoseWithCovarianceStampedMsg callback function if it was
         // added for GNSS
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -180,7 +180,7 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
+        // Call PoseWithCovarianceStampedMsg callback function if it was
         // added for INS
         if (settings_->septentrio_receiver_type == "ins")
         {
@@ -206,7 +206,7 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call diagnostic_msgs::DiagnosticArray callback function if it was added
+        // Call DiagnosticArrayMsg callback function if it was added
         // for the both type of receivers
 		if (settings_->publish_diagnostics)
 		{
@@ -245,7 +245,7 @@ namespace io_comm_rx {
 				do_diagnostics_ = std::string();
 			}
 		}
-        // Call sensor_msgs::TimeReference (with GPST) callback function if it was
+        // Call TimeReferenceMsg (with GPST) callback function if it was
         // added
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -254,7 +254,7 @@ namespace io_comm_rx {
                 CallbackMap::key_type key1 = "GPST";
                 std::string ID_temp = rx_message_.messageID();
                 // If no new PVTGeodetic block is coming in, there is no need to publish
-                // sensor_msgs::TimeReference (with GPST) anew.
+                // TimeReferenceMsg (with GPST) anew.
                 if (ID_temp == "4007")
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
@@ -278,7 +278,7 @@ namespace io_comm_rx {
                 CallbackMap::key_type key1 = "GPST";
                 std::string ID_temp = rx_message_.messageID();
                 // If no new INSNavGeod block is coming in, there is no need to publish
-                // sensor_msgs::TimeReference (with GPST) anew.
+                // TimeReferenceMsg (with GPST) anew.
                 if (ID_temp == "4226")
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);

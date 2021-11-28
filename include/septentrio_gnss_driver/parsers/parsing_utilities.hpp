@@ -38,7 +38,7 @@
 #include <string>  // C++ header, corresponds to <string.h> in C
 // ROS includes
 #include <geometry_msgs/Quaternion.h>
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 /**
  * @file parsing_utilities.hpp

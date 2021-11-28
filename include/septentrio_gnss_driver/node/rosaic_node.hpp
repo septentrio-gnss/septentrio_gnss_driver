@@ -66,6 +66,7 @@
  */
 
 // ROS includes
+#include <ros/ros.h>
 #include <ros/console.h>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
