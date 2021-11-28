@@ -198,6 +198,12 @@ namespace io_comm_rx {
         //! New thread for receiving incoming messages
         boost::shared_ptr<boost::thread> async_background_thread_;
 
+         //! New thread for receiving incoming messages
+        boost::shared_ptr<boost::thread> parsing_thread_;
+
+         //! New thread for receiving incoming messages
+        boost::shared_ptr<boost::thread> waiting_thread_;
+
         //! Callback to be called once message arrives
         Callback read_callback_;
 
@@ -232,7 +238,7 @@ namespace io_comm_rx {
         std::size_t shift_bytes = 0;
         std::size_t arg_for_read_callback = 0;
 
-        while (!timed_out) // Loop will stop if condition variable timed out
+        while (!timed_out  && !stopping_) // Loop will stop if condition variable timed out
         {
             boost::mutex::scoped_lock lock(parse_mutex_);
             parsing_condition_.wait_for(lock, boost::chrono::seconds(10),
@@ -353,15 +359,21 @@ namespace io_comm_rx {
         // allowing the application to take back responsibility for destroying the
         // object.
         uint16_t count = 0;
-        boost::thread(boost::bind(&AsyncManager::callAsyncWait, this, &count));
+        waiting_thread_.reset(new boost::thread(boost::bind(&AsyncManager::callAsyncWait, this, &count)));
 
         ROS_DEBUG("Launching tryParsing() thread..");
-        boost::thread(boost::bind(&AsyncManager::tryParsing, this));
+        parsing_thread_.reset(new boost::thread(boost::bind(&AsyncManager::tryParsing, this)));
     } // Calls std::terminate() on thread just created
 
     template <typename StreamT>
     AsyncManager<StreamT>::~AsyncManager()
     {
+        close();
+        try_parsing_ = true;
+        parsing_condition_.notify_all();
+        waiting_thread_->join();
+        parsing_thread_->join();
+        io_service_->stop();
         async_background_thread_->join();
     }
 
@@ -389,7 +401,7 @@ namespace io_comm_rx {
                       error.message().c_str(), bytes_transferred);
         } else if (bytes_transferred > 0)
         {
-            if (read_callback_) // Will be false in InitializeSerial (first call)
+            if (read_callback_ && !stopping_) // Will be false in InitializeSerial (first call)
                                 // since read_callback_ not added yet..
             {
                 boost::mutex::scoped_lock lock(parse_mutex_);
