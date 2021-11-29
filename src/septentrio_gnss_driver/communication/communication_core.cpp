@@ -159,6 +159,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         serial_ = false;
         settings_->read_from_sbf_log = true;
         settings_->read_from_pcap = false;
+        settings_->use_gnss_time = true;
         connectionThread_.reset(new  boost::thread (
             boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2])));
 
@@ -169,6 +170,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         serial_ = false;
         settings_->read_from_sbf_log = false;
         settings_->read_from_pcap = true;
+        settings_->use_gnss_time = true;
         connectionThread_.reset(new  boost::thread (
             boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2])));
 

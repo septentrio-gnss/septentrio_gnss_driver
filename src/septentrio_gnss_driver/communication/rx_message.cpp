@@ -28,6 +28,8 @@
 //
 // *****************************************************************************
 
+#include <thread>
+
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
 
 /**
@@ -3046,15 +3048,16 @@ void io_comm_rx::RxMessage::wait(const Timestamp& time_obj)
 		(unix_time_.sec != unix_old.sec ||
 			unix_time_.nsec != unix_old.nsec))
 	{
-		std::stringstream ss;
-		ss << "Waiting for " << unix_time_.sec - unix_old.sec
-			<< " seconds and "
-			<< abs(int((unix_time_.nsec - unix_old.nsec) / 1000))
-			<< " microseconds";
-		ROS_DEBUG("%s", ss.str().c_str());
-		sleep((unsigned int)(unix_time_.sec - unix_old.sec));
-		usleep(static_cast<uint32_t>(
-			abs(int((unix_time_.nsec - unix_old.nsec) / 1000))));
+	    auto sleep_nsec = (unix_time_ - unix_old).toNSec();
+        if (sleep_nsec > 0)
+        {
+            std::stringstream ss;
+            ss << "Waiting for " << sleep_nsec / 1000000
+            << " milliseconds..." << (unix_time_ - unix_old).toSec();
+            ROS_DEBUG("%s", ss.str().c_str());       
+        
+		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
+        }
 	}
 }
 
