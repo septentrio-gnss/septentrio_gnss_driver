@@ -529,10 +529,10 @@ namespace io_comm_rx {
                 std::string cd(
                     reinterpret_cast<const char*>(rx_message_.getPosBuffer()), 4);
                 g_rx_tcp_port = cd;
-                ROS_INFO_COND(
-                    g_cd_count == 0,
-                    "The connection descriptor for the TCP connection is %s",
-                    cd.c_str());
+                if (g_cd_count == 0)
+                {
+                    node_->log(LogLevel::INFO, "The connection descriptor for the TCP connection is " + cd);
+                }
                 if (g_cd_count < 3)
                     ++g_cd_count;
                 if (g_cd_count == 2)

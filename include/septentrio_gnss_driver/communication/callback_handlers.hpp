@@ -214,9 +214,8 @@ namespace io_comm_rx {
             callbackmap_.insert(std::make_pair(
                 message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
             CallbackMap::key_type key = message_key;
-            ROS_DEBUG("Key %s successfully inserted into multimap: %s",
-                      message_key.c_str(),
-                      ((unsigned int)callbackmap_.count(key)) ? "true" : "false");
+            node_->log(LogLevel::DEBUG, "Key " +  message_key + " successfully inserted into multimap: " +
+                                        (((unsigned int)callbackmap_.count(key)) ? "true" : "false"));
             return callbackmap_;
         }
 
