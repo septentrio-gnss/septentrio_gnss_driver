@@ -1201,7 +1201,7 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
 {
     node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading() method..");
     pcapReader::buffer_t vec_buf;
-    pcapReader::PcapDevice device(vec_buf);
+    pcapReader::PcapDevice device(node_, vec_buf);
 
     if (!device.connect(file_name.c_str()))
     {
