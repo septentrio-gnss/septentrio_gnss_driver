@@ -119,7 +119,8 @@ std::string g_rx_tcp_port;
 //! to count the connection descriptors
 uint32_t g_cd_count;
 
-io_comm_rx::Comm_IO::Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
+io_comm_rx::Comm_IO::Comm_IO(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
+    node_(node),
     handlers_(pNh, settings),
     settings_(settings),
     stopping_(false)
@@ -132,7 +133,7 @@ io_comm_rx::Comm_IO::Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* set
 
 void io_comm_rx::Comm_IO::initializeIO()
 {
-    ROS_DEBUG("Called initializeIO() method");
+    node_->log(LogLevel::DEBUG, "Called initializeIO() method");
     boost::smatch match;
     // In fact: smatch is a typedef of match_results<string::const_iterator>
     if (boost::regex_match(settings_->device, match, boost::regex("(tcp)://(.+):(\\d+)")))
@@ -183,15 +184,15 @@ void io_comm_rx::Comm_IO::initializeIO()
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
 		settings_->device = proto;
-        ROS_DEBUG("%s", ss.str().c_str());
+        node_->log(LogLevel::DEBUG, ss.str());
         connectionThread_.reset(new  boost::thread (boost::bind(&Comm_IO::connect, this)));
     } else
     {
         std::stringstream ss;
         ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-        ROS_ERROR("%s", ss.str().c_str());
+        node_->log(LogLevel::ERROR, ss.str());
     }
-    ROS_DEBUG("Leaving initializeIO() method");
+    node_->log(LogLevel::DEBUG, "Leaving initializeIO() method");
 }
 
 void io_comm_rx::Comm_IO::prepareSBFFileReading(std::string file_name)
@@ -200,14 +201,14 @@ void io_comm_rx::Comm_IO::prepareSBFFileReading(std::string file_name)
     {
         std::stringstream ss;
         ss << "Setting up everything needed to read from" << file_name;
-        ROS_DEBUG("%s", ss.str().c_str());
+        node_->log(LogLevel::DEBUG, ss.str());
         initializeSBFFileReading(file_name);
     } catch (std::runtime_error& e)
     {
         std::stringstream ss;
         ss << "Comm_IO::initializeSBFFileReading() failed for SBF File" << file_name
            << " due to: " << e.what();
-        ROS_ERROR("%s", ss.str().c_str());
+        node_->log(LogLevel::ERROR, ss.str());
     }
 }
 
@@ -217,21 +218,21 @@ void io_comm_rx::Comm_IO::preparePCAPFileReading(std::string file_name)
     {
         std::stringstream ss;
         ss << "Setting up everything needed to read from " << file_name;
-        ROS_DEBUG("%s", ss.str().c_str());
+        node_->log(LogLevel::DEBUG, ss.str());
         initializePCAPFileReading(file_name);
     } catch (std::runtime_error& e)
     {
         std::stringstream ss;
         ss << "CommIO::initializePCAPFileReading() failed for SBF File " << file_name
            << " due to: " << e.what();
-        ROS_ERROR("%s", ss.str().c_str());
+        node_->log(LogLevel::ERROR, ss.str());
     }
 }
 
 void io_comm_rx::Comm_IO::connect()
 {
-    ROS_DEBUG("Called connect() method");
-    ROS_DEBUG(
+    node_->log(LogLevel::DEBUG, "Called connect() method");
+    node_->log(LogLevel::DEBUG, 
         "Started timer for calling reconnect() method until connection succeeds");
 
     boost::asio::io_service io;
@@ -242,7 +243,7 @@ void io_comm_rx::Comm_IO::connect()
         reconnect();
         t.wait();
     }
-    ROS_DEBUG("Successully connected. Leaving connect() method");
+    node_->log(LogLevel::DEBUG, "Successully connected. Leaving connect() method");
 }
 
 //! In serial mode (not USB, since the Rx port is then called USB1 or USB2), please
@@ -250,14 +251,14 @@ void io_comm_rx::Comm_IO::connect()
 //! employ UART hardware flow control.
 void io_comm_rx::Comm_IO::reconnect()
 {
-    ROS_DEBUG("Called reconnect() method");
+    node_->log(LogLevel::DEBUG, "Called reconnect() method");
     if (serial_)
     {
         bool initialize_serial_return = false;
         try
         {
-            ROS_INFO("Connecting serially to device %s, targeted baudrate: %u",
-                        settings_->device.c_str(), settings_->baudrate);
+            node_->log(LogLevel::INFO, "Connecting serially to device" + settings_->device + 
+                                       ", targeted baudrate: " + std::to_string(settings_->baudrate));
             initialize_serial_return =
                 initializeSerial(settings_->device, settings_->baudrate, settings_->hw_flow_control);
         } catch (std::runtime_error& e)
@@ -266,7 +267,7 @@ void io_comm_rx::Comm_IO::reconnect()
                 std::stringstream ss;
                 ss << "initializeSerial() failed for device " << settings_->device
                     << " due to: " << e.what();
-                ROS_ERROR("%s", ss.str().c_str());
+                node_->log(LogLevel::ERROR, ss.str());
             }
         }
         if (initialize_serial_return)
@@ -281,8 +282,8 @@ void io_comm_rx::Comm_IO::reconnect()
         bool initialize_tcp_return = false;
         try
         {
-            ROS_INFO("Connecting to tcp://%s:%s ...", tcp_host_.c_str(),
-                        tcp_port_.c_str());
+            node_->log(LogLevel::INFO, "Connecting to tcp://" + tcp_host_ + ":" + tcp_port_ +
+                                       "...");
             initialize_tcp_return = initializeTCP(tcp_host_, tcp_port_);
         } catch (std::runtime_error& e)
         {
@@ -290,7 +291,7 @@ void io_comm_rx::Comm_IO::reconnect()
                 std::stringstream ss;
                 ss << "initializeTCP() failed for host " << tcp_host_
                     << " on port " << tcp_port_ << " due to: " << e.what();
-                ROS_ERROR("%s", ss.str().c_str());
+                node_->log(LogLevel::ERROR, ss.str());
             }
         }
         if (initialize_tcp_return)
@@ -301,7 +302,7 @@ void io_comm_rx::Comm_IO::reconnect()
             connection_condition_.notify_one();
         }
     }
-    ROS_DEBUG("Leaving reconnect() method");
+    node_->log(LogLevel::DEBUG, "Leaving reconnect() method");
 }
 
 //! The send() method of AsyncManager class is paramount for this purpose.
@@ -313,7 +314,7 @@ void io_comm_rx::Comm_IO::reconnect()
 //! mode via "SSSSSSSSSS".
 void io_comm_rx::Comm_IO::configureRx()
 {
-    ROS_DEBUG("Called configureRx() method");
+    node_->log(LogLevel::DEBUG, "Called configureRx() method");
     {
         // wait for connection
         boost::mutex::scoped_lock lock(connection_mutex_);
@@ -647,7 +648,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
         } else
         {
-            ROS_ERROR("Invalid mode specified for NTRIP settings_->");
+            node_->log(LogLevel::ERROR, "Invalid mode specified for NTRIP settings_->");
         }
     } else // Since the Rx does not have internet (and you will not be able to share
            // it via USB),
@@ -710,7 +711,7 @@ void io_comm_rx::Comm_IO::configureRx()
 			}
 			else
 			{
-				ROS_ERROR("Please specify a correct value for IMU orientation angles");
+				node_->log(LogLevel::ERROR, "Please specify a correct value for IMU orientation angles");
 			}
         
         }
@@ -728,7 +729,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Please specify a correct value for x, y and z in the config file under ant_lever_arm");
+                node_->log(LogLevel::ERROR, "Please specify a correct value for x, y and z in the config file under ant_lever_arm");
             }
         }
 
@@ -745,7 +746,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
+                node_->log(LogLevel::ERROR, "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
             }
         }
 
@@ -762,7 +763,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
+                node_->log(LogLevel::ERROR, "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
             }
             
         }
@@ -778,7 +779,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Please specify a valid parameter for heading and pitch");
+                node_->log(LogLevel::ERROR, "Please specify a valid parameter for heading and pitch");
             }
         }
         
@@ -826,7 +827,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Invalid mode specified for ins_initial_heading.");
+                node_->log(LogLevel::ERROR, "Invalid mode specified for ins_initial_heading.");
             }
         }
 
@@ -842,11 +843,11 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                ROS_ERROR("Please specify a valid AttStsDev and PosStdDev");
+                node_->log(LogLevel::ERROR, "Please specify a valid AttStsDev and PosStdDev");
             }
         }
     }
-	ROS_DEBUG("Leaving configureRx() method");
+	node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 
 //! initializeSerial is not self-contained: The for loop in Callbackhandlers' handle
@@ -856,7 +857,7 @@ void io_comm_rx::Comm_IO::configureRx()
 //! the ROS message.
 void io_comm_rx::Comm_IO::defineMessages()
 {
-    ROS_DEBUG("Called defineMessages() method");
+    node_->log(LogLevel::DEBUG, "Called defineMessages() method");
 
     if (settings_->publish_gpgga == true)
     {
@@ -966,7 +967,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                     "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
             }
             handlers_.callbackmap_ =
@@ -979,7 +980,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             if (settings_->publish_insnavgeod == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                     "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
@@ -992,7 +993,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false || settings_->publish_velcovgeodetic == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                     "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
@@ -1013,7 +1014,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             if (settings_->publish_insnavgeod == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                         "For a proper GPSFix message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
@@ -1033,7 +1034,7 @@ void io_comm_rx::Comm_IO::defineMessages()
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false ||
                 settings_->publish_atteuler == false || settings_->publish_attcoveuler == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                     "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
             }
             handlers_.callbackmap_ =
@@ -1047,7 +1048,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             if (settings_->publish_insnavgeod == false)
             {
-                ROS_ERROR(
+                node_->log(LogLevel::ERROR, 
                     "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
             }
             handlers_.callbackmap_ =
@@ -1068,9 +1069,8 @@ void io_comm_rx::Comm_IO::defineMessages()
 			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	}
 	// so on and so forth...
-    ROS_DEBUG("Leaving defineMessages() method");
+    node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }
-
 
 void io_comm_rx::Comm_IO::send(std::string cmd)
 {
@@ -1085,7 +1085,7 @@ void io_comm_rx::Comm_IO::send(std::string cmd)
 
 bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
 {
-    ROS_DEBUG("Calling initializeTCP() method..");
+    node_->log(LogLevel::DEBUG, "Calling initializeTCP() method..");
     host_ = host;
     port_ = port;
     // The io_context, of which io_service is a typedef of; it represents your
@@ -1129,24 +1129,24 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
         return false;
     }
 
-    ROS_INFO("Connected to %s: %s.", endpoint->host_name().c_str(),
-             endpoint->service_name().c_str());
+    node_->log(LogLevel::INFO, "Connected to " + endpoint->host_name() + 
+                               ":" + endpoint->service_name() + ".");
 
     if (manager_)
     {
-        ROS_ERROR(
+        node_->log(LogLevel::ERROR, 
             "You have called the InitializeTCP() method though an AsyncManager object is already available! Start all anew..");
         return false;
     }
     setManager(boost::shared_ptr<Manager>(
         new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
-    ROS_DEBUG("Leaving initializeTCP() method..");
+    node_->log(LogLevel::DEBUG, "Leaving initializeTCP() method..");
     return true;
 }
 
 void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
 {
-    ROS_DEBUG("Calling initializeSBFFileReading() method..");
+    node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
     std::size_t buffer_size = 16384;
     uint8_t* to_be_parsed;
     to_be_parsed = new uint8_t[buffer_size];
@@ -1168,14 +1168,14 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
     to_be_parsed = vec_buf.data();
     std::stringstream ss;
     ss << "Opened and copied over from " << file_name;
-    ROS_DEBUG("%s", ss.str().c_str());
+    node_->log(LogLevel::DEBUG, ss.str());
 
     while (!stopping_) // Loop will stop if we are done reading the SBF file
     {
         try
         {
-            ROS_DEBUG(
-                "Calling read_callback_() method, with number of bytes to be parsed being %li",
+            node_->log(LogLevel::DEBUG, 
+                "Calling read_callback_() method, with number of bytes to be parsed being " +
                 buffer_size);
             handlers_.readCallback(to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
@@ -1185,7 +1185,7 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
                 break;
             }
             to_be_parsed = to_be_parsed + parsing_failed_here;
-            ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
+            node_->log(LogLevel::DEBUG, "Parsing_failed_here is " + parsing_failed_here);
             continue;
         }
         if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
@@ -1194,22 +1194,22 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
         }
         to_be_parsed = to_be_parsed + buffer_size;
     }
-    ROS_DEBUG("Leaving initializeSBFFileReading() method..");
+    node_->log(LogLevel::DEBUG, "Leaving initializeSBFFileReading() method..");
 }
 
 void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
 {
-    ROS_DEBUG("Calling initializePCAPFileReading() method..");
+    node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading() method..");
     pcapReader::buffer_t vec_buf;
     pcapReader::PcapDevice device(vec_buf);
 
     if (!device.connect(file_name.c_str()))
     {
-        ROS_ERROR("Unable to find file or either it is corrupted");
+        node_->log(LogLevel::ERROR, "Unable to find file or either it is corrupted");
         return;
     }
 
-    ROS_INFO("Reading ...");
+    node_->log(LogLevel::INFO, "Reading ...");
     while (device.isConnected() && device.read() == pcapReader::READ_SUCCESS)
         ;
     device.disconnect();
@@ -1222,8 +1222,8 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
     {
         try
         {
-            ROS_DEBUG(
-                "Calling read_callback_() method, with number of bytes to be parsed being %li",
+            node_->log(LogLevel::DEBUG, 
+                "Calling read_callback_() method, with number of bytes to be parsed being " +
                 buffer_size);
             handlers_.readCallback(to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
@@ -1236,7 +1236,7 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
                 parsing_failed_here = 1;
 
             to_be_parsed = to_be_parsed + parsing_failed_here;
-            ROS_DEBUG("Parsing_failed_here is %li", parsing_failed_here);
+            node_->log(LogLevel::DEBUG, "Parsing_failed_here is " + parsing_failed_here);
             continue;
         }
         if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
@@ -1245,13 +1245,13 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
         }
         to_be_parsed = to_be_parsed + buffer_size;
     }
-    ROS_DEBUG("Leaving initializePCAPFileReading() method..");
+    node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading() method..");
 }
 
 bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
                                            std::string flowcontrol)
 {
-    ROS_DEBUG("Calling initializeSerial() method..");
+    node_->log(LogLevel::DEBUG, "Calling initializeSerial() method..");
     serial_port_ = port;
     baudrate_ = baudrate;
     // The io_context, of which io_service is a typedef of; it represents your
@@ -1274,8 +1274,8 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
         return false;
     }
 
-    ROS_INFO("Opened serial port %s", serial_port_.c_str());
-    ROS_DEBUG("Our boost version is %u.", BOOST_VERSION);
+    node_->log(LogLevel::INFO, "Opened serial port " + serial_port_);
+    node_->log(LogLevel::DEBUG, "Our boost version is " + std::to_string(BOOST_VERSION) + ".");
     if (BOOST_VERSION < 106600) // E.g. for ROS melodic (i.e. Ubuntu 18.04), the
                                 // version is 106501, standing for 1.65.1.
     {
@@ -1312,18 +1312,18 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
     // Set the I/O manager
     if (manager_)
     {
-        ROS_ERROR(
+        node_->log(LogLevel::ERROR, 
             "You have called the initializeSerial() method though an AsyncManager object is already available! Start all anew..");
         return false;
     }
-    ROS_DEBUG("Creating new Async-Manager object..");
+    node_->log(LogLevel::DEBUG, "Creating new Async-Manager object..");
     setManager(boost::shared_ptr<Manager>(
         new AsyncManager<boost::asio::serial_port>(serial, io_service)));
 
     // Setting the baudrate, incrementally..
-    ROS_DEBUG("Gradually increasing the baudrate to the desired value...");
+    node_->log(LogLevel::DEBUG, "Gradually increasing the baudrate to the desired value...");
     boost::asio::serial_port_base::baud_rate current_baudrate;
-    ROS_DEBUG("Initiated current_baudrate object...");
+    node_->log(LogLevel::DEBUG, "Initiated current_baudrate object...");
     try
     {
         serial->get_option(
@@ -1334,9 +1334,9 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
     } catch (boost::system::system_error& e)
     {
 
-        ROS_ERROR("get_option failed due to %s", e.what());
-        ROS_INFO("Additional info about error is %s",
-                 boost::diagnostic_information(e).c_str());
+        node_->log(LogLevel::ERROR, "get_option failed due to " +std::string( e.what()));
+        node_->log(LogLevel::INFO, "Additional info about error is " +
+                 boost::diagnostic_information(e));
         /*
         boost::system::error_code e_loop;
         do // Caution: Might cause infinite loop..
@@ -1349,7 +1349,7 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
     // Gradually increase the baudrate to the desired value
     // The desired baudrate can be lower or larger than the
     // current baudrate; the for loop takes care of both scenarios.
-    ROS_DEBUG("Current baudrate is %u", current_baudrate.value());
+    node_->log(LogLevel::DEBUG, "Current baudrate is " + current_baudrate.value());
     for (uint8_t i = 0; i < sizeof(BAUDRATES) / sizeof(BAUDRATES[0]); i++)
     {
         if (current_baudrate.value() == baudrate_)
@@ -1368,9 +1368,9 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
         } catch (boost::system::system_error& e)
         {
 
-            ROS_ERROR("set_option failed due to %s", e.what());
-            ROS_INFO("Additional info about error is %s",
-                     boost::diagnostic_information(e).c_str());
+            node_->log(LogLevel::ERROR, "set_option failed due to " + std::string(e.what()));
+            node_->log(LogLevel::INFO, "Additional info about error is " +
+                     boost::diagnostic_information(e));
             return false;
         }
         usleep(SET_BAUDRATE_SLEEP_);
@@ -1383,9 +1383,9 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
         } catch (boost::system::system_error& e)
         {
 
-            ROS_ERROR("get_option failed due to %s", e.what());
-            ROS_INFO("Additional info about error is %s",
-                     boost::diagnostic_information(e).c_str());
+            node_->log(LogLevel::ERROR, "get_option failed due to " + std::string(e.what()));
+            node_->log(LogLevel::INFO, "Additional info about error is " +
+                     boost::diagnostic_information(e));
             /*
             boost::system::error_code e_loop;
             do // Caution: Might cause infinite loop..
@@ -1395,22 +1395,22 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
             */
             return false;
         }
-        ROS_DEBUG("Set ASIO baudrate to %u", current_baudrate.value());
+        node_->log(LogLevel::DEBUG, "Set ASIO baudrate to " + current_baudrate.value());
     }
-    ROS_INFO("Set ASIO baudrate to %u, leaving InitializeSerial() method",
-             current_baudrate.value());
+    node_->log(LogLevel::INFO, "Set ASIO baudrate to " + std::to_string(current_baudrate.value())  + 
+                               ", leaving InitializeSerial() method");
     return true;
 }
 
 void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
 {
-    ROS_DEBUG("Called setManager() method");
+    node_->log(LogLevel::DEBUG, "Called setManager() method");
     if (manager_)
         return;
     manager_ = manager;
     manager_->setCallback(
         boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2));
-    ROS_DEBUG("Leaving setManager() method");
+    node_->log(LogLevel::DEBUG, "Leaving setManager() method");
 }
 
 void io_comm_rx::Comm_IO::resetSerial(std::string port)
@@ -1431,7 +1431,7 @@ void io_comm_rx::Comm_IO::resetSerial(std::string port)
                                  " " + e.what());
     }
 
-    ROS_INFO("Reset serial port %s", serial_port_.c_str());
+    node_->log(LogLevel::INFO, "Reset serial port " + serial_port_);
 
     // Sets the I/O worker
     if (manager_)

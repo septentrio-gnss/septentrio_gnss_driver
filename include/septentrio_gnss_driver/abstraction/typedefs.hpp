@@ -103,4 +103,22 @@ typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
 typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
 typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 
+enum LogLevel
+{
+    DEBUG,
+    INFO,
+    ERROR,
+    FATAL
+};
+
+class RosaicNodeBase
+{
+public:
+    RosaicNodeBase(){}
+
+    virtual ~RosaicNodeBase(){}
+
+    virtual void log(LogLevel logLevel, const std::string& s) = 0;
+};
+
 #endif // Typedefs_HPP

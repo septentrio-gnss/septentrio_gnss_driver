@@ -107,10 +107,10 @@ namespace io_comm_rx {
     {
     public:
         /**
-         * @brief Default constructor of the class Comm_IO
+         * @brief Constructor of the class Comm_IO
+         * @param[in] node Pointer to node
          */
-        Comm_IO(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings);
-
+        Comm_IO(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings);
         /**
          * @brief Default destructor of the class Comm_IO
          */
@@ -213,6 +213,8 @@ namespace io_comm_rx {
          */
         void send(std::string cmd);
 
+         //! Pointer to Node
+        RosaicNodeBase* node_;
         //! Callback handlers for the inwards streaming messages
         CallbackHandlers handlers_;
         //! Settings
