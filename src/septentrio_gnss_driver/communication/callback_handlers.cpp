@@ -401,12 +401,12 @@ namespace io_comm_rx {
                 std::string ID_temp = rx_message_.messageID();
                 sbf_block_length =
                     static_cast<std::size_t>(rx_message_.getBlockLength());
-                ROS_DEBUG("ROSaic reading SBF block %s made up of %li bytes...",
-                          ID_temp.c_str(), sbf_block_length);
+                node_->log(LogLevel::DEBUG, "ROSaic reading SBF block " + ID_temp + " made up of " + 
+                                            std::to_string(sbf_block_length) + " bytes...");
                 // If full message did not yet arrive, throw an error message.
                 if (sbf_block_length > rx_message_.getCount())
                 {
-                    ROS_DEBUG(
+                    node_->log(LogLevel::DEBUG, 
                         "Not a valid SBF block, parts of the SBF block are yet to be received. Ignore..");
                     throw(
                         static_cast<std::size_t>(rx_message_.getPosBuffer() - data));
@@ -500,9 +500,8 @@ namespace io_comm_rx {
                     reinterpret_cast<const char*>(rx_message_.getPosBuffer()),
                     nmea_size);
                 tokenizer tokens(block_in_string, sep);
-                ROS_DEBUG(
-                    "The NMEA message contains %li bytes and is ready to be parsed. It reads: %s",
-                    nmea_size, (*tokens.begin()).c_str());
+                node_->log(LogLevel::DEBUG, "The NMEA message contains " + std::to_string(nmea_size) + 
+                                            " bytes and is ready to be parsed. It reads: " + *tokens.begin());
             }
             if (rx_message_.isResponse()) // If the response is not sent at once, only
                                          // first part is ROS_DEBUG-printed
@@ -511,8 +510,8 @@ namespace io_comm_rx {
                 std::string block_in_string(
                     reinterpret_cast<const char*>(rx_message_.getPosBuffer()),
                     response_size);
-                ROS_DEBUG("The Rx's response contains %li bytes and reads:\n %s",
-                          response_size, block_in_string.c_str());
+                node_->log(LogLevel::DEBUG, "The Rx's response contains " + std::to_string(response_size) +
+                                            " bytes and reads:\n " + block_in_string);
                 {
                     boost::mutex::scoped_lock lock(g_response_mutex);
                     g_response_received = true;
@@ -521,7 +520,7 @@ namespace io_comm_rx {
                 }
                 if (rx_message_.isErrorMessage())
                 {
-                    ROS_ERROR("Invalid command just sent to the Rx!");
+                    node_->log(LogLevel::ERROR, "Invalid command just sent to the Rx!");
                 }
                 continue;
             }
@@ -550,7 +549,7 @@ namespace io_comm_rx {
                 handle();
             } catch (std::runtime_error& e)
             {
-                ROS_DEBUG("Incomplete message: %s", e.what());
+                node_->log(LogLevel::DEBUG, "Incomplete message: " + std::string(e.what()));
                 throw(static_cast<std::size_t>(rx_message_.getPosBuffer() - data));
             }
         }

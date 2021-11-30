@@ -121,7 +121,7 @@ uint32_t g_cd_count;
 
 io_comm_rx::Comm_IO::Comm_IO(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
     node_(node),
-    handlers_(pNh, settings),
+    handlers_(node, pNh, settings),
     settings_(settings),
     stopping_(false)
 {

@@ -213,7 +213,7 @@ namespace io_comm_rx {
          */
         void send(std::string cmd);
 
-         //! Pointer to Node
+        //! Pointer to Node
         RosaicNodeBase* node_;
         //! Callback handlers for the inwards streaming messages
         CallbackHandlers handlers_;
