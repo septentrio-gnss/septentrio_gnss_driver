@@ -1139,7 +1139,7 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
         return false;
     }
     setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::ip::tcp::socket>(socket, io_service)));
+        new AsyncManager<boost::asio::ip::tcp::socket>(node_, socket, io_service)));
     node_->log(LogLevel::DEBUG, "Leaving initializeTCP() method..");
     return true;
 }
@@ -1318,7 +1318,7 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
     }
     node_->log(LogLevel::DEBUG, "Creating new Async-Manager object..");
     setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::serial_port>(serial, io_service)));
+        new AsyncManager<boost::asio::serial_port>(node_, serial, io_service)));
 
     // Setting the baudrate, incrementally..
     node_->log(LogLevel::DEBUG, "Gradually increasing the baudrate to the desired value...");
@@ -1437,7 +1437,7 @@ void io_comm_rx::Comm_IO::resetSerial(std::string port)
     if (manager_)
         return;
     setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::serial_port>(serial, io_service)));
+        new AsyncManager<boost::asio::serial_port>(node_, serial, io_service)));
 
     // Set the baudrate
     serial->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
