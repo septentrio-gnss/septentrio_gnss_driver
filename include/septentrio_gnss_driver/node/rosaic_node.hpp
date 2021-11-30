@@ -187,7 +187,13 @@ namespace rosaic_node {
          * @param[in] s String to log
          * @param[in] logLevel Log level
          */
-        void log(LogLevel logLevel, const std::string& s);     
+        void log(LogLevel logLevel, const std::string& s);
+
+         /**
+         * @brief Gets current timestamp
+         * @return Timestamp
+         */
+        Timestamp getTime();   
 
     private:
         //! Node handle pointer

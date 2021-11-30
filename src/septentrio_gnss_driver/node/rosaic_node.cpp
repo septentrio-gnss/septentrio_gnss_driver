@@ -220,11 +220,15 @@ void rosaic_node::ROSaicNode::log(LogLevel logLevel, const std::string& s)
         break;
     case LogLevel::FATAL:
         ROS_FATAL_STREAM(s);
-        break;
-    
+        break;    
     default:
         break;
     }
+}
+
+Timestamp rosaic_node::ROSaicNode::getTime()
+{
+    return ros::Time::now();
 }
 
 int main(int argc, char** argv)

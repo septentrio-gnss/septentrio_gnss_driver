@@ -119,6 +119,8 @@ public:
     virtual ~RosaicNodeBase(){}
 
     virtual void log(LogLevel logLevel, const std::string& s) = 0;
+
+    virtual Timestamp getTime() = 0;
 };
 
 #endif // Typedefs_HPP

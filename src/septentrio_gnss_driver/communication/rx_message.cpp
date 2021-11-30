@@ -1815,7 +1815,7 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc, bool u
 	}
 	else
     {
-        time_obj = Timestamp::now();
+        time_obj = node_->getTime();
     }
 	return time_obj;
 }
