@@ -1380,7 +1380,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 		uint8_t sb2_size = last_channelstatus_.sb2_size;
 		uint8_t* sb_start = &last_channelstatus_.data[0];
 		int32_t index = sb_start - &last_channelstatus_.block_header.sync_1;
-		// ROS_DEBUG("index is %i", index); // yields 20, as expected
+		// node_->log(LogLevel::DEBUG, "index is %i", index); // yields 20, as expected
 
 		uint16_t azimuth_mask = 511;
 		for (int32_t i = 0; i < static_cast<int32_t>(last_channelstatus_.n); i++)
@@ -2103,7 +2103,7 @@ void io_comm_rx::RxMessage::next()
     found_ = false;
     data_ += jump_size;
     count_ -= jump_size;
-    // ROS_DEBUG("Jump about to happen with jump size %li and count after jump being
+    // node_->log(LogLevel::DEBUG, "Jump about to happen with jump size %li and count after jump being
     // %li.", jump_size, count_);
     return; // For readability
 }
@@ -3054,7 +3054,7 @@ void io_comm_rx::RxMessage::wait(const Timestamp& time_obj)
             std::stringstream ss;
             ss << "Waiting for " << sleep_nsec / 1000000
             << " milliseconds..." << (unix_time_ - unix_old).toSec();
-            ROS_DEBUG("%s", ss.str().c_str());       
+            node_->log(LogLevel::DEBUG, ss.str());       
         
 		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
         }

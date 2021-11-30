@@ -277,19 +277,19 @@ struct Settings
     bool publish_atteuler;
     //! Whether or not to publish the AttCovEulerMsg message
     bool publish_attcoveuler;
-    //! Whether or not to publish the septentrio_gnss_driver::INSNavCart message
+    //! Whether or not to publish the INSNavCartMsg message
     bool publish_insnavcart;
-    //! Whether or not to publish the septentrio_gnss_driver::INSNavGeod message
+    //! Whether or not to publish the INSNavGeodMsg message
     bool publish_insnavgeod;
-    //! Whether or not to publish the septentrio_gnss_driver::IMUSetup message
+    //! Whether or not to publish the IMUSetupMsg message
     bool publish_imusetup;
-    //! Whether or not to publish the septentrio_gnss_driver::VelSensorSetup message
+    //! Whether or not to publish the VelSensorSetupMsg message
     bool publish_velsensorsetup;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavGeod message
+    //! Whether or not to publish the ExtEventINSNavGeodMsg message
     bool publish_exteventinsnavgeod;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtEventINSNavCart message
+    //! Whether or not to publish the ExtEventINSNavCartMsg message
     bool publish_exteventinsnavcart;
-    //! Whether or not to publish the septentrio_gnss_driver::ExtSensorMeas message
+    //! Whether or not to publish the ExtSensorMeasMsg message
     bool publish_extsensormeas;
     //! Whether or not to publish the TimeReferenceMsg message with GPST
     bool publish_gpst;
@@ -396,7 +396,8 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
+        RxMessage(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
+            node_(node),
             pNh_(pNh),
             settings_(settings),
             unix_time_(0)
@@ -593,6 +594,11 @@ namespace io_comm_rx {
         bool diagnostics_complete(uint32_t id);
 
     private:
+        /**
+         * @brief Pointer to the node
+         */
+        RosaicNodeBase* node_;
+
         /**
          * @brief Pointer to the node handle
          */
@@ -861,7 +867,7 @@ namespace io_comm_rx {
          * the ROS message INSNavCart
          * @return A smart pointer to the ROS message INSNavCart just created
          */
-        septentrio_gnss_driver::INSNavCartPtr
+        INSNavCartMsgPtr
         INSNavCartCallback(INSNavCart& data);
 
         /**
@@ -870,7 +876,7 @@ namespace io_comm_rx {
          * the ROS message INSNavGeod
          * @return A smart pointer to the ROS message INSNavGeod just created
          */
-        septentrio_gnss_driver::INSNavGeodPtr
+        INSNavGeodMsgPtr
         INSNavGeodCallback(INSNavGeod& data);
 
         /**
@@ -879,7 +885,7 @@ namespace io_comm_rx {
          * the ROS message IMUSetup
          * @return A smart pointer to the ROS message IMUSetup just created
          */
-        septentrio_gnss_driver::IMUSetupPtr
+        IMUSetupMsgPtr
         IMUSetupCallback(IMUSetup& data);
 
         /**
@@ -888,7 +894,7 @@ namespace io_comm_rx {
          * the ROS message VelSensorSetup
          * @return A smart pointer to the ROS message VelSensorSetup just created
          */
-        septentrio_gnss_driver::VelSensorSetupPtr
+        VelSensorSetupMsgPtr
         VelSensorSetupCallback(VelSensorSetup& data);
 
         /**
@@ -897,7 +903,7 @@ namespace io_comm_rx {
          * the ROS message ExtEventINSNavCart
          * @return A smart pointer to the ROS message ExtEventINSNavCart just created
          */
-        septentrio_gnss_driver::ExtEventINSNavCartPtr
+        ExtEventINSNavCartMsgPtr
         ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
 
         /**
@@ -906,7 +912,7 @@ namespace io_comm_rx {
          * the ROS message ExtEventINSNavGeod
          * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
          */
-        septentrio_gnss_driver::ExtEventINSNavGeodPtr
+        ExtEventINSNavGeodMsgPtr
         ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
 
         /**
@@ -915,7 +921,7 @@ namespace io_comm_rx {
          * the ROS message ExtSensorMeas
          * @return A smart pointer to the ROS message ExtSensorMeas just created
          */
-        septentrio_gnss_driver::ExtSensorMeasPtr
+        ExtSensorMeasMsgPtr
         ExtSensorMeasCallback(ExtSensorMeas& data);
 
         /**

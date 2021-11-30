@@ -190,7 +190,7 @@ namespace io_comm_rx {
 
         CallbackHandlers(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
             node_(node),
-            rx_message_(pNh, settings),
+            rx_message_(node, pNh, settings),
             settings_(settings)
         {}
 
