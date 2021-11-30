@@ -337,7 +337,7 @@ namespace io_comm_rx {
         timer_(*(io_service.get()), boost::posix_time::seconds(1)),
         stopping_(false), try_parsing_(false), allow_writing_(true),
         do_read_count_(0), buffer_size_(buffer_size), count_max_(6),
-        circular_buffer_(buffer_size)        
+        circular_buffer_(node, buffer_size)        
     // Since buffer_size = 16384 in declaration, no need in definition anymore (even
     // yields error message, due to "overwrite").
     {

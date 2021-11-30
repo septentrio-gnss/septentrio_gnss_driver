@@ -53,7 +53,7 @@ class CircularBuffer
 {
 public:
     //! Constructor of CircularBuffer
-    explicit CircularBuffer(std::size_t capacity);
+    explicit CircularBuffer(RosaicNodeBase* node, std::size_t capacity);
     //! Destructor of CircularBuffer
     ~CircularBuffer();
     //! Returns size_
@@ -66,6 +66,8 @@ public:
     std::size_t read(uint8_t* data, std::size_t bytes);
 
 private:
+    //! Pointer to the node
+    RosaicNodeBase* node_;
     //! Specifies where we start writing
     std::size_t head_;
     //! Specifies where we start reading
