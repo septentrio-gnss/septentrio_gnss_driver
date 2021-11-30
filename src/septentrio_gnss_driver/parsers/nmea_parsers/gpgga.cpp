@@ -51,7 +51,7 @@ const std::string GpggaParser::getMessageID() const
  * sentence.get_body()[15] if anybody ever needs it.
  */
 septentrio_gnss_driver::GpggaPtr
-GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time) noexcept(false)
+GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
     // %s", sentence.get_body()[0].c_str());
@@ -96,8 +96,6 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                 msg->header.stamp.nsec = unix_time_nanoseconds;
             } else
             {
-                Timestamp time_obj;
-                time_obj = Timestamp::now();
                 msg->header.stamp.sec = time_obj.sec;
                 msg->header.stamp.nsec = time_obj.nsec;
             }

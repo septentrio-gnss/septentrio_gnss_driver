@@ -2542,10 +2542,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			NMEASentence gga_message(id, body);
 			septentrio_gnss_driver::GpggaPtr msg =
 				boost::make_shared<septentrio_gnss_driver::Gpgga>();
+            Timestamp time_obj = node_->getTime();
 			GpggaParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gga_message, settings_->frame_id, settings_->use_gnss_time);
+				msg = parser_obj.parseASCII(gga_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
@@ -2564,7 +2565,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evGPRMC:
 		{
-			boost::char_separator<char> sep("\r");
+			Timestamp time_obj = node_->getTime();
+			
+            boost::char_separator<char> sep("\r");
 			typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 			std::size_t nmea_size = this->messageSize();
 			std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
@@ -2587,7 +2590,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			GprmcParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(rmc_message, settings_->frame_id, settings_->use_gnss_time);
+				msg = parser_obj.parseASCII(rmc_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
@@ -2606,7 +2609,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evGPGSA:
 		{
-			boost::char_separator<char> sep("\r");
+            boost::char_separator<char> sep("\r");
 			typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 			std::size_t nmea_size = this->messageSize();
 			std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
@@ -2629,7 +2632,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			GpgsaParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gsa_message, settings_->frame_id, settings_->use_gnss_time);
+				msg = parser_obj.parseASCII(gsa_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
@@ -2687,7 +2690,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			GpgsvParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gsv_message, settings_->frame_id, settings_->use_gnss_time);
+				msg = parser_obj.parseASCII(gsv_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());

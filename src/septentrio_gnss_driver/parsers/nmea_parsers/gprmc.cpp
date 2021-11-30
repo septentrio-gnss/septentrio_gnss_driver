@@ -55,7 +55,7 @@ const std::string GprmcParser::getMessageID() const
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
 septentrio_gnss_driver::GprmcPtr
-GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time) noexcept(false)
+GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
 {
 
     // Checking the length first, it should be between 13 and 14 elements
@@ -100,8 +100,6 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                 msg->header.stamp.nsec = unix_time_nanoseconds;
             } else
             {
-                Timestamp time_obj;
-                time_obj = Timestamp::now();
                 msg->header.stamp.sec = time_obj.sec;
                 msg->header.stamp.nsec = time_obj.nsec;
             }

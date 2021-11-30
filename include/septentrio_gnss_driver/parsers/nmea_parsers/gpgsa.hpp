@@ -97,7 +97,7 @@ public:
      * @return A ROS message pointer of ROS type septentrio_gnss_driver::GpgsaPtr
      */
     septentrio_gnss_driver::GpgsaPtr
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time) noexcept(false) override;
+    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID

@@ -51,7 +51,7 @@ const std::string GpgsaParser::getMessageID() const
  * sentence.get_body()[18] if anybody ever needs it.
  */
 septentrio_gnss_driver::GpgsaPtr
-GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/) noexcept(false)
+GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, const Timestamp& /*time_obj*/) noexcept(false)
 {
 
     // Checking the length first, it should be 19 elements
