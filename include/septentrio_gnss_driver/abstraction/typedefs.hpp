@@ -181,7 +181,6 @@ public:
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] pNh Node handle pointer
      * @param[in] key The key to be used in the parameter server's dictionary
      * @param[out] u Storage for the retrieved value, of type U, which can be either
      * unsigned int or int
