@@ -160,9 +160,86 @@ public:
     virtual ~ROSaicNodeBase(){}
 
     /**
+     * @brief Checks whether the parameter is in the given range
+     * @param[in] val The value to check
+     * @param[in] min The minimum for this value
+     * @param[in] max The maximum for this value
+     * @param[in] name The name of the parameter
+     * @throws std::runtime_error if the parameter is out of bounds
+     */
+    template <typename V, typename T>
+    void checkRange(V val, T min, T max, std::string name)
+    {
+        if (val < min || val > max)
+        {
+            std::stringstream ss;
+            ss << "Invalid settings: " << name << " must be in range [" << min
+               << ", " << max << "].";
+            throw std::runtime_error(ss.str());
+        }
+    } 
+
+    /**
+     * @brief Gets an integer or unsigned integer value from the parameter server
+     * @param[in] pNh Node handle pointer
+     * @param[in] key The key to be used in the parameter server's dictionary
+     * @param[out] u Storage for the retrieved value, of type U, which can be either
+     * unsigned int or int
+     * @return True if found and valid, false if not
+     */
+    template <typename U>
+    bool getROSInt(const std::string& key, U& u)
+    {
+        int param;
+        if (!pNh_->getParam(key, param))
+            return false;
+        U min = std::numeric_limits<U>::lowest();
+        U max = std::numeric_limits<U>::max();
+        try
+        {
+            checkRange((U)param, min, max, key);
+        } catch (std::runtime_error& e)
+        {
+            ROS_ERROR_STREAM(e.what());
+            return false;
+        }
+        u = (U)param;
+        return true;
+    }
+
+    /**
+     * @brief Gets an integer or unsigned integer value from the parameter server
+     * @param[in] key The key to be used in the parameter server's dictionary
+     * @param[out] u Storage for the retrieved value, of type U, which can be either
+     * unsigned int or int
+     * @param[in] default_val Value to use if the server doesn't contain this
+     * parameter
+     */
+    template <typename U>
+    void getIntParam(const std::string& key, U& u, U default_val)
+    {
+        if (!getROSInt(key, u))
+            u = default_val;
+    }
+
+    /**
+     * @brief Gets parameter of type T from the parameter server
+     * @param[in] name The key to be used in the parameter server's dictionary
+     * @param[out] val Storage for the retrieved value, of type T
+     * @param[in] defaultVal Value to use if the server doesn't contain this
+     * parameter
+     * @return True if it could be retrieved, false if not
+     */
+    template<typename T>
+    bool param(const std::string& name, T& val, const T& defaultVal)
+    {
+        return pNh_->param(name, val, defaultVal);
+    };
+
+    /**
      * @brief Log function to provide abstraction of ROS loggers
-     * @param[in] s String to log
      * @param[in] logLevel Log level
+     * @param[in] s String to log
      */
     void log(LogLevel logLevel, const std::string& s)
     {
