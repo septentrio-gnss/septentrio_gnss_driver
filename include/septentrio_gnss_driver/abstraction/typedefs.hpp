@@ -33,7 +33,6 @@
 
 // std includes
 #include <unordered_map>
-
 // ROS includes
 #include <ros/ros.h>
 // ROS msg includes
@@ -65,7 +64,8 @@
 #include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 #include <septentrio_gnss_driver/ExtSensorMeas.h>
 
-typedef ros::Time Timestamp;
+typedef uint64_t  Timestamp;
+typedef ros::Time TimestampRos;
 
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
@@ -120,6 +120,28 @@ typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
 typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
 typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 
+/**
+ * @brief Convert nsec timestamp to ROS timestamp
+ * @param[in] ts timestamp in nanoseconds
+ * @return ROS timestamp
+ */
+inline TimestampRos timestampToRos(Timestamp ts)
+{
+    TimestampRos tsr;
+    tsr.fromNSec(ts);
+    return tsr;
+}
+
+/**
+ * @brief Convert ROS timestamp to nsec timestamp 
+ * @param[in] ts ROS timestamp
+ * @return timestamp in nanoseconds
+ */
+inline Timestamp timestampFromRos(const TimestampRos& tsr)
+{
+    return tsr.toNSec();
+}
+
 enum LogLevel
 {
     DEBUG,
@@ -169,8 +191,8 @@ public:
      */
     Timestamp getTime()
     {
-        return ros::Time::now();
-    }
+        return ros::Time::now().toNSec();
+    }    
 
     /**
      * @brief Publishing function

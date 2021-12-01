@@ -1809,9 +1809,8 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc, bool u
 		static uint64_t mSec2NSec    = 1000000;
 		static uint64_t nsOfGpsStart = 315964800 * secToNSec; // GPS week counter starts at 1980-01-06 which is 315964800 seconds since Unix epoch (1970-01-01 UTC)
 		static uint64_t nsecPerWeek  = 7 * 24 * 60 * 60 * secToNSec;
-		uint64_t        UTC          = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek - settings_->leap_seconds * secToNSec;
 		
-		time_obj.fromNSec(UTC);
+        time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek - settings_->leap_seconds * secToNSec;
 	}
 	else
     {
@@ -2151,8 +2150,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4006;			
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2174,8 +2172,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4007;
 			pvtgeodetic_has_arrived_gpsfix_ = true;
 			pvtgeodetic_has_arrived_navsatfix_ = true;
@@ -2200,8 +2197,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5905;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2222,8 +2218,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5906;
 			poscovgeodetic_has_arrived_gpsfix_ = true;
 			poscovgeodetic_has_arrived_navsatfix_ = true;
@@ -2247,8 +2242,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5938;
 			atteuler_has_arrived_gpsfix_ = true;
 			atteuler_has_arrived_pose_ = true;
@@ -2272,8 +2266,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5939;
 			attcoveuler_has_arrived_gpsfix_ = true;
 			attcoveuler_has_arrived_pose_ = true;
@@ -2298,8 +2291,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4225;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2321,8 +2313,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4226;
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
@@ -2348,8 +2339,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4224;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2372,8 +2362,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4244;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2397,8 +2386,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4229;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2421,8 +2409,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4230;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2445,8 +2432,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4050;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2465,8 +2451,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, true); // We need the GPS time, hence true
-			msg->time_ref.sec = time_obj.sec;
-			msg->time_ref.nsec = time_obj.nsec;
+			msg->time_ref = timestampToRos(time_obj);
 			msg->source = "GPST";
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2514,7 +2499,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
 				wait(time_obj);
 			}
 			node_->publishMessage<GpggaMsg>("/gpgga", *msg);
@@ -2555,7 +2540,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
 				wait(time_obj);
 			}
 			node_->publishMessage<GprmcMsg>("/gprmc", *msg);
@@ -2595,20 +2580,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				Timestamp time_obj;
 				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 			}
 			if (settings_->septentrio_receiver_type == "ins")
 			{
 				Timestamp time_obj;
 				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
 				wait(time_obj);
 			}
 			node_->publishMessage<GpgsaMsg>("/gpgsa", *msg);
@@ -2650,20 +2633,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				Timestamp time_obj;
 				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 			}
 			if (settings_->septentrio_receiver_type == "ins")
 			{
 				Timestamp time_obj;
 				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
 				wait(time_obj);
 			}
 			node_->publishMessage<GpgsvMsg>("/gpgsv", *msg);
@@ -2687,8 +2668,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 				pvtgeodetic_has_arrived_navsatfix_ = false;
 				poscovgeodetic_has_arrived_navsatfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2717,8 +2697,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 				insnavgeod_has_arrived_navsatfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2749,10 +2728,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->status.header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				msg->status.header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp        = timestampToRos(time_obj);
+				msg->status.header.stamp = timestampToRos(time_obj);
 				++count_gpsfix_;
 				channelstatus_has_arrived_gpsfix_ = false;
 				measepoch_has_arrived_gpsfix_ = false;
@@ -2790,10 +2767,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->status.header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				msg->status.header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp        = timestampToRos(time_obj);
+				msg->status.header.stamp = timestampToRos(time_obj);
 				++count_gpsfix_;
 				channelstatus_has_arrived_gpsfix_ = false;
 				measepoch_has_arrived_gpsfix_ = false;
@@ -2826,8 +2801,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 				pvtgeodetic_has_arrived_pose_ = false;
 				poscovgeodetic_has_arrived_pose_ = false;
 				atteuler_has_arrived_pose_ = false;
@@ -2859,8 +2833,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
 				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				msg->header.stamp = timestampToRos(time_obj);
 				insnavgeod_has_arrived_pose_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2901,8 +2874,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5908;
 			velcovgeodetic_has_arrived_gpsfix_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2936,8 +2908,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.stamp = timestampToRos(time_obj);
 			receiverstatus_has_arrived_diagnostics_ = false;
 			qualityind_has_arrived_diagnostics_ = false;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2975,16 +2946,16 @@ void io_comm_rx::RxMessage::wait(const Timestamp& time_obj)
 {
 	Timestamp unix_old = unix_time_;
 	unix_time_ = time_obj;
-	if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-		(unix_time_.sec != unix_old.sec ||
-			unix_time_.nsec != unix_old.nsec))
+	if ((unix_old != 0) &&
+		(unix_time_ != unix_old))
 	{
-	    auto sleep_nsec = (unix_time_ - unix_old).toNSec();
-        if (sleep_nsec > 0)
+        if (unix_time_ > unix_old)
         {
+	        auto sleep_nsec = unix_time_ - unix_old;
+        
             std::stringstream ss;
             ss << "Waiting for " << sleep_nsec / 1000000
-            << " milliseconds..." << (unix_time_ - unix_old).toSec();
+            << " milliseconds...";
             node_->log(LogLevel::DEBUG, ss.str());       
         
 		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));

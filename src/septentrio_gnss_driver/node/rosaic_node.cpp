@@ -58,8 +58,6 @@ rosaic_node::ROSaicNode::ROSaicNode() :
         IO_.configureRx();
     }
 
-    // Since we already have a ros::Spin() elsewhere, we use waitForShutdown() here
-    ros::waitForShutdown();
     ROS_DEBUG("Leaving ROSaicNode() constructor..");
 }
 

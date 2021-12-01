@@ -100,8 +100,7 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                 msg->header.stamp.nsec = unix_time_nanoseconds;
             } else
             {
-                msg->header.stamp.sec = time_obj.sec;
-                msg->header.stamp.nsec = time_obj.nsec;
+                msg->header.stamp = timestampToRos(time_obj);
             }
         } else
         {
