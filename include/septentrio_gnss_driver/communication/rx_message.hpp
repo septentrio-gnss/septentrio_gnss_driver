@@ -460,11 +460,13 @@ namespace io_comm_rx {
 
          /**
          * @brief Put new data
+         * @param[in] recvTimestamp Timestamp of receiving buffer
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        void newData(const uint8_t* data, std::size_t& size)
+        void newData(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size)
         {
+            recvTimestamp_ = recvTimestamp;
             data_ = data;
             count_ = size;
             found_ = false;
@@ -594,6 +596,11 @@ namespace io_comm_rx {
          * @brief Pointer to the node
          */
         ROSaicNodeBase* node_;
+
+        /**
+         * @brief Timestamp of recevieng buffer
+         */
+        Timestamp recvTimestamp_;
 
         /**
          * @brief Pointer to the buffer of messages
@@ -947,7 +954,7 @@ namespace io_comm_rx {
          /**
          * @brief Waits according to time when reading from file
          */
-        void wait(const Timestamp& time_obj);
+        void wait(Timestamp time_obj);
 
         /**
          * @brief Wether all elements are true

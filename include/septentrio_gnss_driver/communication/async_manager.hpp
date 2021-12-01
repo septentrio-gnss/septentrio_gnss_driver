@@ -91,7 +91,7 @@ namespace io_comm_rx {
     class Manager
     {
     public:
-        typedef boost::function<void(const uint8_t*, std::size_t&)> Callback;
+        typedef boost::function<void(Timestamp, const uint8_t*, std::size_t&)> Callback;
         virtual ~Manager() {}
         //! Sets the callback function
         virtual void setCallback(const Callback& callback) = 0;
@@ -232,6 +232,9 @@ namespace io_comm_rx {
         //! Number of times the DoRead() method has been called (only counts
         //! initially)
         uint16_t do_read_count_;
+
+        //! Timestamp of receiving buffer
+        Timestamp recvTime_;
     };
 
     template <typename StreamT>
@@ -256,7 +259,7 @@ namespace io_comm_rx {
             std::size_t current_buffer_size = circular_buffer_.size();
             arg_for_read_callback += current_buffer_size;
             circular_buffer_.read(to_be_parsed + shift_bytes, current_buffer_size);
-
+            Timestamp revcTime = recvTime_;
             lock.unlock();
             parsing_condition_.notify_one();
 
@@ -265,7 +268,7 @@ namespace io_comm_rx {
                 node_->log(LogLevel::DEBUG, 
                     "Calling read_callback_() method, with number of bytes to be parsed being " +
                     std::to_string(arg_for_read_callback));
-                read_callback_(to_be_parsed_, arg_for_read_callback);
+                read_callback_(revcTime, to_be_parsed_, arg_for_read_callback);
             } catch (std::size_t& parsing_failed_here)
             {
                 to_be_parsed_ += parsing_failed_here;
@@ -408,6 +411,7 @@ namespace io_comm_rx {
                                         std::to_string(bytes_transferred));
         } else if (bytes_transferred > 0)
         {
+            Timestamp inTime = node_->getTime();
             if (read_callback_ && !stopping_) // Will be false in InitializeSerial (first call)
                                 // since read_callback_ not added yet..
             {
@@ -416,6 +420,7 @@ namespace io_comm_rx {
                 circular_buffer_.write(in_.data(), bytes_transferred);
                 allow_writing_ = false;
                 try_parsing_ = true;
+                recvTime_ = inTime;
                 lock.unlock();
                 parsing_condition_.notify_one();
                 std::vector<uint8_t> empty;

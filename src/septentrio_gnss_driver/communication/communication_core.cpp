@@ -1177,7 +1177,7 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
             node_->log(LogLevel::DEBUG, 
                 "Calling read_callback_() method, with number of bytes to be parsed being " +
                 buffer_size);
-            handlers_.readCallback(to_be_parsed, buffer_size);
+            handlers_.readCallback(node_->getTime(), to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
         {
             if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
@@ -1225,7 +1225,7 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
             node_->log(LogLevel::DEBUG, 
                 "Calling read_callback_() method, with number of bytes to be parsed being " +
                 buffer_size);
-            handlers_.readCallback(to_be_parsed, buffer_size);
+            handlers_.readCallback(node_->getTime(), to_be_parsed, buffer_size);
         } catch (std::size_t& parsing_failed_here)
         {
             if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
@@ -1409,7 +1409,7 @@ void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
         return;
     manager_ = manager;
     manager_->setCallback(
-        boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2));
+        boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2, _3));
     node_->log(LogLevel::DEBUG, "Leaving setManager() method");
 }
 

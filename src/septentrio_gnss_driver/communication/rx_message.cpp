@@ -1814,7 +1814,7 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc, bool u
 	}
 	else
     {
-        time_obj = node_->getTime();
+        time_obj = recvTimestamp_;
     }
 	return time_obj;
 }
@@ -2942,7 +2942,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     return true;
 }
 
-void io_comm_rx::RxMessage::wait(const Timestamp& time_obj)
+void io_comm_rx::RxMessage::wait(Timestamp time_obj)
 {
 	Timestamp unix_old = unix_time_;
 	unix_time_ = time_obj;

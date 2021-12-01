@@ -55,7 +55,7 @@ const std::string GprmcParser::getMessageID() const
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
 GprmcMsgPtr
-GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
+GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
 
     // Checking the length first, it should be between 13 and 14 elements

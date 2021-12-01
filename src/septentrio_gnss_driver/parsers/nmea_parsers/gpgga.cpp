@@ -51,7 +51,7 @@ const std::string GpggaParser::getMessageID() const
  * sentence.get_body()[15] if anybody ever needs it.
  */
 GpggaMsgPtr
-GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
+GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
     // %s", sentence.get_body()[0].c_str());

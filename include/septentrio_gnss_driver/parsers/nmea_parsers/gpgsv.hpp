@@ -96,7 +96,7 @@ public:
      * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
      */
     GpgsvMsgPtr
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false) override;
+    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID

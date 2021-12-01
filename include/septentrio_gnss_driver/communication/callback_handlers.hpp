@@ -228,10 +228,11 @@ namespace io_comm_rx {
         /**
          * @brief Searches for Rx messages that could potentially be
          * decoded/parsed/published
+         * @param[in] recvTimestamp Timestamp of buffer reception passed on from AsyncManager class
          * @param[in] data Buffer passed on from AsyncManager class
          * @param[in] size Size of the buffer
          */
-        void readCallback(const uint8_t* data, std::size_t& size);
+        void readCallback(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size);
 
         //! Callback handlers multimap for Rx messages; it needs to be public since
         //! we copy-assign (did not work otherwise) new callbackmap_, after inserting

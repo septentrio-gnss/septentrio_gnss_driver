@@ -387,9 +387,9 @@ namespace io_comm_rx {
         }
     }
 
-    void CallbackHandlers::readCallback(const uint8_t* data, std::size_t& size)
+    void CallbackHandlers::readCallback(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size)
     {
-        rx_message_.newData(data, size);
+        rx_message_.newData(recvTimestamp, data, size);
         // Read !all! (there might be many) messages in the buffer
         while (rx_message_.search() != rx_message_.getEndBuffer() &&
                rx_message_.found())
