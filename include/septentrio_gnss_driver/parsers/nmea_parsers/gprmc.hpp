@@ -64,7 +64,6 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <boost/make_shared.hpp>
-#include <septentrio_gnss_driver/Gprmc.h>
 
 /**
  * @file gprmc.hpp
@@ -77,14 +76,14 @@
  * @brief Derived class for parsing RMC messages
  * @date 28/09/20
  */
-class GprmcParser : public BaseParser<septentrio_gnss_driver::GprmcPtr>
+class GprmcParser : public BaseParser<GprmcMsgPtr>
 {
 public:
     /**
      * @brief Constructor of the class GprmcParser
      */
     GprmcParser() :
-        BaseParser<septentrio_gnss_driver::GprmcPtr>(), was_last_gprmc_valid_(false)
+        BaseParser<GprmcMsgPtr>(), was_last_gprmc_valid_(false)
     {
     }
 
@@ -97,9 +96,9 @@ public:
     /**
      * @brief Parses one RMC message
      * @param[in] sentence The RMC message to be parsed
-     * @return A ROS message pointer of ROS type septentrio_gnss_driver::GprmcPtr
+     * @return A ROS message pointer of ROS type GprmcMsgPtr
      */
-    septentrio_gnss_driver::GprmcPtr
+    GprmcMsgPtr
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false) override;
 
     /**

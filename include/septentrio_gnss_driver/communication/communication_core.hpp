@@ -110,7 +110,7 @@ namespace io_comm_rx {
          * @brief Constructor of the class Comm_IO
          * @param[in] node Pointer to node
          */
-        Comm_IO(ROSaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings);
+        Comm_IO(ROSaicNodeBase* node, Settings* settings);
         /**
          * @brief Default destructor of the class Comm_IO
          */

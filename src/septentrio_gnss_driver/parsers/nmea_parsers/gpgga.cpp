@@ -50,7 +50,7 @@ const std::string GpggaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[15] if anybody ever needs it.
  */
-septentrio_gnss_driver::GpggaPtr
+GpggaMsgPtr
 GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
@@ -65,8 +65,8 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GpggaPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gpgga>();
+    GpggaMsgPtr msg =
+        boost::make_shared<GpggaMsg>();
     msg->header.frame_id = frame_id;
 
     msg->message_id = sentence.get_body()[0];

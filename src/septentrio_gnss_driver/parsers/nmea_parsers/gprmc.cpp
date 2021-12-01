@@ -54,7 +54,7 @@ const std::string GprmcParser::getMessageID() const
  * you should thus ignore it. This usually occurs when the GPS is still searching for
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
-septentrio_gnss_driver::GprmcPtr
+GprmcMsgPtr
 GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false)
 {
 
@@ -70,8 +70,8 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GprmcPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gprmc>();
+    GprmcMsgPtr msg =
+        boost::make_shared<GprmcMsg>();
 
     msg->header.frame_id = frame_id;
 

@@ -50,7 +50,7 @@ const std::string GpgsaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[18] if anybody ever needs it.
  */
-septentrio_gnss_driver::GpgsaPtr
+GpgsaMsgPtr
 GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, const Timestamp& /*time_obj*/) noexcept(false)
 {
 
@@ -64,8 +64,8 @@ GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GpgsaPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gpgsa>();
+    GpgsaMsgPtr msg =
+        boost::make_shared<GpgsaMsg>();
     msg->header.frame_id = frame_id;
     msg->message_id = sentence.get_body()[0];
     msg->auto_manual_mode = sentence.get_body()[1];

@@ -119,9 +119,9 @@ std::string g_rx_tcp_port;
 //! to count the connection descriptors
 uint32_t g_cd_count;
 
-io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
+io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, Settings* settings) : 
     node_(node),
-    handlers_(node, pNh, settings),
+    handlers_(node, settings),
     settings_(settings),
     stopping_(false)
 {
@@ -862,28 +862,28 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_gpgga == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgga>("$GPGGA");
+            handlers_.insert<GpggaMsg>("$GPGGA");
     }
     if (settings_->publish_gprmc == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gprmc>("$GPRMC");
+            handlers_.insert<GprmcMsg>("$GPRMC");
     }
     if (settings_->publish_gpgsa == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgsa>("$GPGSA");
+            handlers_.insert<GpgsaMsg>("$GPGSA");
     }
     if (settings_->publish_gpgsv == true)
     {
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GPGSV");
+            handlers_.insert<GpgsvMsg>("$GPGSV");
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GLGSV");
+            handlers_.insert<GpgsvMsg>("$GLGSV");
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GAGSV");
+            handlers_.insert<GpgsvMsg>("$GAGSV");
         handlers_.callbackmap_ =
-            handlers_.insert<septentrio_gnss_driver::Gpgsv>("$GBGSV");
+            handlers_.insert<GpgsvMsg>("$GBGSV");
     }
     if (settings_->publish_pvtcartesian == true)
     {

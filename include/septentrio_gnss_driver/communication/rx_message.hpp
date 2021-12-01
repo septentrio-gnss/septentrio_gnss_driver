@@ -390,13 +390,11 @@ namespace io_comm_rx {
          * The const-ness of the argument just means the function promises not to
          * change it.. Recall: static_cast by the way can remove or add const-ness,
          * no other C++ cast is capable of removing it (not even reinterpret_cast)
-         * @param[in] pNh  Pointer to the node handle
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(ROSaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
+        RxMessage(ROSaicNodeBase* node, Settings* settings) :
             node_(node),
-            pNh_(pNh),
             settings_(settings),
             unix_time_(0)
         {
@@ -596,11 +594,6 @@ namespace io_comm_rx {
          * @brief Pointer to the node
          */
         ROSaicNodeBase* node_;
-
-        /**
-         * @brief Pointer to the node handle
-         */
-        std::shared_ptr<ros::NodeHandle> pNh_;
 
         /**
          * @brief Pointer to the buffer of messages

@@ -37,7 +37,7 @@
  */
 
 rosaic_node::ROSaicNode::ROSaicNode() :
-    IO_(this, pNh_, &settings_)
+    IO_(this, &settings_)
 {
     ROS_DEBUG("Called ROSaicNode() constructor..");
 

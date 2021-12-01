@@ -31,6 +31,9 @@
 #ifndef Typedefs_HPP
 #define Typedefs_HPP
 
+// std includes
+#include <unordered_map>
+
 // ROS includes
 #include <ros/ros.h>
 // ROS msg includes
@@ -48,6 +51,11 @@
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
+// NMEA msg includes
+#include <septentrio_gnss_driver/Gpgga.h>
+#include <septentrio_gnss_driver/Gpgsa.h>
+#include <septentrio_gnss_driver/Gpgsv.h>
+#include <septentrio_gnss_driver/Gprmc.h>
 // INS msg includes
 #include <septentrio_gnss_driver/INSNavCart.h>
 #include <septentrio_gnss_driver/INSNavGeod.h>
@@ -87,6 +95,15 @@ typedef septentrio_gnss_driver::PosCovGeodetic     PosCovGeodeticMsg;
 typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
 typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
+
+typedef septentrio_gnss_driver::Gpgga    GpggaMsg;
+typedef septentrio_gnss_driver::GpggaPtr GpggaMsgPtr;
+typedef septentrio_gnss_driver::Gpgsa    GpgsaMsg;
+typedef septentrio_gnss_driver::GpgsaPtr GpgsaMsgPtr;
+typedef septentrio_gnss_driver::Gpgsv    GpgsvMsg;
+typedef septentrio_gnss_driver::GpgsvPtr GpgsvMsgPtr;
+typedef septentrio_gnss_driver::Gprmc    GprmcMsg;
+typedef septentrio_gnss_driver::GprmcPtr GprmcMsgPtr;
 
 typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
 typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
@@ -155,9 +172,36 @@ public:
         return ros::Time::now();
     }
 
+    /**
+     * @brief Publishing function
+     * @param[in] topic String of topic
+     * @param[in] msg ROS message to be published
+     */
+    template <typename M>
+    void publishMessage(const std::string& topic, const M& msg)
+    {
+        auto it = topicMap_.find(topic);
+        if (it != topicMap_.end())
+        {
+            it->second.publish(msg);
+        }
+        else
+        {
+            ros::Publisher pub = pNh_->advertise<M>(topic, queueSize_);
+            topicMap_.insert(std::make_pair(topic, pub));
+            pub.publish(msg);
+        }
+    }
+
 protected:
     //! Node handle pointer
-    std::shared_ptr<ros::NodeHandle> pNh_;
+    std::shared_ptr<ros::NodeHandle> pNh_;    
+
+private:
+    //! Map of topics and publishers
+    std::unordered_map<std::string, ros::Publisher> topicMap_;
+    //! Publisher queue size
+    uint32_t queueSize_ = 1;
 };
 
 #endif // Typedefs_HPP

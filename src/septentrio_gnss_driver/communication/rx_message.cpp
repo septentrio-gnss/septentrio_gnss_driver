@@ -2154,16 +2154,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4006;			
-			static ros::Publisher publisher =
-			    pNh_->advertise<PVTCartesianMsg>("/pvtcartesian",
-																	  1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
-            break;
+			node_->publishMessage<PVTCartesianMsg>("/pvtcartesian", *msg);
+			break;
 		}
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
 							// frame)
@@ -2183,15 +2180,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			pvtgeodetic_has_arrived_gpsfix_ = true;
 			pvtgeodetic_has_arrived_navsatfix_ = true;
 			pvtgeodetic_has_arrived_pose_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<PVTGeodeticMsg>("/pvtgeodetic",
-																	 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", *msg);			
 			break;
 		}
 		case evPosCovCartesian:
@@ -2209,15 +2203,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5905;
-			static ros::Publisher publisher =
-				pNh_->advertise<PosCovCartesianMsg>(
-					"/poscovcartesian", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PosCovCartesianMsg>("/poscovcartesian", *msg);
 			break;
 		}
 		case evPosCovGeodetic:
@@ -2237,15 +2228,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			poscovgeodetic_has_arrived_gpsfix_ = true;
 			poscovgeodetic_has_arrived_navsatfix_ = true;
 			poscovgeodetic_has_arrived_pose_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<PosCovGeodeticMsg>(
-					"/poscovgeodetic", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", *msg);
 			break;
 		}
 		case evAttEuler:
@@ -2264,15 +2252,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->block_header.id = 5938;
 			atteuler_has_arrived_gpsfix_ = true;
 			atteuler_has_arrived_pose_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<AttEulerMsg>("/atteuler",
-																  1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<AttEulerMsg>("/atteuler", *msg);		
+			
 			break;
 		}
 		case evAttCovEuler:
@@ -2291,15 +2277,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->block_header.id = 5939;
 			attcoveuler_has_arrived_gpsfix_ = true;
 			attcoveuler_has_arrived_pose_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<AttCovEulerMsg>("/attcoveuler",
-																	 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<AttCovEulerMsg>("/attcoveuler", *msg);
 			break;
 		}
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
@@ -2318,15 +2301,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4225;
-			static ros::Publisher publisher = 
-				pNh_->advertise<INSNavCartMsg>(
-					"/insnavcart", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<INSNavCartMsg>("/insnavcart", *msg);
 			break;
 		}
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
@@ -2347,15 +2327,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<INSNavGeodMsg>("/insnavgeod",
-																	 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<INSNavGeodMsg>("/insnavgeod", *msg);
 			break;
 		}
 
@@ -2374,15 +2351,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4224;
-			static ros::Publisher publisher = 
-				pNh_->advertise<IMUSetupMsg>("/imusetup", 
-																1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<IMUSetupMsg>("/imusetup", *msg);
 			break;
 		}
 
@@ -2401,15 +2375,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4244;
-			static ros::Publisher publisher = 
-				pNh_->advertise<VelSensorSetupMsg>("/velsensorsetup", 
-																1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<VelSensorSetupMsg>("/velsensorsetup", *msg);
 			break;
 		}
 
@@ -2429,15 +2400,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4229;
-			static ros::Publisher publisher = 
-				pNh_->advertise<ExtEventINSNavCartMsg>(
-					"/exteventinsnavcart", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtEventINSNavCartMsg>("/exteventinsnavcart", *msg);
 			break;
 		}
 
@@ -2456,15 +2424,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4230;
-			static ros::Publisher publisher =
-				pNh_->advertise<ExtEventINSNavGeodMsg>("/exteventinsnavgeod",
-																	  1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtEventINSNavGeodMsg>("/exteventinsnavgeod", *msg);
 			break;
 		}
 
@@ -2483,15 +2448,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.sec = time_obj.sec;
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 4050;
-			static ros::Publisher publisher =
-				pNh_->advertise<ExtSensorMeasMsg>("/extsensormeas",
-																	  1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", *msg);
 			break;
 		}
 
@@ -2506,14 +2468,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->time_ref.sec = time_obj.sec;
 			msg->time_ref.nsec = time_obj.nsec;
 			msg->source = "GPST";
-			static ros::Publisher publisher =
-				pNh_->advertise<TimeReferenceMsg>("/gpst", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<TimeReferenceMsg>("/gpst", *msg);
 			break;
 		}
 		case evGPGGA:
@@ -2540,8 +2500,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpggaParser::parseASCII
 			NMEASentence gga_message(id, body);
-			septentrio_gnss_driver::GpggaPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgga>();
+			GpggaMsgPtr msg =
+				boost::make_shared<GpggaMsg>();
             Timestamp time_obj = node_->getTime();
 			GpggaParser parser_obj;
 			try
@@ -2551,16 +2511,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				throw std::runtime_error(e.what());
 			}
-			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::Gpgga>("/gpgga",
-															1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpggaMsg>("/gpgga", *msg);
 			break;
 		}
 		case evGPRMC:
@@ -2585,8 +2542,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GprmcParser::parseASCII
 			NMEASentence rmc_message(id, body);
-			septentrio_gnss_driver::GprmcPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gprmc>();
+			GprmcMsgPtr msg =
+				boost::make_shared<GprmcMsg>();
 			GprmcParser parser_obj;
 			try
 			{
@@ -2595,16 +2552,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				throw std::runtime_error(e.what());
 			}
-			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::Gprmc>("/gprmc",
-															1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GprmcMsg>("/gprmc", *msg);
 			break;
 		}
 		case evGPGSA:
@@ -2627,8 +2581,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsaParser::parseASCII
 			NMEASentence gsa_message(id, body);
-			septentrio_gnss_driver::GpgsaPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgsa>();
+			GpgsaMsgPtr msg =
+				boost::make_shared<GpgsaMsg>();
 			GpgsaParser parser_obj;
 			try
 			{
@@ -2651,16 +2605,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
-			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::Gpgsa>("/gpgsa",
-															1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpgsaMsg>("/gpgsa", *msg);
 			break;
 		}
 		case evGPGSV:
@@ -2685,8 +2636,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsvParser::parseASCII
 			NMEASentence gsv_message(id, body);
-			septentrio_gnss_driver::GpgsvPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgsv>();
+			GpgsvMsgPtr msg =
+				boost::make_shared<GpgsvMsg>();
 			GpgsvParser parser_obj;
 			try
 			{
@@ -2709,16 +2660,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 			}
-			static ros::Publisher publisher =
-				pNh_->advertise<septentrio_gnss_driver::Gpgsv>("/gpgsv",
-															1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				Timestamp time_obj(msg->header.stamp.sec, msg->header.stamp.nsec);
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpgsvMsg>("/gpgsv", *msg);
 			break;
 		}
 		
@@ -2743,14 +2691,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.nsec = time_obj.nsec;
 				pvtgeodetic_has_arrived_navsatfix_ = false;
 				poscovgeodetic_has_arrived_navsatfix_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<NavSatFixMsg>("/navsatfix", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<NavSatFixMsg>("/navsatfix", *msg);
 				break;
 			}
 		}
@@ -2774,14 +2720,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				insnavgeod_has_arrived_navsatfix_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<NavSatFixMsg>("/navsatfix", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<NavSatFixMsg>("/navsatfix", *msg);
 				break;
 			}
 		}
@@ -2818,14 +2762,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				velcovgeodetic_has_arrived_gpsfix_ = false;
 				atteuler_has_arrived_gpsfix_ = false;
 				attcoveuler_has_arrived_gpsfix_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<GPSFixMsg>("/gpsfix", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<GPSFixMsg>("/gpsfix", *msg);
 				break;
 			}
 		}
@@ -2857,14 +2799,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				measepoch_has_arrived_gpsfix_ = false;
 				dop_has_arrived_gpsfix_ = false;
 				insnavgeod_has_arrived_gpsfix_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<GPSFixMsg>("/gpsfix", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<GPSFixMsg>("/gpsfix", *msg);
 				break;
 			}
 		}
@@ -2892,15 +2832,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				poscovgeodetic_has_arrived_pose_ = false;
 				atteuler_has_arrived_pose_ = false;
 				attcoveuler_has_arrived_pose_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<PoseWithCovarianceStampedMsg>(
-						"/pose", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", *msg);
 				break;
 			}
 		}
@@ -2925,15 +2862,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg->header.stamp.sec = time_obj.sec;
 				msg->header.stamp.nsec = time_obj.nsec;
 				insnavgeod_has_arrived_pose_ = false;
-				static ros::Publisher publisher =
-					pNh_->advertise<PoseWithCovarianceStampedMsg>(
-						"/pose", 1);
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
 				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
 					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", *msg);
 				break;
 			}
 			
@@ -2971,15 +2905,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			msg->block_header.id = 5908;
 			velcovgeodetic_has_arrived_gpsfix_ = true;
-			static ros::Publisher publisher =
-				pNh_->advertise<VelCovGeodeticMsg>(
-					"/velcovgeodetic", 1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", *msg);
 			break;
 		}
 		case evDiagnosticArray:
@@ -3009,15 +2940,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			msg->header.stamp.nsec = time_obj.nsec;
 			receiverstatus_has_arrived_diagnostics_ = false;
 			qualityind_has_arrived_diagnostics_ = false;
-			static ros::Publisher publisher =
-				pNh_->advertise<DiagnosticArrayMsg>("/diagnostics",
-																1);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<DiagnosticArrayMsg>("/diagnostics", *msg);
 			break; 
 		}
 		case evReceiverStatus:

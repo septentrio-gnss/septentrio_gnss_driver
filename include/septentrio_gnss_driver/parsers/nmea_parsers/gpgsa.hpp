@@ -64,7 +64,6 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <boost/make_shared.hpp>
-#include <septentrio_gnss_driver/Gpgsa.h>
 
 /**
  * @file gpgsa.hpp
@@ -77,13 +76,13 @@
  * @brief Derived class for parsing GSA messages
  * @date 29/09/20
  */
-class GpgsaParser : public BaseParser<septentrio_gnss_driver::GpgsaPtr>
+class GpgsaParser : public BaseParser<GpgsaMsgPtr>
 {
 public:
     /**
      * @brief Constructor of the class GpgsaParser
      */
-    GpgsaParser() : BaseParser<septentrio_gnss_driver::GpgsaPtr>() {}
+    GpgsaParser() : BaseParser<GpgsaMsgPtr>() {}
 
     /**
      * @brief Returns the ASCII message ID, here "$GPGSA"
@@ -94,9 +93,9 @@ public:
     /**
      * @brief Parses one GSA message
      * @param[in] sentence The GSA message to be parsed
-     * @return A ROS message pointer of ROS type septentrio_gnss_driver::GpgsaPtr
+     * @return A ROS message pointer of ROS type GpgsaMsgPtr
      */
-    septentrio_gnss_driver::GpgsaPtr
+    GpgsaMsgPtr
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, const Timestamp& time_obj) noexcept(false) override;
 
     /**

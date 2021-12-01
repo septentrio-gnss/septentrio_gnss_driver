@@ -188,9 +188,9 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers(ROSaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) : 
+        CallbackHandlers(ROSaicNodeBase* node, Settings* settings) : 
             node_(node),
-            rx_message_(node, pNh, settings),
+            rx_message_(node, settings),
             settings_(settings)
         {}
 
