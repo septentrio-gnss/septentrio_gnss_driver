@@ -166,7 +166,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node 
-    src/septentrio_gnss_driver/node/rosaic_node.cpp 
+    src/septentrio_gnss_driver/node/main.cpp
+    src/septentrio_gnss_driver/node/rosaic_node.cpp
     src/septentrio_gnss_driver/communication/circular_buffer.cpp 
     src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
