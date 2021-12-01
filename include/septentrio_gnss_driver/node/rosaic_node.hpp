@@ -166,7 +166,7 @@ namespace rosaic_node {
      * @class ROSaicNode
      * @brief This class represents the ROsaic node, to be extended..
      */
-    class ROSaicNode : RosaicNodeBase
+    class ROSaicNode : ROSaicNodeBase
     {
     public:
         //! The constructor initializes and runs the ROSaic node, if everything works
@@ -182,22 +182,7 @@ namespace rosaic_node {
          */
         void getROSParams();
 
-        /**
-         * @brief Log function to provide abstraction of ROS loggers
-         * @param[in] s String to log
-         * @param[in] logLevel Log level
-         */
-        void log(LogLevel logLevel, const std::string& s);
-
-         /**
-         * @brief Gets current timestamp
-         * @return Timestamp
-         */
-        Timestamp getTime();   
-
     private:
-        //! Node handle pointer
-        std::shared_ptr<ros::NodeHandle> pNh_;
         //! Settings
         Settings settings_;
         //! Handles communication with the Rx

@@ -36,7 +36,7 @@
  * @date 25/09/20
  */
 
-CircularBuffer::CircularBuffer(RosaicNodeBase* node, std::size_t capacity) :
+CircularBuffer::CircularBuffer(ROSaicNodeBase* node, std::size_t capacity) :
     node_(node), head_(0), tail_(0), size_(0), capacity_(capacity)
 {
     data_ = new uint8_t[capacity];

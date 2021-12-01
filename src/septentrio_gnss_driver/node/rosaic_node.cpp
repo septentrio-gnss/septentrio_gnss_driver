@@ -37,7 +37,6 @@
  */
 
 rosaic_node::ROSaicNode::ROSaicNode() :
-    pNh_(new ros::NodeHandle("~")),
     IO_(this, pNh_, &settings_)
 {
     ROS_DEBUG("Called ROSaicNode() constructor..");
@@ -204,32 +203,6 @@ void rosaic_node::ROSaicNode::getROSParams()
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     ROS_DEBUG("Finished getROSParams() method");
 };
-
-void rosaic_node::ROSaicNode::log(LogLevel logLevel, const std::string& s)
-{
-    switch (logLevel)
-    {
-    case LogLevel::DEBUG:
-        ROS_DEBUG_STREAM(s);
-        break;
-    case LogLevel::INFO:
-        ROS_INFO_STREAM(s);
-        break;
-    case LogLevel::ERROR:
-        ROS_ERROR_STREAM(s);
-        break;
-    case LogLevel::FATAL:
-        ROS_FATAL_STREAM(s);
-        break;    
-    default:
-        break;
-    }
-}
-
-Timestamp rosaic_node::ROSaicNode::getTime()
-{
-    return ros::Time::now();
-}
 
 int main(int argc, char** argv)
 {

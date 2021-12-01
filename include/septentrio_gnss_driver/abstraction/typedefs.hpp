@@ -111,16 +111,53 @@ enum LogLevel
     FATAL
 };
 
-class RosaicNodeBase
+class ROSaicNodeBase
 {
 public:
-    RosaicNodeBase(){}
+    ROSaicNodeBase() :
+    pNh_(new ros::NodeHandle("~"))
+    {}
 
-    virtual ~RosaicNodeBase(){}
+    virtual ~ROSaicNodeBase(){}
 
-    virtual void log(LogLevel logLevel, const std::string& s) = 0;
+    /**
+     * @brief Log function to provide abstraction of ROS loggers
+     * @param[in] s String to log
+     * @param[in] logLevel Log level
+     */
+    void log(LogLevel logLevel, const std::string& s)
+    {
+        switch (logLevel)
+        {
+        case LogLevel::DEBUG:
+            ROS_DEBUG_STREAM(s);
+            break;
+        case LogLevel::INFO:
+            ROS_INFO_STREAM(s);
+            break;
+        case LogLevel::ERROR:
+            ROS_ERROR_STREAM(s);
+            break;
+        case LogLevel::FATAL:
+            ROS_FATAL_STREAM(s);
+            break;    
+        default:
+            break;
+        }
+    }
 
-    virtual Timestamp getTime() = 0;
+    /**
+     * @brief Gets current timestamp
+     * @return Timestamp
+     */
+    Timestamp getTime()
+    {
+        return ros::Time::now();
+    }
+
+protected:
+    //! Node handle pointer
+    std::shared_ptr<ros::NodeHandle> pNh_;
 };
 
 #endif // Typedefs_HPP

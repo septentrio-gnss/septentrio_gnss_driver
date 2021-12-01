@@ -123,7 +123,7 @@ namespace io_comm_rx {
          * program's link to the operating system's I/O services
          * @param[in] buffer_size Size of the circular buffer in bytes
          */
-        AsyncManager(RosaicNodeBase* node, 
+        AsyncManager(ROSaicNodeBase* node, 
                      boost::shared_ptr<StreamT> stream,
                      boost::shared_ptr<boost::asio::io_service> io_service,
                      std::size_t buffer_size = 16384);
@@ -149,7 +149,7 @@ namespace io_comm_rx {
 
     private:
         //! Pointer to the node
-        RosaicNodeBase* node_;
+        ROSaicNodeBase* node_;
 
     protected:
         //! Reads in via async_read_some and hands certain number of bytes
@@ -329,7 +329,7 @@ namespace io_comm_rx {
 
     template <typename StreamT>
     AsyncManager<StreamT>::AsyncManager(
-        RosaicNodeBase* node, 
+        ROSaicNodeBase* node, 
         boost::shared_ptr<StreamT> stream,
         boost::shared_ptr<boost::asio::io_service> io_service,
         std::size_t buffer_size) :

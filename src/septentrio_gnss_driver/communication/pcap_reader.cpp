@@ -50,7 +50,7 @@
 
 namespace pcapReader {
 
-    PcapDevice::PcapDevice(RosaicNodeBase* node, buffer_t& buffer) : node_(node), m_dataBuff{buffer} {}
+    PcapDevice::PcapDevice(ROSaicNodeBase* node, buffer_t& buffer) : node_(node), m_dataBuff{buffer} {}
 
     PcapDevice::~PcapDevice() { disconnect(); }
 

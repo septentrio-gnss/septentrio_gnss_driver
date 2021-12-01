@@ -301,8 +301,6 @@ struct Settings
     bool publish_pose;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
-    //! Queue size for ROS publishers
-    const uint32_t g_ROS_QUEUE_SIZE = 1;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW (in
@@ -396,7 +394,7 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(RosaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
+        RxMessage(ROSaicNodeBase* node, std::shared_ptr<ros::NodeHandle> pNh, Settings* settings) :
             node_(node),
             pNh_(pNh),
             settings_(settings),
@@ -597,7 +595,7 @@ namespace io_comm_rx {
         /**
          * @brief Pointer to the node
          */
-        RosaicNodeBase* node_;
+        ROSaicNodeBase* node_;
 
         /**
          * @brief Pointer to the node handle
