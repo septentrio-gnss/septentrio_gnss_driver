@@ -42,7 +42,8 @@ rosaic_node::ROSaicNode::ROSaicNode() :
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 
     // Parameters must be set before initializing IO
-    getROSParams();
+    if (!getROSParams())
+        return;
 
     // Initializes Connection
     IO_.initializeIO();
@@ -61,7 +62,7 @@ rosaic_node::ROSaicNode::ROSaicNode() :
     this->log(LogLevel::DEBUG, "Leaving ROSaicNode() constructor..");
 }
 
-void rosaic_node::ROSaicNode::getROSParams()
+bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
@@ -80,6 +81,11 @@ void rosaic_node::ROSaicNode::getROSParams()
     param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
+    if (!((settings_.septentrio_receiver_type == "gnss") || (settings_.septentrio_receiver_type == "ins")))
+    {
+        this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " + settings_.septentrio_receiver_type + " use either gnss or ins.");
+        return false;
+    }
 	
     // Polling period parameters
     getIntParam("polling_period/pvt", settings_.polling_period_pvt,
@@ -91,8 +97,9 @@ void rosaic_node::ROSaicNode::getROSParams()
         settings_.polling_period_pvt != 2000 && settings_.polling_period_pvt != 5000 &&
         settings_.polling_period_pvt != 10000)
     {
-        this->log(LogLevel::ERROR,
+        this->log(LogLevel::FATAL,
             "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages.");
+        return false;
     }
     getIntParam("polling_period/rest", settings_.polling_period_rest,
               static_cast<uint32_t>(1000));
@@ -103,8 +110,9 @@ void rosaic_node::ROSaicNode::getROSParams()
         settings_.polling_period_rest != 2000 && settings_.polling_period_rest != 5000 &&
         settings_.polling_period_rest != 10000)
     {
-        this->log(LogLevel::ERROR,
+        this->log(LogLevel::FATAL,
             "Please specify a valid polling period for PVT-unrelated SBF blocks and NMEA messages.");
+        return false;
     }
 
     // Datum and marker-to-ARP offset
@@ -200,4 +208,5 @@ void rosaic_node::ROSaicNode::getROSParams()
 	
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG ,"Finished getROSParams() method");
+    return true;
 };

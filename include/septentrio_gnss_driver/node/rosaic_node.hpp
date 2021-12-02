@@ -87,17 +87,17 @@ namespace rosaic_node {
         //! The constructor initializes and runs the ROSaic node, if everything works
         //! fine. It loads the user-defined ROS parameters, subscribes to Rx
         //! messages, and publishes requested ROS messages...
-        ROSaicNode();
+        ROSaicNode();        
 
+    private:
         /**
          * @brief Gets the node parameters from the ROS Parameter Server, parts of
          * which are specified in a YAML file
          *
          * The other ROSaic parameters are specified via the command line.
          */
-        void getROSParams();
+        bool getROSParams();
 
-    private:
         //! Settings
         Settings settings_;
         //! Handles communication with the Rx
