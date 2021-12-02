@@ -404,6 +404,14 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +VelCovGeodetic";
         }
+        if (settings_->publish_atteuler)
+        {
+            blocks << " +AttEuler";
+        } 
+        if (settings_->publish_attcoveuler)
+        {
+            blocks << " +AttCovEuler";
+        }
         if (settings_->publish_gpsfix)
         {
             blocks << " +ChannelStatus +MeasEpoch +DOP";
@@ -444,14 +452,6 @@ void io_comm_rx::Comm_IO::configureRx()
     // Setting up SBF blocks with rx_period_rest
     {
         std::stringstream blocks;
-        if (settings_->publish_atteuler)
-        {
-            blocks << " +AttEuler";
-        } 
-        if (settings_->publish_attcoveuler)
-        {
-            blocks << " +AttCovEuler";
-        }
         if (settings_->septentrio_receiver_type == "ins")
         {
             if (settings_->publish_imusetup)
