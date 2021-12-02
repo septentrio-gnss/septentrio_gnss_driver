@@ -120,8 +120,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("datum", settings_.datum, std::string("ETRS89"));
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
-    param("ant_serial_nr", settings_.ant_serial_nr, std::string());
-    if (settings_.ant_serial_nr.empty())
+    if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
     {
         uint32_t sn_tmp;
         if (getIntParam("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -129,8 +128,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         else
             settings_.ant_serial_nr = "Unknown";
     }
-    param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string());
-    if (settings_.ant_aux1_serial_nr.empty())
+    if (!param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string()))
     {
         uint32_t sn_tmp;
         if (getIntParam("ant_aux1_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -185,8 +183,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ntrip_settings.caster", settings_.caster, std::string());
     getIntParam("ntrip_settings.caster_port", settings_.caster_port, static_cast<uint32_t>(0));
     param("ntrip_settings.username", settings_.ntrip_username, std::string());
-    param("ntrip_settings.password", settings_.ntrip_password, std::string());
-    if (settings_.ntrip_password.empty())
+    if (!param("ntrip_settings.password", settings_.ntrip_password, std::string()))
     {
         uint32_t pwd_tmp;
         getIntParam("ntrip_settings.password", pwd_tmp, static_cast<uint32_t>(0));

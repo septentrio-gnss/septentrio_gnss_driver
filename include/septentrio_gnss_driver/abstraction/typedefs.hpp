@@ -192,7 +192,8 @@ public:
     bool getROSInt(const std::string& key, U& u)
     {
         int param;
-        this->param(key, param, -1);
+        if (!this->param(key, param, -1))
+            return false;
         U min = std::numeric_limits<U>::lowest();
         U max = std::numeric_limits<U>::max();
         try
@@ -235,7 +236,7 @@ public:
      * @return True if it could be retrieved, false if not
      */
     template<typename T>
-    void param(const std::string& name, T& val, const T& defaultVal)
+    bool param(const std::string& name, T& val, const T& defaultVal)
     {
         if (this->has_parameter(name))
             this->undeclare_parameter(name);
@@ -247,7 +248,9 @@ public:
         catch (std::runtime_error& e)
         {
             RCLCPP_WARN_STREAM(this->get_logger(), e.what());
+            return false;
         }
+        return true;
     };
 
     /**
