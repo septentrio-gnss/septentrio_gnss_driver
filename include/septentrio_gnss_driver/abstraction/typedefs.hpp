@@ -215,10 +215,14 @@ public:
      * parameter
      */
     template <typename U>
-    void getIntParam(const std::string& key, U& u, U default_val)
+    bool getIntParam(const std::string& key, U& u, U default_val)
     {
         if (!getROSInt(key, u))
+        {
             u = default_val;
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -119,8 +119,24 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("datum", settings_.datum, std::string("ETRS89"));
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
-    param("ant_serial_nr", settings_.ant_serial_nr, std::string("Unknown"));
-    param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string("Unknown"));
+    param("ant_serial_nr", settings_.ant_serial_nr, std::string());
+    if (settings_.ant_serial_nr.empty())
+    {
+        uint32_t sn_tmp;
+        if (getIntParam("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
+            settings_.ant_serial_nr = std::to_string(sn_tmp);
+        else
+            settings_.ant_serial_nr = "Unknown";
+    }
+    param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string());
+    if (settings_.ant_aux1_serial_nr.empty())
+    {
+        uint32_t sn_tmp;
+        if (getIntParam("ant_aux1_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
+            settings_.ant_aux1_serial_nr = std::to_string(sn_tmp);
+        else
+            settings_.ant_aux1_serial_nr = "Unknown";
+    }
     param("poi_to_arp/delta_e", settings_.delta_e, 0.0f);
     param("poi_to_arp/delta_n", settings_.delta_n, 0.0f);
     param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
