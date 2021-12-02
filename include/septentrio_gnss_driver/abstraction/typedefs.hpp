@@ -245,16 +245,16 @@ public:
         switch (logLevel)
         {
         case LogLevel::DEBUG:
-            ROS_DEBUG_STREAM(s);
+            ROS_DEBUG_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case LogLevel::INFO:
-            ROS_INFO_STREAM(s);
+            ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case LogLevel::ERROR:
-            ROS_ERROR_STREAM(s);
+            ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case LogLevel::FATAL:
-            ROS_FATAL_STREAM(s);
+            ROS_FATAL_STREAM(ros::this_node::getName() << ": " << s);
             break;    
         default:
             break;
