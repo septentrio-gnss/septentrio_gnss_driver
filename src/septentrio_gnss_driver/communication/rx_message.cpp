@@ -41,8 +41,7 @@
 PVTGeodeticMsgPtr
 io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
-    PVTGeodeticMsgPtr msg =
-        boost::make_shared<PVTGeodeticMsg>();
+    PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -82,8 +81,7 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
 PVTCartesianMsgPtr
 io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
 {
-    PVTCartesianMsgPtr msg =
-        boost::make_shared<PVTCartesianMsg>();
+    PVTCartesianMsgPtr msg(new PVTCartesianMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -123,8 +121,7 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
 PosCovCartesianMsgPtr
 io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
 {
-    PosCovCartesianMsgPtr msg =
-        boost::make_shared<PosCovCartesianMsg>();
+    PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -150,8 +147,7 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
 PosCovGeodeticMsgPtr
 io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
 {
-    PosCovGeodeticMsgPtr msg =
-        boost::make_shared<PosCovGeodeticMsg>();
+    PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -177,8 +173,7 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
 VelCovGeodeticMsgPtr
 io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
 {
-    VelCovGeodeticMsgPtr msg =
-        boost::make_shared<VelCovGeodeticMsg>();
+    VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -204,8 +199,7 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
 AttEulerMsgPtr
 io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
 {
-    AttEulerMsgPtr msg =
-        boost::make_shared<AttEulerMsg>();
+    AttEulerMsgPtr msg(new AttEulerMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -228,8 +222,7 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
 AttCovEulerMsgPtr
 io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
 {
-    AttCovEulerMsgPtr msg =
-        boost::make_shared<AttCovEulerMsg>();
+    AttCovEulerMsgPtr msg(new AttCovEulerMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -251,8 +244,7 @@ INSNavCartMsgPtr
 io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
 {
     int SBI_dx = 0;
-    INSNavCartMsgPtr msg =
-        boost::make_shared<INSNavCartMsg>();
+    INSNavCartMsgPtr msg(new INSNavCartMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -393,8 +385,7 @@ INSNavGeodMsgPtr
 io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 {
     int SBIdx = 0;
-    INSNavGeodMsgPtr msg =
-        boost::make_shared<INSNavGeodMsg>();
+    INSNavGeodMsgPtr msg(new INSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -536,8 +527,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
-    IMUSetupMsgPtr msg = 
-        boost::make_shared<IMUSetupMsg>();
+    IMUSetupMsgPtr msg(new IMUSetupMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -546,20 +536,19 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->serial_port = data.serial_port;
-    msg->ant_lever_arm_X = data.ant_lever_arm_X;
-    msg->ant_lever_arm_Y = data.ant_lever_arm_Y;
-    msg->ant_lever_arm_Z = data.ant_lever_arm_Z;
-    msg->theta_X = data.theta_X;
-    msg->theta_Y = data.theta_Y;
-    msg->theta_Z = data.theta_Z;
+    msg->ant_lever_arm_x = data.ant_lever_arm_x;
+    msg->ant_lever_arm_y = data.ant_lever_arm_y;
+    msg->ant_lever_arm_z = data.ant_lever_arm_z;
+    msg->theta_x = data.theta_x;
+    msg->theta_y = data.theta_y;
+    msg->theta_z = data.theta_z;
     return msg;
 };
 
 VelSensorSetupMsgPtr
 io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
 {
-    VelSensorSetupMsgPtr msg = 
-        boost::make_shared<VelSensorSetupMsg>();
+    VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -569,9 +558,9 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->port = data.port;
-    msg->lever_arm_X = data.lever_arm_X;
-    msg->lever_arm_Y = data.lever_arm_Y;
-    msg->lever_arm_Z = data.lever_arm_Z;
+    msg->lever_arm_x = data.lever_arm_x;
+    msg->lever_arm_y = data.lever_arm_y;
+    msg->lever_arm_z = data.lever_arm_z;
     return msg;
 };
 
@@ -579,8 +568,7 @@ ExtEventINSNavGeodMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 {
     int SBIdx = 0;
-    ExtEventINSNavGeodMsgPtr msg =
-        boost::make_shared<ExtEventINSNavGeodMsg>();
+    ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -679,8 +667,7 @@ ExtEventINSNavCartMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 {
     int SBI_dx = 0;
-    ExtEventINSNavCartMsgPtr msg =
-        boost::make_shared<ExtEventINSNavCartMsg>();
+    ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -778,8 +765,7 @@ ExtSensorMeasMsgPtr
 io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 {
     int i =0;
-    ExtSensorMeasMsgPtr msg=
-        boost::make_shared<ExtSensorMeasMsg>();
+    ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -798,20 +784,20 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
         msg->type = data.ExtSensorMeas[i].type;
         msg->obs_info = data.ExtSensorMeas[i].ObsInfo;
 
-        msg->acceleration_X = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_X;
-        msg->acceleration_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Y;
-        msg->acceleration_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Z;
+        msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
+        msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+        msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
 
-        msg->angular_rate_X = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_X;
-        msg->angular_rate_Y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Y;
-        msg->angular_rate_Z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Z;
+        msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
+        msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+        msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
 
-        msg->velocity_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_X;
-        msg->velocity_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Y;
-        msg->velocity_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Z;
-        msg->std_dev_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_X;
-        msg->std_dev_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Y;
-        msg->std_dev_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Z;
+        msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
+        msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
+        msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
+        msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
+        msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
+        msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
 
         msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
 
@@ -835,8 +821,7 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 PoseWithCovarianceStampedMsgPtr
 io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
 {
-	PoseWithCovarianceStampedMsgPtr msg =
-            boost::make_shared<PoseWithCovarianceStampedMsg>();
+	PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
     if (settings_->septentrio_receiver_type == "gnss")
     {
         // Filling in the pose data
@@ -998,11 +983,9 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
 
 DiagnosticArrayMsgPtr io_comm_rx::RxMessage::DiagnosticArrayCallback()
 {
-    DiagnosticArrayMsgPtr msg =
-        boost::make_shared<DiagnosticArrayMsg>();
+    DiagnosticArrayMsgPtr msg(new DiagnosticArrayMsg);
 	std::string serialnumber(last_receiversetup_.rx_serial_number);
-	DiagnosticStatusMsgPtr gnss_status =
-		boost::make_shared<DiagnosticStatusMsg>();
+	DiagnosticStatusMsgPtr gnss_status(new DiagnosticStatusMsg);
 	// Constructing the "level of operation" field
 	uint16_t indicators_type_mask = static_cast<uint16_t>(255);
 	uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
@@ -1113,7 +1096,7 @@ DiagnosticArrayMsgPtr io_comm_rx::RxMessage::DiagnosticArrayCallback()
  */
 NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 {
-    NavSatFixMsgPtr msg = boost::make_shared<NavSatFixMsg>();
+    NavSatFixMsgPtr msg(new NavSatFixMsg);
 	uint16_t mask = 15; // We extract the first four bits using this mask.
     if (settings_->septentrio_receiver_type == "gnss")
     {
@@ -1206,7 +1189,7 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
     if (settings_->septentrio_receiver_type == "ins")
     {
         int SBIdx = 0;
-        NavSatFixMsgPtr msg = boost::make_shared<NavSatFixMsg>();
+        NavSatFixMsgPtr msg(new NavSatFixMsg);
 		uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
 		switch (type_of_pvt_map[type_of_pvt])
 		{
@@ -1325,7 +1308,7 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
  */
 GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 {
-	GPSFixMsgPtr msg = boost::make_shared<GPSFixMsg>();
+	GPSFixMsgPtr msg(new GPSFixMsg);
 	msg->status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
 
 	// MeasEpoch Processing
@@ -1470,13 +1453,13 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
         case evNoPVT:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_NO_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_NO_FIX;
             break;
         }
         case evStandAlone:
         case evFixed:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_FIX;
             break;
         }
         case evDGPS:
@@ -1486,7 +1469,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         case evMovingBaseRTKFloat:
         case evPPP:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_GBAS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_GBAS_FIX;
             break;
         }
         case evSBAS:
@@ -1496,10 +1479,10 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
             if (reference_id == 131 || reference_id == 133 || reference_id == 135 ||
                 reference_id == 135)
             {
-                msg->status.status = gps_common::GPSStatus::STATUS_WAAS_FIX;
+                msg->status.status = GPSStatusMsg::STATUS_WAAS_FIX;
             } else
             {
-                msg->status.status = gps_common::GPSStatus::STATUS_SBAS_FIX;
+                msg->status.status = GPSStatusMsg::STATUS_SBAS_FIX;
             }
             break;
         }
@@ -1510,11 +1493,11 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
-        msg->status.motion_source = gps_common::GPSStatus::SOURCE_POINTS;
+        msg->status.motion_source = GPSStatusMsg::SOURCE_POINTS;
         // Doppler is not used when calculating the orientation of, say, mosaic-x5,
         // hence:
-        msg->status.orientation_source = gps_common::GPSStatus::SOURCE_POINTS;
-        msg->status.position_source = gps_common::GPSStatus::SOURCE_GPS;
+        msg->status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
+        msg->status.position_source = GPSStatusMsg::SOURCE_GPS;
         msg->latitude = static_cast<double>(last_pvtgeodetic_.latitude) * 360 /
                         (2 * boost::math::constants::pi<double>());
         msg->longitude = static_cast<double>(last_pvtgeodetic_.longitude) * 360 /
@@ -1631,13 +1614,13 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
         case evNoPVT:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_NO_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_NO_FIX;
             break;
         }
         case evStandAlone:
         case evFixed:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_FIX;
             break;
         }
         case evDGPS:
@@ -1647,7 +1630,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         case evMovingBaseRTKFloat:
         case evPPP:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_GBAS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_GBAS_FIX;
             break;
         }
         case evSBAS:
@@ -1658,11 +1641,11 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
-        msg->status.motion_source = gps_common::GPSStatus::SOURCE_POINTS;
+        msg->status.motion_source = GPSStatusMsg::SOURCE_POINTS;
         // Doppler is not used when calculating the orientation of, say, mosaic-x5,
         // hence:
-        msg->status.orientation_source = gps_common::GPSStatus::SOURCE_POINTS;
-        msg->status.position_source = gps_common::GPSStatus::SOURCE_GPS;
+        msg->status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
+        msg->status.position_source = GPSStatusMsg::SOURCE_GPS;
         msg->latitude = static_cast<double>(last_insnavgeod_.latitude) * 360 /
                         (2 * boost::math::constants::pi<double>());
         msg->longitude = static_cast<double>(last_insnavgeod_.longitude) * 360 /
@@ -2140,8 +2123,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{   // The curly bracket here is crucial: Declarations inside a block remain
 		    // inside, and will die at
 			// the end of the block. Otherwise variable overloading etc.
-			PVTCartesianMsgPtr msg =
-				boost::make_shared<PVTCartesianMsg>();
+			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
 			PVTCartesian pvtcartesian;
 			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
 			msg = PVTCartesianCallback(pvtcartesian);
@@ -2163,8 +2145,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
 							// frame)
 		{
-			PVTGeodeticMsgPtr msg =
-				boost::make_shared<PVTGeodeticMsg>();
+			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
 			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2187,8 +2168,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evPosCovCartesian:
 		{
-			PosCovCartesianMsgPtr msg =
-				boost::make_shared<PosCovCartesianMsg>();
+			PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
 			PosCovCartesian poscovcartesian;
 			memcpy(&poscovcartesian, data_, sizeof(poscovcartesian));
 			msg = PosCovCartesianCallback(poscovcartesian);
@@ -2209,8 +2189,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evPosCovGeodetic:
 		{
-			PosCovGeodeticMsgPtr msg =
-				boost::make_shared<PosCovGeodeticMsg>();
+			PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
 			memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
 			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2233,8 +2212,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evAttEuler:
 		{
-			AttEulerMsgPtr msg =
-				boost::make_shared<AttEulerMsg>();
+			AttEulerMsgPtr msg(new AttEulerMsg);
 			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
 			msg = AttEulerCallback(last_atteuler_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2257,8 +2235,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evAttCovEuler:
 		{
-			AttCovEulerMsgPtr msg =
-				boost::make_shared<AttCovEulerMsg>();
+			AttCovEulerMsgPtr msg(new AttCovEulerMsg);
 			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
 			msg = AttCovEulerCallback(last_attcoveuler_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2281,8 +2258,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			INSNavCartMsgPtr msg =
-				boost::make_shared<INSNavCartMsg>();
+			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			INSNavCart insnavcart;
 			memcpy(&insnavcart, data_, sizeof(insnavcart));
 			msg = INSNavCartCallback(insnavcart);
@@ -2304,8 +2280,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
 							// frame)
 		{
-			INSNavGeodMsgPtr msg =
-				boost::make_shared<INSNavGeodMsg>();
+			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			memcpy(&last_insnavgeod_, data_, sizeof(last_insnavgeod_));
 			msg = INSNavGeodCallback(last_insnavgeod_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2329,8 +2304,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evIMUSetup: // IMU orientation and lever arm 
 		{
-			IMUSetupMsgPtr msg =
-				boost::make_shared<IMUSetupMsg>();
+			IMUSetupMsgPtr msg(new IMUSetupMsg);
 			IMUSetup imusetup;
 			memcpy(&imusetup, data_, sizeof(imusetup));
 			msg = IMUSetupCallback(imusetup);
@@ -2352,8 +2326,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evVelSensorSetup: // Velocity sensor lever arm
 		{
-			VelSensorSetupMsgPtr msg =
-				boost::make_shared<VelSensorSetupMsg>();
+			VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
 			VelSensorSetup velsensorsetup;
 			memcpy(&velsensorsetup, data_, sizeof(velsensorsetup));
 			msg = VelSensorSetupCallback(velsensorsetup);
@@ -2376,8 +2349,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			ExtEventINSNavCartMsgPtr msg =
-				boost::make_shared<ExtEventINSNavCartMsg>();
+			ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
 			ExtEventINSNavCart exteventinsnavcart;
 			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
 			msg = ExtEventINSNavCartCallback(exteventinsnavcart);
@@ -2399,8 +2371,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evExtEventINSNavGeod:
 		{
-			ExtEventINSNavGeodMsgPtr msg =
-				boost::make_shared<ExtEventINSNavGeodMsg>();
+			ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
 			ExtEventINSNavGeod exteventinsnavgeod;
 			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
 			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
@@ -2422,8 +2393,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evExtSensorMeas:
 		{
-			ExtSensorMeasMsgPtr msg =
-				boost::make_shared<ExtSensorMeasMsg>();
+			ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
 			ExtSensorMeas extsensormeas;
 			memcpy(&extsensormeas, data_, sizeof(extsensormeas));
 			msg = ExtSensorMeasCallback(extsensormeas);
@@ -2445,8 +2415,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evGPST:
 		{
-			TimeReferenceMsgPtr msg =
-				boost::make_shared<TimeReferenceMsg>();
+			TimeReferenceMsgPtr msg(new TimeReferenceMsg);
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
@@ -2485,8 +2454,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpggaParser::parseASCII
 			NMEASentence gga_message(id, body);
-			GpggaMsgPtr msg =
-				boost::make_shared<GpggaMsg>();
+			GpggaMsgPtr msg(new GpggaMsg);
             Timestamp time_obj = node_->getTime();
 			GpggaParser parser_obj;
 			try
@@ -2527,8 +2495,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GprmcParser::parseASCII
 			NMEASentence rmc_message(id, body);
-			GprmcMsgPtr msg =
-				boost::make_shared<GprmcMsg>();
+			GprmcMsgPtr msg(new GprmcMsg);
 			GprmcParser parser_obj;
 			try
 			{
@@ -2566,8 +2533,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsaParser::parseASCII
 			NMEASentence gsa_message(id, body);
-			GpgsaMsgPtr msg =
-				boost::make_shared<GpgsaMsg>();
+			GpgsaMsgPtr msg(new GpgsaMsg);
 			GpgsaParser parser_obj;
 			try
 			{
@@ -2619,8 +2585,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsvParser::parseASCII
 			NMEASentence gsv_message(id, body);
-			GpgsvMsgPtr msg =
-				boost::make_shared<GpgsvMsg>();
+			GpgsvMsgPtr msg(new GpgsvMsg);
 			GpgsvParser parser_obj;
 			try
 			{
@@ -2655,7 +2620,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evNavSatFix:
 			{
-				NavSatFixMsgPtr msg = boost::make_shared<NavSatFixMsg>();
+				NavSatFixMsgPtr msg(new NavSatFixMsg);
 				try
 				{
 					msg = NavSatFixCallback();
@@ -2684,7 +2649,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evINSNavSatFix:
 			{
-				NavSatFixMsgPtr msg = boost::make_shared<NavSatFixMsg>();
+				NavSatFixMsgPtr msg(new NavSatFixMsg);
 				try
 				{
 					msg = NavSatFixCallback();
@@ -2713,7 +2678,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evGPSFix:
 			{
-				GPSFixMsgPtr msg = boost::make_shared<GPSFixMsg>();
+				GPSFixMsgPtr msg(new GPSFixMsg);
 				try
 				{
 					msg = GPSFixCallback();
@@ -2721,7 +2686,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -2752,7 +2716,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evINSGPSFix:
 			{
-				GPSFixMsgPtr msg = boost::make_shared<GPSFixMsg>();
+				GPSFixMsgPtr msg(new GPSFixMsg);
 				try
 				{
 					msg = GPSFixCallback();
@@ -2760,7 +2724,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -2787,8 +2750,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evPoseWithCovarianceStamped:
 			{
-				PoseWithCovarianceStampedMsgPtr msg =
-					boost::make_shared<PoseWithCovarianceStampedMsg>();
+				PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
 				try
 				{
 					msg = PoseWithCovarianceStampedCallback();
@@ -2819,8 +2781,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			case evINSPoseWithCovarianceStamped:
 			{
-				PoseWithCovarianceStampedMsgPtr msg =
-					boost::make_shared<PoseWithCovarianceStampedMsg>();
+				PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
 				try
 				{
 					msg = PoseWithCovarianceStampedCallback();
@@ -2865,8 +2826,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evVelCovGeodetic:
 		{
-			VelCovGeodeticMsgPtr msg =
-				boost::make_shared<VelCovGeodeticMsg>();
+			VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
 			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
 			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
@@ -2887,8 +2847,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evDiagnosticArray:
 		{
-			DiagnosticArrayMsgPtr msg =
-			boost::make_shared<DiagnosticArrayMsg>();
+			DiagnosticArrayMsgPtr msg(new DiagnosticArrayMsg);
 			try
 			{
 				msg = DiagnosticArrayCallback();

@@ -63,8 +63,7 @@ GpgsvParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
               << ". The actual length is " << sentence.get_body().size();
         throw ParseException(error.str());
     }
-    GpgsvMsgPtr msg =
-        boost::make_shared<GpgsvMsg>();
+    GpgsvMsgPtr msg(new GpgsvMsg);
     msg->header.frame_id = frame_id;
     msg->message_id = sentence.get_body()[0];
     if (!parsing_utilities::parseUInt8(sentence.get_body()[1], msg->n_msgs))

@@ -81,13 +81,13 @@ namespace rosaic_node {
      * @class ROSaicNode
      * @brief This class represents the ROsaic node, to be extended..
      */
-    class ROSaicNode : ROSaicNodeBase
+    class ROSaicNode : public ROSaicNodeBase
     {
     public:
         //! The constructor initializes and runs the ROSaic node, if everything works
         //! fine. It loads the user-defined ROS parameters, subscribes to Rx
         //! messages, and publishes requested ROS messages...
-        ROSaicNode();        
+        ROSaicNode(const rclcpp::NodeOptions &options);        
 
     private:
         /**

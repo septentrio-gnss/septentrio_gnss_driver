@@ -7,7 +7,7 @@ device: tcp://xxx.xxx.xxx.xxx:xxxx
 serial:
   baudrate: 115200
   rx_serial_port: USB1
-  hw_flow_control: off
+  hw_flow_control: "off"
 
 frame_id: gnss
 

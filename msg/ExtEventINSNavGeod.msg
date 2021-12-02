@@ -1,7 +1,7 @@
 # ExtEventINSNavGeod block 
 # Block_Number 4230
 
-Header      header
+std_msgs/Header header
 
 # SBF block header including time header
 BlockHeader block_header

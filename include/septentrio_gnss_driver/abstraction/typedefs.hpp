@@ -33,92 +33,96 @@
 
 // std includes
 #include <unordered_map>
+#include <any>
 // ROS includes
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 // ROS msg includes
-#include <diagnostic_msgs/DiagnosticArray.h>
-#include <diagnostic_msgs/DiagnosticStatus.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <gps_common/GPSFix.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/TimeReference.h>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
+#include <geometry_msgs/msg/quaternion.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <gps_msgs/msg/gps_fix.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <sensor_msgs/msg/time_reference.hpp>
 // GNSS msg includes
-#include <septentrio_gnss_driver/AttCovEuler.h>
-#include <septentrio_gnss_driver/AttEuler.h>
-#include <septentrio_gnss_driver/PVTCartesian.h>
-#include <septentrio_gnss_driver/PVTGeodetic.h>
-#include <septentrio_gnss_driver/PosCovCartesian.h>
-#include <septentrio_gnss_driver/PosCovGeodetic.h>
-#include <septentrio_gnss_driver/VelCovGeodetic.h>
+#include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
+#include <septentrio_gnss_driver/msg/att_euler.hpp>
+#include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
+#include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
+#include <septentrio_gnss_driver/msg/pos_cov_cartesian.hpp>
+#include <septentrio_gnss_driver/msg/pos_cov_geodetic.hpp>
+#include <septentrio_gnss_driver/msg/vel_cov_geodetic.hpp>
 // NMEA msg includes
-#include <septentrio_gnss_driver/Gpgga.h>
-#include <septentrio_gnss_driver/Gpgsa.h>
-#include <septentrio_gnss_driver/Gpgsv.h>
-#include <septentrio_gnss_driver/Gprmc.h>
+#include <septentrio_gnss_driver/msg/gpgga.hpp>
+#include <septentrio_gnss_driver/msg/gpgsa.hpp>
+#include <septentrio_gnss_driver/msg/gpgsv.hpp>
+#include <septentrio_gnss_driver/msg/gprmc.hpp>
 // INS msg includes
-#include <septentrio_gnss_driver/INSNavCart.h>
-#include <septentrio_gnss_driver/INSNavGeod.h>
-#include <septentrio_gnss_driver/IMUSetup.h>
-#include <septentrio_gnss_driver/VelSensorSetup.h>
-#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
-#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
-#include <septentrio_gnss_driver/ExtSensorMeas.h>
+#include <septentrio_gnss_driver/msg/ins_nav_cart.hpp>
+#include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
+#include <septentrio_gnss_driver/msg/imu_setup.hpp>
+#include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
+#include <septentrio_gnss_driver/msg/ext_event_ins_nav_geod.hpp>
+#include <septentrio_gnss_driver/msg/ext_event_ins_nav_cart.hpp>
+#include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
 
-typedef uint64_t  Timestamp;
-typedef ros::Time TimestampRos;
+typedef uint64_t     Timestamp;
+typedef rclcpp::Time TimestampRos;
 
-typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
-typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
-typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
-typedef diagnostic_msgs::DiagnosticStatusPtr        DiagnosticStatusMsgPtr;
-typedef geometry_msgs::PoseWithCovarianceStamped    PoseWithCovarianceStampedMsg;
-typedef geometry_msgs::PoseWithCovarianceStampedPtr PoseWithCovarianceStampedMsgPtr;
-typedef gps_common::GPSFix                          GPSFixMsg;
-typedef gps_common::GPSFixPtr                       GPSFixMsgPtr;
-typedef sensor_msgs::NavSatFix                      NavSatFixMsg;
-typedef sensor_msgs::NavSatFixPtr                   NavSatFixMsgPtr;
-typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;
-typedef sensor_msgs::TimeReference                  TimeReferenceMsg;
-typedef sensor_msgs::TimeReferencePtr               TimeReferenceMsgPtr;
+typedef diagnostic_msgs::msg::DiagnosticArray                    DiagnosticArrayMsg;
+typedef diagnostic_msgs::msg::DiagnosticArray::SharedPtr         DiagnosticArrayMsgPtr;
+typedef diagnostic_msgs::msg::DiagnosticStatus                   DiagnosticStatusMsg;
+typedef diagnostic_msgs::msg::DiagnosticStatus::SharedPtr        DiagnosticStatusMsgPtr;
+typedef geometry_msgs::msg::Quaternion                           QuaternionMsg;
+typedef geometry_msgs::msg::PoseWithCovarianceStamped            PoseWithCovarianceStampedMsg;
+typedef geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr PoseWithCovarianceStampedMsgPtr;
+typedef gps_msgs::msg::GPSFix                                    GPSFixMsg;
+typedef gps_msgs::msg::GPSFix::SharedPtr                         GPSFixMsgPtr;
+typedef gps_msgs::msg::GPSStatus                                 GPSStatusMsg;
+typedef sensor_msgs::msg::NavSatFix                              NavSatFixMsg;
+typedef sensor_msgs::msg::NavSatFix::SharedPtr                   NavSatFixMsgPtr;
+typedef sensor_msgs::msg::NavSatStatus                           NavSatStatusMsg;
+typedef sensor_msgs::msg::TimeReference                          TimeReferenceMsg;
+typedef sensor_msgs::msg::TimeReference::SharedPtr               TimeReferenceMsgPtr;
 
-typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
-typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
-typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
-typedef septentrio_gnss_driver::AttEulerPtr        AttEulerMsgPtr;
-typedef septentrio_gnss_driver::PVTCartesian       PVTCartesianMsg;
-typedef septentrio_gnss_driver::PVTCartesianPtr    PVTCartesianMsgPtr;
-typedef septentrio_gnss_driver::PVTGeodetic        PVTGeodeticMsg;
-typedef septentrio_gnss_driver::PVTGeodeticPtr     PVTGeodeticMsgPtr;
-typedef septentrio_gnss_driver::PosCovCartesian    PosCovCartesianMsg;
-typedef septentrio_gnss_driver::PosCovCartesianPtr PosCovCartesianMsgPtr;
-typedef septentrio_gnss_driver::PosCovGeodetic     PosCovGeodeticMsg;
-typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
-typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
-typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::msg::AttCovEuler                AttCovEulerMsg;
+typedef septentrio_gnss_driver::msg::AttCovEuler::SharedPtr     AttCovEulerMsgPtr;
+typedef septentrio_gnss_driver::msg::AttEuler                   AttEulerMsg;
+typedef septentrio_gnss_driver::msg::AttEuler::SharedPtr        AttEulerMsgPtr;
+typedef septentrio_gnss_driver::msg::PVTCartesian               PVTCartesianMsg;
+typedef septentrio_gnss_driver::msg::PVTCartesian::SharedPtr    PVTCartesianMsgPtr;
+typedef septentrio_gnss_driver::msg::PVTGeodetic                PVTGeodeticMsg;
+typedef septentrio_gnss_driver::msg::PVTGeodetic::SharedPtr     PVTGeodeticMsgPtr;
+typedef septentrio_gnss_driver::msg::PosCovCartesian            PosCovCartesianMsg;
+typedef septentrio_gnss_driver::msg::PosCovCartesian::SharedPtr PosCovCartesianMsgPtr;
+typedef septentrio_gnss_driver::msg::PosCovGeodetic             PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::msg::PosCovGeodetic::SharedPtr  PosCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::msg::VelCovGeodetic             VelCovGeodeticMsg;
+typedef septentrio_gnss_driver::msg::VelCovGeodetic::SharedPtr  VelCovGeodeticMsgPtr;
 
-typedef septentrio_gnss_driver::Gpgga    GpggaMsg;
-typedef septentrio_gnss_driver::GpggaPtr GpggaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsa    GpgsaMsg;
-typedef septentrio_gnss_driver::GpgsaPtr GpgsaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsv    GpgsvMsg;
-typedef septentrio_gnss_driver::GpgsvPtr GpgsvMsgPtr;
-typedef septentrio_gnss_driver::Gprmc    GprmcMsg;
-typedef septentrio_gnss_driver::GprmcPtr GprmcMsgPtr;
+typedef septentrio_gnss_driver::msg::Gpgga            GpggaMsg;
+typedef septentrio_gnss_driver::msg::Gpgga::SharedPtr GpggaMsgPtr;
+typedef septentrio_gnss_driver::msg::Gpgsa            GpgsaMsg;
+typedef septentrio_gnss_driver::msg::Gpgsa::SharedPtr GpgsaMsgPtr;
+typedef septentrio_gnss_driver::msg::Gpgsv            GpgsvMsg;
+typedef septentrio_gnss_driver::msg::Gpgsv::SharedPtr GpgsvMsgPtr;
+typedef septentrio_gnss_driver::msg::Gprmc            GprmcMsg;
+typedef septentrio_gnss_driver::msg::Gprmc::SharedPtr GprmcMsgPtr;
 
-typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
-typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
-typedef septentrio_gnss_driver::INSNavGeod            INSNavGeodMsg;
-typedef septentrio_gnss_driver::INSNavGeodPtr         INSNavGeodMsgPtr;
-typedef septentrio_gnss_driver::IMUSetup              IMUSetupMsg;
-typedef septentrio_gnss_driver::IMUSetupPtr           IMUSetupMsgPtr;
-typedef septentrio_gnss_driver::VelSensorSetup        VelSensorSetupMsg;
-typedef septentrio_gnss_driver::VelSensorSetupPtr     VelSensorSetupMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavGeod    ExtEventINSNavGeodMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavGeodPtr ExtEventINSNavGeodMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavCart    ExtEventINSNavCartMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
-typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
-typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
+typedef septentrio_gnss_driver::msg::INSNavCart                    INSNavCartMsg;
+typedef septentrio_gnss_driver::msg::INSNavCart::SharedPtr         INSNavCartMsgPtr;
+typedef septentrio_gnss_driver::msg::INSNavGeod                    INSNavGeodMsg;
+typedef septentrio_gnss_driver::msg::INSNavGeod::SharedPtr         INSNavGeodMsgPtr;
+typedef septentrio_gnss_driver::msg::IMUSetup                      IMUSetupMsg;
+typedef septentrio_gnss_driver::msg::IMUSetup::SharedPtr           IMUSetupMsgPtr;
+typedef septentrio_gnss_driver::msg::VelSensorSetup                VelSensorSetupMsg;
+typedef septentrio_gnss_driver::msg::VelSensorSetup::SharedPtr     VelSensorSetupMsgPtr;
+typedef septentrio_gnss_driver::msg::ExtEventINSNavGeod            ExtEventINSNavGeodMsg;
+typedef septentrio_gnss_driver::msg::ExtEventINSNavGeod::SharedPtr ExtEventINSNavGeodMsgPtr;
+typedef septentrio_gnss_driver::msg::ExtEventINSNavCart            ExtEventINSNavCartMsg;
+typedef septentrio_gnss_driver::msg::ExtEventINSNavCart::SharedPtr ExtEventINSNavCartMsgPtr;
+typedef septentrio_gnss_driver::msg::ExtSensorMeas                 ExtSensorMeasMsg;
+typedef septentrio_gnss_driver::msg::ExtSensorMeas::SharedPtr      ExtSensorMeasMsgPtr;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
@@ -127,9 +131,7 @@ typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
  */
 inline TimestampRos timestampToRos(Timestamp ts)
 {
-    TimestampRos tsr;
-    tsr.fromNSec(ts);
-    return tsr;
+   return TimestampRos(ts);
 }
 
 /**
@@ -139,7 +141,7 @@ inline TimestampRos timestampToRos(Timestamp ts)
  */
 inline Timestamp timestampFromRos(const TimestampRos& tsr)
 {
-    return tsr.toNSec();
+    return tsr.nanoseconds();
 }
 
 enum LogLevel
@@ -150,11 +152,11 @@ enum LogLevel
     FATAL
 };
 
-class ROSaicNodeBase
+class ROSaicNodeBase : public rclcpp::Node
 {
 public:
-    ROSaicNodeBase() :
-    pNh_(new ros::NodeHandle("~"))
+    ROSaicNodeBase(const rclcpp::NodeOptions &options) :
+    Node("septentrio_gnss", options)
     {}
 
     virtual ~ROSaicNodeBase(){}
@@ -190,8 +192,7 @@ public:
     bool getROSInt(const std::string& key, U& u)
     {
         int param;
-        if (!pNh_->getParam(key, param))
-            return false;
+        this->param(key, param, -1);
         U min = std::numeric_limits<U>::lowest();
         U max = std::numeric_limits<U>::max();
         try
@@ -199,7 +200,7 @@ public:
             checkRange((U)param, min, max, key);
         } catch (std::runtime_error& e)
         {
-            ROS_ERROR_STREAM(e.what());
+            RCLCPP_ERROR_STREAM(this->get_logger(), e.what());
             return false;
         }
         u = (U)param;
@@ -234,9 +235,19 @@ public:
      * @return True if it could be retrieved, false if not
      */
     template<typename T>
-    bool param(const std::string& name, T& val, const T& defaultVal)
+    void param(const std::string& name, T& val, const T& defaultVal)
     {
-        return pNh_->param(name, val, defaultVal);
+        if (this->has_parameter(name))
+            this->undeclare_parameter(name);
+
+        try
+        {
+            val = this->declare_parameter<T>(name, defaultVal);
+        }
+        catch (std::runtime_error& e)
+        {
+            RCLCPP_WARN_STREAM(this->get_logger(), e.what());
+        }
     };
 
     /**
@@ -249,16 +260,16 @@ public:
         switch (logLevel)
         {
         case LogLevel::DEBUG:
-            ROS_DEBUG_STREAM(ros::this_node::getName() << ": " << s);
+            RCLCPP_DEBUG_STREAM(this->get_logger(), s);
             break;
         case LogLevel::INFO:
-            ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
+            RCLCPP_INFO_STREAM(this->get_logger(), s);
             break;
         case LogLevel::ERROR:
-            ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
+            RCLCPP_ERROR_STREAM(this->get_logger(), s);
             break;
         case LogLevel::FATAL:
-            ROS_FATAL_STREAM(ros::this_node::getName() << ": " << s);
+            RCLCPP_FATAL_STREAM(this->get_logger(), s);
             break;    
         default:
             break;
@@ -271,7 +282,7 @@ public:
      */
     Timestamp getTime()
     {
-        return ros::Time::now().toNSec();
+        return this->now().nanoseconds();
     }    
 
     /**
@@ -285,23 +296,20 @@ public:
         auto it = topicMap_.find(topic);
         if (it != topicMap_.end())
         {
-            it->second.publish(msg);
+            typename rclcpp::Publisher<M>::SharedPtr ptr = std::any_cast<typename rclcpp::Publisher<M>::SharedPtr>(it->second);
+            ptr->publish(msg);
         }
         else
         {
-            ros::Publisher pub = pNh_->advertise<M>(topic, queueSize_);
+            typename rclcpp::Publisher<M>::SharedPtr pub = this->create_publisher<M>(topic, queueSize_);
             topicMap_.insert(std::make_pair(topic, pub));
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 
-protected:
-    //! Node handle pointer
-    std::shared_ptr<ros::NodeHandle> pNh_;    
-
 private:
     //! Map of topics and publishers
-    std::unordered_map<std::string, ros::Publisher> topicMap_;
+    std::unordered_map<std::string, std::any> topicMap_;
     //! Publisher queue size
     uint32_t queueSize_ = 1;
 };

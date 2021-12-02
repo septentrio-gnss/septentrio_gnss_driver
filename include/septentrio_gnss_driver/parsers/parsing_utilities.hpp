@@ -37,7 +37,6 @@
 #include <ctime>   // C++ header, corresponds to <time.h> in C
 #include <string>  // C++ header, corresponds to <string.h> in C
 // ROS includes
-#include <geometry_msgs/Quaternion.h>
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 /**
@@ -237,7 +236,7 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new East-axis
      * @return ROS message representing a quaternion
      */
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll);
 
     /**

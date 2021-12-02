@@ -5,7 +5,7 @@
 # than GGA might indicate since GSV may include satellites that are not used as part of the solution. It is not a 
 # requirment that the GSV sentences all appear in sequence.
 
-Header header
+std_msgs/Header header
 
 string message_id
 
