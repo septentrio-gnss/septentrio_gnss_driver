@@ -381,144 +381,103 @@ void io_comm_rx::Comm_IO::configureRx()
         send(ss.str());
     }
 
-    // Setting SBF/NMEA output of Rx depending on the receiver type
-    // If GNSS then...
-    if (settings_->septentrio_receiver_type == "gnss")
+    // Setting up SBF blocks with rx_period_pvt
     {
-        if (settings_->publish_pvtcartesian == true)
+        std::stringstream blocks;
+        if (settings_->publish_pvtcartesian)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", PVTCartesian, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +PVTCartesian";
         }
-        if (settings_->publish_pvtgeodetic == true)
+        if (settings_->publish_pvtgeodetic)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", PVTGeodetic, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +PVTGeodetic";
         }
-        if (settings_->publish_poscovcartesian == true)
+        if (settings_->publish_poscovcartesian)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", PosCovCartesian, " << pvt_sec_or_msec
-            << std::to_string(rx_period_pvt) << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +PosCovCartesian";
         }
-        if (settings_->publish_poscovgeodetic == true)
+        if (settings_->publish_poscovgeodetic)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", PosCovGeodetic, " << pvt_sec_or_msec
-            << std::to_string(rx_period_pvt) << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +PosCovGeodetic";
         }
-        if (settings_->publish_velcovgeodetic == true)
+        if (settings_->publish_velcovgeodetic)
         {
-            std::stringstream ss;
-            ss.str(std::string());
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", VelCovGeodetic, " << pvt_sec_or_msec
-            << std::to_string(rx_period_pvt) << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +VelCovGeodetic";
         }
-        if (settings_->publish_atteuler == true)
+        if (settings_->publish_gpsfix)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", AttEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-        if (settings_->publish_attcoveuler == true)
+            blocks << " +ChannelStatus +MeasEpoch +DOP";
+        }   
+        // Setting SBF output of Rx depending on the receiver type
+        // If INS then...
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", AttCovEuler, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            std::stringstream blocks;
+            if (settings_->publish_insnavcart)
+            {
+                blocks << " +INSNavCart";
+            }
+            if (settings_->publish_insnavgeod)
+            {
+                blocks << " +INSNavGeod";
+            }            
+            if (settings_->publish_exteventinsnavgeod)
+            {
+                blocks << " +ExtEventINSNavGeod";
+            }
+            if (settings_->publish_exteventinsnavcart)
+            {
+                blocks << " +ExtEventINSNavCart";
+            }
+            if (settings_->publish_extsensormeas)
+            {
+                blocks << " +ExtSensorMeas";
+            }
         }
+        std::stringstream ss;
+        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+        << "," <<  blocks.str() << ", " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+        << "\x0D";
+        send(ss.str());
+        ++stream;
     }
-    // Setting SBF/NMEA output of Rx depending on the receiver type
-    // If INS then...
-    if (settings_->septentrio_receiver_type == "ins")
+    // Setting up SBF blocks with rx_period_rest
     {
-        if (settings_->publish_insnavcart == true)
+        std::stringstream blocks;
+        if (settings_->publish_atteuler)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", INSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-        if (settings_->publish_insnavgeod == true)
+            blocks << " +AttEuler";
+        } 
+        if (settings_->publish_attcoveuler)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", INSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +AttCovEuler";
         }
-        if (settings_->publish_imusetup == true)
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", IMUSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            if (settings_->publish_imusetup)
+            {
+                blocks << " +IMUSetup";
+            }
+            if (settings_->publish_velsensorsetup)
+            {
+                blocks << " +VelSensorSetup";
+            }
         }
-        if (settings_->publish_velsensorsetup == true)
+        if (settings_->publish_diagnostics)
         {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", VelSensorSetup, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
+            blocks << " +ReceiverStatus +QualityInd +ReceiverSetup";
         }
-        if (settings_->publish_exteventinsnavgeod == true)
-        {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", ExtEventINSNavGeod, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-        if (settings_->publish_exteventinsnavcart == true)
-        {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", ExtEventINSNavCart, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-        if (settings_->publish_extsensormeas== true)
-        {
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-            << ", ExtSensorMeas, " << pvt_sec_or_msec << std::to_string(rx_period_rest)
-            << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
+
+        std::stringstream ss;
+        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
+        << "," << blocks.str() << ", " << rest_sec_or_msec << std::to_string(rx_period_rest)
+        << "\x0D";
+        send(ss.str());
+        ++stream;
     }
-	if (settings_->publish_gpgga == true)
+    
+    // Setting up NMEA streams
+	if (settings_->publish_gpgga)
 	{
 		std::stringstream ss;
 
@@ -527,7 +486,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		send(ss.str());
 		++stream;
 	}
-	if (settings_->publish_gprmc == true)
+	if (settings_->publish_gprmc)
 	{
 		std::stringstream ss;
 
@@ -536,7 +495,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		send(ss.str());
 		++stream;
 	}
-	if (settings_->publish_gpgsa == true)
+	if (settings_->publish_gpgsa)
 	{
 		std::stringstream ss;
 
@@ -545,53 +504,12 @@ void io_comm_rx::Comm_IO::configureRx()
 		send(ss.str());
 		++stream;
 	}
-	if (settings_->publish_gpgsv == true)
+	if (settings_->publish_gpgsv)
 	{
 		std::stringstream ss;
 
 		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSV, "
 		<< rest_sec_or_msec << std::to_string(rx_period_rest) << "\x0D";
-		send(ss.str());
-		++stream;
-	}
-	if (settings_->publish_gpsfix == true)
-	{
-		std::stringstream ss;
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-		<< ", ChannelStatus, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-		<< "\x0D";
-		send(ss.str());
-		++stream;
-		ss.str(std::string()); // avoids invoking the std::string constructor
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-		<< ", MeasEpoch, " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
-		<< "\x0D";
-		send(ss.str());
-		++stream;
-		ss.str(std::string());
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ", DOP, "
-		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
-		send(ss.str());
-		++stream;
-	}  
-	if (settings_->publish_diagnostics == true)
-	{
-		std::stringstream ss;
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-		<< ", ReceiverStatus, " << rest_sec_or_msec
-		<< std::to_string(rx_period_rest) << "\x0D";
-		send(ss.str());
-		++stream;
-		ss.str(std::string());
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-		<< ", QualityInd, " << rest_sec_or_msec << std::to_string(rx_period_rest)
-		<< "\x0D";
-		send(ss.str());
-		++stream;
-		ss.str(std::string());
-		ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-		<< ", ReceiverSetup, " << rest_sec_or_msec
-		<< std::to_string(rx_period_rest) << "\x0D";
 		send(ss.str());
 		++stream;
 	}
@@ -800,7 +718,7 @@ void io_comm_rx::Comm_IO::configureRx()
 			insnavconfig += "+AttStdDev";
 			insnavconfig += "+Vel";
 			insnavconfig += "+VelStdDev";
-			if (settings_->ins_use_poi == true)
+			if (settings_->ins_use_poi)
 			{
 				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "POI1" << " \x0D";
 				send(ss.str());
@@ -859,22 +777,22 @@ void io_comm_rx::Comm_IO::defineMessages()
 {
     node_->log(LogLevel::DEBUG, "Called defineMessages() method");
 
-    if (settings_->publish_gpgga == true)
+    if (settings_->publish_gpgga)
     {
         handlers_.callbackmap_ =
             handlers_.insert<GpggaMsg>("$GPGGA");
     }
-    if (settings_->publish_gprmc == true)
+    if (settings_->publish_gprmc)
     {
         handlers_.callbackmap_ =
             handlers_.insert<GprmcMsg>("$GPRMC");
     }
-    if (settings_->publish_gpgsa == true)
+    if (settings_->publish_gpgsa)
     {
         handlers_.callbackmap_ =
             handlers_.insert<GpgsaMsg>("$GPGSA");
     }
-    if (settings_->publish_gpgsv == true)
+    if (settings_->publish_gpgsv)
     {
         handlers_.callbackmap_ =
             handlers_.insert<GpgsvMsg>("$GPGSV");
@@ -885,85 +803,85 @@ void io_comm_rx::Comm_IO::defineMessages()
         handlers_.callbackmap_ =
             handlers_.insert<GpgsvMsg>("$GBGSV");
     }
-    if (settings_->publish_pvtcartesian == true)
+    if (settings_->publish_pvtcartesian)
     {
         handlers_.callbackmap_ =
             handlers_.insert<PVTCartesianMsg>("4006");
     }
-    if (settings_->publish_pvtgeodetic == true)
+    if (settings_->publish_pvtgeodetic)
     {
         handlers_.callbackmap_ =
             handlers_.insert<PVTGeodeticMsg>("4007");
     }
-    if (settings_->publish_poscovcartesian == true)
+    if (settings_->publish_poscovcartesian)
     {
         handlers_.callbackmap_ =
             handlers_.insert<PosCovCartesianMsg>("5905");
     }
-    if (settings_->publish_poscovgeodetic == true)
+    if (settings_->publish_poscovgeodetic)
     {
         handlers_.callbackmap_ =
             handlers_.insert<PosCovGeodeticMsg>("5906");
     }
-    if (settings_->publish_velcovgeodetic == true)
+    if (settings_->publish_velcovgeodetic)
     {
         handlers_.callbackmap_ =
             handlers_.insert<VelCovGeodeticMsg>("5908");
     }
-    if (settings_->publish_atteuler == true)
+    if (settings_->publish_atteuler)
     {
         handlers_.callbackmap_ =
             handlers_.insert<AttEulerMsg>("5938");
     }
-    if (settings_->publish_attcoveuler == true)
+    if (settings_->publish_attcoveuler)
     {
         handlers_.callbackmap_ =
             handlers_.insert<AttCovEulerMsg>("5939");
     }
     
 	// INS-related SBF blocks
-    if (settings_->publish_insnavcart == true)
+    if (settings_->publish_insnavcart)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<INSNavCartMsg>("4225");
     }
-    if (settings_->publish_insnavgeod == true)
+    if (settings_->publish_insnavgeod)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<INSNavGeodMsg>("4226");
     }
-    if (settings_->publish_imusetup == true)
+    if (settings_->publish_imusetup)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<IMUSetupMsg>("4224");
     }
-    if (settings_->publish_extsensormeas == true)
+    if (settings_->publish_extsensormeas)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<ExtSensorMeasMsg>("4050");
     }
-    if (settings_->publish_exteventinsnavgeod == true)
+    if (settings_->publish_exteventinsnavgeod)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<ExtEventINSNavGeodMsg>("4230");
     }
-    if (settings_->publish_velsensorsetup == true)
+    if (settings_->publish_velsensorsetup)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<VelSensorSetupMsg>("4244");
     }
-    if (settings_->publish_exteventinsnavcart == true)
+    if (settings_->publish_exteventinsnavcart)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<ExtEventINSNavCartMsg>("4229");
     }
-	if (settings_->publish_gpst == true)
+	if (settings_->publish_gpst)
 	{
 		handlers_.callbackmap_ = handlers_.insert<int32_t>("GPST");
 	}
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (settings_->publish_navsatfix == true)
+        if (settings_->publish_navsatfix)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false)
             {
@@ -976,7 +894,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_navsatfix == true)
+        if (settings_->publish_navsatfix)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -989,7 +907,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (settings_->publish_gpsfix == true)
+        if (settings_->publish_gpsfix)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false || settings_->publish_velcovgeodetic == false)
             {
@@ -1010,7 +928,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_gpsfix == true)
+        if (settings_->publish_gpsfix)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -1029,7 +947,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "gnss")
     {
-        if (settings_->publish_pose == true)
+        if (settings_->publish_pose)
         {
             if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false ||
                 settings_->publish_atteuler == false || settings_->publish_attcoveuler == false)
@@ -1044,7 +962,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_pose == true)
+        if (settings_->publish_pose)
         {
             if (settings_->publish_insnavgeod == false)
             {
@@ -1056,7 +974,7 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "INSPoseWithCovarianceStamped");
         }
     }
-	if (settings_->publish_diagnostics == true)
+	if (settings_->publish_diagnostics)
 	{
 		handlers_.callbackmap_ =
 			handlers_.insert<DiagnosticArrayMsg>(
