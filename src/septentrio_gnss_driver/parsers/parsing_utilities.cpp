@@ -326,7 +326,7 @@ namespace parsing_utilities {
     //! 3-2-1 sequence: The body first does yaw around the Z=Down-axis, then pitches
     //! around the new Y=East=right-axis and finally rolls around the new
     //! X=North=forward-axis.
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll)
     {
         // Abbreviations for the angular functions
@@ -337,7 +337,7 @@ namespace parsing_utilities {
         double cr = cos(roll * 0.5);
         double sr = sin(roll * 0.5);
 
-        geometry_msgs::Quaternion q;
+        QuaternionMsg q;
         q.w = cr * cp * cy + sr * sp * sy;
         q.x = sr * cp * cy - cr * sp * sy;
         q.y = cr * sp * cy + sr * cp * sy;
