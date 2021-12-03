@@ -39,7 +39,7 @@
 // ROS msg includes
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
-#include <geometry_msgs/msg/quaternion.h>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>

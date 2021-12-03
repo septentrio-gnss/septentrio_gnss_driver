@@ -3,7 +3,7 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
+This repository hosts a ROS Foxy and beyond driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond.
 
 Main Features:
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
@@ -11,12 +11,14 @@ Main Features:
 - Easy to add support for more log types
 - Can play back PCAP capture logs for testing purposes
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` messages
-- Tested with the mosaic-X5 receiver and the AsteRx-SBi3 Pro receiver
+- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 pro+ and the AsteRx-SBi3 Pro receiver
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
 ## Dependencies
-The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
+The `ros2` branch for this driver functions on both ROS Foxy and Galactic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
+An additional ROS packages have to be installed for the GPSFIx message.<br><br>
+`sudo apt install ros-$ROS_DISTRO-gps-umd`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
@@ -26,7 +28,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 <details>
 <summary>Binary Install</summary>
   
-  The binary release is now available for Melodic and Noetic. To install the binary package on Melodic for instance, simply run `sudo apt-get install ros-melodic-septentrio-gnss-driver`.
+  The binary release is now available for Melodic and Noetic. To install the binary package on Melodic for instance, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
 </details>
 
 <details>
@@ -57,10 +59,11 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. 
   + Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
-  + ROSaic only works from C++11 onwards due to std::to_string() etc.
-  + Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that in the GNSS case `gpsfix` accounts for 3 additional streams (`ChannelStatus`, `DOP` and `MeasEpoch` blocks), for instance.
+  + ROSaic only works from C++17 onwards due to std::any() etc.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
-
+  + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
+  + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
+  
   ```
   # Configuration Settings for the Rover Rx
 
@@ -69,7 +72,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   serial:
     baudrate: 115200
     rx_serial_port: USB1
-    hw_flow_control: off
+    hw_flow_control: "off"
 
   frame_id: gnss
   
