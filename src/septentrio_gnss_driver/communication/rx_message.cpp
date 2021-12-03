@@ -2686,7 +2686,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -2725,7 +2724,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
