@@ -1,7 +1,7 @@
 # INSNavCart block 
 # Block_Number 4225
 
-Header      header
+std_msgs/Header header
 
 # SBF block header including time header
 BlockHeader block_header

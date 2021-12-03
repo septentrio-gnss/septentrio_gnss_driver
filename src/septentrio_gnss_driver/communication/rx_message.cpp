@@ -536,12 +536,12 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->serial_port = data.serial_port;
-    msg->ant_lever_arm_X = data.ant_lever_arm_X;
-    msg->ant_lever_arm_Y = data.ant_lever_arm_Y;
-    msg->ant_lever_arm_Z = data.ant_lever_arm_Z;
-    msg->theta_X = data.theta_X;
-    msg->theta_Y = data.theta_Y;
-    msg->theta_Z = data.theta_Z;
+    msg->ant_lever_arm_x = data.ant_lever_arm_x;
+    msg->ant_lever_arm_y = data.ant_lever_arm_y;
+    msg->ant_lever_arm_z = data.ant_lever_arm_z;
+    msg->theta_x = data.theta_x;
+    msg->theta_y = data.theta_y;
+    msg->theta_z = data.theta_z;
     return msg;
 };
 
@@ -558,9 +558,9 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->port = data.port;
-    msg->lever_arm_X = data.lever_arm_X;
-    msg->lever_arm_Y = data.lever_arm_Y;
-    msg->lever_arm_Z = data.lever_arm_Z;
+    msg->lever_arm_x = data.lever_arm_x;
+    msg->lever_arm_y = data.lever_arm_y;
+    msg->lever_arm_z = data.lever_arm_z;
     return msg;
 };
 
@@ -784,20 +784,20 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
         msg->type = data.ExtSensorMeas[i].type;
         msg->obs_info = data.ExtSensorMeas[i].ObsInfo;
 
-        msg->acceleration_X = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_X;
-        msg->acceleration_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Y;
-        msg->acceleration_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Z;
+        msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
+        msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+        msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
 
-        msg->angular_rate_X = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_X;
-        msg->angular_rate_Y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Y;
-        msg->angular_rate_Z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Z;
+        msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
+        msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+        msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
 
-        msg->velocity_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_X;
-        msg->velocity_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Y;
-        msg->velocity_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Z;
-        msg->std_dev_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_X;
-        msg->std_dev_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Y;
-        msg->std_dev_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Z;
+        msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
+        msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
+        msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
+        msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
+        msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
+        msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
 
         msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
 
