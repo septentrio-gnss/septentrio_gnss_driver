@@ -43,10 +43,10 @@ int main(int argc, char** argv)
     // The info logging level seems to be default, hence we modify log level
     // momentarily.. The following is the C++ version of
     // rospy.init_node('my_ros_node', log_level=rospy.DEBUG)
-    if (ros::console::set_logger_level(
+    /*if (ros::console::set_logger_level(
             ROSCONSOLE_DEFAULT_NAME,
             ros::console::levels::Debug)) // debug is lowest level, shows everything
-        ros::console::notifyLoggerLevelsChanged();
+        ros::console::notifyLoggerLevelsChanged();*/
 
     rosaic_node::ROSaicNode
         rx_node; // This launches everything we need, in theory :)
