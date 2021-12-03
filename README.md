@@ -59,10 +59,10 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. 
   + Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
-  + ROSaic only works from C++17 onwards due to std::any() etc.
-  + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
+  + ROSaic only works from C++17 onwards due to std::any() etc.  
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
+  + Once the colcon build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one. Launch with `ros2 launch septentrio_gnss_driver rover.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
   
   ```
   # Configuration Settings for the Rover Rx

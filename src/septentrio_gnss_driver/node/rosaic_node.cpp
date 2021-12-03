@@ -40,6 +40,14 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions &options) :
     ROSaicNodeBase(options),
     IO_(this, &settings_)
 {
+    /*auto ret = rcutils_logging_set_logger_level(
+        this->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (ret != RCUTILS_RET_OK) 
+    {
+        RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s", rcutils_get_error_string().str);
+        rcutils_reset_error();
+    }*/
+    
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 
     // Parameters must be set before initializing IO
