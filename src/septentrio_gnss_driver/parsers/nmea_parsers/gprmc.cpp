@@ -70,8 +70,7 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    GprmcMsgPtr msg =
-        boost::make_shared<GprmcMsg>();
+    GprmcMsgPtr msg(new GprmcMsg);
 
     msg->header.frame_id = frame_id;
 
@@ -94,10 +93,9 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                     parsing_utilities::convertUTCtoUnix(utc_double);
                 // The following assumes that there are two digits after the decimal
                 // point in utc_double, i.e. in the NMEA UTC time.
-                uint32_t unix_time_nanoseconds =
-                    (static_cast<uint32_t>(utc_double * 100) % 100) * 10000;
-                msg->header.stamp.sec = unix_time_seconds;
-                msg->header.stamp.nsec = unix_time_nanoseconds;
+                Timestamp unix_time_nanoseconds =
+                    (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                msg->header.stamp = timestampToRos(unix_time_nanoseconds);
             } else
             {
                 msg->header.stamp = timestampToRos(time_obj);

@@ -38,6 +38,7 @@
 // ROS msg includes
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
+#include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <gps_common/GPSFix.h>
 #include <sensor_msgs/NavSatFix.h>
@@ -71,10 +72,12 @@ typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
 typedef diagnostic_msgs::DiagnosticStatusPtr        DiagnosticStatusMsgPtr;
+typedef geometry_msgs::Quaternion                   QuaternionMsg;
 typedef geometry_msgs::PoseWithCovarianceStamped    PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::PoseWithCovarianceStampedPtr PoseWithCovarianceStampedMsgPtr;
 typedef gps_common::GPSFix                          GPSFixMsg;
 typedef gps_common::GPSFixPtr                       GPSFixMsgPtr;
+typedef gps_common::GPSStatus                       GPSStatusMsg;
 typedef sensor_msgs::NavSatFix                      NavSatFixMsg;
 typedef sensor_msgs::NavSatFixPtr                   NavSatFixMsgPtr;
 typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;

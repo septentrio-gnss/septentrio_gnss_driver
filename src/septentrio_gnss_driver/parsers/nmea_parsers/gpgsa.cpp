@@ -64,8 +64,7 @@ GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    GpgsaMsgPtr msg =
-        boost::make_shared<GpgsaMsg>();
+    GpgsaMsgPtr msg(new GpgsaMsg);
     msg->header.frame_id = frame_id;
     msg->message_id = sentence.get_body()[0];
     msg->auto_manual_mode = sentence.get_body()[1];
