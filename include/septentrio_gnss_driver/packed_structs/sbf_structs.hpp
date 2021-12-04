@@ -844,12 +844,12 @@ struct IMUSetup
     uint16_t wnc;
 
     uint8_t  serial_port;
-    float ant_lever_arm_X;
-    float ant_lever_arm_Y;
-    float ant_lever_arm_Z;
-    float theta_X;
-    float theta_Y;
-    float theta_Z;
+    float ant_lever_arm_x;
+    float ant_lever_arm_y;
+    float ant_lever_arm_z;
+    float theta_x;
+    float theta_y;
+    float theta_z;
 };
 
 /**
@@ -865,9 +865,9 @@ struct VelSensorSetup
     uint16_t wnc;
 
     uint8_t port;
-    float   lever_arm_X;
-    float   lever_arm_Y;
-    float   lever_arm_Z;
+    float   lever_arm_x;
+    float   lever_arm_y;
+    float   lever_arm_z;
 };
 
 //------------------------------ExtEventINSNavGeod
@@ -1028,26 +1028,26 @@ typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
 
 typedef struct
 {
-    SBFDOUBLE  acceleration_X;
-    SBFDOUBLE  acceleration_Y;
-    SBFDOUBLE  acceleration_Z;
+    SBFDOUBLE  acceleration_x;
+    SBFDOUBLE  acceleration_y;
+    SBFDOUBLE  acceleration_z;
 } ExtSensorMeasAcceleration_1;
 
 typedef struct
 {
-    SBFDOUBLE  angular_rate_X;
-    SBFDOUBLE  angular_rate_Y;
-    SBFDOUBLE  angular_rate_Z;
+    SBFDOUBLE  angular_rate_x;
+    SBFDOUBLE  angular_rate_y;
+    SBFDOUBLE  angular_rate_z;
 } ExtSensorMeasAngularRate_1;
 
 typedef struct
 {
-    float velocity_X;
-    float velocity_Y;
-    float velocity_Z;
-    float std_dev_X;
-    float std_dev_Y;
-    float std_dev_Z;
+    float velocity_x;
+    float velocity_y;
+    float velocity_z;
+    float std_dev_x;
+    float std_dev_y;
+    float std_dev_z;
 } ExtSensorMeasVelocity_1;
 
 typedef struct

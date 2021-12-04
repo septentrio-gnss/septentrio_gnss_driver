@@ -123,7 +123,7 @@ public:
      * NMEASentence
      * @return A valid ROS message pointer
      */
-    virtual T parseASCII(const NMEASentence& sentence) noexcept(false)
+    virtual T parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
     {
         throw ParseException("ParseASCII not implemented.");
     };

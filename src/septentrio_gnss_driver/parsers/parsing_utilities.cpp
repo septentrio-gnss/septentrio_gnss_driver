@@ -326,7 +326,7 @@ namespace parsing_utilities {
     //! 3-2-1 sequence: The body first does yaw around the Z=Down-axis, then pitches
     //! around the new Y=East=right-axis and finally rolls around the new
     //! X=North=forward-axis.
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll)
     {
         // Abbreviations for the angular functions
@@ -337,7 +337,7 @@ namespace parsing_utilities {
         double cr = cos(roll * 0.5);
         double sr = sin(roll * 0.5);
 
-        geometry_msgs::Quaternion q;
+        QuaternionMsg q;
         q.w = cr * cp * cy + sr * sp * sy;
         q.x = sr * cp * cy - cr * sp * sy;
         q.y = cr * sp * cy + sr * cp * sy;
@@ -354,5 +354,26 @@ namespace parsing_utilities {
         {
             return period_user / 1000;
         }
+    }
+
+    uint16_t getId(const uint8_t* buffer)
+    {
+        // Defines bit mask..
+        // It is not as stated in the firmware: !first! three bits are for revision
+        // (not last 3), and rest for block number
+        static uint16_t mask = 8191;
+        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
+
+        return parseUInt16(buffer + 4)  & mask;
+    }
+
+    uint32_t getTow(const uint8_t* buffer)
+    {
+        return parseUInt32(buffer + 8);
+    }
+
+    uint16_t getWnc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 12);
     }
 } // namespace parsing_utilities

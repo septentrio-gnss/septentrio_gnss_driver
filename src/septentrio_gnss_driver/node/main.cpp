@@ -26,59 +26,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// *****************************************************************************
+// ****************************************************************************
 
-// ROS includes
-#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
-
-// C++ library includes
-#include <algorithm>
-#include <cstdint>
-
-#ifndef CIRCULAR_BUFFER_HPP
-#define CIRCULAR_BUFFER_HPP
+#include <septentrio_gnss_driver/node/rosaic_node.hpp>
 
 /**
- * @file circular_buffer.hpp
- * @brief Declares a class for creating, writing to and reading from a circular
- * bufffer
- * @date 25/09/20
+ * @file main.cpp
+ * @date 01/12/21
+ * @brief Main function of the ROSaic driver:
  */
 
-/**
- * @class CircularBuffer
- * @brief Class for creating, writing to and reading from a circular buffer
- */
-class CircularBuffer
+int main(int argc, char** argv)
 {
-public:
-    //! Constructor of CircularBuffer
-    explicit CircularBuffer(ROSaicNodeBase* node, std::size_t capacity);
-    //! Destructor of CircularBuffer
-    ~CircularBuffer();
-    //! Returns size_
-    std::size_t size() const { return size_; }
-    //! Returns capacity_
-    std::size_t capacity() const { return capacity_; }
-    //! Returns number of bytes written.
-    std::size_t write(const uint8_t* data, std::size_t bytes);
-    //! Returns number of bytes read.
-    std::size_t read(uint8_t* data, std::size_t bytes);
+    ros::init(argc, argv, "septentrio_gnss");
+  	
+    // The info logging level seems to be default, hence we modify log level
+    // momentarily.. The following is the C++ version of
+    // rospy.init_node('my_ros_node', log_level=rospy.DEBUG)
+    /*if (ros::console::set_logger_level(
+            ROSCONSOLE_DEFAULT_NAME,
+            ros::console::levels::Debug)) // debug is lowest level, shows everything
+        ros::console::notifyLoggerLevelsChanged();*/
 
-private:
-    //! Pointer to the node
-    ROSaicNodeBase* node_;
-    //! Specifies where we start writing
-    std::size_t head_;
-    //! Specifies where we start reading
-    std::size_t tail_;
-    //! Number of bytes that have been written but not yet read
-    std::size_t size_;
-    //! Capacity of the circular buffer
-    std::size_t capacity_;
-    //! Pointer that always points to the same memory address, hence could be const
-    //! pointer
-    uint8_t* data_;
-};
-
-#endif // for CIRCULAR_BUFFER_HPP
+    rosaic_node::ROSaicNode
+        rx_node; // This launches everything we need, in theory :)
+    ros::spin();
+    
+    return 0;
+}

@@ -37,8 +37,7 @@
 #include <ctime>   // C++ header, corresponds to <time.h> in C
 #include <string>  // C++ header, corresponds to <string.h> in C
 // ROS includes
-#include <geometry_msgs/Quaternion.h>
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 /**
  * @file parsing_utilities.hpp
@@ -237,7 +236,7 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new East-axis
      * @return ROS message representing a quaternion
      */
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll);
 
     /**
@@ -249,6 +248,30 @@ namespace parsing_utilities {
      * the Rx
      */
     uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
+
+    /**
+     * @brief Get the ID of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message ID 
+     */
+    uint16_t getId(const uint8_t* buffer);
+
+    /**
+     * @brief Get the time of week in ms of the SBF message
+     * 
+     * @param[in] buffer A pointer to a buffer containing an SBF message
+     * @return SBF time of week in ms
+     */
+    uint32_t getTow(const uint8_t* buffer);
+
+    /**
+     * @brief Get the GPS week counter of the SBF message
+     *  
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF GPS week counter 
+     */
+    uint16_t getWnc(const uint8_t* buffer);
 } // namespace parsing_utilities
 
 #endif // PARSING_UTILITIES_HPP

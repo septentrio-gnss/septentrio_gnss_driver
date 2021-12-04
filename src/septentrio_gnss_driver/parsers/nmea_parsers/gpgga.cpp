@@ -50,8 +50,8 @@ const std::string GpggaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[15] if anybody ever needs it.
  */
-septentrio_gnss_driver::GpggaPtr
-GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpggaMsgPtr
+GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
     // %s", sentence.get_body()[0].c_str());
@@ -65,9 +65,8 @@ GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GpggaPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gpgga>();
-    msg->header.frame_id = g_frame_id;
+    GpggaMsgPtr msg(new GpggaMsg);
+    msg->header.frame_id = frame_id;
 
     msg->message_id = sentence.get_body()[0];
 
@@ -79,7 +78,7 @@ GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         double utc_double;
         if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
         {
-            if (g_use_gnss_time)
+            if (use_gnss_time)
             {
                 // ROS_DEBUG("utc_double is %f", (float) utc_double);
                 msg->utc_seconds =
@@ -90,16 +89,12 @@ GpggaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
                     parsing_utilities::convertUTCtoUnix(utc_double);
                 // The following assumes that there are two digits after the decimal
                 // point in utc_double, i.e. in the NMEA UTC time.
-                uint32_t unix_time_nanoseconds =
-                    (static_cast<uint32_t>(utc_double * 100) % 100) * 10000;
-                msg->header.stamp.sec = unix_time_seconds;
-                msg->header.stamp.nsec = unix_time_nanoseconds;
+                Timestamp unix_time_nanoseconds =
+                    (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                msg->header.stamp = timestampToRos(unix_time_nanoseconds);
             } else
             {
-                ros::Time time_obj;
-                time_obj = ros::Time::now();
-                msg->header.stamp.sec = time_obj.sec;
-                msg->header.stamp.nsec = time_obj.nsec;
+                msg->header.stamp = timestampToRos(time_obj);
             }
         } else
         {

@@ -28,6 +28,8 @@
 //
 // *****************************************************************************
 
+#include <thread>
+
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
 
 /**
@@ -36,83 +38,10 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-uint32_t io_comm_rx::RxMessage::count_gpsfix_ = 0;
-PVTGeodetic io_comm_rx::RxMessage::last_pvtgeodetic_ = PVTGeodetic();
-PosCovGeodetic io_comm_rx::RxMessage::last_poscovgeodetic_ = PosCovGeodetic();
-AttEuler io_comm_rx::RxMessage::last_atteuler_ = AttEuler();
-AttCovEuler io_comm_rx::RxMessage::last_attcoveuler_ = AttCovEuler();
-ChannelStatus io_comm_rx::RxMessage::last_channelstatus_ = ChannelStatus();
-MeasEpoch io_comm_rx::RxMessage::last_measepoch_ = MeasEpoch();
-DOP io_comm_rx::RxMessage::last_dop_ = DOP();
-VelCovGeodetic io_comm_rx::RxMessage::last_velcovgeodetic_ = VelCovGeodetic();
-ReceiverStatus io_comm_rx::RxMessage::last_receiverstatus_ = ReceiverStatus();
-QualityInd io_comm_rx::RxMessage::last_qualityind_ = QualityInd();
-ReceiverSetup io_comm_rx::RxMessage::last_receiversetup_ = ReceiverSetup();
-INSNavGeod io_comm_rx::RxMessage::last_insnavgeod_ = INSNavGeod();
-
-//! Pair of iterators to facilitate initialization of the map
-std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
-    std::make_pair(static_cast<uint16_t>(0), evNoPVT),
-    std::make_pair(static_cast<uint16_t>(1), evStandAlone),
-    std::make_pair(static_cast<uint16_t>(2), evDGPS),
-    std::make_pair(static_cast<uint16_t>(3), evFixed),
-    std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
-    std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
-    std::make_pair(static_cast<uint16_t>(6), evSBAS),
-    std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
-    std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
-    std::make_pair(static_cast<uint16_t>(10), evPPP)};
-
-io_comm_rx::RxMessage::TypeOfPVTMap
-    io_comm_rx::RxMessage::type_of_pvt_map(type_of_pvt_pairs,
-                                           type_of_pvt_pairs + evPPP + 1);
-
-//! Pair of iterators to facilitate initialization of the map
-std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
-    std::make_pair("NavSatFix", evNavSatFix),
-    std::make_pair("INSNavSatFix", evINSNavSatFix),   
-    std::make_pair("GPSFix", evGPSFix),
-    std::make_pair("INSGPSFix", evINSGPSFix),
-    std::make_pair("PoseWithCovarianceStamped", evPoseWithCovarianceStamped),
-    std::make_pair("INSPoseWithCovarianceStamped", evINSPoseWithCovarianceStamped),
-    std::make_pair("$GPGGA", evGPGGA),
-    std::make_pair("$GPRMC", evGPRMC),
-    std::make_pair("$GPGSA", evGPGSA),
-    std::make_pair("$GPGSV", evGPGSV),
-    std::make_pair("$GLGSV", evGLGSV),
-    std::make_pair("$GAGSV", evGAGSV),
-    std::make_pair("4006", evPVTCartesian),
-    std::make_pair("4007", evPVTGeodetic),
-    std::make_pair("5905", evPosCovCartesian),
-    std::make_pair("5906", evPosCovGeodetic),
-    std::make_pair("5938", evAttEuler),
-    std::make_pair("5939", evAttCovEuler),
-    std::make_pair("GPST", evGPST),
-    std::make_pair("4013", evChannelStatus),
-    std::make_pair("4027", evMeasEpoch),
-    std::make_pair("4001", evDOP),
-    std::make_pair("5908", evVelCovGeodetic),
-    std::make_pair("DiagnosticArray", evDiagnosticArray),
-    std::make_pair("4014", evReceiverStatus),
-    std::make_pair("4082", evQualityInd),
-    std::make_pair("5902", evReceiverSetup),
-    std::make_pair("4225",evINSNavCart),
-    std::make_pair("4226",evINSNavGeod),
-    std::make_pair("4230",evExtEventINSNavGeod),
-    std::make_pair("4229",evExtEventINSNavCart),
-    std::make_pair("4224",evIMUSetup),
-    std::make_pair("4244",evVelSensorSetup),
-    std::make_pair("4050",evExtSensorMeas)
-};
-
-io_comm_rx::RxMessage::RxIDMap
-    io_comm_rx::RxMessage::rx_id_map(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
-
-septentrio_gnss_driver::PVTGeodeticPtr
+PVTGeodeticMsgPtr
 io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
 {
-    septentrio_gnss_driver::PVTGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
+    PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -149,11 +78,10 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::PVTCartesianPtr
+PVTCartesianMsgPtr
 io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
 {
-    septentrio_gnss_driver::PVTCartesianPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
+    PVTCartesianMsgPtr msg(new PVTCartesianMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -190,11 +118,10 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     return msg;
 }
 
-septentrio_gnss_driver::PosCovCartesianPtr
+PosCovCartesianMsgPtr
 io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
 {
-    septentrio_gnss_driver::PosCovCartesianPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PosCovCartesian>();
+    PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -217,11 +144,10 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     return msg;
 }
 
-septentrio_gnss_driver::PosCovGeodeticPtr
+PosCovGeodeticMsgPtr
 io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
 {
-    septentrio_gnss_driver::PosCovGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::PosCovGeodetic>();
+    PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -244,11 +170,10 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::VelCovGeodeticPtr
+VelCovGeodeticMsgPtr
 io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
 {
-    septentrio_gnss_driver::VelCovGeodeticPtr msg =
-        boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
+    VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -271,11 +196,10 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     return msg;
 }
 
-septentrio_gnss_driver::AttEulerPtr
+AttEulerMsgPtr
 io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
 {
-    septentrio_gnss_driver::AttEulerPtr msg =
-        boost::make_shared<septentrio_gnss_driver::AttEuler>();
+    AttEulerMsgPtr msg(new AttEulerMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -295,11 +219,10 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     return msg;
 };
 
-septentrio_gnss_driver::AttCovEulerPtr
+AttCovEulerMsgPtr
 io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
 {
-    septentrio_gnss_driver::AttCovEulerPtr msg =
-        boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
+    AttCovEulerMsgPtr msg(new AttCovEulerMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -317,12 +240,11 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     return msg;
 };
 
-septentrio_gnss_driver::INSNavCartPtr
+INSNavCartMsgPtr
 io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
 {
     int SBI_dx = 0;
-    septentrio_gnss_driver::INSNavCartPtr msg =
-        boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+    INSNavCartMsgPtr msg(new INSNavCartMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -459,12 +381,11 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     return msg;
 };
 
-septentrio_gnss_driver::INSNavGeodPtr
+INSNavGeodMsgPtr
 io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 {
     int SBIdx = 0;
-    septentrio_gnss_driver::INSNavGeodPtr msg =
-        boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+    INSNavGeodMsgPtr msg(new INSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -603,11 +524,10 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     return msg;
 };
 
-septentrio_gnss_driver::IMUSetupPtr
+IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
-    septentrio_gnss_driver::IMUSetupPtr msg = 
-        boost::make_shared<septentrio_gnss_driver::IMUSetup>();
+    IMUSetupMsgPtr msg(new IMUSetupMsg);
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
@@ -616,20 +536,19 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->serial_port = data.serial_port;
-    msg->ant_lever_arm_X = data.ant_lever_arm_X;
-    msg->ant_lever_arm_Y = data.ant_lever_arm_Y;
-    msg->ant_lever_arm_Z = data.ant_lever_arm_Z;
-    msg->theta_X = data.theta_X;
-    msg->theta_Y = data.theta_Y;
-    msg->theta_Z = data.theta_Z;
+    msg->ant_lever_arm_x = data.ant_lever_arm_x;
+    msg->ant_lever_arm_y = data.ant_lever_arm_y;
+    msg->ant_lever_arm_z = data.ant_lever_arm_z;
+    msg->theta_x = data.theta_x;
+    msg->theta_y = data.theta_y;
+    msg->theta_z = data.theta_z;
     return msg;
 };
 
-septentrio_gnss_driver::VelSensorSetupPtr
+VelSensorSetupMsgPtr
 io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
 {
-    septentrio_gnss_driver::VelSensorSetupPtr msg = 
-        boost::make_shared<septentrio_gnss_driver::VelSensorSetup>();
+    VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -639,18 +558,17 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->port = data.port;
-    msg->lever_arm_X = data.lever_arm_X;
-    msg->lever_arm_Y = data.lever_arm_Y;
-    msg->lever_arm_Z = data.lever_arm_Z;
+    msg->lever_arm_x = data.lever_arm_x;
+    msg->lever_arm_y = data.lever_arm_y;
+    msg->lever_arm_z = data.lever_arm_z;
     return msg;
 };
 
-septentrio_gnss_driver::ExtEventINSNavGeodPtr
+ExtEventINSNavGeodMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 {
     int SBIdx = 0;
-    septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
-        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+    ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -745,12 +663,11 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     return msg;
 };
 
-septentrio_gnss_driver::ExtEventINSNavCartPtr
+ExtEventINSNavCartMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 {
     int SBI_dx = 0;
-    septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
-        boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+    ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -844,12 +761,11 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     return msg;
 };
 
-septentrio_gnss_driver::ExtSensorMeasPtr
+ExtSensorMeasMsgPtr
 io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 {
     int i =0;
-    septentrio_gnss_driver::ExtSensorMeasPtr msg=
-        boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+    ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
 
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -868,20 +784,20 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
         msg->type = data.ExtSensorMeas[i].type;
         msg->obs_info = data.ExtSensorMeas[i].ObsInfo;
 
-        msg->acceleration_X = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_X;
-        msg->acceleration_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Y;
-        msg->acceleration_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_Z;
+        msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
+        msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+        msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
 
-        msg->angular_rate_X = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_X;
-        msg->angular_rate_Y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Y;
-        msg->angular_rate_Z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_Z;
+        msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
+        msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+        msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
 
-        msg->velocity_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_X;
-        msg->velocity_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Y;
-        msg->velocity_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_Z;
-        msg->std_dev_X = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_X;
-        msg->std_dev_Y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Y;
-        msg->std_dev_Z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_Z;
+        msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
+        msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
+        msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
+        msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
+        msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
+        msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
 
         msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
 
@@ -902,12 +818,11 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
  * covariance matrices available e.g. in the PosCovGeodetic or AttCovEuler blocks,
  * yet those are separate computations.
  */
-geometry_msgs::PoseWithCovarianceStampedPtr
+PoseWithCovarianceStampedMsgPtr
 io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
 {
-	geometry_msgs::PoseWithCovarianceStampedPtr msg =
-            boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>();
-    if (septentrio_receiver_type_ == "gnss")
+	PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
+    if (settings_->septentrio_receiver_type == "gnss")
     {
         // Filling in the pose data
         msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
@@ -958,7 +873,7 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         msg->pose.covariance[35] = static_cast<double>(last_attcoveuler_.cov_headhead);
 
 	}
-    if (septentrio_receiver_type_ == "ins")
+    if (settings_->septentrio_receiver_type == "ins")
     {
         // Filling in the pose data
 		int SBIdx = 0;
@@ -1066,13 +981,11 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
 	return msg;
 };
 
-diagnostic_msgs::DiagnosticArrayPtr io_comm_rx::RxMessage::DiagnosticArrayCallback()
+DiagnosticArrayMsgPtr io_comm_rx::RxMessage::DiagnosticArrayCallback()
 {
-    diagnostic_msgs::DiagnosticArrayPtr msg =
-        boost::make_shared<diagnostic_msgs::DiagnosticArray>();
+    DiagnosticArrayMsgPtr msg(new DiagnosticArrayMsg);
 	std::string serialnumber(last_receiversetup_.rx_serial_number);
-	diagnostic_msgs::DiagnosticStatusPtr gnss_status =
-		boost::make_shared<diagnostic_msgs::DiagnosticStatus>();
+	DiagnosticStatusMsgPtr gnss_status(new DiagnosticStatusMsg);
 	// Constructing the "level of operation" field
 	uint16_t indicators_type_mask = static_cast<uint16_t>(255);
 	uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
@@ -1086,16 +999,16 @@ diagnostic_msgs::DiagnosticArrayPtr io_comm_rx::RxMessage::DiagnosticArrayCallba
 			if (((last_qualityind_.indicators[i] & indicators_value_mask) >> 8) ==
 				static_cast<uint16_t>(0))
 			{
-				gnss_status->level = diagnostic_msgs::DiagnosticStatus::STALE;
+				gnss_status->level = DiagnosticStatusMsg::STALE;
 			} else if (((last_qualityind_.indicators[i] & indicators_value_mask) >>
 						8) == static_cast<uint16_t>(1) ||
 					((last_qualityind_.indicators[i] & indicators_value_mask) >>
 						8) == static_cast<uint16_t>(2))
 			{
-				gnss_status->level = diagnostic_msgs::DiagnosticStatus::WARN;
+				gnss_status->level = DiagnosticStatusMsg::WARN;
 			} else
 			{
-				gnss_status->level = diagnostic_msgs::DiagnosticStatus::OK;
+				gnss_status->level = DiagnosticStatusMsg::OK;
 			}
 			break;
 		}
@@ -1104,7 +1017,7 @@ diagnostic_msgs::DiagnosticArrayPtr io_comm_rx::RxMessage::DiagnosticArrayCallba
 	// been detected.
 	if (last_receiverstatus_.rx_error != static_cast<uint32_t>(0))
 	{
-		gnss_status->level = diagnostic_msgs::DiagnosticStatus::ERROR;
+		gnss_status->level = DiagnosticStatusMsg::ERROR;
 	}
 	// Creating an array of values associated with the GNSS status
 	gnss_status->values.resize(static_cast<uint16_t>(last_qualityind_.n - 1));
@@ -1181,24 +1094,24 @@ diagnostic_msgs::DiagnosticArrayPtr io_comm_rx::RxMessage::DiagnosticArrayCallba
  * of the PVTGeodetic block does not disclose it. For that, one would need to go to
  * the ObsInfo field of the MeasEpochChannelType1 sub-block.
  */
-sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
+NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 {
-    sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
+    NavSatFixMsgPtr msg(new NavSatFixMsg);
 	uint16_t mask = 15; // We extract the first four bits using this mask.
-    if (septentrio_receiver_type_ == "gnss")
+    if (settings_->septentrio_receiver_type == "gnss")
     {
         uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
         switch (type_of_pvt_map[type_of_pvt])
         {
         case evNoPVT:
         {
-            msg->status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
+            msg->status.status = NavSatStatusMsg::STATUS_NO_FIX;
             break;
         }
         case evStandAlone:
         case evFixed:
         {
-            msg->status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
+            msg->status.status = NavSatStatusMsg::STATUS_FIX;
             break;
         }
         case evDGPS:
@@ -1208,12 +1121,12 @@ sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
         case evMovingBaseRTKFloat:
         case evPPP:
         {
-            msg->status.status = sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
+            msg->status.status = NavSatStatusMsg::STATUS_GBAS_FIX;
             break;
         }
         case evSBAS:
         {
-            msg->status.status = sensor_msgs::NavSatStatus::STATUS_SBAS_FIX;
+            msg->status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
             break;
         }
         default:
@@ -1269,26 +1182,26 @@ sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
             static_cast<double>(last_poscovgeodetic_.cov_lathgt);
         msg->position_covariance[8] =
             static_cast<double>(last_poscovgeodetic_.cov_hgthgt);
-        msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
+        msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
         return msg;
     }
 
-    if (septentrio_receiver_type_ == "ins")
+    if (settings_->septentrio_receiver_type == "ins")
     {
         int SBIdx = 0;
-        sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
+        NavSatFixMsgPtr msg(new NavSatFixMsg);
 		uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
 		switch (type_of_pvt_map[type_of_pvt])
 		{
 		case evNoPVT:
 		{
-			msg->status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
+			msg->status.status = NavSatStatusMsg::STATUS_NO_FIX;
 			break;
 		}
 		case evStandAlone:
 		case evFixed:
 		{
-			msg->status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
+			msg->status.status = NavSatStatusMsg::STATUS_FIX;
 			break;
 		}
 		case evDGPS:
@@ -1298,12 +1211,12 @@ sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
 		case evMovingBaseRTKFloat:
 		case evPPP:
 		{
-			msg->status.status = sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
+			msg->status.status = NavSatStatusMsg::STATUS_GBAS_FIX;
 			break;
 		}
 		case evSBAS:
 		{
-			msg->status.status = sensor_msgs::NavSatStatus::STATUS_SBAS_FIX;
+			msg->status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
 			break;
 		}
 		default:
@@ -1367,7 +1280,7 @@ sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
 			msg->position_covariance[7] = static_cast<double>(last_insnavgeod_.
 											INSNavGeodData[SBIdx].PosCov.latitude_height_cov);
 		}
-		msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+		msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
     }
 	return msg;
 };
@@ -1393,9 +1306,9 @@ sensor_msgs::NavSatFixPtr io_comm_rx::RxMessage::NavSatFixCallback()
  * values appear unphysical, please consult the firmware, since those most likely
  * refer to Do-Not-Use values.
  */
-gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
+GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 {
-	gps_common::GPSFixPtr msg = boost::make_shared<gps_common::GPSFix>();
+	GPSFixMsgPtr msg(new GPSFixMsg);
 	msg->status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
 
 	// MeasEpoch Processing
@@ -1450,7 +1363,7 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 		uint8_t sb2_size = last_channelstatus_.sb2_size;
 		uint8_t* sb_start = &last_channelstatus_.data[0];
 		int32_t index = sb_start - &last_channelstatus_.block_header.sync_1;
-		// ROS_DEBUG("index is %i", index); // yields 20, as expected
+		// node_->log(LogLevel::DEBUG, "index is %i", index); // yields 20, as expected
 
 		uint16_t azimuth_mask = 511;
 		for (int32_t i = 0; i < static_cast<int32_t>(last_channelstatus_.n); i++)
@@ -1530,7 +1443,7 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 	msg->status.satellite_visible_snr = cno_tracked_reordered;
 	msg->err_time = 2 * std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_bb));
 	
-	if (septentrio_receiver_type_ == "gnss")
+	if (settings_->septentrio_receiver_type == "gnss")
     {
 		
         // PVT Status Analysis
@@ -1540,13 +1453,13 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
         case evNoPVT:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_NO_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_NO_FIX;
             break;
         }
         case evStandAlone:
         case evFixed:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_FIX;
             break;
         }
         case evDGPS:
@@ -1556,7 +1469,7 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         case evMovingBaseRTKFloat:
         case evPPP:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_GBAS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_GBAS_FIX;
             break;
         }
         case evSBAS:
@@ -1566,10 +1479,10 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
             if (reference_id == 131 || reference_id == 133 || reference_id == 135 ||
                 reference_id == 135)
             {
-                msg->status.status = gps_common::GPSStatus::STATUS_WAAS_FIX;
+                msg->status.status = GPSStatusMsg::STATUS_WAAS_FIX;
             } else
             {
-                msg->status.status = gps_common::GPSStatus::STATUS_SBAS_FIX;
+                msg->status.status = GPSStatusMsg::STATUS_SBAS_FIX;
             }
             break;
         }
@@ -1580,11 +1493,11 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
-        msg->status.motion_source = gps_common::GPSStatus::SOURCE_POINTS;
+        msg->status.motion_source = GPSStatusMsg::SOURCE_POINTS;
         // Doppler is not used when calculating the orientation of, say, mosaic-x5,
         // hence:
-        msg->status.orientation_source = gps_common::GPSStatus::SOURCE_POINTS;
-        msg->status.position_source = gps_common::GPSStatus::SOURCE_GPS;
+        msg->status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
+        msg->status.position_source = GPSStatusMsg::SOURCE_GPS;
         msg->latitude = static_cast<double>(last_pvtgeodetic_.latitude) * 360 /
                         (2 * boost::math::constants::pi<double>());
         msg->longitude = static_cast<double>(last_pvtgeodetic_.longitude) * 360 /
@@ -1686,11 +1599,11 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
             static_cast<double>(last_poscovgeodetic_.cov_lathgt);
         msg->position_covariance[8] =
             static_cast<double>(last_poscovgeodetic_.cov_hgthgt);
-        msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_KNOWN;
+        msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
 		
     }
     
-    if (septentrio_receiver_type_ == "ins")
+    if (settings_->septentrio_receiver_type == "ins")
     {
         int SBIdx = 0;
 
@@ -1701,13 +1614,13 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
         case evNoPVT:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_NO_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_NO_FIX;
             break;
         }
         case evStandAlone:
         case evFixed:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_FIX;
             break;
         }
         case evDGPS:
@@ -1717,7 +1630,7 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         case evMovingBaseRTKFloat:
         case evPPP:
         {
-            msg->status.status = gps_common::GPSStatus::STATUS_GBAS_FIX;
+            msg->status.status = GPSStatusMsg::STATUS_GBAS_FIX;
             break;
         }
         case evSBAS:
@@ -1728,11 +1641,11 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
-        msg->status.motion_source = gps_common::GPSStatus::SOURCE_POINTS;
+        msg->status.motion_source = GPSStatusMsg::SOURCE_POINTS;
         // Doppler is not used when calculating the orientation of, say, mosaic-x5,
         // hence:
-        msg->status.orientation_source = gps_common::GPSStatus::SOURCE_POINTS;
-        msg->status.position_source = gps_common::GPSStatus::SOURCE_GPS;
+        msg->status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
+        msg->status.position_source = GPSStatusMsg::SOURCE_GPS;
         msg->latitude = static_cast<double>(last_insnavgeod_.latitude) * 360 /
                         (2 * boost::math::constants::pi<double>());
         msg->longitude = static_cast<double>(last_insnavgeod_.longitude) * 360 /
@@ -1859,70 +1772,34 @@ gps_common::GPSFixPtr io_comm_rx::RxMessage::GPSFixCallback()
 			msg->position_covariance[7] = static_cast<double>(last_insnavgeod_.
                                             INSNavGeodData[SBIdx].PosCov.latitude_height_cov);
         }
-        msg->position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+        msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
     }
 	return msg;
 };
 
 /// If the current time shall be employed, it is calculated via the time(NULL)
 /// function found in the \<ctime\> library At the time of writing the code (2020),
-/// the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the g_leap_seconds
+/// the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the settings_->leap_seconds
 /// ROSaic parameter accordingly as soon as the next leap second is inserted into the
 /// UTC time.
-ros::Time io_comm_rx::timestampSBF(uint32_t tow, bool use_gnss)
+Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time)
 {
-    if (use_gnss)
+	Timestamp time_obj;
+	if (use_gnss_time)
+	{
+		// conversion from GPS time of week and week number to UTC taking leap seconds into account
+		static uint64_t secToNSec    = 1000000000;
+		static uint64_t mSec2NSec    = 1000000;
+		static uint64_t nsOfGpsStart = 315964800 * secToNSec; // GPS week counter starts at 1980-01-06 which is 315964800 seconds since Unix epoch (1970-01-01 UTC)
+		static uint64_t nsecPerWeek  = 7 * 24 * 60 * 60 * secToNSec;
+		
+        time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek - settings_->leap_seconds * secToNSec;
+	}
+	else
     {
-        uint16_t hh = (tow % (1000 * 60 * 60 * 24)) / (60 * 60 * 1000);
-        uint16_t mm =
-            ((tow % (1000 * 60 * 60 * 24)) - hh * (60 * 60 * 1000)) / (60 * 1000);
-        uint16_t ss = ((tow % (1000 * 60 * 60 * 24)) - hh * (60 * 60 * 1000) -
-                       mm * (60 * 1000)) /
-                      (1000);
-        uint16_t hs = ((tow % (1000 * 60 * 60 * 24)) - hh * (60 * 60 * 1000) -
-                       mm * (60 * 1000) - ss * 1000) /
-                      10; // hundredths of a second
-        if (ss >= g_leap_seconds)
-        {
-            ss = ss - g_leap_seconds;
-        } else
-        {
-            if (mm >= 1)
-            {
-                --mm;
-                ss = 60 - (g_leap_seconds - ss);
-            } else
-            {
-                if (hh >= 1)
-                {
-                    --hh;
-                    mm = 59;
-                    ss = 60 - (g_leap_seconds - ss);
-                } else
-                {
-                    hh = 23;
-                    mm = 59;
-                    ss = 60 - (g_leap_seconds - ss);
-                }
-            }
-        }
-        boost::format fmt = boost::format("%02u%02u%02u.%02u") % hh % mm % ss % hs;
-        std::string utc_string = fmt.str();
-        // ROS_DEBUG("UTC string is %s", utc_string.c_str());
-        double utc_double;
-        string_utilities::toDouble(utc_string, utc_double);
-        time_t unix_time_seconds = parsing_utilities::convertUTCtoUnix(
-            utc_double); // This only deals with full seconds.
-        // The following works since there are two digits after the decimal point in
-        // the utc_double:
-        uint32_t unix_time_nanoseconds =
-            (static_cast<uint32_t>(utc_double * 100) % 100) * 10000000;
-        ros::Time time_obj(unix_time_seconds, unix_time_nanoseconds);
-        return time_obj;
-    } else
-    {
-        return ros::Time::now();
+        time_obj = recvTimestamp_;
     }
+	return time_obj;
 }
 
 bool io_comm_rx::RxMessage::found()
@@ -2003,9 +1880,7 @@ bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
 {
     if (this->isSBF())
     {
-        uint16_t mask = 8191;
-        if (*(reinterpret_cast<const uint16_t*>(data_ + 4)) &
-            mask == static_cast<const uint16_t>(id))
+         if (parsing_utilities::getId(data_) == static_cast<const uint16_t>(id))
         // Caution: reinterpret_cast is the most dangerous cast. It's used primarily
         // for particularly weird conversions and bit manipulations, like turning a
         // raw data stream into actual data.
@@ -2135,12 +2010,7 @@ std::string io_comm_rx::RxMessage::messageID()
 {
     if (this->isSBF())
     {
-        // Defines bit mask..
-        // It is not as stated in the firmware: !first! three bits are for revision
-        // (not last 3), and rest for block number
-        uint16_t mask = 8191;
-        // Bitwise AND gives us all but first 3 bits set to zero, rest unchanged
-        uint16_t value = (*(reinterpret_cast<const uint16_t*>(data_ + 4))) & mask;
+        uint16_t value = parsing_utilities::getId(data_);
         std::stringstream ss;
         ss << value;
         return ss.str();
@@ -2215,7 +2085,7 @@ void io_comm_rx::RxMessage::next()
     found_ = false;
     data_ += jump_size;
     count_ -= jump_size;
-    // ROS_DEBUG("Jump about to happen with jump size %li and count after jump being
+    // node_->log(LogLevel::DEBUG, "Jump about to happen with jump size %li and count after jump being
     // %li.", jump_size, count_);
     return; // For readability
 }
@@ -2253,575 +2123,311 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{   // The curly bracket here is crucial: Declarations inside a block remain
 		    // inside, and will die at
 			// the end of the block. Otherwise variable overloading etc.
-			septentrio_gnss_driver::PVTCartesianPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PVTCartesian>();
+			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
 			PVTCartesian pvtcartesian;
 			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
 			msg = PVTCartesianCallback(pvtcartesian);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
-			msg->block_header.id = 4006;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PVTCartesian>("/pvtcartesian",
-																	  g_ROS_QUEUE_SIZE);
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
+			msg->block_header.id = 4006;			
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PVTCartesianMsg>("/pvtcartesian", *msg);
 			break;
 		}
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::PVTGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PVTGeodetic>();
+			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
 			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4007;
-			g_pvtgeodetic_has_arrived_gpsfix = true;
-			g_pvtgeodetic_has_arrived_navsatfix = true;
-			g_pvtgeodetic_has_arrived_pose = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PVTGeodetic>("/pvtgeodetic",
-																	 g_ROS_QUEUE_SIZE);
+			pvtgeodetic_has_arrived_gpsfix_ = true;
+			pvtgeodetic_has_arrived_navsatfix_ = true;
+			pvtgeodetic_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", *msg);			
 			break;
 		}
 		case evPosCovCartesian:
 		{
-			septentrio_gnss_driver::PosCovCartesianPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PosCovCartesian>();
+			PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
 			PosCovCartesian poscovcartesian;
 			memcpy(&poscovcartesian, data_, sizeof(poscovcartesian));
 			msg = PosCovCartesianCallback(poscovcartesian);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5905;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PosCovCartesian>(
-					"/poscovcartesian", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PosCovCartesianMsg>("/poscovcartesian", *msg);
 			break;
 		}
 		case evPosCovGeodetic:
 		{
-			septentrio_gnss_driver::PosCovGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::PosCovGeodetic>();
+			PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
 			memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
 			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5906;
-			g_poscovgeodetic_has_arrived_gpsfix = true;
-			g_poscovgeodetic_has_arrived_navsatfix = true;
-			g_poscovgeodetic_has_arrived_pose = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::PosCovGeodetic>(
-					"/poscovgeodetic", g_ROS_QUEUE_SIZE);
+			poscovgeodetic_has_arrived_gpsfix_ = true;
+			poscovgeodetic_has_arrived_navsatfix_ = true;
+			poscovgeodetic_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", *msg);
 			break;
 		}
 		case evAttEuler:
 		{
-			septentrio_gnss_driver::AttEulerPtr msg =
-				boost::make_shared<septentrio_gnss_driver::AttEuler>();
+			AttEulerMsgPtr msg(new AttEulerMsg);
 			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
 			msg = AttEulerCallback(last_atteuler_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5938;
-			g_atteuler_has_arrived_gpsfix = true;
-			g_atteuler_has_arrived_pose = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::AttEuler>("/atteuler",
-																  g_ROS_QUEUE_SIZE);
+			atteuler_has_arrived_gpsfix_ = true;
+			atteuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<AttEulerMsg>("/atteuler", *msg);		
+			
 			break;
 		}
 		case evAttCovEuler:
 		{
-			septentrio_gnss_driver::AttCovEulerPtr msg =
-				boost::make_shared<septentrio_gnss_driver::AttCovEuler>();
+			AttCovEulerMsgPtr msg(new AttCovEulerMsg);
 			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
 			msg = AttCovEulerCallback(last_attcoveuler_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5939;
-			g_attcoveuler_has_arrived_gpsfix = true;
-			g_attcoveuler_has_arrived_pose = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::AttCovEuler>("/attcoveuler",
-																	 g_ROS_QUEUE_SIZE);
+			attcoveuler_has_arrived_gpsfix_ = true;
+			attcoveuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<AttCovEulerMsg>("/attcoveuler", *msg);
 			break;
 		}
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::INSNavCartPtr msg =
-				boost::make_shared<septentrio_gnss_driver::INSNavCart>();
+			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			INSNavCart insnavcart;
 			memcpy(&insnavcart, data_, sizeof(insnavcart));
 			msg = INSNavCartCallback(insnavcart);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4225;
-			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::INSNavCart>(
-					"/insnavcart", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<INSNavCartMsg>("/insnavcart", *msg);
 			break;
 		}
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::INSNavGeodPtr msg =
-				boost::make_shared<septentrio_gnss_driver::INSNavGeod>();
+			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			memcpy(&last_insnavgeod_, data_, sizeof(last_insnavgeod_));
 			msg = INSNavGeodCallback(last_insnavgeod_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4226;
-			g_insnavgeod_has_arrived_gpsfix = true;
-			g_insnavgeod_has_arrived_navsatfix = true;
-			g_insnavgeod_has_arrived_pose = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::INSNavGeod>("/insnavgeod",
-																	 g_ROS_QUEUE_SIZE);
+			insnavgeod_has_arrived_gpsfix_ = true;
+			insnavgeod_has_arrived_navsatfix_ = true;
+			insnavgeod_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<INSNavGeodMsg>("/insnavgeod", *msg);
 			break;
 		}
 
 		case evIMUSetup: // IMU orientation and lever arm 
 		{
-			septentrio_gnss_driver::IMUSetupPtr msg =
-				boost::make_shared<septentrio_gnss_driver::IMUSetup>();
+			IMUSetupMsgPtr msg(new IMUSetupMsg);
 			IMUSetup imusetup;
 			memcpy(&imusetup, data_, sizeof(imusetup));
 			msg = IMUSetupCallback(imusetup);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4224;
-			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::IMUSetup>("/imusetup", 
-																g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<IMUSetupMsg>("/imusetup", *msg);
 			break;
 		}
 
 		case evVelSensorSetup: // Velocity sensor lever arm
 		{
-			septentrio_gnss_driver::VelSensorSetupPtr msg =
-				boost::make_shared<septentrio_gnss_driver::VelSensorSetup>();
+			VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
 			VelSensorSetup velsensorsetup;
 			memcpy(&velsensorsetup, data_, sizeof(velsensorsetup));
 			msg = VelSensorSetupCallback(velsensorsetup);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4244;
-			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::VelSensorSetup>("/velsensorsetup", 
-																g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<VelSensorSetupMsg>("/velsensorsetup", *msg);
 			break;
 		}
 
 		case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			septentrio_gnss_driver::ExtEventINSNavCartPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtEventINSNavCart>();
+			ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
 			ExtEventINSNavCart exteventinsnavcart;
 			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
 			msg = ExtEventINSNavCartCallback(exteventinsnavcart);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4229;
-			static ros::Publisher publisher = 
-				g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavCart>(
-					"/exteventinsnavcart", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtEventINSNavCartMsg>("/exteventinsnavcart", *msg);
 			break;
 		}
 
 		case evExtEventINSNavGeod:
 		{
-			septentrio_gnss_driver::ExtEventINSNavGeodPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtEventINSNavGeod>();
+			ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
 			ExtEventINSNavGeod exteventinsnavgeod;
 			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
 			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4230;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::ExtEventINSNavGeod>("/exteventinsnavgeod",
-																	  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtEventINSNavGeodMsg>("/exteventinsnavgeod", *msg);
 			break;
 		}
 
 		case evExtSensorMeas:
 		{
-			septentrio_gnss_driver::ExtSensorMeasPtr msg =
-				boost::make_shared<septentrio_gnss_driver::ExtSensorMeas>();
+			ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
 			ExtSensorMeas extsensormeas;
 			memcpy(&extsensormeas, data_, sizeof(extsensormeas));
 			msg = ExtSensorMeasCallback(extsensormeas);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 4050;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::ExtSensorMeas>("/extsensormeas",
-																	  g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", *msg);
 			break;
 		}
 
 		case evGPST:
 		{
-			sensor_msgs::TimeReferencePtr msg =
-				boost::make_shared<sensor_msgs::TimeReference>();
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, true); // We need the GPS time, hence true
-			msg->time_ref.sec = time_obj.sec;
-			msg->time_ref.nsec = time_obj.nsec;
+			TimeReferenceMsgPtr msg(new TimeReferenceMsg);
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, true); // We need the GPS time, hence true
+			msg->time_ref = timestampToRos(time_obj);
 			msg->source = "GPST";
-			static ros::Publisher publisher =
-				g_nh->advertise<sensor_msgs::TimeReference>("/gpst", g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<TimeReferenceMsg>("/gpst", *msg);
 			break;
 		}
 		case evGPGGA:
@@ -2848,46 +2454,30 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpggaParser::parseASCII
 			NMEASentence gga_message(id, body);
-			septentrio_gnss_driver::GpggaPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgga>();
+			GpggaMsgPtr msg(new GpggaMsg);
+            Timestamp time_obj = node_->getTime();
 			GpggaParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gga_message);
+				msg = parser_obj.parseASCII(gga_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
 			}
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgga>("/gpgga",
-															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpggaMsg>("/gpgga", *msg);
 			break;
 		}
 		case evGPRMC:
 		{
-			boost::char_separator<char> sep("\r");
+			Timestamp time_obj = node_->getTime();
+			
+            boost::char_separator<char> sep("\r");
 			typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 			std::size_t nmea_size = this->messageSize();
 			std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
@@ -2905,46 +2495,27 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GprmcParser::parseASCII
 			NMEASentence rmc_message(id, body);
-			septentrio_gnss_driver::GprmcPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gprmc>();
+			GprmcMsgPtr msg(new GprmcMsg);
 			GprmcParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(rmc_message);
+				msg = parser_obj.parseASCII(rmc_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
 			}
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gprmc>("/gprmc",
-															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GprmcMsg>("/gprmc", *msg);
 			break;
 		}
 		case evGPGSA:
 		{
-			boost::char_separator<char> sep("\r");
+            boost::char_separator<char> sep("\r");
 			typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 			std::size_t nmea_size = this->messageSize();
 			std::string block_in_string(reinterpret_cast<const char*>(data_), nmea_size);
@@ -2962,57 +2533,34 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsaParser::parseASCII
 			NMEASentence gsa_message(id, body);
-			septentrio_gnss_driver::GpgsaPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgsa>();
+			GpgsaMsgPtr msg(new GpgsaMsg);
 			GpgsaParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gsa_message);
+				msg = parser_obj.parseASCII(gsa_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
 			}
-			if (septentrio_receiver_type_ == "gnss")
+			if (settings_->septentrio_receiver_type == "gnss")
 			{
-				uint32_t tow = last_pvtgeodetic_.tow;
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				Timestamp time_obj;
+				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
 			}
-			if (septentrio_receiver_type_ == "ins")
+			if (settings_->septentrio_receiver_type == "ins")
 			{
-				uint32_t tow = last_insnavgeod_.tow;
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				Timestamp time_obj;
+				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
 			}
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgsa>("/gpgsa",
-															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpgsaMsg>("/gpgsa", *msg);
 			break;
 		}
 		case evGPGSV:
@@ -3037,65 +2585,42 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			// Create NmeaSentence struct to pass to GpgsvParser::parseASCII
 			NMEASentence gsv_message(id, body);
-			septentrio_gnss_driver::GpgsvPtr msg =
-				boost::make_shared<septentrio_gnss_driver::Gpgsv>();
+			GpgsvMsgPtr msg(new GpgsvMsg);
 			GpgsvParser parser_obj;
 			try
 			{
-				msg = parser_obj.parseASCII(gsv_message);
+				msg = parser_obj.parseASCII(gsv_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
 				throw std::runtime_error(e.what());
 			}
-			if (septentrio_receiver_type_ == "gnss")
+			if (settings_->septentrio_receiver_type == "gnss")
 			{
-				uint32_t tow = last_pvtgeodetic_.tow;
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				Timestamp time_obj;
+				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
 			}
-			if (septentrio_receiver_type_ == "ins")
+			if (settings_->septentrio_receiver_type == "ins")
 			{
-				uint32_t tow = last_insnavgeod_.tow;
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
+				Timestamp time_obj;
+				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
 			}
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::Gpgsv>("/gpgsv",
-															g_ROS_QUEUE_SIZE);
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time.sec = msg->header.stamp.sec;
-				g_unix_time.nsec = msg->header.stamp.nsec;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				Timestamp time_obj = timestampFromRos(msg->header.stamp);
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<GpgsvMsg>("/gpgsv", *msg);
 			break;
 		}
 		
-		if (septentrio_receiver_type_ == "gnss")
+		if (settings_->septentrio_receiver_type == "gnss")
 		{
 			case evNavSatFix:
 			{
-				sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
+				NavSatFixMsgPtr msg(new NavSatFixMsg);
 				try
 				{
 					msg = NavSatFixCallback();
@@ -3103,45 +2628,28 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				g_pvtgeodetic_has_arrived_navsatfix = false;
-				g_poscovgeodetic_has_arrived_navsatfix = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
+				msg->header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
+				pvtgeodetic_has_arrived_navsatfix_ = false;
+				poscovgeodetic_has_arrived_navsatfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<NavSatFixMsg>("/navsatfix", *msg);
 				break;
 			}
 		}
-		if (septentrio_receiver_type_ == "ins")
+		if (settings_->septentrio_receiver_type == "ins")
 		{
 			case evINSNavSatFix:
 			{
-				sensor_msgs::NavSatFixPtr msg = boost::make_shared<sensor_msgs::NavSatFix>();
+				NavSatFixMsgPtr msg(new NavSatFixMsg);
 				try
 				{
 					msg = NavSatFixCallback();
@@ -3149,45 +2657,28 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				g_insnavgeod_has_arrived_navsatfix = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<sensor_msgs::NavSatFix>("/navsatfix", g_ROS_QUEUE_SIZE);
+				msg->header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
+				insnavgeod_has_arrived_navsatfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<NavSatFixMsg>("/navsatfix", *msg);
 				break;
 			}
 		}
 
-		if (septentrio_receiver_type_ == "gnss")
+		if (settings_->septentrio_receiver_type == "gnss")
 		{
 			case evGPSFix:
 			{
-				gps_common::GPSFixPtr msg = boost::make_shared<gps_common::GPSFix>();
+				GPSFixMsgPtr msg(new GPSFixMsg);
 				try
 				{
 					msg = GPSFixCallback();
@@ -3195,56 +2686,37 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
-				msg->header.frame_id = g_frame_id;
-				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->status.header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				msg->status.header.stamp.nsec = time_obj.nsec;
+				msg->header.frame_id = settings_->frame_id;
+				msg->status.header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp        = timestampToRos(time_obj);
+				msg->status.header.stamp = timestampToRos(time_obj);
 				++count_gpsfix_;
-				g_channelstatus_has_arrived_gpsfix = false;
-				g_measepoch_has_arrived_gpsfix = false;
-				g_dop_has_arrived_gpsfix = false;
-				g_pvtgeodetic_has_arrived_gpsfix = false;
-				g_poscovgeodetic_has_arrived_gpsfix = false;
-				g_velcovgeodetic_has_arrived_gpsfix = false;
-				g_atteuler_has_arrived_gpsfix = false;
-				g_attcoveuler_has_arrived_gpsfix = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
+				channelstatus_has_arrived_gpsfix_ = false;
+				measepoch_has_arrived_gpsfix_ = false;
+				dop_has_arrived_gpsfix_ = false;
+				pvtgeodetic_has_arrived_gpsfix_ = false;
+				poscovgeodetic_has_arrived_gpsfix_ = false;
+				velcovgeodetic_has_arrived_gpsfix_ = false;
+				atteuler_has_arrived_gpsfix_ = false;
+				attcoveuler_has_arrived_gpsfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<GPSFixMsg>("/gpsfix", *msg);
 				break;
 			}
 		}
-		if (septentrio_receiver_type_ == "ins")
+		if (settings_->septentrio_receiver_type == "ins")
 		{
 			case evINSGPSFix:
 			{
-				gps_common::GPSFixPtr msg = boost::make_shared<gps_common::GPSFix>();
+				GPSFixMsgPtr msg(new GPSFixMsg);
 				try
 				{
 					msg = GPSFixCallback();
@@ -3252,53 +2724,33 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->status.header.seq = count_gpsfix_;
-				msg->header.frame_id = g_frame_id;
-				msg->status.header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->status.header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				msg->status.header.stamp.nsec = time_obj.nsec;
+				msg->header.frame_id = settings_->frame_id;
+				msg->status.header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp        = timestampToRos(time_obj);
+				msg->status.header.stamp = timestampToRos(time_obj);
 				++count_gpsfix_;
-				g_channelstatus_has_arrived_gpsfix = false;
-				g_measepoch_has_arrived_gpsfix = false;
-				g_dop_has_arrived_gpsfix = false;
-				g_insnavgeod_has_arrived_gpsfix = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<gps_common::GPSFix>("/gpsfix", g_ROS_QUEUE_SIZE);
+				channelstatus_has_arrived_gpsfix_ = false;
+				measepoch_has_arrived_gpsfix_ = false;
+				dop_has_arrived_gpsfix_ = false;
+				insnavgeod_has_arrived_gpsfix_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<GPSFixMsg>("/gpsfix", *msg);
 				break;
 			}
 		}
-		if (septentrio_receiver_type_ == "gnss")
+		if (settings_->septentrio_receiver_type == "gnss")
 		{
 			case evPoseWithCovarianceStamped:
 			{
-				geometry_msgs::PoseWithCovarianceStampedPtr msg =
-					boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>();
+				PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
 				try
 				{
 					msg = PoseWithCovarianceStampedCallback();
@@ -3306,49 +2758,30 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				g_pvtgeodetic_has_arrived_pose = false;
-				g_poscovgeodetic_has_arrived_pose = false;
-				g_atteuler_has_arrived_pose = false;
-				g_attcoveuler_has_arrived_pose = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
-						"/pose", g_ROS_QUEUE_SIZE);
+				msg->header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
+				pvtgeodetic_has_arrived_pose_ = false;
+				poscovgeodetic_has_arrived_pose_ = false;
+				atteuler_has_arrived_pose_ = false;
+				attcoveuler_has_arrived_pose_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", *msg);
 				break;
 			}
 		}
-		if (septentrio_receiver_type_ == "ins")
+		if (settings_->septentrio_receiver_type == "ins")
 		{
 			case evINSPoseWithCovarianceStamped:
 			{
-				geometry_msgs::PoseWithCovarianceStampedPtr msg =
-					boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>();
+				PoseWithCovarianceStampedMsgPtr msg(new PoseWithCovarianceStampedMsg);
 				try
 				{
 					msg = PoseWithCovarianceStampedCallback();
@@ -3356,37 +2789,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					throw std::runtime_error(e.what());
 				}
-				msg->header.frame_id = g_frame_id;
-				uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-				ros::Time time_obj;
-				time_obj = timestampSBF(tow, g_use_gnss_time);
-				msg->header.stamp.sec = time_obj.sec;
-				msg->header.stamp.nsec = time_obj.nsec;
-				g_insnavgeod_has_arrived_pose = false;
-				static ros::Publisher publisher =
-					g_nh->advertise<geometry_msgs::PoseWithCovarianceStamped>(
-						"/pose", g_ROS_QUEUE_SIZE);
+				msg->header.frame_id = settings_->frame_id;
+				uint32_t tow = parsing_utilities::getTow(data_);
+				uint16_t wnc = parsing_utilities::getWnc(data_);
+				Timestamp time_obj;
+				time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+				msg->header.stamp = timestampToRos(time_obj);
+				insnavgeod_has_arrived_pose_ = false;
 				// Wait as long as necessary (only when reading from SBF/PCAP file)
-				if (g_read_from_sbf_log || g_read_from_pcap)
+				if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 				{
-					ros::Time unix_old = g_unix_time;
-					g_unix_time = time_obj;
-					if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-						(g_unix_time.sec != unix_old.sec ||
-						g_unix_time.nsec != unix_old.nsec))
-					{
-						std::stringstream ss;
-						ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-						<< " seconds and "
-						<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-						<< " microseconds";
-						ROS_DEBUG("%s", ss.str().c_str());
-						sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-						usleep(static_cast<uint32_t>(
-							abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-					}
+					wait(time_obj);
 				}
-				publisher.publish(*msg);
+				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", *msg);
 				break;
 			}
 			
@@ -3394,65 +2809,45 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evChannelStatus:
 		{
 			memcpy(&last_channelstatus_, data_, sizeof(last_channelstatus_));
-			g_channelstatus_has_arrived_gpsfix = true;
+			channelstatus_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evMeasEpoch:
 		{
 			memcpy(&last_measepoch_, data_, sizeof(last_measepoch_));
-			g_measepoch_has_arrived_gpsfix = true;
+			measepoch_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evDOP:
 		{
 			memcpy(&last_dop_, data_, sizeof(last_dop_));
-			g_dop_has_arrived_gpsfix = true;
+			dop_has_arrived_gpsfix_ = true;
 			break;
 		}
 		case evVelCovGeodetic:
 		{
-			septentrio_gnss_driver::VelCovGeodeticPtr msg =
-				boost::make_shared<septentrio_gnss_driver::VelCovGeodetic>();
+			VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
 			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
 			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
-			msg->header.frame_id = g_frame_id;
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
+			msg->header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
 			msg->block_header.id = 5908;
-			g_velcovgeodetic_has_arrived_gpsfix = true;
-			static ros::Publisher publisher =
-				g_nh->advertise<septentrio_gnss_driver::VelCovGeodetic>(
-					"/velcovgeodetic", g_ROS_QUEUE_SIZE);
+			velcovgeodetic_has_arrived_gpsfix_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					 g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					   << " seconds and "
-					   << abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					   << " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", *msg);
 			break;
 		}
 		case evDiagnosticArray:
 		{
-			diagnostic_msgs::DiagnosticArrayPtr msg =
-			boost::make_shared<diagnostic_msgs::DiagnosticArray>();
+			DiagnosticArrayMsgPtr msg(new DiagnosticArrayMsg);
 			try
 			{
 				msg = DiagnosticArrayCallback();
@@ -3460,57 +2855,39 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				throw std::runtime_error(e.what());
 			}
-			if (septentrio_receiver_type_ == "gnss")
+			if (settings_->septentrio_receiver_type == "gnss")
 			{
-				msg->header.frame_id = g_frame_id;
+				msg->header.frame_id = settings_->frame_id;
 			}
-			if (septentrio_receiver_type_ == "ins")
+			if (settings_->septentrio_receiver_type == "ins")
 			{
-				msg->header.frame_id = g_frame_id;
+				msg->header.frame_id = settings_->frame_id;
 			}
-			uint32_t tow = *(reinterpret_cast<const uint32_t*>(data_ + 8));
-			ros::Time time_obj;
-			time_obj = timestampSBF(tow, g_use_gnss_time);
-			msg->header.stamp.sec = time_obj.sec;
-			msg->header.stamp.nsec = time_obj.nsec;
-			g_receiverstatus_has_arrived_diagnostics = false;
-			g_qualityind_has_arrived_diagnostics = false;
-			static ros::Publisher publisher =
-				g_nh->advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics",
-																g_ROS_QUEUE_SIZE);
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			msg->header.stamp = timestampToRos(time_obj);
+			receiverstatus_has_arrived_diagnostics_ = false;
+			qualityind_has_arrived_diagnostics_ = false;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
-			if (g_read_from_sbf_log || g_read_from_pcap)
+			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
-				ros::Time unix_old = g_unix_time;
-				g_unix_time = time_obj;
-				if (!(unix_old.sec == 0 && unix_old.nsec == 0) &&
-					(g_unix_time.sec != unix_old.sec ||
-					g_unix_time.nsec != unix_old.nsec))
-				{
-					std::stringstream ss;
-					ss << "Waiting for " << g_unix_time.sec - unix_old.sec
-					<< " seconds and "
-					<< abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))
-					<< " microseconds";
-					ROS_DEBUG("%s", ss.str().c_str());
-					sleep((unsigned int)(g_unix_time.sec - unix_old.sec));
-					usleep(static_cast<uint32_t>(
-						abs(int((g_unix_time.nsec - unix_old.nsec) / 1000))));
-				}
+				wait(time_obj);
 			}
-			publisher.publish(*msg);
+			node_->publishMessage<DiagnosticArrayMsg>("/diagnostics", *msg);
 			break; 
 		}
 		case evReceiverStatus:
 		{
 			memcpy(&last_receiverstatus_, data_, sizeof(last_receiverstatus_));
-			g_receiverstatus_has_arrived_diagnostics = true;
+			receiverstatus_has_arrived_diagnostics_ = true;
 			break;
 		}
 		case evQualityInd:
 		{
 			memcpy(&last_qualityind_, data_, sizeof(last_qualityind_));
-			g_qualityind_has_arrived_diagnostics = true;
+			qualityind_has_arrived_diagnostics_ = true;
 			break;
 		}
 		case evReceiverSetup:
@@ -3522,4 +2899,95 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		// Many more to be implemented...
     }
     return true;
+}
+
+void io_comm_rx::RxMessage::wait(Timestamp time_obj)
+{
+	Timestamp unix_old = unix_time_;
+	unix_time_ = time_obj;
+	if ((unix_old != 0) &&
+		(unix_time_ != unix_old))
+	{
+        if (unix_time_ > unix_old)
+        {
+	        auto sleep_nsec = unix_time_ - unix_old;
+        
+            std::stringstream ss;
+            ss << "Waiting for " << sleep_nsec / 1000000
+            << " milliseconds...";
+            node_->log(LogLevel::DEBUG, ss.str());       
+        
+		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
+        }
+	}
+}
+
+bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)
+{
+	std::vector<bool> gpsfix_vec = {
+	channelstatus_has_arrived_gpsfix_,
+	measepoch_has_arrived_gpsfix_,
+	dop_has_arrived_gpsfix_,
+	pvtgeodetic_has_arrived_gpsfix_,
+	poscovgeodetic_has_arrived_gpsfix_,
+	velcovgeodetic_has_arrived_gpsfix_,
+	atteuler_has_arrived_gpsfix_,
+	attcoveuler_has_arrived_gpsfix_};
+	return allTrue(gpsfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_gpsfix_complete(uint32_t id)
+{
+	std::vector<bool> gpsfix_vec = {
+	channelstatus_has_arrived_gpsfix_,
+	measepoch_has_arrived_gpsfix_,
+	dop_has_arrived_gpsfix_,
+	insnavgeod_has_arrived_gpsfix_};
+	return allTrue(gpsfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::gnss_navsatfix_complete(uint32_t id)
+{
+	std::vector<bool> navsatfix_vec = {
+		pvtgeodetic_has_arrived_navsatfix_,
+		poscovgeodetic_has_arrived_navsatfix_};
+	return allTrue(navsatfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_navsatfix_complete(uint32_t id)
+{
+	std::vector<bool> navsatfix_vec = {
+	insnavgeod_has_arrived_navsatfix_};
+	return allTrue(navsatfix_vec, id);
+}
+
+bool io_comm_rx::RxMessage::gnss_pose_complete(uint32_t id)
+{
+	std::vector<bool> pose_vec = {pvtgeodetic_has_arrived_pose_,
+								poscovgeodetic_has_arrived_pose_,
+								atteuler_has_arrived_pose_,
+								attcoveuler_has_arrived_pose_};
+	return allTrue(pose_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_pose_complete(uint32_t id)
+{
+	 std::vector<bool> pose_vec = {insnavgeod_has_arrived_pose_};
+	return allTrue(pose_vec, id);
+}
+
+bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
+{
+	std::vector<bool> diagnostics_vec = {
+		receiverstatus_has_arrived_diagnostics_,
+		qualityind_has_arrived_diagnostics_};
+	return allTrue(diagnostics_vec, id);
+}
+
+bool io_comm_rx::RxMessage::allTrue(std::vector<bool>& vec, uint32_t id)
+{
+	vec.erase(vec.begin() + id);
+	// Checks whether all entries in vec are true
+	return (std::all_of(vec.begin(), vec.end(),
+						[](bool v) { return v; }) == true);
 }

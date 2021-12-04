@@ -54,8 +54,8 @@ const std::string GprmcParser::getMessageID() const
  * you should thus ignore it. This usually occurs when the GPS is still searching for
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
-septentrio_gnss_driver::GprmcPtr
-GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GprmcMsgPtr
+GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
 
     // Checking the length first, it should be between 13 and 14 elements
@@ -70,10 +70,9 @@ GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GprmcPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gprmc>();
+    GprmcMsgPtr msg(new GprmcMsg);
 
-    msg->header.frame_id = g_frame_id;
+    msg->header.frame_id = frame_id;
 
     msg->message_id = sentence.get_body()[0];
 
@@ -87,23 +86,19 @@ GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         {
             msg->utc_seconds =
                 parsing_utilities::convertUTCDoubleToSeconds(utc_double);
-            if (g_use_gnss_time)
+            if (use_gnss_time)
             {
                 // The Header's Unix Epoch time stamp
                 time_t unix_time_seconds =
                     parsing_utilities::convertUTCtoUnix(utc_double);
                 // The following assumes that there are two digits after the decimal
                 // point in utc_double, i.e. in the NMEA UTC time.
-                uint32_t unix_time_nanoseconds =
-                    (static_cast<uint32_t>(utc_double * 100) % 100) * 10000;
-                msg->header.stamp.sec = unix_time_seconds;
-                msg->header.stamp.nsec = unix_time_nanoseconds;
+                Timestamp unix_time_nanoseconds =
+                    (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                msg->header.stamp = timestampToRos(unix_time_nanoseconds);
             } else
             {
-                ros::Time time_obj;
-                time_obj = ros::Time::now();
-                msg->header.stamp.sec = time_obj.sec;
-                msg->header.stamp.nsec = time_obj.nsec;
+                msg->header.stamp = timestampToRos(time_obj);
             }
         } else
         {

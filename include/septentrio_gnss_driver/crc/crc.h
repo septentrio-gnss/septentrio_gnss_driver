@@ -40,10 +40,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // By wrapping the C code with extern "C" the C++ compiler will not mangle the C
 // code's names (official term: name mangling, allows C++ function overloading),
 // Therefore, !all! generic C style header files (stdio.h for e.g. printf(...),
@@ -73,7 +69,7 @@ extern "C" {
  * @param[in] buf_length Number of bytes in "buf"
  * @return The calculated CRC
  */
-uint16_t FW_EXPORT compute16CCITT(const void* buf, size_t buf_length);
+uint16_t compute16CCITT(const void* buf, size_t buf_length);
 
 /**
  * @brief Validates whether the calculated CRC of the SBF block at hand matches the
@@ -81,10 +77,6 @@ uint16_t FW_EXPORT compute16CCITT(const void* buf, size_t buf_length);
  * @param block The SBF block that we are interested in
  * @return True if the CRC check of the SBFBlock has passed, false otherwise
  */
-bool FW_EXPORT isValid(const void* block);
-
-#ifdef __cplusplus
-}
-#endif
+bool isValid(const void* block);
 
 #endif // CRC_H
