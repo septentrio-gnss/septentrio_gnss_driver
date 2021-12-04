@@ -17,7 +17,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
-An additional ROS packages have to be installed for the GPSFIx message.<br><br>
+An additional ROS packages have to be installed for the GPSFix message.<br><br>
 `sudo apt install ros-$ROS_DISTRO-gps-common`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>

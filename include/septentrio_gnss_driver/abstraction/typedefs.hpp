@@ -65,9 +65,12 @@
 #include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 #include <septentrio_gnss_driver/ExtSensorMeas.h>
 
+// Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t  Timestamp;
+// ROS timestamp
 typedef ros::Time TimestampRos;
 
+// ROS messages
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
@@ -84,6 +87,7 @@ typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;
 typedef sensor_msgs::TimeReference                  TimeReferenceMsg;
 typedef sensor_msgs::TimeReferencePtr               TimeReferenceMsgPtr;
 
+// Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
 typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
 typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
@@ -99,6 +103,7 @@ typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
 typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
 
+// Septentrio GNSS NMEA messages
 typedef septentrio_gnss_driver::Gpgga    GpggaMsg;
 typedef septentrio_gnss_driver::GpggaPtr GpggaMsgPtr;
 typedef septentrio_gnss_driver::Gpgsa    GpgsaMsg;
@@ -108,6 +113,7 @@ typedef septentrio_gnss_driver::GpgsvPtr GpgsvMsgPtr;
 typedef septentrio_gnss_driver::Gprmc    GprmcMsg;
 typedef septentrio_gnss_driver::GprmcPtr GprmcMsgPtr;
 
+// Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
 typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
 typedef septentrio_gnss_driver::INSNavGeod            INSNavGeodMsg;
@@ -125,7 +131,7 @@ typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
- * @param[in] ts timestamp in nanoseconds
+ * @param[in] ts timestamp in nanoseconds (Unix epoch)
  * @return ROS timestamp
  */
 inline TimestampRos timestampToRos(Timestamp ts)
@@ -138,13 +144,16 @@ inline TimestampRos timestampToRos(Timestamp ts)
 /**
  * @brief Convert ROS timestamp to nsec timestamp 
  * @param[in] ts ROS timestamp
- * @return timestamp in nanoseconds
+ * @return timestamp in nanoseconds (Unix epoch)
  */
 inline Timestamp timestampFromRos(const TimestampRos& tsr)
 {
     return tsr.toNSec();
 }
 
+/**
+ * @brief Log level for ROS logging
+ */
 enum LogLevel
 {
     DEBUG,
@@ -153,6 +162,10 @@ enum LogLevel
     FATAL
 };
 
+/**
+ * @class ROSaicNodeBase
+ * @brief This class is the base class for abstraction
+ */
 class ROSaicNodeBase
 {
 public:
