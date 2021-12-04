@@ -66,9 +66,12 @@
 #include <septentrio_gnss_driver/msg/ext_event_ins_nav_cart.hpp>
 #include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
 
+// Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t     Timestamp;
+// ROS timestamp
 typedef rclcpp::Time TimestampRos;
 
+// ROS messages
 typedef diagnostic_msgs::msg::DiagnosticArray                    DiagnosticArrayMsg;
 typedef diagnostic_msgs::msg::DiagnosticArray::SharedPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::msg::DiagnosticStatus                   DiagnosticStatusMsg;
@@ -85,6 +88,7 @@ typedef sensor_msgs::msg::NavSatStatus                           NavSatStatusMsg
 typedef sensor_msgs::msg::TimeReference                          TimeReferenceMsg;
 typedef sensor_msgs::msg::TimeReference::SharedPtr               TimeReferenceMsgPtr;
 
+// Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::msg::AttCovEuler                AttCovEulerMsg;
 typedef septentrio_gnss_driver::msg::AttCovEuler::SharedPtr     AttCovEulerMsgPtr;
 typedef septentrio_gnss_driver::msg::AttEuler                   AttEulerMsg;
@@ -100,6 +104,7 @@ typedef septentrio_gnss_driver::msg::PosCovGeodetic::SharedPtr  PosCovGeodeticMs
 typedef septentrio_gnss_driver::msg::VelCovGeodetic             VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::msg::VelCovGeodetic::SharedPtr  VelCovGeodeticMsgPtr;
 
+// Septentrio GNSS NMEA message
 typedef septentrio_gnss_driver::msg::Gpgga            GpggaMsg;
 typedef septentrio_gnss_driver::msg::Gpgga::SharedPtr GpggaMsgPtr;
 typedef septentrio_gnss_driver::msg::Gpgsa            GpgsaMsg;
@@ -109,6 +114,7 @@ typedef septentrio_gnss_driver::msg::Gpgsv::SharedPtr GpgsvMsgPtr;
 typedef septentrio_gnss_driver::msg::Gprmc            GprmcMsg;
 typedef septentrio_gnss_driver::msg::Gprmc::SharedPtr GprmcMsgPtr;
 
+// Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::msg::INSNavCart                    INSNavCartMsg;
 typedef septentrio_gnss_driver::msg::INSNavCart::SharedPtr         INSNavCartMsgPtr;
 typedef septentrio_gnss_driver::msg::INSNavGeod                    INSNavGeodMsg;
@@ -144,6 +150,9 @@ inline Timestamp timestampFromRos(const TimestampRos& tsr)
     return tsr.nanoseconds();
 }
 
+/**
+ * @brief Log level for ROS logging
+ */
 enum LogLevel
 {
     DEBUG,
@@ -152,6 +161,10 @@ enum LogLevel
     FATAL
 };
 
+/**
+ * @class ROSaicNodeBase
+ * @brief This class is the base class for abstraction
+ */
 class ROSaicNodeBase : public rclcpp::Node
 {
 public:

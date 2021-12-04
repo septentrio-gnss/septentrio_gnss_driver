@@ -598,7 +598,7 @@ namespace io_comm_rx {
         ROSaicNodeBase* node_;
 
         /**
-         * @brief Timestamp of recevieng buffer
+         * @brief Timestamp of receiving buffer
          */
         Timestamp recvTimestamp_;
 
