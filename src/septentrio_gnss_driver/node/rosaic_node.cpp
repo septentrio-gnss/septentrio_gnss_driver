@@ -221,6 +221,51 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
     param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
     param("publish/extsensormeas", settings_.publish_extsensormeas, true);
+
+    // Automatically activate needed sub messages
+    if (settings_.septentrio_receiver_type == "gnss")
+    {
+        if (settings_.publish_navsatfix)
+        {
+            settings_.publish_pvtgeodetic    = true;
+            settings_.publish_poscovgeodetic = true;
+        }
+
+        if (settings_.publish_gpsfix)
+        {
+            settings_.publish_pvtgeodetic    = true;
+            settings_.publish_poscovgeodetic = true;
+            settings_.publish_velcovgeodetic = true;
+            settings_.publish_atteuler       = true;
+            settings_.publish_attcoveuler    = true;
+        }
+
+        if (settings_.publish_pose)
+        {
+            settings_.publish_pvtgeodetic    = true;
+            settings_.publish_poscovgeodetic = true;
+            settings_.publish_atteuler       = true;
+            settings_.publish_attcoveuler    = true;
+        }
+    }
+
+    if (settings_.septentrio_receiver_type == "ins")
+    {
+        if (settings_.publish_navsatfix)
+        {
+            settings_.publish_insnavgeod = true;
+        }
+
+        if (settings_.publish_gpsfix)
+        {
+            settings_.publish_insnavgeod = true;
+        }
+
+        if (settings_.publish_pose)
+        {
+            settings_.publish_insnavgeod = true;
+        }
+    }
 	
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG ,"Finished getROSParams() method");

@@ -883,11 +883,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_navsatfix)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<NavSatFixMsg>("NavSatFix");
         }
@@ -896,11 +891,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_navsatfix)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<NavSatFixMsg>("INSNavSatFix");
         }
@@ -909,11 +899,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_gpsfix)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false || settings_->publish_velcovgeodetic == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<GPSFixMsg>("GPSFix");
             // The following blocks are never published, yet are needed for the
@@ -930,11 +915,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_gpsfix)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                        "For a proper GPSFix message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<GPSFixMsg>("INSGPSFix");
             handlers_.callbackmap_ =
@@ -949,12 +929,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_pose)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false ||
-                settings_->publish_atteuler == false || settings_->publish_attcoveuler == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "PoseWithCovarianceStamped");
@@ -964,11 +938,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_pose)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "INSPoseWithCovarianceStamped");
