@@ -72,11 +72,6 @@ add_message_files(
    VelCovGeodetic.msg
    AttEuler.msg
    AttCovEuler.msg
-   Gpgga.msg
-   Gprmc.msg
-   Gpgsa.msg
-   Gpgsv.msg
-   GpgsvSatellite.msg
    INSNavCart.msg
    INSNavGeod.msg
    IMUSetup.msg
