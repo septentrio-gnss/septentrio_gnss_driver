@@ -17,8 +17,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `ros2` branch for this driver functions on both ROS Foxy and Galactic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
-An additional ROS packages have to be installed for the GPSFix message.<br><br>
-`sudo apt install ros-$ROS_DISTRO-gps-umd`.<br><br>
+Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
+`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-umd`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
@@ -286,7 +286,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Leap Seconds</summary>
   
   + `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
-    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_GNSS_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
+    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_gnss_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
   </details>
   
   <details>
@@ -302,7 +302,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
+  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio recevier since the latter serves as a Stratum 1 time server not dependent on an internet connection.
     + default: `true`
   </details>
   
