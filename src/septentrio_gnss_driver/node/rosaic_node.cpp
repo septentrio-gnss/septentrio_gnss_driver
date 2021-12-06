@@ -104,7 +104,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.polling_period_pvt != 200 && settings_.polling_period_pvt != 250 &&
         settings_.polling_period_pvt != 500 && settings_.polling_period_pvt != 1000 &&
         settings_.polling_period_pvt != 2000 && settings_.polling_period_pvt != 5000 &&
-        settings_.polling_period_pvt != 10000)
+        settings_.polling_period_pvt != 10000 && settings_.polling_period_pvt != 0)
     {
         this->log(LogLevel::FATAL,
             "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " + std::to_string(settings_.polling_period_pvt));
