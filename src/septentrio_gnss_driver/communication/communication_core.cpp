@@ -437,7 +437,6 @@ void io_comm_rx::Comm_IO::configureRx()
         // If INS then...
         if (settings_->septentrio_receiver_type == "ins")
         {
-            std::stringstream blocks;
             if (settings_->publish_insnavcart)
             {
                 blocks << " +INSNavCart";
