@@ -10,10 +10,10 @@ uint8   n
 uint8   sb_length
 
 # ExtSensorMeasSet
-uint8   source
-uint8   sensor_model
-uint8   type
-uint8   obs_info
+uint8[]   source
+uint8[]   sensor_model
+uint8[]   type
+uint8[]   obs_info
 
 #ExtSensorMeasAcceleration
 float64 acceleration_x
