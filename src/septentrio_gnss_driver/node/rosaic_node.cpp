@@ -80,12 +80,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.gpsfix", settings_.publish_gpsfix, true);
     param("publish.pose", settings_.publish_pose, true);
     param("publish.diagnostics", settings_.publish_diagnostics, true);
-    getIntParam("leap_seconds", settings_.leap_seconds,
+    getUint32Param("leap_seconds", settings_.leap_seconds,
                            static_cast<uint32_t>(18));
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));
-    getIntParam("serial.baudrate", settings_.baudrate, static_cast<uint32_t>(115200));
+    getUint32Param("serial.baudrate", settings_.baudrate, static_cast<uint32_t>(115200));
     param("serial.hw_flow_control", settings_.hw_flow_control, std::string("off"));
     param("serial.rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
@@ -97,7 +97,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 	
     // Polling period parameters
-    getIntParam("polling_period.pvt", settings_.polling_period_pvt,
+    getUint32Param("polling_period.pvt", settings_.polling_period_pvt,
               static_cast<uint32_t>(1000));
     if (settings_.polling_period_pvt != 10 && settings_.polling_period_pvt != 20 &&
         settings_.polling_period_pvt != 50 && settings_.polling_period_pvt != 100 &&
@@ -110,7 +110,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " + std::to_string(settings_.polling_period_pvt));
         return false;
     }
-    getIntParam("polling_period.rest", settings_.polling_period_rest,
+    getUint32Param("polling_period.rest", settings_.polling_period_rest,
               static_cast<uint32_t>(1000));
     if (settings_.polling_period_rest != 10 && settings_.polling_period_rest != 20 &&
         settings_.polling_period_rest != 50 && settings_.polling_period_rest != 100 &&
@@ -131,7 +131,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
     {
         uint32_t sn_tmp;
-        if (getIntParam("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
+        if (getUint32Param("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
             settings_.ant_serial_nr = std::to_string(sn_tmp);
         else
             settings_.ant_serial_nr = "Unknown";
@@ -139,7 +139,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (!param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string()))
     {
         uint32_t sn_tmp;
-        if (getIntParam("ant_aux1_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
+        if (getUint32Param("ant_aux1_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
             settings_.ant_aux1_serial_nr = std::to_string(sn_tmp);
         else
             settings_.ant_aux1_serial_nr = "Unknown";
@@ -186,12 +186,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // Correction service parameters
     param("ntrip_settings.mode", settings_.ntrip_mode, std::string("off"));
     param("ntrip_settings.caster", settings_.caster, std::string());
-    getIntParam("ntrip_settings.caster_port", settings_.caster_port, static_cast<uint32_t>(0));
+    getUint32Param("ntrip_settings.caster_port", settings_.caster_port, static_cast<uint32_t>(0));
     param("ntrip_settings.username", settings_.ntrip_username, std::string());
     if (!param("ntrip_settings.password", settings_.ntrip_password, std::string()))
     {
         uint32_t pwd_tmp;
-        getIntParam("ntrip_settings.password", pwd_tmp, static_cast<uint32_t>(0));
+        getUint32Param("ntrip_settings.password", pwd_tmp, static_cast<uint32_t>(0));
         settings_.ntrip_password = std::to_string(pwd_tmp);
     }
     param("ntrip_settings.mountpoint", settings_.mountpoint, std::string());
@@ -199,7 +199,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ntrip_settings.send_gga", settings_.send_gga, std::string("auto"));
     param("ntrip_settings.rx_has_internet", settings_.rx_has_internet, false);
     param("ntrip_settings.rtcm_version", settings_.rtcm_version, std::string("RTCMv3"));
-    getIntParam("ntrip_settings.rx_input_corrections_tcp", settings_.rx_input_corrections_tcp,
+    getUint32Param("ntrip_settings.rx_input_corrections_tcp", settings_.rx_input_corrections_tcp,
               static_cast<uint32_t>(28785));
     param("ntrip_settings.rx_input_corrections_serial",
                 settings_.rx_input_corrections_serial, std::string("USB2"));

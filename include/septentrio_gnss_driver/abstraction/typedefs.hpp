@@ -175,68 +175,22 @@ public:
     virtual ~ROSaicNodeBase(){}
 
     /**
-     * @brief Checks whether the parameter is in the given range
-     * @param[in] val The value to check
-     * @param[in] min The minimum for this value
-     * @param[in] max The maximum for this value
-     * @param[in] name The name of the parameter
-     * @throws std::runtime_error if the parameter is out of bounds
-     */
-    template <typename V, typename T>
-    void checkRange(V val, T min, T max, std::string name)
-    {
-        if (val < min || val > max)
-        {
-            std::stringstream ss;
-            ss << "Invalid settings: " << name << " must be in range [" << min
-               << ", " << max << "].";
-            throw std::runtime_error(ss.str());
-        }
-    } 
-
-    /**
      * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] key The key to be used in the parameter server's dictionary
-     * @param[out] u Storage for the retrieved value, of type U, which can be either
+     * @param[in] name The key to be used in the parameter server's dictionary
+     * @param[out] val Storage for the retrieved value, of type U, which can be either
      * unsigned int or int
-     * @return True if found and valid, false if not
-     */
-    template <typename U>
-    bool getROSInt(const std::string& key, U& u)
-    {
-        int param;
-        if (!this->param(key, param, -1))
-            return false;
-        U min = std::numeric_limits<U>::lowest();
-        U max = std::numeric_limits<U>::max();
-        try
-        {
-            checkRange((U)param, min, max, key);
-        } catch (std::runtime_error& e)
-        {
-            RCLCPP_ERROR_STREAM(this->get_logger(), e.what());
-            return false;
-        }
-        u = (U)param;
-        return true;
-    }
-
-    /**
-     * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] key The key to be used in the parameter server's dictionary
-     * @param[out] u Storage for the retrieved value, of type U, which can be either
-     * unsigned int or int
-     * @param[in] default_val Value to use if the server doesn't contain this
+     * @param[in] defaultVal Value to use if the server doesn't contain this
      * parameter
      */
-    template <typename U>
-    bool getIntParam(const std::string& key, U& u, U default_val)
+    bool getUint32Param(const std::string& name, uint32_t& val, uint32_t defaultVal)
     {
-        if (!getROSInt(key, u))
-        {
-            u = default_val;
+        int32_t tempVal;
+        if ((!this->param(name, tempVal, -1)) || (tempVal < 0))
+        {            
+            val = defaultVal;
             return false;
         }
+        val = tempVal;
         return true;
     }
 
