@@ -74,6 +74,8 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     hw_flow_control: off
 
   frame_id: gnss
+
+  use_ros_axis_orientation: false
   
   receiver_type: gnss
 
@@ -251,6 +253,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
   </details>
+
+  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect localization and orientation Euler angles for the INS+GNSS and attitude of dual-antenna GNSS.
+    + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for geographic frames. 
+    + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for geographic frames.
+    + default: `false`
+  </details>
   
   <details>
   <summary>Datum</summary>
@@ -326,7 +334,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>INS Specs</summary>
 
-    + `ins_spatial_config`: Spatial configuration of INS/IMU
+    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation`.
       + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
         + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
         + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
