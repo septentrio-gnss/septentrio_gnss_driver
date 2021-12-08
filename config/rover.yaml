@@ -11,6 +11,8 @@ serial:
 
 frame_id: gnss
 
+use_ros_axis_orientation: false
+
 receiver_type: gnss
 
 datum: ETRS89
