@@ -530,26 +530,44 @@ void io_comm_rx::Comm_IO::configureRx()
 		++stream;
 	}
 
-    // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
-    // ReceiverSetup, ..." command, since the latter is only generated when a
-    // user-command is entered to change one or more values in the block.
+    if (settings_->septentrio_receiver_type == "gnss")
     {
-        std::stringstream ss;
-        ss << "sao, Main, " << string_utilities::trimString(std::to_string(settings_->delta_e))
-           << ", " << string_utilities::trimString(std::to_string(settings_->delta_n)) << ", "
-           << string_utilities::trimString(std::to_string(settings_->delta_u)) << ", \""
-           << settings_->ant_type << "\", " << settings_->ant_serial_nr << "\x0D";
-        send(ss.str());
-    }
+        // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
+        // ReceiverSetup, ..." command, since the latter is only generated when a
+        // user-command is entered to change one or more values in the block.
+        {
+            std::stringstream ss;
+            ss << "sao, Main, " << string_utilities::trimString(std::to_string(settings_->delta_e))
+            << ", " << string_utilities::trimString(std::to_string(settings_->delta_n)) << ", "
+            << string_utilities::trimString(std::to_string(settings_->delta_u)) << ", \""
+            << settings_->ant_type << "\", " << settings_->ant_serial_nr << "\x0D";
+            send(ss.str());
+        }
 
-    // Configure Aux1 antenna
+        // Configure Aux1 antenna
+        {
+            std::stringstream ss;
+            ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(0.0))
+            << ", " << string_utilities::trimString(std::to_string(0.0)) << ", "
+            << string_utilities::trimString(std::to_string(0.0)) << ", \""
+            << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr << "\x0D";
+            send(ss.str());
+        }
+    }
+    else if (settings_->septentrio_receiver_type == "ins")
     {
-        std::stringstream ss;
-        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(settings_->delta_aux1_e))
-           << ", " << string_utilities::trimString(std::to_string(settings_->delta_aux1_n)) << ", "
-           << string_utilities::trimString(std::to_string(settings_->delta_aux1_u)) << ", \""
-           << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr << "\x0D";
-        send(ss.str());
+         {
+            std::stringstream ss;
+            ss << "sat, Main, \"" << settings_->ant_type << "\"" << "\x0D";
+            send(ss.str());
+        }
+
+        // Configure Aux1 antenna
+        {
+            std::stringstream ss;
+            ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
+            send(ss.str());
+        }
     }
 
     // Configuring the NTRIP connection

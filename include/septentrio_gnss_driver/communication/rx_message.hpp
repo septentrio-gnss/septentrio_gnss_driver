@@ -171,12 +171,6 @@ struct Settings
     float delta_n;
     //! Marker-to-ARP offset in the upward direction
     float delta_u;
-    //! Marker-to-Aux1-ARP offset in the eastward direction
-    float delta_aux1_e;
-    //! Marker-to-Aux1-ARP offset in the northward direction
-    float delta_aux1_n;
-    //! Marker-to-Aux1-ARP offset in the upward direction
-    float delta_aux1_u;
     //! Main antenna type, from the list returned by the command "lstAntennaInfo,
     //! Overview"
     std::string ant_type;

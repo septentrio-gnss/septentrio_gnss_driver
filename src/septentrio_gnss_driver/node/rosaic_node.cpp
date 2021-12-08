@@ -140,9 +140,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("poi_to_arp/delta_e", settings_.delta_e, 0.0f);
     param("poi_to_arp/delta_n", settings_.delta_n, 0.0f);
     param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
-    param("poi_to_aux1_arp/delta_e", settings_.delta_aux1_e, 0.0f);
-    param("poi_to_aux1_arp/delta_n", settings_.delta_aux1_n, 0.0f);
-    param("poi_to_aux1_arp/delta_u", settings_.delta_aux1_u, 0.0f);
 	
 	// INS Spatial Configuration
     // IMU orientation parameter
