@@ -84,11 +84,6 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     delta_e: 0.0
     delta_n: 0.0
     delta_u: 0.0
-	
-  poi_to_aux1_arp:
-    delta_e: 0.0
-    delta_n: 0.0
-    delta_u: 0.0
 
   ant_type: Unknown
   ant_aux1_type: Unknown
@@ -268,7 +263,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + The parameters `delta_e`, `delta_n` and `delta_u` are the offsets in the East, North and Up (ENU) directions respectively, expressed in meters.
     + All absolute positions reported by the receiver are POI positions, obtained by subtracting this offset from the ARP. The purpose is to take into account the fact that the antenna may not be located directly on the surveying POI.
     + default: `0.0`, `0.0` and `0.0`
-  + `poi_to_aux1_arp`: same for Aux1 antenna
   </details>
   
   <details>
