@@ -132,7 +132,7 @@ typedef septentrio_gnss_driver::msg::ExtSensorMeas::SharedPtr      ExtSensorMeas
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
- * @param[in] ts timestamp in nanoseconds
+ * @param[in] ts timestamp in nanoseconds (Unix epoch)
  * @return ROS timestamp
  */
 inline TimestampRos timestampToRos(Timestamp ts)
@@ -143,7 +143,7 @@ inline TimestampRos timestampToRos(Timestamp ts)
 /**
  * @brief Convert ROS timestamp to nsec timestamp 
  * @param[in] ts ROS timestamp
- * @return timestamp in nanoseconds
+ * @return timestamp in nanoseconds (Unix epoch)
  */
 inline Timestamp timestampFromRos(const TimestampRos& tsr)
 {

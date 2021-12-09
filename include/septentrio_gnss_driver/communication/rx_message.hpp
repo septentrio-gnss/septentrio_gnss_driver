@@ -171,12 +171,6 @@ struct Settings
     float delta_n;
     //! Marker-to-ARP offset in the upward direction
     float delta_u;
-    //! Marker-to-Aux1-ARP offset in the eastward direction
-    float delta_aux1_e;
-    //! Marker-to-Aux1-ARP offset in the northward direction
-    float delta_aux1_n;
-    //! Marker-to-Aux1-ARP offset in the upward direction
-    float delta_aux1_u;
     //! Main antenna type, from the list returned by the command "lstAntennaInfo,
     //! Overview"
     std::string ant_type;
@@ -187,8 +181,8 @@ struct Settings
     std::string ant_serial_nr;
     //! Serial number of your particular Aux1 antenna
     std::string ant_aux1_serial_nr;
-    //! IMU orientation mode helper variable
-    bool manual;
+    //! ROS axis orientation, body: front-left-up, geographic: ENU
+    bool use_ros_axis_orientation;
     //! IMU orientation x-angle
     float theta_x;
     //! IMU orientation y-angle
