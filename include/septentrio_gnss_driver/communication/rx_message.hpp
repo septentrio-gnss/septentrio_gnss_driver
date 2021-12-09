@@ -181,8 +181,8 @@ struct Settings
     std::string ant_serial_nr;
     //! Serial number of your particular Aux1 antenna
     std::string ant_aux1_serial_nr;
-    //! IMU orientation mode helper variable
-    bool manual;
+    //! ROS axis orientation, body: front-left-up, geographic: ENU
+    bool use_ros_axis_orientation;
     //! IMU orientation x-angle
     float theta_x;
     //! IMU orientation y-angle

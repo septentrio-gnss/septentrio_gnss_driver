@@ -140,31 +140,57 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("poi_to_arp/delta_e", settings_.delta_e, 0.0f);
     param("poi_to_arp/delta_n", settings_.delta_n, 0.0f);
     param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
+
+    param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, false);
 	
 	// INS Spatial Configuration
     // IMU orientation parameter
     param("ins_spatial_config/imu_orientation/theta_x", settings_.theta_x, 0.0f);
     param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y, 0.0f);
     param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.theta_x = parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
+    }
 	
     // INS antenna lever arm offset parameter
     param("ins_spatial_config/ant_lever_arm/x", settings_.ant_lever_x, 0.0f);
     param("ins_spatial_config/ant_lever_arm/y", settings_.ant_lever_y, 0.0f);
     param("ins_spatial_config/ant_lever_arm/z", settings_.ant_lever_z, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.ant_lever_y *= -1.0;
+        settings_.ant_lever_z *= -1.0;
+    }
 
     // INS POI ofset paramter
     param("ins_spatial_config/poi_to_imu/delta_x", settings_.poi_x, 0.0f);
     param("ins_spatial_config/poi_to_imu/delta_y", settings_.poi_y, 0.0f);
     param("ins_spatial_config/poi_to_imu/delta_z", settings_.poi_z, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.poi_y *= -1.0;
+        settings_.poi_z *= -1.0;
+    }
 
     // INS velocity sensor lever arm offset parameter
     param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", settings_.vsm_x, 0.0f);
     param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", settings_.vsm_y, 0.0f);
     param("ins_spatial_config/vel_sensor_lever_arm/vsm_z", settings_.vsm_z, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.vsm_y *= -1.0;
+        settings_.vsm_z *= -1.0;
+    }
     
     // Attitude Determination parameter
     param("ins_spatial_config/att_offset/heading", settings_.heading_offset, 0.0f);
     param("ins_spatial_config/att_offset/pitch", settings_.pitch_offset, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.heading_offset *= -1.0;
+        settings_.pitch_offset   *= -1.0;
+    }
 
     // ins_initial_heading param
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));

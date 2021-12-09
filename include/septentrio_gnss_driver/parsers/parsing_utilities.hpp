@@ -36,6 +36,8 @@
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <ctime>   // C++ header, corresponds to <time.h> in C
 #include <string>  // C++ header, corresponds to <string.h> in C
+// Boost includes
+#include <boost/math/constants/constants.hpp>
 // ROS includes
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
@@ -45,7 +47,15 @@
  * @date 17/08/20
  */
 
-namespace parsing_utilities {
+namespace parsing_utilities {    
+
+    constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
+
+    /**
+     * @brief Wraps an angle between -180 and 180 degrees
+     * @param[out] angle The angle to be wrapped
+     */
+    double wrapAngle180to180(double angle);
 
     /**
      * @brief Converts an 8-byte-buffer into a double

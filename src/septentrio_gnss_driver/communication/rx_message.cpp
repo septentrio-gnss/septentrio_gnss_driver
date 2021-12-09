@@ -210,12 +210,24 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->nr_sv = data.nr_sv;
     msg->error = data.error;
     msg->mode = data.mode;
-    msg->heading = data.heading;
-    msg->pitch = data.pitch;
-    msg->roll = data.roll;
-    msg->pitch_dot = data.pitch_dot;
-    msg->roll_dot = data.roll_dot;
-    msg->heading_dot = data.heading_dot;
+    if (settings_->use_ros_axis_orientation)
+    {
+        msg->heading = -data.heading + parsing_utilities::pi_half;
+        msg->pitch = -data.pitch;
+        msg->roll = data.roll;
+        msg->pitch_dot = -data.pitch_dot;
+        msg->roll_dot = data.roll_dot;
+        msg->heading_dot = -data.heading_dot;
+    }
+    else
+    {
+        msg->heading = data.heading;
+        msg->pitch = data.pitch;
+        msg->roll = data.roll;
+        msg->pitch_dot = data.pitch_dot;
+        msg->roll_dot = data.roll_dot;
+        msg->heading_dot = data.heading_dot;
+    }
     return msg;
 };
 
@@ -235,8 +247,16 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->cov_pitchpitch = data.cov_pitchpitch;
     msg->cov_rollroll = data.cov_rollroll;
     msg->cov_headpitch = data.cov_headpitch;
-    msg->cov_headroll = data.cov_headroll;
-    msg->cov_pitchroll = data.cov_pitchroll;
+    if (settings_->use_ros_axis_orientation)
+    {        
+        msg->cov_headroll = -data.cov_headroll;
+        msg->cov_pitchroll = -data.cov_pitchroll;
+    }
+    else
+    {
+        msg->cov_headroll = data.cov_headroll;
+        msg->cov_pitchroll = data.cov_pitchroll;
+    }
     return msg;
 };
 
@@ -283,8 +303,16 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->heading = data.INSNavCartData[SBI_dx].Att.heading;
-        msg->pitch= data.INSNavCartData[SBI_dx].Att.pitch;
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading = -data.INSNavCartData[SBI_dx].Att.heading + parsing_utilities::pi_half;
+            msg->pitch = -data.INSNavCartData[SBI_dx].Att.pitch;
+        }
+        else
+        {
+            msg->heading = data.INSNavCartData[SBI_dx].Att.heading;
+            msg->pitch = data.INSNavCartData[SBI_dx].Att.pitch;
+        }
         msg->roll = data.INSNavCartData[SBI_dx].Att.roll;
         SBI_dx++;
     }
@@ -354,8 +382,16 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     if((msg->sb_list & 64) !=0)
     {
         msg->heading_pitch_cov = data.INSNavCartData[SBI_dx].AttCov.heading_pitch_cov;
-        msg->heading_roll_cov = data.INSNavCartData[SBI_dx].AttCov.heading_roll_cov;
-        msg->pitch_roll_cov = data.INSNavCartData[SBI_dx].AttCov.pitch_roll_cov;
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading_roll_cov = -data.INSNavCartData[SBI_dx].AttCov.heading_roll_cov;
+            msg->pitch_roll_cov = -data.INSNavCartData[SBI_dx].AttCov.pitch_roll_cov;
+        }
+        else
+        {
+            msg->heading_roll_cov = data.INSNavCartData[SBI_dx].AttCov.heading_roll_cov;
+            msg->pitch_roll_cov = data.INSNavCartData[SBI_dx].AttCov.pitch_roll_cov;
+        }
         SBI_dx++;
     }
     else
@@ -425,8 +461,16 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
-        msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading = -data.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
+            msg->pitch = -data.INSNavGeodData[SBIdx].Att.pitch;
+        }
+        else
+        {
+            msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
+            msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;          
+        }
         msg->roll = data.INSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
@@ -497,8 +541,16 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     if((msg->sb_list & 64) !=0)
     {
         msg->heading_pitch_cov = data.INSNavGeodData[SBIdx].AttCov.heading_pitch_cov;
-        msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
-        msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading_roll_cov = -data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
+            msg->pitch_roll_cov = -data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
+        }
+        else
+        {
+            msg->heading_roll_cov = data.INSNavGeodData[SBIdx].AttCov.heading_roll_cov;
+            msg->pitch_roll_cov = data.INSNavGeodData[SBIdx].AttCov.pitch_roll_cov;
+        }
         SBIdx++;
     }
     else
@@ -536,12 +588,24 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->serial_port = data.serial_port;
-    msg->ant_lever_arm_x = data.ant_lever_arm_x;
-    msg->ant_lever_arm_y = data.ant_lever_arm_y;
-    msg->ant_lever_arm_z = data.ant_lever_arm_z;
-    msg->theta_x = data.theta_x;
-    msg->theta_y = data.theta_y;
-    msg->theta_z = data.theta_z;
+    if (settings_->use_ros_axis_orientation)
+    {
+        msg->ant_lever_arm_x = data.ant_lever_arm_x;
+        msg->ant_lever_arm_y = -data.ant_lever_arm_y;
+        msg->ant_lever_arm_z = -data.ant_lever_arm_z;
+        msg->theta_x = data.theta_x;
+        msg->theta_y = -data.theta_y;
+        msg->theta_z = -data.theta_z;
+    }
+    else
+    {
+        msg->ant_lever_arm_x = data.ant_lever_arm_x;
+        msg->ant_lever_arm_y = data.ant_lever_arm_y;
+        msg->ant_lever_arm_z = data.ant_lever_arm_z;
+        msg->theta_x = data.theta_x;
+        msg->theta_y = data.theta_y;
+        msg->theta_z = data.theta_z;
+    }
     return msg;
 };
 
@@ -558,9 +622,19 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
     msg->port = data.port;
-    msg->lever_arm_x = data.lever_arm_x;
-    msg->lever_arm_y = data.lever_arm_y;
-    msg->lever_arm_z = data.lever_arm_z;
+    
+    if (settings_->use_ros_axis_orientation)
+    {
+        msg->lever_arm_x = data.lever_arm_x;
+        msg->lever_arm_y = -data.lever_arm_y;
+        msg->lever_arm_z = -data.lever_arm_z;
+    }
+    else
+    {
+        msg->lever_arm_x = data.lever_arm_x;
+        msg->lever_arm_y = data.lever_arm_y;
+        msg->lever_arm_z = data.lever_arm_z;        
+    }
     return msg;
 };
 
@@ -607,8 +681,17 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->heading = data.ExtEventINSNavGeodData[SBIdx].Att.heading;
-        msg->pitch = data.ExtEventINSNavGeodData[SBIdx].Att.pitch;
+        
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading = -data.ExtEventINSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
+            msg->pitch = -data.ExtEventINSNavGeodData[SBIdx].Att.pitch;
+        }
+        else
+        {
+            msg->heading = data.ExtEventINSNavGeodData[SBIdx].Att.heading;
+            msg->pitch = data.ExtEventINSNavGeodData[SBIdx].Att.pitch;          
+        }
         msg->roll = data.ExtEventINSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
@@ -705,8 +788,16 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 
     if((msg->sb_list & 2) !=0)
     {
-        msg->heading = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading;
-        msg->pitch= data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;
+        if (settings_->use_ros_axis_orientation)
+        {
+            msg->heading = -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading + parsing_utilities::pi_half;
+            msg->pitch= -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;
+        }
+        else
+        {
+            msg->heading = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading;
+            msg->pitch= data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;          
+        }
         msg->roll = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.roll;
         SBI_dx++;
     }
@@ -776,32 +867,92 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
     msg->block_header.wnc = data.wnc;
     msg->n = data.n;
     msg->sb_length = data.sb_length;
-    
+
+    msg->acceleration_x = std::numeric_limits<double>::quiet_NaN();
+    msg->acceleration_y = std::numeric_limits<double>::quiet_NaN();
+    msg->acceleration_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg->angular_rate_x = std::numeric_limits<double>::quiet_NaN();
+    msg->angular_rate_y = std::numeric_limits<double>::quiet_NaN();
+    msg->angular_rate_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg->velocity_x = std::numeric_limits<double>::quiet_NaN();
+    msg->velocity_y = std::numeric_limits<double>::quiet_NaN();
+    msg->velocity_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg->std_dev_x = std::numeric_limits<double>::quiet_NaN();
+    msg->std_dev_y = std::numeric_limits<double>::quiet_NaN();
+    msg->std_dev_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg->sensor_temperature = -32768; //do not use value
+    msg->zero_velocity_flag = std::numeric_limits<double>::quiet_NaN();
+
+    msg->source.resize(msg->n);
+    msg->sensor_model.resize(msg->n);
+    msg->type.resize(msg->n);
+    msg->obs_info.resize(msg->n); 
     for (i=0; i<msg->n;i++)
     {
-        msg->source = data.ExtSensorMeas[i].Source;
-        msg->sensor_model = data.ExtSensorMeas[i].SensorModel;
-        msg->type = data.ExtSensorMeas[i].type;
-        msg->obs_info = data.ExtSensorMeas[i].ObsInfo;
+        msg->source[i] = data.ExtSensorMeas[i].Source;
+        msg->sensor_model[i] = data.ExtSensorMeas[i].SensorModel;
+        msg->type[i] = data.ExtSensorMeas[i].type;
+        msg->obs_info[i] = data.ExtSensorMeas[i].ObsInfo;        
 
-        msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-        msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-        msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
+        if (settings_->use_ros_axis_orientation)
+        {
+            if(msg->type[i] == 0)
+            {
+                msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
+                msg->acceleration_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+                msg->acceleration_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
+            }
+            else if(msg->type[i] == 1)
+            {
+                msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
+                msg->angular_rate_y = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+                msg->angular_rate_z = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
+            }
+            else if(msg->type[i] == 4)
+            {
+                msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
+                msg->velocity_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
+                msg->velocity_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
+            }
+        }
+        else
+        {
+            if(msg->type[i] == 0)
+            {
+                msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
+                msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+                msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
+            }
+            else if(msg->type[i] == 1)
+            {
+                msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
+                msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+                msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
+            }            
+            else if(msg->type[i] == 4)
+            {
+                msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
+                msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
+                msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
+            }
+        }
 
-        msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-        msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-        msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
+        if(msg->type[i] == 4)
+        {
+            msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
+            msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
+            msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
+        }
 
-        msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
-        msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
-        msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
-        msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
-        msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
-        msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
+        if(msg->type[i] == 3)
+            msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature / 100.0f;
 
-        msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
-
-        msg->zero_velocity_flag = data.ExtSensorMeas[i].ExtSensorMeasData.ZeroVelocityFlag.zero_velocity_flag;
+        if(msg->type[i] == 20)
+            msg->zero_velocity_flag = data.ExtSensorMeas[i].ExtSensorMeasData.ZeroVelocityFlag.zero_velocity_flag;
     }
     return msg;
 };
