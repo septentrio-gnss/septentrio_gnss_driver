@@ -18,7 +18,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
 An additional ROS packages have to be installed for the GPSFix message.<br><br>
-`sudo apt install ros-$ROS_DISTRO-gps-common`.<br><br>
+`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-common`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
@@ -249,9 +249,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `gnss`
   </details>
 
-  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect localization and orientation Euler angles for the INS+GNSS and attitude of dual-antenna GNSS.
-    + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for geographic frames. 
-    + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for geographic frames.
+  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
+    + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
+    + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
     + default: `false`
   </details>
   
@@ -329,7 +329,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>INS Specs</summary>
 
     + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
-      + `att_offset`: Angular offset between two antenna (Main and Aux) and IMU frame
+      + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle frame
         + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
         + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
         + default: `0.0`, `0.0` (degrees)
