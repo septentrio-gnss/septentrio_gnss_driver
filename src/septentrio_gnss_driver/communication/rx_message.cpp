@@ -212,7 +212,7 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->mode = data.mode;
     if (settings_->use_ros_axis_orientation)
     {
-        msg->heading = -data.heading + pi_half;
+        msg->heading = -data.heading + parsing_utilities::pi_half;
         msg->pitch = -data.pitch;
         msg->roll = data.roll;
         msg->pitch_dot = -data.pitch_dot;
@@ -305,7 +305,7 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     {
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.INSNavCartData[SBI_dx].Att.heading + pi_half;
+            msg->heading = -data.INSNavCartData[SBI_dx].Att.heading + parsing_utilities::pi_half;
             msg->pitch = -data.INSNavCartData[SBI_dx].Att.pitch;
         }
         else
@@ -463,7 +463,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     {
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.INSNavGeodData[SBIdx].Att.heading + pi_half;
+            msg->heading = -data.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
             msg->pitch = -data.INSNavGeodData[SBIdx].Att.pitch;
         }
         else
@@ -684,7 +684,7 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
         
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.ExtEventINSNavGeodData[SBIdx].Att.heading + pi_half;
+            msg->heading = -data.ExtEventINSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
             msg->pitch = -data.ExtEventINSNavGeodData[SBIdx].Att.pitch;
         }
         else
@@ -790,7 +790,7 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     {
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading + pi_half;
+            msg->heading = -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading + parsing_utilities::pi_half;
             msg->pitch= -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;
         }
         else
@@ -900,18 +900,17 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 
         if (settings_->use_ros_axis_orientation)
         {
-            // Analog devices ADIS is front-left-up (sensor_model == 10), TODO check on SBG (sensor_model == 2)
             if(msg->type[i] == 0)
             {
                 msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
+                msg->acceleration_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+                msg->acceleration_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
             }
             else if(msg->type[i] == 1)
             {
                 msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
+                msg->angular_rate_y = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+                msg->angular_rate_z = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
             }
             else if(msg->type[i] == 4)
             {
@@ -925,14 +924,14 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
             if(msg->type[i] == 0)
             {
                 msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                msg->acceleration_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                msg->acceleration_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
+                msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
+                msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
             }
             else if(msg->type[i] == 1)
             {
                 msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                msg->angular_rate_y = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                msg->angular_rate_z = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
+                msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
+                msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
             }            
             else if(msg->type[i] == 4)
             {

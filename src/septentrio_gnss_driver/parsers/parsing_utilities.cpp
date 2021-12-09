@@ -42,6 +42,19 @@
 
 namespace parsing_utilities {
 
+    double wrapAngle180to180(double angle)
+    {
+        while (angle > 180.0)
+        {
+            angle -= 360.0;
+        }
+        while (angle < -180.0)
+        {
+            angle += 360.0;
+        }
+        return angle;
+    }
+
     /**
      * The function assumes that the bytes in the buffer are already arranged with
      * the same endianness as the local platform. It copies the elements in the range

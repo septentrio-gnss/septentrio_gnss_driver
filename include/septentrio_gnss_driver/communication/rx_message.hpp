@@ -189,8 +189,6 @@ struct Settings
     std::string ant_aux1_serial_nr;
     //! ROS axis orientation, body: front-left-up, geographic: ENU
     bool use_ros_axis_orientation;
-    //! IMU orientation mode helper variable
-    bool manual;
     //! IMU orientation x-angle
     float theta_x;
     //! IMU orientation y-angle
@@ -375,8 +373,6 @@ enum RxID_Enum
     evQualityInd,
     evReceiverSetup
 };
-
-const double pi_half = boost::math::constants::pi<double>() / 2.0;
 
 namespace io_comm_rx {
    

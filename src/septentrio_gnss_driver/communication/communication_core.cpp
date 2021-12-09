@@ -625,20 +625,11 @@ void io_comm_rx::Comm_IO::configureRx()
     {
         // IMU orientation 
         {
-            std::string orientation_mode;
             std::stringstream ss;
-			if (settings_->manual == false)
-			{
-				orientation_mode = "SensorDefault";
-			}
-			else
-			{
-				orientation_mode = "manual";
-			}
 			if (settings_->theta_x >= ANGLE_MIN && settings_->theta_x<= ANGLE_MAX && settings_->theta_y >= THETA_Y_MIN && 
                 settings_->theta_y <= THETA_Y_MAX && settings_->theta_z >= ANGLE_MIN && settings_->theta_z <= ANGLE_MAX)
 			{
-				ss << " sio, " << orientation_mode << ", " << string_utilities::trimString(std::to_string(settings_->theta_x)) << ", " 
+				ss << " sio, " << "manual" << ", " << string_utilities::trimString(std::to_string(settings_->theta_x)) << ", " 
 					<< string_utilities::trimString(std::to_string(settings_->theta_y)) << ", " 
 					<< string_utilities::trimString(std::to_string(settings_->theta_z)) << " \x0D";
 				send(ss.str());

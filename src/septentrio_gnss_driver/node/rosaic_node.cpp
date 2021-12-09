@@ -153,8 +153,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0f);
     if (settings_.use_ros_axis_orientation)
     {
-        settings_.theta_y *= -1.0;
-        settings_.theta_z *= -1.0;
+        settings_.theta_x = parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
     }
 	
     // INS antenna lever arm offset parameter
