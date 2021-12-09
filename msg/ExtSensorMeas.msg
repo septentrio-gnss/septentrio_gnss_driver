@@ -34,7 +34,7 @@ float32 std_dev_y
 float32 std_dev_z
 
 #ExtSensorMeasInfo
-int16   sensor_temperature
+float32 sensor_temperature # deg C
 
 #ExtSensorMeasZeroVelocityFlag
 float64 zero_velocity_flag

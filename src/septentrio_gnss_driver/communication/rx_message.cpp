@@ -950,7 +950,7 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
         }
 
         if(msg->type[i] == 3)
-            msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature;
+            msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature / 100.0f;
 
         if(msg->type[i] == 20)
             msg->zero_velocity_flag = data.ExtSensorMeas[i].ExtSensorMeasData.ZeroVelocityFlag.zero_velocity_flag;
