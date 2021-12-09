@@ -10,6 +10,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
+find_package(nmea_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(gps_msgs REQUIRED)
@@ -36,11 +37,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/VelCovGeodetic.msg"
    "msg/AttEuler.msg"
    "msg/AttCovEuler.msg"
-   "msg/Gpgga.msg"
-   "msg/Gprmc.msg"
-   "msg/Gpgsa.msg"
-   "msg/Gpgsv.msg"
-   "msg/GpgsvSatellite.msg"
    "msg/INSNavCart.msg"
    "msg/INSNavGeod.msg"
    "msg/IMUSetup.msg"
@@ -58,6 +54,7 @@ set(dependencies
    rclcpp
    rclcpp_components
    diagnostic_msgs
+   nmea_msgs
    sensor_msgs
    geometry_msgs
    gps_msgs   
