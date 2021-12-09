@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp_serialization
   rostime
   xmlrpcpp
+  nmea_msgs
   sensor_msgs
   geometry_msgs
   diagnostic_msgs
