@@ -52,10 +52,10 @@
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
-#include <septentrio_gnss_driver/Gpgga.h>
-#include <septentrio_gnss_driver/Gpgsa.h>
-#include <septentrio_gnss_driver/Gpgsv.h>
-#include <septentrio_gnss_driver/Gprmc.h>
+#include <nmea_msgs/Gpgga.h>
+#include <nmea_msgs/Gpgsa.h>
+#include <nmea_msgs/Gpgsv.h>
+#include <nmea_msgs/Gprmc.h>
 // INS msg includes
 #include <septentrio_gnss_driver/INSNavCart.h>
 #include <septentrio_gnss_driver/INSNavGeod.h>
@@ -103,15 +103,15 @@ typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
 typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
 
-// Septentrio GNSS NMEA messages
-typedef septentrio_gnss_driver::Gpgga    GpggaMsg;
-typedef septentrio_gnss_driver::GpggaPtr GpggaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsa    GpgsaMsg;
-typedef septentrio_gnss_driver::GpgsaPtr GpgsaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsv    GpgsvMsg;
-typedef septentrio_gnss_driver::GpgsvPtr GpgsvMsgPtr;
-typedef septentrio_gnss_driver::Gprmc    GprmcMsg;
-typedef septentrio_gnss_driver::GprmcPtr GprmcMsgPtr;
+// NMEA messages
+typedef nmea_msgs::Gpgga    GpggaMsg;
+typedef nmea_msgs::GpggaPtr GpggaMsgPtr;
+typedef nmea_msgs::Gpgsa    GpgsaMsg;
+typedef nmea_msgs::GpgsaPtr GpgsaMsgPtr;
+typedef nmea_msgs::Gpgsv    GpgsvMsg;
+typedef nmea_msgs::GpgsvPtr GpgsvMsgPtr;
+typedef nmea_msgs::Gprmc    GprmcMsg;
+typedef nmea_msgs::GprmcPtr GprmcMsgPtr;
 
 // Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
