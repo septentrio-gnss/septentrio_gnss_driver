@@ -334,8 +334,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>INS Specs</summary>
 
-    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation`.
-      + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
+    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
+      + `att_offset`: Angular offset between two antenna (Main and Aux) and IMU frame
         + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
         + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
         + default: `0.0`, `0.0` (degrees)
