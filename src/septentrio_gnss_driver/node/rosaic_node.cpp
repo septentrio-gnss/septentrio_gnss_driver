@@ -189,6 +189,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // Attitude Determination parameter
     param("ins_spatial_config/att_offset/heading", settings_.heading_offset, 0.0f);
     param("ins_spatial_config/att_offset/pitch", settings_.pitch_offset, 0.0f);
+    if (settings_.use_ros_axis_orientation)
+    {
+        settings_.heading_offset *= -1.0;
+        settings_.pitch_offset   *= -1.0;
+    }
 
     // ins_initial_heading param
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
