@@ -20,6 +20,10 @@ septentrio_gnss_driver:
       delta_e: 0.0
       delta_n: 0.0
       delta_u: 0.0
+
+    att_offset:
+      heading: 0.0
+      pitch: 0.0
       
     ant_type: Unknown
     ant_serial_nr: Unknown
@@ -79,9 +83,6 @@ septentrio_gnss_driver:
     # INS-Specific Parameters
 
     ins_spatial_config:
-      att_offset:
-        heading: 0.0
-        pitch: 0.0
       imu_orientation:
         theta_x: 0.0
         theta_y: 0.0

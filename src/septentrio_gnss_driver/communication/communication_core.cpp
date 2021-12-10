@@ -637,6 +637,21 @@ void io_comm_rx::Comm_IO::configureRx()
             send(ss.str());
         }
     }
+
+    // Setting the Attitude Determination
+    {
+        if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
+        {
+            std::stringstream ss;
+            ss << "sto, " << string_utilities::trimString(std::to_string(settings_->heading_offset))
+            << ", " << string_utilities::trimString(std::to_string(settings_->pitch_offset)) << " \x0D";
+            send(ss.str());
+        }
+        else
+        {
+            node_->log(LogLevel::ERROR, "Please specify a valid parameter for heading and pitch");
+        }
+    }
     
 	// Setting the INS-related commands
     if (settings_->septentrio_receiver_type == "ins")
@@ -709,22 +724,7 @@ void io_comm_rx::Comm_IO::configureRx()
                 node_->log(LogLevel::ERROR, "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
             }
             
-        }
-
-        // Setting the Attitude Determination
-        {
-            if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
-            {
-                std::stringstream ss;
-                ss << "sto, " << string_utilities::trimString(std::to_string(settings_->heading_offset))
-                << ", " << string_utilities::trimString(std::to_string(settings_->pitch_offset)) << " \x0D";
-                send(ss.str());
-            }
-            else
-            {
-                node_->log(LogLevel::ERROR, "Please specify a valid parameter for heading and pitch");
-            }
-        }
+        }       
         
         // Setting the INS Solution Reference Point: MainAnt or POI1
         // First disable any existing INS sub-block connection

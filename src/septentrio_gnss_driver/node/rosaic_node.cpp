@@ -190,9 +190,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.vsm_z *= -1.0;
     }
 
-    // Attitude Determination parameter
-    param("ins_spatial_config.att_offset.heading", settings_.heading_offset, 0.0f);
-    param("ins_spatial_config.att_offset.pitch", settings_.pitch_offset, 0.0f);
+    // Antenna Attitude Determination parameter
+    param("att_offset.heading", settings_.heading_offset, 0.0f);
+    param("att_offset.pitch", settings_.pitch_offset, 0.0f);
     if (settings_.use_ros_axis_orientation)
     {
         settings_.heading_offset *= -1.0;
