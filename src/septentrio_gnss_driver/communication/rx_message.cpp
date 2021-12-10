@@ -962,12 +962,13 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
  * the correspond matrix is (E, N, U, Roll, Pitch, Heading). Important: The Euler
  * angles (Roll, Pitch, Heading) are with respect to a vehicle-fixed (e.g. for
  * mosaic-x5 in moving base mode via the command setAntennaLocation, ...) !local! NED
- * frame. Thus the orientation is !not! given with respect to the same frame as the
- * position is given in. The cross-covariances are hence (apart from the fact that
- * e.g. mosaic receivers do not calculate these quantities) set to zero. The position
- * and the partial (with 2 antennas) or full (for INS receivers) orientation have
- * covariance matrices available e.g. in the PosCovGeodetic or AttCovEuler blocks,
- * yet those are separate computations.
+ * frame or ENU frame if use_ros_axis_directions is set true Thus the orientation 
+ * is !not! given with respect to the same frame as the position is given in. The 
+ * cross-covariances are hence (apart from the fact that e.g. mosaic receivers do 
+ * not calculate these quantities) set to zero. The position and the partial 
+ * (with 2 antennas) or full (for INS receivers) orientation have covariance matrices
+ * available e.g. in the PosCovGeodetic or AttCovEuler blocks, yet those are separate 
+ * computations.
  */
 PoseWithCovarianceStampedMsgPtr
 io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
@@ -976,10 +977,23 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
     if (settings_->septentrio_receiver_type == "gnss")
     {
         // Filling in the pose data
-        msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-            static_cast<double>(last_atteuler_.heading),
-            static_cast<double>(last_atteuler_.pitch),
-            static_cast<double>(last_atteuler_.roll));
+        double conversion;
+        if (settings_->use_ros_axis_orientation)
+        {
+            conversion = -1.0;
+            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+                static_cast<double>(-last_atteuler_.heading + parsing_utilities::pi_half),
+                static_cast<double>(-last_atteuler_.pitch),
+                static_cast<double>(last_atteuler_.roll));
+        }
+        else
+        {
+            conversion = 1.0;
+            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+                static_cast<double>(last_atteuler_.heading),
+                static_cast<double>(last_atteuler_.pitch),
+                static_cast<double>(last_atteuler_.roll));
+        }
         msg->pose.pose.position.x = static_cast<double>(last_pvtgeodetic_.longitude) *
                                     360 / (2 * boost::math::constants::pi<double>());
         msg->pose.pose.position.y = static_cast<double>(last_pvtgeodetic_.latitude) *
@@ -1008,32 +1022,44 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         msg->pose.covariance[19] = 0;
         msg->pose.covariance[20] = 0;
         msg->pose.covariance[21] = static_cast<double>(last_attcoveuler_.cov_rollroll);
-        msg->pose.covariance[22] = static_cast<double>(last_attcoveuler_.cov_pitchroll);
-        msg->pose.covariance[23] = static_cast<double>(last_attcoveuler_.cov_headroll);
+        msg->pose.covariance[22] = static_cast<double>(last_attcoveuler_.cov_pitchroll) * conversion;
+        msg->pose.covariance[23] = static_cast<double>(last_attcoveuler_.cov_headroll) * conversion;
         msg->pose.covariance[24] = 0;
         msg->pose.covariance[25] = 0;
         msg->pose.covariance[26] = 0;
-        msg->pose.covariance[27] = static_cast<double>(last_attcoveuler_.cov_pitchroll);
+        msg->pose.covariance[27] = static_cast<double>(last_attcoveuler_.cov_pitchroll) * conversion;
         msg->pose.covariance[28] = static_cast<double>(last_attcoveuler_.cov_pitchpitch);
         msg->pose.covariance[29] = static_cast<double>(last_attcoveuler_.cov_headpitch);
         msg->pose.covariance[30] = 0;
         msg->pose.covariance[31] = 0;
         msg->pose.covariance[32] = 0;
-        msg->pose.covariance[33] = static_cast<double>(last_attcoveuler_.cov_headroll);
-        msg->pose.covariance[34] = static_cast<double>(last_attcoveuler_.cov_pitchroll);
+        msg->pose.covariance[33] = static_cast<double>(last_attcoveuler_.cov_headroll) * conversion;
+        msg->pose.covariance[34] = static_cast<double>(last_attcoveuler_.cov_headpitch);
         msg->pose.covariance[35] = static_cast<double>(last_attcoveuler_.cov_headhead);
-
 	}
     if (settings_->septentrio_receiver_type == "ins")
     {
         // Filling in the pose data
 		int SBIdx = 0;
+        double conversion;
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
-            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-            static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.heading),
-            static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.pitch),
-            static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.roll));
+            if (settings_->use_ros_axis_orientation)
+            {
+                conversion = -1.0;
+                msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+                static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half),
+                static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.pitch),
+                static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.roll));
+            }
+            else
+            {
+                conversion = 1.0;
+                msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+                static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.heading),
+                static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.pitch),
+                static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.roll));
+            }
         }
         msg->pose.pose.position.x = static_cast<double>(last_insnavgeod_.longitude) *
                                     360 / (2 * boost::math::constants::pi<double>());
@@ -1100,9 +1126,9 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
             msg->pose.covariance[21] = std::pow(static_cast<double>(last_insnavgeod_.
                                             INSNavGeodData[SBIdx].Att.roll),2);
             msg->pose.covariance[22] = static_cast<double>(last_insnavgeod_.
-                                            INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
+                                            INSNavGeodData[SBIdx].AttCov.pitch_roll_cov) * conversion;
             msg->pose.covariance[23] = static_cast<double>(last_insnavgeod_.
-                                            INSNavGeodData[SBIdx].AttCov.heading_roll_cov);
+                                            INSNavGeodData[SBIdx].AttCov.heading_roll_cov) * conversion;
         }
         msg->pose.covariance[24] = 0;
         msg->pose.covariance[25] = 0;
@@ -1110,7 +1136,7 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             msg->pose.covariance[27] = static_cast<double>(last_insnavgeod_.
-                                            INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
+                                            INSNavGeodData[SBIdx].AttCov.pitch_roll_cov) * conversion;
             msg->pose.covariance[28] = std::pow(static_cast<double>(last_insnavgeod_.
                                             INSNavGeodData[SBIdx].Att.pitch),2);
             msg->pose.covariance[29] = static_cast<double>(last_insnavgeod_.
@@ -1122,10 +1148,10 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             msg->pose.covariance[33] = static_cast<double>(last_insnavgeod_.
-                                            INSNavGeodData[SBIdx].AttCov.heading_roll_cov);
+                                            INSNavGeodData[SBIdx].AttCov.heading_roll_cov) * conversion;
             msg->pose.covariance[34] = static_cast<double>(last_insnavgeod_.
-                                            INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
-            msg->pose.covariance[28] = std::pow(static_cast<double>(last_insnavgeod_.
+                                            INSNavGeodData[SBIdx].AttCov.heading_pitch_cov);
+            msg->pose.covariance[35] = std::pow(static_cast<double>(last_insnavgeod_.
                                             INSNavGeodData[SBIdx].Att.heading),2);
         }
     }
