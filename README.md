@@ -86,6 +86,10 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     delta_n: 0.0
     delta_u: 0.0
 
+  att_offset:
+    heading: 0.0
+    pitch: 0.0
+
   ant_type: Unknown
   ant_aux1_type: Unknown
   ant_serial_nr: Unknown
@@ -144,9 +148,6 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   # INS-Specific Parameters
 
   ins_spatial_config:
-    att_offset:
-      heading: 0.0
-      pitch: 0.0
     imu_orientation:
       theta_x: 0.0
       theta_y: 0.0
@@ -266,10 +267,19 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>POI-ARP Offset</summary>
   
-  + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker)
+  + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker). Use for static receivers only.
     + The parameters `delta_e`, `delta_n` and `delta_u` are the offsets in the East, North and Up (ENU) directions respectively, expressed in meters.
     + All absolute positions reported by the receiver are POI positions, obtained by subtracting this offset from the ARP. The purpose is to take into account the fact that the antenna may not be located directly on the surveying POI.
     + default: `0.0`, `0.0` and `0.0`
+  </details>
+
+  <details>
+  <summary>Antenna Attitude Offset</summary>
+
+    + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle frame
+    + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
+    + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
+    + default: `0.0`, `0.0` (degrees)
   </details>
   
   <details>
@@ -329,10 +339,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>INS Specs</summary>
 
     + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
-      + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle frame
-        + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
-        + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
-        + default: `0.0`, `0.0` (degrees)
       + `imu_orientation`: IMU sensor orientation
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
         + The nominal orientation is where the IMU is upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
@@ -409,7 +415,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
   + `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case)
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case)
-    + Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
+    + Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
     + In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
   + `/insnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
   + `/insnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
