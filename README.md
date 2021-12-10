@@ -26,27 +26,19 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 
 ## Usage
 <details>
-<summary>Binary Install</summary>
-  
-  The binary release is now available for Melodic and Noetic. To install the binary package on Melodic for instance, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
-</details>
 
 <details>
 <summary>Build from Source </summary>
   
-  Alternatively, the package can also be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command
-  `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic. The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:
+  The package has to be built from source using [`colcon`](https://docs.ros.org/en/foxy/Tutorials/Colcon-Tutorial.html):
 
   ```
   source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
   mkdir -p ~/septentrio/src                                           # Note: Change accordingly dependending on where you want your package to be installed.
-  cd ~/septentrio
-  catkin init                                                         # Initialize with a hidden marker file
-  catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
-  cd src
+  cd ~/septentrio/src
   git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-  rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
-  catkin build                                                        # If catkin cannot find empy, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
+  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-umd libboost-all-dev libpcap-dev`)  
+  colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with insatlling by symlinks: add `--symlink-install`
   echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
   source ~/.bashrc 
   ```
