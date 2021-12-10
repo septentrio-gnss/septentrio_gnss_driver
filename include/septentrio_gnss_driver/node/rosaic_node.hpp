@@ -65,9 +65,6 @@
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
-// ROS includes
-#include <ros/ros.h>
-#include <ros/console.h>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 
