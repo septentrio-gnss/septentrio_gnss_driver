@@ -593,9 +593,9 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
         msg->ant_lever_arm_x = data.ant_lever_arm_x;
         msg->ant_lever_arm_y = -data.ant_lever_arm_y;
         msg->ant_lever_arm_z = -data.ant_lever_arm_z;
-        msg->theta_x = data.theta_x;
-        msg->theta_y = -data.theta_y;
-        msg->theta_z = -data.theta_z;
+        msg->theta_x = parsing_utilities::wrapAngle180to180(data.theta_x - 180.0);
+        msg->theta_y = data.theta_y;
+        msg->theta_z = data.theta_z;
     }
     else
     {
