@@ -260,7 +260,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>POI-ARP Offset</summary>
   
-    + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker)
+    + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker). Use for static receivers only.
     + The parameters `delta_e`, `delta_n` and `delta_u` are the offsets in the East, North and Up (ENU) directions respectively, expressed in meters.
     + All absolute positions reported by the receiver are POI positions, obtained by subtracting this offset from the ARP. The purpose is to take into account the fact that the antenna may not be located directly on the surveying POI.
     + default: `0.0`, `0.0` and `0.0`
