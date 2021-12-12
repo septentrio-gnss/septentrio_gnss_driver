@@ -980,6 +980,15 @@ void io_comm_rx::Comm_IO::defineMessages()
 		handlers_.callbackmap_ =
 			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	}
+    if (settings_->septentrio_receiver_type == "ins")
+    {
+        if (settings_->publish_imu)
+        {
+            handlers_.callbackmap_ =
+                handlers_.insert<ImuMsg>(
+                    "Imu");
+        }
+    }
 	// so on and so forth...
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }

@@ -295,6 +295,8 @@ struct Settings
     bool publish_pose;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
+    //! Whether or not to publish the ImuMsg message
+    bool publish_imu;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW (in
@@ -303,6 +305,8 @@ struct Settings
     bool use_gnss_time;
     //! The frame ID used in the header of every published ROS message
     std::string frame_id;
+    //! The frame ID used in the header of published ROS Imu message
+    std::string imu_frame_id;
     //! The number of leap seconds that have been inserted into the UTC time
     uint32_t leap_seconds;
     //! Whether or not we are reading from an SBF file
@@ -363,6 +367,7 @@ enum RxID_Enum
     evDOP,
     evVelCovGeodetic,
     evDiagnosticArray,
+    evImu,
     evReceiverStatus,
     evQualityInd,
     evReceiverSetup
@@ -437,6 +442,7 @@ namespace io_comm_rx {
             std::make_pair("4001", evDOP),
             std::make_pair("5908", evVelCovGeodetic),
             std::make_pair("DiagnosticArray", evDiagnosticArray),
+            std::make_pair("Imu", evImu),
             std::make_pair("4014", evReceiverStatus),
             std::make_pair("4082", evQualityInd),
             std::make_pair("5902", evReceiverSetup),
@@ -585,6 +591,11 @@ namespace io_comm_rx {
          */
         bool diagnostics_complete(uint32_t id);
 
+        /**
+         * @brief Wether all blocks have arrived for Imu Message
+         */
+        bool imu_complete(uint32_t id);
+
     private:
         /**
          * @brief Pointer to the node
@@ -648,10 +659,16 @@ namespace io_comm_rx {
         AttCovEuler last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
+         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
         INSNavGeod last_insnavgeod_;
+
+         /**
+         * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
+         * need to be stored
+         */
+        ExtSensorMeas last_extsensmeas_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
@@ -790,6 +807,14 @@ namespace io_comm_rx {
         //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
         //! arrived or not
         bool qualityind_has_arrived_diagnostics_ = false;
+
+        //! For Imu: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_imu_ = false;
+
+        //! For Imu: Whether the ExtSensorMeas block of the current epoch
+        //! has arrived or not
+        bool extsens_has_arrived_imu_ = false;
 
         /**
          * @brief Callback function when reading PVTCartesian blocks
@@ -944,6 +969,14 @@ namespace io_comm_rx {
          * DiagnosticArrayMsg just created
          */
         DiagnosticArrayMsgPtr DiagnosticArrayCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * ImuMsg messages
+         * @return A smart pointer to the ROS message
+         * ImuMsg just created
+         */
+        ImuMsgPtr ImuCallback();
 
          /**
          * @brief Waits according to time when reading from file
