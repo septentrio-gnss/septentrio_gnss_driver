@@ -75,6 +75,8 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 
   frame_id: gnss
 
+  imu_frame_id: imu
+
   use_ros_axis_orientation: false
   
   receiver_type: gnss
@@ -144,6 +146,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     velsensorsetup: false
     exteventinsnavcart: false
     exteventinsnavgeod: false
+    imu: false
 
   # INS-Specific Parameters
 
@@ -392,6 +395,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
     + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
+    + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
   </details>
 
 ## ROS Topic Publications
@@ -425,6 +429,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
   + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
   + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
+  + `/imu`: accepts generic ROS message [`sensor_msgs_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`
 </details>
 
 ## Suggestions for Improvements

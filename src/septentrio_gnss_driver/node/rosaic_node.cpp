@@ -66,6 +66,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
+    param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
     param("publish/gpst", settings_.publish_gpst, true);
     param("publish/navsatfix", settings_.publish_navsatfix, true);
     param("publish/gpsfix", settings_.publish_gpsfix, true);
@@ -141,7 +142,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("poi_to_arp/delta_n", settings_.delta_n, 0.0f);
     param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
 
-    param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, false);
+    param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 	
 	// INS Spatial Configuration
     // IMU orientation parameter
@@ -244,6 +245,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
     param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
     param("publish/extsensormeas", settings_.publish_extsensormeas, true);
+    param("publish/imu", settings_.publish_imu, true);
 
     // Automatically activate needed sub messages
     if (settings_.septentrio_receiver_type == "gnss")
@@ -287,6 +289,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (settings_.publish_pose)
         {
             settings_.publish_insnavgeod = true;
+        }
+
+        if (settings_.publish_imu)
+        {
+            settings_.publish_insnavgeod    = true;
+            settings_.publish_extsensormeas = true;
         }
     }
 	

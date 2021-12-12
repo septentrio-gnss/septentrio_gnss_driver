@@ -11,6 +11,8 @@ serial:
 
 frame_id: gnss
 
+imu_frame_id: imu
+
 use_ros_axis_orientation: false
 
 receiver_type: gnss
@@ -80,6 +82,7 @@ publish:
   velsensorsetup: false
   exteventinsnavcart: false
   exteventinsnavgeod: false
+  imu: false
 
 # INS-Specific Parameters
 
