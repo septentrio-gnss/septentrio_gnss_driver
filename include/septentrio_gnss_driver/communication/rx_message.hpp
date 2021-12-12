@@ -810,7 +810,7 @@ namespace io_comm_rx {
 
         //! For Imu: Whether the INSNavGeod block of the current epoch
         //! has arrived or not
-        bool insnavgeod_has_arrived_imu_ = false;
+        uint8_t insnavgeod_has_arrived_imu_ = 0;
 
         //! For Imu: Whether the ExtSensorMeas block of the current epoch
         //! has arrived or not

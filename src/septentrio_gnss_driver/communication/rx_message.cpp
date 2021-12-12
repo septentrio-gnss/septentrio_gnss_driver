@@ -2571,7 +2571,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
-            insnavgeod_has_arrived_imu_  = true;
+            insnavgeod_has_arrived_imu_  = 2;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -3173,7 +3173,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             Timestamp time_obj;
             time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
             msg->header.stamp = timestampToRos(time_obj);
-            insnavgeod_has_arrived_imu_ = false;
+            if (settings_->polling_period_pvt == 0)
+                --insnavgeod_has_arrived_imu_;
+            else
+                insnavgeod_has_arrived_imu_ = 0;
             extsens_has_arrived_imu_    = false;
             // Wait as long as necessary (only when reading from SBF/PCAP file)
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -3292,7 +3295,7 @@ bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
 bool io_comm_rx::RxMessage::imu_complete(uint32_t id)
 {
 	std::vector<bool> imu_vec = {
-		insnavgeod_has_arrived_imu_,
+		(insnavgeod_has_arrived_imu_ > 0),
 		extsens_has_arrived_imu_};
 	return allTrue(imu_vec, id);
 }
