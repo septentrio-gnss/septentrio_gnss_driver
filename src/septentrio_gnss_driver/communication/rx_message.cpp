@@ -3173,7 +3173,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             Timestamp time_obj;
             time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
             msg->header.stamp = timestampToRos(time_obj);
-            if (settings_->polling_period_pvt == 0)
+            if ((settings_->polling_period_pvt == 0) && (insnavgeod_has_arrived_imu_ > 0))
                 --insnavgeod_has_arrived_imu_;
             else
                 insnavgeod_has_arrived_imu_ = 0;
