@@ -1367,6 +1367,12 @@ io_comm_rx::RxMessage::ImuCallback()
 	return msg;
 };
 
+/**
+ * Localization in UTM coordinates (ENU). Yaw angle is converted from true north to grid north 
+ * and ENU convention, i.e., 0 deg means pointing east. Altitude, roll and pitch left unchanged, 
+ * except for the conversion to ENU. Linear velocity of twist in body frame as per msg definition, 
+ * Angular velocity not available, thus according autocovariances are set to -1.0.
+ */
 LocalizationUtmMsgPtr
 io_comm_rx::RxMessage::LocalizationUtmCallback()
 {
@@ -1398,6 +1404,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     if (settings_->lock_utm_zone && !fixedUtmZone_)
 		fixedUtmZone_ = std::make_shared<std::string>(zonestring);
 
+    // UTM position (ENU)
     msg->pose.pose.position.x = easting;
     msg->pose.pose.position.y = northing;
     msg->pose.pose.position.z = last_insnavgeod_.height;
@@ -1411,7 +1418,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     int SBIdx = 0;
     if((last_insnavgeod_.sb_list & 1) !=0)
     {
-        // Pos autocov
+        // Position autocovariance
         msg->pose.covariance[0]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
                                         INSNavGeodData[SBIdx].PosStdDev.longitude_std_dev));
         msg->pose.covariance[7]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
@@ -1427,13 +1434,14 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg->pose.covariance[14] = -1.0;
     }
 
+    // Euler angles (ENU), gamma for conversion from true north to grid north
     double roll  = static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.roll);
     double pitch = static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.pitch);
     double yaw   = static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half - parsing_utilities::deg2rad(gamma));
     Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
     if ((last_insnavgeod_.sb_list & 2) !=0)
     {
-        // Attitude
+        // Attitude (ENU)
         msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
         SBIdx++;
     }
@@ -1446,7 +1454,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
     if((last_insnavgeod_.sb_list & 4) !=0)
     {
-        // Attitude autocov
+        // Attitude autocovariance
         msg->pose.covariance[21] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
                                         INSNavGeodData[SBIdx].AttStdDev.roll_std_dev));
         msg->pose.covariance[28] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
@@ -1463,11 +1471,12 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
     if((last_insnavgeod_.sb_list & 8) !=0)
     {
+        // Linear velocity (ENU)
         Eigen::Vector3d vel_enu;
         vel_enu << last_insnavgeod_.INSNavGeodData[SBIdx].Vel.ve,
                    last_insnavgeod_.INSNavGeodData[SBIdx].Vel.vn,
                    last_insnavgeod_.INSNavGeodData[SBIdx].Vel.vu;
-        // linear velocity, convert from GPS coordinates to local frame
+        // Linear velocity, rotate to body coordinates
 		Eigen::Vector3d vel_body = R_n_b * vel_enu;
 		msg->twist.twist.linear.x = vel_body(0);
 		msg->twist.twist.linear.y = vel_body(1);
@@ -1483,6 +1492,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     Eigen::Matrix3d Cov_vel_enu;
     if ((last_insnavgeod_.sb_list & 16) !=0)
     {
+        // Linear velocity autocovariance
         Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev);
         Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev);
         Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev);
@@ -1496,7 +1506,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
     if((last_insnavgeod_.sb_list & 32) !=0)
     {
-        // Pos cov
+        // Position covariance
         msg->pose.covariance[1] = static_cast<double>(last_insnavgeod_.
                                         INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov);
         msg->pose.covariance[2] = static_cast<double>(last_insnavgeod_.
@@ -1513,7 +1523,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
     if ((last_insnavgeod_.sb_list & 64) !=0)
     {
-        // Attitude cov
+        // Attitude covariacne
         msg->pose.covariance[22] = static_cast<double>(last_insnavgeod_.
                                         INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
         msg->pose.covariance[23] = static_cast<double>(last_insnavgeod_.
@@ -1540,6 +1550,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
         ((last_insnavgeod_.sb_list & 2) !=0) &&
         ((last_insnavgeod_.sb_list & 8) !=0))
     {
+        // Rotate covariance matrix to body coordinates
         Eigen::Matrix3d Cov_vel_body = R_n_b * Cov_vel_enu * R_n_b.transpose();
         
         msg->twist.covariance[0]  = Cov_vel_body(0,0);
@@ -1558,7 +1569,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg->twist.covariance[7]  = -1.0;
         msg->twist.covariance[14] = -1.0;
     }
-
+    // Autocovariances of angular velocity
     msg->twist.covariance[21] = -1.0;
     msg->twist.covariance[28] = -1.0;
     msg->twist.covariance[35] = -1.0;
