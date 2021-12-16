@@ -13,6 +13,10 @@ frame_id: gnss
 
 imu_frame_id: imu
 
+poi_frame_id: base_link
+
+lock_utm_zone: true
+
 use_ros_axis_orientation: true
 
 receiver_type: gnss
@@ -83,6 +87,7 @@ publish:
   exteventinsnavcart: false
   exteventinsnavgeod: false
   imu: false
+  localization: false
 
 # INS-Specific Parameters
 

@@ -43,6 +43,7 @@
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>gps_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>boost</depend>
   <depend>libpcap</depend>
 

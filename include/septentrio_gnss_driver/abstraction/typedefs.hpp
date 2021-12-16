@@ -45,6 +45,7 @@
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <sensor_msgs/msg/time_reference.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 // GNSS msg includes
 #include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
 #include <septentrio_gnss_driver/msg/att_euler.hpp>
@@ -90,6 +91,8 @@ typedef sensor_msgs::msg::TimeReference                          TimeReferenceMs
 typedef sensor_msgs::msg::TimeReference::SharedPtr               TimeReferenceMsgPtr;
 typedef sensor_msgs::msg::Imu                                    ImuMsg;
 typedef sensor_msgs::msg::Imu::SharedPtr                         ImuMsgPtr;
+typedef nav_msgs::msg::Odometry                                  LocalizationUtmMsg;
+typedef nav_msgs::msg::Odometry::SharedPtr                       LocalizationUtmMsgPtr;
 
 // Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::msg::AttCovEuler                AttCovEulerMsg;

@@ -30,6 +30,8 @@
 
 #include <thread>
 
+#include <GeographicLib/UTMUPS.hpp>
+
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
 
 /**
@@ -1365,6 +1367,204 @@ io_comm_rx::RxMessage::ImuCallback()
 	return msg;
 };
 
+LocalizationUtmMsgPtr
+io_comm_rx::RxMessage::LocalizationUtmCallback()
+{
+    LocalizationUtmMsgPtr msg(new LocalizationUtmMsg);
+        
+    int zone;
+    std::string zonestring;
+	bool northernHemisphere;
+    double easting;
+    double northing;
+	double gamma = 0.0;
+	if (fixedUtmZone_)
+	{
+		double k;
+		GeographicLib::UTMUPS::DecodeZone(*fixedUtmZone_, zone, northernHemisphere);
+		GeographicLib::UTMUPS::Forward(parsing_utilities::rad2deg(last_insnavgeod_.latitude), 
+                                       parsing_utilities::rad2deg(last_insnavgeod_.longitude),
+                                       zone, northernHemisphere, easting, northing, gamma, k, zone);
+	    zonestring = *fixedUtmZone_;			
+	}
+	else
+	{
+		double k;
+		GeographicLib::UTMUPS::Forward(parsing_utilities::rad2deg(last_insnavgeod_.latitude), 
+                                       parsing_utilities::rad2deg(last_insnavgeod_.longitude),
+                                       zone, northernHemisphere, easting, northing, gamma, k);                                       
+	    zonestring = GeographicLib::UTMUPS::EncodeZone(zone, northernHemisphere);	
+	}
+    if (settings_->lock_utm_zone && !fixedUtmZone_)
+		fixedUtmZone_ = std::make_shared<std::string>(zonestring);
+
+    msg->pose.pose.position.x = easting;
+    msg->pose.pose.position.y = northing;
+    msg->pose.pose.position.z = last_insnavgeod_.height;
+
+    msg->header.frame_id = "utm_" + zonestring;
+    if (settings_->ins_use_poi)
+        msg->child_frame_id  = settings_->poi_frame_id; // TODO param
+    else 
+        msg->child_frame_id  = settings_->frame_id;
+
+    int SBIdx = 0;
+    if((last_insnavgeod_.sb_list & 1) !=0)
+    {
+        // Pos autocov
+        msg->pose.covariance[0]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosStdDev.longitude_std_dev));
+        msg->pose.covariance[7]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosStdDev.latitude_std_dev));
+        msg->pose.covariance[14] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosStdDev.height_std_dev));
+        SBIdx++;
+    }
+    else
+    {
+        msg->pose.covariance[0]  = -1.0;
+        msg->pose.covariance[7]  = -1.0;
+        msg->pose.covariance[14] = -1.0;
+    }
+
+    double roll  = static_cast<double>(last_insnavgeod_.INSNavGeodData[SBIdx].Att.roll);
+    double pitch = static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.pitch);
+    double yaw   = static_cast<double>(-last_insnavgeod_.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half - parsing_utilities::deg2rad(gamma));
+    Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
+    if ((last_insnavgeod_.sb_list & 2) !=0)
+    {
+        // Attitude
+        msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
+        SBIdx++;
+    }
+    else
+    {
+        msg->pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
+        msg->pose.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
+        msg->pose.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
+        msg->pose.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
+    }
+    if((last_insnavgeod_.sb_list & 4) !=0)
+    {
+        // Attitude autocov
+        msg->pose.covariance[21] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttStdDev.roll_std_dev));
+        msg->pose.covariance[28] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev));
+        msg->pose.covariance[35] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttStdDev.heading_std_dev));
+        SBIdx++;
+    }
+    else
+    {
+        msg->pose.covariance[21] = -1.0;
+        msg->pose.covariance[28] = -1.0;
+        msg->pose.covariance[35] = -1.0;
+    }
+    if((last_insnavgeod_.sb_list & 8) !=0)
+    {
+        Eigen::Vector3d vel_enu;
+        vel_enu << last_insnavgeod_.INSNavGeodData[SBIdx].Vel.ve,
+                   last_insnavgeod_.INSNavGeodData[SBIdx].Vel.vn,
+                   last_insnavgeod_.INSNavGeodData[SBIdx].Vel.vu;
+        // linear velocity, convert from GPS coordinates to local frame
+		Eigen::Vector3d vel_body = R_n_b * vel_enu;
+		msg->twist.twist.linear.x = vel_body(0);
+		msg->twist.twist.linear.y = vel_body(1);
+		msg->twist.twist.linear.z = vel_body(2);
+        SBIdx++;
+    }
+    else
+    {       
+		msg->twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+		msg->twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+		msg->twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+    }
+    Eigen::Matrix3d Cov_vel_enu;
+    if ((last_insnavgeod_.sb_list & 16) !=0)
+    {
+        Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev);
+        Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev);
+        Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev);
+        SBIdx++;
+    }
+    else
+    {
+        Cov_vel_enu(0,0) = -1.0;
+        Cov_vel_enu(1,1) = -1.0;
+        Cov_vel_enu(2,2) = -1.0;
+    }
+    if((last_insnavgeod_.sb_list & 32) !=0)
+    {
+        // Pos cov
+        msg->pose.covariance[1] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov);
+        msg->pose.covariance[2] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.longitude_height_cov);
+        msg->pose.covariance[6] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.latitude_longitude_cov);
+        msg->pose.covariance[8] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.latitude_height_cov);
+        msg->pose.covariance[12] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.longitude_height_cov);
+        msg->pose.covariance[13] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].PosCov.latitude_height_cov);
+        SBIdx++;
+    }
+    if ((last_insnavgeod_.sb_list & 64) !=0)
+    {
+        // Attitude cov
+        msg->pose.covariance[22] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
+        msg->pose.covariance[23] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.heading_roll_cov);
+        msg->pose.covariance[27] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.pitch_roll_cov);
+        
+        msg->pose.covariance[29] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.heading_pitch_cov);
+        msg->pose.covariance[33] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.heading_roll_cov);
+        msg->pose.covariance[34] = static_cast<double>(last_insnavgeod_.
+                                        INSNavGeodData[SBIdx].AttCov.heading_pitch_cov);
+    }
+    if((last_insnavgeod_.sb_list & 128) !=0)
+    {
+        Cov_vel_enu(0,1) = Cov_vel_enu(1,0) = last_insnavgeod_.INSNavGeodData[SBIdx].VelCov.ve_vn_cov;
+        Cov_vel_enu(0,2) = Cov_vel_enu(2,0) = last_insnavgeod_.INSNavGeodData[SBIdx].VelCov.ve_vu_cov;
+        Cov_vel_enu(2,1) = Cov_vel_enu(1,2) = last_insnavgeod_.INSNavGeodData[SBIdx].VelCov.vn_vu_cov;
+        SBIdx++;
+    }
+
+    if (((last_insnavgeod_.sb_list & 16) !=0) &&
+        ((last_insnavgeod_.sb_list & 2) !=0) &&
+        ((last_insnavgeod_.sb_list & 8) !=0))
+    {
+        Eigen::Matrix3d Cov_vel_body = R_n_b * Cov_vel_enu * R_n_b.transpose();
+        
+        msg->twist.covariance[0]  = Cov_vel_body(0,0);
+        msg->twist.covariance[1]  = Cov_vel_body(0,1);
+        msg->twist.covariance[2]  = Cov_vel_body(0,2);
+        msg->twist.covariance[6]  = Cov_vel_body(1,0);
+        msg->twist.covariance[7]  = Cov_vel_body(1,1);
+        msg->twist.covariance[8]  = Cov_vel_body(1,2);
+        msg->twist.covariance[12] = Cov_vel_body(2,0);
+        msg->twist.covariance[13] = Cov_vel_body(1,1);
+        msg->twist.covariance[14] = Cov_vel_body(2,2);
+    }
+    else
+    {
+        msg->twist.covariance[0]  = -1.0;
+        msg->twist.covariance[7]  = -1.0;
+        msg->twist.covariance[14] = -1.0;
+    }
+
+    msg->twist.covariance[21] = -1.0;
+    msg->twist.covariance[28] = -1.0;
+    msg->twist.covariance[35] = -1.0;
+    return msg;
+};
+
 /**
  * The position_covariance array is populated in row-major order, where the basis of
  * the corresponding matrix is ENU (so Cov_lonlon is in location 11 of the matrix).
@@ -2572,6 +2772,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
             insnavgeod_has_arrived_imu_  = 2;
+            insnavgeod_has_arrived_localization_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -3167,7 +3368,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             {
                 throw std::runtime_error(e.what());
             }
-            msg->header.frame_id = settings_->imu_frame_id; //TODO add setting
+            msg->header.frame_id = settings_->imu_frame_id;
             uint32_t tow = parsing_utilities::getTow(data_);
             uint16_t wnc = parsing_utilities::getWnc(data_);
             Timestamp time_obj;
@@ -3184,6 +3385,31 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 wait(time_obj);
             }
             node_->publishMessage<ImuMsg>("/imu", *msg);
+            break;
+        }
+        case evLocalization:
+        {
+            LocalizationUtmMsgPtr msg(new LocalizationUtmMsg);
+            try
+            {
+                msg = LocalizationUtmCallback();
+            } catch (std::runtime_error& e)
+            {
+                node_->log(LogLevel::DEBUG, "LocalizationMsg: " + std::string(e.what()));
+                break;
+            }
+            uint32_t tow = parsing_utilities::getTow(data_);
+            uint16_t wnc = parsing_utilities::getWnc(data_);
+            Timestamp time_obj;
+            time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+            msg->header.stamp = timestampToRos(time_obj);
+            insnavgeod_has_arrived_localization_ = false;
+            // Wait as long as necessary (only when reading from SBF/PCAP file)
+            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+            {
+                wait(time_obj);
+            }
+            node_->publishMessage<LocalizationUtmMsg>("/localization", *msg);
             break;
         }
 		case evReceiverStatus:
@@ -3298,6 +3524,12 @@ bool io_comm_rx::RxMessage::imu_complete(uint32_t id)
 		(insnavgeod_has_arrived_imu_ > 0),
 		extsens_has_arrived_imu_};
 	return allTrue(imu_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_localization_complete(uint32_t id)
+{
+	std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_};
+	return allTrue(loc_vec, id);
 }
 
 bool io_comm_rx::RxMessage::allTrue(std::vector<bool>& vec, uint32_t id)

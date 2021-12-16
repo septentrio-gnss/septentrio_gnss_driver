@@ -14,9 +14,12 @@ find_package(nmea_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(gps_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread regex chrono)
+LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
+find_package(GeographicLib REQUIRED)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -57,7 +60,8 @@ set(dependencies
    nmea_msgs
    sensor_msgs
    geometry_msgs
-   gps_msgs   
+   gps_msgs
+   nav_msgs
 )
 
 ## shared library
@@ -83,6 +87,7 @@ target_include_directories(${library_name} PUBLIC
 target_link_libraries(${library_name}
   ${Boost_LIBRARIES}
   pcap
+  ${GeographicLib_LIBRARIES}
 )
 ament_target_dependencies(${library_name}
   ${dependencies}
