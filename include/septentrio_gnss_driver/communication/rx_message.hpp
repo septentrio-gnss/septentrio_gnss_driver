@@ -297,6 +297,8 @@ struct Settings
     bool publish_diagnostics;
     //! Whether or not to publish the ImuMsg message
     bool publish_imu;
+    //! Whether or not to publish the LocalizationMsg message
+    bool publish_localization;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW (in
@@ -307,6 +309,10 @@ struct Settings
     std::string frame_id;
     //! The frame ID used in the header of published ROS Imu message
     std::string imu_frame_id;
+    //! The frame ID used in the header of published ROS Localization message if poi is used
+    std::string poi_frame_id;
+    //! Wether the UTM zone of the localization is locked
+    bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
     uint32_t leap_seconds;
     //! Whether or not we are reading from an SBF file
@@ -368,6 +374,7 @@ enum RxID_Enum
     evVelCovGeodetic,
     evDiagnosticArray,
     evImu,
+    evLocalization,
     evReceiverStatus,
     evQualityInd,
     evReceiverSetup
@@ -443,6 +450,7 @@ namespace io_comm_rx {
             std::make_pair("5908", evVelCovGeodetic),
             std::make_pair("DiagnosticArray", evDiagnosticArray),
             std::make_pair("Imu", evImu),
+            std::make_pair("Localization", evLocalization),
             std::make_pair("4014", evReceiverStatus),
             std::make_pair("4082", evQualityInd),
             std::make_pair("5902", evReceiverSetup),
@@ -595,6 +603,11 @@ namespace io_comm_rx {
          * @brief Wether all blocks have arrived for Imu Message
          */
         bool imu_complete(uint32_t id);
+
+         /**
+         * @brief Wether all blocks have arrived for Localization Message
+         */
+        bool ins_localization_complete(uint32_t id);
 
     private:
         /**
@@ -812,6 +825,10 @@ namespace io_comm_rx {
         //! has arrived or not
         uint8_t insnavgeod_has_arrived_imu_ = 0;
 
+        //! For Localization: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_localization_ = false;
+
         //! For Imu: Whether the ExtSensorMeas block of the current epoch
         //! has arrived or not
         bool extsens_has_arrived_imu_ = false;
@@ -978,6 +995,14 @@ namespace io_comm_rx {
          */
         ImuMsgPtr ImuCallback();
 
+        /**
+         * @brief "Callback" function when constructing
+         * LocalizationUtmMsg messages
+         * @return A smart pointer to the ROS message
+         * LocalizationUtmMsg just created
+         */
+        LocalizationUtmMsgPtr LocalizationUtmCallback();
+
          /**
          * @brief Waits according to time when reading from file
          */
@@ -991,7 +1016,12 @@ namespace io_comm_rx {
         /**
          * @brief Settings struct
          */
-        Settings* settings_;  
+        Settings* settings_;
+
+        /**
+         * @brief Fixed UTM zone
+         */
+        std::shared_ptr<std::string> fixedUtmZone_;
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format

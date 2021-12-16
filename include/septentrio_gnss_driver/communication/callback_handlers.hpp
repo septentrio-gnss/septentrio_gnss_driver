@@ -294,6 +294,11 @@ namespace io_comm_rx {
         //! launches its construction
         static std::string do_imu_;
 
+        //! Determines which of the SBF blocks necessary for the
+        //! nav_msgs/Odometry ROS message arrives last and thus
+        //! launches its construction
+        static std::string do_inslocalization_;
+
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for GPSFix to a uint32_t
         typedef std::map<std::string, uint32_t> GPSFixMap;
@@ -332,7 +337,15 @@ namespace io_comm_rx {
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
-        static DiagnosticArrayMap imu_map;
+        static ImuMap imu_map;
+
+        //! Shorthand for the map responsible for matching ROS message identifiers
+        //! relevant for Localization to a uint32_t
+        typedef std::map<std::string, uint32_t> LocalizationMap;
+
+        //! All instances of the CallbackHandlers class shall have access to the map
+        //! without reinitializing it, hence static
+        static LocalizationMap localization_map;
     };
 
 } // namespace io_comm_rx

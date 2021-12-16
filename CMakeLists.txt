@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   nmea_msgs
   sensor_msgs
   geometry_msgs
+  nav_msgs
   diagnostic_msgs
   gps_common
   message_generation
@@ -24,6 +25,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread regex)
+LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
+find_package(GeographicLib REQUIRED)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -138,7 +141,7 @@ catkin_package(
    INCLUDE_DIRS include
    LIBRARIES 
    CATKIN_DEPENDS cpp_common rosconsole roscpp roscpp_serialization rostime xmlrpcpp message_runtime
-   DEPENDS Boost 
+   DEPENDS Boost
 )
 
 ###########
@@ -151,6 +154,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${GeographicLib_INCLUDE_DIRS}
 )
 
 ## Add cmake target dependencies of the library
@@ -190,7 +194,10 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node 
-   ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${libpcap_LIBRARIES}
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES} 
+   ${libpcap_LIBRARIES}
+   ${GeographicLib_LIBRARIES}
 )
 
 #############

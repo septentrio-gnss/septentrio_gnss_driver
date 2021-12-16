@@ -23,6 +23,8 @@ The serial and TCP/IP communication interface of the ROS driver is established b
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
 `sudo apt install libpcap-dev`.
+Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
+`sudo apt install libgeographic-dev`
 
 ## Usage
 <details>
@@ -76,6 +78,10 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   frame_id: gnss
 
   imu_frame_id: imu
+
+  poi_frame_id: base_link
+
+  lock_utm_zone: true
 
   use_ros_axis_orientation: false
   
@@ -147,6 +153,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     exteventinsnavcart: false
     exteventinsnavgeod: false
     imu: false
+    localization: false
 
   # INS-Specific Parameters
 
@@ -251,8 +258,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
-  </details>
-
+  + `imu_frame_id`: name of the ROS tf frame for the Imu, placed in the header of published Imu message
+    + default: `imu`
+  + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
+    + default: `base_link`
+  + `lock_utm_zone`: wether the UTM zone of the first localization is locked
+    + default: `true`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
     + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
     + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
@@ -396,6 +407,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
+    + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
   </details>
 
 ## ROS Topic Publications
@@ -429,7 +441,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
   + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
   + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
-  + `/imu`: accepts generic ROS message [`sensor_msgs_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`
+  + `/imu`: accepts generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`
+  + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod`
 </details>
 
 ## Suggestions for Improvements

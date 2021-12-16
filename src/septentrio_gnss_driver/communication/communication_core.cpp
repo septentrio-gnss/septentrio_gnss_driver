@@ -988,6 +988,12 @@ void io_comm_rx::Comm_IO::defineMessages()
                 handlers_.insert<ImuMsg>(
                     "Imu");
         }
+        if (settings_->publish_localization)
+        {
+            handlers_.callbackmap_ =
+                handlers_.insert<LocalizationUtmMsg>(
+                    "Localization");
+        }
     }
 	// so on and so forth...
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
