@@ -88,6 +88,7 @@ publish:
   exteventinsnavgeod: false
   imu: false
   localization: false
+  tf: false
 
 # INS-Specific Parameters
 

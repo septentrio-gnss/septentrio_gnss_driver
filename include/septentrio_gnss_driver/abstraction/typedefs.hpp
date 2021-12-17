@@ -35,6 +35,9 @@
 #include <unordered_map>
 // ROS includes
 #include <ros/ros.h>
+// tf2 includes
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // ROS msg includes
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
@@ -271,6 +274,27 @@ public:
         }
     }
 
+    /**
+     * @brief Publishing function for tf
+     * @param[in] msg ROS localization message to be converted to tf
+     */
+    void publishTf(const LocalizationUtmMsg& loc)
+    {
+        geometry_msgs::TransformStamped transformStamped;
+        transformStamped.header.stamp            = loc.header.stamp;
+        transformStamped.header.frame_id         = loc.header.frame_id;
+        transformStamped.child_frame_id          = loc.child_frame_id;
+        transformStamped.transform.translation.x = loc.pose.pose.position.x;
+        transformStamped.transform.translation.y = loc.pose.pose.position.y;
+        transformStamped.transform.translation.z = loc.pose.pose.position.z;
+        transformStamped.transform.rotation.x    = loc.pose.pose.orientation.x;
+        transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
+        transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
+        transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
+
+        tf2Publisher_.sendTransform(transformStamped);
+    }
+
 protected:
     //! Node handle pointer
     std::shared_ptr<ros::NodeHandle> pNh_;    
@@ -280,6 +304,8 @@ private:
     std::unordered_map<std::string, ros::Publisher> topicMap_;
     //! Publisher queue size
     uint32_t queueSize_ = 1;
+    //! Transform publisher
+    tf2_ros::TransformBroadcaster tf2Publisher_;
 };
 
 #endif // Typedefs_HPP

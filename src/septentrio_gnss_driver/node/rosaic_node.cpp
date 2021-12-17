@@ -249,6 +249,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish/extsensormeas", settings_.publish_extsensormeas, true);
     param("publish/imu", settings_.publish_imu, true);
     param("publish/localization", settings_.publish_localization, true);
+    param("publish/tf", settings_.publish_tf, true);
 
     // Automatically activate needed sub messages
     if (settings_.septentrio_receiver_type == "gnss")

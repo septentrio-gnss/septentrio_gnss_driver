@@ -3421,6 +3421,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 wait(time_obj);
             }
             node_->publishMessage<LocalizationUtmMsg>("/localization", *msg);
+            if (settings_->publish_tf)
+                node_->publishTf(*msg);
             break;
         }
 		case evReceiverStatus:

@@ -299,6 +299,8 @@ struct Settings
     bool publish_imu;
     //! Whether or not to publish the LocalizationMsg message
     bool publish_localization;
+    //! Whether or not to publish the tf of the localization
+    bool publish_tf;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW (in
