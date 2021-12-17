@@ -147,6 +147,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     exteventinsnavgeod: false
     imu: false
     localization: false
+    tf: false
 
   # INS-Specific Parameters
 
@@ -401,6 +402,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
+    + `publish/tf`: `true` to broadcats tf of localization
   </details>
 
 ## ROS Topic Publications

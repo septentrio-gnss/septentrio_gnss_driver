@@ -36,6 +36,9 @@
 #include <any>
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
+// tf2 includes
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // ROS msg includes
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
@@ -175,7 +178,8 @@ class ROSaicNodeBase : public rclcpp::Node
 {
 public:
     ROSaicNodeBase(const rclcpp::NodeOptions &options) :
-    Node("septentrio_gnss", options)
+    Node("septentrio_gnss", options),
+    tf2Publisher_(this)
     {}
 
     virtual ~ROSaicNodeBase(){}
@@ -283,11 +287,34 @@ public:
         }
     }
 
+    /**
+     * @brief Publishing function for tf
+     * @param[in] msg ROS localization message to be converted to tf
+     */
+    void publishTf(const LocalizationUtmMsg& loc)
+    {
+        geometry_msgs::msg::TransformStamped transformStamped;
+        transformStamped.header.stamp            = loc.header.stamp;
+        transformStamped.header.frame_id         = loc.header.frame_id;
+        transformStamped.child_frame_id          = loc.child_frame_id;
+        transformStamped.transform.translation.x = loc.pose.pose.position.x;
+        transformStamped.transform.translation.y = loc.pose.pose.position.y;
+        transformStamped.transform.translation.z = loc.pose.pose.position.z;
+        transformStamped.transform.rotation.x    = loc.pose.pose.orientation.x;
+        transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
+        transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
+        transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
+
+        tf2Publisher_.sendTransform(transformStamped);
+    }
+
 private:
     //! Map of topics and publishers
     std::unordered_map<std::string, std::any> topicMap_;
     //! Publisher queue size
     uint32_t queueSize_ = 1;
+    //! Transform publisher
+    tf2_ros::TransformBroadcaster tf2Publisher_;
 };
 
 #endif // Typedefs_HPP
