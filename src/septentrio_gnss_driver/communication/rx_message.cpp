@@ -1620,8 +1620,8 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
         }
         default:
         {
-            throw std::runtime_error(
-                "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            node_->log(LogLevel::DEBUG, "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            break;
         }
         }
         bool gps_in_pvt = false;
@@ -1710,8 +1710,8 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 		}
 		default:
 		{
-			throw std::runtime_error(
-				"INSNavGeod's Mode field contains an invalid type of PVT solution.");
+			node_->log(LogLevel::DEBUG, "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+            break;
 		}
 		}
 		bool gps_in_pvt = false;
@@ -1977,8 +1977,8 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         }
         default:
         {
-            throw std::runtime_error(
-                "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            node_->log(LogLevel::DEBUG, "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            break;
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
@@ -2125,8 +2125,8 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         case evSBAS:
         default:
         {
-            throw std::runtime_error(
-                "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+            node_->log(LogLevel::DEBUG, "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+            break;
         }
         }
         // Doppler is not used when calculating the velocities of, say, mosaic-x5, hence:
@@ -2598,12 +2598,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         return false;
     if (this->isSBF())
     {
-        // If the CRC check is unsuccessful, throw an error message.
+        // If the CRC check is unsuccessful, return false
         crc_check_ = isValid(data_);
         if (!crc_check_)
         {
-            throw std::runtime_error(
-                "CRC Check returned False. Not a valid data block. Retrieving full SBF block..");
+            node_->log(LogLevel::DEBUG, "CRC Check returned False. Not a valid data block. Retrieving full SBF block.");
+            return false;
         }
     }
     switch (rx_id_map[message_key])
@@ -2953,7 +2953,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg = parser_obj.parseASCII(gga_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
-				throw std::runtime_error(e.what());
+				node_->log(LogLevel::DEBUG, "GpggaMsg: " + std::string(e.what()));
+                break;
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -2993,7 +2994,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg = parser_obj.parseASCII(rmc_message, settings_->frame_id, settings_->use_gnss_time, time_obj);
 			} catch (ParseException& e)
 			{
-				throw std::runtime_error(e.what());
+				node_->log(LogLevel::DEBUG, "GprmcMsg: " + std::string(e.what()));
+                break;
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -3031,7 +3033,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg = parser_obj.parseASCII(gsa_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
-				throw std::runtime_error(e.what());
+				node_->log(LogLevel::DEBUG, "GpgsaMsg: " + std::string(e.what()));
+                break;
 			}
 			if (settings_->septentrio_receiver_type == "gnss")
 			{
@@ -3083,7 +3086,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg = parser_obj.parseASCII(gsv_message, settings_->frame_id, settings_->use_gnss_time, node_->getTime());
 			} catch (ParseException& e)
 			{
-				throw std::runtime_error(e.what());
+				node_->log(LogLevel::DEBUG, "GpgsvMsg: " + std::string(e.what()));
+                break;
 			}
 			if (settings_->septentrio_receiver_type == "gnss")
 			{
@@ -3117,7 +3121,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = NavSatFixCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "NavSatFixMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -3146,7 +3151,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = NavSatFixCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "NavSatFixMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -3175,7 +3181,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = GPSFixCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "GPSFixMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
@@ -3213,7 +3220,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = GPSFixCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "GPSFixMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				msg->status.header.frame_id = settings_->frame_id;
@@ -3247,7 +3255,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = PoseWithCovarianceStampedCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "PoseWithCovarianceStampedMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -3278,7 +3287,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					msg = PoseWithCovarianceStampedCallback();
 				} catch (std::runtime_error& e)
 				{
-					throw std::runtime_error(e.what());
+					node_->log(LogLevel::DEBUG, "PoseWithCovarianceStampedMsg: " + std::string(e.what()));
+                    break;
 				}
 				msg->header.frame_id = settings_->frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
@@ -3344,7 +3354,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				msg = DiagnosticArrayCallback();
 			} catch (std::runtime_error& e)
 			{
-				throw std::runtime_error(e.what());
+				node_->log(LogLevel::DEBUG, "DiagnosticArrayMsg: " + std::string(e.what()));
+                break;
 			}
 			if (settings_->septentrio_receiver_type == "gnss")
 			{
@@ -3377,7 +3388,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 msg = ImuCallback();
             } catch (std::runtime_error& e)
             {
-                throw std::runtime_error(e.what());
+                node_->log(LogLevel::DEBUG, "ImuMsg: " + std::string(e.what()));
+                break;
             }
             msg->header.frame_id = settings_->imu_frame_id;
             uint32_t tow = parsing_utilities::getTow(data_);
