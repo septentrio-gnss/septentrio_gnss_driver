@@ -68,6 +68,8 @@
 // ROS includes
 #include <ros/ros.h>
 #include <ros/console.h>
+// tf2 includes
+#include <tf2_ros/transform_listener.h>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 
@@ -97,11 +99,29 @@ namespace rosaic_node {
          * The other ROSaic parameters are specified via the command line.
          */
         bool getROSParams();
-
+        /**
+         * @brief Gets transforms from tf2
+         * @param[in] targetFrame traget frame id
+         * @param[in] sourceFrame source frame id
+         * @param[out] T_s_t transfrom from source to target
+         */
+        void getTransform(const std::string& targetFrame, const std::string& sourceFrame, geometry_msgs::TransformStamped& T_s_t);
+        /**
+         * @brief Gets Euler angles from quaternion message
+         * @param[in] qm quaternion message
+         * @param[out] roll roll angle
+         * @param[out] pitch pitch angle
+         * @param[out] yaw yaw angle
+         */
+        void getRPY(const geometry_msgs::Quaternion& qm, double& roll, double& pitch, double& yaw);
+        
         //! Settings
         Settings settings_;
         //! Handles communication with the Rx
         io_comm_rx::Comm_IO IO_;
+        //! tf2 buffer and listener
+        tf2_ros::Buffer tfBuffer_;
+	    std::unique_ptr<tf2_ros::TransformListener> tfListener_;
     };
 } // namespace rosaic_node
 

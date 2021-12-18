@@ -28,6 +28,9 @@
 //
 // ****************************************************************************
 
+// Eigen include
+#include <Eigen/Geometry> 
+
 #include <septentrio_gnss_driver/node/rosaic_node.hpp>
 
 /**
@@ -40,6 +43,8 @@ rosaic_node::ROSaicNode::ROSaicNode() :
     IO_(this, &settings_)
 {
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
+
+    tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
     // Parameters must be set before initializing IO
     if (!getROSParams())
@@ -67,7 +72,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
     param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
-    param("poi_frame_id", settings_.poi_frame_id, (std::string) "base_link");
+    param("poi_frame_id", settings_.poi_frame_id, (std::string) "poi");
+    param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
+    param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("publish/gpst", settings_.publish_gpst, true);
     param("publish/navsatfix", settings_.publish_navsatfix, true);
@@ -147,50 +154,77 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 	
 	// INS Spatial Configuration
-    // IMU orientation parameter
-    param("ins_spatial_config/imu_orientation/theta_x", settings_.theta_x, 0.0f);
-    param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y, 0.0f);
-    param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0f);
+    bool getConfigFromTf;
+    param("get_spatial_config_from_tf", getConfigFromTf, false);
+    if (getConfigFromTf)
+    {
+        geometry_msgs::TransformStamped T_poi_imu;
+        getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
+        geometry_msgs::TransformStamped T_vsm_imu;
+        getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
+        geometry_msgs::TransformStamped T_ant_imu;
+        getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
+        geometry_msgs::TransformStamped T_aux1_imu;
+        getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+
+        // IMU orientation parameter
+        double roll, pitch, yaw;
+        getRPY(T_poi_imu.transform.rotation, roll, pitch, yaw);
+        settings_.theta_x = parsing_utilities::rad2deg(roll);
+        settings_.theta_y = parsing_utilities::rad2deg(pitch);
+        settings_.theta_z = parsing_utilities::rad2deg(yaw);
+        // INS antenna lever arm offset parameter
+        settings_.ant_lever_x = T_ant_imu.transform.translation.x;
+        settings_.ant_lever_y = T_ant_imu.transform.translation.y;
+        settings_.ant_lever_z = T_ant_imu.transform.translation.z;
+        // INS POI ofset paramter
+        settings_.poi_x = T_poi_imu.transform.translation.x;
+        settings_.poi_y = T_poi_imu.transform.translation.y;
+        settings_.poi_z = T_poi_imu.transform.translation.z;
+        // INS velocity sensor lever arm offset parameter
+        settings_.vsm_x = T_vsm_imu.transform.translation.x;
+        settings_.vsm_y = T_vsm_imu.transform.translation.y;
+        settings_.vsm_z = T_vsm_imu.transform.translation.z;
+        // Antenna Attitude Determination parameter
+        double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
+        double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
+        settings_.heading_offset = std::atan2(dy, dx);
+        double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
+        double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
+        settings_.pitch_offset   = std::atan2(dz, dr);
+    }
+    else
+    {
+        // IMU orientation parameter
+        param("ins_spatial_config/imu_orientation/theta_x", settings_.theta_x, 0.0);
+        param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y, 0.0);
+        param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0);
+        // INS antenna lever arm offset parameter
+        param("ins_spatial_config/ant_lever_arm/x", settings_.ant_lever_x, 0.0);
+        param("ins_spatial_config/ant_lever_arm/y", settings_.ant_lever_y, 0.0);
+        param("ins_spatial_config/ant_lever_arm/z", settings_.ant_lever_z, 0.0);
+        // INS POI ofset paramter
+        param("ins_spatial_config/poi_to_imu/delta_x", settings_.poi_x, 0.0);
+        param("ins_spatial_config/poi_to_imu/delta_y", settings_.poi_y, 0.0);
+        param("ins_spatial_config/poi_to_imu/delta_z", settings_.poi_z, 0.0);
+        // INS velocity sensor lever arm offset parameter
+        param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", settings_.vsm_x, 0.0);
+        param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", settings_.vsm_y, 0.0);
+        param("ins_spatial_config/vel_sensor_lever_arm/vsm_z", settings_.vsm_z, 0.0);
+        // Antenna Attitude Determination parameter
+        param("att_offset/heading", settings_.heading_offset, 0.0);
+        param("att_offset/pitch", settings_.pitch_offset, 0.0);
+    }
+    
     if (settings_.use_ros_axis_orientation)
     {
         settings_.theta_x = parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
-    }
-	
-    // INS antenna lever arm offset parameter
-    param("ins_spatial_config/ant_lever_arm/x", settings_.ant_lever_x, 0.0f);
-    param("ins_spatial_config/ant_lever_arm/y", settings_.ant_lever_y, 0.0f);
-    param("ins_spatial_config/ant_lever_arm/z", settings_.ant_lever_z, 0.0f);
-    if (settings_.use_ros_axis_orientation)
-    {
         settings_.ant_lever_y *= -1.0;
         settings_.ant_lever_z *= -1.0;
-    }
-
-    // INS POI ofset paramter
-    param("ins_spatial_config/poi_to_imu/delta_x", settings_.poi_x, 0.0f);
-    param("ins_spatial_config/poi_to_imu/delta_y", settings_.poi_y, 0.0f);
-    param("ins_spatial_config/poi_to_imu/delta_z", settings_.poi_z, 0.0f);
-    if (settings_.use_ros_axis_orientation)
-    {
         settings_.poi_y *= -1.0;
         settings_.poi_z *= -1.0;
-    }
-
-    // INS velocity sensor lever arm offset parameter
-    param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", settings_.vsm_x, 0.0f);
-    param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", settings_.vsm_y, 0.0f);
-    param("ins_spatial_config/vel_sensor_lever_arm/vsm_z", settings_.vsm_z, 0.0f);
-    if (settings_.use_ros_axis_orientation)
-    {
         settings_.vsm_y *= -1.0;
         settings_.vsm_z *= -1.0;
-    }
-    
-    // Antenna Attitude Determination parameter
-    param("att_offset/heading", settings_.heading_offset, 0.0f);
-    param("att_offset/pitch", settings_.pitch_offset, 0.0f);
-    if (settings_.use_ros_axis_orientation)
-    {
         settings_.heading_offset *= -1.0;
         settings_.pitch_offset   *= -1.0;
     }
@@ -310,4 +344,29 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG ,"Finished getROSParams() method");
     return true;
-};
+}
+
+void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const std::string& sourceFrame, geometry_msgs::TransformStamped& T_s_t)
+{
+   try
+	{
+		// try to get tf from source frame to target frame
+        T_s_t = tfBuffer_.lookupTransform(targetFrame, sourceFrame, ros::Time(0), ros::Duration(10.0)); 
+	}
+	catch (const tf2::TransformException& ex)
+	{
+		this->log(LogLevel::FATAL, "No transform from " + sourceFrame + " to " + targetFrame + ": " + ex.what() + ".");
+		this->log(LogLevel::FATAL, "Please restart LocalizationNode.");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void rosaic_node::ROSaicNode::getRPY(const geometry_msgs::Quaternion& qm, double& roll, double& pitch, double& yaw)
+{
+    Eigen::Quaterniond q(qm.w, qm.x, qm.y, qm.z);
+	Eigen::Quaterniond::RotationMatrixType C = q.matrix();
+
+	roll  = std::atan2(C(2, 1), C(2, 2));
+	pitch = std::asin(-C(2, 0));
+	yaw   = std::atan2(C(1, 0), C(0, 0));
+}
