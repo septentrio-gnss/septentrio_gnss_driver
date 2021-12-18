@@ -84,6 +84,7 @@ typedef diagnostic_msgs::msg::DiagnosticStatus::SharedPtr        DiagnosticStatu
 typedef geometry_msgs::msg::Quaternion                           QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped            PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr PoseWithCovarianceStampedMsgPtr;
+typedef geometry_msgs::msg::TransformStamped                     TransformStampedMsg;
 typedef gps_msgs::msg::GPSFix                                    GPSFixMsg;
 typedef gps_msgs::msg::GPSFix::SharedPtr                         GPSFixMsgPtr;
 typedef gps_msgs::msg::GPSStatus                                 GPSStatusMsg;

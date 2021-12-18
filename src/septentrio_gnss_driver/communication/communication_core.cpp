@@ -384,7 +384,7 @@ void io_comm_rx::Comm_IO::configureRx()
 
         rest_interval = rest_sec_or_msec + std::to_string(rx_period_rest);
     }
-    
+
     // Turning off all current SBF/NMEA output    
     send("sso, all, none, none, off \x0D");
     send("sno, all, none, none, off \x0D");
