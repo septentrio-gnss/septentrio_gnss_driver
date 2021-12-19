@@ -335,9 +335,14 @@ bool rosaic_node::ROSaicNode::getROSParams()
             settings_.publish_extsensormeas = true;
         }
 
+        if (settings_.publish_tf)
+        {
+            settings_.publish_localization = true;
+        }
+
         if (settings_.publish_localization)
         {
-            settings_.publish_insnavgeod    = true;
+            settings_.publish_insnavgeod  = true;
         }
     }
 	
