@@ -188,10 +188,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
         // Antenna Attitude Determination parameter
         double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
         double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
-        settings_.heading_offset = std::atan2(dy, dx);
+        settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
         double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
         double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
-        settings_.pitch_offset   = std::atan2(dz, dr);
+        settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
     }
     else
     {
@@ -228,6 +228,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.heading_offset *= -1.0;
         settings_.pitch_offset   *= -1.0;
     }
+
+    this->log(LogLevel::DEBUG , "IMU roll offset: "+ std::to_string(settings_.theta_x));
+    this->log(LogLevel::DEBUG , "IMU pitch offset: "+ std::to_string(settings_.theta_y));
+    this->log(LogLevel::DEBUG , "IMU yaw offset: "+ std::to_string(settings_.theta_z));
+    this->log(LogLevel::DEBUG , "Ant heading offset: " + std::to_string(settings_.heading_offset));
+    this->log(LogLevel::DEBUG , "Ant pitch offset: " + std::to_string(settings_.pitch_offset));
 
     // ins_initial_heading param
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
