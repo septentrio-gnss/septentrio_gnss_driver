@@ -15,6 +15,12 @@ imu_frame_id: imu
 
 poi_frame_id: base_link
 
+vsm_frame_id: vsm
+
+aux1_frame_id: aux1
+
+get_spatial_config_from_tf: false
+
 lock_utm_zone: true
 
 use_ros_axis_orientation: true

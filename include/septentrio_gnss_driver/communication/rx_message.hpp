@@ -184,33 +184,33 @@ struct Settings
     //! ROS axis orientation, body: front-left-up, geographic: ENU
     bool use_ros_axis_orientation;
     //! IMU orientation x-angle
-    float theta_x;
+    double theta_x;
     //! IMU orientation y-angle
-    float theta_y;
+    double theta_y;
     //! IMU orientation z-angle
-    float theta_z;
+    double theta_z;
     //! INS antenna lever arm x-offset
-    float ant_lever_x;
+    double ant_lever_x;
     //! INS antenna lever arm y-offset
-    float ant_lever_y;
+    double ant_lever_y;
     //! INS antenna lever arm z-offset
-    float ant_lever_z;
+    double ant_lever_z;
     //! INS POI offset in x-dimension
-    float poi_x;
+    double poi_x;
     //! INS POI offset in y-dimension
-    float poi_y;
+    double poi_y;
     //! INS POI offset in z-dimension
-    float poi_z;
+    double poi_z;
     //! INS velocity sensor lever arm x-offset
-    float vsm_x;
+    double vsm_x;
     //! INS velocity sensor lever arm y-offset
-    float vsm_y;
+    double vsm_y;
     //! INS velocity sensor lever arm z-offset
-    float vsm_z;
+    double vsm_z;
     //! Attitude offset determination in longitudinal direction
-    float heading_offset;
+    double heading_offset;
     //! Attitude offset determination in latitudinal direction
-    float pitch_offset;
+    double pitch_offset;
     //! INS solution reference point
     bool ins_use_poi;
     //! For heading computation when unit is powered-cycled
@@ -313,6 +313,10 @@ struct Settings
     std::string imu_frame_id;
     //! The frame ID used in the header of published ROS Localization message if poi is used
     std::string poi_frame_id;
+    //! The frame ID of the velocity sensor
+    std::string vsm_frame_id;
+    //! The frame ID of the aux1 antenna
+    std::string aux1_frame_id;
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time

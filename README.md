@@ -259,10 +259,16 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
-  + `imu_frame_id`: name of the ROS tf frame for the Imu, placed in the header of published Imu message
+  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
     + default: `imu`
   + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
     + default: `base_link`
+  + `vsm_frame_id`: name of the ROS tf frame for the velocity sensor.
+    + default: `vsm`
+  + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
+    + default: `aux1`
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. POI is assumed to be the vehicle frame which also concerns the IMU orientation. This will override spatial settings of the config file.
+    + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
