@@ -267,7 +267,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `vsm`
   + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `aux1`
-  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. POI is assumed to be the vehicle frame.
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. POI is assumed to be the vehicle frame which also concerns the IMU orientation. This will override spatial settings of the config file.
     + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
