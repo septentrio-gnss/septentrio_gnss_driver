@@ -167,6 +167,7 @@ enum LogLevel
 {
     DEBUG,
     INFO,
+    WARN,
     ERROR,
     FATAL
 };
@@ -245,6 +246,9 @@ public:
             break;
         case LogLevel::INFO:
             RCLCPP_INFO_STREAM(this->get_logger(), s);
+            break;
+        case LogLevel::WARN:
+            RCLCPP_WARN_STREAM(this->get_logger(), s);
             break;
         case LogLevel::ERROR:
             RCLCPP_ERROR_STREAM(this->get_logger(), s);
