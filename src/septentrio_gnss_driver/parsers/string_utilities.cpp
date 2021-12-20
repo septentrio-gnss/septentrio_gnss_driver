@@ -34,6 +34,9 @@
 #include <cerrno>
 #include <cstdlib>
 #include <limits>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
 
 /**
  * @file string_utilities.cpp
@@ -192,5 +195,16 @@ namespace string_utilities {
                 break;
         }
         return str;
+    }
+
+    std::string trimDecimalPlaces(double num)
+    {
+        num = std::round(num * 1000);
+        num = num / 1000;
+        std::stringstream ss;
+        ss << std::fixed;
+        ss << std::setprecision(3);
+        ss << num;
+        return ss.str();
     }
 } // namespace string_utilities

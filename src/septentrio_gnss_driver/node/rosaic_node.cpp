@@ -153,6 +153,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
+
+    // ins_initial_heading param
+    param("ins_multi_antenna", settings_.ins_multi_antenna, true);
 	
 	// INS Spatial Configuration
     bool getConfigFromTf;
@@ -168,9 +171,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             geometry_msgs::TransformStamped T_vsm_imu;
             getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
             geometry_msgs::TransformStamped T_ant_imu;
-            getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
-            geometry_msgs::TransformStamped T_aux1_imu;
-            getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+            getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);           
 
             // IMU orientation parameter
             double roll, pitch, yaw;
@@ -190,13 +191,19 @@ bool rosaic_node::ROSaicNode::getROSParams()
             settings_.vsm_x = T_vsm_imu.transform.translation.x;
             settings_.vsm_y = T_vsm_imu.transform.translation.y;
             settings_.vsm_z = T_vsm_imu.transform.translation.z;
-            // Antenna Attitude Determination parameter
-            double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
-            double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
-            settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
-            double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
-            double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
-            settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+
+            if (settings_.ins_multi_antenna)
+            {
+                 geometry_msgs::TransformStamped T_aux1_imu;
+                getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+                // Antenna Attitude Determination parameter
+                double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
+                double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
+                settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
+                double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
+                double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
+                settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+            }
         }
         if (settings_.septentrio_receiver_type == "gnss")
         {
