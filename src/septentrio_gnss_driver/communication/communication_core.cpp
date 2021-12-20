@@ -351,23 +351,40 @@ void io_comm_rx::Comm_IO::configureRx()
         // "lif", whose potentially false processing is harmless.
         send("lif, Identification \x0D");
     }
-    uint32_t rx_period_pvt =
-        parsing_utilities::convertUserPeriodToRxCommand(settings_->polling_period_pvt);
-    uint32_t rx_period_rest =
-        parsing_utilities::convertUserPeriodToRxCommand(settings_->polling_period_rest);
-    std::string pvt_sec_or_msec;
-    std::string rest_sec_or_msec;
-    if (settings_->polling_period_pvt == 1000 || settings_->polling_period_pvt == 2000 ||
-        settings_->polling_period_pvt == 5000 || settings_->polling_period_pvt == 10000)
-        pvt_sec_or_msec = "sec";
-    else
-        pvt_sec_or_msec = "msec";
-    if (settings_->polling_period_rest == 1000 || settings_->polling_period_rest == 2000 ||
-        settings_->polling_period_rest == 5000 || settings_->polling_period_rest == 10000)
-        rest_sec_or_msec = "sec";
-    else
-        rest_sec_or_msec = "msec";
 
+    std::string pvt_interval;
+    if (settings_->polling_period_pvt == 0)
+    {
+        pvt_interval = "OnChange";
+    }
+    else
+    {
+        uint32_t rx_period_pvt =
+            parsing_utilities::convertUserPeriodToRxCommand(settings_->polling_period_pvt);        
+        std::string pvt_sec_or_msec;
+        if (settings_->polling_period_pvt == 1000 || settings_->polling_period_pvt == 2000 ||
+            settings_->polling_period_pvt == 5000 || settings_->polling_period_pvt == 10000)
+            pvt_sec_or_msec = "sec";
+        else
+            pvt_sec_or_msec = "msec";
+
+        pvt_interval = pvt_sec_or_msec + std::to_string(rx_period_pvt);
+    }
+
+    std::string rest_interval;
+    {
+        uint32_t rx_period_rest =
+            parsing_utilities::convertUserPeriodToRxCommand(settings_->polling_period_rest);
+        std::string rest_sec_or_msec;
+        if (settings_->polling_period_rest == 1000 || settings_->polling_period_rest == 2000 ||
+            settings_->polling_period_rest == 5000 || settings_->polling_period_rest == 10000)
+            rest_sec_or_msec = "sec";
+        else
+            rest_sec_or_msec = "msec";
+
+        rest_interval = rest_sec_or_msec + std::to_string(rx_period_rest);
+    }
+    
     // Turning off all current SBF/NMEA output    
     send("sso, all, none, none, off \x0D");
     send("sno, all, none, none, off \x0D");
@@ -420,7 +437,6 @@ void io_comm_rx::Comm_IO::configureRx()
         // If INS then...
         if (settings_->septentrio_receiver_type == "ins")
         {
-            std::stringstream blocks;
             if (settings_->publish_insnavcart)
             {
                 blocks << " +INSNavCart";
@@ -444,7 +460,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
         std::stringstream ss;
         ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-        << "," <<  blocks.str() << ", " << pvt_sec_or_msec << std::to_string(rx_period_pvt)
+        << "," <<  blocks.str() << ", " << pvt_interval
         << "\x0D";
         send(ss.str());
         ++stream;
@@ -470,7 +486,7 @@ void io_comm_rx::Comm_IO::configureRx()
 
         std::stringstream ss;
         ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
-        << "," << blocks.str() << ", " << rest_sec_or_msec << std::to_string(rx_period_rest)
+        << "," << blocks.str() << ", " << rest_interval
         << "\x0D";
         send(ss.str());
         ++stream;
@@ -482,7 +498,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		std::stringstream ss;
 
 		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GGA, "
-		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		<< pvt_interval << "\x0D";
 		send(ss.str());
 		++stream;
 	}
@@ -491,7 +507,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		std::stringstream ss;
 
 		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", RMC, "
-		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		<< pvt_interval << "\x0D";
 		send(ss.str());
 		++stream;
 	}
@@ -500,7 +516,7 @@ void io_comm_rx::Comm_IO::configureRx()
 		std::stringstream ss;
 
 		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSA, "
-		<< pvt_sec_or_msec << std::to_string(rx_period_pvt) << "\x0D";
+		<< pvt_interval << "\x0D";
 		send(ss.str());
 		++stream;
 	}
@@ -509,31 +525,49 @@ void io_comm_rx::Comm_IO::configureRx()
 		std::stringstream ss;
 
 		ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSV, "
-		<< rest_sec_or_msec << std::to_string(rx_period_rest) << "\x0D";
+		<< rest_interval << "\x0D";
 		send(ss.str());
 		++stream;
 	}
 
-    // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
-    // ReceiverSetup, ..." command, since the latter is only generated when a
-    // user-command is entered to change one or more values in the block.
+    if (settings_->septentrio_receiver_type == "gnss")
     {
-        std::stringstream ss;
-        ss << "sao, Main, " << string_utilities::trimString(std::to_string(settings_->delta_e))
-           << ", " << string_utilities::trimString(std::to_string(settings_->delta_n)) << ", "
-           << string_utilities::trimString(std::to_string(settings_->delta_u)) << ", \""
-           << settings_->ant_type << "\", " << settings_->ant_serial_nr << "\x0D";
-        send(ss.str());
-    }
+        // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
+        // ReceiverSetup, ..." command, since the latter is only generated when a
+        // user-command is entered to change one or more values in the block.
+        {
+            std::stringstream ss;
+            ss << "sao, Main, " << string_utilities::trimString(std::to_string(settings_->delta_e))
+            << ", " << string_utilities::trimString(std::to_string(settings_->delta_n)) << ", "
+            << string_utilities::trimString(std::to_string(settings_->delta_u)) << ", \""
+            << settings_->ant_type << "\", " << settings_->ant_serial_nr << "\x0D";
+            send(ss.str());
+        }
 
-    // Configure Aux1 antenna
+        // Configure Aux1 antenna
+        {
+            std::stringstream ss;
+            ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(0.0))
+            << ", " << string_utilities::trimString(std::to_string(0.0)) << ", "
+            << string_utilities::trimString(std::to_string(0.0)) << ", \""
+            << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr << "\x0D";
+            send(ss.str());
+        }
+    }
+    else if (settings_->septentrio_receiver_type == "ins")
     {
-        std::stringstream ss;
-        ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(settings_->delta_aux1_e))
-           << ", " << string_utilities::trimString(std::to_string(settings_->delta_aux1_n)) << ", "
-           << string_utilities::trimString(std::to_string(settings_->delta_aux1_u)) << ", \""
-           << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr << "\x0D";
-        send(ss.str());
+         {
+            std::stringstream ss;
+            ss << "sat, Main, \"" << settings_->ant_type << "\"" << "\x0D";
+            send(ss.str());
+        }
+
+        // Configure Aux1 antenna
+        {
+            std::stringstream ss;
+            ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
+            send(ss.str());
+        }
     }
 
     // Configuring the NTRIP connection
@@ -585,7 +619,7 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, "
-                   << pvt_sec_or_msec << std::to_string(rx_period_pvt) << " \x0D";
+                   << pvt_interval << " \x0D";
                 ++stream;
                 send(ss.str());
             }
@@ -603,26 +637,32 @@ void io_comm_rx::Comm_IO::configureRx()
             send(ss.str());
         }
     }
+
+    // Setting the Attitude Determination
+    {
+        if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
+        {
+            std::stringstream ss;
+            ss << "sto, " << string_utilities::trimString(std::to_string(settings_->heading_offset))
+            << ", " << string_utilities::trimString(std::to_string(settings_->pitch_offset)) << " \x0D";
+            send(ss.str());
+        }
+        else
+        {
+            node_->log(LogLevel::ERROR, "Please specify a valid parameter for heading and pitch");
+        }
+    }
     
 	// Setting the INS-related commands
     if (settings_->septentrio_receiver_type == "ins")
     {
         // IMU orientation 
         {
-            std::string orientation_mode;
             std::stringstream ss;
-			if (settings_->manual == false)
-			{
-				orientation_mode = "SensorDefault";
-			}
-			else
-			{
-				orientation_mode = "manual";
-			}
 			if (settings_->theta_x >= ANGLE_MIN && settings_->theta_x<= ANGLE_MAX && settings_->theta_y >= THETA_Y_MIN && 
                 settings_->theta_y <= THETA_Y_MAX && settings_->theta_z >= ANGLE_MIN && settings_->theta_z <= ANGLE_MAX)
 			{
-				ss << " sio, " << orientation_mode << ", " << string_utilities::trimString(std::to_string(settings_->theta_x)) << ", " 
+				ss << " sio, " << "manual" << ", " << string_utilities::trimString(std::to_string(settings_->theta_x)) << ", " 
 					<< string_utilities::trimString(std::to_string(settings_->theta_y)) << ", " 
 					<< string_utilities::trimString(std::to_string(settings_->theta_z)) << " \x0D";
 				send(ss.str());
@@ -684,22 +724,7 @@ void io_comm_rx::Comm_IO::configureRx()
                 node_->log(LogLevel::ERROR, "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
             }
             
-        }
-
-        // Setting the Attitude Determination
-        {
-            if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
-            {
-                std::stringstream ss;
-                ss << "sto, " << string_utilities::trimString(std::to_string(settings_->heading_offset))
-                << ", " << string_utilities::trimString(std::to_string(settings_->pitch_offset)) << " \x0D";
-                send(ss.str());
-            }
-            else
-            {
-                node_->log(LogLevel::ERROR, "Please specify a valid parameter for heading and pitch");
-            }
-        }
+        }       
         
         // Setting the INS Solution Reference Point: MainAnt or POI1
         // First disable any existing INS sub-block connection
@@ -883,11 +908,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_navsatfix)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper NavSatFix message, please set the publish/pvtgeodetic and the publish/poscovgeodetic ROSaic parameters both to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<NavSatFixMsg>("NavSatFix");
         }
@@ -896,11 +916,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_navsatfix)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper NavSatFix message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<NavSatFixMsg>("INSNavSatFix");
         }
@@ -909,11 +924,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_gpsfix)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false || settings_->publish_velcovgeodetic == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper GPSFix message, please set the publish/pvtgeodetic, publish/poscovgeodetic and publish/velcovgeodetic ROSaic parameters all to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<GPSFixMsg>("GPSFix");
             // The following blocks are never published, yet are needed for the
@@ -930,11 +940,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_gpsfix)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                        "For a proper GPSFix message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<GPSFixMsg>("INSGPSFix");
             handlers_.callbackmap_ =
@@ -949,12 +954,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_pose)
         {
-            if (settings_->publish_pvtgeodetic == false || settings_->publish_poscovgeodetic == false ||
-                settings_->publish_atteuler == false || settings_->publish_attcoveuler == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper PoseWithCovarianceStamped message, please set the publish/pvtgeodetic, publish/poscovgeodetic, publish_atteuler and publish_attcoveuler ROSaic parameters all to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "PoseWithCovarianceStamped");
@@ -964,11 +963,6 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         if (settings_->publish_pose)
         {
-            if (settings_->publish_insnavgeod == false)
-            {
-                node_->log(LogLevel::ERROR, 
-                    "For a proper PoseWithCovarianceStamped message, please set the publish/insnavgeod to true.");
-            }
             handlers_.callbackmap_ =
                 handlers_.insert<PoseWithCovarianceStampedMsg>(
                     "INSPoseWithCovarianceStamped");
@@ -986,6 +980,21 @@ void io_comm_rx::Comm_IO::defineMessages()
 		handlers_.callbackmap_ =
 			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	}
+    if (settings_->septentrio_receiver_type == "ins")
+    {
+        if (settings_->publish_imu)
+        {
+            handlers_.callbackmap_ =
+                handlers_.insert<ImuMsg>(
+                    "Imu");
+        }
+        if (settings_->publish_localization)
+        {
+            handlers_.callbackmap_ =
+                handlers_.insert<LocalizationUtmMsg>(
+                    "Localization");
+        }
+    }
 	// so on and so forth...
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }

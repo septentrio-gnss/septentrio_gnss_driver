@@ -51,12 +51,16 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <depend>diagnostic_msgs</depend>
+  <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>gps_common</depend>
   <depend>boost</depend>
   <depend>libpcap</depend>
-   
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_ros</depend>
 
   <build_depend>cpp_common</build_depend>
   <build_depend>rosconsole</build_depend>

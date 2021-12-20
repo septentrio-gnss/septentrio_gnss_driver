@@ -17,12 +17,14 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
 ## Dependencies
 The `master` branch for this driver functions on both ROS Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
-An additional ROS packages have to be installed for the GPSFIx message.<br><br>
-`sudo apt install ros-$ROS_DISTRO-gps-common`.<br><br>
+An additional ROS packages have to be installed for the GPSFix message.<br><br>
+`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-common`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
 `sudo apt install libpcap-dev`.
+Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
+`sudo apt install libgeographic-dev`
 
 ## Usage
 <details>
@@ -74,6 +76,22 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     hw_flow_control: off
 
   frame_id: gnss
+
+  imu_frame_id: imu
+
+  poi_frame_id: poi
+
+  vsm_frame_id: vsm
+
+  aux1_frame_id: aux1
+
+  vehicle_frame_id: base_link
+
+  get_spatial_config_from_tf: true
+
+  lock_utm_zone: true
+
+  use_ros_axis_orientation: false
   
   receiver_type: gnss
 
@@ -83,11 +101,10 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     delta_e: 0.0
     delta_n: 0.0
     delta_u: 0.0
-	
-  poi_to_aux1_arp:
-    delta_e: 0.0
-    delta_n: 0.0
-    delta_u: 0.0
+
+  att_offset:
+    heading: 0.0
+    pitch: 0.0
 
   ant_type: Unknown
   ant_aux1_type: Unknown
@@ -118,7 +135,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 
   publish:
     # For both GNSS and INS Rxs
-	navsatfix: false
+	  navsatfix: false
     gpsfix: true
     gpgga: false
     gprmc: false
@@ -127,7 +144,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     pvtgeodetic: true
     poscovcartesian: false
     poscovgeodetic: true
-	velcovgeodetic: false
+	  velcovgeodetic: false
     atteuler: true
     attcoveuler: true
     pose: false
@@ -143,13 +160,13 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
     velsensorsetup: false
     exteventinsnavcart: false
     exteventinsnavgeod: false
+    imu: false
+    localization: false
+    tf: false
 
   # INS-Specific Parameters
 
   ins_spatial_config:
-    att_offset:
-      heading: 0.0
-      pitch: 0.0
     imu_orientation:
       theta_x: 0.0
       theta_y: 0.0
@@ -250,6 +267,24 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
+  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
+    + default: `imu`
+  + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
+    + default: `poi`
+  + `vsm_frame_id`: name of the ROS tf frame for the velocity sensor.
+    + default: `vsm`
+  + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
+    + default: `aux1`
+   + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
+    + default: `base_link`
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
+    + default: `false`
+  + `lock_utm_zone`: wether the UTM zone of the first localization is locked
+    + default: `true`
+  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
+    + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
+    + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
+    + default: `false`
   </details>
   
   <details>
@@ -263,11 +298,19 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>POI-ARP Offset</summary>
   
-  + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker)
+  + `poi_to_arp`: offsets of the main GNSS antenna reference point (ARP) with respect to the point of interest (POI = marker). Use for static receivers only.
     + The parameters `delta_e`, `delta_n` and `delta_u` are the offsets in the East, North and Up (ENU) directions respectively, expressed in meters.
     + All absolute positions reported by the receiver are POI positions, obtained by subtracting this offset from the ARP. The purpose is to take into account the fact that the antenna may not be located directly on the surveying POI.
     + default: `0.0`, `0.0` and `0.0`
-  + `poi_to_aux1_arp`: same for Aux1 antenna
+  </details>
+
+  <details>
+  <summary>Antenna Attitude Offset</summary>
+
+    + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle frame
+    + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
+    + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
+    + default: `0.0`, `0.0` (degrees)
   </details>
   
   <details>
@@ -285,13 +328,13 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Leap Seconds</summary>
   
   + `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
-    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_GNSS_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
+    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_gnss_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
   </details>
   
   <details>
   <summary>Polling Periods</summary>
   
-  + `polling_period/pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`) 
+  + `polling_period/pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`) . If set to `0`, the SBF blocks are output at their natural renewal rate (`OnChange`).
     + Clearly, the publishing of composite ROS messages such as [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) or [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) is triggered by the SBF block that arrives last among the blocks of the current epoch.
     + default: `500` (2 Hz)
   + `polling_period/rest`: desired period in milliseconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
@@ -301,7 +344,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_GNSS_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library
+  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be constructed by the driver via the time(NULL) function found in the `ctime` library. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio recevier since the latter serves as a Stratum 1 time server not dependent on an internet connection.
     + default: `true`
   </details>
   
@@ -326,11 +369,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>INS Specs</summary>
 
-    + `ins_spatial_config`: Spatial configuration of INS/IMU
-      + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle heading
-        + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
-        + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
-        + default: `0.0`, `0.0` (degrees)
+    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
       + `imu_orientation`: IMU sensor orientation
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
         + The nominal orientation is where the IMU is upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
@@ -361,10 +400,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
-    + `publish/gpgga`: `true` to publish `septentrio_gnss_driver/GPGGA.msg` messages into the topic `/gpgga`
-    + `publish/gprmc`: `true` to publish `septentrio_gnss_driver/GPRMC.msg` messages into the topic `/gprmc`
-    + `publish/gpgsa`: `true` to publish `septentrio_gnss_driver/GPGSA.msg` messages into the topic `/gpgsa`
-    + `publish/gpgsv`: `true` to publish `septentrio_gnss_driver/GPGSV.msg` messages into the topic `/gpgsv`
+    + `publish/gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
+    + `publish/gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
+    + `publish/gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
+    + `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
@@ -384,6 +423,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
     + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
+    + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
+    + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
+    + `publish/tf`: `true` to broadcats tf of localization
   </details>
 
 ## ROS Topic Publications
@@ -391,10 +433,10 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 <details>
   <summary>Available ROS Topics</summary>
   
-  + `/gpgga`: publishes custom ROS message `septentrio_gnss_driver/Gpgga.msg` - equivalent to [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA
-  + `/gprmc`: publishes custom ROS message `septentrio_gnss_driver/Gprmc.msg` - equivalent to [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC
-  + `/gpgsa`: publishes custom ROS message `septentrio_gnss_driver/Gpgsa.msg` - equivalent to [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA
-  + `/gpgsv`: publishes custom ROS message `septentrio_gnss_driver/Gpgsv.msg` - equivalent to [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV
+  + `/gpgga`: publishes [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA
+  + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC
+  + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA
+  + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case)
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case)
   + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case)
@@ -407,7 +449,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
   + `/gpsfix`: publishes generic ROS message [`gps_common/GPSFix.msg`](https://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case)
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case)
-    + Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAntennaLocation`, ...) !local! NED frame. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
+    + Note that GNSS provides absolute positioning, while robots are often localized within a local level frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
     + In ROS, all state estimation nodes in the [`robot_localization` package](https://docs.ros.org/melodic/api/robot_localization/html/index.html) can accept the ROS message `geometry_msgs/PoseWithCovarianceStamped.msg`.
   + `/insnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
   + `/insnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
@@ -417,6 +459,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
   + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
   + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
+  + `/imu`: accepts generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`
+  + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod`
 </details>
 
 ## Suggestions for Improvements

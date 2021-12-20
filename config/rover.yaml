@@ -11,6 +11,20 @@ serial:
 
 frame_id: gnss
 
+imu_frame_id: imu
+
+poi_frame_id: poi
+
+vsm_frame_id: vsm
+
+aux1_frame_id: aux1
+
+get_spatial_config_from_tf: false
+
+lock_utm_zone: true
+
+use_ros_axis_orientation: true
+
 receiver_type: gnss
 
 datum: ETRS89
@@ -20,10 +34,9 @@ poi_to_arp:
   delta_n: 0.0
   delta_u: 0.0
 
-poi_to_aux1_arp:
-  delta_e: 0.0
-  delta_n: 0.0
-  delta_u: 0.0
+att_offset:
+  heading: 0.0
+  pitch: 0.0
   
 ant_type: Unknown
 ant_serial_nr: Unknown
@@ -79,13 +92,13 @@ publish:
   velsensorsetup: false
   exteventinsnavcart: false
   exteventinsnavgeod: false
+  imu: false
+  localization: false
+  tf: false
 
 # INS-Specific Parameters
 
 ins_spatial_config:
-  att_offset:
-    heading: 0.0
-    pitch: 0.0
   imu_orientation:
     theta_x: 0.0
     theta_y: 0.0

@@ -52,6 +52,12 @@ std::pair<std::string, uint32_t> pose_pairs[] = {
 std::pair<std::string, uint32_t> diagnosticarray_pairs[] = {
     std::make_pair("4014", 0), std::make_pair("4082", 1)};
 
+std::pair<std::string, uint32_t> imu_pairs[] = {
+    std::make_pair("4226", 0), std::make_pair("4050", 1)};
+
+std::pair<std::string, uint32_t> localization_pairs[] = {
+    std::make_pair("4226", 0)};
+
 namespace io_comm_rx {
     boost::mutex CallbackHandlers::callback_mutex_;
 
@@ -64,6 +70,13 @@ namespace io_comm_rx {
     CallbackHandlers::DiagnosticArrayMap
         CallbackHandlers::diagnosticarray_map(diagnosticarray_pairs,
                                               diagnosticarray_pairs + 2);
+    CallbackHandlers::ImuMap
+        CallbackHandlers::imu_map(imu_pairs,
+                                  imu_pairs + 2);
+                                  
+    CallbackHandlers::LocalizationMap
+        CallbackHandlers::localization_map(localization_pairs,
+                                           localization_pairs + 1);
 
     std::string CallbackHandlers::do_gpsfix_ = "4007";
     std::string CallbackHandlers::do_navsatfix_ = "4007";
@@ -72,7 +85,9 @@ namespace io_comm_rx {
     
     std::string CallbackHandlers::do_insgpsfix_ = "4226";
     std::string CallbackHandlers::do_insnavsatfix_ = "4226"; 
-    std::string CallbackHandlers::do_inspose_ = "4226";  
+    std::string CallbackHandlers::do_inspose_ = "4226"; 
+    std::string CallbackHandlers::do_imu_ = "4226";
+    std::string CallbackHandlers::do_inslocalization_ = "4226";
 
     //! The for loop forwards to a ROS message specific handle if the latter was
     //! added via callbackmap_.insert at some earlier point.
@@ -245,6 +260,58 @@ namespace io_comm_rx {
 				do_diagnostics_ = std::string();
 			}
 		}
+        // Call ImuMsg callback function if it was
+        // added for INS
+        if (settings_->septentrio_receiver_type == "ins")
+        {
+            if (settings_->publish_imu)
+            {
+                CallbackMap::key_type key = "Imu";
+                std::string ID_temp = rx_message_.messageID();
+                if (ID_temp == do_imu_)
+                // The last incoming block INSNavGeod triggers the publishing of PoseWithCovarianceStamped.
+                {
+                    for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
+                        callback != callbackmap_.upper_bound(key); ++callback)
+                    {
+                        try
+                        {
+                            callback->second->handle(rx_message_, callback->first);
+                        } catch (std::runtime_error& e)
+                        {
+                            throw std::runtime_error(e.what());
+                        }
+                    }
+                    do_imu_ = std::string();
+                }
+            }
+        }
+         // Call LocalizationMsg callback function if it was
+        // added for INS
+        if (settings_->septentrio_receiver_type == "ins")
+        {
+            if (settings_->publish_localization)
+            {
+                CallbackMap::key_type key = "Localization";
+                std::string ID_temp = rx_message_.messageID();
+                if (ID_temp == do_inslocalization_)
+                // The last incoming block INSNavGeod triggers the publishing of PoseWithCovarianceStamped.
+                {
+                    for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
+                        callback != callbackmap_.upper_bound(key); ++callback)
+                    {
+                        try
+                        {
+                            callback->second->handle(rx_message_, callback->first);
+                        } catch (std::runtime_error& e)
+                        {
+                            throw std::runtime_error(e.what());
+                        }
+                    }
+                    do_inslocalization_ = std::string();
+                }
+            }
+        }
         // Call TimeReferenceMsg (with GPST) callback function if it was
         // added
         if (settings_->septentrio_receiver_type == "gnss")
@@ -488,6 +555,22 @@ namespace io_comm_rx {
 						do_diagnostics_ = ID_temp;
 					}
 				}
+                if (settings_->publish_imu &&
+				(ID_temp == "4050" || ID_temp == "4226"))
+				{
+					if (rx_message_.imu_complete(imu_map[ID_temp]))
+					{
+						do_imu_ = ID_temp;
+					}
+				}
+                if (settings_->publish_localization &&
+                (ID_temp == "4226"))
+                {
+                    if (rx_message_.ins_localization_complete(localization_map[ID_temp]))
+                    {
+                        do_inslocalization_ = ID_temp;
+                    }
+                }
             }
             if (rx_message_.isNMEA())
             {

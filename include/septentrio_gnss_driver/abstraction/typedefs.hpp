@@ -35,6 +35,9 @@
 #include <unordered_map>
 // ROS includes
 #include <ros/ros.h>
+// tf2 includes
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // ROS msg includes
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
@@ -43,6 +46,8 @@
 #include <gps_common/GPSFix.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/TimeReference.h>
+#include <sensor_msgs/Imu.h>
+#include <nav_msgs/Odometry.h>
 // GNSS msg includes
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
@@ -52,10 +57,10 @@
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
-#include <septentrio_gnss_driver/Gpgga.h>
-#include <septentrio_gnss_driver/Gpgsa.h>
-#include <septentrio_gnss_driver/Gpgsv.h>
-#include <septentrio_gnss_driver/Gprmc.h>
+#include <nmea_msgs/Gpgga.h>
+#include <nmea_msgs/Gpgsa.h>
+#include <nmea_msgs/Gpgsv.h>
+#include <nmea_msgs/Gprmc.h>
 // INS msg includes
 #include <septentrio_gnss_driver/INSNavCart.h>
 #include <septentrio_gnss_driver/INSNavGeod.h>
@@ -65,9 +70,12 @@
 #include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 #include <septentrio_gnss_driver/ExtSensorMeas.h>
 
+// Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t  Timestamp;
+// ROS timestamp
 typedef ros::Time TimestampRos;
 
+// ROS messages
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
@@ -83,7 +91,12 @@ typedef sensor_msgs::NavSatFixPtr                   NavSatFixMsgPtr;
 typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;
 typedef sensor_msgs::TimeReference                  TimeReferenceMsg;
 typedef sensor_msgs::TimeReferencePtr               TimeReferenceMsgPtr;
+typedef sensor_msgs::Imu                            ImuMsg;
+typedef sensor_msgs::ImuPtr                         ImuMsgPtr;
+typedef nav_msgs::Odometry                          LocalizationUtmMsg;
+typedef nav_msgs::OdometryPtr                       LocalizationUtmMsgPtr;
 
+// Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
 typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
 typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
@@ -99,15 +112,17 @@ typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
 typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
 typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
 
-typedef septentrio_gnss_driver::Gpgga    GpggaMsg;
-typedef septentrio_gnss_driver::GpggaPtr GpggaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsa    GpgsaMsg;
-typedef septentrio_gnss_driver::GpgsaPtr GpgsaMsgPtr;
-typedef septentrio_gnss_driver::Gpgsv    GpgsvMsg;
-typedef septentrio_gnss_driver::GpgsvPtr GpgsvMsgPtr;
-typedef septentrio_gnss_driver::Gprmc    GprmcMsg;
-typedef septentrio_gnss_driver::GprmcPtr GprmcMsgPtr;
+// NMEA messages
+typedef nmea_msgs::Gpgga    GpggaMsg;
+typedef nmea_msgs::GpggaPtr GpggaMsgPtr;
+typedef nmea_msgs::Gpgsa    GpgsaMsg;
+typedef nmea_msgs::GpgsaPtr GpgsaMsgPtr;
+typedef nmea_msgs::Gpgsv    GpgsvMsg;
+typedef nmea_msgs::GpgsvPtr GpgsvMsgPtr;
+typedef nmea_msgs::Gprmc    GprmcMsg;
+typedef nmea_msgs::GprmcPtr GprmcMsgPtr;
 
+// Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
 typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
 typedef septentrio_gnss_driver::INSNavGeod            INSNavGeodMsg;
@@ -125,7 +140,7 @@ typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
- * @param[in] ts timestamp in nanoseconds
+ * @param[in] ts timestamp in nanoseconds (Unix epoch)
  * @return ROS timestamp
  */
 inline TimestampRos timestampToRos(Timestamp ts)
@@ -138,21 +153,29 @@ inline TimestampRos timestampToRos(Timestamp ts)
 /**
  * @brief Convert ROS timestamp to nsec timestamp 
  * @param[in] ts ROS timestamp
- * @return timestamp in nanoseconds
+ * @return timestamp in nanoseconds (Unix epoch)
  */
 inline Timestamp timestampFromRos(const TimestampRos& tsr)
 {
     return tsr.toNSec();
 }
 
+/**
+ * @brief Log level for ROS logging
+ */
 enum LogLevel
 {
     DEBUG,
     INFO,
+    WARN,
     ERROR,
     FATAL
 };
 
+/**
+ * @class ROSaicNodeBase
+ * @brief This class is the base class for abstraction
+ */
 class ROSaicNodeBase
 {
 public:
@@ -163,68 +186,22 @@ public:
     virtual ~ROSaicNodeBase(){}
 
     /**
-     * @brief Checks whether the parameter is in the given range
-     * @param[in] val The value to check
-     * @param[in] min The minimum for this value
-     * @param[in] max The maximum for this value
-     * @param[in] name The name of the parameter
-     * @throws std::runtime_error if the parameter is out of bounds
-     */
-    template <typename V, typename T>
-    void checkRange(V val, T min, T max, std::string name)
-    {
-        if (val < min || val > max)
-        {
-            std::stringstream ss;
-            ss << "Invalid settings: " << name << " must be in range [" << min
-               << ", " << max << "].";
-            throw std::runtime_error(ss.str());
-        }
-    } 
-
-    /**
      * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] key The key to be used in the parameter server's dictionary
-     * @param[out] u Storage for the retrieved value, of type U, which can be either
+     * @param[in] name The key to be used in the parameter server's dictionary
+     * @param[out] val Storage for the retrieved value, of type U, which can be either
      * unsigned int or int
-     * @return True if found and valid, false if not
-     */
-    template <typename U>
-    bool getROSInt(const std::string& key, U& u)
-    {
-        int param;
-        if (!pNh_->getParam(key, param))
-            return false;
-        U min = std::numeric_limits<U>::lowest();
-        U max = std::numeric_limits<U>::max();
-        try
-        {
-            checkRange((U)param, min, max, key);
-        } catch (std::runtime_error& e)
-        {
-            ROS_ERROR_STREAM(e.what());
-            return false;
-        }
-        u = (U)param;
-        return true;
-    }
-
-    /**
-     * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] key The key to be used in the parameter server's dictionary
-     * @param[out] u Storage for the retrieved value, of type U, which can be either
-     * unsigned int or int
-     * @param[in] default_val Value to use if the server doesn't contain this
+     * @param[in] defaultVal Value to use if the server doesn't contain this
      * parameter
      */
-    template <typename U>
-    bool getIntParam(const std::string& key, U& u, U default_val)
+    bool getUint32Param(const std::string& name, uint32_t& val, uint32_t defaultVal)
     {
-        if (!getROSInt(key, u))
-        {
-            u = default_val;
+        int32_t tempVal;
+        if ((!pNh_->getParam(name, tempVal)) || (tempVal < 0))
+        {            
+            val = defaultVal;
             return false;
         }
+        val = tempVal;
         return true;
     }
 
@@ -256,6 +233,9 @@ public:
             break;
         case LogLevel::INFO:
             ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
+            break;
+        case LogLevel::WARN:
+            ROS_WARN_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case LogLevel::ERROR:
             ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
@@ -298,6 +278,27 @@ public:
         }
     }
 
+    /**
+     * @brief Publishing function for tf
+     * @param[in] msg ROS localization message to be converted to tf
+     */
+    void publishTf(const LocalizationUtmMsg& loc)
+    {
+        geometry_msgs::TransformStamped transformStamped;
+        transformStamped.header.stamp            = loc.header.stamp;
+        transformStamped.header.frame_id         = loc.header.frame_id;
+        transformStamped.child_frame_id          = loc.child_frame_id;
+        transformStamped.transform.translation.x = loc.pose.pose.position.x;
+        transformStamped.transform.translation.y = loc.pose.pose.position.y;
+        transformStamped.transform.translation.z = loc.pose.pose.position.z;
+        transformStamped.transform.rotation.x    = loc.pose.pose.orientation.x;
+        transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
+        transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
+        transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
+
+        tf2Publisher_.sendTransform(transformStamped);
+    }
+
 protected:
     //! Node handle pointer
     std::shared_ptr<ros::NodeHandle> pNh_;    
@@ -307,6 +308,8 @@ private:
     std::unordered_map<std::string, ros::Publisher> topicMap_;
     //! Publisher queue size
     uint32_t queueSize_ = 1;
+    //! Transform publisher
+    tf2_ros::TransformBroadcaster tf2Publisher_;
 };
 
 #endif // Typedefs_HPP

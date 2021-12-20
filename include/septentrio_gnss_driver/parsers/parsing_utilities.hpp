@@ -36,6 +36,11 @@
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <ctime>   // C++ header, corresponds to <time.h> in C
 #include <string>  // C++ header, corresponds to <string.h> in C
+// Eigen Includes
+#include <Eigen/Core>
+#include <Eigen/LU>
+// Boost includes
+#include <boost/math/constants/constants.hpp>
 // ROS includes
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
@@ -45,7 +50,62 @@
  * @date 17/08/20
  */
 
-namespace parsing_utilities {
+namespace parsing_utilities {    
+
+    constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
+
+    /***********************************************************************
+     * Square value
+     **********************************************************************/
+    template<class T>
+    inline T square(T val)
+    {
+        return val * val;
+    }
+
+    /***********************************************************************
+     * Convert degrees to radians
+     **********************************************************************/
+    template<class T>
+    inline T deg2rad(T deg)
+    {
+        return deg * boost::math::constants::degree<T>();
+    }
+
+    /***********************************************************************
+     * Convert radians to degree
+     **********************************************************************/
+    template<class T>
+    inline T rad2deg(T rad)
+    {
+        return rad * boost::math::constants::radian<T>();
+    }
+
+    /***********************************************************************
+     * Convert Euler angles to rotation matrix
+     **********************************************************************/
+    inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
+    {
+        Eigen::Matrix3d M;
+        double          sa, ca, sb, cb, sc, cc;
+        sa = std::sin(roll);
+        ca = std::cos(roll);
+        sb = std::sin(pitch);
+        cb = std::cos(pitch);
+        sc = std::sin(yaw);
+        cc = std::cos(yaw);
+
+        M << cb * cc, -ca * sc + sa * sb * cc, sc* sa + ca * sb * cc,
+            cb* sc, ca* cc + sa * sb * sc, -sa * cc + ca * sb * sc,
+            -sb,          sa* cb,           ca* cb;
+        return M;
+    }
+
+    /**
+     * @brief Wraps an angle between -180 and 180 degrees
+     * @param[in] angle The angle to be wrapped
+     */
+    double wrapAngle180to180(double angle);
 
     /**
      * @brief Converts an 8-byte-buffer into a double

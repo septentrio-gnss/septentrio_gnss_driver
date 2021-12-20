@@ -171,12 +171,6 @@ struct Settings
     float delta_n;
     //! Marker-to-ARP offset in the upward direction
     float delta_u;
-    //! Marker-to-Aux1-ARP offset in the eastward direction
-    float delta_aux1_e;
-    //! Marker-to-Aux1-ARP offset in the northward direction
-    float delta_aux1_n;
-    //! Marker-to-Aux1-ARP offset in the upward direction
-    float delta_aux1_u;
     //! Main antenna type, from the list returned by the command "lstAntennaInfo,
     //! Overview"
     std::string ant_type;
@@ -187,36 +181,36 @@ struct Settings
     std::string ant_serial_nr;
     //! Serial number of your particular Aux1 antenna
     std::string ant_aux1_serial_nr;
-    //! IMU orientation mode helper variable
-    bool manual;
+    //! ROS axis orientation, body: front-left-up, geographic: ENU
+    bool use_ros_axis_orientation;
     //! IMU orientation x-angle
-    float theta_x;
+    double theta_x;
     //! IMU orientation y-angle
-    float theta_y;
+    double theta_y;
     //! IMU orientation z-angle
-    float theta_z;
+    double theta_z;
     //! INS antenna lever arm x-offset
-    float ant_lever_x;
+    double ant_lever_x;
     //! INS antenna lever arm y-offset
-    float ant_lever_y;
+    double ant_lever_y;
     //! INS antenna lever arm z-offset
-    float ant_lever_z;
+    double ant_lever_z;
     //! INS POI offset in x-dimension
-    float poi_x;
+    double poi_x;
     //! INS POI offset in y-dimension
-    float poi_y;
+    double poi_y;
     //! INS POI offset in z-dimension
-    float poi_z;
+    double poi_z;
     //! INS velocity sensor lever arm x-offset
-    float vsm_x;
+    double vsm_x;
     //! INS velocity sensor lever arm y-offset
-    float vsm_y;
+    double vsm_y;
     //! INS velocity sensor lever arm z-offset
-    float vsm_z;
+    double vsm_z;
     //! Attitude offset determination in longitudinal direction
-    float heading_offset;
+    double heading_offset;
     //! Attitude offset determination in latitudinal direction
-    float pitch_offset;
+    double pitch_offset;
     //! INS solution reference point
     bool ins_use_poi;
     //! For heading computation when unit is powered-cycled
@@ -301,6 +295,12 @@ struct Settings
     bool publish_pose;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
+    //! Whether or not to publish the ImuMsg message
+    bool publish_imu;
+    //! Whether or not to publish the LocalizationMsg message
+    bool publish_localization;
+    //! Whether or not to publish the tf of the localization
+    bool publish_tf;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW (in
@@ -309,6 +309,18 @@ struct Settings
     bool use_gnss_time;
     //! The frame ID used in the header of every published ROS message
     std::string frame_id;
+    //! The frame ID used in the header of published ROS Imu message
+    std::string imu_frame_id;
+    //! The frame ID used in the header of published ROS Localization message if poi is used
+    std::string poi_frame_id;
+    //! The frame ID of the velocity sensor
+    std::string vsm_frame_id;
+    //! The frame ID of the aux1 antenna
+    std::string aux1_frame_id;
+    //! The frame ID of the vehicle frame
+    std::string vehicle_frame_id;
+    //! Wether the UTM zone of the localization is locked
+    bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
     uint32_t leap_seconds;
     //! Whether or not we are reading from an SBF file
@@ -369,6 +381,8 @@ enum RxID_Enum
     evDOP,
     evVelCovGeodetic,
     evDiagnosticArray,
+    evImu,
+    evLocalization,
     evReceiverStatus,
     evQualityInd,
     evReceiverSetup
@@ -443,6 +457,8 @@ namespace io_comm_rx {
             std::make_pair("4001", evDOP),
             std::make_pair("5908", evVelCovGeodetic),
             std::make_pair("DiagnosticArray", evDiagnosticArray),
+            std::make_pair("Imu", evImu),
+            std::make_pair("Localization", evLocalization),
             std::make_pair("4014", evReceiverStatus),
             std::make_pair("4082", evQualityInd),
             std::make_pair("5902", evReceiverSetup),
@@ -591,6 +607,16 @@ namespace io_comm_rx {
          */
         bool diagnostics_complete(uint32_t id);
 
+        /**
+         * @brief Wether all blocks have arrived for Imu Message
+         */
+        bool imu_complete(uint32_t id);
+
+         /**
+         * @brief Wether all blocks have arrived for Localization Message
+         */
+        bool ins_localization_complete(uint32_t id);
+
     private:
         /**
          * @brief Pointer to the node
@@ -598,7 +624,7 @@ namespace io_comm_rx {
         ROSaicNodeBase* node_;
 
         /**
-         * @brief Timestamp of recevieng buffer
+         * @brief Timestamp of receiving buffer
          */
         Timestamp recvTimestamp_;
 
@@ -654,10 +680,16 @@ namespace io_comm_rx {
         AttCovEuler last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
+         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
         INSNavGeod last_insnavgeod_;
+
+         /**
+         * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
+         * need to be stored
+         */
+        ExtSensorMeas last_extsensmeas_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
@@ -796,6 +828,18 @@ namespace io_comm_rx {
         //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
         //! arrived or not
         bool qualityind_has_arrived_diagnostics_ = false;
+
+        //! For Imu: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        uint8_t insnavgeod_has_arrived_imu_ = 0;
+
+        //! For Localization: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_localization_ = false;
+
+        //! For Imu: Whether the ExtSensorMeas block of the current epoch
+        //! has arrived or not
+        bool extsens_has_arrived_imu_ = false;
 
         /**
          * @brief Callback function when reading PVTCartesian blocks
@@ -951,6 +995,22 @@ namespace io_comm_rx {
          */
         DiagnosticArrayMsgPtr DiagnosticArrayCallback();
 
+        /**
+         * @brief "Callback" function when constructing
+         * ImuMsg messages
+         * @return A smart pointer to the ROS message
+         * ImuMsg just created
+         */
+        ImuMsgPtr ImuCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * LocalizationUtmMsg messages
+         * @return A smart pointer to the ROS message
+         * LocalizationUtmMsg just created
+         */
+        LocalizationUtmMsgPtr LocalizationUtmCallback();
+
          /**
          * @brief Waits according to time when reading from file
          */
@@ -964,7 +1024,12 @@ namespace io_comm_rx {
         /**
          * @brief Settings struct
          */
-        Settings* settings_;  
+        Settings* settings_;
+
+        /**
+         * @brief Fixed UTM zone
+         */
+        std::shared_ptr<std::string> fixedUtmZone_;
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format
