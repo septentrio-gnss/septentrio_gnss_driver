@@ -14,11 +14,13 @@ septentrio_gnss_driver:
 
     imu_frame_id: imu
 
-    poi_frame_id: base_link
+    poi_frame_id: poi
 
     vsm_frame_id: vsm
 
     aux1_frame_id: aux1
+
+    vehicle_frame_id: base_link
 
     get_spatial_config_from_tf: false
 

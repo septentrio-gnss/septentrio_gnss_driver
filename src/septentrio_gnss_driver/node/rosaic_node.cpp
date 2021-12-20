@@ -83,8 +83,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("frame_id", settings_.frame_id, (std::string) "gnss");
     param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
     param("poi_frame_id", settings_.poi_frame_id, (std::string) "poi");
-    param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
+    param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
+    param("vehicle_frame_id", settings_.vehicle_frame_id, (std::string) "base_link");
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("publish.gpst", settings_.publish_gpst, true);
     param("publish.navsatfix", settings_.publish_navsatfix, true);
@@ -166,6 +167,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("get_spatial_config_from_tf", getConfigFromTf, false);
     if (getConfigFromTf)
     {
+        TransformStampedMsg T_imu_base;
+        getTransform(settings_.imu_frame_id, settings_.vehicle_frame_id, T_imu_base);
         TransformStampedMsg T_poi_imu;
         getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
         TransformStampedMsg T_vsm_imu;
@@ -177,7 +180,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
         // IMU orientation parameter
         double roll, pitch, yaw;
-        getRPY(T_poi_imu.transform.rotation, roll, pitch, yaw);
+        getRPY(T_imu_base.transform.rotation, roll, pitch, yaw);
         settings_.theta_x = parsing_utilities::rad2deg(roll);
         settings_.theta_y = parsing_utilities::rad2deg(pitch);
         settings_.theta_z = parsing_utilities::rad2deg(yaw);
