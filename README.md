@@ -270,7 +270,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `aux1`
   + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `base_link`
-  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` all frames have to be provided, for type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `vehicle_frame_id`. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `ins_multi_antenna` set to `true` all frames have to be provided, with `ins_multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `vehicle_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
     + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
@@ -384,6 +384,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `2` degrees, `100` meters
+    + `ins_multi_antenna`: Whether or not the INS has multiple antennas.
+      + default: `true`
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_to_imu`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`).
       + default: `false`

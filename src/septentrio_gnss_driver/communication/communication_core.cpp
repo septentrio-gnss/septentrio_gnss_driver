@@ -643,8 +643,8 @@ void io_comm_rx::Comm_IO::configureRx()
         if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
         {
             std::stringstream ss;
-            ss << "sto, " << string_utilities::trimString(std::to_string(settings_->heading_offset))
-            << ", " << string_utilities::trimString(std::to_string(settings_->pitch_offset)) << " \x0D";
+            ss << "sto, " << string_utilities::trimDecimalPlaces(settings_->heading_offset)
+            << ", " << string_utilities::trimDecimalPlaces(settings_->pitch_offset) << " \x0D";
             send(ss.str());
         }
         else
@@ -656,6 +656,16 @@ void io_comm_rx::Comm_IO::configureRx()
 	// Setting the INS-related commands
     if (settings_->septentrio_receiver_type == "ins")
     {
+        // INS multi antenna
+        if (settings_->ins_multi_antenna)
+        {
+            send("sga, MultiAntenna \x0D");
+        }
+        else
+        {
+            send("sga, none \x0D");
+        }
+
         // IMU orientation 
         {
             std::stringstream ss;

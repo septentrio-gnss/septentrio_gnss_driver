@@ -125,4 +125,6 @@ septentrio_gnss_driver:
       att_std_dev: 0.0
       pos_std_dev: 0.0
 
+    ins_multi_antenna: false
+
     ins_use_poi: false
