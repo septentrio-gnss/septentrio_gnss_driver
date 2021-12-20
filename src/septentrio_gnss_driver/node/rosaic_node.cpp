@@ -359,17 +359,21 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
 void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const std::string& sourceFrame, geometry_msgs::TransformStamped& T_s_t)
 {
-   try
-	{
-		// try to get tf from source frame to target frame
-        T_s_t = tfBuffer_.lookupTransform(targetFrame, sourceFrame, ros::Time(0), ros::Duration(10.0)); 
-	}
-	catch (const tf2::TransformException& ex)
-	{
-		this->log(LogLevel::FATAL, "No transform from " + sourceFrame + " to " + targetFrame + ": " + ex.what() + ".");
-		this->log(LogLevel::FATAL, "Please restart LocalizationNode.");
-		exit(EXIT_FAILURE);
-	}
+    bool found = false;
+    while (!found)
+    {
+        try
+        {
+            // try to get tf from source frame to target frame
+            T_s_t = tfBuffer_.lookupTransform(targetFrame, sourceFrame, ros::Time(0), ros::Duration(2.0));
+            found = true;
+        }
+        catch (const tf2::TransformException& ex)
+        {
+            this->log(LogLevel::WARN, "Waiting for transform from " + sourceFrame + " to " + targetFrame + ": " + ex.what() + ".");
+            found = false;
+        }
+    }
 }
 
 void rosaic_node::ROSaicNode::getRPY(const geometry_msgs::Quaternion& qm, double& roll, double& pitch, double& yaw)

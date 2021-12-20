@@ -167,6 +167,7 @@ enum LogLevel
 {
     DEBUG,
     INFO,
+    WARN,
     ERROR,
     FATAL
 };
@@ -232,6 +233,9 @@ public:
             break;
         case LogLevel::INFO:
             ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
+            break;
+        case LogLevel::WARN:
+            ROS_WARN_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case LogLevel::ERROR:
             ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
