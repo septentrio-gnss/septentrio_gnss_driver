@@ -317,6 +317,8 @@ struct Settings
     std::string vsm_frame_id;
     //! The frame ID of the aux1 antenna
     std::string aux1_frame_id;
+    //! The frame ID of the vehicle frame
+    std::string vehicle_frame_id;
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time

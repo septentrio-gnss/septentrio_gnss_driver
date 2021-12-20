@@ -79,7 +79,15 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   imu_frame_id: imu
 
-  poi_frame_id: base_link
+  poi_frame_id: poi
+
+  vsm_frame_id: vsm
+
+  aux1_frame_id: aux1
+
+  vehicle_frame_id: base_link
+
+  get_spatial_config_from_tf: true
 
   lock_utm_zone: true
 
@@ -262,12 +270,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
     + default: `imu`
   + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
-    + default: `base_link`
+    + default: `poi`
   + `vsm_frame_id`: name of the ROS tf frame for the velocity sensor.
     + default: `vsm`
   + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `aux1`
-  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. POI is assumed to be the vehicle frame which also concerns the IMU orientation. This will override spatial settings of the config file.
+   + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
+    + default: `base_link`
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
     + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
