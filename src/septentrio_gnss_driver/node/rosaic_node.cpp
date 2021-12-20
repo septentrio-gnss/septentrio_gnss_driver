@@ -167,42 +167,64 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("get_spatial_config_from_tf", getConfigFromTf, false);
     if (getConfigFromTf)
     {
-        TransformStampedMsg T_imu_base;
-        getTransform(settings_.imu_frame_id, settings_.vehicle_frame_id, T_imu_base);
-        TransformStampedMsg T_poi_imu;
-        getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
-        TransformStampedMsg T_vsm_imu;
-        getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
-        TransformStampedMsg T_ant_imu;
-        getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
-        TransformStampedMsg T_aux1_imu;
-        getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+        // Wait a little for tf to become ready
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1000ms);
 
-        // IMU orientation parameter
-        double roll, pitch, yaw;
-        getRPY(T_imu_base.transform.rotation, roll, pitch, yaw);
-        settings_.theta_x = parsing_utilities::rad2deg(roll);
-        settings_.theta_y = parsing_utilities::rad2deg(pitch);
-        settings_.theta_z = parsing_utilities::rad2deg(yaw);
-        // INS antenna lever arm offset parameter
-        settings_.ant_lever_x = T_ant_imu.transform.translation.x;
-        settings_.ant_lever_y = T_ant_imu.transform.translation.y;
-        settings_.ant_lever_z = T_ant_imu.transform.translation.z;
-        // INS POI ofset paramter
-        settings_.poi_x = T_poi_imu.transform.translation.x;
-        settings_.poi_y = T_poi_imu.transform.translation.y;
-        settings_.poi_z = T_poi_imu.transform.translation.z;
-        // INS velocity sensor lever arm offset parameter
-        settings_.vsm_x = T_vsm_imu.transform.translation.x;
-        settings_.vsm_y = T_vsm_imu.transform.translation.y;
-        settings_.vsm_z = T_vsm_imu.transform.translation.z;
-        // Antenna Attitude Determination parameter
-        double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
-        double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
-        settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
-        double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
-        double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
-        settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+        if (settings_.septentrio_receiver_type == "ins")
+        {
+            TransformStampedMsg T_imu_base;
+            getTransform(settings_.imu_frame_id, settings_.vehicle_frame_id, T_imu_base);
+            TransformStampedMsg T_poi_imu;
+            getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
+            TransformStampedMsg T_vsm_imu;
+            getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
+            TransformStampedMsg T_ant_imu;
+            getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
+            TransformStampedMsg T_aux1_imu;
+            getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+
+            // IMU orientation parameter
+            double roll, pitch, yaw;
+            getRPY(T_imu_base.transform.rotation, roll, pitch, yaw);
+            settings_.theta_x = parsing_utilities::rad2deg(roll);
+            settings_.theta_y = parsing_utilities::rad2deg(pitch);
+            settings_.theta_z = parsing_utilities::rad2deg(yaw);
+            // INS antenna lever arm offset parameter
+            settings_.ant_lever_x = T_ant_imu.transform.translation.x;
+            settings_.ant_lever_y = T_ant_imu.transform.translation.y;
+            settings_.ant_lever_z = T_ant_imu.transform.translation.z;
+            // INS POI ofset paramter
+            settings_.poi_x = T_poi_imu.transform.translation.x;
+            settings_.poi_y = T_poi_imu.transform.translation.y;
+            settings_.poi_z = T_poi_imu.transform.translation.z;
+            // INS velocity sensor lever arm offset parameter
+            settings_.vsm_x = T_vsm_imu.transform.translation.x;
+            settings_.vsm_y = T_vsm_imu.transform.translation.y;
+            settings_.vsm_z = T_vsm_imu.transform.translation.z;
+            // Antenna Attitude Determination parameter
+            double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
+            double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
+            settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
+            double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
+            double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
+            settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+        }
+        if (settings_.septentrio_receiver_type == "gnss")
+        {
+            TransformStampedMsg T_ant_base;
+            getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_base);
+            TransformStampedMsg T_aux1_base;
+            getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id, T_aux1_base);
+
+            // Antenna Attitude Determination parameter
+            double dy = T_aux1_base.transform.translation.y - T_ant_base.transform.translation.y;
+            double dx = T_aux1_base.transform.translation.x - T_ant_base.transform.translation.x;
+            settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
+            double dz = T_aux1_base.transform.translation.z - T_ant_base.transform.translation.z;
+            double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
+            settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+        }
     }
     else
     {
