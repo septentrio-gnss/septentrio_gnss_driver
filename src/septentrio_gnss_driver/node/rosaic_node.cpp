@@ -136,6 +136,30 @@ bool rosaic_node::ROSaicNode::getROSParams()
         return false;
     }
 
+    // Publishing parameters, the others remained global since they need to be
+    // accessed in the callbackhandlers.hpp file
+    param("publish.gpgga", settings_.publish_gpgga, true);
+    param("publish.gprmc", settings_.publish_gprmc, true);
+    param("publish.gpgsa", settings_.publish_gpgsa, true);
+    param("publish.gpgsv", settings_.publish_gpgsv, true);
+    param("publish.pvtcartesian", settings_.publish_pvtcartesian, true);
+    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, true);
+    param("publish.poscovcartesian", settings_.publish_poscovcartesian, true);
+    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic, true);
+	param("publish.velcovgeodetic", settings_.publish_velcovgeodetic, true);
+    param("publish.atteuler", settings_.publish_atteuler, true);
+    param("publish.attcoveuler", settings_.publish_attcoveuler, true);
+    param("publish.insnavcart", settings_.publish_insnavcart, true);
+    param("publish.insnavgeod", settings_.publish_insnavgeod, true);
+    param("publish.imusetup", settings_.publish_imusetup, true);
+    param("publish.velsensorsetup", settings_.publish_velsensorsetup, true);
+    param("publish.exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
+    param("publish.exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
+    param("publish.extsensormeas", settings_.publish_extsensormeas, true);
+    param("publish.imu", settings_.publish_imu, true);
+    param("publish.localization", settings_.publish_localization, true);
+    param("publish.tf", settings_.publish_tf, true);
+
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("ETRS89"));
     param("ant_type", settings_.ant_type, std::string("Unknown"));
@@ -269,6 +293,20 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.pitch_offset   *= -1.0;
     }
 
+    if (settings_.heading_offset != 0.0)
+    {
+        if (settings_.publish_atteuler)
+        {
+            this->log(LogLevel::WARN , "Pitch angle output by topic /atteuler is a tilt angle rotated by " + 
+                                    std::to_string(settings_.heading_offset) + ".");
+        }
+        if (settings_.publish_pose && (settings_.septentrio_receiver_type == "gnss"))
+        {
+            this->log(LogLevel::WARN , "Pitch angle output by topic /pose is a tilt angle rotated by " + 
+                                        std::to_string(settings_.heading_offset) + ".");
+        }
+    }
+
     this->log(LogLevel::DEBUG , "IMU roll offset: "+ std::to_string(settings_.theta_x));
     this->log(LogLevel::DEBUG , "IMU pitch offset: "+ std::to_string(settings_.theta_y));
     this->log(LogLevel::DEBUG , "IMU yaw offset: "+ std::to_string(settings_.theta_z));
@@ -305,30 +343,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
               static_cast<uint32_t>(28785));
     param("ntrip_settings.rx_input_corrections_serial",
                 settings_.rx_input_corrections_serial, std::string("USB2"));
-
-    // Publishing parameters, the others remained global since they need to be
-    // accessed in the callbackhandlers.hpp file
-    param("publish.gpgga", settings_.publish_gpgga, true);
-    param("publish.gprmc", settings_.publish_gprmc, true);
-    param("publish.gpgsa", settings_.publish_gpgsa, true);
-    param("publish.gpgsv", settings_.publish_gpgsv, true);
-    param("publish.pvtcartesian", settings_.publish_pvtcartesian, true);
-    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, true);
-    param("publish.poscovcartesian", settings_.publish_poscovcartesian, true);
-    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic, true);
-	param("publish.velcovgeodetic", settings_.publish_velcovgeodetic, true);
-    param("publish.atteuler", settings_.publish_atteuler, true);
-    param("publish.attcoveuler", settings_.publish_attcoveuler, true);
-    param("publish.insnavcart", settings_.publish_insnavcart, true);
-    param("publish.insnavgeod", settings_.publish_insnavgeod, true);
-    param("publish.imusetup", settings_.publish_imusetup, true);
-    param("publish.velsensorsetup", settings_.publish_velsensorsetup, true);
-    param("publish.exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
-    param("publish.exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
-    param("publish.extsensormeas", settings_.publish_extsensormeas, true);
-    param("publish.imu", settings_.publish_imu, true);
-    param("publish.localization", settings_.publish_localization, true);
-    param("publish.tf", settings_.publish_tf, true);
 
     // Automatically activate needed sub messages
     if (settings_.septentrio_receiver_type == "gnss")
