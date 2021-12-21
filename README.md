@@ -275,7 +275,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `vsm`
   + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `aux1`
-   + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
+  + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `base_link`
   + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `ins_multi_antenna` set to `true` all frames have to be provided, with `ins_multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `vehicle_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
     + default: `false`

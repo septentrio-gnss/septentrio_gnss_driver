@@ -188,13 +188,13 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         if (settings_.septentrio_receiver_type == "ins")
         {
-            geometry_msgs::TransformStamped T_imu_base;
+            TransformStampedMsg T_imu_base;
             getTransform(settings_.imu_frame_id, settings_.vehicle_frame_id, T_imu_base);
-            geometry_msgs::TransformStamped T_poi_imu;
+            TransformStampedMsg T_poi_imu;
             getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
-            geometry_msgs::TransformStamped T_vsm_imu;
+            TransformStampedMsg T_vsm_imu;
             getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
-            geometry_msgs::TransformStamped T_ant_imu;
+            TransformStampedMsg T_ant_imu;
             getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);           
 
             // IMU orientation parameter
@@ -218,7 +218,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
             if (settings_.ins_multi_antenna)
             {
-                 geometry_msgs::TransformStamped T_aux1_imu;
+                TransformStampedMsg T_aux1_imu;
                 getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
                 // Antenna Attitude Determination parameter
                 double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
@@ -231,9 +231,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         }
         if (settings_.septentrio_receiver_type == "gnss")
         {
-            geometry_msgs::TransformStamped T_ant_base;
+            TransformStampedMsg T_ant_base;
             getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_base);
-            geometry_msgs::TransformStamped T_aux1_base;
+            TransformStampedMsg T_aux1_base;
             getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id, T_aux1_base);
 
             // Antenna Attitude Determination parameter
@@ -399,7 +399,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     return true;
 }
 
-void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const std::string& sourceFrame, geometry_msgs::TransformStamped& T_s_t)
+void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const std::string& sourceFrame, TransformStampedMsg& T_s_t)
 {
     bool found = false;
     while (!found)
@@ -418,7 +418,7 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const
     }
 }
 
-void rosaic_node::ROSaicNode::getRPY(const geometry_msgs::Quaternion& qm, double& roll, double& pitch, double& yaw)
+void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll, double& pitch, double& yaw)
 {
     Eigen::Quaterniond q(qm.w, qm.x, qm.y, qm.z);
 	Eigen::Quaterniond::RotationMatrixType C = q.matrix();
