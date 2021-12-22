@@ -28,7 +28,9 @@ septentrio_gnss_driver:
 
     use_ros_axis_orientation: true
 
-    receiver_type: gnss
+    receiver_type: gnss    
+
+    multi_antenna: false
 
     datum: ETRS89
 
@@ -124,7 +126,5 @@ septentrio_gnss_driver:
     ins_std_dev_mask:
       att_std_dev: 0.0
       pos_std_dev: 0.0
-
-    ins_multi_antenna: false
 
     ins_use_poi: false
