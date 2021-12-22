@@ -29,6 +29,8 @@ use_ros_axis_orientation: true
 
 receiver_type: gnss
 
+multi_antenna: false
+
 datum: ETRS89
 
 poi_to_arp:
@@ -123,7 +125,5 @@ ins_initial_heading: auto
 ins_std_dev_mask:
   att_std_dev: 0.0
   pos_std_dev: 0.0
-
-ins_multi_antenna: false
 
 ins_use_poi: false

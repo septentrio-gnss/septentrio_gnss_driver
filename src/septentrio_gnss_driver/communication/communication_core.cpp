@@ -638,6 +638,16 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
+    // Setting multi antenna
+    if (settings_->multi_antenna)
+    {
+        send("sga, MultiAntenna \x0D");
+    }
+    else
+    {
+        send("sga, none \x0D");
+    }
+
     // Setting the Attitude Determination
     {
         if (settings_->heading_offset >= HEADING_MIN && settings_->heading_offset<= HEADING_MAX && settings_->pitch_offset >= PITCH_MIN && settings_->pitch_offset <= PITCH_MAX)
@@ -656,16 +666,6 @@ void io_comm_rx::Comm_IO::configureRx()
 	// Setting the INS-related commands
     if (settings_->septentrio_receiver_type == "ins")
     {
-        // INS multi antenna
-        if (settings_->ins_multi_antenna)
-        {
-            send("sga, MultiAntenna \x0D");
-        }
-        else
-        {
-            send("sga, none \x0D");
-        }
-
         // IMU orientation 
         {
             std::stringstream ss;

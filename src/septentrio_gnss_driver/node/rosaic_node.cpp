@@ -178,8 +178,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 
-    // ins_initial_heading param
-    param("ins_multi_antenna", settings_.ins_multi_antenna, true);
+    // multi_antenna param
+    param("multi_antenna", settings_.multi_antenna, false);
 	
 	// INS Spatial Configuration
     bool getConfigFromTf;
@@ -216,7 +216,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             settings_.vsm_y = T_vsm_imu.transform.translation.y;
             settings_.vsm_z = T_vsm_imu.transform.translation.z;
 
-            if (settings_.ins_multi_antenna)
+            if (settings_.multi_antenna)
             {
                 TransformStampedMsg T_aux1_imu;
                 getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
@@ -229,7 +229,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
             }
         }
-        if (settings_.septentrio_receiver_type == "gnss")
+        if ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna)
         {
             TransformStampedMsg T_ant_base;
             getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_base);
