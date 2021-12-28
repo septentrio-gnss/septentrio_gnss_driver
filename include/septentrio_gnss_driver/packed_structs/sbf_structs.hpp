@@ -107,46 +107,14 @@
 #define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 
+// Boost
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/spirit/repository/include/qi_advance.hpp>
+
 // ROSaic includes
 #include "ssn_types.hpp"
-
-#if defined(__GNUC__) || defined(__ARMCC__)
-/* Before the advent of the CPMF platform, double data types were always
- * 32-bit aligned, meaning that the struct were aligned to an address
- * that was divisible by 4. On the CPMF, double data types are 64-bit
- * aligned. The "packed, aligned(4)" attribute combination is necessary
- * to enforce 32-bit alignment for double data types and to port the SBF
- * encoding/decoding functionality to the CPMF.
- */
-// The aligned variable attribute specifies a minimum alignment for the variable or
-// structure field, measured in bytes. The aligned attribute only increases the
-// alignment for a struct or struct member. For a variable that is not in a
-// structure, the minimum alignment is the natural alignment of the variable type. To
-// set the alignment in a structure to any value greater than 0, use the packed
-// variable attribute. Without packed, the minimum alignment is the natural alignment
-// of the variable type.
-
-#define SBFDOUBLE double __attribute__((packed, aligned(4)))
-#else
-#define SBFDOUBLE double
-#endif
-
-/* Force packing the structs on 4-byte alignment (needed for GCC 64 bit compilations)
- */
-#pragma pack(push, 4)
-// Clearly, there will be padding bytes for some structs, but those will be ignored
-// by our decoding software, as also suggested in the firmware. Example usages of
-// pragma directives: #pragma warn +xxx (To show the warning) #pragma startup func1
-// and #pragma exit func2  would not work with GCC compilers (just ignored)
-// printf("Size of A is: %ld", sizeof(A));  [%d works fine with signed, unsigned and
-// negative integer values, l stands for long], recall we want structs to avoid
-// wasting = padding To force compiler to use 1 byte packaging: #pragma pack(1) Same
-// result for struct s {int i...} __attribute__((packed)); could be shown via
-// printf("%zu ", offsetof(s, i)); #pragma pack()   // n defaults to 8; equivalent to
-// /Zp8, Valid values are 1, 2, 4, 8, and 16, forces the maximum alignment of each
-// field to be the value specified by n push: Pushes the current alignment setting on
-// an internal stack and then optionally sets the new alignment, identifier is also
-// allowed
 
 /**
  * @file sbf_structs.hpp
@@ -163,7 +131,15 @@ typedef struct
     uint8_t sync_1;  //!< first sync byte is $ or 0x24
     uint8_t sync_2;  //!< 2nd sync byte is @ or 0x40
     uint16_t crc;    //!< The check sum
-    uint16_t id;     //!< This is the block ID
+    union
+    {
+        uint16_t null; //!< This is only used for parsing
+        struct
+        {
+            uint16_t id : 13;
+            uint8_t rev :  3;
+        } ID; //!< This is the block ID, separated in id and rev
+    };
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
 } BlockHeader_t;
@@ -182,15 +158,15 @@ struct PVTCartesian
 
     uint8_t mode;
     uint8_t error;
-    SBFDOUBLE x;
-    SBFDOUBLE y;
-    SBFDOUBLE z;
+    double x;
+    double y;
+    double z;
     float undulation;
     float vx;
     float vy;
     float vz;
     float cog;
-    SBFDOUBLE rx_clk_bias;
+    double rx_clk_bias;
     float rx_clk_drift;
     uint8_t time_system;
     uint8_t datum;
@@ -222,15 +198,15 @@ struct PVTGeodetic
 
     uint8_t mode;
     uint8_t error;
-    SBFDOUBLE latitude;
-    SBFDOUBLE longitude;
-    SBFDOUBLE height;
+    double latitude;
+    double longitude;
+    double height;
     float undulation;
     float vn;
     float ve;
     float vu;
     float cog;
-    SBFDOUBLE rx_clk_bias;
+    double rx_clk_bias;
     float rx_clk_drift;
     uint8_t time_system;
     uint8_t datum;
@@ -315,13 +291,14 @@ typedef struct
 {
     uint8_t sv_id;
     uint8_t freq_nr;
-    uint8_t reserved1[2];
+    std::vector<uint8_t> reserved1; // size = 2
     uint16_t az_rise_set;
     uint16_t health_status;
     int8_t elev;
     uint8_t n2;
     uint8_t channel;
     uint8_t reserved2;
+    std::vector<ChannelStateInfo> stateInfo;
 } ChannelSatInfo;
 
 /**
@@ -339,8 +316,8 @@ struct ChannelStatus
     uint8_t n;
     uint8_t sb1_size;
     uint8_t sb2_size;
-    uint8_t reserved[3];
-    uint8_t data[SBF_CHANNELSTATUS_DATA_LENGTH];
+    std::vector<uint8_t> reserved; // size = 3
+    std::vector<ChannelSatInfo> satInfo;
 };
 
 /**
@@ -688,17 +665,17 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     x;
-    SBFDOUBLE     y;
-    SBFDOUBLE     z;
-    uint16_t      accuracy;
-    uint16_t      latency;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   x;
+    double   y;
+    double   z;
+    uint16_t accuracy;
+    uint16_t latency;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];
 } INSNavCart_1;
@@ -804,18 +781,18 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     latitude;
-    SBFDOUBLE     longitude;
-    SBFDOUBLE     height;
-    float         undulation;
-    uint16_t      accuracy;
-    uint16_t      latency;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   latitude;
+    double   longitude;
+    double   height;
+    float    undulation;
+    uint16_t accuracy;
+    uint16_t latency;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
 } INSNavGeod_1;
@@ -928,17 +905,17 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     latitude;
-    SBFDOUBLE     longitude;
-    SBFDOUBLE     height;
-    float         undulation;
-    uint16_t      accuracy;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   latitude;
+    double   longitude;
+    double   height;
+    float    undulation;
+    uint16_t accuracy;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     ExtEventINSNavGeodData_1   ExtEventINSNavGeodData[SBF_EXTEVENTINSNAVGEOD_LENGTH_1];     
 } ExtEventINSNavGeod_1;
@@ -1004,16 +981,16 @@ typedef struct
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t       gnss_mode;
-    uint8_t       error;
-    uint16_t      info;
-    uint16_t      gnss_age;
-    SBFDOUBLE     x;
-    SBFDOUBLE     y;
-    SBFDOUBLE     z;
-    uint16_t      accuracy;
-    uint8_t       datum;
-    uint16_t      sb_list;
+    uint8_t  gnss_mode;
+    uint8_t  error;
+    uint16_t info;
+    uint16_t gnss_age;
+    double   x;
+    double   y;
+    double   z;
+    uint16_t accuracy;
+    uint8_t  datum;
+    uint16_t sb_list;
 
     ExtEventINSNavCartData_1 ExtEventINSNavCartData[SBF_EXTEVENTINSNAVCART_LENGTH_1];
 } ExtEventINSNavCart_1;
@@ -1028,16 +1005,16 @@ typedef ExtEventINSNavCart_1 ExtEventINSNavCart;
 
 typedef struct
 {
-    SBFDOUBLE  acceleration_x;
-    SBFDOUBLE  acceleration_y;
-    SBFDOUBLE  acceleration_z;
+    double  acceleration_x;
+    double  acceleration_y;
+    double  acceleration_z;
 } ExtSensorMeasAcceleration_1;
 
 typedef struct
 {
-    SBFDOUBLE  angular_rate_x;
-    SBFDOUBLE  angular_rate_y;
-    SBFDOUBLE  angular_rate_z;
+    double  angular_rate_x;
+    double  angular_rate_y;
+    double  angular_rate_z;
 } ExtSensorMeasAngularRate_1;
 
 typedef struct
@@ -1057,7 +1034,7 @@ typedef struct
 
 typedef struct
 {
-    SBFDOUBLE zero_velocity_flag;
+    double zero_velocity_flag;
 } ExtSensorMeasZeroVelocityFlag_1;
 
 typedef union
@@ -1100,11 +1077,6 @@ typedef ExtSensorMeasData_1 ExtSensorMeasData;
 typedef ExtSensorMeasSet_1 ExtSensorMeasSet;
 typedef ExtSensorMeas_1 ExtSensorMeas;
 
-#pragma pack(pop)
-// The above form of the pack pragma affects only class, struct, and union type
-// declarations between push and pop directives. (A pop directive with no prior push
-// results in a warning diagnostic from the compiler.)
-
 /**
  * @brief CRC look-up table for fast computation of the 16-bit CRC for SBF blocks.
  *
@@ -1137,5 +1109,376 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x9de8, 0x8dc9, 0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
     0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36,
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
+
+BOOST_FUSION_ADAPT_STRUCT(
+BlockHeader_t,
+    (uint8_t, sync_1),
+    (uint8_t, sync_2),
+    (uint16_t, crc),
+    (uint16_t, null),
+    (uint16_t, length)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+PVTCartesian,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (double, x),
+    (double, y),
+    (double, z),
+    (float, undulation),
+    (float, vx),
+    (float, vy),
+    (float, vz),
+    (float, cog),
+    (double, rx_clk_bias),
+    (float, rx_clk_drift),
+    (uint8_t, time_system),
+    (uint8_t, datum),
+    (uint8_t, nr_sv),
+    (uint8_t, wa_corr_info),
+    (uint16_t, reference_id),
+    (uint16_t, mean_corr_age),
+    (uint32_t, signal_info),
+    (uint8_t, alert_flag),
+    (uint8_t, nr_bases),
+    (uint16_t, ppp_info),
+    (uint16_t, latency),
+    (uint16_t, h_accuracy),
+    (uint16_t, v_accuracy),
+    (uint8_t, misc)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+PVTGeodetic,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (double, latitude),
+    (double, longitude),
+    (double, height),
+    (float, undulation),
+    (float, vn),
+    (float, ve),
+    (float, vu),
+    (float, cog),
+    (double, rx_clk_bias),
+    (float, rx_clk_drift),
+    (uint8_t, time_system),
+    (uint8_t, datum),
+    (uint8_t, nr_sv),
+    (uint8_t, wa_corr_info),
+    (uint16_t, reference_id),
+    (uint16_t, mean_corr_age),
+    (uint32_t, signal_info),
+    (uint8_t, alert_flag),
+    (uint8_t, nr_bases),
+    (uint16_t, ppp_info),
+    (uint16_t, latency),
+    (uint16_t, h_accuracy),
+    (uint16_t, v_accuracy),
+    (uint8_t, misc)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+AttEuler,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, nr_sv),
+    (uint8_t, error),
+    (uint16_t, mode),
+    (uint16_t, reserved),
+    (float, heading),
+    (float, pitch),
+    (float, roll),
+    (float, pitch_dot),
+    (float, roll_dot),
+    (float, heading_dot)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+AttCovEuler,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, reserved),
+    (uint8_t, error),
+    (float, cov_headhead),
+    (float, cov_pitchpitch),
+    (float, cov_rollroll),
+    (float, cov_headpitch),
+    (float, cov_headroll),
+    (float, cov_pitchroll)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+ChannelStateInfo,
+    (uint8_t, antenna),
+    (uint8_t, reserved),
+    (uint16_t, tracking_status),
+    (uint16_t, pvt_status),
+    (uint16_t, pvt_info)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+ChannelSatInfo,
+    (uint8_t, sv_id),
+    (uint8_t, freq_nr),
+    (std::vector<uint8_t>, reserved1),
+    (uint16_t, az_rise_set),
+    (uint16_t, health_status),
+    (int8_t, elev),
+    (uint8_t, n2),
+    (uint8_t, channel),
+    (uint8_t, reserved2),
+    (std::vector<ChannelStateInfo>, stateInfo)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+ChannelStatus,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, n),
+    (uint8_t, sb1_size),
+    (uint8_t, sb2_size),
+    (std::vector<uint8_t>, reserved),
+    (std::vector<ChannelSatInfo>, satInfo)
+)
+
+namespace qi  = boost::spirit::qi;
+namespace rep = boost::spirit::repository;
+namespace phx = boost::phoenix;
+
+/**
+ * @struct BlockHeaderGrammar
+ * @brief Spirit grammar for the SBF block "BlockHeader"
+ */
+template<typename Iterator>
+struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader_t()>
+{
+	BlockHeaderGrammar() : BlockHeaderGrammar::base_type(blockHeader)
+	{
+		using namespace qi::labels;
+		
+        blockHeader %= qi::byte_[_pass = (boost::spirit::_1 == 0x24)]
+		            >> qi::byte_[_pass = (boost::spirit::_1 == 0x40)]
+		            >> qi::little_word
+		            >> qi::little_word // TODO  mask = 8191 3 bits for revision
+                    >> qi::little_word;
+	}
+
+	qi::rule<Iterator, BlockHeader_t()> blockHeader;
+};
+
+/**
+ * @struct PVTCartesianGrammar
+ * @brief Spirit grammar for the SBF block "PVTCartesian"
+ */
+template<typename Iterator>
+struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
+{
+	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
+	{
+        using namespace qi::labels;
+		
+		pvtCartesian %= header
+		             >> qi::little_dword
+                     >> qi::little_word
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::little_bin_double
+                     >> qi::little_bin_double
+                     >> qi::little_bin_double
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_double
+                     >> qi::little_bin_float
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::little_word
+                     >> qi::little_word
+                     >> qi::little_dword
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::little_word
+                     >> qi::little_word
+                     >> qi::little_word
+                     >> qi::little_word
+                     >> qi::byte_
+                     >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, PVTCartesian()> pvtCartesian;
+};
+
+/**
+ * @struct PVTGeodeticGrammar
+ * @brief Spirit grammar for the SBF block "PVTGeodetic"
+ */
+template<typename Iterator>
+struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
+{
+	PVTGeodeticGrammar() : PVTGeodeticGrammar::base_type(pvtGeodetic)
+	{
+		pvtGeodetic %= header
+		            >> qi::little_dword
+		            >> qi::little_word
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_bin_double
+                    >> qi::little_bin_double
+                    >> qi::little_bin_double
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_double
+                    >> qi::little_bin_float
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_word
+                    >> qi::little_word
+                    >> qi::little_dword
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_word
+                    >> qi::little_word
+                    >> qi::little_word
+                    >> qi::little_word
+                    >> qi::byte_
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, PVTGeodetic()> pvtGeodetic;
+};
+
+/**
+ * @struct AttEulerGrammar
+ * @brief Spirit grammar for the SBF block "AttEuler"
+ */
+template<typename Iterator>
+struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
+{
+	AttEulerGrammar() : AttEulerGrammar::base_type(attEuler)
+	{
+		attEuler %= header
+		         >> qi::little_dword
+		         >> qi::little_word
+                 >> qi::byte_
+                 >> qi::byte_
+                 >> qi::little_word
+		         >> qi::little_word
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, AttEuler()> attEuler;
+};
+
+/**
+ * @struct AttCovEulerGrammar
+ * @brief Spirit grammar for the SBF block "AttCovEuler"
+ */
+template<typename Iterator>
+struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
+{
+	AttCovEulerGrammar() : AttCovEulerGrammar::base_type(attCovEuler)
+	{
+		attCovEuler %= header
+		            >> qi::little_dword
+		            >> qi::little_word
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, AttCovEuler()> attCovEuler;
+};
+
+/**
+ * @struct ChannelStatusGrammar
+ * @brief Spirit grammar for the SBF block "ChannelStatus"
+ */
+template<typename Iterator>
+struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
+{
+	ChannelStatusGrammar() : ChannelStatusGrammar::base_type(channelStatus)
+	{
+        using namespace qi::labels;
+
+        channelStateInfo %= qi::byte_
+                         >> qi::byte_
+                         >> qi::little_word
+                         >> qi::little_word
+                         >> qi::little_word
+                         >> rep::qi::advance(_r1 - 8); // skip padding: sb2_size - 8 bytes
+
+		channelSatInfo %= qi::byte_
+                       >> qi::byte_
+                       >> qi::repeat(2)[qi::byte_]
+                       >> qi::little_word
+                       >> qi::little_word
+                       >> qi::char_
+                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), _a = qi::_1] // n2
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> rep::qi::advance(_r1 - 12) // skip padding: sb1_size - 12 
+                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
+		               >> qi::repeat(_a)[channelStateInfo(_r2)]; // pass sb2_size
+
+        channelStatusLocal %= header
+		                   >> qi::little_dword
+		                   >> qi::little_word
+                           >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), _a = qi::_1] // n
+                           >> qi::byte_[_b = qi::_1] // sb1_size
+                           >> qi::byte_[_c = qi::_1] // sb2_size
+                           >> qi::repeat(3)[qi::byte_]
+                           >> qi::eps[phx::reserve(phx::at_c<7>(_val), _a)]
+                           >> qi::repeat(_a)[channelSatInfo(_b, _c)] // pass sb1_size and sb2_size
+                           >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+
+        channelStatus %= channelStatusLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+    qi::rule<Iterator, ChannelStateInfo(uint8_t)> channelStateInfo;
+    qi::rule<Iterator, qi::locals<uint8_t>, ChannelSatInfo(uint8_t, uint8_t)> channelSatInfo;
+	qi::rule<Iterator, qi::locals<uint8_t, uint8_t, uint8_t>, ChannelStatus()> channelStatusLocal;
+	qi::rule<Iterator, ChannelStatus()> channelStatus;
+};
 
 #endif // SBFStructs_HPP

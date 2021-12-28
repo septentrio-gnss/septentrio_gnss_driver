@@ -391,6 +391,17 @@ enum RxID_Enum
 };
 
 namespace io_comm_rx {
+    /**
+     * @brief Calculates the timestamp, in the Unix Epoch time format
+     * This is either done using the TOW as transmitted with the SBF block (if
+     * "use_gnss" is true), or using the current time.
+     * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
+     * beginning of the current GPS week as transmitted by the SBF block
+     * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
+     * used, otherwise the current time
+     * @return ros::Time object containing seconds and nanoseconds since last epoch
+     */
+    ros::Time timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss);
    
     /**
      * @class RxMessage

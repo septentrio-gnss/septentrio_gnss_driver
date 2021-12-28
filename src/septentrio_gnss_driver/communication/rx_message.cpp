@@ -47,7 +47,7 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -87,7 +87,7 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -127,7 +127,7 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -153,7 +153,7 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -179,7 +179,7 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -205,7 +205,7 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -240,7 +240,7 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -271,7 +271,7 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -428,7 +428,7 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -585,7 +585,7 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -619,7 +619,7 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -649,7 +649,7 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -757,7 +757,7 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -863,7 +863,7 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id = data.block_header.ID.id;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -1848,22 +1848,15 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 	svid_pvt.clear();
 	std::vector<int32_t> ordering;
 	{
-		uint8_t sb1_size = last_channelstatus_.sb1_size;
-		uint8_t sb2_size = last_channelstatus_.sb2_size;
-		uint8_t* sb_start = &last_channelstatus_.data[0];
-		int32_t index = sb_start - &last_channelstatus_.block_header.sync_1;
-		// node_->log(LogLevel::DEBUG, "index is %i", index); // yields 20, as expected
-
-		uint16_t azimuth_mask = 511;
-		for (int32_t i = 0; i < static_cast<int32_t>(last_channelstatus_.n); i++)
+		svid_in_sync_2.reserve(last_channelstatus_.satInfo.size());
+		elevation_tracked.reserve(last_channelstatus_.satInfo.size());
+		azimuth_tracked.reserve(last_channelstatus_.satInfo.size());
+		for (auto channel_sat_info : last_channelstatus_.satInfo)
 		{
-			// Define ChannelSatInfo struct for the corresponding sub-block
-			ChannelSatInfo* channel_sat_info = reinterpret_cast<ChannelSatInfo*>(
-				&last_channelstatus_.block_header.sync_1 + index);
 			bool to_be_added = false;
 			for (int32_t j = 0; j < static_cast<int32_t>(svid_in_sync.size()); ++j)
 			{
-				if (svid_in_sync[j] == static_cast<int32_t>(channel_sat_info->sv_id))
+				if (svid_in_sync[j] == static_cast<int32_t>(channel_sat_info.sv_id))
 				{
 					ordering.push_back(j);
 					to_be_added = true;
@@ -1873,25 +1866,23 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 			if (to_be_added)
 			{
 				svid_in_sync_2.push_back(
-					static_cast<int32_t>(channel_sat_info->sv_id));
+					static_cast<int32_t>(channel_sat_info.sv_id));
 				elevation_tracked.push_back(
-					static_cast<int32_t>(channel_sat_info->elev));
+					static_cast<int32_t>(channel_sat_info.elev));
+				static uint16_t azimuth_mask = 511;		
 				azimuth_tracked.push_back(static_cast<int32_t>(
-					(channel_sat_info->az_rise_set & azimuth_mask)));
+					(channel_sat_info.az_rise_set & azimuth_mask)));
 			}
-			index += sb1_size;
-			for (int32_t j = 0; j < static_cast<int32_t>(channel_sat_info->n2); j++)
+			svid_pvt.reserve(channel_sat_info.stateInfo.size());
+			for (auto channel_state_info : channel_sat_info.stateInfo)
 			{
 				// Define ChannelStateInfo struct for the corresponding sub-block
-				ChannelStateInfo* channel_state_info =
-					reinterpret_cast<ChannelStateInfo*>(
-						&last_channelstatus_.block_header.sync_1 + index);
 				bool pvt_status = false;
 				uint16_t pvt_status_mask = std::pow(2, 15) + std::pow(2, 14);
 				for (int k = 15; k != -1; k -= 2)
 				{
 					uint16_t pvt_status_value =
-						(channel_state_info->pvt_status & pvt_status_mask) >> k - 1;
+						(channel_state_info.pvt_status & pvt_status_mask) >> k - 1;
 					if (pvt_status_value == 2)
 					{
 						pvt_status = true;
@@ -1906,9 +1897,8 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 				if (pvt_status)
 				{
 					svid_pvt.push_back(
-						static_cast<int32_t>(channel_sat_info->sv_id));
+						static_cast<int32_t>(channel_sat_info.sv_id));
 				}
-				index += sb2_size;
 			}
 		}
 	}
@@ -2369,17 +2359,9 @@ bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
 {
     if (this->isSBF())
     {
-         if (parsing_utilities::getId(data_) == static_cast<const uint16_t>(id))
-        // Caution: reinterpret_cast is the most dangerous cast. It's used primarily
-        // for particularly weird conversions and bit manipulations, like turning a
-        // raw data stream into actual data.
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
-    } else
+        return (parsing_utilities::getId(data_) == static_cast<const uint16_t>(id));
+    } 
+	else
     {
         return false;
     }
@@ -2499,9 +2481,8 @@ std::string io_comm_rx::RxMessage::messageID()
 {
     if (this->isSBF())
     {
-        uint16_t value = parsing_utilities::getId(data_);
         std::stringstream ss;
-        ss << value;
+        ss << parsing_utilities::getId(data_);
         return ss.str();
     }
     if (this->isNMEA())
@@ -2527,7 +2508,7 @@ uint16_t io_comm_rx::RxMessage::getBlockLength()
         uint16_t block_length;
         // Note that static_cast<uint16_t>(data_[6]) would just take the one byte
         // "data_[6]" and cast it as requested, !neglecting! the byte "data_[7]".
-        block_length = *(reinterpret_cast<const uint16_t*>(data_ + 6));
+        block_length = parsing_utilities::parseUInt16(data_ + 6);
         return block_length;
     } else
     {
@@ -2614,7 +2595,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// the end of the block. Otherwise variable overloading etc.
 			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
 			PVTCartesian pvtcartesian;
-			memcpy(&pvtcartesian, data_, sizeof(pvtcartesian));
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), pvtcartesian))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTCartesian");
+				break;
+			}
 			msg = PVTCartesianCallback(pvtcartesian);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -2635,7 +2622,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
-			memcpy(&last_pvtgeodetic_, data_, sizeof(last_pvtgeodetic_));
+			PVTGeodetic pvtGeodetic;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), pvtGeodetic))
+			{
+				last_pvtgeodetic_ = pvtGeodetic;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTGeodetic");
+				break;
+			}
 			msg = PVTGeodeticCallback(last_pvtgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -2702,7 +2700,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evAttEuler:
 		{
 			AttEulerMsgPtr msg(new AttEulerMsg);
-			memcpy(&last_atteuler_, data_, sizeof(last_atteuler_));
+			AttEuler attEuler;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), attEuler))
+			{
+				last_atteuler_ = attEuler;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttEuler");
+				break;
+			}
 			msg = AttEulerCallback(last_atteuler_);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -2725,7 +2734,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evAttCovEuler:
 		{
 			AttCovEulerMsgPtr msg(new AttCovEulerMsg);
-			memcpy(&last_attcoveuler_, data_, sizeof(last_attcoveuler_));
+			AttCovEuler attCovEuler;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), attCovEuler))
+			{
+				last_attcoveuler_ = attCovEuler;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttCovEuler");
+				break;
+			}
+
 			msg = AttCovEulerCallback(last_attcoveuler_);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -3309,8 +3330,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evChannelStatus:
 		{
-			memcpy(&last_channelstatus_, data_, sizeof(last_channelstatus_));
-			channelstatus_has_arrived_gpsfix_ = true;
+			ChannelStatus channelStatus;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), channelStatus))
+			{
+				last_channelstatus_ = channelStatus;
+				channelstatus_has_arrived_gpsfix_ = true;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ChannelStatus");
+				break;
+			}
 			break;
 		}
 		case evMeasEpoch:
