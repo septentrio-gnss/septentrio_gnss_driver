@@ -958,8 +958,8 @@ namespace io_comm_rx {
          * the ROS message ExtEventINSNavCart
          * @return A smart pointer to the ROS message ExtEventINSNavCart just created
          */
-        ExtEventINSNavCartMsgPtr
-        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
+        INSNavCartMsgPtr
+        ExtEventINSNavCartCallback(INSNavCart& data);
 
         /**
          * @brief Callback function when reading ExtEventINSNavGeod blocks
@@ -967,8 +967,8 @@ namespace io_comm_rx {
          * the ROS message ExtEventINSNavGeod
          * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
          */
-        ExtEventINSNavGeodMsgPtr
-        ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
+        INSNavGeodMsgPtr
+        ExtEventINSNavGeodCallback(INSNavGeod& data);
 
         /**
          * @brief Callback function when reading ExtSensorMeas blocks

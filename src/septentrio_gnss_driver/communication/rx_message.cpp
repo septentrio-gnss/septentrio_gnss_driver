@@ -640,11 +640,11 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     return msg;
 };
 
-ExtEventINSNavGeodMsgPtr
-io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
+INSNavGeodMsgPtr
+io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(INSNavGeod& data)
 {
     int SBIdx = 0;
-    ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
+    INSNavGeodMsgPtr msg(new INSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -668,9 +668,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     // Reading sub-block from corresponding SBF block
     if((msg->sb_list & 1) !=0)
     {
-        msg->latitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.latitude_std_dev;
-        msg->longitude_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.longitude_std_dev;
-        msg->height_std_dev = data.ExtEventINSNavGeodData[SBIdx].PosStdDev.height_std_dev;
+        msg->latitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.latitude_std_dev;
+        msg->longitude_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.longitude_std_dev;
+        msg->height_std_dev = data.INSNavGeodData[SBIdx].PosStdDev.height_std_dev;
         SBIdx++;
     }
     // if this sub block is not available then output DO_NOT_USE_VALUE
@@ -686,15 +686,15 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
         
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.ExtEventINSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
-            msg->pitch = -data.ExtEventINSNavGeodData[SBIdx].Att.pitch;
+            msg->heading = -data.INSNavGeodData[SBIdx].Att.heading + parsing_utilities::pi_half;
+            msg->pitch = -data.INSNavGeodData[SBIdx].Att.pitch;
         }
         else
         {
-            msg->heading = data.ExtEventINSNavGeodData[SBIdx].Att.heading;
-            msg->pitch = data.ExtEventINSNavGeodData[SBIdx].Att.pitch;          
+            msg->heading = data.INSNavGeodData[SBIdx].Att.heading;
+            msg->pitch = data.INSNavGeodData[SBIdx].Att.pitch;          
         }
-        msg->roll = data.ExtEventINSNavGeodData[SBIdx].Att.roll;
+        msg->roll = data.INSNavGeodData[SBIdx].Att.roll;
         SBIdx++;
     }
     else
@@ -706,9 +706,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 4) !=0)
     {
-        msg->heading_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
-        msg->pitch_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.ExtEventINSNavGeodData[SBIdx].AttStdDev.roll_std_dev;
+        msg->heading_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.heading_std_dev;
+        msg->pitch_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.INSNavGeodData[SBIdx].AttStdDev.roll_std_dev;
         SBIdx++;
     }
     else
@@ -720,9 +720,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 8) !=0)
     {
-        msg->ve = data.ExtEventINSNavGeodData[SBIdx].Vel.ve;
-        msg->vn = data.ExtEventINSNavGeodData[SBIdx].Vel.vn;
-        msg->vu = data.ExtEventINSNavGeodData[SBIdx].Vel.vu;
+        msg->ve = data.INSNavGeodData[SBIdx].Vel.ve;
+        msg->vn = data.INSNavGeodData[SBIdx].Vel.vn;
+        msg->vu = data.INSNavGeodData[SBIdx].Vel.vu;
         SBIdx++;
     }
     else
@@ -734,9 +734,9 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
 
     if((msg->sb_list & 16) !=0)
     {
-        msg->ve_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
-        msg->vn_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
-        msg->vu_std_dev = data.ExtEventINSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
+        msg->ve_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.ve_std_dev;
+        msg->vn_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vn_std_dev;
+        msg->vu_std_dev = data.INSNavGeodData[SBIdx].VelStdDev.vu_std_dev;
         SBIdx++;
     }
     else
@@ -748,11 +748,11 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data)
     return msg;
 };
 
-ExtEventINSNavCartMsgPtr
-io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
+INSNavCartMsgPtr
+io_comm_rx::RxMessage::ExtEventINSNavCartCallback(INSNavCart& data)
 {
     int SBI_dx = 0;
-    ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
+    INSNavCartMsgPtr msg(new INSNavCartMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
@@ -775,9 +775,9 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     // Reading sub-block from corresponding SBF block
     if((msg->sb_list & 1) !=0)
     {
-        msg->x_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.x_std_dev;
-        msg->y_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.y_std_dev;
-        msg->z_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventPosStdDev.z_std_dev;
+        msg->x_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.x_std_dev;
+        msg->y_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.y_std_dev;
+        msg->z_std_dev = data.INSNavCartData[SBI_dx].PosStdDev.z_std_dev;
         SBI_dx++;
     }
     // if this sub block is not available then output DO_NOT_USE_VALUE
@@ -792,15 +792,15 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
     {
         if (settings_->use_ros_axis_orientation)
         {
-            msg->heading = -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading + parsing_utilities::pi_half;
-            msg->pitch= -data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;
+            msg->heading = -data.INSNavCartData[SBI_dx].Att.heading + parsing_utilities::pi_half;
+            msg->pitch= -data.INSNavCartData[SBI_dx].Att.pitch;
         }
         else
         {
-            msg->heading = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.heading;
-            msg->pitch= data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.pitch;          
+            msg->heading = data.INSNavCartData[SBI_dx].Att.heading;
+            msg->pitch= data.INSNavCartData[SBI_dx].Att.pitch;          
         }
-        msg->roll = data.ExtEventINSNavCartData[SBI_dx].ExtEventAtt.roll;
+        msg->roll = data.INSNavCartData[SBI_dx].Att.roll;
         SBI_dx++;
     }
     else
@@ -812,9 +812,9 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 
     if((msg->sb_list & 4) !=0)
     {
-        msg->heading_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.heading_std_dev;
-        msg->pitch_std_dev= data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventAttStdDev.roll_std_dev;
+        msg->heading_std_dev = data.INSNavCartData[SBI_dx].AttStdDev.heading_std_dev;
+        msg->pitch_std_dev= data.INSNavCartData[SBI_dx].AttStdDev.pitch_std_dev;
+        msg->roll_std_dev = data.INSNavCartData[SBI_dx].AttStdDev.roll_std_dev;
         SBI_dx++;
     }
     else
@@ -826,9 +826,9 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 
     if((msg->sb_list & 8) !=0)
     {
-        msg->vx = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vx;
-        msg->vy = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vy;
-        msg->vz = data.ExtEventINSNavCartData[SBI_dx].ExtEventVel.vz;
+        msg->vx = data.INSNavCartData[SBI_dx].Vel.vx;
+        msg->vy = data.INSNavCartData[SBI_dx].Vel.vy;
+        msg->vz = data.INSNavCartData[SBI_dx].Vel.vz;
         SBI_dx++;
     }
     else
@@ -840,9 +840,9 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(ExtEventINSNavCart& data)
 
     if((msg->sb_list & 16) !=0)
     {
-        msg->vx_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vx_std_dev;
-        msg->vy_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vy_std_dev;
-        msg->vz_std_dev = data.ExtEventINSNavCartData[SBI_dx].ExtEventVelStdDev.vz_std_dev;
+        msg->vx_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vx_std_dev;
+        msg->vy_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vy_std_dev;
+        msg->vz_std_dev = data.INSNavCartData[SBI_dx].VelStdDev.vz_std_dev;
         SBI_dx++;
     }
     else
@@ -2861,10 +2861,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evExtEventINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
 							// frame)
 		{
-			ExtEventINSNavCartMsgPtr msg(new ExtEventINSNavCartMsg);
-			ExtEventINSNavCart exteventinsnavcart;
+			INSNavCartMsgPtr msg(new INSNavCartMsg);
+			INSNavCart exteventinsnavcart;
 			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
-			msg = ExtEventINSNavCartCallback(exteventinsnavcart);
+			msg = INSNavCartCallback(exteventinsnavcart);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -2877,14 +2877,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<ExtEventINSNavCartMsg>("/exteventinsnavcart", *msg);
+			node_->publishMessage<INSNavCartMsg>("/exteventinsnavcart", *msg);
 			break;
 		}
 
 		case evExtEventINSNavGeod:
 		{
-			ExtEventINSNavGeodMsgPtr msg(new ExtEventINSNavGeodMsg);
-			ExtEventINSNavGeod exteventinsnavgeod;
+			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
+			INSNavGeod exteventinsnavgeod;
 			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
 			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
 			msg->header.frame_id = settings_->frame_id;
@@ -2899,7 +2899,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<ExtEventINSNavGeodMsg>("/exteventinsnavgeod", *msg);
+			node_->publishMessage<INSNavGeodMsg>("/exteventinsnavgeod", *msg);
 			break;
 		}
 

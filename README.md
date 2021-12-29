@@ -458,8 +458,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/extsensormeas`: publishes custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 
   + `/imusetup`: publishes custom ROS message `septentrio_gnss_driver/IMUSetup.msg`, corresponding to SBF block `IMUSetup` 
   + `/velsensorsetup`: publishes custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup` 
-  + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
-  + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/ExtEventINSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
+  + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart` 
+  + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod` 
   + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros.org/api/diagnostic_msgs/html/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
   + `/imu`: accepts generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`
   + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod`

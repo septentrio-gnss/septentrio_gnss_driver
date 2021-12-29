@@ -66,8 +66,6 @@
 #include <septentrio_gnss_driver/INSNavGeod.h>
 #include <septentrio_gnss_driver/IMUSetup.h>
 #include <septentrio_gnss_driver/VelSensorSetup.h>
-#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
-#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 #include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -132,10 +130,6 @@ typedef septentrio_gnss_driver::IMUSetup              IMUSetupMsg;
 typedef septentrio_gnss_driver::IMUSetupPtr           IMUSetupMsgPtr;
 typedef septentrio_gnss_driver::VelSensorSetup        VelSensorSetupMsg;
 typedef septentrio_gnss_driver::VelSensorSetupPtr     VelSensorSetupMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavGeod    ExtEventINSNavGeodMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavGeodPtr ExtEventINSNavGeodMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavCart    ExtEventINSNavCartMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
 typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
 typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 

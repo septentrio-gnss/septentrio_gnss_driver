@@ -898,7 +898,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_exteventinsnavgeod)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<ExtEventINSNavGeodMsg>("4230");
+            handlers_.insert<INSNavGeodMsg>("4230");
     }
     if (settings_->publish_velsensorsetup)
     {
@@ -908,7 +908,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_exteventinsnavcart)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<ExtEventINSNavCartMsg>("4229");
+            handlers_.insert<INSNavCartMsg>("4229");
     }
 	if (settings_->publish_gpst)
 	{
