@@ -113,9 +113,6 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/repository/include/qi_advance.hpp>
 
-// ROSaic includes
-#include "ssn_types.hpp"
-
 struct ID_t
 {
     ID_t(uint16_t ui1=0, uint8_t ui2=0) : 
@@ -1304,7 +1301,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
 	{
         using namespace qi::labels;
 		
-		pvtCartesianLocal %= header(_a, _b) //revision, length
+		pvtCartesianLocal %= header(_a, _b) // revision, length
 		                  >> qi::little_dword
                           >> qi::little_word
                           >> qi::byte_
@@ -1354,8 +1351,8 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
 	PVTGeodeticGrammar() : PVTGeodeticGrammar::base_type(pvtGeodetic)
 	{
         using namespace qi::labels;
-        
-		pvtGeodeticLocal %= header(_a, _b) //revision, length
+
+		pvtGeodeticLocal %= header(_a, _b) // revision, length
 		                 >> qi::little_dword
 		                 >> qi::little_word
                          >> qi::byte_
@@ -1406,7 +1403,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
 	{
         using namespace qi::labels;
 
-		attEulerLocal %= header(_a, _b) //revision, length
+		attEulerLocal %= header(_a, _b) // revision, length
 		              >> qi::little_dword
 		              >> qi::little_word
                       >> qi::byte_
@@ -1440,7 +1437,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 	{
         using namespace qi::labels;
 
-		attCovEulerLocal %= header(_a, _b) //revision, length
+		attCovEulerLocal %= header(_a, _b) // revision, length
 		                 >> qi::little_dword
 		                 >> qi::little_word
                          >> qi::byte_
@@ -1493,7 +1490,7 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                        >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
 		               >> qi::repeat(_a)[channelStateInfo(_r2)]; // pass sb2_size
 
-        channelStatusLocal %= header(_a, _b) //revision, length
+        channelStatusLocal %= header(_a, _b) // revision, length
 		                   >> qi::little_dword
 		                   >> qi::little_word
                            >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), _c = qi::_1] // n
