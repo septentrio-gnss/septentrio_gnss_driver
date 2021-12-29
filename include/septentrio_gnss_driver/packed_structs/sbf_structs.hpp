@@ -368,6 +368,7 @@ typedef struct
     uint16_t lock_time;
     uint8_t obs_info;
     uint8_t n_type2;
+    std::vector<MeasEpochChannelType2> type2;
 } MeasEpochChannelType1;
 
 /**
@@ -390,7 +391,7 @@ struct MeasEpoch
     uint8_t common_flags;
     uint8_t cum_clk_jumps;
     uint8_t reserved;
-    uint8_t data[MEASEPOCH_DATA_LENGTH];
+    std::vector<MeasEpochChannelType1> type1;
 };
 
 /**
@@ -1109,6 +1110,50 @@ ChannelStatus,
     (std::vector<ChannelSatInfo>, satInfo)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+MeasEpochChannelType2,
+    (uint8_t, type),
+    (uint8_t, lock_time),
+    (uint8_t, cn0),
+    (uint8_t, offsets_msb),
+    (int8_t, carrier_msb),
+    (uint8_t, obs_info),
+    (uint16_t, code_offset_lsb),
+    (uint16_t, carrier_lsb),
+    (uint16_t, doppler_offset_lsb)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+MeasEpochChannelType1,
+    (uint8_t, rx_channel),
+    (uint8_t, type),
+    (uint8_t, sv_id),
+    (uint8_t, misc),
+    (uint32_t, code_lsb),
+    (int32_t, doppler),
+    (uint16_t, carrier_lsb),
+    (int8_t, carrier_msb),
+    (uint8_t, cn0),
+    (uint16_t, lock_time),
+    (uint8_t, obs_info),
+    (uint8_t, n_type2),
+    (std::vector<MeasEpochChannelType2>, type2)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+MeasEpoch,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, n),
+    (uint8_t, sb1_size),
+    (uint8_t, sb2_size),
+    (uint8_t, common_flags),
+    (uint8_t, cum_clk_jumps),
+    (uint8_t, reserved),
+    (std::vector<MeasEpochChannelType1>, type1)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1354,6 +1399,68 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
     qi::rule<Iterator, qi::locals<uint8_t>, ChannelSatInfo(uint8_t, uint8_t)> channelSatInfo;
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t, uint8_t>, ChannelStatus()> channelStatusLocal;
 	qi::rule<Iterator, ChannelStatus()> channelStatus;
+};
+
+/**
+ * @struct MeasEpochGrammar
+ * @brief Spirit grammar for the SBF block "MeasEpoch"
+ */
+template<typename Iterator>
+struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
+{
+	MeasEpochGrammar() : MeasEpochGrammar::base_type(measEpoch)
+	{
+        using namespace qi::labels;
+
+        measEpochChannelType2 %= qi::byte_
+                              >> qi::byte_
+                              >> qi::byte_
+                              >> qi::byte_
+                              >> qi::char_ 
+                              >> qi::byte_
+                              >> qi::little_word
+                              >> qi::little_word
+                              >> qi::little_word
+                              >> rep::qi::advance(_r1 - 12); // skip padding: sb2_size - 12 bytes
+
+		measEpochChannelType1 %= qi::byte_
+                              >> qi::byte_
+                              >> qi::byte_
+                              >> qi::byte_
+                              >> qi::little_dword
+                              >> qi::little_dword
+                              >> qi::little_word
+                              >> qi::char_
+                              >> qi::byte_
+                              >> qi::little_word
+                              >> qi::byte_
+                              >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T2), _a = qi::_1] // n2
+                              >> rep::qi::advance(_r1 - 20) // skip padding: sb1_size - 20 bytes
+                              >> qi::eps[phx::reserve(phx::at_c<12>(_val), _a)]
+		                      >> qi::repeat(_a)[measEpochChannelType2(_r2)]; // pass sb2_size
+
+        measEpochLocal %= header(_a, _b) // revision, length
+		               >> qi::little_dword
+		               >> qi::little_word
+                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1), _c = qi::_1] // n
+                       >> qi::byte_[_d = qi::_1] // sb1_size
+                       >> qi::byte_[_e = qi::_1] // sb2_size
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), _c)]
+                       >> qi::repeat(_c)[measEpochChannelType1(_d, _e)] // pass sb1_size and sb2_size
+                       >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+
+        measEpoch %= measEpochLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+    qi::rule<Iterator, MeasEpochChannelType2(uint8_t)> measEpochChannelType2;
+    qi::rule<Iterator, qi::locals<uint8_t>, MeasEpochChannelType1(uint8_t, uint8_t)> measEpochChannelType1;
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t, uint8_t>, MeasEpoch()> measEpochLocal;
+	qi::rule<Iterator, MeasEpoch()> measEpoch;
 };
 
 #endif // SBFStructs_HPP

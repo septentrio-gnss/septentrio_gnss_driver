@@ -1804,38 +1804,27 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 	std::vector<int32_t> cno_tracked;
 	std::vector<int32_t> svid_in_sync;
 	{
-		uint8_t sb1_size = last_measepoch_.sb1_size;
-		uint8_t sb2_size = last_measepoch_.sb2_size;
-		uint8_t* sb_start = &last_measepoch_.data[0];
-		int32_t index = sb_start - &last_measepoch_.block_header.sync_1;
-		for (int32_t i = 0; i < static_cast<int32_t>(last_measepoch_.n); ++i)
+        cno_tracked.reserve(last_measepoch_.type1.size());
+        svid_in_sync.reserve(last_measepoch_.type1.size());
+		for (const auto& measepoch_channel_type1 : last_measepoch_.type1)
 		{
 			// Define MeasEpochChannelType1 struct for the corresponding sub-block
-			MeasEpochChannelType1* measepoch_channel_type1 =
-				reinterpret_cast<MeasEpochChannelType1*>(
-					&last_measepoch_.block_header.sync_1 + index);
 			svid_in_sync.push_back(
-				static_cast<int32_t>(measepoch_channel_type1->sv_id));
+				static_cast<int32_t>(measepoch_channel_type1.sv_id));
 			uint8_t type_mask =
 				15; // We extract the first four bits using this mask.
-			if (((measepoch_channel_type1->type & type_mask) ==
+			if (((measepoch_channel_type1.type & type_mask) ==
 				static_cast<uint8_t>(1)) ||
-				((measepoch_channel_type1->type & type_mask) ==
+				((measepoch_channel_type1.type & type_mask) ==
 				static_cast<uint8_t>(2)))
 			{
 				cno_tracked.push_back(
-					static_cast<int32_t>(measepoch_channel_type1->cn0) / 4);
+					static_cast<int32_t>(measepoch_channel_type1.cn0) / 4);
 			} else
 			{
 				cno_tracked.push_back(
-					static_cast<int32_t>(measepoch_channel_type1->cn0) / 4 +
+					static_cast<int32_t>(measepoch_channel_type1.cn0) / 4 +
 					static_cast<int32_t>(10));
-			}
-			index += sb1_size;
-			for (int32_t j = 0;
-				j < static_cast<int32_t>(measepoch_channel_type1->n_type2); j++)
-			{
-				index += sb2_size;
 			}
 		}
 	}
@@ -1851,7 +1840,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 		svid_in_sync_2.reserve(last_channelstatus_.satInfo.size());
 		elevation_tracked.reserve(last_channelstatus_.satInfo.size());
 		azimuth_tracked.reserve(last_channelstatus_.satInfo.size());
-		for (auto channel_sat_info : last_channelstatus_.satInfo)
+		for (const auto& channel_sat_info : last_channelstatus_.satInfo)
 		{
 			bool to_be_added = false;
 			for (int32_t j = 0; j < static_cast<int32_t>(svid_in_sync.size()); ++j)
@@ -3347,8 +3336,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evMeasEpoch:
 		{
-			memcpy(&last_measepoch_, data_, sizeof(last_measepoch_));
-			measepoch_has_arrived_gpsfix_ = true;
+			MeasEpoch measEpoch;
+			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
+			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), MeasEpochGrammar<std::vector<uint8_t>::iterator>(), measEpoch))
+			{
+				last_measepoch_ = measEpoch;
+				measepoch_has_arrived_gpsfix_ = true;
+			}
+			else
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in MeasEpoch");
+				break;
+			}
 			break;
 		}
 		case evDOP:
