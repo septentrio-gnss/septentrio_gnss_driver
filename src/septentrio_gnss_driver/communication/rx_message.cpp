@@ -3347,7 +3347,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evDOP:
 		{
-			memcpy(&last_dop_, data_, sizeof(last_dop_));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), DopGrammar<std::vector<uint8_t>::iterator>(), last_dop_))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in DOP");
+				break;
+			}
 			dop_has_arrived_gpsfix_ = true;
 			break;
 		}

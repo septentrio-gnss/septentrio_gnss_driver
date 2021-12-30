@@ -1154,6 +1154,21 @@ MeasEpoch,
     (std::vector<MeasEpochChannelType1>, type1)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+DOP,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, nr_sv),
+    (uint8_t, reserved),
+    (uint16_t, pdop),
+    (uint16_t, tdop),
+    (uint16_t, hdop),
+    (uint16_t, vdop),
+    (float, hpl),
+    (float, vpl)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1461,6 +1476,39 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
     qi::rule<Iterator, qi::locals<uint8_t>, MeasEpochChannelType1(uint8_t, uint8_t)> measEpochChannelType1;
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t, uint8_t>, MeasEpoch()> measEpochLocal;
 	qi::rule<Iterator, MeasEpoch()> measEpoch;
+};
+
+/**
+ * @struct DOPGrammar
+ * @brief Spirit grammar for the SBF block "DOP"
+ */
+template<typename Iterator>
+struct DopGrammar : qi::grammar<Iterator, DOP()>
+{
+	DopGrammar() : DopGrammar::base_type(dop)
+	{
+        using namespace qi::labels;
+
+		dopLocal %= header(_a, _b) // revision, length
+		         >> qi::little_dword
+		         >> qi::little_word
+                 >> qi::byte_
+                 >> qi::byte_
+                 >> qi::little_word
+		         >> qi::little_word
+                 >> qi::little_word
+		         >> qi::little_word
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        dop %= dopLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, DOP()> dopLocal;
+    qi::rule<Iterator, DOP()> dop;
 };
 
 #endif // SBFStructs_HPP
