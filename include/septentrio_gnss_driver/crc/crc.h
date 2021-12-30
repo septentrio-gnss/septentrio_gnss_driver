@@ -38,7 +38,7 @@
 // C++ libary includes
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * @file crc.h

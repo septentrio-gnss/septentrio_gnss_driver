@@ -1227,7 +1227,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
 	{
         using namespace qi::labels;
 		
-		pvtCartesianLocal %= header(4006, _a, _b) // revision, length
+		pvtCartesianLocal %= header(4006, _a, _b) // id, revision, length
 		                  >> qi::little_dword
                           >> qi::little_word
                           >> qi::byte_
@@ -1278,7 +1278,7 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
 	{
         using namespace qi::labels;
 
-		pvtGeodeticLocal %= header(4007, _a, _b) // revision, length
+		pvtGeodeticLocal %= header(4007, _a, _b) // id, revision, length
 		                 >> qi::little_dword
 		                 >> qi::little_word
                          >> qi::byte_
@@ -1329,7 +1329,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
 	{
         using namespace qi::labels;
 
-		attEulerLocal %= header(5938, _a, _b) // revision, length
+		attEulerLocal %= header(5938, _a, _b) // id, revision, length
 		              >> qi::little_dword
 		              >> qi::little_word
                       >> qi::byte_
@@ -1363,7 +1363,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 	{
         using namespace qi::labels;
 
-		attCovEulerLocal %= header(5939, _a, _b) // revision, length
+		attCovEulerLocal %= header(5939, _a, _b) // id, revision, length
 		                 >> qi::little_dword
 		                 >> qi::little_word
                          >> qi::byte_
@@ -1416,7 +1416,7 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                        >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
 		               >> qi::repeat(_a)[channelStateInfo(_r2)]; // pass sb2_size
 
-        channelStatusLocal %= header(4013, _a, _b) // revision, length
+        channelStatusLocal %= header(4013, _a, _b) // id, revision, length
 		                   >> qi::little_dword
 		                   >> qi::little_word
                            >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), _c = qi::_1] // n
@@ -1476,7 +1476,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                               >> qi::eps[phx::reserve(phx::at_c<12>(_val), _a)]
 		                      >> qi::repeat(_a)[measEpochChannelType2(_r2)]; // pass sb2_size
 
-        measEpochLocal %= header(4027, _a, _b) // revision, length
+        measEpochLocal %= header(4027, _a, _b) // id, revision, length
 		               >> qi::little_dword
 		               >> qi::little_word
                        >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1), _c = qi::_1] // n
@@ -1511,7 +1511,7 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 	{
         using namespace qi::labels;
 
-		dopLocal %= header(4001, _a, _b) // revision, length
+		dopLocal %= header(4001, _a, _b) // id, revision, length
 		         >> qi::little_dword
 		         >> qi::little_word
                  >> qi::byte_
@@ -1544,7 +1544,7 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
 	{
         using namespace qi::labels;
 
-		receiverSetupLocal %= header(5902, _a, _b) // revision, length
+		receiverSetupLocal %= header(5902, _a, _b) // id, revision, length
 		                   >> qi::little_dword
 		                   >> qi::little_word
                            >> qi::repeat(2)[qi::byte_]
