@@ -1863,7 +1863,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 					(channel_sat_info.az_rise_set & azimuth_mask)));
 			}
 			svid_pvt.reserve(channel_sat_info.stateInfo.size());
-			for (auto channel_state_info : channel_sat_info.stateInfo)
+			for (const auto& channel_state_info : channel_sat_info.stateInfo)
 			{
 				// Define ChannelStateInfo struct for the corresponding sub-block
 				bool pvt_status = false;
@@ -2584,8 +2584,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// the end of the block. Otherwise variable overloading etc.
 			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
 			PVTCartesian pvtcartesian;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), pvtcartesian))
 			{
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTCartesian");
@@ -2612,8 +2611,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
 			PVTGeodetic pvtGeodetic;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), pvtGeodetic))
 			{
 				last_pvtgeodetic_ = pvtGeodetic;
@@ -2690,8 +2688,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			AttEulerMsgPtr msg(new AttEulerMsg);
 			AttEuler attEuler;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), attEuler))
 			{
 				last_atteuler_ = attEuler;
@@ -2724,8 +2721,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			AttCovEulerMsgPtr msg(new AttCovEulerMsg);
 			AttCovEuler attCovEuler;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), attCovEuler))
 			{
 				last_attcoveuler_ = attCovEuler;
@@ -3320,8 +3316,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evChannelStatus:
 		{
 			ChannelStatus channelStatus;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), channelStatus))
 			{
 				last_channelstatus_ = channelStatus;
@@ -3337,8 +3332,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evMeasEpoch:
 		{
 			MeasEpoch measEpoch;
-			std::vector<uint8_t> dvec(parsing_utilities::getLength(data_));
-			memcpy(dvec.data(), data_, parsing_utilities::getLength(data_));			
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), MeasEpochGrammar<std::vector<uint8_t>::iterator>(), measEpoch))
 			{
 				last_measepoch_ = measEpoch;
