@@ -3482,7 +3482,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evReceiverSetup:
 		{
-			memcpy(&last_receiversetup_, data_, sizeof(last_receiversetup_));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ReceiverSetupGrammar<std::vector<uint8_t>::iterator>(), last_receiversetup_))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in DOP");
+				break;
+			}
 			break;
 		}
 		

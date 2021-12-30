@@ -428,21 +428,21 @@ struct ReceiverSetup
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t reserved[2];
-    char marker_name[60];
-    char marker_number[20];
-    char observer[20];
-    char agency[40];
-    char rx_serial_number[20];
-    char rx_name[20];
-    char rx_version[20];
-    char ant_serial_nbr[20];
-    char ant_type[20];
+    std::vector<uint8_t> reserved;
+    std::string marker_name;
+    std::string marker_number;
+    std::string observer;
+    std::string agency;
+    std::string rx_serial_number;
+    std::string rx_name;
+    std::string rx_version;
+    std::string ant_serial_nbr;
+    std::string ant_type;
     float delta_h; /* [m] */
     float delta_e; /* [m] */
     float delta_n; /* [m] */
-    char marker_type[20];
-    char gnss_fw_version[40];
+    std::string marker_type;
+    std::string gnss_fw_version;
 };
 
 /**
@@ -1169,6 +1169,28 @@ DOP,
     (float, vpl)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+ReceiverSetup,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (std::vector<uint8_t>, reserved),
+    (std::string, marker_name),
+    (std::string, marker_number),
+    (std::string, observer),
+    (std::string, agency),
+    (std::string, rx_serial_number),
+    (std::string, rx_name),
+    (std::string, rx_version),
+    (std::string, ant_serial_nbr),
+    (std::string, ant_type),
+    (float, delta_h),
+    (float, delta_e),
+    (float, delta_n),
+    (std::string, marker_type),
+    (std::string, gnss_fw_version)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1479,7 +1501,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
 };
 
 /**
- * @struct DOPGrammar
+ * @struct DopGrammar
  * @brief Spirit grammar for the SBF block "DOP"
  */
 template<typename Iterator>
@@ -1509,6 +1531,46 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, DOP()> dopLocal;
     qi::rule<Iterator, DOP()> dop;
+};
+
+/**
+ * @struct ReceiverSetupGrammar
+ * @brief Spirit grammar for the SBF block "ReceiverSetup"
+ */
+template<typename Iterator>
+struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
+{
+	ReceiverSetupGrammar() : ReceiverSetupGrammar::base_type(receiverSetup)
+	{
+        using namespace qi::labels;
+
+		receiverSetupLocal %= header(_a, _b) // revision, length
+		                   >> qi::little_dword
+		                   >> qi::little_word
+                           >> qi::repeat(2)[qi::byte_]
+                           >> qi::as_string[qi::repeat(60)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(40)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::little_bin_float
+                           >> qi::little_bin_float
+                           >> qi::little_bin_float
+                           >> qi::as_string[qi::repeat(20)[qi::char_]]
+                           >> qi::as_string[qi::repeat(40)[qi::char_]]
+                           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        receiverSetup %= receiverSetupLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, ReceiverSetup()> receiverSetupLocal;
+    qi::rule<Iterator, ReceiverSetup()> receiverSetup;
 };
 
 #endif // SBFStructs_HPP
