@@ -19,6 +19,8 @@ vsm_frame_id: vsm
 
 aux1_frame_id: aux1
 
+vehicle_frame_id: base_link
+
 get_spatial_config_from_tf: false
 
 lock_utm_zone: true
@@ -26,6 +28,8 @@ lock_utm_zone: true
 use_ros_axis_orientation: true
 
 receiver_type: gnss
+
+multi_antenna: false
 
 datum: ETRS89
 

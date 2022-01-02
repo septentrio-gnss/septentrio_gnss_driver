@@ -211,6 +211,8 @@ struct Settings
     double heading_offset;
     //! Attitude offset determination in latitudinal direction
     double pitch_offset;
+    //! INS multiantenna
+    bool multi_antenna;
     //! INS solution reference point
     bool ins_use_poi;
     //! For heading computation when unit is powered-cycled

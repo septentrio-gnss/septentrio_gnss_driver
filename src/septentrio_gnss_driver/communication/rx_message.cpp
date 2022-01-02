@@ -1711,7 +1711,7 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 		default:
 		{
 			node_->log(LogLevel::DEBUG, "INSNavGeod's Mode field contains an invalid type of PVT solution.");
-            break;
+			break;
 		}
 		}
 		bool gps_in_pvt = false;

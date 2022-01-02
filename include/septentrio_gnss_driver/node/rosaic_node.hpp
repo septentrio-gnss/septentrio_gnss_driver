@@ -105,7 +105,7 @@ namespace rosaic_node {
          * @param[in] sourceFrame source frame id
          * @param[out] T_s_t transfrom from source to target
          */
-        void getTransform(const std::string& targetFrame, const std::string& sourceFrame, geometry_msgs::TransformStamped& T_s_t);
+        void getTransform(const std::string& targetFrame, const std::string& sourceFrame, TransformStampedMsg& T_s_t);
         /**
          * @brief Gets Euler angles from quaternion message
          * @param[in] qm quaternion message
@@ -113,7 +113,7 @@ namespace rosaic_node {
          * @param[out] pitch pitch angle
          * @param[out] yaw yaw angle
          */
-        void getRPY(const geometry_msgs::Quaternion& qm, double& roll, double& pitch, double& yaw);
+        void getRPY(const QuaternionMsg& qm, double& roll, double& pitch, double& yaw);
         
         //! Settings
         Settings settings_;
