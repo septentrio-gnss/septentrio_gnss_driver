@@ -610,13 +610,6 @@ struct INSNavCartPosStdDev
     float     z_std_dev;
 };
 
-struct INSNavCartPosCov
-{
-    float     xy_cov;
-    float     xz_cov;
-    float     yz_cov;
-};
-
 struct INSNavCartAtt
 {
     float     heading;
@@ -629,13 +622,6 @@ struct INSNavCartAttStdDev
     float     heading_std_dev;
     float     pitch_std_dev;
     float     roll_std_dev;
-};
-
-struct INSNavCartAttCov
-{
-    float     heading_pitch_cov;
-    float     heading_roll_cov;
-    float     pitch_roll_cov;
 };
 
 struct INSNavCartVel
@@ -652,23 +638,25 @@ struct INSNavCartVelStdDev
     float     vz_std_dev;
 };
 
+struct INSNavCartPosCov
+{
+    float     xy_cov;
+    float     xz_cov;
+    float     yz_cov;
+};
+
+struct INSNavCartAttCov
+{
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+};
+
 struct INSNavCartVelCov
 {
     float     vx_vy_cov;
     float     vx_vz_cov;
     float     vy_vz_cov;
-};
-
-union INSNavCartData
-{
-  INSNavCartPosStdDev PosStdDev;    
-  INSNavCartPosCov PosCov;       
-  INSNavCartAtt Att;          
-  INSNavCartAttStdDev AttStdDev;    
-  INSNavCartAttCov AttCov;       
-  INSNavCartVel Vel;          
-  INSNavCartVelStdDev VelStdDev;    
-  INSNavCartVelCov VelCov;       
 };
 
 struct INSNavCart
@@ -691,7 +679,14 @@ struct INSNavCart
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavCartData insNavCartData[SBF_INSNAVCART_LENGTH_1];
+    INSNavCartPosStdDev posStdDev;    
+    INSNavCartAtt       att;          
+    INSNavCartAttStdDev attStdDev;    
+    INSNavCartVel       vel;          
+    INSNavCartVelStdDev velStdDev;    
+    INSNavCartPosCov    posCov;    
+    INSNavCartAttCov    attCov;     
+    INSNavCartVelCov    velCov;
 };
 
 //-----------------------INSNavGeod---------------------------------
@@ -700,13 +695,6 @@ struct INSNavGeodPosStdDev
     float     latitude_std_dev;
     float     longitude_std_dev;
     float     height_std_dev;
-};
-
-struct INSNavGeodPosCov
-{
-    float     latitude_longitude_cov;
-    float     latitude_height_cov;
-    float     longitude_height_cov;
 };
 
 struct INSNavGeodAtt
@@ -723,13 +711,6 @@ struct INSNavGeodAttStdDev
     float     roll_std_dev;
 };
 
-struct INSNavGeodAttCov
-{
-    float     heading_pitch_cov;
-    float     heading_roll_cov;
-    float     pitch_roll_cov;
-};
-
 struct INSNavGeodVel
 {
     float     ve;
@@ -744,23 +725,25 @@ struct INSNavGeodVelStdDev
     float     vu_std_dev;
 };
 
+struct INSNavGeodPosCov
+{
+    float     latitude_longitude_cov;
+    float     latitude_height_cov;
+    float     longitude_height_cov;
+};
+
+struct INSNavGeodAttCov
+{
+    float     heading_pitch_cov;
+    float     heading_roll_cov;
+    float     pitch_roll_cov;
+};
+
 struct INSNavGeodVelCov
 {
     float     ve_vn_cov;
     float     ve_vu_cov;
     float     vn_vu_cov;
-};
-
-union INSNavGeodData
-{
-    INSNavGeodPosStdDev PosStdDev;    
-    INSNavGeodPosCov PosCov;       
-    INSNavGeodAtt Att; 
-    INSNavGeodAttStdDev AttStdDev;
-    INSNavGeodAttCov AttCov;
-    INSNavGeodVel Vel;
-    INSNavGeodVelStdDev VelStdDev;
-    INSNavGeodVelCov VelCov;
 };
 
 /**
@@ -788,7 +771,14 @@ struct INSNavGeod
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavGeodData insNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
+    INSNavGeodPosStdDev posStdDev;    
+    INSNavGeodAtt       att; 
+    INSNavGeodAttStdDev attStdDev;
+    INSNavGeodVel       vel;
+    INSNavGeodVelStdDev velStdDev;    
+    INSNavGeodPosCov    posCov;
+    INSNavGeodAttCov    attCov; 
+    INSNavGeodVelCov    velCov;     
 };
 
 /**
@@ -1198,6 +1188,8 @@ ReceiverStatus,
 BOOST_FUSION_ADAPT_STRUCT(
 PosCovCartesian,
     (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_xx),
@@ -1215,6 +1207,8 @@ PosCovCartesian,
 BOOST_FUSION_ADAPT_STRUCT(
 PosCovGeodetic,
     (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_latlat),
@@ -1232,6 +1226,8 @@ PosCovGeodetic,
 BOOST_FUSION_ADAPT_STRUCT(
 VelCovCartesian,
     (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_vxvx),
@@ -1249,6 +1245,8 @@ VelCovCartesian,
 BOOST_FUSION_ADAPT_STRUCT(
 VelCovGeodetic,
     (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_vnvn),
@@ -1261,6 +1259,173 @@ VelCovGeodetic,
     (float, cov_vevu),
     (float, cov_vedt),
     (float, cov_vudt)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartPosStdDev,    
+    (float, x_std_dev),
+    (float, y_std_dev),
+    (float, z_std_dev)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartAtt,    
+    (float, heading),
+    (float, pitch),
+    (float, roll)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartAttStdDev,    
+    (float, heading_std_dev),
+    (float, pitch_std_dev),
+    (float, roll_std_dev)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartVel,    
+    (float, vx),
+    (float, vy),
+    (float, vz)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartVelStdDev,    
+    (float, vx_std_dev),
+    (float, vy_std_dev),
+    (float, vz_std_dev)
+)
+
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartPosCov,    
+    (float, xy_cov),
+    (float, xz_cov),
+    (float, yz_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartAttCov,    
+    (float, heading_pitch_cov),
+    (float, heading_roll_cov),
+    (float, pitch_roll_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCartVelCov,    
+    (float, vx_vy_cov),
+    (float, vx_vz_cov),
+    (float, vy_vz_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavCart,
+    (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, gnss_mode),
+    (uint8_t, error),
+    (uint16_t, info),
+    (uint16_t, gnss_age),
+    (double, x),
+    (double, y),
+    (double, z),
+    (uint16_t, accuracy),
+    (uint16_t, latency),
+    (uint8_t, datum),
+    (uint16_t, sb_list),
+    (INSNavCartPosStdDev, posStdDev),    
+    (INSNavCartAtt, att),
+    (INSNavCartAttStdDev, attStdDev),
+    (INSNavCartVel, vel),
+    (INSNavCartVelStdDev, velStdDev),    
+    (INSNavCartPosCov, posCov),
+    (INSNavCartAttCov, attCov),
+    (INSNavCartVelCov, velCov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodPosStdDev,    
+    (float, latitude_std_dev),
+    (float, longitude_std_dev),
+    (float, height_std_dev)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodAtt,    
+    (float, heading),
+    (float, pitch),
+    (float, roll)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodAttStdDev,    
+    (float, heading_std_dev),
+    (float, pitch_std_dev),
+    (float, roll_std_dev)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodVel,    
+    (float, ve),
+    (float, vn),
+    (float, vu)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodVelStdDev,    
+    (float, ve_std_dev),
+    (float, vn_std_dev),
+    (float, vu_std_dev)
+)
+
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodPosCov,    
+    (float, latitude_longitude_cov),
+    (float, latitude_height_cov),
+    (float, longitude_height_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodAttCov,    
+    (float, heading_pitch_cov),
+    (float, heading_roll_cov),
+    (float, pitch_roll_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeodVelCov,    
+    (float, ve_vn_cov),
+    (float, ve_vu_cov),
+    (float, vn_vu_cov)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+INSNavGeod,
+    (BlockHeader, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, gnss_mode),
+    (uint8_t, error),
+    (uint16_t, info),
+    (uint16_t, gnss_age),
+    (double, latitude),
+    (double, longitude),
+    (double, height),
+    (float,  undulation),
+    (uint16_t, accuracy),
+    (uint16_t, latency),
+    (uint8_t, datum),
+    (uint16_t, sb_list),
+    (INSNavGeodPosStdDev, posStdDev),    
+    (INSNavGeodAtt, att),
+    (INSNavGeodAttStdDev, attStdDev),
+    (INSNavGeodVel, vel),
+    (INSNavGeodVelStdDev, velStdDev),    
+    (INSNavGeodPosCov, posCov),
+    (INSNavGeodAttCov, attCov),
+    (INSNavGeodVelCov, velCov)
 )
 
 namespace qi  = boost::spirit::qi;
@@ -1863,6 +2028,95 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
 
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, VelCovGeodetic()> velCovGeodeticLocal;
     qi::rule<Iterator, VelCovGeodetic()> velCovGeodetic;
+};
+
+/**
+ * @struct INSNavCartGrammar
+ * @brief Spirit grammar for the SBF block "INSNavCart"
+ */
+template<typename Iterator>
+struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
+{
+	INSNavCartGrammar() : INSNavCartGrammar::base_type(insNavCart)
+	{
+        using namespace qi::labels;
+
+		insNavCartLocal %= (header(4225, _a, _b) | header(4229, _a, _b)) // id, revision, length
+		                >> qi::little_dword
+		                >> qi::little_word
+                        >> qi::byte_
+                        >> qi::byte_
+                        >> qi::little_word
+                        >> qi::little_word
+                        >> qi::little_bin_double
+                        >> qi::little_bin_double
+                        >> qi::little_bin_double
+                        >> qi::little_word                        
+                        >> qi::little_word
+                        >> qi::byte_
+                        >> qi::little_word[_c = qi::_1]
+                        >> (qi::eps[_c & 1  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
+                        >> (qi::eps[_c & 2  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
+                        >> (qi::eps[_c & 4  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
+                        >> (qi::eps[_c & 8  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
+                        >> (qi::eps[_c & 16 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
+                        >> (qi::eps[_c & 32 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
+                        >> (qi::eps[_c & 64 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
+                        >> (qi::eps[_c & 128] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
+                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        insNavCart %= insNavCartLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint16_t>, INSNavCart()> insNavCartLocal;
+    qi::rule<Iterator, INSNavCart()> insNavCart;
+};
+
+/**
+ * @struct INSNavGeodGrammar
+ * @brief Spirit grammar for the SBF block "INSNavGeod"
+ */
+template<typename Iterator>
+struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
+{
+	INSNavGeodGrammar() : INSNavGeodGrammar::base_type(insNavGeod)
+	{
+        using namespace qi::labels;
+
+		insNavGeodLocal %= (header(4226, _a, _b) | header(4230, _a, _b)) // id, revision, length
+		                >> qi::little_dword
+		                >> qi::little_word
+                        >> qi::byte_
+                        >> qi::byte_
+                        >> qi::little_word
+                        >> qi::little_word
+                        >> qi::little_bin_double
+                        >> qi::little_bin_double
+                        >> qi::little_bin_double
+                        >> qi::little_bin_float
+                        >> qi::little_word                        
+                        >> qi::little_word
+                        >> qi::byte_
+                        >> qi::little_word[_c = qi::_1]
+                        >> (qi::eps[_c & 1  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
+                        >> (qi::eps[_c & 2  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
+                        >> (qi::eps[_c & 4  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
+                        >> (qi::eps[_c & 8  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
+                        >> (qi::eps[_c & 16 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
+                        >> (qi::eps[_c & 32 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
+                        >> (qi::eps[_c & 64 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
+                        >> (qi::eps[_c & 128] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
+                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        insNavGeod %= insNavGeodLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint16_t>, INSNavGeod()> insNavGeodLocal;
+    qi::rule<Iterator, INSNavGeod()> insNavGeod;
 };
 
 #endif // SBFStructs_HPP
