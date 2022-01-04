@@ -1195,6 +1195,74 @@ ReceiverStatus,
     (std::vector<AgcState>, agc_state)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+PosCovCartesian,
+    (BlockHeader, block_header),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (float, cov_xx),
+    (float, cov_yy),
+    (float, cov_zz),
+    (float, cov_bb),
+    (float, cov_xy),
+    (float, cov_xz),
+    (float, cov_xb),
+    (float, cov_yz),
+    (float, cov_yb),
+    (float, cov_zb)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+PosCovGeodetic,
+    (BlockHeader, block_header),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (float, cov_latlat),
+    (float, cov_lonlon),
+    (float, cov_hgthgt),
+    (float, cov_bb),
+    (float, cov_latlon),
+    (float, cov_lathgt),
+    (float, cov_latb),
+    (float, cov_lonhgt),
+    (float, cov_lonb),
+    (float, cov_hb)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+VelCovCartesian,
+    (BlockHeader, block_header),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (float, cov_vxvx),
+    (float, cov_vyvy),
+    (float, cov_vzvz),
+    (float, cov_dtdt),
+    (float, cov_vxvy),
+    (float, cov_vxvz),
+    (float, cov_vxdt),
+    (float, cov_vyvz),
+    (float, cov_vydt),
+    (float, cov_vzdt)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+VelCovGeodetic,
+    (BlockHeader, block_header),
+    (uint8_t, mode),
+    (uint8_t, error),
+    (float, cov_vnvn),
+    (float, cov_veve),
+    (float, cov_vuvu),
+    (float, cov_dtdt),
+    (float, cov_vnve),
+    (float, cov_vnvu),
+    (float, cov_vndt),
+    (float, cov_vevu),
+    (float, cov_vedt),
+    (float, cov_vudt)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1647,6 +1715,154 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
     qi::rule<Iterator, qi::locals<uint8_t>, AgcState(uint8_t)> agcState;
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t>, ReceiverStatus()> receiverStatusLocal;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
+};
+
+/**
+ * @struct PosCovCartesianGrammar
+ * @brief Spirit grammar for the SBF block "PosCovCartesian"
+ */
+template<typename Iterator>
+struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
+{
+	PosCovCartesianGrammar() : PosCovCartesianGrammar::base_type(posCovCartesian)
+	{
+        using namespace qi::labels;
+
+		posCovCartesianLocal %= header(5905, _a, _b) // id, revision, length
+		                     >> qi::little_dword
+		                     >> qi::little_word
+                             >> qi::byte_
+                             >> qi::byte_
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        posCovCartesian %= posCovCartesianLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PosCovCartesian()> posCovCartesianLocal;
+    qi::rule<Iterator, PosCovCartesian()> posCovCartesian;
+};
+
+/**
+ * @struct PosCovGeodeticGrammar
+ * @brief Spirit grammar for the SBF block "PosCovGeodetic"
+ */
+template<typename Iterator>
+struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
+{
+	PosCovGeodeticGrammar() : PosCovGeodeticGrammar::base_type(posCovGeodetic)
+	{
+        using namespace qi::labels;
+
+		posCovGeodeticLocal %= header(5906, _a, _b) // id, revision, length
+		                    >> qi::little_dword
+		                    >> qi::little_word
+                            >> qi::byte_
+                            >> qi::byte_
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::little_bin_float
+                            >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        posCovGeodetic %= posCovGeodeticLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PosCovGeodetic()> posCovGeodeticLocal;
+    qi::rule<Iterator, PosCovGeodetic()> posCovGeodetic;
+};
+
+/**
+ * @struct VelCovCartesianGrammar
+ * @brief Spirit grammar for the SBF block "VelCovCartesian"
+ */
+template<typename Iterator>
+struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
+{
+	VelCovCartesianGrammar() : VelCovCartesianGrammar::base_type(velCovCartesian)
+	{
+        using namespace qi::labels;
+
+		velCovCartesianLocal %= header(5907, _a, _b) // id, revision, length
+		                     >> qi::little_dword
+		                     >> qi::little_word
+                             >> qi::byte_
+                             >> qi::byte_
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        velCovCartesian %= velCovCartesianLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, VelCovCartesian()> velCovCartesianLocal;
+    qi::rule<Iterator, VelCovCartesian()> velCovCartesian;
+};
+
+/**
+ * @struct VelCovGeodeticGrammar
+ * @brief Spirit grammar for the SBF block "VelCovGeodetic"
+ */
+template<typename Iterator>
+struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
+{
+	VelCovGeodeticGrammar() : VelCovGeodeticGrammar::base_type(velCovGeodetic)
+	{
+        using namespace qi::labels;
+
+		velCovGeodeticLocal %= header(5908, _a, _b) // id, revision, length
+		                     >> qi::little_dword
+		                     >> qi::little_word
+                             >> qi::byte_
+                             >> qi::byte_
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::little_bin_float
+                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        velCovGeodetic %= velCovGeodeticLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, VelCovGeodetic()> velCovGeodeticLocal;
+    qi::rule<Iterator, VelCovGeodetic()> velCovGeodetic;
 };
 
 #endif // SBFStructs_HPP

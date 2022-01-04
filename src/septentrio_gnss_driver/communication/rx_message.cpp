@@ -2644,7 +2644,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
 			PosCovCartesian poscovcartesian;
-			memcpy(&poscovcartesian, data_, sizeof(poscovcartesian));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovCartesianGrammar<std::vector<uint8_t>::iterator>(), poscovcartesian))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PosCovCartesian");
+				break;
+			}
 			msg = PosCovCartesianCallback(poscovcartesian);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -2664,7 +2669,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPosCovGeodetic:
 		{
 			PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
-			memcpy(&last_poscovgeodetic_, data_, sizeof(last_poscovgeodetic_));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_poscovgeodetic_))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PosCovGeodetic");
+				break;
+			}
 			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
@@ -3359,7 +3369,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evVelCovGeodetic:
 		{
 			VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
-			memcpy(&last_velcovgeodetic_, data_, sizeof(last_velcovgeodetic_));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_velcovgeodetic_))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in VelCovGeodetic");
+				break;
+			}
 			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
