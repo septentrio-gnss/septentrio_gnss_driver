@@ -139,7 +139,7 @@ struct ID_t
 /**
  * @brief Struct for the SBF block's header message
  */
-typedef struct
+struct BlockHeader
 {
     uint8_t sync_1;  //!< first sync byte is $ or 0x24
     uint8_t sync_2;  //!< 2nd sync byte is @ or 0x40
@@ -155,7 +155,7 @@ typedef struct
     };
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
-} BlockHeader_t;
+} ;
 
 /**
  * @class PVTCartesian
@@ -163,7 +163,7 @@ typedef struct
  */
 struct PVTCartesian
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -203,7 +203,7 @@ struct PVTCartesian
  */
 struct PVTGeodetic
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -243,7 +243,7 @@ struct PVTGeodetic
  */
 struct AttEuler
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -267,7 +267,7 @@ struct AttEuler
  */
 struct AttCovEuler
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -287,20 +287,20 @@ struct AttCovEuler
  * @class ChannelStateInfo
  * @brief Struct for the SBF sub-block "ChannelStateInfo"
  */
-typedef struct
+struct ChannelStateInfo
 {
     uint8_t antenna;
     uint8_t reserved;
     uint16_t tracking_status;
     uint16_t pvt_status;
     uint16_t pvt_info;
-} ChannelStateInfo;
+};
 
 /**
  * @class ChannelSatInfo
  * @brief Struct for the SBF sub-block "ChannelSatInfo"
  */
-typedef struct
+struct ChannelSatInfo
 {
     uint8_t sv_id;
     uint8_t freq_nr;
@@ -312,7 +312,7 @@ typedef struct
     uint8_t channel;
     uint8_t reserved2;
     std::vector<ChannelStateInfo> stateInfo;
-} ChannelSatInfo;
+};
 
 /**
  * @class ChannelStatus
@@ -320,7 +320,7 @@ typedef struct
  */
 struct ChannelStatus
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -337,7 +337,7 @@ struct ChannelStatus
  * @class MeasEpochChannelType2
  * @brief Struct for the SBF sub-block "MeasEpochChannelType2"
  */
-typedef struct
+struct MeasEpochChannelType2
 {
     uint8_t type;
     uint8_t lock_time;
@@ -348,13 +348,13 @@ typedef struct
     uint16_t code_offset_lsb;
     uint16_t carrier_lsb;
     uint16_t doppler_offset_lsb;
-} MeasEpochChannelType2;
+};
 
 /**
  * @class MeasEpochChannelType1
  * @brief Struct for the SBF sub-block "MeasEpochChannelType1"
  */
-typedef struct
+struct MeasEpochChannelType1
 {
     uint8_t rx_channel;
     uint8_t type;
@@ -369,7 +369,7 @@ typedef struct
     uint8_t obs_info;
     uint8_t n_type2;
     std::vector<MeasEpochChannelType2> type2;
-} MeasEpochChannelType1;
+};
 
 /**
  * @class MeasEpoch
@@ -377,7 +377,7 @@ typedef struct
  */
 struct MeasEpoch
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -400,7 +400,7 @@ struct MeasEpoch
  */
 struct DOP
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -422,7 +422,7 @@ struct DOP
  */
 struct ReceiverSetup
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -451,7 +451,7 @@ struct ReceiverSetup
  */
 struct QualityInd
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -465,13 +465,13 @@ struct QualityInd
 /**
  * @brief Struct for the SBF sub-block "AGCState"
  */
-typedef struct
+struct AgcState
 {
     uint8_t frontend_id;
     int8_t gain;
     uint8_t sample_var;
     uint8_t blanking_stat;
-} AGCState_t;
+};
 
 /**
  * @class ReceiverStatus
@@ -479,7 +479,7 @@ typedef struct
  */
 struct ReceiverStatus
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -494,7 +494,7 @@ struct ReceiverStatus
     uint8_t sb_length;
     uint8_t cmd_count;
     uint8_t temperature;
-    std::vector<AGCState_t> agc_state;
+    std::vector<AgcState> agc_state;
 };
 
 /**
@@ -503,7 +503,7 @@ struct ReceiverStatus
  */
 struct PosCovCartesian
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -529,7 +529,7 @@ struct PosCovCartesian
  */
 struct PosCovGeodetic
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -555,7 +555,7 @@ struct PosCovGeodetic
  */
 struct VelCovCartesian
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -581,7 +581,7 @@ struct VelCovCartesian
  */
 struct VelCovGeodetic
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -603,77 +603,77 @@ struct VelCovGeodetic
 
 // -----------------------------INSNavCart---------------------------------
 
-typedef struct 
+struct INSNavCartPosStdDev
 {
     float     x_std_dev;
     float     y_std_dev;
     float     z_std_dev;
-} INSNavCartPosStdDev_1;
+};
 
-typedef struct
+struct INSNavCartPosCov
 {
     float     xy_cov;
     float     xz_cov;
     float     yz_cov;
-} INSNavCartPosCov_1;
+};
 
-typedef struct
+struct INSNavCartAtt
 {
     float     heading;
     float     pitch;
     float     roll;
-} INSNavCartAtt_1;
+};
 
-typedef struct
+struct INSNavCartAttStdDev
 {
     float     heading_std_dev;
     float     pitch_std_dev;
     float     roll_std_dev;
-} INSNavCartAttStdDev_1;
+};
 
-typedef struct
+struct INSNavCartAttCov
 {
     float     heading_pitch_cov;
     float     heading_roll_cov;
     float     pitch_roll_cov;
-} INSNavCartAttCov_1;
+};
 
-typedef struct
+struct INSNavCartVel
 {
     float     vx;
     float     vy;
     float     vz;
-} INSNavCartVel_1;
+};
 
-typedef struct
+struct INSNavCartVelStdDev
 {
     float     vx_std_dev;
     float     vy_std_dev;
     float     vz_std_dev;
-} INSNavCartVelStdDev_1;
+};
 
-typedef struct
+struct INSNavCartVelCov
 {
     float     vx_vy_cov;
     float     vx_vz_cov;
     float     vy_vz_cov;
-} INSNavCartVelCov_1;
+};
 
-typedef union
+union INSNavCartData
 {
-  INSNavCartPosStdDev_1 PosStdDev;    
-  INSNavCartPosCov_1 PosCov;       
-  INSNavCartAtt_1 Att;          
-  INSNavCartAttStdDev_1 AttStdDev;    
-  INSNavCartAttCov_1 AttCov;       
-  INSNavCartVel_1 Vel;          
-  INSNavCartVelStdDev_1 VelStdDev;    
-  INSNavCartVelCov_1 VelCov;       
-} INSNavCartData_1;
+  INSNavCartPosStdDev PosStdDev;    
+  INSNavCartPosCov PosCov;       
+  INSNavCartAtt Att;          
+  INSNavCartAttStdDev AttStdDev;    
+  INSNavCartAttCov AttCov;       
+  INSNavCartVel Vel;          
+  INSNavCartVelStdDev VelStdDev;    
+  INSNavCartVelCov VelCov;       
+};
 
-typedef struct
+struct INSNavCart
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -691,105 +691,85 @@ typedef struct
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavCartData_1 INSNavCartData[SBF_INSNAVCART_LENGTH_1];
-} INSNavCart_1;
-
-typedef INSNavCartPosStdDev_1 INSNavCartPosStdDev;
-
-typedef INSNavCartPosCov_1 INSNavCartPosCov;
-
-typedef INSNavCartAtt_1 INSNavCartAtt;
-
-typedef INSNavCartAttStdDev_1 INSNavCartAttStdDev;
-
-typedef INSNavCartAttCov_1 INSNavCartAttCov;
-
-typedef INSNavCartVel_1 INSNavCartVel;
-
-typedef INSNavCartVelStdDev_1 INSNavCartVelStdDev;
-
-typedef INSNavCartVelCov_1 INSNavCartVelCov;
-
-typedef INSNavCartData_1 INSNavCartData;
-
-typedef INSNavCart_1 INSNavCart;
+    INSNavCartData insNavCartData[SBF_INSNAVCART_LENGTH_1];
+};
 
 //-----------------------INSNavGeod---------------------------------
-typedef struct
+struct INSNavGeodPosStdDev
 {
     float     latitude_std_dev;
     float     longitude_std_dev;
     float     height_std_dev;
-} INSNavGeodPosStdDev_1;
+};
 
-typedef struct
+struct INSNavGeodPosCov
 {
     float     latitude_longitude_cov;
     float     latitude_height_cov;
     float     longitude_height_cov;
-} INSNavGeodPosCov_1;
+};
 
-typedef struct
+struct INSNavGeodAtt
 {
     float     heading;
     float     pitch;
     float     roll;     
-} INSNavGeodAtt_1;
+};
 
-typedef struct
+struct INSNavGeodAttStdDev
 {
     float     heading_std_dev;
     float     pitch_std_dev;
     float     roll_std_dev;
-} INSNavGeodAttStdDev_1;
+};
 
-typedef struct
+struct INSNavGeodAttCov
 {
     float     heading_pitch_cov;
     float     heading_roll_cov;
     float     pitch_roll_cov;
-} INSNavGeodAttCov_1;
+};
 
-typedef struct
+struct INSNavGeodVel
 {
     float     ve;
     float     vn;
     float     vu;
-} INSNavGeodVel_1;
+};
 
-typedef struct 
+struct INSNavGeodVelStdDev
 {
     float     ve_std_dev;
     float     vn_std_dev;
     float     vu_std_dev;
-} INSNavGeodVelStdDev_1;
+};
 
-typedef struct
+struct INSNavGeodVelCov
 {
     float     ve_vn_cov;
     float     ve_vu_cov;
     float     vn_vu_cov;
-} INSNavGeodVelCov_1;
+};
 
-typedef union
+union INSNavGeodData
 {
-    INSNavGeodPosStdDev_1 PosStdDev;    
-    INSNavGeodPosCov_1 PosCov;       
-    INSNavGeodAtt_1 Att; 
-    INSNavGeodAttStdDev_1 AttStdDev;
-    INSNavGeodAttCov_1 AttCov;
-    INSNavGeodVel_1 Vel;
-    INSNavGeodVelStdDev_1 VelStdDev;
-    INSNavGeodVelCov_1 VelCov;
-} INSNavGeodData_1;
+    INSNavGeodPosStdDev PosStdDev;    
+    INSNavGeodPosCov PosCov;       
+    INSNavGeodAtt Att; 
+    INSNavGeodAttStdDev AttStdDev;
+    INSNavGeodAttCov AttCov;
+    INSNavGeodVel Vel;
+    INSNavGeodVelStdDev VelStdDev;
+    INSNavGeodVelCov VelCov;
+};
 
 /**
  * @class INSNavGeod
  * @brief Struct for the SBF block "INSNavGeod"
  */
-typedef struct
+struct INSNavGeod
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -808,19 +788,8 @@ typedef struct
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavGeodData_1   INSNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
-} INSNavGeod_1;
-
-typedef INSNavGeodPosStdDev_1 INSNavGeodPosStdDev;
-typedef INSNavGeodPosCov_1 INSNavGeodPosCov;
-typedef INSNavGeodAtt_1 INSNavGeodAtt;
-typedef INSNavGeodAttStdDev_1 INSNavGeodAttStdDev;
-typedef INSNavGeodAttCov_1 INSNavGeodAttCov;
-typedef INSNavGeodVel_1 INSNavGeodVel;
-typedef INSNavGeodVelStdDev_1 INSNavGeodVelStdDev;
-typedef INSNavGeodVelCov_1 INSNavGeodVelCov;
-typedef INSNavGeodData_1 INSNavGeodData;
-typedef INSNavGeod_1 INSNavGeod;
+    INSNavGeodData insNavGeodData[SBF_INSNAVGEOD_LENGTH_1];     
+};
 
 /**
  * @class IMUSetup
@@ -828,7 +797,7 @@ typedef INSNavGeod_1 INSNavGeod;
  */
 struct IMUSetup
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -849,7 +818,7 @@ struct IMUSetup
  */
 struct VelSensorSetup
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -915,7 +884,7 @@ typedef struct
 
 typedef struct
 {
-    BlockHeader_t block_header;
+    BlockHeader block_header;
 
     /* Time Header */
     uint32_t tow;
@@ -969,7 +938,7 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 BOOST_FUSION_ADAPT_STRUCT(
-BlockHeader_t,
+BlockHeader,
     (uint8_t, sync_1),
     (uint8_t, sync_2),
     (uint16_t, crc),
@@ -979,7 +948,7 @@ BlockHeader_t,
 
 BOOST_FUSION_ADAPT_STRUCT(
 PVTCartesian,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, mode),
@@ -1012,7 +981,7 @@ PVTCartesian,
 
 BOOST_FUSION_ADAPT_STRUCT(
 PVTGeodetic,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, mode),
@@ -1045,7 +1014,7 @@ PVTGeodetic,
 
 BOOST_FUSION_ADAPT_STRUCT(
 AttEuler,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, nr_sv),
@@ -1062,7 +1031,7 @@ AttEuler,
 
 BOOST_FUSION_ADAPT_STRUCT(
 AttCovEuler,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, reserved),
@@ -1100,7 +1069,7 @@ ChannelSatInfo,
 
 BOOST_FUSION_ADAPT_STRUCT(
 ChannelStatus,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, n),
@@ -1142,7 +1111,7 @@ MeasEpochChannelType1,
 
 BOOST_FUSION_ADAPT_STRUCT(
 MeasEpoch,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, n),
@@ -1156,7 +1125,7 @@ MeasEpoch,
 
 BOOST_FUSION_ADAPT_STRUCT(
 DOP,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, nr_sv),
@@ -1171,7 +1140,7 @@ DOP,
 
 BOOST_FUSION_ADAPT_STRUCT(
 ReceiverSetup,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (std::vector<uint8_t>, reserved),
@@ -1193,7 +1162,7 @@ ReceiverSetup,
 
 BOOST_FUSION_ADAPT_STRUCT(
 QualityInd,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, n),
@@ -1202,7 +1171,7 @@ QualityInd,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-AGCState_t,
+AgcState,
     (uint8_t, frontend_id),
     (int8_t, gain),
     (uint8_t, sample_var),
@@ -1211,7 +1180,7 @@ AGCState_t,
 
 BOOST_FUSION_ADAPT_STRUCT(
 ReceiverStatus,
-    (BlockHeader_t, block_header),
+    (BlockHeader, block_header),
     (uint32_t, tow),
     (uint16_t, wnc),
     (uint8_t, cpu_load),
@@ -1223,7 +1192,7 @@ ReceiverStatus,
     (uint8_t, sb_length),
     (uint8_t, cmd_count),
     (uint8_t, temperature),
-    (std::vector<AGCState_t>, agc_state)
+    (std::vector<AgcState>, agc_state)
 )
 
 namespace qi  = boost::spirit::qi;
@@ -1235,7 +1204,7 @@ namespace phx = boost::phoenix;
  * @brief Spirit grammar for the SBF block "BlockHeader"
  */
 template<typename Iterator>
-struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader_t(uint16_t, uint8_t&, uint16_t&)>
+struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&, uint16_t&)>
 {
 	BlockHeaderGrammar() : BlockHeaderGrammar::base_type(blockHeader)
 	{
@@ -1248,7 +1217,7 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader_t(uint16_t, uint8_
                     >> qi::little_word[_r3 = qi::_1]; // length
 	}
 
-	qi::rule<Iterator, BlockHeader_t(uint16_t, uint8_t&, uint16_t&)> blockHeader;
+	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&, uint16_t&)> blockHeader;
 };
 
 /**
@@ -1675,7 +1644,7 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
 
     BlockHeaderGrammar<Iterator> header;
 
-    qi::rule<Iterator, qi::locals<uint8_t>, AGCState_t(uint8_t)> agcState;
+    qi::rule<Iterator, qi::locals<uint8_t>, AgcState(uint8_t)> agcState;
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t>, ReceiverStatus()> receiverStatusLocal;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
 };
