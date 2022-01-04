@@ -3470,7 +3470,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         }
 		case evReceiverStatus:
 		{
-			memcpy(&last_receiverstatus_, data_, sizeof(last_receiverstatus_));
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ReceiverStatusGrammar<std::vector<uint8_t>::iterator>(), last_receiverstatus_))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ReceiverStatus");
+				break;
+			}
 			receiverstatus_has_arrived_diagnostics_ = true;
 			break;
 		}
@@ -3479,7 +3484,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), QualityIndGrammar<std::vector<uint8_t>::iterator>(), last_qualityind_))
 			{
-				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in DOP");
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in QualityInd");
 				break;
 			}
 			qualityind_has_arrived_diagnostics_ = true;

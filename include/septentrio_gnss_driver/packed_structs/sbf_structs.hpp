@@ -491,10 +491,10 @@ struct ReceiverStatus
     uint32_t rx_status;
     uint32_t rx_error;
     uint8_t n;
-    uint8_t sb_lngth;
+    uint8_t sb_length;
     uint8_t cmd_count;
     uint8_t temperature;
-    AGCState_t agc_state[18];
+    std::vector<AGCState_t> agc_state;
 };
 
 /**
@@ -1201,6 +1201,31 @@ QualityInd,
     (std::vector<uint16_t>, indicators)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+AGCState_t,
+    (uint8_t, frontend_id),
+    (int8_t, gain),
+    (uint8_t, sample_var),
+    (uint8_t, blanking_stat)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+ReceiverStatus,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, cpu_load),
+    (uint8_t, ext_error),
+    (uint32_t, up_time),
+    (uint32_t, rx_status),
+    (uint32_t, rx_error),
+    (uint8_t, n),
+    (uint8_t, sb_length),
+    (uint8_t, cmd_count),
+    (uint8_t, temperature),
+    (std::vector<AGCState_t>, agc_state)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1610,6 +1635,49 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
 
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t>, QualityInd()> qualityIndLocal;
     qi::rule<Iterator, QualityInd()> qualityInd;
+};
+
+/**
+ * @struct ReceiverStatusGrammar
+ * @brief Spirit grammar for the SBF block "ReceiverStatus"
+ */
+template<typename Iterator>
+struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
+{
+	ReceiverStatusGrammar() : ReceiverStatusGrammar::base_type(receiverStatus)
+	{
+        using namespace qi::labels;
+
+        agcState %= qi::byte_
+                 >> qi::char_
+                 >> qi::byte_
+                 >> qi::byte_
+                 >> rep::qi::advance(_r1 - 4); // skip padding: sb_length - 4 bytes
+
+        receiverStatusLocal %= header(4014, _a, _b) // id, revision, length
+		                    >> qi::little_dword
+		                    >> qi::little_word
+                            >> qi::byte_
+                            >> qi::byte_
+                            >> qi::little_qword
+                            >> qi::little_qword
+                            >> qi::little_qword
+                            >> qi::byte_[_c = qi::_1] // n
+                            >> qi::byte_[_d = qi::_1] // sb_length
+                            >> qi::byte_
+                            >> qi::byte_
+                            >> qi::eps[phx::reserve(phx::at_c<12>(_val), _c)]
+                            >> qi::repeat(_c)[agcState(_d)] // pass sb_length
+                            >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+
+        receiverStatus %= receiverStatusLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+    qi::rule<Iterator, qi::locals<uint8_t>, AGCState_t(uint8_t)> agcState;
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t>, ReceiverStatus()> receiverStatusLocal;
+	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
 };
 
 #endif // SBFStructs_HPP
