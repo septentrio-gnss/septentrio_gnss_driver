@@ -459,7 +459,7 @@ struct QualityInd
 
     uint8_t n;
     uint8_t reserved;
-    uint16_t indicators[40];
+    std::vector<uint16_t> indicators;
 };
 
 /**
@@ -1191,6 +1191,16 @@ ReceiverSetup,
     (std::string, gnss_fw_version)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+QualityInd,
+    (BlockHeader_t, block_header),
+    (uint32_t, tow),
+    (uint16_t, wnc),
+    (uint8_t, n),
+    (uint8_t, reserved),
+    (std::vector<uint16_t>, indicators)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1571,6 +1581,35 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
 
 	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, ReceiverSetup()> receiverSetupLocal;
     qi::rule<Iterator, ReceiverSetup()> receiverSetup;
+};
+
+/**
+ * @struct QualityIndGrammar
+ * @brief Spirit grammar for the SBF block "QualityInd"
+ */
+template<typename Iterator>
+struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
+{
+	QualityIndGrammar() : QualityIndGrammar::base_type(qualityInd)
+	{
+        using namespace qi::labels;
+
+		qualityIndLocal %= header(4082, _a, _b) // id, revision, length
+		                >> qi::little_dword
+		                >> qi::little_word
+                        >> qi::byte_[_c = qi::_1] // n
+                        >> qi::byte_
+                        >> qi::eps[phx::reserve(phx::at_c<5>(_val), _c)]
+                        >> qi::repeat(_c)[qi::little_word]
+		                >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+
+        qualityInd %= qualityIndLocal;
+	}
+
+    BlockHeaderGrammar<Iterator> header;
+
+	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t>, QualityInd()> qualityIndLocal;
+    qi::rule<Iterator, QualityInd()> qualityInd;
 };
 
 #endif // SBFStructs_HPP
