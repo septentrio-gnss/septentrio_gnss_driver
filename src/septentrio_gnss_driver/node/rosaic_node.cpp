@@ -281,7 +281,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.pitch_offset   *= -1.0;
     }
 
-    if (settings_.heading_offset != std::abs(0.0))
+    if (std::abs(settings_.heading_offset) != 0.0)
     {
         if (settings_.publish_atteuler)
         {
