@@ -2667,6 +2667,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_poscovgeodetic_))
 			{
+                poscovgeodetic_has_arrived_gpsfix_ = false;
+                poscovgeodetic_has_arrived_navsatfix_ = false;
+                poscovgeodetic_has_arrived_pose_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PosCovGeodetic");
 				break;
 			}
@@ -2695,6 +2698,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), last_atteuler_))
 			{
+                atteuler_has_arrived_gpsfix_ = false;
+			    atteuler_has_arrived_pose_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttEuler");
 				break;
 			}
@@ -2723,6 +2728,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), last_attcoveuler_))
 			{
+                attcoveuler_has_arrived_gpsfix_ = false;
+			    attcoveuler_has_arrived_pose_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttCovEuler");
 				break;
 			}
@@ -2778,7 +2785,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), last_insnavgeod_))
-			{
+			{                
+                insnavgeod_has_arrived_gpsfix_ = false;
+                insnavgeod_has_arrived_navsatfix_ = false;
+                insnavgeod_has_arrived_pose_ = false;
+                insnavgeod_has_arrived_imu_  = 0;
+                insnavgeod_has_arrived_localization_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in INSNavGeod");
 				break;
 			}
@@ -3345,6 +3357,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), DopGrammar<std::vector<uint8_t>::iterator>(), last_dop_))
 			{
+			    dop_has_arrived_gpsfix_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in DOP");
 				break;
 			}
@@ -3357,6 +3370,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_velcovgeodetic_))
 			{
+			    velcovgeodetic_has_arrived_gpsfix_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in VelCovGeodetic");
 				break;
 			}
@@ -3472,7 +3486,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ReceiverStatusGrammar<std::vector<uint8_t>::iterator>(), last_receiverstatus_))
-			{
+			{                
+			    receiverstatus_has_arrived_diagnostics_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ReceiverStatus");
 				break;
 			}
@@ -3484,6 +3499,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), QualityIndGrammar<std::vector<uint8_t>::iterator>(), last_qualityind_))
 			{
+                qualityind_has_arrived_diagnostics_ = false;
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in QualityInd");
 				break;
 			}
