@@ -108,6 +108,7 @@
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 
 // Boost
+//#define BOOST_SPIRIT_DEBUG 1
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
@@ -1448,6 +1449,9 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
 		            >> qi::little_word
 		            >> qi::little_word[_pass = ((qi::_1 & 8191) == _r1), _r2 = qi::_1 >> 13] // revision is upper 3 bits
                     >> qi::little_word[_r3 = qi::_1]; // length
+
+        
+        BOOST_SPIRIT_DEBUG_NODE(blockHeader);
 	}
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&, uint16_t&)> blockHeader;
@@ -1487,15 +1491,17 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
                           >> qi::little_word
                           >> qi::little_dword
                           >> qi::byte_
-                          >> qi::byte_
-                          >> qi::little_word
-                          >> qi::little_word
-                          >> qi::little_word
-                          >> qi::little_word
-                          >> qi::byte_
+                          >> (qi::eps(_a > 0) >> qi::byte_ | qi::attr(0))
+                          >> (qi::eps(_a > 0) >> qi::little_word | qi::attr(0))
+                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                          >> (qi::eps(_a > 1) >> qi::byte_ | qi::attr(0))
                           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
         pvtCartesian %= pvtCartesianLocal;
+
+        BOOST_SPIRIT_DEBUG_NODE(pvtCartesianLocal);
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -1538,15 +1544,17 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
                          >> qi::little_word
                          >> qi::little_dword
                          >> qi::byte_
-                         >> qi::byte_
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> qi::byte_
+                         >> (qi::eps(_a > 0) >> qi::byte_ | qi::attr(0))
+                         >> (qi::eps(_a > 0) >> qi::little_word | qi::attr(0))
+                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
+                         >> (qi::eps(_a > 1) >> qi::byte_ | qi::attr(0))
                          >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
         pvtGeodetic %= pvtGeodeticLocal;
+
+        BOOST_SPIRIT_DEBUG_NODE(pvtGeodeticLocal);
 	}
 
     BlockHeaderGrammar<Iterator> header;
@@ -2055,14 +2063,14 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
                         >> qi::little_word
                         >> qi::byte_
                         >> qi::little_word[_c = qi::_1]
-                        >> (qi::eps[_c & 1  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
-                        >> (qi::eps[_c & 2  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
-                        >> (qi::eps[_c & 4  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
-                        >> (qi::eps[_c & 8  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
-                        >> (qi::eps[_c & 16 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
-                        >> (qi::eps[_c & 32 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
-                        >> (qi::eps[_c & 64 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
-                        >> (qi::eps[_c & 128] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
+                        >> (qi::eps(_c & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
+                        >> (qi::eps(_c & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
+                        >> (qi::eps(_c & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
+                        >> (qi::eps(_c & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
+                        >> (qi::eps(_c & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
+                        >> (qi::eps(_c & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
+                        >> (qi::eps(_c & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
+                        >> (qi::eps(_c & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
         insNavCart %= insNavCartLocal;
@@ -2100,14 +2108,14 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
                         >> qi::little_word
                         >> qi::byte_
                         >> qi::little_word[_c = qi::_1]
-                        >> (qi::eps[_c & 1  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
-                        >> (qi::eps[_c & 2  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
-                        >> (qi::eps[_c & 4  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
-                        >> (qi::eps[_c & 8  ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
-                        >> (qi::eps[_c & 16 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
-                        >> (qi::eps[_c & 32 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
-                        >> (qi::eps[_c & 64 ] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
-                        >> (qi::eps[_c & 128] >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
+                        >> (qi::eps(_c & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
+                        >> (qi::eps(_c & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
+                        >> (qi::eps(_c & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
+                        >> (qi::eps(_c & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
+                        >> (qi::eps(_c & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
+                        >> (qi::eps(_c & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
+                        >> (qi::eps(_c & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
+                        >> (qi::eps(_c & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
         insNavGeod %= insNavGeodLocal;
