@@ -2611,7 +2611,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_pvtgeodetic_))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_pvtgeodetic_))
 			{
                 ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTGeodetic");
 				break;
@@ -3333,7 +3333,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evChannelStatus:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), last_channelstatus_))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), last_channelstatus_))
 			{
                 ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ChannelStatus");
 				break;
@@ -3344,7 +3344,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evMeasEpoch:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (boost::spirit::qi::parse(dvec.begin(), dvec.end(), MeasEpochGrammar<std::vector<uint8_t>::iterator>(), last_measepoch_))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), MeasEpochGrammar<std::vector<uint8_t>::iterator>(), last_measepoch_))
 			{
                 ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in MeasEpoch");
 				break;
