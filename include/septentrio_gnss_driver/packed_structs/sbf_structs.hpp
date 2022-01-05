@@ -1588,6 +1588,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
+                 >> qi::little_bin_float
                  >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
