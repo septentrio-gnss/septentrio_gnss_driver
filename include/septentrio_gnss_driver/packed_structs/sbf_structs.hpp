@@ -1837,7 +1837,7 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
 		qualityInd %= header(4082, phx::ref(revision), phx::ref(length))
 		           >> qi::little_dword
 		           >> qi::little_word
-                   >> qi::byte_[phx::ref(n) = qi::_1]
+                   >> qi::byte_[_pass = (qi::_1 <= 40), phx::ref(n) = qi::_1]
                    >> qi::byte_
                    >> qi::eps[phx::reserve(phx::at_c<5>(_val), phx::ref(n))]
                    >> qi::repeat(phx::ref(n))[qi::little_word]
@@ -1878,7 +1878,7 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
                        >> qi::little_qword
                        >> qi::little_qword
                        >> qi::little_qword
-                       >> qi::byte_[phx::ref(n) = qi::_1] // n
+                       >> qi::byte_[_pass = (qi::_1 <= 18), phx::ref(n) = qi::_1] // n
                        >> qi::byte_[phx::ref(sb_length) = qi::_1] // sb_length
                        >> qi::byte_
                        >> qi::byte_
