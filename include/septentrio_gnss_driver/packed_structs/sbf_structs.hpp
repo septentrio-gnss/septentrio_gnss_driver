@@ -109,6 +109,7 @@
 
 // Boost
 //#define BOOST_SPIRIT_DEBUG 1
+#define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
@@ -1467,47 +1468,46 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
 	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
 	{
         using namespace qi::labels;
+
+        uint8_t  revision;
+        uint16_t length;
 		
-		pvtCartesianLocal %= header(4006, _a, _b) // id, revision, length
-		                  >> qi::little_dword
-                          >> qi::little_word
-                          >> qi::byte_
-                          >> qi::byte_
-                          >> qi::little_bin_double
-                          >> qi::little_bin_double
-                          >> qi::little_bin_double
-                          >> qi::little_bin_float
-                          >> qi::little_bin_float
-                          >> qi::little_bin_float
-                          >> qi::little_bin_float
-                          >> qi::little_bin_float
-                          >> qi::little_bin_double
-                          >> qi::little_bin_float
-                          >> qi::byte_
-                          >> qi::byte_
-                          >> qi::byte_
-                          >> qi::byte_
-                          >> qi::little_word
-                          >> qi::little_word
-                          >> qi::little_dword
-                          >> qi::byte_
-                          >> (qi::eps(_a > 0) >> qi::byte_ | qi::attr(0))
-                          >> (qi::eps(_a > 0) >> qi::little_word | qi::attr(0))
-                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                          >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                          >> (qi::eps(_a > 1) >> qi::byte_ | qi::attr(0))
-                          >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+		pvtCartesian %= header(4006, phx::ref(revision), phx::ref(length))
+		             >> qi::little_dword
+                     >> qi::little_word
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::little_bin_double
+                     >> qi::little_bin_double
+                     >> qi::little_bin_double
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_float
+                     >> qi::little_bin_double
+                     >> qi::little_bin_float
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::byte_
+                     >> qi::little_word
+                     >> qi::little_word
+                     >> qi::little_dword
+                     >> qi::byte_
+                     >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
+                     >> (qi::eps(phx::ref(revision) > 0) >> qi::little_word | qi::attr(0))
+                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                     >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
+                     >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
-        pvtCartesian %= pvtCartesianLocal;
-
-        BOOST_SPIRIT_DEBUG_NODE(pvtCartesianLocal);
+        BOOST_SPIRIT_DEBUG_NODE(pvtCartesian);
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PVTCartesian()> pvtCartesianLocal;
-    qi::rule<Iterator, PVTCartesian()> pvtCartesian;
+    BlockHeaderGrammar<Iterator>       header;
+	qi::rule<Iterator, PVTCartesian()> pvtCartesian;
 };
 
 /**
@@ -1521,46 +1521,45 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
 	{
         using namespace qi::labels;
 
-		pvtGeodeticLocal %= header(4007, _a, _b) // id, revision, length
-		                 >> qi::little_dword
-		                 >> qi::little_word
-                         >> qi::byte_
-                         >> qi::byte_
-                         >> qi::little_bin_double
-                         >> qi::little_bin_double
-                         >> qi::little_bin_double
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_double
-                         >> qi::little_bin_float
-                         >> qi::byte_
-                         >> qi::byte_
-                         >> qi::byte_
-                         >> qi::byte_
-                         >> qi::little_word
-                         >> qi::little_word
-                         >> qi::little_dword
-                         >> qi::byte_
-                         >> (qi::eps(_a > 0) >> qi::byte_ | qi::attr(0))
-                         >> (qi::eps(_a > 0) >> qi::little_word | qi::attr(0))
-                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                         >> (qi::eps(_a > 1) >> qi::little_word | qi::attr(0))
-                         >> (qi::eps(_a > 1) >> qi::byte_ | qi::attr(0))
-                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        pvtGeodetic %= pvtGeodeticLocal;
+		pvtGeodetic %= header(4007, phx::ref(revision), phx::ref(length))
+		            >> qi::little_dword
+		            >> qi::little_word
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_bin_double
+                    >> qi::little_bin_double
+                    >> qi::little_bin_double
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_double
+                    >> qi::little_bin_float
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_word
+                    >> qi::little_word
+                    >> qi::little_dword
+                    >> qi::byte_
+                    >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
+                    >> (qi::eps(phx::ref(revision) > 0) >> qi::little_word | qi::attr(0))
+                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
+                    >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 
-        BOOST_SPIRIT_DEBUG_NODE(pvtGeodeticLocal);
+        BOOST_SPIRIT_DEBUG_NODE(pvtGeodetic);
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PVTGeodetic()> pvtGeodeticLocal;
-    qi::rule<Iterator, PVTGeodetic()> pvtGeodetic;
+    BlockHeaderGrammar<Iterator>      header;
+	qi::rule<Iterator, PVTGeodetic()> pvtGeodetic;
 };
 
 /**
@@ -1574,26 +1573,25 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
 	{
         using namespace qi::labels;
 
-		attEulerLocal %= header(5938, _a, _b) // id, revision, length
-		              >> qi::little_dword
-		              >> qi::little_word
-                      >> qi::byte_
-                      >> qi::byte_
-                      >> qi::little_word
-		              >> qi::little_word
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        attEuler %= attEulerLocal;
+		attEuler %= header(5938, phx::ref(revision), phx::ref(length))
+		         >> qi::little_dword
+		         >> qi::little_word
+                 >> qi::byte_
+                 >> qi::byte_
+                 >> qi::little_word
+		         >> qi::little_word
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, AttEuler()> attEulerLocal;
+    BlockHeaderGrammar<Iterator>   header;
     qi::rule<Iterator, AttEuler()> attEuler;
 };
 
@@ -1608,26 +1606,25 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 	{
         using namespace qi::labels;
 
-		attCovEulerLocal %= header(5939, _a, _b) // id, revision, length
-		                 >> qi::little_dword
-		                 >> qi::little_word
-                         >> qi::byte_
-                         >> qi::byte_
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::little_bin_float
-                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+		uint8_t  revision;
+        uint16_t length;
 
-        attCovEuler %= attCovEulerLocal;
+		attCovEuler %= header(5939, phx::ref(revision), phx::ref(length))
+		            >> qi::little_dword
+		            >> qi::little_word
+                    >> qi::byte_
+                    >> qi::byte_
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::little_bin_float
+                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, AttCovEuler()> attCovEulerLocal;
-    qi::rule<Iterator, AttCovEuler()> attCovEuler;
+    BlockHeaderGrammar<Iterator>      header;
+	qi::rule<Iterator, AttCovEuler()> attCovEuler;
 };
 
 /**
@@ -1641,12 +1638,19 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
 	{
         using namespace qi::labels;
 
+        uint8_t  revision;
+        uint16_t length;
+        uint8_t  n;
+        uint8_t  n2;
+        uint8_t  sb1_size;
+        uint8_t  sb2_size;
+
         channelStateInfo %= qi::byte_
                          >> qi::byte_
                          >> qi::little_word
                          >> qi::little_word
                          >> qi::little_word
-                         >> rep::qi::advance(_r1 - 8); // skip padding: sb2_size - 8 bytes
+                         >> rep::qi::advance(phx::ref(sb2_size) - 8); // skip padding: sb2_size - 8 bytes
 
 		channelSatInfo %= qi::byte_
                        >> qi::byte_
@@ -1654,33 +1658,29 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                        >> qi::little_word
                        >> qi::little_word
                        >> qi::char_
-                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), _a = qi::_1] // n2
+                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), phx::ref(n2) = qi::_1]
                        >> qi::byte_
                        >> qi::byte_
-                       >> rep::qi::advance(_r1 - 12) // skip padding: sb1_size - 12 bytes
-                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), _a)]
-		               >> qi::repeat(_a)[channelStateInfo(_r2)]; // pass sb2_size
+                       >> rep::qi::advance(phx::ref(sb1_size) - 12) // skip padding: sb1_size - 12 bytes
+                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), phx::ref(n2))]
+		               >> qi::repeat(phx::ref(n2))[channelStateInfo];
 
-        channelStatusLocal %= header(4013, _a, _b) // id, revision, length
-		                   >> qi::little_dword
-		                   >> qi::little_word
-                           >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), _c = qi::_1] // n
-                           >> qi::byte_[_d = qi::_1] // sb1_size
-                           >> qi::byte_[_e = qi::_1] // sb2_size
-                           >> qi::repeat(3)[qi::byte_]
-                           >> qi::eps[phx::reserve(phx::at_c<7>(_val), _c)]
-                           >> qi::repeat(_c)[channelSatInfo(_d, _e)] // pass sb1_size and sb2_size
-                           >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
-
-        channelStatus %= channelStatusLocal;
+        channelStatus %= header(4013, phx::ref(revision), phx::ref(length))
+		              >> qi::little_dword
+		              >> qi::little_word
+                      >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), phx::ref(n) = qi::_1]
+                      >> qi::byte_[phx::ref(sb1_size) = qi::_1]
+                      >> qi::byte_[phx::ref(sb2_size) = qi::_1]
+                      >> qi::repeat(3)[qi::byte_]
+                      >> qi::eps[phx::reserve(phx::at_c<7>(_val), phx::ref(n))]
+                      >> qi::repeat(phx::ref(n))[channelSatInfo]
+                      >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-    qi::rule<Iterator, ChannelStateInfo(uint8_t)> channelStateInfo;
-    qi::rule<Iterator, qi::locals<uint8_t>, ChannelSatInfo(uint8_t, uint8_t)> channelSatInfo;
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t, uint8_t>, ChannelStatus()> channelStatusLocal;
-	qi::rule<Iterator, ChannelStatus()> channelStatus;
+    BlockHeaderGrammar<Iterator>           header;
+    qi::rule<Iterator, ChannelStateInfo()> channelStateInfo;
+    qi::rule<Iterator, ChannelSatInfo()>   channelSatInfo;
+	qi::rule<Iterator, ChannelStatus()>    channelStatus;
 };
 
 /**
@@ -1694,6 +1694,13 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
 	{
         using namespace qi::labels;
 
+        uint8_t  revision;
+        uint16_t length;
+        uint8_t  n;
+        uint8_t  n2;
+        uint8_t  sb1_size;
+        uint8_t  sb2_size;
+
         measEpochChannelType2 %= qi::byte_
                               >> qi::byte_
                               >> qi::byte_
@@ -1703,7 +1710,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                               >> qi::little_word
                               >> qi::little_word
                               >> qi::little_word
-                              >> rep::qi::advance(_r1 - 12); // skip padding: sb2_size - 12 bytes
+                              >> rep::qi::advance(phx::ref(sb2_size) - 12); // skip padding: sb2_size - 12 bytes
 
 		measEpochChannelType1 %= qi::byte_
                               >> qi::byte_
@@ -1716,33 +1723,29 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                               >> qi::byte_
                               >> qi::little_word
                               >> qi::byte_
-                              >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T2), _a = qi::_1] // n2
-                              >> rep::qi::advance(_r1 - 20) // skip padding: sb1_size - 20 bytes
-                              >> qi::eps[phx::reserve(phx::at_c<12>(_val), _a)]
-		                      >> qi::repeat(_a)[measEpochChannelType2(_r2)]; // pass sb2_size
+                              >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T2), phx::ref(n2) = qi::_1]
+                              >> rep::qi::advance(phx::ref(sb1_size) - 20) // skip padding: sb1_size - 20 bytes
+                              >> qi::eps[phx::reserve(phx::at_c<12>(_val), phx::ref(n2))]
+		                      >> qi::repeat(phx::ref(n2))[measEpochChannelType2];
 
-        measEpochLocal %= header(4027, _a, _b) // id, revision, length
+        measEpoch %= header(4027, phx::ref(revision), phx::ref(length))
 		               >> qi::little_dword
 		               >> qi::little_word
-                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1), _c = qi::_1] // n
-                       >> qi::byte_[_d = qi::_1] // sb1_size
-                       >> qi::byte_[_e = qi::_1] // sb2_size
+                       >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1),  phx::ref(n) = qi::_1]
+                       >> qi::byte_[phx::ref(sb1_size) = qi::_1]
+                       >> qi::byte_[phx::ref(sb2_size) = qi::_1]
                        >> qi::byte_
                        >> qi::byte_
                        >> qi::byte_
-                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), _c)]
-                       >> qi::repeat(_c)[measEpochChannelType1(_d, _e)] // pass sb1_size and sb2_size
+                       >> qi::eps[phx::reserve(phx::at_c<9>(_val),  phx::ref(n))]
+                       >> qi::repeat( phx::ref(n))[measEpochChannelType1]
                        >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
-
-        measEpoch %= measEpochLocal;
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-    qi::rule<Iterator, MeasEpochChannelType2(uint8_t)> measEpochChannelType2;
-    qi::rule<Iterator, qi::locals<uint8_t>, MeasEpochChannelType1(uint8_t, uint8_t)> measEpochChannelType1;
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t, uint8_t>, MeasEpoch()> measEpochLocal;
-	qi::rule<Iterator, MeasEpoch()> measEpoch;
+    BlockHeaderGrammar<Iterator>                header;
+    qi::rule<Iterator, MeasEpochChannelType2()> measEpochChannelType2;
+    qi::rule<Iterator, MeasEpochChannelType1()> measEpochChannelType1;
+	qi::rule<Iterator, MeasEpoch()>             measEpoch;
 };
 
 /**
@@ -1756,26 +1759,25 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 	{
         using namespace qi::labels;
 
-		dopLocal %= header(4001, _a, _b) // id, revision, length
-		         >> qi::little_dword
-		         >> qi::little_word
-                 >> qi::byte_
-                 >> qi::byte_
-                 >> qi::little_word
-		         >> qi::little_word
-                 >> qi::little_word
-		         >> qi::little_word
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        dop %= dopLocal;
+		dop %= header(4001, phx::ref(revision), phx::ref(length))
+		    >> qi::little_dword
+		    >> qi::little_word
+            >> qi::byte_
+            >> qi::byte_
+            >> qi::little_word
+		    >> qi::little_word
+            >> qi::little_word
+		    >> qi::little_word
+            >> qi::little_bin_float
+            >> qi::little_bin_float
+            >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
     BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, DOP()> dopLocal;
-    qi::rule<Iterator, DOP()> dop;
+	qi::rule<Iterator, DOP()>    dop;
 };
 
 /**
@@ -1789,32 +1791,31 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
 	{
         using namespace qi::labels;
 
-		receiverSetupLocal %= header(5902, _a, _b) // id, revision, length
-		                   >> qi::little_dword
-		                   >> qi::little_word
-                           >> qi::repeat(2)[qi::byte_]
-                           >> qi::as_string[qi::repeat(60)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(40)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::little_bin_float
-                           >> qi::little_bin_float
-                           >> qi::little_bin_float
-                           >> qi::as_string[qi::repeat(20)[qi::char_]]
-                           >> qi::as_string[qi::repeat(40)[qi::char_]]
-                           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        receiverSetup %= receiverSetupLocal;
+		receiverSetup %= header(5902, phx::ref(revision), phx::ref(length))
+		              >> qi::little_dword
+		              >> qi::little_word
+                      >> qi::repeat(2)[qi::byte_]
+                      >> qi::as_string[qi::repeat(60)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(40)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::little_bin_float
+                      >> qi::little_bin_float
+                      >> qi::little_bin_float
+                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::as_string[qi::repeat(40)[qi::char_]]
+                      >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, ReceiverSetup()> receiverSetupLocal;
+    BlockHeaderGrammar<Iterator>        header;
     qi::rule<Iterator, ReceiverSetup()> receiverSetup;
 };
 
@@ -1829,21 +1830,21 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
 	{
         using namespace qi::labels;
 
-		qualityIndLocal %= header(4082, _a, _b) // id, revision, length
-		                >> qi::little_dword
-		                >> qi::little_word
-                        >> qi::byte_[_c = qi::_1] // n
-                        >> qi::byte_
-                        >> qi::eps[phx::reserve(phx::at_c<5>(_val), _c)]
-                        >> qi::repeat(_c)[qi::little_word]
-		                >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
+        uint8_t  n;
 
-        qualityInd %= qualityIndLocal;
+		qualityInd %= header(4082, phx::ref(revision), phx::ref(length))
+		           >> qi::little_dword
+		           >> qi::little_word
+                   >> qi::byte_[phx::ref(n) = qi::_1]
+                   >> qi::byte_
+                   >> qi::eps[phx::reserve(phx::at_c<5>(_val), phx::ref(n))]
+                   >> qi::repeat(phx::ref(n))[qi::little_word]
+		           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t>, QualityInd()> qualityIndLocal;
+    BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, QualityInd()> qualityInd;
 };
 
@@ -1858,35 +1859,36 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
 	{
         using namespace qi::labels;
 
+        uint8_t  revision;
+        uint16_t length;
+        uint8_t  n;
+        uint8_t  sb_length;
+
         agcState %= qi::byte_
                  >> qi::char_
                  >> qi::byte_
                  >> qi::byte_
-                 >> rep::qi::advance(_r1 - 4); // skip padding: sb_length - 4 bytes
+                 >> rep::qi::advance(phx::ref(sb_length) - 4); // skip padding: sb_length - 4 bytes
 
-        receiverStatusLocal %= header(4014, _a, _b) // id, revision, length
-		                    >> qi::little_dword
-		                    >> qi::little_word
-                            >> qi::byte_
-                            >> qi::byte_
-                            >> qi::little_qword
-                            >> qi::little_qword
-                            >> qi::little_qword
-                            >> qi::byte_[_c = qi::_1] // n
-                            >> qi::byte_[_d = qi::_1] // sb_length
-                            >> qi::byte_
-                            >> qi::byte_
-                            >> qi::eps[phx::reserve(phx::at_c<12>(_val), _c)]
-                            >> qi::repeat(_c)[agcState(_d)] // pass sb_length
-                            >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
-
-        receiverStatus %= receiverStatusLocal;
+        receiverStatus %= header(4014, phx::ref(revision), phx::ref(length))
+		               >> qi::little_dword
+		               >> qi::little_word
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::little_qword
+                       >> qi::little_qword
+                       >> qi::little_qword
+                       >> qi::byte_[phx::ref(n) = qi::_1] // n
+                       >> qi::byte_[phx::ref(sb_length) = qi::_1] // sb_length
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::eps[phx::reserve(phx::at_c<12>(_val), phx::ref(n))]
+                       >> qi::repeat(phx::ref(n))[agcState]
+                       >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-    qi::rule<Iterator, qi::locals<uint8_t>, AgcState(uint8_t)> agcState;
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint8_t, uint8_t>, ReceiverStatus()> receiverStatusLocal;
+    BlockHeaderGrammar<Iterator>         header;
+    qi::rule<Iterator, AgcState()>       agcState;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
 };
 
@@ -1901,29 +1903,28 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
 	{
         using namespace qi::labels;
 
-		posCovCartesianLocal %= header(5905, _a, _b) // id, revision, length
-		                     >> qi::little_dword
-		                     >> qi::little_word
-                             >> qi::byte_
-                             >> qi::byte_
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        posCovCartesian %= posCovCartesianLocal;
+		posCovCartesian %= header(5905, phx::ref(revision), phx::ref(length))
+		                >> qi::little_dword
+		                >> qi::little_word
+                        >> qi::byte_
+                        >> qi::byte_
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PosCovCartesian()> posCovCartesianLocal;
+    BlockHeaderGrammar<Iterator>          header;
     qi::rule<Iterator, PosCovCartesian()> posCovCartesian;
 };
 
@@ -1938,29 +1939,28 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
 	{
         using namespace qi::labels;
 
-		posCovGeodeticLocal %= header(5906, _a, _b) // id, revision, length
-		                    >> qi::little_dword
-		                    >> qi::little_word
-                            >> qi::byte_
-                            >> qi::byte_
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::little_bin_float
-                            >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        posCovGeodetic %= posCovGeodeticLocal;
+		posCovGeodetic %= header(5906, phx::ref(revision), phx::ref(length))
+		               >> qi::little_dword
+		               >> qi::little_word
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, PosCovGeodetic()> posCovGeodeticLocal;
+    BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, PosCovGeodetic()> posCovGeodetic;
 };
 
@@ -1975,29 +1975,28 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
 	{
         using namespace qi::labels;
 
-		velCovCartesianLocal %= header(5907, _a, _b) // id, revision, length
-		                     >> qi::little_dword
-		                     >> qi::little_word
-                             >> qi::byte_
-                             >> qi::byte_
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        velCovCartesian %= velCovCartesianLocal;
+		velCovCartesian %= header(5907, phx::ref(revision), phx::ref(length))
+		                >> qi::little_dword
+		                >> qi::little_word
+                        >> qi::byte_
+                        >> qi::byte_
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::little_bin_float
+                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, VelCovCartesian()> velCovCartesianLocal;
+    BlockHeaderGrammar<Iterator>          header;
     qi::rule<Iterator, VelCovCartesian()> velCovCartesian;
 };
 
@@ -2012,29 +2011,28 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
 	{
         using namespace qi::labels;
 
-		velCovGeodeticLocal %= header(5908, _a, _b) // id, revision, length
-		                     >> qi::little_dword
-		                     >> qi::little_word
-                             >> qi::byte_
-                             >> qi::byte_
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::little_bin_float
-                             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
 
-        velCovGeodetic %= velCovGeodeticLocal;
+		velCovGeodetic %= header(5908, phx::ref(revision), phx::ref(length))
+		               >> qi::little_dword
+		               >> qi::little_word
+                       >> qi::byte_
+                       >> qi::byte_
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t>, VelCovGeodetic()> velCovGeodeticLocal;
+    BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, VelCovGeodetic()> velCovGeodetic;
 };
 
@@ -2049,36 +2047,36 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
 	{
         using namespace qi::labels;
 
-		insNavCartLocal %= (header(4225, _a, _b) | header(4229, _a, _b)) // id, revision, length
-		                >> qi::little_dword
-		                >> qi::little_word
-                        >> qi::byte_
-                        >> qi::byte_
-                        >> qi::little_word
-                        >> qi::little_word
-                        >> qi::little_bin_double
-                        >> qi::little_bin_double
-                        >> qi::little_bin_double
-                        >> qi::little_word                        
-                        >> qi::little_word
-                        >> qi::byte_
-                        >> qi::little_word[_c = qi::_1]
-                        >> (qi::eps(_c & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
-                        >> (qi::eps(_c & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
-                        >> (qi::eps(_c & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
-                        >> (qi::eps(_c & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
-                        >> (qi::eps(_c & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
-                        >> (qi::eps(_c & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
-                        >> (qi::eps(_c & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
-                        >> (qi::eps(_c & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
-                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
+        uint16_t sb_list;
 
-        insNavCart %= insNavCartLocal;
+		insNavCart %= (header(4225, phx::ref(revision), phx::ref(length)) | header(4229, phx::ref(revision), phx::ref(length)))
+		           >> qi::little_dword
+		           >> qi::little_word
+                   >> qi::byte_
+                   >> qi::byte_
+                   >> qi::little_word
+                   >> qi::little_word
+                   >> qi::little_bin_double
+                   >> qi::little_bin_double
+                   >> qi::little_bin_double
+                   >> qi::little_word                        
+                   >> qi::little_word
+                   >> qi::byte_
+                   >> qi::little_word[phx::ref(sb_list) = qi::_1]
+                   >> (qi::eps(phx::ref(sb_list) & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
+                   >> (qi::eps(phx::ref(sb_list) & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
+                   >> (qi::eps(phx::ref(sb_list) & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
+                   >> (qi::eps(phx::ref(sb_list) & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
+                   >> (qi::eps(phx::ref(sb_list) & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
+                   >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint16_t>, INSNavCart()> insNavCartLocal;
+    BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, INSNavCart()> insNavCart;
 };
 
@@ -2093,37 +2091,37 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
 	{
         using namespace qi::labels;
 
-		insNavGeodLocal %= (header(4226, _a, _b) | header(4230, _a, _b)) // id, revision, length
-		                >> qi::little_dword
-		                >> qi::little_word
-                        >> qi::byte_
-                        >> qi::byte_
-                        >> qi::little_word
-                        >> qi::little_word
-                        >> qi::little_bin_double
-                        >> qi::little_bin_double
-                        >> qi::little_bin_double
-                        >> qi::little_bin_float
-                        >> qi::little_word                        
-                        >> qi::little_word
-                        >> qi::byte_
-                        >> qi::little_word[_c = qi::_1]
-                        >> (qi::eps(_c & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
-                        >> (qi::eps(_c & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
-                        >> (qi::eps(_c & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
-                        >> (qi::eps(_c & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
-                        >> (qi::eps(_c & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
-                        >> (qi::eps(_c & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
-                        >> (qi::eps(_c & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
-                        >> (qi::eps(_c & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
-                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+        uint8_t  revision;
+        uint16_t length;
+        uint16_t sb_list;
 
-        insNavGeod %= insNavGeodLocal;
+		insNavGeod %= (header(4226, phx::ref(revision), phx::ref(length)) | header(4230, phx::ref(revision), phx::ref(length)))
+		           >> qi::little_dword
+		           >> qi::little_word
+                   >> qi::byte_
+                   >> qi::byte_
+                   >> qi::little_word
+                   >> qi::little_word
+                   >> qi::little_bin_double
+                   >> qi::little_bin_double
+                   >> qi::little_bin_double
+                   >> qi::little_bin_float
+                   >> qi::little_word                        
+                   >> qi::little_word
+                   >> qi::byte_
+                   >> qi::little_word[phx::ref(sb_list) = qi::_1]
+                   >> (qi::eps(phx::ref(sb_list) & 1  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 2  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
+                   >> (qi::eps(phx::ref(sb_list) & 4  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 8  ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
+                   >> (qi::eps(phx::ref(sb_list) & 16 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
+                   >> (qi::eps(phx::ref(sb_list) & 32 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
+                   >> (qi::eps(phx::ref(sb_list) & 64 ) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
+                   >> (qi::eps(phx::ref(sb_list) & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
+                   >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
-    BlockHeaderGrammar<Iterator> header;
-
-	qi::rule<Iterator, qi::locals<uint8_t, uint16_t, uint16_t>, INSNavGeod()> insNavGeodLocal;
+    BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, INSNavGeod()> insNavGeod;
 };
 
