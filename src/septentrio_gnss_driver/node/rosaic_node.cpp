@@ -345,6 +345,16 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 settings_.rx_input_corrections_serial, std::string("USB2"));
 
     // Automatically activate needed sub messages
+
+    if (settings_.publish_atteuler)
+    {
+        if (!settings_.multi_antenna)
+        {
+            this->log(LogLevel::WARN ,"AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
+            settings_.multi_antenna = true;
+        }
+    }
+
     if (settings_.septentrio_receiver_type == "gnss")
     {
         if (settings_.publish_navsatfix)
