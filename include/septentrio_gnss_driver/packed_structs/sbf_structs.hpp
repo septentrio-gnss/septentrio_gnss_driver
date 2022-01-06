@@ -1467,10 +1467,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
 {
 	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;       
 		
 		pvtCartesian %= header(4006, phx::ref(revision), phx::ref(length))
 		             >> qi::little_dword
@@ -1506,6 +1503,9 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
         BOOST_SPIRIT_DEBUG_NODE(pvtCartesian);
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>       header;
 	qi::rule<Iterator, PVTCartesian()> pvtCartesian;
 };
@@ -1519,10 +1519,7 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
 {
 	PVTGeodeticGrammar() : PVTGeodeticGrammar::base_type(pvtGeodetic)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;        
 
 		pvtGeodetic %= header(4007, phx::ref(revision), phx::ref(length))
 		            >> qi::little_dword
@@ -1558,6 +1555,9 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
         BOOST_SPIRIT_DEBUG_NODE(pvtGeodetic);
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>      header;
 	qi::rule<Iterator, PVTGeodetic()> pvtGeodetic;
 };
@@ -1571,10 +1571,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
 {
 	AttEulerGrammar() : AttEulerGrammar::base_type(attEuler)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;       
 
 		attEuler %= header(5938, phx::ref(revision), phx::ref(length))
 		         >> qi::little_dword
@@ -1592,6 +1589,9 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
                  >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>   header;
     qi::rule<Iterator, AttEuler()> attEuler;
 };
@@ -1605,10 +1605,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 {
 	AttCovEulerGrammar() : AttCovEulerGrammar::base_type(attCovEuler)
 	{
-        using namespace qi::labels;
-
-		uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;		
 
 		attCovEuler %= header(5939, phx::ref(revision), phx::ref(length))
 		            >> qi::little_dword
@@ -1624,6 +1621,9 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
                     >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>      header;
 	qi::rule<Iterator, AttCovEuler()> attCovEuler;
 };
@@ -1637,14 +1637,7 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
 {
 	ChannelStatusGrammar() : ChannelStatusGrammar::base_type(channelStatus)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint8_t  n;
-        uint8_t  n2;
-        uint8_t  sb1_size;
-        uint8_t  sb2_size;
+        using namespace qi::labels;       
 
         channelStateInfo %= qi::byte_
                          >> qi::byte_
@@ -1678,6 +1671,13 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                       >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+    uint8_t  n;
+    uint8_t  n2;
+    uint8_t  sb1_size;
+    uint8_t  sb2_size;
+
     BlockHeaderGrammar<Iterator>           header;
     qi::rule<Iterator, ChannelStateInfo()> channelStateInfo;
     qi::rule<Iterator, ChannelSatInfo()>   channelSatInfo;
@@ -1693,14 +1693,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
 {
 	MeasEpochGrammar() : MeasEpochGrammar::base_type(measEpoch)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint8_t  n;
-        uint8_t  n2;
-        uint8_t  sb1_size;
-        uint8_t  sb2_size;
+        using namespace qi::labels;       
 
         measEpochChannelType2 %= qi::byte_
                               >> qi::byte_
@@ -1743,6 +1736,13 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                        >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+    uint8_t  n;
+    uint8_t  n2;
+    uint8_t  sb1_size;
+    uint8_t  sb2_size;
+
     BlockHeaderGrammar<Iterator>                header;
     qi::rule<Iterator, MeasEpochChannelType2()> measEpochChannelType2;
     qi::rule<Iterator, MeasEpochChannelType1()> measEpochChannelType1;
@@ -1758,10 +1758,7 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 {
 	DopGrammar() : DopGrammar::base_type(dop)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;       
 
 		dop %= header(4001, phx::ref(revision), phx::ref(length))
 		    >> qi::little_dword
@@ -1777,6 +1774,9 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
             >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator> header;
 	qi::rule<Iterator, DOP()>    dop;
 };
@@ -1790,10 +1790,7 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
 {
 	ReceiverSetupGrammar() : ReceiverSetupGrammar::base_type(receiverSetup)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;        
 
 		receiverSetup %= header(5902, phx::ref(revision), phx::ref(length))
 		              >> qi::little_dword
@@ -1816,6 +1813,9 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
                       >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>        header;
     qi::rule<Iterator, ReceiverSetup()> receiverSetup;
 };
@@ -1829,11 +1829,7 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
 {
 	QualityIndGrammar() : QualityIndGrammar::base_type(qualityInd)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint8_t  n;
+        using namespace qi::labels;        
 
 		qualityInd %= header(4082, phx::ref(revision), phx::ref(length))
 		           >> qi::little_dword
@@ -1844,6 +1840,10 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
                    >> qi::repeat(phx::ref(n))[qi::little_word]
 		           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
+
+    uint8_t  revision;
+    uint16_t length;
+    uint8_t  n;
 
     BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, QualityInd()> qualityInd;
@@ -1858,12 +1858,7 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
 {
 	ReceiverStatusGrammar() : ReceiverStatusGrammar::base_type(receiverStatus)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint8_t  n;
-        uint8_t  sb_length;
+        using namespace qi::labels;        
 
         agcState %= qi::byte_
                  >> qi::char_
@@ -1888,6 +1883,11 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
                        >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+    uint8_t  n;
+    uint8_t  sb_length;
+
     BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, AgcState()>       agcState;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
@@ -1902,10 +1902,7 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
 {
 	PosCovCartesianGrammar() : PosCovCartesianGrammar::base_type(posCovCartesian)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;        
 
 		posCovCartesian %= header(5905, phx::ref(revision), phx::ref(length))
 		                >> qi::little_dword
@@ -1925,6 +1922,9 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>          header;
     qi::rule<Iterator, PosCovCartesian()> posCovCartesian;
 };
@@ -1940,10 +1940,7 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
 	{
         using namespace qi::labels;
 
-        uint8_t  revision;
-        uint16_t length;
-
-		posCovGeodetic %= header(5906, phx::ref(revision), phx::ref(length))
+       	posCovGeodetic %= header(5906, phx::ref(revision), phx::ref(length))
 		               >> qi::little_dword
 		               >> qi::little_word
                        >> qi::byte_
@@ -1961,6 +1958,9 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, PosCovGeodetic()> posCovGeodetic;
 };
@@ -1974,10 +1974,7 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
 {
 	VelCovCartesianGrammar() : VelCovCartesianGrammar::base_type(velCovCartesian)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;       
 
 		velCovCartesian %= header(5907, phx::ref(revision), phx::ref(length))
 		                >> qi::little_dword
@@ -1997,6 +1994,9 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
                         >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>          header;
     qi::rule<Iterator, VelCovCartesian()> velCovCartesian;
 };
@@ -2010,10 +2010,7 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
 {
 	VelCovGeodeticGrammar() : VelCovGeodeticGrammar::base_type(velCovGeodetic)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
+        using namespace qi::labels;        
 
 		velCovGeodetic %= header(5908, phx::ref(revision), phx::ref(length))
 		               >> qi::little_dword
@@ -2033,6 +2030,9 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+
     BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, VelCovGeodetic()> velCovGeodetic;
 };
@@ -2046,11 +2046,7 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
 {
 	INSNavCartGrammar() : INSNavCartGrammar::base_type(insNavCart)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint16_t sb_list;
+        using namespace qi::labels;        
 
 		insNavCart %= (header(4225, phx::ref(revision), phx::ref(length)) | header(4229, phx::ref(revision), phx::ref(length)))
 		           >> qi::little_dword
@@ -2077,6 +2073,10 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
+    uint8_t  revision;
+    uint16_t length;
+    uint16_t sb_list;
+
     BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, INSNavCart()> insNavCart;
 };
@@ -2090,11 +2090,7 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
 {
 	INSNavGeodGrammar() : INSNavGeodGrammar::base_type(insNavGeod)
 	{
-        using namespace qi::labels;
-
-        uint8_t  revision;
-        uint16_t length;
-        uint16_t sb_list;
+        using namespace qi::labels;        
 
 		insNavGeod %= (header(4226, phx::ref(revision), phx::ref(length)) | header(4230, phx::ref(revision), phx::ref(length)))
 		           >> qi::little_dword
@@ -2121,6 +2117,10 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
                    >> (qi::eps(phx::ref(sb_list) & 128) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
+
+    uint8_t  revision;
+    uint16_t length;
+    uint16_t sb_list;
 
     BlockHeaderGrammar<Iterator>     header;
     qi::rule<Iterator, INSNavGeod()> insNavGeod;
