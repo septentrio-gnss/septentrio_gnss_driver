@@ -50,8 +50,8 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->mode = data.mode;
     msg->error = data.error;
     msg->latitude = data.latitude;
@@ -91,8 +91,8 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->mode = data.mode;
     msg->error = data.error;
     msg->x = data.x;
@@ -132,8 +132,8 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->mode = data.mode;
     msg->error = data.error;
     msg->cov_xx = data.cov_xx;
@@ -159,8 +159,8 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->mode = data.mode;
     msg->error = data.error;
     msg->cov_latlat = data.cov_latlat;
@@ -186,8 +186,8 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->mode = data.mode;
     msg->error = data.error;
     msg->cov_vnvn = data.cov_vnvn;
@@ -213,8 +213,8 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->nr_sv = data.nr_sv;
     msg->error = data.error;
     msg->mode = data.mode;
@@ -249,8 +249,8 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->error = data.error;
     msg->cov_headhead = data.cov_headhead;
     msg->cov_pitchpitch = data.cov_pitchpitch;
@@ -281,8 +281,8 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->gnss_mode = data.gnss_mode;
     msg->error = data.error;
     msg->info = data.info;
@@ -358,8 +358,8 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->gnss_mode = data.gnss_mode;
     msg->error = data.error;
     msg->info = data.info;
@@ -435,8 +435,8 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->serial_port = data.serial_port;
     if (settings_->use_ros_axis_orientation)
     {
@@ -470,8 +470,8 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->port = data.port;
     
     if (settings_->use_ros_axis_orientation)
@@ -500,8 +500,8 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(INSNavGeod& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->gnss_mode = data.gnss_mode;
     msg->error = data.error;
     msg->info = data.info;
@@ -557,8 +557,8 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(INSNavCart& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->gnss_mode = data.gnss_mode;
     msg->error = data.error;
     msg->info = data.info;
@@ -612,8 +612,8 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
     msg->block_header.id  = data.block_header.id;
     msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.tow;
-    msg->block_header.wnc = data.wnc;
+    msg->block_header.tow = data.block_header.tow;
+    msg->block_header.wnc = data.block_header.wnc;
     msg->n = data.n;
     msg->sb_length = data.sb_length;
 
@@ -1721,8 +1721,8 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
             msg->tdop = static_cast<double>(last_dop_.tdop) / 100;
         }
-        msg->time = static_cast<double>(last_pvtgeodetic_.tow) / 1000 +
-                    static_cast<double>(last_pvtgeodetic_.wnc * 7 * 24 * 60 * 60);
+        msg->time = static_cast<double>(last_pvtgeodetic_.block_header.tow) / 1000 +
+                    static_cast<double>(last_pvtgeodetic_.block_header.wnc * 7 * 24 * 60 * 60);
         msg->err = 2 * (std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_latlat) +
                                 static_cast<double>(last_poscovgeodetic_.cov_lonlon) +
                                 static_cast<double>(last_poscovgeodetic_.cov_hgthgt)));
@@ -1874,8 +1874,8 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         {
             msg->tdop = static_cast<double>(last_dop_.tdop) / 100;
         }
-        msg->time = static_cast<double>(last_insnavgeod_.tow) / 1000 +
-                    static_cast<double>(last_insnavgeod_.wnc * 7 * 24 * 60 * 60);
+        msg->time = static_cast<double>(last_insnavgeod_.block_header.tow) / 1000 +
+                    static_cast<double>(last_insnavgeod_.block_header.wnc * 7 * 24 * 60 * 60);
         if((last_insnavgeod_.sb_list & 1) !=0)
         {
             msg->err = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.latitude_std_dev),2) + 
@@ -2764,13 +2764,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			if (settings_->septentrio_receiver_type == "gnss")
 			{
 				Timestamp time_obj;
-				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
+				time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow, last_pvtgeodetic_.block_header.wnc, settings_->use_gnss_time);
 				msg->header.stamp = timestampToRos(time_obj);
 			}
 			if (settings_->septentrio_receiver_type == "ins")
 			{
 				Timestamp time_obj;
-				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
+				time_obj = timestampSBF(last_insnavgeod_.block_header.tow, last_insnavgeod_.block_header.wnc, settings_->use_gnss_time);
 				msg->header.stamp = timestampToRos(time_obj);
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2817,13 +2817,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			if (settings_->septentrio_receiver_type == "gnss")
 			{
 				Timestamp time_obj;
-				time_obj = timestampSBF(last_pvtgeodetic_.tow, last_pvtgeodetic_.wnc, settings_->use_gnss_time);
+				time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow, last_pvtgeodetic_.block_header.wnc, settings_->use_gnss_time);
 				msg->header.stamp = timestampToRos(time_obj);
 			}
 			if (settings_->septentrio_receiver_type == "ins")
 			{
 				Timestamp time_obj;
-				time_obj = timestampSBF(last_insnavgeod_.tow, last_insnavgeod_.wnc, settings_->use_gnss_time);
+				time_obj = timestampSBF(last_insnavgeod_.block_header.tow, last_insnavgeod_.block_header.wnc, settings_->use_gnss_time);
 				msg->header.stamp = timestampToRos(time_obj);
 			}
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
