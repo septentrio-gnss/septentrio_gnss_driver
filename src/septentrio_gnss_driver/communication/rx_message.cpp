@@ -47,7 +47,8 @@ io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -87,7 +88,8 @@ io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -127,7 +129,8 @@ io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -153,7 +156,8 @@ io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -179,7 +183,8 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -205,7 +210,8 @@ io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -240,7 +246,8 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -271,7 +278,8 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -288,147 +296,67 @@ io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
     msg->sb_list = data.sb_list;
 
     // Reading sub-block from corresponding SBF block
-    if((msg->sb_list & 1) !=0)
+    msg->x_std_dev = data.x_std_dev;
+    msg->y_std_dev = data.y_std_dev;
+    msg->z_std_dev = data.z_std_dev;
+
+    if (settings_->use_ros_axis_orientation)
     {
-        msg->x_std_dev = data.posStdDev.x_std_dev;
-        msg->y_std_dev = data.posStdDev.y_std_dev;
-        msg->z_std_dev = data.posStdDev.z_std_dev;
-        SBI_dx++;
+        msg->heading = -data.heading + parsing_utilities::pi_half;
+        msg->pitch = -data.pitch;
     }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
     else
     {
-        msg->x_std_dev = DO_NOT_USE_VALUE;
-        msg->y_std_dev = DO_NOT_USE_VALUE;
-        msg->z_std_dev = DO_NOT_USE_VALUE;
+        msg->heading = data.heading;
+        msg->pitch = data.pitch;
+    }
+    msg->roll = data.roll;
+
+    msg->heading_std_dev = data.heading_std_dev;
+    msg->pitch_std_dev= data.pitch_std_dev;
+    msg->roll_std_dev = data.roll_std_dev;
+
+    msg->vx = data.vx;
+    msg->vy = data.vy;
+    msg->vz = data.vz;
+
+    msg->vx_std_dev = data.vx_std_dev;
+    msg->vy_std_dev = data.vy_std_dev;
+    msg->vz_std_dev = data.vz_std_dev;
+
+    msg->xy_cov = data.xy_cov;
+    msg->xz_cov = data.xz_cov;
+    msg->yz_cov = data.yz_cov;
+
+    msg->heading_pitch_cov = data.heading_pitch_cov;
+    if (settings_->use_ros_axis_orientation)
+    {
+        msg->heading_roll_cov = -data.heading_roll_cov;
+        msg->pitch_roll_cov = -data.pitch_roll_cov;
+    }
+    else
+    {
+        msg->heading_roll_cov = data.heading_roll_cov;
+        msg->pitch_roll_cov = data.pitch_roll_cov;
     }
 
-    if((msg->sb_list & 2) !=0)
-    {
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading = -data.att.heading + parsing_utilities::pi_half;
-            msg->pitch = -data.att.pitch;
-        }
-        else
-        {
-            msg->heading = data.att.heading;
-            msg->pitch = data.att.pitch;
-        }
-        msg->roll = data.att.roll;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->heading = DO_NOT_USE_VALUE;
-        msg->pitch = DO_NOT_USE_VALUE;
-        msg->roll = DO_NOT_USE_VALUE;
-    }
+    msg->vx_vy_cov = data.vx_vy_cov;
+    msg->vx_vz_cov = data.vx_vz_cov;
+    msg->vy_vz_cov = data.vy_vz_cov;
 
-    if((msg->sb_list & 4) !=0)
-    {
-        msg->heading_std_dev = data.attStdDev.heading_std_dev;
-        msg->pitch_std_dev= data.attStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.attStdDev.roll_std_dev;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->heading_std_dev = DO_NOT_USE_VALUE;
-        msg->pitch_std_dev = DO_NOT_USE_VALUE;
-        msg->roll_std_dev = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 8) !=0)
-    {
-        msg->vx = data.vel.vx;
-        msg->vy = data.vel.vy;
-        msg->vz = data.vel.vz;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->vx = DO_NOT_USE_VALUE;
-        msg->vy = DO_NOT_USE_VALUE;
-        msg->vz = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 16) !=0)
-    {
-        msg->vx_std_dev = data.velStdDev.vx_std_dev;
-        msg->vy_std_dev = data.velStdDev.vy_std_dev;
-        msg->vz_std_dev = data.velStdDev.vz_std_dev;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->vx_std_dev = DO_NOT_USE_VALUE;
-        msg->vy_std_dev = DO_NOT_USE_VALUE;
-        msg->vz_std_dev = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 32) !=0)
-    {
-        msg->xy_cov = data.posCov.xy_cov;
-        msg->xz_cov = data.posCov.xz_cov;
-        msg->yz_cov = data.posCov.yz_cov;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->xy_cov = DO_NOT_USE_VALUE;
-        msg->xz_cov = DO_NOT_USE_VALUE;
-        msg->yz_cov = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 64) !=0)
-    {
-        msg->heading_pitch_cov = data.attCov.heading_pitch_cov;
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading_roll_cov = -data.attCov.heading_roll_cov;
-            msg->pitch_roll_cov = -data.attCov.pitch_roll_cov;
-        }
-        else
-        {
-            msg->heading_roll_cov = data.attCov.heading_roll_cov;
-            msg->pitch_roll_cov = data.attCov.pitch_roll_cov;
-        }
-        SBI_dx++;
-    }
-    else
-    {
-        msg->heading_pitch_cov = DO_NOT_USE_VALUE;
-        msg->heading_roll_cov = DO_NOT_USE_VALUE;
-        msg->pitch_roll_cov = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 128) !=0)
-    {
-        msg->vx_vy_cov = data.velCov.vx_vy_cov;
-        msg->vx_vz_cov = data.velCov.vx_vz_cov;
-        msg->vy_vz_cov = data.velCov.vy_vz_cov;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->vx_vy_cov = DO_NOT_USE_VALUE;
-        msg->vx_vz_cov = DO_NOT_USE_VALUE;
-        msg->vy_vz_cov = DO_NOT_USE_VALUE;
-    }
     return msg;
 };
 
 INSNavGeodMsgPtr
 io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
 {
-    int SBIdx = 0;
     INSNavGeodMsgPtr msg(new INSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -446,135 +374,54 @@ io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
     msg->sb_list = data.sb_list;
 
     // Reading sub-block from corresponding SBF block
-    if((msg->sb_list & 1) !=0)
-    {
-        msg->latitude_std_dev = data.posStdDev.latitude_std_dev;
-        msg->longitude_std_dev = data.posStdDev.longitude_std_dev;
-        msg->height_std_dev = data.posStdDev.height_std_dev;
-        SBIdx++;
-    }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
-    else
-    {
-        msg->latitude_std_dev = DO_NOT_USE_VALUE;
-        msg->longitude_std_dev = DO_NOT_USE_VALUE;
-        msg->height_std_dev = DO_NOT_USE_VALUE;
-    }
+    msg->latitude_std_dev = data.latitude_std_dev;
+    msg->longitude_std_dev = data.longitude_std_dev;
+    msg->height_std_dev = data.height_std_dev;
 
-    if((msg->sb_list & 2) !=0)
+    if (settings_->use_ros_axis_orientation)
     {
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading = -data.att.heading + parsing_utilities::pi_half;
-            msg->pitch = -data.att.pitch;
-        }
-        else
-        {
-            msg->heading = data.att.heading;
-            msg->pitch = data.att.pitch;          
-        }
-        msg->roll = data.att.roll;
-        SBIdx++;
+        msg->heading = -data.heading + parsing_utilities::pi_half;
+        msg->pitch = -data.pitch;
     }
     else
     {
-        msg->heading = DO_NOT_USE_VALUE;
-        msg->pitch = DO_NOT_USE_VALUE;
-        msg->roll = DO_NOT_USE_VALUE;
+        msg->heading = data.heading;
+        msg->pitch = data.pitch;          
     }
+    msg->roll = data.roll;
 
-    if((msg->sb_list & 4) !=0)
+    msg->heading_std_dev = data.heading_std_dev;
+    msg->pitch_std_dev = data.pitch_std_dev;
+    msg->roll_std_dev = data.roll_std_dev;
+
+    msg->ve = data.ve;
+    msg->vn = data.vn;
+    msg->vu = data.vu;
+
+    msg->ve_std_dev = data.ve_std_dev;
+    msg->vn_std_dev = data.vn_std_dev;
+    msg->vu_std_dev = data.vu_std_dev;
+
+    msg->latitude_longitude_cov = data.latitude_longitude_cov;
+    msg->latitude_height_cov = data.latitude_height_cov;
+    msg->longitude_height_cov = data.longitude_height_cov;
+
+    msg->heading_pitch_cov = data.heading_pitch_cov;
+    if (settings_->use_ros_axis_orientation)
     {
-        msg->heading_std_dev = data.attStdDev.heading_std_dev;
-        msg->pitch_std_dev = data.attStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.attStdDev.roll_std_dev;
-        SBIdx++;
+        msg->heading_roll_cov = -data.heading_roll_cov;
+        msg->pitch_roll_cov = -data.pitch_roll_cov;
     }
     else
     {
-        msg->heading_std_dev = DO_NOT_USE_VALUE;
-        msg->pitch_std_dev = DO_NOT_USE_VALUE;
-        msg->roll_std_dev = DO_NOT_USE_VALUE;
+        msg->heading_roll_cov = data.heading_roll_cov;
+        msg->pitch_roll_cov = data.pitch_roll_cov;
     }
 
-    if((msg->sb_list & 8) !=0)
-    {
-        msg->ve = data.vel.ve;
-        msg->vn = data.vel.vn;
-        msg->vu = data.vel.vu;
-        SBIdx++;
-    }
-    else
-    {
-        msg->ve = DO_NOT_USE_VALUE;
-        msg->vn = DO_NOT_USE_VALUE;
-        msg->vu = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 16) !=0)
-    {
-        msg->ve_std_dev = data.velStdDev.ve_std_dev;
-        msg->vn_std_dev = data.velStdDev.vn_std_dev;
-        msg->vu_std_dev = data.velStdDev.vu_std_dev;
-        SBIdx++;
-    }
-    else
-    {
-        msg->ve_std_dev = DO_NOT_USE_VALUE;
-        msg->vn_std_dev = DO_NOT_USE_VALUE;
-        msg->vu_std_dev = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 32) !=0)
-    {
-        msg->latitude_longitude_cov = data.posCov.latitude_longitude_cov;
-        msg->latitude_height_cov = data.posCov.latitude_height_cov;
-        msg->longitude_height_cov = data.posCov.longitude_height_cov;
-        SBIdx++;
-    }
-    else
-    {
-        msg->latitude_longitude_cov = DO_NOT_USE_VALUE;
-        msg->latitude_height_cov = DO_NOT_USE_VALUE;
-        msg->longitude_height_cov = DO_NOT_USE_VALUE;
-    }
-
-
-    if((msg->sb_list & 64) !=0)
-    {
-        msg->heading_pitch_cov = data.attCov.heading_pitch_cov;
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading_roll_cov = -data.attCov.heading_roll_cov;
-            msg->pitch_roll_cov = -data.attCov.pitch_roll_cov;
-        }
-        else
-        {
-            msg->heading_roll_cov = data.attCov.heading_roll_cov;
-            msg->pitch_roll_cov = data.attCov.pitch_roll_cov;
-        }
-        SBIdx++;
-    }
-    else
-    {
-        msg->heading_pitch_cov = DO_NOT_USE_VALUE;
-        msg->heading_roll_cov = DO_NOT_USE_VALUE;
-        msg->pitch_roll_cov = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 128) !=0)
-    {
-        msg->ve_vn_cov = data.velCov.ve_vn_cov;
-        msg->ve_vu_cov = data.velCov.ve_vu_cov;
-        msg->vn_vu_cov = data.velCov.vn_vu_cov;
-        SBIdx++;
-    }
-    else
-    {
-        msg->ve_vn_cov = DO_NOT_USE_VALUE;
-        msg->ve_vu_cov = DO_NOT_USE_VALUE;
-        msg->vn_vu_cov = DO_NOT_USE_VALUE;
-    }
+    msg->ve_vn_cov = data.ve_vn_cov;
+    msg->ve_vu_cov = data.ve_vu_cov;
+    msg->vn_vu_cov = data.vn_vu_cov;
+   
     return msg;
 };
 
@@ -585,7 +432,8 @@ io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -619,7 +467,8 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -643,13 +492,13 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
 INSNavGeodMsgPtr
 io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(INSNavGeod& data)
 {
-    int SBIdx = 0;
     INSNavGeodMsgPtr msg(new INSNavGeodMsg);
     
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -666,85 +515,33 @@ io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(INSNavGeod& data)
     msg->sb_list = data.sb_list;
 
     // Reading sub-block from corresponding SBF block
-    if((msg->sb_list & 1) !=0)
-    {
-        msg->latitude_std_dev = data.posStdDev.latitude_std_dev;
-        msg->longitude_std_dev = data.posStdDev.longitude_std_dev;
-        msg->height_std_dev = data.posStdDev.height_std_dev;
-        SBIdx++;
-    }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
-    else
-    {
-        msg->latitude_std_dev = DO_NOT_USE_VALUE;
-        msg->longitude_std_dev = DO_NOT_USE_VALUE;
-        msg->height_std_dev = DO_NOT_USE_VALUE;
-    }
+    msg->latitude_std_dev = data.latitude_std_dev;
+    msg->longitude_std_dev = data.longitude_std_dev;
+    msg->height_std_dev = data.height_std_dev;
 
-    if((msg->sb_list & 2) !=0)
+    if (settings_->use_ros_axis_orientation)
     {
-        
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading = -data.att.heading + parsing_utilities::pi_half;
-            msg->pitch = -data.att.pitch;
-        }
-        else
-        {
-            msg->heading = data.att.heading;
-            msg->pitch = data.att.pitch;          
-        }
-        msg->roll = data.att.roll;
-        SBIdx++;
+        msg->heading = -data.heading + parsing_utilities::pi_half;
+        msg->pitch = -data.pitch;
     }
     else
     {
-        msg->heading = DO_NOT_USE_VALUE;
-        msg->pitch = DO_NOT_USE_VALUE;
-        msg->roll = DO_NOT_USE_VALUE;
+        msg->heading = data.heading;
+        msg->pitch = data.pitch;          
     }
+    msg->roll = data.roll;
 
-    if((msg->sb_list & 4) !=0)
-    {
-        msg->heading_std_dev = data.attStdDev.heading_std_dev;
-        msg->pitch_std_dev = data.attStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.attStdDev.roll_std_dev;
-        SBIdx++;
-    }
-    else
-    {
-        msg->heading_std_dev = DO_NOT_USE_VALUE;
-        msg->pitch_std_dev = DO_NOT_USE_VALUE;
-        msg->roll_std_dev = DO_NOT_USE_VALUE;
-    }
+    msg->heading_std_dev = data.heading_std_dev;
+    msg->pitch_std_dev = data.pitch_std_dev;
+    msg->roll_std_dev = data.roll_std_dev;
 
-    if((msg->sb_list & 8) !=0)
-    {
-        msg->ve = data.vel.ve;
-        msg->vn = data.vel.vn;
-        msg->vu = data.vel.vu;
-        SBIdx++;
-    }
-    else
-    {
-        msg->ve = DO_NOT_USE_VALUE;
-        msg->vn = DO_NOT_USE_VALUE;
-        msg->vu = DO_NOT_USE_VALUE;
-    }
+    msg->ve = data.ve;
+    msg->vn = data.vn;
+    msg->vu = data.vu;
 
-    if((msg->sb_list & 16) !=0)
-    {
-        msg->ve_std_dev = data.velStdDev.ve_std_dev;
-        msg->vn_std_dev = data.velStdDev.vn_std_dev;
-        msg->vu_std_dev = data.velStdDev.vu_std_dev;
-        SBIdx++;
-    }
-    else
-    {
-        msg->ve_std_dev = DO_NOT_USE_VALUE;
-        msg->vn_std_dev = DO_NOT_USE_VALUE;
-        msg->vu_std_dev = DO_NOT_USE_VALUE;
-    }
+    msg->ve_std_dev = data.ve_std_dev;
+    msg->vn_std_dev = data.vn_std_dev;
+    msg->vu_std_dev = data.vu_std_dev;
     return msg;
 };
 
@@ -757,7 +554,8 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(INSNavCart& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -773,84 +571,32 @@ io_comm_rx::RxMessage::ExtEventINSNavCartCallback(INSNavCart& data)
     msg->sb_list = data.sb_list;
 
     // Reading sub-block from corresponding SBF block
-    if((msg->sb_list & 1) !=0)
+    msg->x_std_dev = data.x_std_dev;
+    msg->y_std_dev = data.y_std_dev;
+    msg->z_std_dev = data.z_std_dev;
+    if (settings_->use_ros_axis_orientation)
     {
-        msg->x_std_dev = data.posStdDev.x_std_dev;
-        msg->y_std_dev = data.posStdDev.y_std_dev;
-        msg->z_std_dev = data.posStdDev.z_std_dev;
-        SBI_dx++;
+        msg->heading = -data.heading + parsing_utilities::pi_half;
+        msg->pitch= -data.pitch;
     }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
     else
     {
-        msg->x_std_dev = DO_NOT_USE_VALUE;
-        msg->y_std_dev = DO_NOT_USE_VALUE;
-        msg->z_std_dev = DO_NOT_USE_VALUE;
+        msg->heading = data.heading;
+        msg->pitch= data.pitch;          
     }
+    msg->roll = data.roll;
 
-    if((msg->sb_list & 2) !=0)
-    {
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->heading = -data.att.heading + parsing_utilities::pi_half;
-            msg->pitch= -data.att.pitch;
-        }
-        else
-        {
-            msg->heading = data.att.heading;
-            msg->pitch= data.att.pitch;          
-        }
-        msg->roll = data.att.roll;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->heading = DO_NOT_USE_VALUE;
-        msg->pitch = DO_NOT_USE_VALUE;
-        msg->roll = DO_NOT_USE_VALUE;
-    }
+    msg->heading_std_dev = data.heading_std_dev;
+    msg->pitch_std_dev= data.pitch_std_dev;
+    msg->roll_std_dev = data.roll_std_dev;
 
-    if((msg->sb_list & 4) !=0)
-    {
-        msg->heading_std_dev = data.attStdDev.heading_std_dev;
-        msg->pitch_std_dev= data.attStdDev.pitch_std_dev;
-        msg->roll_std_dev = data.attStdDev.roll_std_dev;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->heading_std_dev = DO_NOT_USE_VALUE;
-        msg->pitch_std_dev = DO_NOT_USE_VALUE;
-        msg->roll_std_dev = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 8) !=0)
-    {
-        msg->vx = data.vel.vx;
-        msg->vy = data.vel.vy;
-        msg->vz = data.vel.vz;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->vx = DO_NOT_USE_VALUE;
-        msg->vy = DO_NOT_USE_VALUE;
-        msg->vz = DO_NOT_USE_VALUE;
-    }
-
-    if((msg->sb_list & 16) !=0)
-    {
-        msg->vx_std_dev = data.velStdDev.vx_std_dev;
-        msg->vy_std_dev = data.velStdDev.vy_std_dev;
-        msg->vz_std_dev = data.velStdDev.vz_std_dev;
-        SBI_dx++;
-    }
-    else
-    {
-        msg->vx_std_dev = DO_NOT_USE_VALUE;
-        msg->vy_std_dev = DO_NOT_USE_VALUE;
-        msg->vz_std_dev = DO_NOT_USE_VALUE;
-    }
+    msg->vx = data.vx;
+    msg->vy = data.vy;
+    msg->vz = data.vz;
+    
+    msg->vx_std_dev = data.vx_std_dev;
+    msg->vy_std_dev = data.vy_std_dev;
+    msg->vz_std_dev = data.vz_std_dev;
     return msg;
 };
 
@@ -863,7 +609,8 @@ io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
     msg->block_header.sync_1 = data.block_header.sync_1;
     msg->block_header.sync_2 = data.block_header.sync_2;
     msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id = data.block_header.id;
+    msg->block_header.id  = data.block_header.id;
+    msg->block_header.rev = data.block_header.rev;
     msg->block_header.length = data.block_header.length;
     msg->block_header.tow = data.tow;
     msg->block_header.wnc = data.wnc;
@@ -1029,18 +776,16 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         msg->pose.pose.position.z = static_cast<double>(last_insnavgeod_.height);
 
         // Filling in the pose data
-		int SBIdx = 0;
-        double conversion;
+		double conversion;
         if((last_insnavgeod_.sb_list & 1) !=0)
         {
             // Pos autocov
             msg->pose.covariance[0]  = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.longitude_std_dev),2);
+                                            longitude_std_dev),2);
             msg->pose.covariance[7]  = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.latitude_std_dev),2);
+                                            latitude_std_dev),2);
             msg->pose.covariance[14] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.height_std_dev),2);
-            SBIdx++;
+                                            height_std_dev),2);
         }
         else
         {
@@ -1054,18 +799,17 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
             if (settings_->use_ros_axis_orientation)
             {
                 msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                static_cast<double>(-last_insnavgeod_.att.heading + parsing_utilities::pi_half),
-                static_cast<double>(-last_insnavgeod_.att.pitch),
-                static_cast<double>(last_insnavgeod_.att.roll));
+                static_cast<double>(-last_insnavgeod_.heading + parsing_utilities::pi_half),
+                static_cast<double>(-last_insnavgeod_.pitch),
+                static_cast<double>(last_insnavgeod_.roll));
             }
             else
             {
                 msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                static_cast<double>(last_insnavgeod_.att.heading),
-                static_cast<double>(last_insnavgeod_.att.pitch),
-                static_cast<double>(last_insnavgeod_.att.roll));
+                static_cast<double>(last_insnavgeod_.heading),
+                static_cast<double>(last_insnavgeod_.pitch),
+                static_cast<double>(last_insnavgeod_.roll));
             }
-            SBIdx++;
         }
         else
         {
@@ -1078,60 +822,50 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         {
             // Attitude autocov
             msg->pose.covariance[21] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.roll_std_dev),2);
+                                            roll_std_dev),2);
             msg->pose.covariance[28] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.pitch_std_dev),2);
+                                            pitch_std_dev),2);
             msg->pose.covariance[35] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.heading_std_dev),2);
-            SBIdx++;
+                                            heading_std_dev),2);
         }
         else
         {
             msg->pose.covariance[21] = -1.0;
             msg->pose.covariance[28] = -1.0;
             msg->pose.covariance[35] = -1.0;
-        }
-        if((last_insnavgeod_.sb_list & 8) !=0)
-        {
-            SBIdx++;
-        }  
-        if((last_insnavgeod_.sb_list & 16) !=0)
-        {
-            SBIdx++;
-        }       
+        }    
         if((last_insnavgeod_.sb_list & 32) !=0)
         {
             // Pos cov
             msg->pose.covariance[1] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_longitude_cov);
+                                            latitude_longitude_cov);
             msg->pose.covariance[2] = static_cast<double>(last_insnavgeod_.
-                                            posCov.longitude_height_cov);
+                                            longitude_height_cov);
             msg->pose.covariance[6] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_longitude_cov);
+                                            latitude_longitude_cov);
             msg->pose.covariance[8] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_height_cov);
+                                            latitude_height_cov);
             msg->pose.covariance[12] = static_cast<double>(last_insnavgeod_.
-                                            posCov.longitude_height_cov);
+                                            longitude_height_cov);
             msg->pose.covariance[13] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_height_cov);
-            SBIdx++;
+                                            latitude_height_cov);
         }
          if ((last_insnavgeod_.sb_list & 64) !=0)
         {
             // Attitude cov
             msg->pose.covariance[22] = static_cast<double>(last_insnavgeod_.
-                                            attCov.pitch_roll_cov) * conversion;
+                                            pitch_roll_cov) * conversion;
             msg->pose.covariance[23] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_roll_cov) * conversion;
+                                            heading_roll_cov) * conversion;
             msg->pose.covariance[27] = static_cast<double>(last_insnavgeod_.
-                                            attCov.pitch_roll_cov) * conversion;
+                                            pitch_roll_cov) * conversion;
             
             msg->pose.covariance[29] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_pitch_cov);
+                                            heading_pitch_cov);
             msg->pose.covariance[33] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_roll_cov) * conversion;
+                                            heading_roll_cov) * conversion;
             msg->pose.covariance[34] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_pitch_cov);
+                                            heading_pitch_cov);
         }
     }
 	return msg;
@@ -1285,30 +1019,24 @@ io_comm_rx::RxMessage::ImuCallback()
         }
 
         // Filling in the pose data
-		int SBIdx = 0;
-        double conversion;
-        if((last_insnavgeod_.sb_list & 1) !=0)
-        {
-           SBIdx++;
-        }
+		double conversion;
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             // Attitude
             if (settings_->use_ros_axis_orientation)
             {
                 msg->orientation = parsing_utilities::convertEulerToQuaternion(
-                static_cast<double>(-last_insnavgeod_.att.heading + parsing_utilities::pi_half),
-                static_cast<double>(-last_insnavgeod_.att.pitch),
-                static_cast<double>(last_insnavgeod_.att.roll));
+                static_cast<double>(-last_insnavgeod_.heading + parsing_utilities::pi_half),
+                static_cast<double>(-last_insnavgeod_.pitch),
+                static_cast<double>(last_insnavgeod_.roll));
             }
             else
             {
                 msg->orientation = parsing_utilities::convertEulerToQuaternion(
-                static_cast<double>(last_insnavgeod_.att.heading),
-                static_cast<double>(last_insnavgeod_.att.pitch),
-                static_cast<double>(last_insnavgeod_.att.roll));
+                static_cast<double>(last_insnavgeod_.heading),
+                static_cast<double>(last_insnavgeod_.pitch),
+                static_cast<double>(last_insnavgeod_.roll));
             }
-            SBIdx++;
         }
         else
         {
@@ -1321,12 +1049,11 @@ io_comm_rx::RxMessage::ImuCallback()
         {
             // Attitude autocov
             msg->orientation_covariance[0] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.roll_std_dev),2);
+                                            roll_std_dev),2);
             msg->orientation_covariance[4] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.pitch_std_dev),2);
+                                            pitch_std_dev),2);
             msg->orientation_covariance[8] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            attStdDev.heading_std_dev),2);
-            SBIdx++;
+                                            heading_std_dev),2);
         }
         else
         {
@@ -1334,34 +1061,22 @@ io_comm_rx::RxMessage::ImuCallback()
             msg->orientation_covariance[4] = -1.0;
             msg->orientation_covariance[8] = -1.0;
         }
-        if((last_insnavgeod_.sb_list & 8) !=0)
-        {
-            SBIdx++;
-        }  
-        if((last_insnavgeod_.sb_list & 16) !=0)
-        {
-            SBIdx++;
-        }       
-        if((last_insnavgeod_.sb_list & 32) !=0)
-        {
-            SBIdx++;
-        }
-         if ((last_insnavgeod_.sb_list & 64) !=0)
+        if ((last_insnavgeod_.sb_list & 64) !=0)
         {
             // Attitude cov
             msg->orientation_covariance[1] = static_cast<double>(last_insnavgeod_.
-                                            attCov.pitch_roll_cov) * conversion;
+                                            pitch_roll_cov) * conversion;
             msg->orientation_covariance[2] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_roll_cov) * conversion;
+                                            heading_roll_cov) * conversion;
             msg->orientation_covariance[3] = static_cast<double>(last_insnavgeod_.
-                                            attCov.pitch_roll_cov) * conversion;
+                                            pitch_roll_cov) * conversion;
             
             msg->orientation_covariance[5] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_pitch_cov);
+                                            heading_pitch_cov);
             msg->orientation_covariance[6] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_roll_cov) * conversion;
+                                            heading_roll_cov) * conversion;
             msg->orientation_covariance[7] = static_cast<double>(last_insnavgeod_.
-                                            attCov.heading_pitch_cov);
+                                            heading_pitch_cov);
         }
     }
 	return msg;
@@ -1415,17 +1130,15 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     else 
         msg->child_frame_id  = settings_->frame_id;
 
-    int SBIdx = 0;
-    if((last_insnavgeod_.sb_list & 1) !=0)
+   if((last_insnavgeod_.sb_list & 1) !=0)
     {
         // Position autocovariance
         msg->pose.covariance[0]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        posStdDev.longitude_std_dev));
+                                        longitude_std_dev));
         msg->pose.covariance[7]  = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        posStdDev.latitude_std_dev));
+                                        latitude_std_dev));
         msg->pose.covariance[14] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        posStdDev.height_std_dev));
-        SBIdx++;
+                                        height_std_dev));
     }
     else
     {
@@ -1435,15 +1148,14 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
 
     // Euler angles (ENU), gamma for conversion from true north to grid north
-    double roll  = static_cast<double>(last_insnavgeod_.att.roll);
-    double pitch = static_cast<double>(-last_insnavgeod_.att.pitch);
-    double yaw   = static_cast<double>(-last_insnavgeod_.att.heading + parsing_utilities::pi_half - parsing_utilities::deg2rad(gamma));
+    double roll  = static_cast<double>(last_insnavgeod_.roll);
+    double pitch = static_cast<double>(-last_insnavgeod_.pitch);
+    double yaw   = static_cast<double>(-last_insnavgeod_.heading + parsing_utilities::pi_half - parsing_utilities::deg2rad(gamma));
     Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
     if ((last_insnavgeod_.sb_list & 2) !=0)
     {
         // Attitude (ENU)
         msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
-        SBIdx++;
     }
     else
     {
@@ -1456,12 +1168,11 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     {
         // Attitude autocovariance
         msg->pose.covariance[21] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        attStdDev.roll_std_dev));
+                                        roll_std_dev));
         msg->pose.covariance[28] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        attStdDev.pitch_std_dev));
+                                        pitch_std_dev));
         msg->pose.covariance[35] = parsing_utilities::square(static_cast<double>(last_insnavgeod_.
-                                        attStdDev.heading_std_dev));
-        SBIdx++;
+                                        heading_std_dev));
     }
     else
     {
@@ -1473,15 +1184,14 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     {
         // Linear velocity (ENU)
         Eigen::Vector3d vel_enu;
-        vel_enu << last_insnavgeod_.vel.ve,
-                   last_insnavgeod_.vel.vn,
-                   last_insnavgeod_.vel.vu;
+        vel_enu << last_insnavgeod_.ve,
+                   last_insnavgeod_.vn,
+                   last_insnavgeod_.vu;
         // Linear velocity, rotate to body coordinates
 		Eigen::Vector3d vel_body = R_n_b * vel_enu;
 		msg->twist.twist.linear.x = vel_body(0);
 		msg->twist.twist.linear.y = vel_body(1);
 		msg->twist.twist.linear.z = vel_body(2);
-        SBIdx++;
     }
     else
     {       
@@ -1493,10 +1203,9 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     if ((last_insnavgeod_.sb_list & 16) !=0)
     {
         // Linear velocity autocovariance
-        Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.velStdDev.ve_std_dev);
-        Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.velStdDev.vn_std_dev);
-        Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.velStdDev.vu_std_dev);
-        SBIdx++;
+        Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
+        Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+        Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.vu_std_dev);
     }
     else
     {
@@ -1508,42 +1217,40 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     {
         // Position covariance
         msg->pose.covariance[1] = static_cast<double>(last_insnavgeod_.
-                                        posCov.latitude_longitude_cov);
+                                        latitude_longitude_cov);
         msg->pose.covariance[2] = static_cast<double>(last_insnavgeod_.
-                                        posCov.longitude_height_cov);
+                                        longitude_height_cov);
         msg->pose.covariance[6] = static_cast<double>(last_insnavgeod_.
-                                        posCov.latitude_longitude_cov);
+                                        latitude_longitude_cov);
         msg->pose.covariance[8] = static_cast<double>(last_insnavgeod_.
-                                        posCov.latitude_height_cov);
+                                        latitude_height_cov);
         msg->pose.covariance[12] = static_cast<double>(last_insnavgeod_.
-                                        posCov.longitude_height_cov);
+                                        longitude_height_cov);
         msg->pose.covariance[13] = static_cast<double>(last_insnavgeod_.
-                                        posCov.latitude_height_cov);
-        SBIdx++;
+                                        latitude_height_cov);
     }
     if ((last_insnavgeod_.sb_list & 64) !=0)
     {
         // Attitude covariacne
         msg->pose.covariance[22] = static_cast<double>(last_insnavgeod_.
-                                        attCov.pitch_roll_cov);
+                                        pitch_roll_cov);
         msg->pose.covariance[23] = static_cast<double>(last_insnavgeod_.
-                                        attCov.heading_roll_cov);
+                                        heading_roll_cov);
         msg->pose.covariance[27] = static_cast<double>(last_insnavgeod_.
-                                        attCov.pitch_roll_cov);
+                                        pitch_roll_cov);
         
         msg->pose.covariance[29] = static_cast<double>(last_insnavgeod_.
-                                        attCov.heading_pitch_cov);
+                                        heading_pitch_cov);
         msg->pose.covariance[33] = static_cast<double>(last_insnavgeod_.
-                                        attCov.heading_roll_cov);
+                                        heading_roll_cov);
         msg->pose.covariance[34] = static_cast<double>(last_insnavgeod_.
-                                        attCov.heading_pitch_cov);
+                                        heading_pitch_cov);
     }
     if((last_insnavgeod_.sb_list & 128) !=0)
     {
-        Cov_vel_enu(0,1) = Cov_vel_enu(1,0) = last_insnavgeod_.velCov.ve_vn_cov;
-        Cov_vel_enu(0,2) = Cov_vel_enu(2,0) = last_insnavgeod_.velCov.ve_vu_cov;
-        Cov_vel_enu(2,1) = Cov_vel_enu(1,2) = last_insnavgeod_.velCov.vn_vu_cov;
-        SBIdx++;
+        Cov_vel_enu(0,1) = Cov_vel_enu(1,0) = last_insnavgeod_.ve_vn_cov;
+        Cov_vel_enu(0,2) = Cov_vel_enu(2,0) = last_insnavgeod_.ve_vu_cov;
+        Cov_vel_enu(2,1) = Cov_vel_enu(1,2) = last_insnavgeod_.vn_vu_cov;
     }
 
     if (((last_insnavgeod_.sb_list & 16) !=0) &&
@@ -1677,8 +1384,7 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 
     if (settings_->septentrio_receiver_type == "ins")
     {
-        int SBIdx = 0;
-        NavSatFixMsgPtr msg(new NavSatFixMsg);
+       NavSatFixMsgPtr msg(new NavSatFixMsg);
 		uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
 		switch (type_of_pvt_map[type_of_pvt])
 		{
@@ -1747,27 +1453,26 @@ NavSatFixMsgPtr io_comm_rx::RxMessage::NavSatFixCallback()
 		if((last_insnavgeod_.sb_list & 1) !=0)
 		{
 			msg->position_covariance[0] = std::pow(static_cast<double>(last_insnavgeod_.
-											posStdDev.longitude_std_dev),2);
+											longitude_std_dev),2);
 			msg->position_covariance[4] = std::pow(static_cast<double>(last_insnavgeod_.
-											posStdDev.latitude_std_dev),2);
+											latitude_std_dev),2);
 			msg->position_covariance[8] = std::pow(static_cast<double>(last_insnavgeod_.
-											posStdDev.height_std_dev),2);
+											height_std_dev),2);
 		}
-		SBIdx++;
 		if((last_insnavgeod_.sb_list & 32) !=0)
 		{
 			msg->position_covariance[1] = static_cast<double>(last_insnavgeod_.
-											posCov.latitude_longitude_cov);
+											latitude_longitude_cov);
 			msg->position_covariance[2] = static_cast<double>(last_insnavgeod_.
-											posCov.longitude_height_cov);
+											longitude_height_cov);
 			msg->position_covariance[3] = static_cast<double>(last_insnavgeod_.
-											posCov.latitude_longitude_cov);
+											latitude_longitude_cov);
 			msg->position_covariance[5] = static_cast<double>(last_insnavgeod_.
-											posCov.latitude_height_cov);
+											latitude_height_cov);
 			msg->position_covariance[6] = static_cast<double>(last_insnavgeod_.
-											posCov.longitude_height_cov);
+											longitude_height_cov);
 			msg->position_covariance[7] = static_cast<double>(last_insnavgeod_.
-											posCov.latitude_height_cov);
+											latitude_height_cov);
 		}
 		msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
     }
@@ -2073,8 +1778,6 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
     
     if (settings_->septentrio_receiver_type == "ins")
     {
-        int SBIdx = 0;
-
         // PVT Status Analysis
         uint16_t status_mask = 15; // We extract the first four bits using this mask.
         uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & status_mask;
@@ -2122,16 +1825,16 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         // Note that cog is of type float32 while track is of type float64.
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
-            msg->track = static_cast<double>(last_insnavgeod_.att.heading);
-			msg->pitch = static_cast<double>(last_insnavgeod_.att.pitch);
-			msg->roll = static_cast<double>(last_insnavgeod_.att.roll);
+            msg->track = static_cast<double>(last_insnavgeod_.heading);
+			msg->pitch = static_cast<double>(last_insnavgeod_.pitch);
+			msg->roll = static_cast<double>(last_insnavgeod_.roll);
         }
         if ((last_insnavgeod_.sb_list & 8) !=0)
         {
-            msg->speed = std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vel.vn),2) + 
-                                    std::pow(static_cast<double>(last_insnavgeod_.vel.ve),2));
+            msg->speed = std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vn),2) + 
+                                    std::pow(static_cast<double>(last_insnavgeod_.ve),2));
 
-			msg->climb = static_cast<double>(last_insnavgeod_.vel.vu);
+			msg->climb = static_cast<double>(last_insnavgeod_.vu);
         }
         if (last_dop_.pdop == static_cast<uint16_t>(0) ||
             last_dop_.tdop == static_cast<uint16_t>(0))
@@ -2175,12 +1878,12 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
                     static_cast<double>(last_insnavgeod_.wnc * 7 * 24 * 60 * 60);
         if((last_insnavgeod_.sb_list & 1) !=0)
         {
-            msg->err = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.posStdDev.latitude_std_dev),2) + 
-                        std::pow(static_cast<double>(last_insnavgeod_.posStdDev.longitude_std_dev),2)+ 
-                        std::pow(static_cast<double>(last_insnavgeod_.posStdDev.height_std_dev),2)));
-			msg->err_horz = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.posStdDev.latitude_std_dev),2) + 
-                        std::pow(static_cast<double>(last_insnavgeod_.posStdDev.longitude_std_dev),2)));
-			msg->err_vert = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.posStdDev.height_std_dev),2)));
+            msg->err = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.latitude_std_dev),2) + 
+                        std::pow(static_cast<double>(last_insnavgeod_.longitude_std_dev),2)+ 
+                        std::pow(static_cast<double>(last_insnavgeod_.height_std_dev),2)));
+			msg->err_horz = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.latitude_std_dev),2) + 
+                        std::pow(static_cast<double>(last_insnavgeod_.longitude_std_dev),2)));
+			msg->err_vert = 2*(std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.height_std_dev),2)));
         }
         if (((last_insnavgeod_.sb_list & 8) !=0) || ((last_insnavgeod_.sb_list & 1) !=0))
         {
@@ -2188,57 +1891,56 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
                 2 * 
                 (std::sqrt(
                     std::pow(static_cast<double>(1) /
-                                (static_cast<double>(last_insnavgeod_.vel.vn) + 
-                                std::pow(static_cast<double>(last_insnavgeod_.vel.ve),2) / 
-                                    static_cast<double>(last_insnavgeod_.vel.vn)),
+                                (static_cast<double>(last_insnavgeod_.vn) + 
+                                std::pow(static_cast<double>(last_insnavgeod_.ve),2) / 
+                                    static_cast<double>(last_insnavgeod_.vn)),
                             2) * 
-                        std::pow(static_cast<double>(last_insnavgeod_.posStdDev.longitude_std_dev),2) +
-                        std::pow((static_cast<double>(last_insnavgeod_.vel.ve)) /
-                                (std::pow(static_cast<double>(last_insnavgeod_.vel.vn),2) +
-                                std::pow(static_cast<double>(last_insnavgeod_.vel.ve),2)),
+                        std::pow(static_cast<double>(last_insnavgeod_.longitude_std_dev),2) +
+                        std::pow((static_cast<double>(last_insnavgeod_.ve)) /
+                                (std::pow(static_cast<double>(last_insnavgeod_.vn),2) +
+                                std::pow(static_cast<double>(last_insnavgeod_.ve),2)),
                             2) *
-                        std::pow(static_cast<double>(last_insnavgeod_.posStdDev.latitude_std_dev),2)));   
+                        std::pow(static_cast<double>(last_insnavgeod_.latitude_std_dev),2)));   
         }
         if ((last_insnavgeod_.sb_list & 8) !=0)
         {
-            msg->err_speed = 2 * (std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vel.vn),2) + 
-                                std::pow(static_cast<double>(last_insnavgeod_.vel.ve),2)));
-			msg->err_climb = 2 * std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vel.vn),2));
+            msg->err_speed = 2 * (std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vn),2) + 
+                                std::pow(static_cast<double>(last_insnavgeod_.ve),2)));
+			msg->err_climb = 2 * std::sqrt(std::pow(static_cast<double>(last_insnavgeod_.vn),2));
         }
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
              msg->err_pitch = 2 * std::sqrt(std::pow(
-                 static_cast<double>(last_insnavgeod_.att.pitch),2));
+                 static_cast<double>(last_insnavgeod_.pitch),2));
         }
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
              msg->err_pitch = 2 * std::sqrt(std::pow(
-                 static_cast<double>(last_insnavgeod_.att.roll),2));
+                 static_cast<double>(last_insnavgeod_.roll),2));
         }
         if((last_insnavgeod_.sb_list & 1) !=0)
         {
             msg->position_covariance[0] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.longitude_std_dev),2);
+                                            longitude_std_dev),2);
 			msg->position_covariance[4] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.latitude_std_dev),2);
+                                            latitude_std_dev),2);
 			msg->position_covariance[8] = std::pow(static_cast<double>(last_insnavgeod_.
-                                            posStdDev.height_std_dev),2);
+                                            height_std_dev),2);
         }
-        SBIdx++;
         if((last_insnavgeod_.sb_list & 32) !=0)
         {
             msg->position_covariance[1] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_longitude_cov);
+                                            latitude_longitude_cov);
 			msg->position_covariance[2] = static_cast<double>(last_insnavgeod_.
-                                            posCov.longitude_height_cov);
+                                            longitude_height_cov);
 			msg->position_covariance[3] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_longitude_cov);
+                                            latitude_longitude_cov);
 			msg->position_covariance[5] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_height_cov);
+                                            latitude_height_cov);
 			msg->position_covariance[6] = static_cast<double>(last_insnavgeod_.
-                                            posCov.longitude_height_cov);
+                                            longitude_height_cov);
 			msg->position_covariance[7] = static_cast<double>(last_insnavgeod_.
-                                            posCov.latitude_height_cov);
+                                            latitude_height_cov);
         }
         msg->position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
     }

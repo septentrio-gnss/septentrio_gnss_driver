@@ -107,11 +107,6 @@
 #ifndef CONNECTION_DESCRIPTOR_BYTE_2
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
-//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
-//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
-#ifndef DO_NOT_USE_VALUE
-#define DO_NOT_USE_VALUE -2e10
-#endif
 
 // C++ libraries
 #include <cassert> // for assert

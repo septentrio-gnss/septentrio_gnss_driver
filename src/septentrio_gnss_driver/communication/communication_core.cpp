@@ -747,20 +747,14 @@ void io_comm_rx::Comm_IO::configureRx()
 		// INS solution reference point
 		{
 			std::stringstream ss;
-			std::string insnavconfig;
-			insnavconfig = " PosStdDev ";
-			insnavconfig += "+Att";
-			insnavconfig += "+AttStdDev";
-			insnavconfig += "+Vel";
-			insnavconfig += "+VelStdDev";
 			if (settings_->ins_use_poi)
 			{
-				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "POI1" << " \x0D";
+				ss << "sinc, on, all, " << "POI1" << " \x0D";
 				send(ss.str());
 			}
 			else
 			{
-				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "MainAnt" << " \x0D";
+				ss << "sinc, on, all, " << "MainAnt" << " \x0D";
 				send(ss.str());
 			}
 		}

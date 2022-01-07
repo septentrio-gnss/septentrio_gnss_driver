@@ -107,6 +107,12 @@
 #define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 
+//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
+//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
+#ifndef DO_NOT_USE_VALUE
+#define DO_NOT_USE_VALUE -2e10f
+#endif
+
 // Boost
 //#define BOOST_SPIRIT_DEBUG 1
 #define BOOST_SPIRIT_USE_PHOENIX_V3
@@ -114,22 +120,6 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/repository/include/qi_advance.hpp>
-
-struct ID_t
-{
-    ID_t(uint16_t ui1=0, uint8_t ui2=0) : 
-        id(ui1), 
-        rev(ui2) 
-    { }
-
-    static ID_t make(uint16_t w)
-    {
-        return ID_t((w & 8191), (w >> 13u));
-    }
-
-    uint16_t id;
-    uint8_t  rev;
-};
 
 /**
  * @file sbf_structs.hpp
@@ -597,63 +587,6 @@ struct VelCovGeodetic
 };
 
 // -----------------------------INSNavCart---------------------------------
-
-struct INSNavCartPosStdDev
-{
-    float     x_std_dev;
-    float     y_std_dev;
-    float     z_std_dev;
-};
-
-struct INSNavCartAtt
-{
-    float     heading;
-    float     pitch;
-    float     roll;
-};
-
-struct INSNavCartAttStdDev
-{
-    float     heading_std_dev;
-    float     pitch_std_dev;
-    float     roll_std_dev;
-};
-
-struct INSNavCartVel
-{
-    float     vx;
-    float     vy;
-    float     vz;
-};
-
-struct INSNavCartVelStdDev
-{
-    float     vx_std_dev;
-    float     vy_std_dev;
-    float     vz_std_dev;
-};
-
-struct INSNavCartPosCov
-{
-    float     xy_cov;
-    float     xz_cov;
-    float     yz_cov;
-};
-
-struct INSNavCartAttCov
-{
-    float     heading_pitch_cov;
-    float     heading_roll_cov;
-    float     pitch_roll_cov;
-};
-
-struct INSNavCartVelCov
-{
-    float     vx_vy_cov;
-    float     vx_vz_cov;
-    float     vy_vz_cov;
-};
-
 struct INSNavCart
 {
     BlockHeader block_header;
@@ -674,73 +607,33 @@ struct INSNavCart
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavCartPosStdDev posStdDev;    
-    INSNavCartAtt       att;          
-    INSNavCartAttStdDev attStdDev;    
-    INSNavCartVel       vel;          
-    INSNavCartVelStdDev velStdDev;    
-    INSNavCartPosCov    posCov;    
-    INSNavCartAttCov    attCov;     
-    INSNavCartVelCov    velCov;
-};
-
-//-----------------------INSNavGeod---------------------------------
-struct INSNavGeodPosStdDev
-{
-    float     latitude_std_dev;
-    float     longitude_std_dev;
-    float     height_std_dev;
-};
-
-struct INSNavGeodAtt
-{
+    float     x_std_dev;
+    float     y_std_dev;
+    float     z_std_dev;
     float     heading;
     float     pitch;
-    float     roll;     
-};
-
-struct INSNavGeodAttStdDev
-{
+    float     roll;
     float     heading_std_dev;
     float     pitch_std_dev;
     float     roll_std_dev;
-};
-
-struct INSNavGeodVel
-{
-    float     ve;
-    float     vn;
-    float     vu;
-};
-
-struct INSNavGeodVelStdDev
-{
-    float     ve_std_dev;
-    float     vn_std_dev;
-    float     vu_std_dev;
-};
-
-struct INSNavGeodPosCov
-{
-    float     latitude_longitude_cov;
-    float     latitude_height_cov;
-    float     longitude_height_cov;
-};
-
-struct INSNavGeodAttCov
-{
+    float     vx;
+    float     vy;
+    float     vz;
+    float     vx_std_dev;
+    float     vy_std_dev;
+    float     vz_std_dev;
+    float     xy_cov;
+    float     xz_cov;
+    float     yz_cov;
     float     heading_pitch_cov;
     float     heading_roll_cov;
     float     pitch_roll_cov;
+    float     vx_vy_cov;
+    float     vx_vz_cov;
+    float     vy_vz_cov;
 };
 
-struct INSNavGeodVelCov
-{
-    float     ve_vn_cov;
-    float     ve_vu_cov;
-    float     vn_vu_cov;
-};
-
+//-----------------------INSNavGeod---------------------------------
 /**
  * @class INSNavGeod
  * @brief Struct for the SBF block "INSNavGeod"
@@ -766,14 +659,30 @@ struct INSNavGeod
     uint8_t  datum;
     uint16_t sb_list;
 
-    INSNavGeodPosStdDev posStdDev;    
-    INSNavGeodAtt       att; 
-    INSNavGeodAttStdDev attStdDev;
-    INSNavGeodVel       vel;
-    INSNavGeodVelStdDev velStdDev;    
-    INSNavGeodPosCov    posCov;
-    INSNavGeodAttCov    attCov; 
-    INSNavGeodVelCov    velCov;     
+    float latitude_std_dev;
+    float longitude_std_dev;
+    float height_std_dev;
+    float heading;
+    float pitch;
+    float roll;   
+    float heading_std_dev;
+    float pitch_std_dev;
+    float roll_std_dev;
+    float ve;
+    float vn;
+    float vu;
+    float ve_std_dev;
+    float vn_std_dev;
+    float vu_std_dev;
+    float latitude_longitude_cov;
+    float latitude_height_cov;
+    float longitude_height_cov;
+    float heading_pitch_cov;
+    float heading_roll_cov;
+    float pitch_roll_cov;
+    float ve_vn_cov;
+    float ve_vu_cov;
+    float vn_vu_cov;     
 };
 
 /**
@@ -1258,63 +1167,6 @@ VelCovGeodetic,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartPosStdDev,    
-    (float, x_std_dev),
-    (float, y_std_dev),
-    (float, z_std_dev)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartAtt,    
-    (float, heading),
-    (float, pitch),
-    (float, roll)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartAttStdDev,    
-    (float, heading_std_dev),
-    (float, pitch_std_dev),
-    (float, roll_std_dev)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartVel,    
-    (float, vx),
-    (float, vy),
-    (float, vz)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartVelStdDev,    
-    (float, vx_std_dev),
-    (float, vy_std_dev),
-    (float, vz_std_dev)
-)
-
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartPosCov,    
-    (float, xy_cov),
-    (float, xz_cov),
-    (float, yz_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartAttCov,    
-    (float, heading_pitch_cov),
-    (float, heading_roll_cov),
-    (float, pitch_roll_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavCartVelCov,    
-    (float, vx_vy_cov),
-    (float, vx_vz_cov),
-    (float, vy_vz_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 INSNavCart,
     (BlockHeader, block_header),
     (uint32_t, tow),
@@ -1330,71 +1182,30 @@ INSNavCart,
     (uint16_t, latency),
     (uint8_t, datum),
     (uint16_t, sb_list),
-    (INSNavCartPosStdDev, posStdDev),    
-    (INSNavCartAtt, att),
-    (INSNavCartAttStdDev, attStdDev),
-    (INSNavCartVel, vel),
-    (INSNavCartVelStdDev, velStdDev),    
-    (INSNavCartPosCov, posCov),
-    (INSNavCartAttCov, attCov),
-    (INSNavCartVelCov, velCov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodPosStdDev,    
-    (float, latitude_std_dev),
-    (float, longitude_std_dev),
-    (float, height_std_dev)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodAtt,    
+    (float, x_std_dev),
+    (float, y_std_dev),
+    (float, z_std_dev),    
     (float, heading),
     (float, pitch),
-    (float, roll)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodAttStdDev,    
+    (float, roll),
     (float, heading_std_dev),
     (float, pitch_std_dev),
-    (float, roll_std_dev)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodVel,    
-    (float, ve),
-    (float, vn),
-    (float, vu)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodVelStdDev,    
-    (float, ve_std_dev),
-    (float, vn_std_dev),
-    (float, vu_std_dev)
-)
-
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodPosCov,    
-    (float, latitude_longitude_cov),
-    (float, latitude_height_cov),
-    (float, longitude_height_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodAttCov,    
+    (float, roll_std_dev),
+    (float, vx),
+    (float, vy),
+    (float, vz),
+    (float, vx_std_dev),
+    (float, vy_std_dev),
+    (float, vz_std_dev),    
+    (float, xy_cov),
+    (float, xz_cov),
+    (float, yz_cov),
     (float, heading_pitch_cov),
     (float, heading_roll_cov),
-    (float, pitch_roll_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodVelCov,    
-    (float, ve_vn_cov),
-    (float, ve_vu_cov),
-    (float, vn_vu_cov)
+    (float, pitch_roll_cov),
+    (float, vx_vy_cov),
+    (float, vx_vz_cov),
+    (float, vy_vz_cov)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -1414,14 +1225,30 @@ INSNavGeod,
     (uint16_t, latency),
     (uint8_t, datum),
     (uint16_t, sb_list),
-    (INSNavGeodPosStdDev, posStdDev),    
-    (INSNavGeodAtt, att),
-    (INSNavGeodAttStdDev, attStdDev),
-    (INSNavGeodVel, vel),
-    (INSNavGeodVelStdDev, velStdDev),    
-    (INSNavGeodPosCov, posCov),
-    (INSNavGeodAttCov, attCov),
-    (INSNavGeodVelCov, velCov)
+    (float, latitude_std_dev),
+    (float, longitude_std_dev),
+    (float, height_std_dev),    
+    (float, heading),
+    (float, pitch),
+    (float, roll),    
+    (float, heading_std_dev),
+    (float, pitch_std_dev),
+    (float, roll_std_dev),    
+    (float, ve),
+    (float, vn),
+    (float, vu),    
+    (float, ve_std_dev),
+    (float, vn_std_dev),
+    (float, vu_std_dev),    
+    (float, latitude_longitude_cov),
+    (float, latitude_height_cov),
+    (float, longitude_height_cov),    
+    (float, heading_pitch_cov),
+    (float, heading_roll_cov),
+    (float, pitch_roll_cov),    
+    (float, ve_vn_cov),
+    (float, ve_vu_cov),
+    (float, vn_vu_cov)
 )
 
 namespace qi  = boost::spirit::qi;
@@ -2045,15 +1872,32 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
+                   >> qi::omit[qi::byte_]
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
-                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAtt()))
-                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVel()))
-                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartPosCov()))
-                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartAttCov()))
-                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavCartVelCov()))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
@@ -2073,9 +1917,9 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
 {
 	INSNavGeodGrammar() : INSNavGeodGrammar::base_type(insNavGeod)
 	{
-        using namespace qi::labels;        
+        using namespace qi::labels;
 
-		insNavGeod %= (header(4226, phx::ref(revision)) | header(4230, phx::ref(revision)))
+        insNavGeod %= (header(4226, phx::ref(revision)) | header(4230, phx::ref(revision)))
 		           >> qi::little_dword
 		           >> qi::little_word
                    >> qi::byte_
@@ -2089,15 +1933,32 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
+                   >> qi::omit[qi::byte_]
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
-                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAtt()))
-                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVel()))
-                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelStdDev()))
-                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodPosCov()))
-                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodAttCov()))
-                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float >> qi::little_bin_float >> qi::little_bin_float | qi::attr(INSNavGeodVelCov()))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
 	}
 
