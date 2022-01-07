@@ -140,10 +140,8 @@ struct BlockHeader
     uint8_t  rev;    //!< This is the block revision
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
-
-    /* Time Header */
-    uint32_t tow;
-    uint16_t wnc;
+    uint32_t tow;    //!< This is the time of week in ms
+    uint16_t wnc;    //!< This is the GPS week counter
 } ;
 
 /**
@@ -1164,8 +1162,8 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
 	{
 		using namespace qi::labels;
 		
-        blockHeader %= qi::byte_[_pass = (qi::_1 == 0x24)]
-		            >> qi::byte_[_pass = (qi::_1 == 0x40)]
+        blockHeader %= qi::byte_(0x24)
+		            >> qi::byte_(0x40)
 		            >> qi::little_word
 		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
                     >> qi::attr(phx::ref(id))
