@@ -143,18 +143,11 @@ struct ID_t
  */
 struct BlockHeader
 {
-    uint8_t sync_1;  //!< first sync byte is $ or 0x24
-    uint8_t sync_2;  //!< 2nd sync byte is @ or 0x40
+    uint8_t  sync_1; //!< first sync byte is $ or 0x24
+    uint8_t  sync_2; //!< 2nd sync byte is @ or 0x40
     uint16_t crc;    //!< The check sum
-    union
-    {
-        uint16_t null; //!< This is only used for parsing
-        struct
-        {
-            uint16_t id : 13;
-            uint8_t rev :  3;
-        } ID; //!< This is the block ID, separated in id and rev
-    };
+    uint16_t id;     //!< This is the block ID
+    uint8_t  rev;    //!< This is the block revision
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
 } ;
@@ -934,7 +927,8 @@ BlockHeader,
     (uint8_t, sync_1),
     (uint8_t, sync_2),
     (uint16_t, crc),
-    (uint16_t, null),
+    (uint16_t, id),
+    (uint8_t, rev),
     (uint16_t, length)
 )
 
@@ -1448,12 +1442,16 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
         blockHeader %= qi::byte_[_pass = (qi::_1 == 0x24)]
 		            >> qi::byte_[_pass = (qi::_1 == 0x40)]
 		            >> qi::little_word
-		            >> qi::little_word[_pass = ((qi::_1 & 8191) == _r1), _r2 = qi::_1 >> 13] // revision is upper 3 bits
+		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
+                    >> qi::attr(phx::ref(id))
+                    >> qi::attr(_r2)
                     >> qi::little_word;
 
         
         BOOST_SPIRIT_DEBUG_NODE(blockHeader);
 	}
+
+    uint16_t id;
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
 };
