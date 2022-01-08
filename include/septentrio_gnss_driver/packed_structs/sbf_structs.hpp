@@ -139,7 +139,7 @@ struct BlockHeader
     uint8_t  sync_2; //!< 2nd sync byte is @ or 0x40
     uint16_t crc;    //!< The check sum
     uint16_t id;     //!< This is the block ID
-    uint8_t  rev;    //!< This is the block revision
+    uint8_t  revision;    //!< This is the block revision
     uint16_t length; //!< Length of the entire message including the header. A
                      //!< multiple of 4 between 8 and 4096
     uint32_t tow;    //!< This is the time of week in ms
@@ -772,7 +772,7 @@ BlockHeaderMsg,
     (uint8_t, sync_2),
     (uint16_t, crc),
     (uint16_t, id),
-    (uint8_t, rev),
+    (uint8_t, revision),
     (uint16_t, length),
     (uint32_t, tow),
     (uint16_t, wnc)
@@ -784,7 +784,7 @@ BlockHeader,
     (uint8_t, sync_2),
     (uint16_t, crc),
     (uint16_t, id),
-    (uint8_t, rev),
+    (uint8_t, revision),
     (uint16_t, length),
     (uint32_t, tow),
     (uint16_t, wnc)
