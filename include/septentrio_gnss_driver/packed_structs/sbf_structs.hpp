@@ -791,8 +791,9 @@ BlockHeader,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-PVTCartesian,
-    (BlockHeader, block_header),
+PVTCartesianMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, mode),
     (uint8_t, error),
     (double, x),
@@ -822,8 +823,9 @@ PVTCartesian,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-PVTGeodetic,
-    (BlockHeader, block_header),
+PVTGeodeticMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, mode),
     (uint8_t, error),
     (double, latitude),
@@ -1239,13 +1241,14 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
  * @brief Spirit grammar for the SBF block "PVTCartesian"
  */
 template<typename Iterator>
-struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
+struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesianMsg()>
 {
 	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
 	{
         using namespace qi::labels;       
 		
-		pvtCartesian %= header(4006, phx::ref(revision))
+		pvtCartesian %= qi::attr(HeaderMsg())
+                     >> header(4006, phx::ref(revision))
 		             >> qi::byte_
                      >> qi::byte_
                      >> qi::little_bin_double
@@ -1279,8 +1282,8 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>       header;
-	qi::rule<Iterator, PVTCartesian()> pvtCartesian;
+    BlockHeaderMsgGrammar<Iterator>       header;
+	qi::rule<Iterator, PVTCartesianMsg()> pvtCartesian;
 };
 
 /**
@@ -1288,13 +1291,14 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesian()>
  * @brief Spirit grammar for the SBF block "PVTGeodetic"
  */
 template<typename Iterator>
-struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
+struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodeticMsg()>
 {
 	PVTGeodeticGrammar() : PVTGeodeticGrammar::base_type(pvtGeodetic)
 	{
         using namespace qi::labels;        
 
-		pvtGeodetic %= header(4007, phx::ref(revision))
+		pvtGeodetic %= qi::attr(HeaderMsg())
+                    >> header(4007, phx::ref(revision))
 		            >> qi::byte_
                     >> qi::byte_
                     >> qi::little_bin_double
@@ -1328,8 +1332,8 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>      header;
-	qi::rule<Iterator, PVTGeodetic()> pvtGeodetic;
+    BlockHeaderMsgGrammar<Iterator>      header;
+	qi::rule<Iterator, PVTGeodeticMsg()> pvtGeodetic;
 };
 
 /**

@@ -667,7 +667,7 @@ namespace io_comm_rx {
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
          * need to be stored
          */
-        PVTGeodetic last_pvtgeodetic_;
+        PVTGeodeticMsg last_pvtgeodetic_;
 
         /**
          * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic
@@ -848,24 +848,6 @@ namespace io_comm_rx {
         //! For Imu: Whether the ExtSensorMeas block of the current epoch
         //! has arrived or not
         bool extsens_has_arrived_imu_ = false;
-
-        /**
-         * @brief Callback function when reading PVTCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTCartesian
-         * @return A smart pointer to the ROS message PVTCartesian just created
-         */
-        PVTCartesianMsgPtr
-        PVTCartesianCallback(PVTCartesian& data);
-
-        /**
-         * @brief Callback function when reading PVTGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTGeodetic
-         * @return A smart pointer to the ROS message PVTGeodetic just created
-         */
-        PVTGeodeticMsgPtr
-        PVTGeodeticCallback(PVTGeodetic& data);
 
         /**
          * @brief Callback function when reading PosCovCartesian blocks

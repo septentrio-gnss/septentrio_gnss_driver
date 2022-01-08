@@ -40,88 +40,6 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-PVTGeodeticMsgPtr
-io_comm_rx::RxMessage::PVTGeodeticCallback(PVTGeodetic& data)
-{
-    PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->mode = data.mode;
-    msg->error = data.error;
-    msg->latitude = data.latitude;
-    msg->longitude = data.longitude;
-    msg->height = data.height;
-    msg->undulation = data.undulation;
-    msg->vn = data.vn;
-    msg->ve = data.ve;
-    msg->vu = data.vu;
-    msg->cog = data.cog;
-    msg->rx_clk_bias = data.rx_clk_bias;
-    msg->rx_clk_drift = data.rx_clk_drift;
-    msg->time_system = data.time_system;
-    msg->datum = data.datum;
-    msg->nr_sv = data.nr_sv;
-    msg->wa_corr_info = data.wa_corr_info;
-    msg->reference_id = data.reference_id;
-    msg->mean_corr_age = data.mean_corr_age;
-    msg->signal_info = data.signal_info;
-    msg->alert_flag = data.alert_flag;
-    msg->nr_bases = data.nr_bases;
-    msg->ppp_info = data.ppp_info;
-    msg->latency = data.latency;
-    msg->h_accuracy = data.h_accuracy;
-    msg->v_accuracy = data.v_accuracy;
-    msg->misc = data.misc;
-    return msg;
-}
-
-PVTCartesianMsgPtr
-io_comm_rx::RxMessage::PVTCartesianCallback(PVTCartesian& data)
-{
-    PVTCartesianMsgPtr msg(new PVTCartesianMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->mode = data.mode;
-    msg->error = data.error;
-    msg->x = data.x;
-    msg->y = data.y;
-    msg->z = data.z;
-    msg->undulation = data.undulation;
-    msg->vx = data.vx;
-    msg->vy = data.vy;
-    msg->vz = data.vz;
-    msg->cog = data.cog;
-    msg->rx_clk_bias = data.rx_clk_bias;
-    msg->rx_clk_drift = data.rx_clk_drift;
-    msg->time_system = data.time_system;
-    msg->datum = data.datum;
-    msg->nr_sv = data.nr_sv;
-    msg->wa_corr_info = data.wa_corr_info;
-    msg->reference_id = data.reference_id;
-    msg->mean_corr_age = data.mean_corr_age;
-    msg->signal_info = data.signal_info;
-    msg->alert_flag = data.alert_flag;
-    msg->nr_bases = data.nr_bases;
-    msg->ppp_info = data.ppp_info;
-    msg->latency = data.latency;
-    msg->h_accuracy = data.h_accuracy;
-    msg->v_accuracy = data.v_accuracy;
-    msg->misc = data.misc;
-    return msg;
-}
-
 PosCovCartesianMsgPtr
 io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
 {
@@ -1847,21 +1765,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		    // inside, and will die at
 			// the end of the block. Otherwise variable overloading etc.
 			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
-			PVTCartesian pvtcartesian;
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), pvtcartesian))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), *msg))
 			{
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTCartesian");
 				break;
 			}
-			msg = PVTCartesianCallback(pvtcartesian);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4006;			
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -1873,21 +1788,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
 							// frame)
 		{
-			PVTGeodeticMsgPtr msg(new PVTGeodeticMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_pvtgeodetic_))
 			{
                 ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PVTGeodetic");
 				break;
 			}
-			msg = PVTGeodeticCallback(last_pvtgeodetic_);
-			msg->header.frame_id = settings_->frame_id;
+			last_pvtgeodetic_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4007;
+			last_pvtgeodetic_.header.stamp = timestampToRos(time_obj);
 			pvtgeodetic_has_arrived_gpsfix_ = true;
 			pvtgeodetic_has_arrived_navsatfix_ = true;
 			pvtgeodetic_has_arrived_pose_ = true;
@@ -1896,7 +1808,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", *msg);			
+			node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);			
 			break;
 		}
 		case evPosCovCartesian:
@@ -1916,7 +1828,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 5905;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -1944,7 +1855,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 5906;
 			poscovgeodetic_has_arrived_gpsfix_ = true;
 			poscovgeodetic_has_arrived_navsatfix_ = true;
 			poscovgeodetic_has_arrived_pose_ = true;
@@ -1983,7 +1893,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			last_atteuler_.header.stamp = timestampToRos(time_obj);
-			last_atteuler_.block_header.id = 5938;
 			atteuler_has_arrived_gpsfix_ = true;
 			atteuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2018,7 +1927,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			last_attcoveuler_.header.stamp = timestampToRos(time_obj);
-			last_attcoveuler_.block_header.id = 5939;
 			attcoveuler_has_arrived_gpsfix_ = true;
 			attcoveuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2058,7 +1966,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4225;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -2100,7 +2007,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			last_insnavgeod_.header.stamp = timestampToRos(time_obj);
-			last_insnavgeod_.block_header.id = 4226;
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
@@ -2188,7 +2094,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4229;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -2226,7 +2131,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4230;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -2712,7 +2616,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 5908;
 			velcovgeodetic_has_arrived_gpsfix_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
