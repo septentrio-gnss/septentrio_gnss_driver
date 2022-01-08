@@ -1185,8 +1185,8 @@ struct BlockHeaderMsgGrammar : qi::grammar<Iterator, BlockHeaderMsg(uint16_t, ui
 	{
 		using namespace qi::labels;
 		
-        blockHeader %= qi::byte_(0x24)
-		            >> qi::byte_(0x40)
+        blockHeader %= qi::byte_[_pass = qi::_1 == 0x24]
+		            >> qi::byte_[_pass = qi::_1 == 0x40]
 		            >> qi::little_word
 		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
                     >> qi::attr(phx::ref(id))
@@ -1215,8 +1215,8 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
 	{
 		using namespace qi::labels;
 		
-        blockHeader %= qi::byte_(0x24)
-		            >> qi::byte_(0x40)
+        blockHeader %= qi::byte_[_pass = qi::_1 == 0x24]
+		            >> qi::byte_[_pass = qi::_1 == 0x40]
 		            >> qi::little_word
 		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
                     >> qi::attr(phx::ref(id))
