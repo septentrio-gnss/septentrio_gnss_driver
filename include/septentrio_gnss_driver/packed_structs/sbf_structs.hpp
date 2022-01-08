@@ -853,12 +853,12 @@ PVTGeodetic,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-AttEuler,
-    (BlockHeader, block_header),
+AttEulerMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, nr_sv),
     (uint8_t, error),
-    (uint16_t, mode),
-    (uint16_t, reserved),
+    (uint16_t, mode),    
     (float, heading),
     (float, pitch),
     (float, roll),
@@ -868,9 +868,9 @@ AttEuler,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-AttCovEuler,
-    (BlockHeader, block_header),
-    (uint8_t, reserved),
+AttCovEulerMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, error),
     (float, cov_headhead),
     (float, cov_pitchpitch),
@@ -1337,17 +1337,18 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodetic()>
  * @brief Spirit grammar for the SBF block "AttEuler"
  */
 template<typename Iterator>
-struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
+struct AttEulerGrammar : qi::grammar<Iterator, AttEulerMsg()>
 {
 	AttEulerGrammar() : AttEulerGrammar::base_type(attEuler)
 	{
         using namespace qi::labels;       
 
-		attEuler %= header(5938, phx::ref(revision))
+		attEuler %= qi::attr(HeaderMsg())
+                 >> header(5938, phx::ref(revision))
 		         >> qi::byte_
                  >> qi::byte_
                  >> qi::little_word
-		         >> qi::little_word
+		         >> qi::omit[qi::little_word] // reserved
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
@@ -1359,8 +1360,8 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>   header;
-    qi::rule<Iterator, AttEuler()> attEuler;
+    BlockHeaderMsgGrammar<Iterator>   header;
+    qi::rule<Iterator, AttEulerMsg()> attEuler;
 };
 
 /**
@@ -1368,14 +1369,15 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEuler()>
  * @brief Spirit grammar for the SBF block "AttCovEuler"
  */
 template<typename Iterator>
-struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
+struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEulerMsg()>
 {
 	AttCovEulerGrammar() : AttCovEulerGrammar::base_type(attCovEuler)
 	{
         using namespace qi::labels;		
 
-		attCovEuler %= header(5939, phx::ref(revision))
-		            >> qi::byte_
+		attCovEuler %= qi::attr(HeaderMsg())
+                    >> header(5939, phx::ref(revision))
+		            >> qi::omit[qi::byte_] // reserved
                     >> qi::byte_
                     >> qi::little_bin_float
                     >> qi::little_bin_float
@@ -1388,8 +1390,8 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEuler()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>      header;
-	qi::rule<Iterator, AttCovEuler()> attCovEuler;
+    BlockHeaderMsgGrammar<Iterator>      header;
+	qi::rule<Iterator, AttCovEulerMsg()> attCovEuler;
 };
 
 /**
@@ -1794,7 +1796,7 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
-                   >> qi::omit[qi::byte_]
+                   >> qi::omit[qi::byte_] // reserved
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
@@ -1854,7 +1856,7 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
-                   >> qi::omit[qi::byte_]
+                   >> qi::omit[qi::byte_] // reserved
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))

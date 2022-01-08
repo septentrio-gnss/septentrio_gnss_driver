@@ -203,72 +203,6 @@ io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
     return msg;
 }
 
-AttEulerMsgPtr
-io_comm_rx::RxMessage::AttEulerCallback(AttEuler& data)
-{
-    AttEulerMsgPtr msg(new AttEulerMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->nr_sv = data.nr_sv;
-    msg->error = data.error;
-    msg->mode = data.mode;
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading = -data.heading + parsing_utilities::pi_half;
-        msg->pitch = -data.pitch;
-        msg->roll = data.roll;
-        msg->pitch_dot = -data.pitch_dot;
-        msg->roll_dot = data.roll_dot;
-        msg->heading_dot = -data.heading_dot;
-    }
-    else
-    {
-        msg->heading = data.heading;
-        msg->pitch = data.pitch;
-        msg->roll = data.roll;
-        msg->pitch_dot = data.pitch_dot;
-        msg->roll_dot = data.roll_dot;
-        msg->heading_dot = data.heading_dot;
-    }
-    return msg;
-};
-
-AttCovEulerMsgPtr
-io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
-{
-    AttCovEulerMsgPtr msg(new AttCovEulerMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->error = data.error;
-    msg->cov_headhead = data.cov_headhead;
-    msg->cov_pitchpitch = data.cov_pitchpitch;
-    msg->cov_rollroll = data.cov_rollroll;
-    msg->cov_headpitch = data.cov_headpitch;
-    if (settings_->use_ros_axis_orientation)
-    {        
-        msg->cov_headroll = -data.cov_headroll;
-        msg->cov_pitchroll = -data.cov_pitchroll;
-    }
-    else
-    {
-        msg->cov_headroll = data.cov_headroll;
-        msg->cov_pitchroll = data.cov_pitchroll;
-    }
-    return msg;
-};
-
 IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
@@ -459,22 +393,10 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
     if (settings_->septentrio_receiver_type == "gnss")
     {
         // Filling in the pose data
-        double conversion;
-        settings_->use_ros_axis_orientation ? conversion = -1.0 : conversion = 1.0;
-        if (settings_->use_ros_axis_orientation)
-        {
-            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                -last_atteuler_.heading + parsing_utilities::pi_half,
-                -last_atteuler_.pitch,
-                last_atteuler_.roll);
-        }
-        else
-        {
-            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+        msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
                 last_atteuler_.heading,
                 last_atteuler_.pitch,
                 last_atteuler_.roll);
-        }
         msg->pose.pose.position.x = parsing_utilities::rad2deg(last_pvtgeodetic_.longitude);
         msg->pose.pose.position.y = parsing_utilities::rad2deg(last_pvtgeodetic_.latitude);
         msg->pose.pose.position.z = last_pvtgeodetic_.height;
@@ -489,12 +411,12 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         msg->pose.covariance[13] = last_poscovgeodetic_.cov_lathgt;
         msg->pose.covariance[14] = last_poscovgeodetic_.cov_hgthgt;
         msg->pose.covariance[21] = last_attcoveuler_.cov_rollroll;
-        msg->pose.covariance[22] = last_attcoveuler_.cov_pitchroll * conversion;
-        msg->pose.covariance[23] = last_attcoveuler_.cov_headroll * conversion;
-        msg->pose.covariance[27] = last_attcoveuler_.cov_pitchroll * conversion;
+        msg->pose.covariance[22] = last_attcoveuler_.cov_pitchroll;
+        msg->pose.covariance[23] = last_attcoveuler_.cov_headroll;
+        msg->pose.covariance[27] = last_attcoveuler_.cov_pitchroll;
         msg->pose.covariance[28] = last_attcoveuler_.cov_pitchpitch;
         msg->pose.covariance[29] = last_attcoveuler_.cov_headpitch;
-        msg->pose.covariance[33] = last_attcoveuler_.cov_headroll * conversion;
+        msg->pose.covariance[33] = last_attcoveuler_.cov_headroll;
         msg->pose.covariance[34] = last_attcoveuler_.cov_headpitch;
         msg->pose.covariance[35] = last_attcoveuler_.cov_headhead;
 	}
@@ -505,8 +427,7 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         msg->pose.pose.position.z = last_insnavgeod_.height;
 
         // Filling in the pose data
-		double conversion;
-        if((last_insnavgeod_.sb_list & 1) !=0)
+		if((last_insnavgeod_.sb_list & 1) !=0)
         {
             // Pos autocov
             msg->pose.covariance[0]  = parsing_utilities::square(last_insnavgeod_.
@@ -573,16 +494,16 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         {
             // Attitude cov
             msg->pose.covariance[22] = last_insnavgeod_.
-                                            pitch_roll_cov * conversion;
+                                            pitch_roll_cov;
             msg->pose.covariance[23] = last_insnavgeod_.
-                                            heading_roll_cov * conversion;
+                                            heading_roll_cov;
             msg->pose.covariance[27] = last_insnavgeod_.
-                                            pitch_roll_cov * conversion;
+                                            pitch_roll_cov;
             
             msg->pose.covariance[29] = last_insnavgeod_.
                                             heading_pitch_cov;
             msg->pose.covariance[33] = last_insnavgeod_.
-                                            heading_roll_cov * conversion;
+                                            heading_roll_cov;
             msg->pose.covariance[34] = last_insnavgeod_.
                                             heading_pitch_cov;
         }
@@ -738,8 +659,7 @@ io_comm_rx::RxMessage::ImuCallback()
         }
 
         // Filling in the pose data
-		double conversion;
-        if ((last_insnavgeod_.sb_list & 2) !=0)
+		if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             // Attitude
             msg->orientation = parsing_utilities::convertEulerToQuaternion(
@@ -774,16 +694,16 @@ io_comm_rx::RxMessage::ImuCallback()
         {
             // Attitude cov
             msg->orientation_covariance[1] = last_insnavgeod_.
-                                            pitch_roll_cov * conversion;
+                                            pitch_roll_cov;
             msg->orientation_covariance[2] = last_insnavgeod_.
-                                            heading_roll_cov * conversion;
+                                            heading_roll_cov;
             msg->orientation_covariance[3] = last_insnavgeod_.
-                                            pitch_roll_cov * conversion;
+                                            pitch_roll_cov;
             
             msg->orientation_covariance[5] = last_insnavgeod_.
                                             heading_pitch_cov;
             msg->orientation_covariance[6] = last_insnavgeod_.
-                                            heading_roll_cov * conversion;
+                                            heading_roll_cov;
             msg->orientation_covariance[7] = last_insnavgeod_.
                                             heading_pitch_cov;
         }
@@ -1352,7 +1272,7 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
                             parsing_utilities::square(last_pvtgeodetic_.ve));
         msg->climb = last_pvtgeodetic_.vu;
         msg->pitch = last_atteuler_.pitch;
-        msg->roll = last_atteuler_.roll;
+        msg->roll  = last_atteuler_.roll;
         if (last_dop_.pdop == static_cast<uint16_t>(0) ||
             last_dop_.tdop == static_cast<uint16_t>(0))
         {
@@ -2038,7 +1958,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evAttEuler:
 		{
-			AttEulerMsgPtr msg(new AttEulerMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), last_atteuler_))
 			{
@@ -2047,14 +1966,24 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttEuler");
 				break;
 			}
-			msg = AttEulerCallback(last_atteuler_);
-			msg->header.frame_id = settings_->frame_id;
+            if (settings_->use_ros_axis_orientation)
+            {
+                if (last_atteuler_.heading != DO_NOT_USE_VALUE)
+                    last_atteuler_.heading = -last_atteuler_.heading + parsing_utilities::pi_half;
+                if (last_atteuler_.pitch != DO_NOT_USE_VALUE)
+                    last_atteuler_.pitch = -last_atteuler_.pitch;
+                if (last_atteuler_.pitch_dot != DO_NOT_USE_VALUE)
+                    last_atteuler_.pitch_dot = -last_atteuler_.pitch_dot;
+                if (last_atteuler_.heading_dot != DO_NOT_USE_VALUE)
+                    last_atteuler_.heading_dot = -last_atteuler_.heading_dot;
+            }
+			last_atteuler_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 5938;
+			last_atteuler_.header.stamp = timestampToRos(time_obj);
+			last_atteuler_.block_header.id = 5938;
 			atteuler_has_arrived_gpsfix_ = true;
 			atteuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2062,13 +1991,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<AttEulerMsg>("/atteuler", *msg);		
+			node_->publishMessage<AttEulerMsg>("/atteuler", last_atteuler_);		
 			
 			break;
 		}
 		case evAttCovEuler:
 		{
-			AttCovEulerMsgPtr msg(new AttCovEulerMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), last_attcoveuler_))
 			{
@@ -2077,15 +2005,20 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in AttCovEuler");
 				break;
 			}
-
-			msg = AttCovEulerCallback(last_attcoveuler_);
-			msg->header.frame_id = settings_->frame_id;
+            if (settings_->use_ros_axis_orientation)
+            {
+                if (last_attcoveuler_.cov_headroll != DO_NOT_USE_VALUE)
+                    last_attcoveuler_.cov_headroll  = -last_attcoveuler_.cov_headroll;
+                 if (last_attcoveuler_.cov_pitchroll != DO_NOT_USE_VALUE)
+                    last_attcoveuler_.cov_pitchroll = -last_attcoveuler_.cov_pitchroll;
+            }
+			last_attcoveuler_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 5939;
+			last_attcoveuler_.header.stamp = timestampToRos(time_obj);
+			last_attcoveuler_.block_header.id = 5939;
 			attcoveuler_has_arrived_gpsfix_ = true;
 			attcoveuler_has_arrived_pose_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
@@ -2093,7 +2026,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<AttCovEulerMsg>("/attcoveuler", *msg);
+			node_->publishMessage<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
 			break;
 		}
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU

@@ -679,13 +679,13 @@ namespace io_comm_rx {
          * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to
          * be stored
          */
-        AttEuler last_atteuler_;
+        AttEulerMsg last_atteuler_;
 
         /**
          * @brief Since GPSFix etc. need AttCovEuler, incoming AttCovEuler blocks
          * need to be stored
          */
-        AttCovEuler last_attcoveuler_;
+        AttCovEulerMsg last_attcoveuler_;
 
         /**
          * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
