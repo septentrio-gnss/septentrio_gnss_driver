@@ -269,162 +269,6 @@ io_comm_rx::RxMessage::AttCovEulerCallback(AttCovEuler& data)
     return msg;
 };
 
-INSNavCartMsgPtr
-io_comm_rx::RxMessage::INSNavCartCallback(INSNavCart& data)
-{
-    int SBI_dx = 0;
-    INSNavCartMsgPtr msg(new INSNavCartMsg);
-    
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->gnss_mode = data.gnss_mode;
-    msg->error = data.error;
-    msg->info = data.info;
-    msg->gnss_age = data.gnss_age;
-    msg->x = data.x;
-    msg->y = data.y;
-    msg->z = data.z;
-    msg->accuracy = data.accuracy;
-    msg->latency = data.latency;
-    msg->datum = data.datum;
-    msg->sb_list = data.sb_list;
-
-    // Reading sub-block from corresponding SBF block
-    msg->x_std_dev = data.x_std_dev;
-    msg->y_std_dev = data.y_std_dev;
-    msg->z_std_dev = data.z_std_dev;
-
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading = -data.heading + parsing_utilities::pi_half;
-        msg->pitch = -data.pitch;
-    }
-    else
-    {
-        msg->heading = data.heading;
-        msg->pitch = data.pitch;
-    }
-    msg->roll = data.roll;
-
-    msg->heading_std_dev = data.heading_std_dev;
-    msg->pitch_std_dev= data.pitch_std_dev;
-    msg->roll_std_dev = data.roll_std_dev;
-
-    msg->vx = data.vx;
-    msg->vy = data.vy;
-    msg->vz = data.vz;
-
-    msg->vx_std_dev = data.vx_std_dev;
-    msg->vy_std_dev = data.vy_std_dev;
-    msg->vz_std_dev = data.vz_std_dev;
-
-    msg->xy_cov = data.xy_cov;
-    msg->xz_cov = data.xz_cov;
-    msg->yz_cov = data.yz_cov;
-
-    msg->heading_pitch_cov = data.heading_pitch_cov;
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading_roll_cov = -data.heading_roll_cov;
-        msg->pitch_roll_cov = -data.pitch_roll_cov;
-    }
-    else
-    {
-        msg->heading_roll_cov = data.heading_roll_cov;
-        msg->pitch_roll_cov = data.pitch_roll_cov;
-    }
-
-    msg->vx_vy_cov = data.vx_vy_cov;
-    msg->vx_vz_cov = data.vx_vz_cov;
-    msg->vy_vz_cov = data.vy_vz_cov;
-
-    return msg;
-};
-
-INSNavGeodMsgPtr
-io_comm_rx::RxMessage::INSNavGeodCallback(INSNavGeod& data)
-{
-    INSNavGeodMsgPtr msg(new INSNavGeodMsg);
-    
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->gnss_mode = data.gnss_mode;
-    msg->error = data.error;
-    msg->info = data.info;
-    msg->gnss_age = data.gnss_age;
-    msg->latitude = data.latitude;
-    msg->longitude = data.longitude;
-    msg->height = data.height;
-    msg->undulation = data.undulation;
-    msg->accuracy = data.accuracy;
-    msg->latency = data.latency;
-    msg->datum = data.datum;
-    msg->sb_list = data.sb_list;
-
-    // Reading sub-block from corresponding SBF block
-    msg->latitude_std_dev = data.latitude_std_dev;
-    msg->longitude_std_dev = data.longitude_std_dev;
-    msg->height_std_dev = data.height_std_dev;
-
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading = -data.heading + parsing_utilities::pi_half;
-        msg->pitch = -data.pitch;
-    }
-    else
-    {
-        msg->heading = data.heading;
-        msg->pitch = data.pitch;          
-    }
-    msg->roll = data.roll;
-
-    msg->heading_std_dev = data.heading_std_dev;
-    msg->pitch_std_dev = data.pitch_std_dev;
-    msg->roll_std_dev = data.roll_std_dev;
-
-    msg->ve = data.ve;
-    msg->vn = data.vn;
-    msg->vu = data.vu;
-
-    msg->ve_std_dev = data.ve_std_dev;
-    msg->vn_std_dev = data.vn_std_dev;
-    msg->vu_std_dev = data.vu_std_dev;
-
-    msg->latitude_longitude_cov = data.latitude_longitude_cov;
-    msg->latitude_height_cov = data.latitude_height_cov;
-    msg->longitude_height_cov = data.longitude_height_cov;
-
-    msg->heading_pitch_cov = data.heading_pitch_cov;
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading_roll_cov = -data.heading_roll_cov;
-        msg->pitch_roll_cov = -data.pitch_roll_cov;
-    }
-    else
-    {
-        msg->heading_roll_cov = data.heading_roll_cov;
-        msg->pitch_roll_cov = data.pitch_roll_cov;
-    }
-
-    msg->ve_vn_cov = data.ve_vn_cov;
-    msg->ve_vu_cov = data.ve_vu_cov;
-    msg->vn_vu_cov = data.vn_vu_cov;
-   
-    return msg;
-};
-
 IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
@@ -486,117 +330,6 @@ io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
         msg->lever_arm_y = data.lever_arm_y;
         msg->lever_arm_z = data.lever_arm_z;        
     }
-    return msg;
-};
-
-INSNavGeodMsgPtr
-io_comm_rx::RxMessage::ExtEventINSNavGeodCallback(INSNavGeod& data)
-{
-    INSNavGeodMsgPtr msg(new INSNavGeodMsg);
-    
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->gnss_mode = data.gnss_mode;
-    msg->error = data.error;
-    msg->info = data.info;
-    msg->gnss_age = data.gnss_age;
-    msg->latitude = data.latitude;
-    msg->longitude = data.longitude;
-    msg->height = data.height;
-    msg->undulation = data.undulation;
-    msg->accuracy = data.accuracy;
-    msg->datum = data.datum;
-    msg->sb_list = data.sb_list;
-
-    // Reading sub-block from corresponding SBF block
-    msg->latitude_std_dev = data.latitude_std_dev;
-    msg->longitude_std_dev = data.longitude_std_dev;
-    msg->height_std_dev = data.height_std_dev;
-
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading = -data.heading + parsing_utilities::pi_half;
-        msg->pitch = -data.pitch;
-    }
-    else
-    {
-        msg->heading = data.heading;
-        msg->pitch = data.pitch;          
-    }
-    msg->roll = data.roll;
-
-    msg->heading_std_dev = data.heading_std_dev;
-    msg->pitch_std_dev = data.pitch_std_dev;
-    msg->roll_std_dev = data.roll_std_dev;
-
-    msg->ve = data.ve;
-    msg->vn = data.vn;
-    msg->vu = data.vu;
-
-    msg->ve_std_dev = data.ve_std_dev;
-    msg->vn_std_dev = data.vn_std_dev;
-    msg->vu_std_dev = data.vu_std_dev;
-    return msg;
-};
-
-INSNavCartMsgPtr
-io_comm_rx::RxMessage::ExtEventINSNavCartCallback(INSNavCart& data)
-{
-    int SBI_dx = 0;
-    INSNavCartMsgPtr msg(new INSNavCartMsg);
-    
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.rev = data.block_header.rev;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->gnss_mode = data.gnss_mode;
-    msg->error = data.error;
-    msg->info = data.info;
-    msg->gnss_age = data.gnss_age;
-    msg->x = data.x;
-    msg->y = data.y;
-    msg->z = data.z;
-    msg->accuracy = data.accuracy;
-    msg->datum = data.datum;
-    msg->sb_list = data.sb_list;
-
-    // Reading sub-block from corresponding SBF block
-    msg->x_std_dev = data.x_std_dev;
-    msg->y_std_dev = data.y_std_dev;
-    msg->z_std_dev = data.z_std_dev;
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->heading = -data.heading + parsing_utilities::pi_half;
-        msg->pitch= -data.pitch;
-    }
-    else
-    {
-        msg->heading = data.heading;
-        msg->pitch= data.pitch;          
-    }
-    msg->roll = data.roll;
-
-    msg->heading_std_dev = data.heading_std_dev;
-    msg->pitch_std_dev= data.pitch_std_dev;
-    msg->roll_std_dev = data.roll_std_dev;
-
-    msg->vx = data.vx;
-    msg->vy = data.vy;
-    msg->vz = data.vz;
-    
-    msg->vx_std_dev = data.vx_std_dev;
-    msg->vy_std_dev = data.vy_std_dev;
-    msg->vz_std_dev = data.vz_std_dev;
     return msg;
 };
 
@@ -792,20 +525,10 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             // Attitude
-            if (settings_->use_ros_axis_orientation)
-            {
-                msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                -last_insnavgeod_.heading + parsing_utilities::pi_half,
-                -last_insnavgeod_.pitch,
-                last_insnavgeod_.roll);
-            }
-            else
-            {
-                msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+            msg->pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
                 last_insnavgeod_.heading,
                 last_insnavgeod_.pitch,
                 last_insnavgeod_.roll);
-            }
         }
         else
         {
@@ -1019,20 +742,10 @@ io_comm_rx::RxMessage::ImuCallback()
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
             // Attitude
-            if (settings_->use_ros_axis_orientation)
-            {
-                msg->orientation = parsing_utilities::convertEulerToQuaternion(
-                -last_insnavgeod_.heading + parsing_utilities::pi_half,
-                -last_insnavgeod_.pitch,
-                last_insnavgeod_.roll);
-            }
-            else
-            {
-                msg->orientation = parsing_utilities::convertEulerToQuaternion(
+            msg->orientation = parsing_utilities::convertEulerToQuaternion(
                 last_insnavgeod_.heading,
                 last_insnavgeod_.pitch,
                 last_insnavgeod_.roll);
-            }
         }
         else
         {
@@ -1142,8 +855,8 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
 
     // Euler angles (ENU), gamma for conversion from true north to grid north
     double roll  = last_insnavgeod_.roll;
-    double pitch = -last_insnavgeod_.pitch;
-    double yaw   = -last_insnavgeod_.heading + parsing_utilities::pi_half - parsing_utilities::deg2rad(gamma);
+    double pitch = last_insnavgeod_.pitch;
+    double yaw   = last_insnavgeod_.heading - parsing_utilities::deg2rad(gamma);
     Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
     if ((last_insnavgeod_.sb_list & 2) !=0)
     {
@@ -2387,14 +2100,25 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
-			INSNavCart insnavcart;
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavCartGrammar<std::vector<uint8_t>::iterator>(), insnavcart))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavCartGrammar<std::vector<uint8_t>::iterator>(), *msg))
 			{
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in INSNavCart");
 				break;
 			}
-			msg = INSNavCartCallback(insnavcart);
+            if (settings_->use_ros_axis_orientation)
+            {
+                if ((msg->sb_list & 2) != 0)
+                {
+                    msg->heading = -msg->heading + parsing_utilities::pi_half;
+                    msg->pitch   = -msg->pitch;
+                }
+                if ((msg->sb_list & 2) != 64)
+                {   
+                    msg->heading_roll_cov = -msg->heading_roll_cov;
+                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
+                }
+            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -2413,7 +2137,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
 							// frame)
 		{
-			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), last_insnavgeod_))
 			{                
@@ -2425,14 +2148,26 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in INSNavGeod");
 				break;
 			}
-			msg = INSNavGeodCallback(last_insnavgeod_);
-			msg->header.frame_id = settings_->frame_id;
+            if (settings_->use_ros_axis_orientation)
+            {
+                if ((last_insnavgeod_.sb_list & 2) != 0)
+                {
+                    last_insnavgeod_.heading = -last_insnavgeod_.heading + parsing_utilities::pi_half;
+                    last_insnavgeod_.pitch   = -last_insnavgeod_.pitch;
+                }
+                if ((last_insnavgeod_.sb_list & 2) != 64)
+                {   
+                    last_insnavgeod_.heading_roll_cov = -last_insnavgeod_.heading_roll_cov;
+                    last_insnavgeod_.pitch_roll_cov   = -last_insnavgeod_.pitch_roll_cov;
+                }
+            }
+			last_insnavgeod_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4226;
+			last_insnavgeod_.header.stamp = timestampToRos(time_obj);
+			last_insnavgeod_.block_header.id = 4226;
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
@@ -2443,7 +2178,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<INSNavGeodMsg>("/insnavgeod", *msg);
+			node_->publishMessage<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
 			break;
 		}
 
@@ -2495,9 +2230,25 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
-			INSNavCart exteventinsnavcart;
-			memcpy(&exteventinsnavcart, data_, sizeof(exteventinsnavcart));
-			msg = INSNavCartCallback(exteventinsnavcart);
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavCartGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			{
+				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ExtEventINSNavCart");
+				break;
+			}
+            if (settings_->use_ros_axis_orientation)
+            {
+                if ((msg->sb_list & 2) != 0)
+                {
+                    msg->heading = -msg->heading + parsing_utilities::pi_half;
+                    msg->pitch   = -msg->pitch;
+                }
+                if ((msg->sb_list & 2) != 64)
+                {   
+                    msg->heading_roll_cov = -msg->heading_roll_cov;
+                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
+                }
+            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -2517,9 +2268,25 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evExtEventINSNavGeod:
 		{
 			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
-			INSNavGeod exteventinsnavgeod;
-			memcpy(&exteventinsnavgeod, data_, sizeof(exteventinsnavgeod));
-			msg = ExtEventINSNavGeodCallback(exteventinsnavgeod);
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			{                
+                ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
+				break;
+			}
+			if (settings_->use_ros_axis_orientation)
+            {
+                if ((msg->sb_list & 2) != 0)
+                {
+                    msg->heading = -msg->heading + parsing_utilities::pi_half;
+                    msg->pitch   = -msg->pitch;
+                }
+                if ((msg->sb_list & 2) != 64)
+                {   
+                    msg->heading_roll_cov = -msg->heading_roll_cov;
+                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
+                }
+            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);

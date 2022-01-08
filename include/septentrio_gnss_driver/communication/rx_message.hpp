@@ -691,7 +691,7 @@ namespace io_comm_rx {
          * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
-        INSNavGeod last_insnavgeod_;
+        INSNavGeodMsg last_insnavgeod_;
 
          /**
          * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
@@ -921,15 +921,6 @@ namespace io_comm_rx {
         INSNavCartCallback(INSNavCart& data);
 
         /**
-         * @brief Callback function when reading INSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavGeod
-         * @return A smart pointer to the ROS message INSNavGeod just created
-         */
-        INSNavGeodMsgPtr
-        INSNavGeodCallback(INSNavGeod& data);
-
-        /**
          * @brief Callback function when reading IMUSetup blocks
          * @param[in] data The (packed and aligned) struct instance used to populate
          * the ROS message IMUSetup
@@ -946,24 +937,6 @@ namespace io_comm_rx {
          */
         VelSensorSetupMsgPtr
         VelSensorSetupCallback(VelSensorSetup& data);
-
-        /**
-         * @brief Callback function when reading ExtEventINSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavCart
-         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
-         */
-        INSNavCartMsgPtr
-        ExtEventINSNavCartCallback(INSNavCart& data);
-
-        /**
-         * @brief Callback function when reading ExtEventINSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavGeod
-         * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
-         */
-        INSNavGeodMsgPtr
-        ExtEventINSNavGeodCallback(INSNavGeod& data);
 
         /**
          * @brief Callback function when reading ExtSensorMeas blocks

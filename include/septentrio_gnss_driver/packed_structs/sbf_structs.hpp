@@ -121,6 +121,8 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/repository/include/qi_advance.hpp>
 
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+
 /**
  * @file sbf_structs.hpp
  * @brief Declares and defines structs into which SBF blocks are unpacked then
@@ -758,6 +760,25 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 BOOST_FUSION_ADAPT_STRUCT(
+HeaderMsg,
+    (uint32_t, seq),
+    (TimestampRos, stamp),
+    (std::string, frame_id)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+BlockHeaderMsg,
+    (uint8_t, sync_1),
+    (uint8_t, sync_2),
+    (uint16_t, crc),
+    (uint16_t, id),
+    (uint8_t, rev),
+    (uint16_t, length),
+    (uint32_t, tow),
+    (uint16_t, wnc)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
 BlockHeader,
     (uint8_t, sync_1),
     (uint8_t, sync_2),
@@ -1067,8 +1088,9 @@ VelCovGeodetic,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-INSNavCart,
-    (BlockHeader, block_header),
+INSNavCartMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, gnss_mode),
     (uint8_t, error),
     (uint16_t, info),
@@ -1107,8 +1129,9 @@ INSNavCart,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeod,
-    (BlockHeader, block_header),
+INSNavGeodMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, gnss_mode),
     (uint8_t, error),
     (uint16_t, info),
@@ -1150,6 +1173,36 @@ INSNavGeod,
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
+
+/**
+ * @struct BlockHeaderMsgGrammar
+ * @brief Spirit grammar for the SBF block "BlockHeader"
+ */
+template<typename Iterator>
+struct BlockHeaderMsgGrammar : qi::grammar<Iterator, BlockHeaderMsg(uint16_t, uint8_t&)>
+{
+	BlockHeaderMsgGrammar() : BlockHeaderMsgGrammar::base_type(blockHeader)
+	{
+		using namespace qi::labels;
+		
+        blockHeader %= qi::byte_(0x24)
+		            >> qi::byte_(0x40)
+		            >> qi::little_word
+		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
+                    >> qi::attr(phx::ref(id))
+                    >> qi::attr(_r2)
+                    >> qi::little_word
+                    >> qi::little_dword
+                    >> qi::little_word;
+
+        
+        BOOST_SPIRIT_DEBUG_NODE(blockHeader);
+	}
+
+    uint16_t id;
+
+	qi::rule<Iterator, BlockHeaderMsg(uint16_t, uint8_t&)> blockHeader;
+};
 
 /**
  * @struct BlockHeaderGrammar
@@ -1723,13 +1776,14 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
  * @brief Spirit grammar for the SBF block "INSNavCart"
  */
 template<typename Iterator>
-struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
+struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
 {
 	INSNavCartGrammar() : INSNavCartGrammar::base_type(insNavCart)
 	{
         using namespace qi::labels;        
 
-		insNavCart %= (header(4225, phx::ref(revision)) | header(4229, phx::ref(revision)))
+		insNavCart %= qi::attr(HeaderMsg())
+                   >> (header(4225, phx::ref(revision)) | header(4229, phx::ref(revision)))
 		           >> qi::byte_
                    >> qi::byte_
                    >> qi::little_word
@@ -1772,8 +1826,8 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
     uint8_t  revision;
     uint16_t sb_list;
 
-    BlockHeaderGrammar<Iterator>     header;
-    qi::rule<Iterator, INSNavCart()> insNavCart;
+    BlockHeaderMsgGrammar<Iterator>  header;
+    qi::rule<Iterator, INSNavCartMsg()> insNavCart;
 };
 
 /**
@@ -1781,13 +1835,14 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCart()>
  * @brief Spirit grammar for the SBF block "INSNavGeod"
  */
 template<typename Iterator>
-struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
+struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
 {
 	INSNavGeodGrammar() : INSNavGeodGrammar::base_type(insNavGeod)
 	{
         using namespace qi::labels;
 
-        insNavGeod %= (header(4226, phx::ref(revision)) | header(4230, phx::ref(revision)))
+        insNavGeod %= qi::attr(HeaderMsg())
+                   >> (header(4226, phx::ref(revision)) | header(4230, phx::ref(revision)))
 		           >> qi::byte_
                    >> qi::byte_
                    >> qi::little_word
@@ -1831,8 +1886,8 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeod()>
     uint8_t  revision;
     uint16_t sb_list;
 
-    BlockHeaderGrammar<Iterator>     header;
-    qi::rule<Iterator, INSNavGeod()> insNavGeod;
+    BlockHeaderMsgGrammar<Iterator>     header;
+    qi::rule<Iterator, INSNavGeodMsg()> insNavGeod;
 };
 
 #endif // SBFStructs_HPP

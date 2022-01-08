@@ -39,6 +39,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // ROS msg includes
+#include <std_msgs/Header.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <geometry_msgs/Quaternion.h>
@@ -49,6 +50,7 @@
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 // GNSS msg includes
+#include <septentrio_gnss_driver/BlockHeader.h>
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
 #include <septentrio_gnss_driver/PVTCartesian.h>
@@ -74,6 +76,7 @@ typedef uint64_t  Timestamp;
 typedef ros::Time TimestampRos;
 
 // ROS messages
+typedef std_msgs::Header                            HeaderMsg;
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
@@ -96,6 +99,7 @@ typedef nav_msgs::Odometry                          LocalizationUtmMsg;
 typedef nav_msgs::OdometryPtr                       LocalizationUtmMsgPtr;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::BlockHeader        BlockHeaderMsg;
 typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
 typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
 typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
