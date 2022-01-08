@@ -1022,8 +1022,9 @@ ReceiverStatus,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-PosCovCartesian,
-    (BlockHeader, block_header),
+PosCovCartesianMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_xx),
@@ -1039,8 +1040,9 @@ PosCovCartesian,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-PosCovGeodetic,
-    (BlockHeader, block_header),
+PosCovGeodeticMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_latlat),
@@ -1073,8 +1075,9 @@ VelCovCartesian,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-VelCovGeodetic,
-    (BlockHeader, block_header),
+VelCovGeodeticMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
     (uint8_t, mode),
     (uint8_t, error),
     (float, cov_vnvn),
@@ -1650,13 +1653,14 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
  * @brief Spirit grammar for the SBF block "PosCovCartesian"
  */
 template<typename Iterator>
-struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
+struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesianMsg()>
 {
 	PosCovCartesianGrammar() : PosCovCartesianGrammar::base_type(posCovCartesian)
 	{
         using namespace qi::labels;        
 
-		posCovCartesian %= header(5905, phx::ref(revision))
+		posCovCartesian %= qi::attr(HeaderMsg())
+                        >>  header(5905, phx::ref(revision))
 		                >> qi::byte_
                         >> qi::byte_
                         >> qi::little_bin_float
@@ -1674,8 +1678,8 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>          header;
-    qi::rule<Iterator, PosCovCartesian()> posCovCartesian;
+    BlockHeaderMsgGrammar<Iterator>          header;
+    qi::rule<Iterator, PosCovCartesianMsg()> posCovCartesian;
 };
 
 /**
@@ -1683,13 +1687,14 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesian()>
  * @brief Spirit grammar for the SBF block "PosCovGeodetic"
  */
 template<typename Iterator>
-struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
+struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodeticMsg()>
 {
 	PosCovGeodeticGrammar() : PosCovGeodeticGrammar::base_type(posCovGeodetic)
 	{
         using namespace qi::labels;
 
-       	posCovGeodetic %= header(5906, phx::ref(revision))
+       	posCovGeodetic %= qi::attr(HeaderMsg())
+                       >> header(5906, phx::ref(revision))
 		               >> qi::byte_
                        >> qi::byte_
                        >> qi::little_bin_float
@@ -1707,8 +1712,8 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodetic()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>         header;
-    qi::rule<Iterator, PosCovGeodetic()> posCovGeodetic;
+    BlockHeaderMsgGrammar<Iterator>         header;
+    qi::rule<Iterator, PosCovGeodeticMsg()> posCovGeodetic;
 };
 
 /**
@@ -1749,13 +1754,14 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
  * @brief Spirit grammar for the SBF block "VelCovGeodetic"
  */
 template<typename Iterator>
-struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
+struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodeticMsg()>
 {
 	VelCovGeodeticGrammar() : VelCovGeodeticGrammar::base_type(velCovGeodetic)
 	{
         using namespace qi::labels;        
 
-		velCovGeodetic %= header(5908, phx::ref(revision))
+		velCovGeodetic %= qi::attr(HeaderMsg())
+                       >> header(5908, phx::ref(revision))
 		               >> qi::byte_
                        >> qi::byte_
                        >> qi::little_bin_float
@@ -1773,8 +1779,8 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodetic()>
 
     uint8_t  revision;
 
-    BlockHeaderGrammar<Iterator>         header;
-    qi::rule<Iterator, VelCovGeodetic()> velCovGeodetic;
+    BlockHeaderMsgGrammar<Iterator>         header;
+    qi::rule<Iterator, VelCovGeodeticMsg()> velCovGeodetic;
 };
 
 /**

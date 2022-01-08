@@ -40,87 +40,6 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-PosCovCartesianMsgPtr
-io_comm_rx::RxMessage::PosCovCartesianCallback(PosCovCartesian& data)
-{
-    PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->mode = data.mode;
-    msg->error = data.error;
-    msg->cov_xx = data.cov_xx;
-    msg->cov_yy = data.cov_yy;
-    msg->cov_zz = data.cov_zz;
-    msg->cov_bb = data.cov_bb;
-    msg->cov_xy = data.cov_xy;
-    msg->cov_xz = data.cov_xz;
-    msg->cov_xb = data.cov_xb;
-    msg->cov_yz = data.cov_yz;
-    msg->cov_yb = data.cov_yb;
-    msg->cov_zb = data.cov_zb;
-    return msg;
-}
-
-PosCovGeodeticMsgPtr
-io_comm_rx::RxMessage::PosCovGeodeticCallback(PosCovGeodetic& data)
-{
-    PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->mode = data.mode;
-    msg->error = data.error;
-    msg->cov_latlat = data.cov_latlat;
-    msg->cov_lonlon = data.cov_lonlon;
-    msg->cov_hgthgt = data.cov_hgthgt;
-    msg->cov_bb = data.cov_bb;
-    msg->cov_latlon = data.cov_latlon;
-    msg->cov_lathgt = data.cov_lathgt;
-    msg->cov_latb = data.cov_latb;
-    msg->cov_lonhgt = data.cov_lonhgt;
-    msg->cov_lonb = data.cov_lonb;
-    msg->cov_hb = data.cov_hb;
-    return msg;
-}
-
-VelCovGeodeticMsgPtr
-io_comm_rx::RxMessage::VelCovGeodeticCallback(VelCovGeodetic& data)
-{
-    VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->mode = data.mode;
-    msg->error = data.error;
-    msg->cov_vnvn = data.cov_vnvn;
-    msg->cov_veve = data.cov_veve;
-    msg->cov_vuvu = data.cov_vuvu;
-    msg->cov_dtdt = data.cov_dtdt;
-    msg->cov_vnve = data.cov_vnve;
-    msg->cov_vnvu = data.cov_vnvu;
-    msg->cov_vndt = data.cov_vndt;
-    msg->cov_vevu = data.cov_vevu;
-    msg->cov_vedt = data.cov_vedt;
-    msg->cov_vudt = data.cov_vudt;
-    return msg;
-}
-
 IMUSetupMsgPtr
 io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
 {
@@ -1814,14 +1733,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPosCovCartesian:
 		{
 			PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
-			PosCovCartesian poscovcartesian;
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovCartesianGrammar<std::vector<uint8_t>::iterator>(), poscovcartesian))
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovCartesianGrammar<std::vector<uint8_t>::iterator>(), *msg))
 			{
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PosCovCartesian");
 				break;
 			}
-			msg = PosCovCartesianCallback(poscovcartesian);
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -1838,7 +1755,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evPosCovGeodetic:
 		{
-			PosCovGeodeticMsgPtr msg(new PosCovGeodeticMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_poscovgeodetic_))
 			{
@@ -1848,13 +1764,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in PosCovGeodetic");
 				break;
 			}
-			msg = PosCovGeodeticCallback(last_poscovgeodetic_);
-			msg->header.frame_id = settings_->frame_id;
+			last_poscovgeodetic_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
+			last_poscovgeodetic_.header.stamp = timestampToRos(time_obj);
 			poscovgeodetic_has_arrived_gpsfix_ = true;
 			poscovgeodetic_has_arrived_navsatfix_ = true;
 			poscovgeodetic_has_arrived_pose_ = true;
@@ -1863,7 +1778,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", *msg);
+			node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
 			break;
 		}
 		case evAttEuler:
@@ -2601,7 +2516,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		}
 		case evVelCovGeodetic:
 		{
-			VelCovGeodeticMsgPtr msg(new VelCovGeodeticMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
 			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_velcovgeodetic_))
 			{
@@ -2609,20 +2523,19 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				ROS_ERROR_STREAM("septentrio_gnss_driver: parse error in VelCovGeodetic");
 				break;
 			}
-			msg = VelCovGeodeticCallback(last_velcovgeodetic_);
-			msg->header.frame_id = settings_->frame_id;
+			last_velcovgeodetic_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
+			last_velcovgeodetic_.header.stamp = timestampToRos(time_obj);
 			velcovgeodetic_has_arrived_gpsfix_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", *msg);
+			node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
 			break;
 		}
 		case evDiagnosticArray:

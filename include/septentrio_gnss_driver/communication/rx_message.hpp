@@ -673,7 +673,7 @@ namespace io_comm_rx {
          * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic
          * blocks need to be stored
          */
-        PosCovGeodetic last_poscovgeodetic_;
+        PosCovGeodeticMsg last_poscovgeodetic_;
 
         /**
          * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to
@@ -720,7 +720,7 @@ namespace io_comm_rx {
          * @brief Since GPSFix needs VelCovGeodetic, incoming VelCovGeodetic blocks
          * need to be stored
          */
-        VelCovGeodetic last_velcovgeodetic_;
+        VelCovGeodeticMsg last_velcovgeodetic_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverStatus, incoming ReceiverStatus
@@ -848,59 +848,6 @@ namespace io_comm_rx {
         //! For Imu: Whether the ExtSensorMeas block of the current epoch
         //! has arrived or not
         bool extsens_has_arrived_imu_ = false;
-
-        /**
-         * @brief Callback function when reading PosCovCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovCartesian
-         * @return A smart pointer to the ROS message PosCovCartesian just created
-         */
-        PosCovCartesianMsgPtr
-        PosCovCartesianCallback(PosCovCartesian& data);
-
-        /**
-         * @brief Callback function when reading PosCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovGeodetic
-         * @return A smart pointer to the ROS message PosCovGeodetic just created
-         */
-        PosCovGeodeticMsgPtr
-        PosCovGeodeticCallback(PosCovGeodetic& data);
-
-        /**
-         * @brief Callback function when reading VelCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelCovGeodetic
-         * @return A smart pointer to the ROS message VelCovGeodetic just created
-         */
-        VelCovGeodeticMsgPtr
-        VelCovGeodeticCallback(VelCovGeodetic& data);
-
-        /**
-         * @brief Callback function when reading AttEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttEuler
-         * @return A smart pointer to the ROS message AttEuler just created
-         */
-        AttEulerMsgPtr AttEulerCallback(AttEuler& data);
-
-        /**
-         * @brief Callback function when reading AttCovEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttCovEuler
-         * @return A smart pointer to the ROS message AttCovEuler just created
-         */
-        AttCovEulerMsgPtr
-        AttCovEulerCallback(AttCovEuler& data);
-
-        /**
-         * @brief Callback function when reading INSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavCart
-         * @return A smart pointer to the ROS message INSNavCart just created
-         */
-        INSNavCartMsgPtr
-        INSNavCartCallback(INSNavCart& data);
 
         /**
          * @brief Callback function when reading IMUSetup blocks
