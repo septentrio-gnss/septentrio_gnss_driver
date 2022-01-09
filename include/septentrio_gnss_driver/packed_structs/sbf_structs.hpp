@@ -114,7 +114,7 @@
 #endif
 
 // Boost
-//#define BOOST_SPIRIT_DEBUG 1
+#define BOOST_SPIRIT_DEBUG 1
 #define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
@@ -283,6 +283,14 @@ struct ReceiverSetup
     float delta_n; /* [m] */
     std::string marker_type;
     std::string gnss_fw_version;
+    std::string product_name;
+    double latitude;
+    double longitude;
+    float  height;
+    std::string station_code;
+    uint8_t monument_idx;
+    uint8_t receiver_idx;
+    std::string country_code;
 };
 
 /**
@@ -293,7 +301,7 @@ struct QualityInd
 {
     BlockHeader block_header;
 
-    uint8_t n;
+    uint8_t n = 0;
     std::vector<uint16_t> indicators;
 };
 
@@ -705,7 +713,15 @@ ReceiverSetup,
     (float, delta_e),
     (float, delta_n),
     (std::string, marker_type),
-    (std::string, gnss_fw_version)
+    (std::string, gnss_fw_version),
+    (std::string, product_name),
+    (double, latitude),
+    (double, longitude),
+    (float, height),
+    (std::string, station_code),
+    (uint8_t, monument_idx),
+    (uint8_t, receiver_idx),
+    (std::string, country_code)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -1217,7 +1233,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                   >> qi::byte_
                   >> rep::qi::advance(1) // reserved
                   >> qi::eps[phx::reserve(phx::at_c<6>(_val),  phx::ref(n))]
-                  >> qi::repeat( phx::ref(n))[measEpochChannelType1]
+                  >> qi::repeat(phx::ref(n))[measEpochChannelType1]
                   >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
@@ -1275,21 +1291,32 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
 
 		receiverSetup %= header(5902, phx::ref(revision))
 		              >> rep::qi::advance(2) // reserved
-                      >> qi::as_string[qi::repeat(60)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(40)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
+                      >> qi::repeat(60)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(40)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(20)[qi::char_]
                       >> qi::little_bin_float
                       >> qi::little_bin_float
                       >> qi::little_bin_float
-                      >> qi::as_string[qi::repeat(20)[qi::char_]]
-                      >> qi::as_string[qi::repeat(40)[qi::char_]]
+                      >> qi::repeat(20)[qi::char_]
+                      >> qi::repeat(40)[qi::char_]
+                      >> (qi::eps(phx::ref(revision) > 0) >> qi::repeat(40)[qi::char_] | qi::attr(std::string("")))
+                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_bin_double | qi::attr(DO_NOT_USE_VALUE))
+                      >> (qi::eps(phx::ref(revision) > 2) >> qi::little_bin_double | qi::attr(DO_NOT_USE_VALUE))
+                      >> (qi::eps(phx::ref(revision) > 3) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
+                      >> (qi::eps(phx::ref(revision) > 3) >> qi::repeat(10)[qi::char_] | qi::attr(std::string("")))
+                      >> (qi::eps(phx::ref(revision) > 3) >> qi::byte_ | qi::attr(0))
+                      >> (qi::eps(phx::ref(revision) > 3) >> qi::byte_ | qi::attr(0))
+                      >> (qi::eps(phx::ref(revision) > 3) >> qi::repeat(3)[qi::char_] | qi::attr(std::string("")))
+                      >> (qi::eps(phx::ref(revision) > 3) >> rep::qi::advance(21)) // reserved
                       >> qi::repeat[rep::qi::advance(1)]; //skip padding
+
+        BOOST_SPIRIT_DEBUG_NODE(receiverSetup);
 	}
 
     uint8_t  revision;
@@ -1354,6 +1381,8 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
                        >> qi::eps[phx::reserve(phx::at_c<10>(_val), phx::ref(n))]
                        >> qi::repeat(phx::ref(n))[agcState]
                        >> qi::repeat[rep::qi::advance(1)]; // skip padding
+
+        BOOST_SPIRIT_DEBUG_NODE(receiverStatus);
 	}
 
     uint8_t  revision;
