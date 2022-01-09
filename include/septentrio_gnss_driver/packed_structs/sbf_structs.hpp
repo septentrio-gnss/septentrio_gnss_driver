@@ -113,6 +113,15 @@
 #define DO_NOT_USE_VALUE -2e10f
 #endif
 
+//! 0x24 is ASCII for $ - 1st byte in each message
+#ifndef SBF_SYNC_BYTE_1
+#define SBF_SYNC_BYTE_1 0x24
+#endif
+//! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
+#ifndef SBF_SYNC_BYTE_2
+#define SBF_SYNC_BYTE_2 0x40
+#endif
+
 // Boost
 //#define BOOST_SPIRIT_DEBUG 1
 #define BOOST_SPIRIT_USE_PHOENIX_V3
@@ -491,13 +500,6 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x9de8, 0x8dc9, 0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
     0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36,
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
-
-BOOST_FUSION_ADAPT_STRUCT(
-HeaderMsg,
-    (uint32_t, seq),
-    (TimestampRos, stamp),
-    (std::string, frame_id)
-)
 
 BOOST_FUSION_ADAPT_STRUCT(
 BlockHeaderMsg,
@@ -923,8 +925,8 @@ struct BlockHeaderMsgGrammar : qi::grammar<Iterator, BlockHeaderMsg(uint16_t, ui
 	{
 		using namespace qi::labels;
 		
-        blockHeader %= qi::byte_[_pass = qi::_1 == 0x24]
-		            >> qi::byte_[_pass = qi::_1 == 0x40]
+        blockHeader %= qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_1]
+		            >> qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_2]
 		            >> qi::little_word
 		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
                     >> qi::attr(phx::ref(id))
@@ -953,8 +955,8 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
 	{
 		using namespace qi::labels;
 		
-        blockHeader %= qi::byte_[_pass = qi::_1 == 0x24]
-		            >> qi::byte_[_pass = qi::_1 == 0x40]
+        blockHeader %= qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_1]
+		            >> qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_2]
 		            >> qi::little_word
 		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
                     >> qi::attr(phx::ref(id))
