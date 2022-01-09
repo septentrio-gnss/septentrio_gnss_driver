@@ -2638,7 +2638,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ReceiverStatus");
 				break;
 			}
-			receiverstatus_has_arrived_diagnostics_ = true;
+            receiverstatus_has_arrived_diagnostics_ = true;
 			break;
 		}
 		case evQualityInd:

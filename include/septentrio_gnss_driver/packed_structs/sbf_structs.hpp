@@ -135,15 +135,15 @@
  */
 struct BlockHeader
 {
-    uint8_t  sync_1; //!< first sync byte is $ or 0x24
-    uint8_t  sync_2; //!< 2nd sync byte is @ or 0x40
-    uint16_t crc;    //!< The check sum
-    uint16_t id;     //!< This is the block ID
-    uint8_t  revision;    //!< This is the block revision
-    uint16_t length; //!< Length of the entire message including the header. A
-                     //!< multiple of 4 between 8 and 4096
-    uint32_t tow;    //!< This is the time of week in ms
-    uint16_t wnc;    //!< This is the GPS week counter
+    uint8_t  sync_1;   //!< first sync byte is $ or 0x24
+    uint8_t  sync_2;   //!< 2nd sync byte is @ or 0x40
+    uint16_t crc;      //!< The check sum
+    uint16_t id;       //!< This is the block ID
+    uint8_t  revision; //!< This is the block revision
+    uint16_t length;   //!< Length of the entire message including the header. A
+                       //!< multiple of 4 between 8 and 4096
+    uint32_t tow;      //!< This is the time of week in ms
+    uint16_t wnc;      //!< This is the GPS week counter
 } ;
 
 /**
@@ -1371,9 +1371,9 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
         receiverStatus %= header(4014, phx::ref(revision))
 		               >> qi::byte_
                        >> qi::byte_
-                       >> qi::little_qword
-                       >> qi::little_qword
-                       >> qi::little_qword
+                       >> qi::little_dword
+                       >> qi::little_dword
+                       >> qi::little_dword
                        >> qi::byte_[_pass = (qi::_1 <= 18), phx::ref(n) = qi::_1] // n
                        >> qi::byte_[phx::ref(sb_length) = qi::_1] // sb_length
                        >> qi::byte_
