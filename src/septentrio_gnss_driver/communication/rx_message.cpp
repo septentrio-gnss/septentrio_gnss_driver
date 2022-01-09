@@ -1799,7 +1799,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                     msg->heading = -msg->heading + parsing_utilities::pi_half;
                     msg->pitch   = -msg->pitch;
                 }
-                if ((msg->sb_list & 2) != 64)
+                if ((msg->sb_list & 64) !=0)
                 {   
                     msg->heading_roll_cov = -msg->heading_roll_cov;
                     msg->pitch_roll_cov   = -msg->pitch_roll_cov;
@@ -1823,7 +1823,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), last_insnavgeod_))
+            if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), last_insnavgeod_))
 			{                
                 insnavgeod_has_arrived_gpsfix_ = false;
                 insnavgeod_has_arrived_navsatfix_ = false;
@@ -1840,7 +1840,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                     last_insnavgeod_.heading = -last_insnavgeod_.heading + parsing_utilities::pi_half;
                     last_insnavgeod_.pitch   = -last_insnavgeod_.pitch;
                 }
-                if ((last_insnavgeod_.sb_list & 2) != 64)
+                if ((last_insnavgeod_.sb_list & 64) !=0)
                 {   
                     last_insnavgeod_.heading_roll_cov = -last_insnavgeod_.heading_roll_cov;
                     last_insnavgeod_.pitch_roll_cov   = -last_insnavgeod_.pitch_roll_cov;
@@ -1942,7 +1942,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                     msg->heading = -msg->heading + parsing_utilities::pi_half;
                     msg->pitch   = -msg->pitch;
                 }
-                if ((msg->sb_list & 2) != 64)
+                if ((msg->sb_list & 64) !=0)
                 {   
                     msg->heading_roll_cov = -msg->heading_roll_cov;
                     msg->pitch_roll_cov   = -msg->pitch_roll_cov;
@@ -1979,7 +1979,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                     msg->heading = -msg->heading + parsing_utilities::pi_half;
                     msg->pitch   = -msg->pitch;
                 }
-                if ((msg->sb_list & 2) != 64)
+                if ((msg->sb_list & 64) !=0)
                 {   
                     msg->heading_roll_cov = -msg->heading_roll_cov;
                     msg->pitch_roll_cov   = -msg->pitch_roll_cov;
