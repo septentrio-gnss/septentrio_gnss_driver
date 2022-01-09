@@ -1230,7 +1230,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                   >> qi::byte_[phx::ref(sb1_length) = qi::_1]
                   >> qi::byte_[phx::ref(sb2_length) = qi::_1]
                   >> qi::byte_
-                  >> qi::byte_
+                  >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
                   >> rep::qi::advance(1) // reserved
                   >> qi::eps[phx::reserve(phx::at_c<6>(_val),  phx::ref(n))]
                   >> qi::repeat(phx::ref(n))[measEpochChannelType1]
