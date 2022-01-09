@@ -147,116 +147,6 @@ struct BlockHeader
 } ;
 
 /**
- * @class PVTCartesian
- * @brief Struct for the SBF block "PVTCartesian"
- */
-struct PVTCartesian
-{
-    BlockHeader block_header;
-    
-    uint8_t mode;
-    uint8_t error;
-    double x;
-    double y;
-    double z;
-    float undulation;
-    float vx;
-    float vy;
-    float vz;
-    float cog;
-    double rx_clk_bias;
-    float rx_clk_drift;
-    uint8_t time_system;
-    uint8_t datum;
-    uint8_t nr_sv;
-    uint8_t wa_corr_info;
-    uint16_t reference_id;
-    uint16_t mean_corr_age;
-    uint32_t signal_info;
-    uint8_t alert_flag;
-    uint8_t nr_bases;
-    uint16_t ppp_info;
-    uint16_t latency;
-    uint16_t h_accuracy;
-    uint16_t v_accuracy;
-    uint8_t misc;
-};
-
-/**
- * @class PVTGeodetic
- * @brief Struct for the SBF block "PVTGeodetic"
- */
-struct PVTGeodetic
-{
-    BlockHeader block_header;
-
-    uint8_t mode;
-    uint8_t error;
-    double latitude;
-    double longitude;
-    double height;
-    float undulation;
-    float vn;
-    float ve;
-    float vu;
-    float cog;
-    double rx_clk_bias;
-    float rx_clk_drift;
-    uint8_t time_system;
-    uint8_t datum;
-    uint8_t nr_sv;
-    uint8_t wa_corr_info;
-    uint16_t reference_id;
-    uint16_t mean_corr_age;
-    uint32_t signal_info;
-    uint8_t alert_flag;
-    uint8_t nr_bases;
-    uint16_t ppp_info;
-    uint16_t latency;
-    uint16_t h_accuracy;
-    uint16_t v_accuracy;
-    uint8_t misc;
-};
-
-/**
- * @class AttEuler
- * @brief Struct for the SBF block "AttEuler"
- */
-struct AttEuler
-{
-    BlockHeader block_header;
-
-    uint8_t nr_sv;
-    uint8_t error;
-    uint16_t mode;
-    uint16_t reserved;
-    float heading;
-    float pitch;
-    float roll;
-    float pitch_dot;
-    float roll_dot;
-    float heading_dot;
-};
-
-/**
- * @class AttCovEuler
- * @brief Struct for the SBF block "AttCovEuler"
- */
-struct AttCovEuler
-{
-    BlockHeader block_header;
-
-    uint8_t reserved;
-    uint8_t error;
-    float cov_headhead;
-    float cov_pitchpitch;
-    float cov_rollroll;
-    float cov_headpitch;
-    float cov_headroll;
-    float cov_pitchroll;
-};
-
-/**
  * @class ChannelStateInfo
  * @brief Struct for the SBF sub-block "ChannelStateInfo"
  */
@@ -296,8 +186,8 @@ struct ChannelStatus
     BlockHeader block_header;
 
     uint8_t n;
-    uint8_t sb1_size;
-    uint8_t sb2_size;
+    uint8_t sb1_length;
+    uint8_t sb2_length;
     std::vector<uint8_t> reserved; // size = 3
     std::vector<ChannelSatInfo> satInfo;
 };
@@ -350,8 +240,8 @@ struct MeasEpoch
 
     /* MeasEpoch Header */
     uint8_t n;
-    uint8_t sb1_size;
-    uint8_t sb2_size;
+    uint8_t sb1_length;
+    uint8_t sb2_length;
 
     uint8_t common_flags;
     uint8_t cum_clk_jumps;
@@ -447,50 +337,6 @@ struct ReceiverStatus
 };
 
 /**
- * @class PosCovCartesian
- * @brief Struct for the SBF block "PosCovCartesian"
- */
-struct PosCovCartesian
-{
-    BlockHeader block_header;
-
-    uint8_t mode;
-    uint8_t error;
-    float cov_xx;
-    float cov_yy;
-    float cov_zz;
-    float cov_bb;
-    float cov_xy;
-    float cov_xz;
-    float cov_xb;
-    float cov_yz;
-    float cov_yb;
-    float cov_zb;
-};
-
-/**
- * @class PosCovGeodetic
- * @brief Struct for the SBF block "PosCovGeodetic"
- */
-struct PosCovGeodetic
-{
-    BlockHeader block_header;
-
-    uint8_t mode;
-    uint8_t error;
-    float cov_latlat;
-    float cov_lonlon;
-    float cov_hgthgt;
-    float cov_bb;
-    float cov_latlon;
-    float cov_lathgt;
-    float cov_latb;
-    float cov_lonhgt;
-    float cov_lonb;
-    float cov_hb;
-};
-
-/**
  * @class VelCovCartesian
  * @brief Struct for the SBF block "VelCovCartesian"
  */
@@ -510,119 +356,6 @@ struct VelCovCartesian
     float cov_vyvz;
     float cov_vydt;
     float cov_vzdt;
-};
-
-/**
- * @class VelCovGeodetic
- * @brief Struct for the SBF block "VelCovGeodetic"
- */
-struct VelCovGeodetic
-{
-    BlockHeader block_header;
-
-    uint8_t mode;
-    uint8_t error;
-    float cov_vnvn;
-    float cov_veve;
-    float cov_vuvu;
-    float cov_dtdt;
-    float cov_vnve;
-    float cov_vnvu;
-    float cov_vndt;
-    float cov_vevu;
-    float cov_vedt;
-    float cov_vudt;
-};
-
-// -----------------------------INSNavCart---------------------------------
-struct INSNavCart
-{
-    BlockHeader block_header;
-
-    uint8_t  gnss_mode;
-    uint8_t  error;
-    uint16_t info;
-    uint16_t gnss_age;
-    double   x;
-    double   y;
-    double   z;
-    uint16_t accuracy;
-    uint16_t latency;
-    uint8_t  datum;
-    uint16_t sb_list;
-
-    float     x_std_dev;
-    float     y_std_dev;
-    float     z_std_dev;
-    float     heading;
-    float     pitch;
-    float     roll;
-    float     heading_std_dev;
-    float     pitch_std_dev;
-    float     roll_std_dev;
-    float     vx;
-    float     vy;
-    float     vz;
-    float     vx_std_dev;
-    float     vy_std_dev;
-    float     vz_std_dev;
-    float     xy_cov;
-    float     xz_cov;
-    float     yz_cov;
-    float     heading_pitch_cov;
-    float     heading_roll_cov;
-    float     pitch_roll_cov;
-    float     vx_vy_cov;
-    float     vx_vz_cov;
-    float     vy_vz_cov;
-};
-
-//-----------------------INSNavGeod---------------------------------
-/**
- * @class INSNavGeod
- * @brief Struct for the SBF block "INSNavGeod"
- */
-struct INSNavGeod
-{
-    BlockHeader block_header;
-
-    uint8_t  gnss_mode;
-    uint8_t  error;
-    uint16_t info;
-    uint16_t gnss_age;
-    double   latitude;
-    double   longitude;
-    double   height;
-    float    undulation;
-    uint16_t accuracy;
-    uint16_t latency;
-    uint8_t  datum;
-    uint16_t sb_list;
-
-    float latitude_std_dev;
-    float longitude_std_dev;
-    float height_std_dev;
-    float heading;
-    float pitch;
-    float roll;   
-    float heading_std_dev;
-    float pitch_std_dev;
-    float roll_std_dev;
-    float ve;
-    float vn;
-    float vu;
-    float ve_std_dev;
-    float vn_std_dev;
-    float vu_std_dev;
-    float latitude_longitude_cov;
-    float latitude_height_cov;
-    float longitude_height_cov;
-    float heading_pitch_cov;
-    float heading_roll_cov;
-    float pitch_roll_cov;
-    float ve_vn_cov;
-    float ve_vu_cov;
-    float vn_vu_cov;     
 };
 
 /**
@@ -909,8 +642,8 @@ BOOST_FUSION_ADAPT_STRUCT(
 ChannelStatus,
     (BlockHeader, block_header),
     (uint8_t, n),
-    (uint8_t, sb1_size),
-    (uint8_t, sb2_size),
+    (uint8_t, sb1_length),
+    (uint8_t, sb2_length),
     (std::vector<uint8_t>, reserved),
     (std::vector<ChannelSatInfo>, satInfo)
 )
@@ -949,8 +682,8 @@ BOOST_FUSION_ADAPT_STRUCT(
 MeasEpoch,
     (BlockHeader, block_header),
     (uint8_t, n),
-    (uint8_t, sb1_size),
-    (uint8_t, sb2_size),
+    (uint8_t, sb1_length),
+    (uint8_t, sb2_length),
     (uint8_t, common_flags),
     (uint8_t, cum_clk_jumps),
     (uint8_t, reserved),
@@ -1417,7 +1150,7 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                          >> qi::little_word
                          >> qi::little_word
                          >> qi::little_word
-                         >> rep::qi::advance(phx::ref(sb2_size) - 8); // skip padding: sb2_size - 8 bytes
+                         >> rep::qi::advance(phx::ref(sb2_length) - 8); // skip padding: sb2_length - 8 bytes
 
 		channelSatInfo %= qi::byte_
                        >> qi::byte_
@@ -1428,14 +1161,14 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
                        >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), phx::ref(n2) = qi::_1]
                        >> qi::byte_
                        >> qi::byte_
-                       >> rep::qi::advance(phx::ref(sb1_size) - 12) // skip padding: sb1_size - 12 bytes
+                       >> rep::qi::advance(phx::ref(sb1_length) - 12) // skip padding: sb1_length - 12 bytes
                        >> qi::eps[phx::reserve(phx::at_c<9>(_val), phx::ref(n2))]
 		               >> qi::repeat(phx::ref(n2))[channelStateInfo];
 
         channelStatus %= header(4013, phx::ref(revision))
 		              >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), phx::ref(n) = qi::_1]
-                      >> qi::byte_[phx::ref(sb1_size) = qi::_1]
-                      >> qi::byte_[phx::ref(sb2_size) = qi::_1]
+                      >> qi::byte_[phx::ref(sb1_length) = qi::_1]
+                      >> qi::byte_[phx::ref(sb2_length) = qi::_1]
                       >> qi::repeat(3)[qi::byte_]
                       >> qi::eps[phx::reserve(phx::at_c<5>(_val), phx::ref(n))]
                       >> qi::repeat(phx::ref(n))[channelSatInfo]
@@ -1445,8 +1178,8 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
     uint8_t  revision;
     uint8_t  n;
     uint8_t  n2;
-    uint8_t  sb1_size;
-    uint8_t  sb2_size;
+    uint8_t  sb1_length;
+    uint8_t  sb2_length;
 
     BlockHeaderGrammar<Iterator>           header;
     qi::rule<Iterator, ChannelStateInfo()> channelStateInfo;
@@ -1474,7 +1207,7 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                               >> qi::little_word
                               >> qi::little_word
                               >> qi::little_word
-                              >> rep::qi::advance(phx::ref(sb2_size) - 12); // skip padding: sb2_size - 12 bytes
+                              >> rep::qi::advance(phx::ref(sb2_length) - 12); // skip padding: sb2_length - 12 bytes
 
 		measEpochChannelType1 %= qi::byte_
                               >> qi::byte_
@@ -1488,14 +1221,14 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                               >> qi::little_word
                               >> qi::byte_
                               >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T2), phx::ref(n2) = qi::_1]
-                              >> rep::qi::advance(phx::ref(sb1_size) - 20) // skip padding: sb1_size - 20 bytes
+                              >> rep::qi::advance(phx::ref(sb1_length) - 20) // skip padding: sb1_length - 20 bytes
                               >> qi::eps[phx::reserve(phx::at_c<12>(_val), phx::ref(n2))]
 		                      >> qi::repeat(phx::ref(n2))[measEpochChannelType2];
 
         measEpoch %= header(4027, phx::ref(revision))
 		          >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1),  phx::ref(n) = qi::_1]
-                  >> qi::byte_[phx::ref(sb1_size) = qi::_1]
-                  >> qi::byte_[phx::ref(sb2_size) = qi::_1]
+                  >> qi::byte_[phx::ref(sb1_length) = qi::_1]
+                  >> qi::byte_[phx::ref(sb2_length) = qi::_1]
                   >> qi::byte_
                   >> qi::byte_
                   >> qi::byte_
@@ -1507,8 +1240,8 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
     uint8_t  revision;
     uint8_t  n;
     uint8_t  n2;
-    uint8_t  sb1_size;
-    uint8_t  sb2_size;
+    uint8_t  sb1_length;
+    uint8_t  sb2_length;
 
     BlockHeaderGrammar<Iterator>                header;
     qi::rule<Iterator, MeasEpochChannelType2()> measEpochChannelType2;
