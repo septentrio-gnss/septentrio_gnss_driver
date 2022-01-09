@@ -367,37 +367,6 @@ struct VelCovCartesian
     float cov_vzdt;
 };
 
-/**
- * @class IMUSetup
- * @brief Struct for the SBF block "IMUSetup"
- */
-struct IMUSetup
-{
-    BlockHeader block_header;
-
-    uint8_t  serial_port;
-    float ant_lever_arm_x;
-    float ant_lever_arm_y;
-    float ant_lever_arm_z;
-    float theta_x;
-    float theta_y;
-    float theta_z;
-};
-
-/**
- * @class VelSensorSetup
- * @brief Struct for the SBF block "IMUSetup"
- */
-struct VelSensorSetup
-{
-    BlockHeader block_header;
-
-    uint8_t port;
-    float   lever_arm_x;
-    float   lever_arm_y;
-    float   lever_arm_z;
-};
-
 typedef struct
 {
     double  acceleration_x;
@@ -910,6 +879,29 @@ INSNavGeodMsg,
     (float, vn_vu_cov)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(
+IMUSetupMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
+    (uint8_t, serial_port),
+    (float, ant_lever_arm_x),
+    (float, ant_lever_arm_y),
+    (float, ant_lever_arm_z),
+    (float, theta_x),
+    (float, theta_y),
+    (float, theta_z)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+VelSensorSetupMsg,
+    (HeaderMsg, header)
+    (BlockHeaderMsg, block_header),
+    (uint8_t, port),
+    (float, lever_arm_x),
+    (float, lever_arm_y),
+    (float, lever_arm_z)
+)
+
 namespace qi  = boost::spirit::qi;
 namespace rep = boost::spirit::repository;
 namespace phx = boost::phoenix;
@@ -1013,7 +1005,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesianMsg()>
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                     >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                     >> qi::repeat[rep::qi::advance(1)]; // skip padding
 
         BOOST_SPIRIT_DEBUG_NODE(pvtCartesian);
 	}
@@ -1063,7 +1055,7 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodeticMsg()>
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                    >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                    >> qi::repeat[rep::qi::advance(1)]; // skip padding
 
         BOOST_SPIRIT_DEBUG_NODE(pvtGeodetic);
 	}
@@ -1097,7 +1089,7 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEulerMsg()>
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
-                 >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                 >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1127,7 +1119,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEulerMsg()>
                     >> qi::little_bin_float
                     >> qi::little_bin_float
                     >> qi::little_bin_float
-                    >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                    >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1271,7 +1263,7 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 		    >> qi::little_word
             >> qi::little_bin_float
             >> qi::little_bin_float
-            >> qi::repeat[rep::qi::advance(1)]; //skip padding
+            >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1316,7 +1308,7 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
                       >> (qi::eps(phx::ref(revision) > 3) >> qi::byte_ | qi::attr(0))
                       >> (qi::eps(phx::ref(revision) > 3) >> qi::repeat(3)[qi::char_] | qi::attr(std::string("")))
                       >> (qi::eps(phx::ref(revision) > 3) >> rep::qi::advance(21)) // reserved
-                      >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                      >> qi::repeat[rep::qi::advance(1)]; // skip padding
 
         BOOST_SPIRIT_DEBUG_NODE(receiverSetup);
 	}
@@ -1343,7 +1335,7 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
                    >> rep::qi::advance(1) // reserved
                    >> qi::eps[phx::reserve(phx::at_c<2>(_val), phx::ref(n))]
                    >> qi::repeat(phx::ref(n))[qi::little_word]
-		           >> qi::repeat[rep::qi::advance(1)]; //skip padding
+		           >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1421,7 +1413,7 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesianMsg()>
                         >> qi::little_bin_float
                         >> qi::little_bin_float
                         >> qi::little_bin_float
-                        >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                        >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1455,7 +1447,7 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodeticMsg()>
                        >> qi::little_bin_float
                        >> qi::little_bin_float
                        >> qi::little_bin_float
-                       >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1488,7 +1480,7 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
                         >> qi::little_bin_float
                         >> qi::little_bin_float
                         >> qi::little_bin_float
-                        >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                        >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1522,7 +1514,7 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodeticMsg()>
                        >> qi::little_bin_float
                        >> qi::little_bin_float
                        >> qi::little_bin_float
-                       >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1580,7 +1572,7 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                   >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1640,7 +1632,7 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> qi::repeat[rep::qi::advance(1)]; //skip padding
+                   >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1648,6 +1640,63 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
 
     BlockHeaderMsgGrammar<Iterator>     header;
     qi::rule<Iterator, INSNavGeodMsg()> insNavGeod;
+};
+
+/**
+ * @struct IMUSetupGrammar
+ * @brief Spirit grammar for the SBF block "IMUSetup"
+ */
+template<typename Iterator>
+struct IMUSetupGrammar : qi::grammar<Iterator, IMUSetupMsg()>
+{
+	IMUSetupGrammar() : IMUSetupGrammar::base_type(imuSetup)
+	{
+        using namespace qi::labels;        
+
+		imuSetup %= qi::attr(HeaderMsg())
+                 >> header(4224, phx::ref(revision))
+		         >> rep::qi::advance(1) // reserved
+                 >> qi::byte_
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::little_bin_float
+                 >> qi::repeat[rep::qi::advance(1)]; // skip padding
+	}
+
+    uint8_t  revision;
+
+    BlockHeaderMsgGrammar<Iterator>   header;
+    qi::rule<Iterator, IMUSetupMsg()> imuSetup;
+};
+
+/**
+ * @struct VelSensorSetupGrammar
+ * @brief Spirit grammar for the SBF block "VelSensorSetup"
+ */
+template<typename Iterator>
+struct VelSensorSetupGrammar : qi::grammar<Iterator, VelSensorSetupMsg()>
+{
+	VelSensorSetupGrammar() : VelSensorSetupGrammar::base_type(velSensorSetup)
+	{
+        using namespace qi::labels;        
+
+		velSensorSetup %= qi::attr(HeaderMsg())
+                       >> header(4244, phx::ref(revision))
+		               >> rep::qi::advance(1) // reserved
+                       >> qi::byte_
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::little_bin_float
+                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
+	}
+
+    uint8_t  revision;
+
+    BlockHeaderMsgGrammar<Iterator>         header;
+    qi::rule<Iterator, VelSensorSetupMsg()> velSensorSetup;
 };
 
 #endif // SBFStructs_HPP

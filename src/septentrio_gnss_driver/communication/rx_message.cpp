@@ -34,76 +34,6 @@
 
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
 
-/**
- * @file rx_message.cpp
- * @date 20/08/20
- * @brief Defines a class that reads messages handed over from the circular buffer
- */
-
-IMUSetupMsgPtr
-io_comm_rx::RxMessage::IMUSetupCallback(IMUSetup& data)
-{
-    IMUSetupMsgPtr msg(new IMUSetupMsg);
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->serial_port = data.serial_port;
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->ant_lever_arm_x = data.ant_lever_arm_x;
-        msg->ant_lever_arm_y = -data.ant_lever_arm_y;
-        msg->ant_lever_arm_z = -data.ant_lever_arm_z;
-        msg->theta_x = parsing_utilities::wrapAngle180to180(data.theta_x - 180.0);
-        msg->theta_y = data.theta_y;
-        msg->theta_z = data.theta_z;
-    }
-    else
-    {
-        msg->ant_lever_arm_x = data.ant_lever_arm_x;
-        msg->ant_lever_arm_y = data.ant_lever_arm_y;
-        msg->ant_lever_arm_z = data.ant_lever_arm_z;
-        msg->theta_x = data.theta_x;
-        msg->theta_y = data.theta_y;
-        msg->theta_z = data.theta_z;
-    }
-    return msg;
-};
-
-VelSensorSetupMsgPtr
-io_comm_rx::RxMessage::VelSensorSetupCallback(VelSensorSetup& data)
-{
-    VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
-
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->port = data.port;
-    
-    if (settings_->use_ros_axis_orientation)
-    {
-        msg->lever_arm_x = data.lever_arm_x;
-        msg->lever_arm_y = -data.lever_arm_y;
-        msg->lever_arm_z = -data.lever_arm_z;
-    }
-    else
-    {
-        msg->lever_arm_x = data.lever_arm_x;
-        msg->lever_arm_y = data.lever_arm_y;
-        msg->lever_arm_z = data.lever_arm_z;        
-    }
-    return msg;
-};
-
 ExtSensorMeasMsgPtr
 io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
 {
@@ -1939,16 +1869,24 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evIMUSetup: // IMU orientation and lever arm 
 		{
 			IMUSetupMsgPtr msg(new IMUSetupMsg);
-			IMUSetup imusetup;
-			memcpy(&imusetup, data_, sizeof(imusetup));
-			msg = IMUSetupCallback(imusetup);
-			msg->header.frame_id = settings_->frame_id;
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), IMUSetupGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			{                
+                node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in IMUSetup");
+				break;
+			}
+			if (settings_->use_ros_axis_orientation)
+            {
+                msg->ant_lever_arm_y = -msg->ant_lever_arm_y;
+                msg->ant_lever_arm_z = -msg->ant_lever_arm_z;
+                msg->theta_x = parsing_utilities::wrapAngle180to180(msg->theta_x - 180.0);
+            }
+			msg->header.frame_id = settings_->vehicle_frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4224;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -1961,16 +1899,23 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evVelSensorSetup: // Velocity sensor lever arm
 		{
 			VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
-			VelSensorSetup velsensorsetup;
-			memcpy(&velsensorsetup, data_, sizeof(velsensorsetup));
-			msg = VelSensorSetupCallback(velsensorsetup);
-			msg->header.frame_id = settings_->frame_id;
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelSensorSetupGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			{                
+                node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in VelSensorSetup");
+				break;
+			}
+            if (settings_->use_ros_axis_orientation)
+            {
+                msg->lever_arm_y = -msg->lever_arm_y;
+                msg->lever_arm_z = -msg->lever_arm_z;
+            }
+			msg->header.frame_id = settings_->vehicle_frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4244;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{

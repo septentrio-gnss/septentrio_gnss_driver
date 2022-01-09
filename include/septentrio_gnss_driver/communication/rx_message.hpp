@@ -850,24 +850,6 @@ namespace io_comm_rx {
         bool extsens_has_arrived_imu_ = false;
 
         /**
-         * @brief Callback function when reading IMUSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message IMUSetup
-         * @return A smart pointer to the ROS message IMUSetup just created
-         */
-        IMUSetupMsgPtr
-        IMUSetupCallback(IMUSetup& data);
-
-        /**
-         * @brief Callback function when reading VelSensorSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelSensorSetup
-         * @return A smart pointer to the ROS message VelSensorSetup just created
-         */
-        VelSensorSetupMsgPtr
-        VelSensorSetupCallback(VelSensorSetup& data);
-
-        /**
          * @brief Callback function when reading ExtSensorMeas blocks
          * @param[in] data The (packed and aligned) struct instance used to populate
          * the ROS message ExtSensorMeas
