@@ -153,7 +153,6 @@ struct BlockHeader
 struct ChannelStateInfo
 {
     uint8_t antenna;
-    uint8_t reserved;
     uint16_t tracking_status;
     uint16_t pvt_status;
     uint16_t pvt_info;
@@ -167,13 +166,11 @@ struct ChannelSatInfo
 {
     uint8_t sv_id;
     uint8_t freq_nr;
-    std::vector<uint8_t> reserved1; // size = 2
     uint16_t az_rise_set;
     uint16_t health_status;
     int8_t elev;
     uint8_t n2;
     uint8_t channel;
-    uint8_t reserved2;
     std::vector<ChannelStateInfo> stateInfo;
 };
 
@@ -188,7 +185,6 @@ struct ChannelStatus
     uint8_t n;
     uint8_t sb1_length;
     uint8_t sb2_length;
-    std::vector<uint8_t> reserved; // size = 3
     std::vector<ChannelSatInfo> satInfo;
 };
 
@@ -245,7 +241,6 @@ struct MeasEpoch
 
     uint8_t common_flags;
     uint8_t cum_clk_jumps;
-    uint8_t reserved;
     std::vector<MeasEpochChannelType1> type1;
 };
 
@@ -258,7 +253,6 @@ struct DOP
     BlockHeader block_header;
 
     uint8_t nr_sv;
-    uint8_t reserved;
     uint16_t pdop;
     uint16_t tdop;
     uint16_t hdop;
@@ -275,7 +269,6 @@ struct ReceiverSetup
 {
     BlockHeader block_header;
 
-    std::vector<uint8_t> reserved;
     std::string marker_name;
     std::string marker_number;
     std::string observer;
@@ -301,7 +294,6 @@ struct QualityInd
     BlockHeader block_header;
 
     uint8_t n;
-    uint8_t reserved;
     std::vector<uint16_t> indicators;
 };
 
@@ -618,7 +610,6 @@ AttCovEulerMsg,
 BOOST_FUSION_ADAPT_STRUCT(
 ChannelStateInfo,
     (uint8_t, antenna),
-    (uint8_t, reserved),
     (uint16_t, tracking_status),
     (uint16_t, pvt_status),
     (uint16_t, pvt_info)
@@ -628,13 +619,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 ChannelSatInfo,
     (uint8_t, sv_id),
     (uint8_t, freq_nr),
-    (std::vector<uint8_t>, reserved1),
     (uint16_t, az_rise_set),
     (uint16_t, health_status),
     (int8_t, elev),
     (uint8_t, n2),
     (uint8_t, channel),
-    (uint8_t, reserved2),
     (std::vector<ChannelStateInfo>, stateInfo)
 )
 
@@ -644,7 +633,6 @@ ChannelStatus,
     (uint8_t, n),
     (uint8_t, sb1_length),
     (uint8_t, sb2_length),
-    (std::vector<uint8_t>, reserved),
     (std::vector<ChannelSatInfo>, satInfo)
 )
 
@@ -686,7 +674,6 @@ MeasEpoch,
     (uint8_t, sb2_length),
     (uint8_t, common_flags),
     (uint8_t, cum_clk_jumps),
-    (uint8_t, reserved),
     (std::vector<MeasEpochChannelType1>, type1)
 )
 
@@ -694,7 +681,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 DOP,
     (BlockHeader, block_header),
     (uint8_t, nr_sv),
-    (uint8_t, reserved),
     (uint16_t, pdop),
     (uint16_t, tdop),
     (uint16_t, hdop),
@@ -706,7 +692,6 @@ DOP,
 BOOST_FUSION_ADAPT_STRUCT(
 ReceiverSetup,
     (BlockHeader, block_header),
-    (std::vector<uint8_t>, reserved),
     (std::string, marker_name),
     (std::string, marker_number),
     (std::string, observer),
@@ -727,7 +712,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 QualityInd,
     (BlockHeader, block_header),
     (uint8_t, n),
-    (uint8_t, reserved),
     (std::vector<uint16_t>, indicators)
 )
 
@@ -1011,7 +995,7 @@ struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesianMsg()>
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                      >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                     >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                     >> qi::repeat[rep::qi::advance(1)]; //skip padding
 
         BOOST_SPIRIT_DEBUG_NODE(pvtCartesian);
 	}
@@ -1061,7 +1045,7 @@ struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodeticMsg()>
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
                     >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                    >> qi::repeat[rep::qi::advance(1)]; //skip padding
 
         BOOST_SPIRIT_DEBUG_NODE(pvtGeodetic);
 	}
@@ -1088,14 +1072,14 @@ struct AttEulerGrammar : qi::grammar<Iterator, AttEulerMsg()>
 		         >> qi::byte_
                  >> qi::byte_
                  >> qi::little_word
-		         >> qi::omit[qi::little_word] // reserved
+		         >> rep::qi::advance(2) // reserved
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
                  >> qi::little_bin_float
-                 >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                 >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1117,7 +1101,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEulerMsg()>
 
 		attCovEuler %= qi::attr(HeaderMsg())
                     >> header(5939, phx::ref(revision))
-		            >> qi::omit[qi::byte_] // reserved
+		            >> rep::qi::advance(1) // reserved
                     >> qi::byte_
                     >> qi::little_bin_float
                     >> qi::little_bin_float
@@ -1125,7 +1109,7 @@ struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEulerMsg()>
                     >> qi::little_bin_float
                     >> qi::little_bin_float
                     >> qi::little_bin_float
-                    >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                    >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1146,7 +1130,7 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
         using namespace qi::labels;       
 
         channelStateInfo %= qi::byte_
-                         >> qi::byte_
+                         >> rep::qi::advance(1) // reserved
                          >> qi::little_word
                          >> qi::little_word
                          >> qi::little_word
@@ -1154,25 +1138,25 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
 
 		channelSatInfo %= qi::byte_
                        >> qi::byte_
-                       >> qi::repeat(2)[qi::byte_]
+                       >> rep::qi::advance(2) // reserved
                        >> qi::little_word
                        >> qi::little_word
                        >> qi::char_
                        >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSTATEINFO), phx::ref(n2) = qi::_1]
                        >> qi::byte_
-                       >> qi::byte_
+                       >> rep::qi::advance(1) // reserved
                        >> rep::qi::advance(phx::ref(sb1_length) - 12) // skip padding: sb1_length - 12 bytes
-                       >> qi::eps[phx::reserve(phx::at_c<9>(_val), phx::ref(n2))]
+                       >> qi::eps[phx::reserve(phx::at_c<7>(_val), phx::ref(n2))]
 		               >> qi::repeat(phx::ref(n2))[channelStateInfo];
 
         channelStatus %= header(4013, phx::ref(revision))
 		              >> qi::byte_[_pass = (qi::_1 <= MAXSB_CHANNELSATINFO), phx::ref(n) = qi::_1]
                       >> qi::byte_[phx::ref(sb1_length) = qi::_1]
                       >> qi::byte_[phx::ref(sb2_length) = qi::_1]
-                      >> qi::repeat(3)[qi::byte_]
-                      >> qi::eps[phx::reserve(phx::at_c<5>(_val), phx::ref(n))]
+                      >> rep::qi::advance(3) // reserved
+                      >> qi::eps[phx::reserve(phx::at_c<4>(_val), phx::ref(n))]
                       >> qi::repeat(phx::ref(n))[channelSatInfo]
-                      >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+                      >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1231,10 +1215,10 @@ struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
                   >> qi::byte_[phx::ref(sb2_length) = qi::_1]
                   >> qi::byte_
                   >> qi::byte_
-                  >> qi::byte_
-                  >> qi::eps[phx::reserve(phx::at_c<7>(_val),  phx::ref(n))]
+                  >> rep::qi::advance(1) // reserved
+                  >> qi::eps[phx::reserve(phx::at_c<6>(_val),  phx::ref(n))]
                   >> qi::repeat( phx::ref(n))[measEpochChannelType1]
-                  >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+                  >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1262,14 +1246,14 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 
 		dop %= header(4001, phx::ref(revision))
 		    >> qi::byte_
-            >> qi::byte_
+            >> rep::qi::advance(1) // reserved
             >> qi::little_word
 		    >> qi::little_word
             >> qi::little_word
 		    >> qi::little_word
             >> qi::little_bin_float
             >> qi::little_bin_float
-            >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+            >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1290,7 +1274,7 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
         using namespace qi::labels;        
 
 		receiverSetup %= header(5902, phx::ref(revision))
-		              >> qi::repeat(2)[qi::byte_]
+		              >> rep::qi::advance(2) // reserved
                       >> qi::as_string[qi::repeat(60)[qi::char_]]
                       >> qi::as_string[qi::repeat(20)[qi::char_]]
                       >> qi::as_string[qi::repeat(20)[qi::char_]]
@@ -1305,7 +1289,7 @@ struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
                       >> qi::little_bin_float
                       >> qi::as_string[qi::repeat(20)[qi::char_]]
                       >> qi::as_string[qi::repeat(40)[qi::char_]]
-                      >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                      >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1327,10 +1311,10 @@ struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
 
 		qualityInd %= header(4082, phx::ref(revision))
 		           >> qi::byte_[_pass = (qi::_1 <= 40), phx::ref(n) = qi::_1]
-                   >> qi::byte_
-                   >> qi::eps[phx::reserve(phx::at_c<3>(_val), phx::ref(n))]
+                   >> rep::qi::advance(1) // reserved
+                   >> qi::eps[phx::reserve(phx::at_c<2>(_val), phx::ref(n))]
                    >> qi::repeat(phx::ref(n))[qi::little_word]
-		           >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+		           >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1369,7 +1353,7 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
                        >> qi::byte_
                        >> qi::eps[phx::reserve(phx::at_c<10>(_val), phx::ref(n))]
                        >> qi::repeat(phx::ref(n))[agcState]
-                       >> qi::repeat[qi::omit[qi::byte_]]; // skip padding
+                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
 	}
 
     uint8_t  revision;
@@ -1406,7 +1390,7 @@ struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesianMsg()>
                         >> qi::little_bin_float
                         >> qi::little_bin_float
                         >> qi::little_bin_float
-                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                        >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1440,7 +1424,7 @@ struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodeticMsg()>
                        >> qi::little_bin_float
                        >> qi::little_bin_float
                        >> qi::little_bin_float
-                       >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                       >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1473,7 +1457,7 @@ struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
                         >> qi::little_bin_float
                         >> qi::little_bin_float
                         >> qi::little_bin_float
-                        >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                        >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1507,7 +1491,7 @@ struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodeticMsg()>
                        >> qi::little_bin_float
                        >> qi::little_bin_float
                        >> qi::little_bin_float
-                       >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                       >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1539,7 +1523,7 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
-                   >> qi::omit[qi::byte_] // reserved
+                   >> rep::qi::advance(1) // reserved
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
@@ -1565,7 +1549,7 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                   >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
@@ -1599,7 +1583,7 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
                    >> qi::little_word                        
                    >> qi::little_word
                    >> qi::byte_
-                   >> qi::omit[qi::byte_] // reserved
+                   >> rep::qi::advance(1) // reserved
                    >> qi::little_word[phx::ref(sb_list) = qi::_1]
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
@@ -1625,7 +1609,7 @@ struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
                    >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> qi::repeat[qi::omit[qi::byte_]]; //skip padding
+                   >> qi::repeat[rep::qi::advance(1)]; //skip padding
 	}
 
     uint8_t  revision;
