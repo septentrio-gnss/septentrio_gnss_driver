@@ -1787,7 +1787,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavCartParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavCartParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavCart");
 				break;
@@ -1810,7 +1810,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-            if (!INSNavGeodParser(dvec.begin(), last_insnavgeod_, settings_->use_ros_axis_orientation))
+            if (!INSNavGeodParser(dvec.begin(), dvec.end(), last_insnavgeod_, settings_->use_ros_axis_orientation))
 			{                
                 insnavgeod_has_arrived_gpsfix_ = false;
                 insnavgeod_has_arrived_navsatfix_ = false;
@@ -1904,7 +1904,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavCartParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavCartParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavCart");
 				break;
@@ -1928,7 +1928,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavGeodParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavGeodParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{                
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
 				break;

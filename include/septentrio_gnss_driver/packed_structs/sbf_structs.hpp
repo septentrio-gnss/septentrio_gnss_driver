@@ -1527,7 +1527,7 @@ bool BlockHeaderParser(It& it, Hdr& block_header)
  * @brief Qi parser for the SBF block "INSNavCart"
  */
 template<typename It>
-bool INSNavCartParser(It it, INSNavCartMsg& msg, bool use_ros_axis_orientation)
+bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_orientation)
 {    
     if(!BlockHeaderParser(it, msg.block_header))
         return false;
@@ -1661,6 +1661,10 @@ bool INSNavCartParser(It it, INSNavCartMsg& msg, bool use_ros_axis_orientation)
         msg.vx_vz_cov = DO_NOT_USE_VALUE;
         msg.vy_vz_cov = DO_NOT_USE_VALUE;
     }
+
+    if (it > itEnd)
+        return false;
+
     return true;
 };
 
@@ -1669,7 +1673,7 @@ bool INSNavCartParser(It it, INSNavCartMsg& msg, bool use_ros_axis_orientation)
  * @brief Qi parser for the SBF block "INSNavGeod"
  */
 template<typename It>
-bool INSNavGeodParser(It it, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
+bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
 {    
     if(!BlockHeaderParser(it, msg.block_header))
         return false;
@@ -1804,6 +1808,10 @@ bool INSNavGeodParser(It it, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
         msg.ve_vu_cov = DO_NOT_USE_VALUE;
         msg.vn_vu_cov = DO_NOT_USE_VALUE;
     }
+
+    if (it > itEnd)
+        return false;
+
     return true;
 };
 
