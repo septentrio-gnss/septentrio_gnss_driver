@@ -421,47 +421,6 @@ ChannelStatus,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-MeasEpochChannelType2,
-    (uint8_t, type),
-    (uint8_t, lock_time),
-    (uint8_t, cn0),
-    (uint8_t, offsets_msb),
-    (int8_t, carrier_msb),
-    (uint8_t, obs_info),
-    (uint16_t, code_offset_lsb),
-    (uint16_t, carrier_lsb),
-    (uint16_t, doppler_offset_lsb)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-MeasEpochChannelType1,
-    (uint8_t, rx_channel),
-    (uint8_t, type),
-    (uint8_t, sv_id),
-    (uint8_t, misc),
-    (uint32_t, code_lsb),
-    (int32_t, doppler),
-    (uint16_t, carrier_lsb),
-    (int8_t, carrier_msb),
-    (uint8_t, cn0),
-    (uint16_t, lock_time),
-    (uint8_t, obs_info),
-    (uint8_t, n_type2),
-    (std::vector<MeasEpochChannelType2>, type2)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-MeasEpoch,
-    (BlockHeader, block_header),
-    (uint8_t, n),
-    (uint8_t, sb1_length),
-    (uint8_t, sb2_length),
-    (uint8_t, common_flags),
-    (uint8_t, cum_clk_jumps),
-    (std::vector<MeasEpochChannelType1>, type1)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 DOP,
     (BlockHeader, block_header),
     (uint8_t, nr_sv),
@@ -645,68 +604,6 @@ struct ChannelStatusGrammar : qi::grammar<Iterator, ChannelStatus()>
     qi::rule<Iterator, ChannelStateInfo()> channelStateInfo;
     qi::rule<Iterator, ChannelSatInfo()>   channelSatInfo;
 	qi::rule<Iterator, ChannelStatus()>    channelStatus;
-};
-
-/**
- * @struct MeasEpochGrammar
- * @brief Spirit grammar for the SBF block "MeasEpoch"
- */
-template<typename Iterator>
-struct MeasEpochGrammar : qi::grammar<Iterator, MeasEpoch()>
-{
-	MeasEpochGrammar() : MeasEpochGrammar::base_type(measEpoch)
-	{
-        using namespace qi::labels;       
-
-        measEpochChannelType2 %= qi::byte_
-                              >> qi::byte_
-                              >> qi::byte_
-                              >> qi::byte_
-                              >> qi::char_ 
-                              >> qi::byte_
-                              >> qi::little_word
-                              >> qi::little_word
-                              >> qi::little_word
-                              >> rep::qi::advance(phx::ref(sb2_length) - 12); // skip padding: sb2_length - 12 bytes
-
-		measEpochChannelType1 %= qi::byte_
-                              >> qi::byte_
-                              >> qi::byte_
-                              >> qi::byte_
-                              >> qi::little_dword
-                              >> qi::little_dword
-                              >> qi::little_word
-                              >> qi::char_
-                              >> qi::byte_
-                              >> qi::little_word
-                              >> qi::byte_
-                              >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T2), phx::ref(n2) = qi::_1]
-                              >> rep::qi::advance(phx::ref(sb1_length) - 20) // skip padding: sb1_length - 20 bytes
-                              >> qi::eps[phx::reserve(phx::at_c<12>(_val), phx::ref(n2))]
-		                      >> qi::repeat(phx::ref(n2))[measEpochChannelType2];
-
-        measEpoch %= header(4027, phx::ref(revision))
-		          >> qi::byte_[_pass = (qi::_1 <= MAXSB_MEASEPOCH_T1),  phx::ref(n) = qi::_1]
-                  >> qi::byte_[phx::ref(sb1_length) = qi::_1]
-                  >> qi::byte_[phx::ref(sb2_length) = qi::_1]
-                  >> qi::byte_
-                  >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
-                  >> rep::qi::advance(1) // reserved
-                  >> qi::eps[phx::reserve(phx::at_c<6>(_val),  phx::ref(n))]
-                  >> qi::repeat(phx::ref(n))[measEpochChannelType1]
-                  >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-    uint8_t  n;
-    uint8_t  n2;
-    uint8_t  sb1_length;
-    uint8_t  sb2_length;
-
-    BlockHeaderGrammar<Iterator>                header;
-    qi::rule<Iterator, MeasEpochChannelType2()> measEpochChannelType2;
-    qi::rule<Iterator, MeasEpochChannelType1()> measEpochChannelType1;
-	qi::rule<Iterator, MeasEpoch()>             measEpoch;
 };
 
 /**
@@ -920,6 +817,98 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
     qiLittleEndianParser(it, block_header.wnc);
     return true;
 }
+
+/**
+ * MeasEpochChannelType2Parser
+ * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType2"
+ */
+template<typename It>
+void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2& msg, uint8_t sb2_length)
+{
+    qiLittleEndianParser(it, msg.type);
+    qiLittleEndianParser(it, msg.lock_time);
+    qiLittleEndianParser(it, msg.cn0);
+    qiLittleEndianParser(it, msg.offsets_msb);
+    qiLittleEndianParser(it, msg.carrier_msb);
+    qiLittleEndianParser(it, msg.obs_info);
+    qiLittleEndianParser(it, msg.code_offset_lsb);
+    qiLittleEndianParser(it, msg.carrier_lsb);
+    qiLittleEndianParser(it, msg.doppler_offset_lsb);
+    std::advance(it, sb2_length - 12); // skip padding
+};
+
+/**
+ * @class MeasEpochChannelType1Parser
+ * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType1"
+ */
+template<typename It>
+bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelType1& msg, uint8_t sb1_length, uint8_t sb2_length)
+{
+    qiLittleEndianParser(it, msg.rx_channel);
+    qiLittleEndianParser(it, msg.type);
+    qiLittleEndianParser(it, msg.sv_id);
+    qiLittleEndianParser(it, msg.misc);
+    qiLittleEndianParser(it, msg.code_lsb);
+    qiLittleEndianParser(it, msg.doppler);
+    qiLittleEndianParser(it, msg.carrier_lsb);
+    qiLittleEndianParser(it, msg.carrier_msb);
+    qiLittleEndianParser(it, msg.cn0);
+    qiLittleEndianParser(it, msg.lock_time);
+    qiLittleEndianParser(it, msg.obs_info);
+    qiLittleEndianParser(it, msg.n_type2);
+    std::advance(it, sb1_length - 20); // skip padding
+    if (msg.n_type2 > MAXSB_MEASEPOCH_T2)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType2 " + std::to_string(msg.n_type2));
+        return false;
+    }
+    msg.type2.resize(msg.n_type2);
+    for (auto type2 : msg.type2)
+    {
+        MeasEpochChannelType2Parser(it, type2, sb2_length);
+    } 
+    return true;
+};
+
+/**
+ * @class MeasEpoch
+ * @brief Qi based parser for the SBF block "MeasEpoch"
+ */
+template<typename It>
+bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpoch& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4027)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > MAXSB_MEASEPOCH_T1)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType1 " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb1_length);
+    qiLittleEndianParser(it, msg.sb2_length);
+    qiLittleEndianParser(it, msg.common_flags);
+    if (msg.block_header.revision > 0)
+        qiLittleEndianParser(it, msg.cum_clk_jumps);
+    ++it; // reserved
+    msg.type1.resize(msg.n);
+    for (auto type1 : msg.type1)
+    {
+        if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length, msg.sb2_length))
+            return false;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
 
 /**
  * PVTCartesianParser
