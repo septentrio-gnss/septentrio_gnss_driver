@@ -1787,24 +1787,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavCartGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!INSNavCartParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavCart");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                if ((msg->sb_list & 2) != 0)
-                {
-                    msg->heading = -msg->heading + parsing_utilities::pi_half;
-                    msg->pitch   = -msg->pitch;
-                }
-                if ((msg->sb_list & 64) !=0)
-                {   
-                    msg->heading_roll_cov = -msg->heading_roll_cov;
-                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
-                }
-            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -1917,24 +1904,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavCartGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!INSNavCartParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavCart");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                if ((msg->sb_list & 2) != 0)
-                {
-                    msg->heading = -msg->heading + parsing_utilities::pi_half;
-                    msg->pitch   = -msg->pitch;
-                }
-                if ((msg->sb_list & 64) !=0)
-                {   
-                    msg->heading_roll_cov = -msg->heading_roll_cov;
-                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
-                }
-            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
