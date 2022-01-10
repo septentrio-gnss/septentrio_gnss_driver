@@ -2217,7 +2217,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evChannelStatus:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ChannelStatusGrammar<std::vector<uint8_t>::iterator>(), last_channelstatus_))
+			if (!ChannelStatusParser(node_, dvec.begin(), dvec.end(), last_channelstatus_))
 			{
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ChannelStatus");
 				break;
