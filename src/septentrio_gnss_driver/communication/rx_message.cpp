@@ -1823,7 +1823,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-            if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), last_insnavgeod_))
+            if (!INSNavGeodParser(dvec.begin(), last_insnavgeod_, settings_->use_ros_axis_orientation))
 			{                
                 insnavgeod_has_arrived_gpsfix_ = false;
                 insnavgeod_has_arrived_navsatfix_ = false;
@@ -1833,19 +1833,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavGeod");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                if ((last_insnavgeod_.sb_list & 2) != 0)
-                {
-                    last_insnavgeod_.heading = -last_insnavgeod_.heading + parsing_utilities::pi_half;
-                    last_insnavgeod_.pitch   = -last_insnavgeod_.pitch;
-                }
-                if ((last_insnavgeod_.sb_list & 64) !=0)
-                {   
-                    last_insnavgeod_.heading_roll_cov = -last_insnavgeod_.heading_roll_cov;
-                    last_insnavgeod_.pitch_roll_cov   = -last_insnavgeod_.pitch_roll_cov;
-                }
-            }
 			last_insnavgeod_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -1967,24 +1954,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), INSNavGeodGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!INSNavGeodParser(dvec.begin(), *msg, settings_->use_ros_axis_orientation))
 			{                
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
 				break;
 			}
-			if (settings_->use_ros_axis_orientation)
-            {
-                if ((msg->sb_list & 2) != 0)
-                {
-                    msg->heading = -msg->heading + parsing_utilities::pi_half;
-                    msg->pitch   = -msg->pitch;
-                }
-                if ((msg->sb_list & 64) !=0)
-                {   
-                    msg->heading_roll_cov = -msg->heading_roll_cov;
-                    msg->pitch_roll_cov   = -msg->pitch_roll_cov;
-                }
-            }
 			msg->header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);

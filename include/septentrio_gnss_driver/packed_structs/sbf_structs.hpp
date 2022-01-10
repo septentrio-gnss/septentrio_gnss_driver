@@ -131,6 +131,7 @@
 #include <boost/spirit/repository/include/qi_advance.hpp>
 
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
 /**
  * @file sbf_structs.hpp
@@ -838,48 +839,6 @@ INSNavCartMsg,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-INSNavGeodMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, gnss_mode),
-    (uint8_t, error),
-    (uint16_t, info),
-    (uint16_t, gnss_age),
-    (double, latitude),
-    (double, longitude),
-    (double, height),
-    (float,  undulation),
-    (uint16_t, accuracy),
-    (uint16_t, latency),
-    (uint8_t, datum),
-    (uint16_t, sb_list),
-    (float, latitude_std_dev),
-    (float, longitude_std_dev),
-    (float, height_std_dev),    
-    (float, heading),
-    (float, pitch),
-    (float, roll),    
-    (float, heading_std_dev),
-    (float, pitch_std_dev),
-    (float, roll_std_dev),    
-    (float, ve),
-    (float, vn),
-    (float, vu),    
-    (float, ve_std_dev),
-    (float, vn_std_dev),
-    (float, vu_std_dev),    
-    (float, latitude_longitude_cov),
-    (float, latitude_height_cov),
-    (float, longitude_height_cov),    
-    (float, heading_pitch_cov),
-    (float, heading_roll_cov),
-    (float, pitch_roll_cov),    
-    (float, ve_vn_cov),
-    (float, ve_vu_cov),
-    (float, vn_vu_cov)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 IMUSetupMsg,
     (HeaderMsg, header)
     (BlockHeaderMsg, block_header),
@@ -1583,66 +1542,6 @@ struct INSNavCartGrammar : qi::grammar<Iterator, INSNavCartMsg()>
 };
 
 /**
- * @struct INSNavGeodGrammar
- * @brief Spirit grammar for the SBF block "INSNavGeod"
- */
-template<typename Iterator>
-struct INSNavGeodGrammar : qi::grammar<Iterator, INSNavGeodMsg()>
-{
-	INSNavGeodGrammar() : INSNavGeodGrammar::base_type(insNavGeod)
-	{
-        using namespace qi::labels;
-
-        insNavGeod %= qi::attr(HeaderMsg())
-                   >> (header(4226, phx::ref(revision)) | header(4230, phx::ref(revision)))
-		           >> qi::byte_
-                   >> qi::byte_
-                   >> qi::little_word
-                   >> qi::little_word
-                   >> qi::little_bin_double
-                   >> qi::little_bin_double
-                   >> qi::little_bin_double
-                   >> qi::little_bin_float
-                   >> qi::little_word                        
-                   >> qi::little_word
-                   >> qi::byte_
-                   >> rep::qi::advance(1) // reserved
-                   >> qi::little_word[phx::ref(sb_list) = qi::_1]
-                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 1  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 2  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 4  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 8  ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 16 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 32 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 64 ) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> (qi::eps((phx::ref(sb_list) & 128) !=0) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                   >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-    uint16_t sb_list;
-
-    BlockHeaderMsgGrammar<Iterator>     header;
-    qi::rule<Iterator, INSNavGeodMsg()> insNavGeod;
-};
-
-/**
  * @struct IMUSetupGrammar
  * @brief Spirit grammar for the SBF block "IMUSetup"
  */
@@ -1698,5 +1597,165 @@ struct VelSensorSetupGrammar : qi::grammar<Iterator, VelSensorSetupMsg()>
     BlockHeaderMsgGrammar<Iterator>         header;
     qi::rule<Iterator, VelSensorSetupMsg()> velSensorSetup;
 };
+
+template<typename It, typename Hdr>
+bool BlockHeaderParser(It& it, Hdr& block_header)
+{  
+    qi::parse(it, it + 1, qi::byte_, block_header.sync_1);
+    if (block_header.sync_1 != SBF_SYNC_BYTE_1)
+        return false;
+    qi::parse(it, it + 1, qi::byte_, block_header.sync_2);
+    if (block_header.sync_2 != SBF_SYNC_BYTE_2)
+        return false;
+    qi::parse(it, it + 2, qi::little_word, block_header.crc);
+    uint16_t ID;
+    qi::parse(it, it + 2, qi::little_word, ID);
+    block_header.id       = ID & 8191;   
+    block_header.revision = ID >> 13;
+    qi::parse(it, it + 2, qi::little_word, block_header.length);
+    qi::parse(it, it + 4, qi::little_dword, block_header.tow);
+    qi::parse(it, it + 2, qi::little_word, block_header.wnc);
+    return true;
+}
+
+template<typename It>
+bool INSNavGeodParser(It it, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(it, msg.block_header))
+        return false;
+    if ((msg.block_header.id != 4226) && (msg.block_header.id != 4230))
+        return false;
+    qi::parse(it, it + 1, qi::byte_, msg.gnss_mode);
+    qi::parse(it, it + 1, qi::byte_, msg.error);
+    qi::parse(it, it + 2, qi::little_word, msg.info);
+    qi::parse(it, it + 2, qi::little_word, msg.gnss_age);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.latitude);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.longitude);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.height);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.undulation);
+    qi::parse(it, it + 2, qi::little_word, msg.accuracy);
+    qi::parse(it, it + 2, qi::little_word, msg.latency);
+    qi::parse(it, it + 1, qi::byte_, msg.datum);
+    ++it; //reserved
+    qi::parse(it, it + 2, qi::little_word, msg.sb_list);
+
+    // Reading sub-block from corresponding SBF block
+    if((msg.sb_list & 1) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.latitude_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.longitude_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.height_std_dev);
+    }
+    // if this sub block is not available then output DO_NOT_USE_VALUE
+    else
+    {
+        msg.latitude_std_dev  = DO_NOT_USE_VALUE;
+        msg.longitude_std_dev = DO_NOT_USE_VALUE;
+        msg.height_std_dev    = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 2) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.heading);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.pitch);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.roll);
+        if (use_ros_axis_orientation)
+        {
+            msg.heading = -msg.heading + parsing_utilities::pi_half;
+            msg.pitch   = -msg.pitch;
+        }
+    }
+    else
+    {
+        msg.heading = DO_NOT_USE_VALUE;
+        msg.pitch   = DO_NOT_USE_VALUE;
+        msg.roll    = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 4) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.heading_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.pitch_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.roll_std_dev);
+    }
+    else
+    {
+        msg.heading_std_dev = DO_NOT_USE_VALUE;
+        msg.pitch_std_dev   = DO_NOT_USE_VALUE;
+        msg.roll_std_dev    = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 8) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.ve);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.vn);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.vu);
+    }
+    else
+    {
+        msg.ve = DO_NOT_USE_VALUE;
+        msg.vn = DO_NOT_USE_VALUE;
+        msg.vu = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 16) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.ve_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.vn_std_dev);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.vu_std_dev);
+    }
+    else
+    {
+        msg.ve_std_dev = DO_NOT_USE_VALUE;
+        msg.vn_std_dev = DO_NOT_USE_VALUE;
+        msg.vu_std_dev = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 32) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.latitude_longitude_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.latitude_height_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.longitude_height_cov);
+    }
+    else
+    {
+        msg.latitude_longitude_cov = DO_NOT_USE_VALUE;
+        msg.latitude_height_cov    = DO_NOT_USE_VALUE;
+        msg.longitude_height_cov   = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 64) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.heading_pitch_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.heading_roll_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.pitch_roll_cov);
+        if (use_ros_axis_orientation)
+        {   
+            msg.heading_roll_cov = -msg.heading_roll_cov;
+            msg.pitch_roll_cov   = -msg.pitch_roll_cov;
+        }
+    }
+    else
+    {
+        msg.heading_pitch_cov = DO_NOT_USE_VALUE;
+        msg.heading_roll_cov  = DO_NOT_USE_VALUE;
+        msg.pitch_roll_cov    = DO_NOT_USE_VALUE;
+    }
+
+    if((msg.sb_list & 128) !=0)
+    {
+        qi::parse(it, it + 4, qi::little_bin_float, msg.ve_vn_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.ve_vu_cov);
+        qi::parse(it, it + 4, qi::little_bin_float, msg.vn_vu_cov);
+    }
+    else
+    {
+        msg.ve_vn_cov = DO_NOT_USE_VALUE;
+        msg.ve_vu_cov = DO_NOT_USE_VALUE;
+        msg.vn_vu_cov = DO_NOT_USE_VALUE;
+    }
+    return true;
+};
+
 
 #endif // SBFStructs_HPP
