@@ -34,112 +34,6 @@
 
 #include <septentrio_gnss_driver/communication/rx_message.hpp>
 
-ExtSensorMeasMsgPtr
-io_comm_rx::RxMessage::ExtSensorMeasCallback(ExtSensorMeas& data)
-{
-    int i =0;
-    ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
-
-    msg->block_header.sync_1 = data.block_header.sync_1;
-    msg->block_header.sync_2 = data.block_header.sync_2;
-    msg->block_header.crc = data.block_header.crc;
-    msg->block_header.id  = data.block_header.id;
-    msg->block_header.revision = data.block_header.revision;
-    msg->block_header.length = data.block_header.length;
-    msg->block_header.tow = data.block_header.tow;
-    msg->block_header.wnc = data.block_header.wnc;
-    msg->n = data.n;
-    msg->sb_length = data.sb_length;
-
-    msg->acceleration_x = std::numeric_limits<double>::quiet_NaN();
-    msg->acceleration_y = std::numeric_limits<double>::quiet_NaN();
-    msg->acceleration_z = std::numeric_limits<double>::quiet_NaN();
-
-    msg->angular_rate_x = std::numeric_limits<double>::quiet_NaN();
-    msg->angular_rate_y = std::numeric_limits<double>::quiet_NaN();
-    msg->angular_rate_z = std::numeric_limits<double>::quiet_NaN();
-
-    msg->velocity_x = std::numeric_limits<double>::quiet_NaN();
-    msg->velocity_y = std::numeric_limits<double>::quiet_NaN();
-    msg->velocity_z = std::numeric_limits<double>::quiet_NaN();
-
-    msg->std_dev_x = std::numeric_limits<double>::quiet_NaN();
-    msg->std_dev_y = std::numeric_limits<double>::quiet_NaN();
-    msg->std_dev_z = std::numeric_limits<double>::quiet_NaN();
-
-    msg->sensor_temperature = -32768; //do not use value
-    msg->zero_velocity_flag = std::numeric_limits<double>::quiet_NaN();
-
-    msg->source.resize(msg->n);
-    msg->sensor_model.resize(msg->n);
-    msg->type.resize(msg->n);
-    msg->obs_info.resize(msg->n); 
-    for (i=0; i<msg->n;i++)
-    {
-        msg->source[i] = data.ExtSensorMeas[i].Source;
-        msg->sensor_model[i] = data.ExtSensorMeas[i].SensorModel;
-        msg->type[i] = data.ExtSensorMeas[i].type;
-        msg->obs_info[i] = data.ExtSensorMeas[i].ObsInfo;        
-
-        if (settings_->use_ros_axis_orientation)
-        {
-            if(msg->type[i] == 0)
-            {
-                msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                msg->acceleration_y = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                msg->acceleration_z = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
-            }
-            else if(msg->type[i] == 1)
-            {
-                msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                msg->angular_rate_y = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                msg->angular_rate_z = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
-            }
-            else if(msg->type[i] == 4)
-            {
-                msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
-                msg->velocity_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
-                msg->velocity_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
-            }
-        }
-        else
-        {
-            if(msg->type[i] == 0)
-            {
-                msg->acceleration_x = data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                msg->acceleration_y = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                msg->acceleration_z = -data.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
-            }
-            else if(msg->type[i] == 1)
-            {
-                msg->angular_rate_x = data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                msg->angular_rate_y = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                msg->angular_rate_z = -data.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
-            }            
-            else if(msg->type[i] == 4)
-            {
-                msg->velocity_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_x;
-                msg->velocity_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_y;
-                msg->velocity_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.velocity_z;
-            }
-        }
-
-        if(msg->type[i] == 4)
-        {
-            msg->std_dev_x = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_x;
-            msg->std_dev_y = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_y;
-            msg->std_dev_z = data.ExtSensorMeas[i].ExtSensorMeasData.Velocity.std_dev_z;
-        }
-
-        if(msg->type[i] == 3)
-            msg->sensor_temperature = data.ExtSensorMeas[i].ExtSensorMeasData.Info.sensor_temperature / 100.0f;
-
-        if(msg->type[i] == 20)
-            msg->zero_velocity_flag = data.ExtSensorMeas[i].ExtSensorMeasData.ZeroVelocityFlag.zero_velocity_flag;
-    }
-    return msg;
-};
-
 /**
  * The position_covariance array is populated in row-major order, where the basis of
  * the correspond matrix is (E, N, U, Roll, Pitch, Heading). Important: The Euler
@@ -391,39 +285,13 @@ io_comm_rx::RxMessage::ImuCallback()
    
     if (settings_->septentrio_receiver_type == "ins")
     {
-        for (size_t i = 0; i < last_extsensmeas_.n; ++i)
-        { 
-            if (settings_->use_ros_axis_orientation)
-            {
-                if (last_extsensmeas_.ExtSensorMeas[i].type == 0)
-                {
-                    msg->linear_acceleration.x = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                    msg->linear_acceleration.y = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                    msg->linear_acceleration.z = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
-                }
-                else if(last_extsensmeas_.ExtSensorMeas[i].type == 1)
-                {
-                    msg->angular_velocity.x = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                    msg->angular_velocity.y = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                    msg->angular_velocity.z = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
-                }
-            }
-            else
-            {
-                if (last_extsensmeas_.ExtSensorMeas[i].type == 0)
-                {
-                    msg->linear_acceleration.x = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_x;
-                    msg->linear_acceleration.y = -last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_y;
-                    msg->linear_acceleration.z = -last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.Acceleration.acceleration_z;
-                }
-                else if(last_extsensmeas_.ExtSensorMeas[i].type == 1)
-                {
-                    msg->angular_velocity.x = last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_x;
-                    msg->angular_velocity.y = -last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_y;
-                    msg->angular_velocity.z = -last_extsensmeas_.ExtSensorMeas[i].ExtSensorMeasData.AngularRate.angular_rate_z;
-                }
-            }
-        }
+        msg->linear_acceleration.x = last_extsensmeas_.acceleration_x;
+        msg->linear_acceleration.y = last_extsensmeas_.acceleration_y;
+        msg->linear_acceleration.z = last_extsensmeas_.acceleration_z;
+        
+        msg->angular_velocity.x = last_extsensmeas_.angular_rate_x;
+        msg->angular_velocity.y = last_extsensmeas_.angular_rate_y;
+        msg->angular_velocity.z = last_extsensmeas_.angular_rate_z;
 
         // Filling in the pose data
 		if ((last_insnavgeod_.sb_list & 2) !=0)
@@ -1950,23 +1818,25 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 
 		case evExtSensorMeas:
 		{
-			ExtSensorMeasMsgPtr msg(new ExtSensorMeasMsg);
-			memcpy(&last_extsensmeas_, data_, sizeof(last_extsensmeas_));
-			msg = ExtSensorMeasCallback(last_extsensmeas_);
-			msg->header.frame_id = settings_->frame_id;
+			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!ExtSensorMeasParser(node_, dvec.begin(), dvec.end(), last_extsensmeas_, settings_->use_ros_axis_orientation))
+			{                
+                node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtSensorMeas");
+				break;
+			}
+			last_extsensmeas_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-			msg->header.stamp = timestampToRos(time_obj);
-			msg->block_header.id = 4050;
+			last_extsensmeas_.header.stamp = timestampToRos(time_obj);
             extsens_has_arrived_imu_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", *msg);
+			node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
 			break;
 		}
 

@@ -368,76 +368,6 @@ struct VelCovCartesian
     float cov_vzdt;
 };
 
-typedef struct
-{
-    double  acceleration_x;
-    double  acceleration_y;
-    double  acceleration_z;
-} ExtSensorMeasAcceleration_1;
-
-typedef struct
-{
-    double  angular_rate_x;
-    double  angular_rate_y;
-    double  angular_rate_z;
-} ExtSensorMeasAngularRate_1;
-
-typedef struct
-{
-    float velocity_x;
-    float velocity_y;
-    float velocity_z;
-    float std_dev_x;
-    float std_dev_y;
-    float std_dev_z;
-} ExtSensorMeasVelocity_1;
-
-typedef struct
-{
-    int16_t   sensor_temperature;
-} ExtSensorMeasInfo_1;
-
-typedef struct
-{
-    double zero_velocity_flag;
-} ExtSensorMeasZeroVelocityFlag_1;
-
-typedef union
-{
-  ExtSensorMeasAcceleration_1 Acceleration; 
-  ExtSensorMeasAngularRate_1 AngularRate;  
-  ExtSensorMeasVelocity_1   Velocity;
-  ExtSensorMeasInfo_1 Info;         
-  ExtSensorMeasZeroVelocityFlag_1 ZeroVelocityFlag;
-} ExtSensorMeasData_1;
-
-typedef struct
-{
-  uint8_t        Source;       
-  uint8_t        SensorModel;  
-  uint8_t        type;         
-  uint8_t        ObsInfo;      
-  ExtSensorMeasData_1 ExtSensorMeasData;
-} ExtSensorMeasSet_1;
-
-typedef struct
-{
-    BlockHeader block_header;        
-
-    uint8_t n;            
-    uint8_t sb_length;       
-    ExtSensorMeasSet_1 ExtSensorMeas[SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH];
-} ExtSensorMeas_1;
-
-typedef ExtSensorMeasAcceleration_1 ExtSensorMeasAcceleration;
-typedef ExtSensorMeasAngularRate_1 ExtSensorMeasAngularRate;
-typedef ExtSensorMeasVelocity_1 ExtSensorMeasVelocity;
-typedef ExtSensorMeasInfo_1 ExtSensorMeasInfo;
-typedef ExtSensorMeasZeroVelocityFlag_1 ExtSensorMeasZeroVelocityFlag;
-typedef ExtSensorMeasData_1 ExtSensorMeasData;
-typedef ExtSensorMeasSet_1 ExtSensorMeasSet;
-typedef ExtSensorMeas_1 ExtSensorMeas;
-
 /**
  * @brief CRC look-up table for fast computation of the 16-bit CRC for SBF blocks.
  *
@@ -1745,6 +1675,122 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         msg.ve_vn_cov = DO_NOT_USE_VALUE;
         msg.ve_vu_cov = DO_NOT_USE_VALUE;
         msg.vn_vu_cov = DO_NOT_USE_VALUE;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * @struct ExtSensorMeasParser
+ * @brief Qi parser for the SBF block "ExtSensorMeas"
+ */
+template<typename It>
+bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4050)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qi::parse(it, it + 1, qi::byte_, msg.n);
+    qi::parse(it, it + 1, qi::byte_, msg.sb_length);
+
+    msg.acceleration_x = std::numeric_limits<double>::quiet_NaN();
+    msg.acceleration_y = std::numeric_limits<double>::quiet_NaN();
+    msg.acceleration_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg.angular_rate_x = std::numeric_limits<double>::quiet_NaN();
+    msg.angular_rate_y = std::numeric_limits<double>::quiet_NaN();
+    msg.angular_rate_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg.velocity_x = std::numeric_limits<double>::quiet_NaN();
+    msg.velocity_y = std::numeric_limits<double>::quiet_NaN();
+    msg.velocity_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg.std_dev_x = std::numeric_limits<double>::quiet_NaN();
+    msg.std_dev_y = std::numeric_limits<double>::quiet_NaN();
+    msg.std_dev_z = std::numeric_limits<double>::quiet_NaN();
+
+    msg.sensor_temperature = -32768; //do not use value
+    msg.zero_velocity_flag = std::numeric_limits<double>::quiet_NaN();
+
+    msg.source.resize(msg.n);
+    msg.sensor_model.resize(msg.n);
+    msg.type.resize(msg.n);
+    msg.obs_info.resize(msg.n); 
+    for (size_t i = 0; i < msg.n; i++)
+    {
+        qi::parse(it, it + 1, qi::byte_, msg.source[i]);
+        qi::parse(it, it + 1, qi::byte_, msg.sensor_model[i]);
+        qi::parse(it, it + 1, qi::byte_, msg.type[i]);
+        qi::parse(it, it + 1, qi::byte_, msg.obs_info[i]);
+
+        switch (msg.type[i])
+        {
+        case 0:
+        {
+            qi::parse(it, it + 8, qi::little_bin_double, msg.acceleration_x);
+            qi::parse(it, it + 8, qi::little_bin_double, msg.acceleration_y);
+            qi::parse(it, it + 8, qi::little_bin_double, msg.acceleration_z);
+            if (!use_ros_axis_orientation)
+            {
+                msg.acceleration_y = -msg.acceleration_y;
+                msg.acceleration_z = -msg.acceleration_z;
+            }
+            break;
+        }
+        case 1:
+        {
+            qi::parse(it, it + 8, qi::little_bin_double, msg.angular_rate_x);
+            qi::parse(it, it + 8, qi::little_bin_double, msg.angular_rate_y);
+            qi::parse(it, it + 8, qi::little_bin_double, msg.angular_rate_z);
+            if (!use_ros_axis_orientation)
+            {
+                msg.angular_rate_y = -msg.angular_rate_y;
+                msg.angular_rate_z = -msg.angular_rate_z;
+            }
+            break;
+        }
+        case 3:
+        {
+            qi::parse(it, it + 2, qi::little_word, msg.sensor_temperature);
+            std::advance(it, 22);
+            break;
+        }
+        case 4:
+        {
+            qi::parse(it, it + 4, qi::little_bin_float, msg.velocity_x);
+            qi::parse(it, it + 4, qi::little_bin_float, msg.velocity_y);
+            qi::parse(it, it + 4, qi::little_bin_float, msg.velocity_z);
+            qi::parse(it, it + 4, qi::little_bin_float, msg.std_dev_x);
+            qi::parse(it, it + 4, qi::little_bin_float, msg.std_dev_y);
+            qi::parse(it, it + 4, qi::little_bin_float, msg.std_dev_z);
+            if (use_ros_axis_orientation)
+            {
+                msg.velocity_y = -msg.velocity_y;
+                msg.velocity_z = -msg.velocity_z;
+            }
+            break;
+        }
+        case 20:
+        {
+            qi::parse(it, it + 8, qi::little_bin_double, msg.zero_velocity_flag);
+            std::advance(it, 16);
+            break;
+        }
+        default:
+        {
+            node->log(LogLevel::ERROR, "Unknown external sensor measurement type in SBF ExtSensorMeas.");
+            std::advance(it, 32);
+            break;
+        }
+        } 
     }
     if (it > itEnd)
     {

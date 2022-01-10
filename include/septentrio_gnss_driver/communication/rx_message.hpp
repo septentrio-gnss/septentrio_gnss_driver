@@ -697,7 +697,7 @@ namespace io_comm_rx {
          * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
          * need to be stored
          */
-        ExtSensorMeas last_extsensmeas_;
+        ExtSensorMeasMsg last_extsensmeas_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
@@ -848,15 +848,6 @@ namespace io_comm_rx {
         //! For Imu: Whether the ExtSensorMeas block of the current epoch
         //! has arrived or not
         bool extsens_has_arrived_imu_ = false;
-
-        /**
-         * @brief Callback function when reading ExtSensorMeas blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtSensorMeas
-         * @return A smart pointer to the ROS message ExtSensorMeas just created
-         */
-        ExtSensorMeasMsgPtr
-        ExtSensorMeasCallback(ExtSensorMeas& data);
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
