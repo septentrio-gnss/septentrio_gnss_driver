@@ -16,6 +16,7 @@ float64     z
 uint16      accuracy
 uint16      latency
 uint8       datum
+#uint8       reserved
 uint16      sb_list
 
 # INSNavCartPosStdDev sub-block definition:
@@ -23,6 +24,12 @@ uint16      sb_list
 float32     x_std_dev
 float32     y_std_dev
 float32     z_std_dev
+
+# INSNavCartPosCov sub-block definition:
+# If the Position Cov field is 1 then this sub block is available:
+float32     xy_cov
+float32     xz_cov
+float32     yz_cov
 
 # INSNavCartAtt sub-block definition:
 # If the Attitude field is 1 then this sub block is available:
@@ -36,6 +43,12 @@ float32     heading_std_dev
 float32     pitch_std_dev
 float32     roll_std_dev
 
+# INSNavCartAttCov sub-block definition:
+# If the Attitude Cov field is 1 then this sub block is available:
+float32     heading_pitch_cov
+float32     heading_roll_cov
+float32     pitch_roll_cov
+
 # INSNavCartVel sub-block definition:
 # If the Velocity field is 1 then this sub block is available:
 float32     vx
@@ -47,18 +60,6 @@ float32     vz
 float32     vx_std_dev
 float32     vy_std_dev
 float32     vz_std_dev
-
-# INSNavCartPosCov sub-block definition:
-# If the Position Cov field is 1 then this sub block is available:
-float32     xy_cov
-float32     xz_cov
-float32     yz_cov
-
-# INSNavCartAttCov sub-block definition:
-# If the Attitude Cov field is 1 then this sub block is available:
-float32     heading_pitch_cov
-float32     heading_roll_cov
-float32     pitch_roll_cov
 
 # INSNavCartVelCov sub-block definition:
 # If the Velocity Cov field is 1 then this sub block is available:
