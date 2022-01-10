@@ -347,28 +347,6 @@ struct ReceiverStatus
 };
 
 /**
- * @class VelCovCartesian
- * @brief Struct for the SBF block "VelCovCartesian"
- */
-struct VelCovCartesian
-{
-    BlockHeader block_header;
-
-    uint8_t mode;
-    uint8_t error;
-    float cov_vxvx;
-    float cov_vyvy;
-    float cov_vzvz;
-    float cov_dtdt;
-    float cov_vxvy;
-    float cov_vxvz;
-    float cov_vxdt;
-    float cov_vyvz;
-    float cov_vydt;
-    float cov_vzdt;
-};
-
-/**
  * @brief CRC look-up table for fast computation of the 16-bit CRC for SBF blocks.
  *
  * Provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium.
@@ -562,77 +540,6 @@ ReceiverStatus,
     (uint8_t, cmd_count),
     (uint8_t, temperature),
     (std::vector<AgcState>, agc_state)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-PosCovCartesianMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (float, cov_xx),
-    (float, cov_yy),
-    (float, cov_zz),
-    (float, cov_bb),
-    (float, cov_xy),
-    (float, cov_xz),
-    (float, cov_xb),
-    (float, cov_yz),
-    (float, cov_yb),
-    (float, cov_zb)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-PosCovGeodeticMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (float, cov_latlat),
-    (float, cov_lonlon),
-    (float, cov_hgthgt),
-    (float, cov_bb),
-    (float, cov_latlon),
-    (float, cov_lathgt),
-    (float, cov_latb),
-    (float, cov_lonhgt),
-    (float, cov_lonb),
-    (float, cov_hb)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-VelCovCartesian,
-    (BlockHeader, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (float, cov_vxvx),
-    (float, cov_vyvy),
-    (float, cov_vzvz),
-    (float, cov_dtdt),
-    (float, cov_vxvy),
-    (float, cov_vxvz),
-    (float, cov_vxdt),
-    (float, cov_vyvz),
-    (float, cov_vydt),
-    (float, cov_vzdt)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-VelCovGeodeticMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (float, cov_vnvn),
-    (float, cov_veve),
-    (float, cov_vuvu),
-    (float, cov_dtdt),
-    (float, cov_vnve),
-    (float, cov_vnvu),
-    (float, cov_vndt),
-    (float, cov_vevu),
-    (float, cov_vedt),
-    (float, cov_vudt)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -980,141 +887,6 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
     BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, AgcState()>       agcState;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
-};
-
-/**
- * @struct PosCovCartesianGrammar
- * @brief Spirit grammar for the SBF block "PosCovCartesian"
- */
-template<typename Iterator>
-struct PosCovCartesianGrammar : qi::grammar<Iterator, PosCovCartesianMsg()>
-{
-	PosCovCartesianGrammar() : PosCovCartesianGrammar::base_type(posCovCartesian)
-	{
-        using namespace qi::labels;        
-
-		posCovCartesian %= qi::attr(HeaderMsg())
-                        >>  header(5905, phx::ref(revision))
-		                >> qi::byte_
-                        >> qi::byte_
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>          header;
-    qi::rule<Iterator, PosCovCartesianMsg()> posCovCartesian;
-};
-
-/**
- * @struct PosCovGeodeticGrammar
- * @brief Spirit grammar for the SBF block "PosCovGeodetic"
- */
-template<typename Iterator>
-struct PosCovGeodeticGrammar : qi::grammar<Iterator, PosCovGeodeticMsg()>
-{
-	PosCovGeodeticGrammar() : PosCovGeodeticGrammar::base_type(posCovGeodetic)
-	{
-        using namespace qi::labels;
-
-       	posCovGeodetic %= qi::attr(HeaderMsg())
-                       >> header(5906, phx::ref(revision))
-		               >> qi::byte_
-                       >> qi::byte_
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>         header;
-    qi::rule<Iterator, PosCovGeodeticMsg()> posCovGeodetic;
-};
-
-/**
- * @struct VelCovCartesianGrammar
- * @brief Spirit grammar for the SBF block "VelCovCartesian"
- */
-template<typename Iterator>
-struct VelCovCartesianGrammar : qi::grammar<Iterator, VelCovCartesian()>
-{
-	VelCovCartesianGrammar() : VelCovCartesianGrammar::base_type(velCovCartesian)
-	{
-        using namespace qi::labels;       
-
-		velCovCartesian %= header(5907, phx::ref(revision))
-		                >> qi::byte_
-                        >> qi::byte_
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::little_bin_float
-                        >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderGrammar<Iterator>          header;
-    qi::rule<Iterator, VelCovCartesian()> velCovCartesian;
-};
-
-/**
- * @struct VelCovGeodeticGrammar
- * @brief Spirit grammar for the SBF block "VelCovGeodetic"
- */
-template<typename Iterator>
-struct VelCovGeodeticGrammar : qi::grammar<Iterator, VelCovGeodeticMsg()>
-{
-	VelCovGeodeticGrammar() : VelCovGeodeticGrammar::base_type(velCovGeodetic)
-	{
-        using namespace qi::labels;        
-
-		velCovGeodetic %= qi::attr(HeaderMsg())
-                       >> header(5908, phx::ref(revision))
-		               >> qi::byte_
-                       >> qi::byte_
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>         header;
-    qi::rule<Iterator, VelCovGeodeticMsg()> velCovGeodetic;
 };
 
 /**
@@ -1561,6 +1333,142 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
         msg.vx_vz_cov = DO_NOT_USE_VALUE;
         msg.vy_vz_cov = DO_NOT_USE_VALUE;
     }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * PosCovCartesianParser
+ * @brief Qi based parser for the SBF block "PosCovCartesian"
+ */
+template<typename It>
+bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PosCovCartesianMsg& msg)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5905)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.cov_xx);
+    qiLittleEndianParser(it,msg.cov_yy);
+    qiLittleEndianParser(it,msg.cov_zz);
+    qiLittleEndianParser(it,msg.cov_bb);
+    qiLittleEndianParser(it,msg.cov_xy);
+    qiLittleEndianParser(it,msg.cov_xz);
+    qiLittleEndianParser(it,msg.cov_xb);
+    qiLittleEndianParser(it,msg.cov_yz);
+    qiLittleEndianParser(it,msg.cov_yb);
+    qiLittleEndianParser(it,msg.cov_zb);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * PosCovGeodeticParser
+ * @brief Qi based parser for the SBF block "PosCovGeodetic"
+ */
+template<typename It>
+bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PosCovGeodeticMsg& msg)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5906)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.cov_latlat);
+    qiLittleEndianParser(it, msg.cov_lonlon);
+    qiLittleEndianParser(it, msg.cov_hgthgt);
+    qiLittleEndianParser(it, msg.cov_bb);
+    qiLittleEndianParser(it, msg.cov_latlon);
+    qiLittleEndianParser(it, msg.cov_lathgt);
+    qiLittleEndianParser(it, msg.cov_latb);
+    qiLittleEndianParser(it, msg.cov_lonhgt);
+    qiLittleEndianParser(it, msg.cov_lonb);
+    qiLittleEndianParser(it, msg.cov_hb);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VelCovCartesianParser
+ * @brief Qi based parser for the SBF block "VelCovCartesian"
+ */
+template<typename It>
+bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, VelCovCartesianMsg& msg)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5907)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.cov_vxvx);
+    qiLittleEndianParser(it, msg.cov_vyvy);
+    qiLittleEndianParser(it, msg.cov_vzvz);
+    qiLittleEndianParser(it, msg.cov_dtdt);
+    qiLittleEndianParser(it, msg.cov_vxvy);
+    qiLittleEndianParser(it, msg.cov_vxvz);
+    qiLittleEndianParser(it, msg.cov_vxdt);
+    qiLittleEndianParser(it, msg.cov_vyvz);
+    qiLittleEndianParser(it, msg.cov_vydt);
+    qiLittleEndianParser(it, msg.cov_vzdt);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VelCovGeodeticParser
+ * @brief Qi based parser for the SBF block "VelCovGeodetic"
+ */
+template<typename It>
+bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, VelCovGeodeticMsg& msg)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5908)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.cov_vnvn);
+    qiLittleEndianParser(it, msg.cov_veve);
+    qiLittleEndianParser(it, msg.cov_vuvu);
+    qiLittleEndianParser(it, msg.cov_dtdt);
+    qiLittleEndianParser(it, msg.cov_vnve);
+    qiLittleEndianParser(it, msg.cov_vnvu);
+    qiLittleEndianParser(it, msg.cov_vndt);
+    qiLittleEndianParser(it, msg.cov_vevu);
+    qiLittleEndianParser(it, msg.cov_vedt);
+    qiLittleEndianParser(it, msg.cov_vudt);
     if (it > itEnd)
     {
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");

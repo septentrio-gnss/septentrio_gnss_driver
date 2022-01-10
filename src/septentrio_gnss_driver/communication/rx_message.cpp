@@ -1532,7 +1532,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			PosCovCartesianMsgPtr msg(new PosCovCartesianMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovCartesianGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!PosCovCartesianParser(node_, dvec.begin(), dvec.end(), *msg))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in PosCovCartesian");
 				break;
@@ -1554,7 +1554,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evPosCovGeodetic:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PosCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_poscovgeodetic_))
+			if (!PosCovGeodeticParser(node_, dvec.begin(), dvec.end(), last_poscovgeodetic_))
 			{
                 poscovgeodetic_has_arrived_gpsfix_ = false;
                 poscovgeodetic_has_arrived_navsatfix_ = false;
@@ -2262,7 +2262,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evVelCovGeodetic:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelCovGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_velcovgeodetic_))
+			if (!VelCovGeodeticParser(node_, dvec.begin(), dvec.end(), last_velcovgeodetic_))
 			{
 			    velcovgeodetic_has_arrived_gpsfix_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in VelCovGeodetic");
