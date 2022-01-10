@@ -496,70 +496,6 @@ BlockHeader,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-PVTCartesianMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (double, x),
-    (double, y),
-    (double, z),
-    (float, undulation),
-    (float, vx),
-    (float, vy),
-    (float, vz),
-    (float, cog),
-    (double, rx_clk_bias),
-    (float, rx_clk_drift),
-    (uint8_t, time_system),
-    (uint8_t, datum),
-    (uint8_t, nr_sv),
-    (uint8_t, wa_corr_info),
-    (uint16_t, reference_id),
-    (uint16_t, mean_corr_age),
-    (uint32_t, signal_info),
-    (uint8_t, alert_flag),
-    (uint8_t, nr_bases),
-    (uint16_t, ppp_info),
-    (uint16_t, latency),
-    (uint16_t, h_accuracy),
-    (uint16_t, v_accuracy),
-    (uint8_t, misc)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-PVTGeodeticMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, mode),
-    (uint8_t, error),
-    (double, latitude),
-    (double, longitude),
-    (double, height),
-    (float, undulation),
-    (float, vn),
-    (float, ve),
-    (float, vu),
-    (float, cog),
-    (double, rx_clk_bias),
-    (float, rx_clk_drift),
-    (uint8_t, time_system),
-    (uint8_t, datum),
-    (uint8_t, nr_sv),
-    (uint8_t, wa_corr_info),
-    (uint16_t, reference_id),
-    (uint16_t, mean_corr_age),
-    (uint32_t, signal_info),
-    (uint8_t, alert_flag),
-    (uint8_t, nr_bases),
-    (uint16_t, ppp_info),
-    (uint16_t, latency),
-    (uint16_t, h_accuracy),
-    (uint16_t, v_accuracy),
-    (uint8_t, misc)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 AttEulerMsg,
     (HeaderMsg, header)
     (BlockHeaderMsg, block_header),
@@ -882,106 +818,6 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
     uint16_t id;
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
-};
-
-/**
- * @struct PVTCartesianGrammar
- * @brief Spirit grammar for the SBF block "PVTCartesian"
- */
-template<typename Iterator>
-struct PVTCartesianGrammar : qi::grammar<Iterator, PVTCartesianMsg()>
-{
-	PVTCartesianGrammar() : PVTCartesianGrammar::base_type(pvtCartesian)
-	{
-        using namespace qi::labels;       
-		
-		pvtCartesian %= qi::attr(HeaderMsg())
-                     >> header(4006, phx::ref(revision))
-		             >> qi::byte_
-                     >> qi::byte_
-                     >> qi::little_bin_double
-                     >> qi::little_bin_double
-                     >> qi::little_bin_double
-                     >> qi::little_bin_float
-                     >> qi::little_bin_float
-                     >> qi::little_bin_float
-                     >> qi::little_bin_float
-                     >> qi::little_bin_float
-                     >> qi::little_bin_double
-                     >> qi::little_bin_float
-                     >> qi::byte_
-                     >> qi::byte_
-                     >> qi::byte_
-                     >> qi::byte_
-                     >> qi::little_word
-                     >> qi::little_word
-                     >> qi::little_dword
-                     >> qi::byte_
-                     >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
-                     >> (qi::eps(phx::ref(revision) > 0) >> qi::little_word | qi::attr(0))
-                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                     >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                     >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                     >> qi::repeat[rep::qi::advance(1)]; // skip padding
-
-        BOOST_SPIRIT_DEBUG_NODE(pvtCartesian);
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>       header;
-	qi::rule<Iterator, PVTCartesianMsg()> pvtCartesian;
-};
-
-/**
- * @struct PVTGeodeticGrammar
- * @brief Spirit grammar for the SBF block "PVTGeodetic"
- */
-template<typename Iterator>
-struct PVTGeodeticGrammar : qi::grammar<Iterator, PVTGeodeticMsg()>
-{
-	PVTGeodeticGrammar() : PVTGeodeticGrammar::base_type(pvtGeodetic)
-	{
-        using namespace qi::labels;        
-
-		pvtGeodetic %= qi::attr(HeaderMsg())
-                    >> header(4007, phx::ref(revision))
-		            >> qi::byte_
-                    >> qi::byte_
-                    >> qi::little_bin_double
-                    >> qi::little_bin_double
-                    >> qi::little_bin_double
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_double
-                    >> qi::little_bin_float
-                    >> qi::byte_
-                    >> qi::byte_
-                    >> qi::byte_
-                    >> qi::byte_
-                    >> qi::little_word
-                    >> qi::little_word
-                    >> qi::little_dword
-                    >> qi::byte_
-                    >> (qi::eps(phx::ref(revision) > 0) >> qi::byte_ | qi::attr(0))
-                    >> (qi::eps(phx::ref(revision) > 0) >> qi::little_word | qi::attr(0))
-                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                    >> (qi::eps(phx::ref(revision) > 1) >> qi::little_word | qi::attr(0))
-                    >> (qi::eps(phx::ref(revision) > 1) >> qi::byte_ | qi::attr(0))
-                    >> qi::repeat[rep::qi::advance(1)]; // skip padding
-
-        BOOST_SPIRIT_DEBUG_NODE(pvtGeodetic);
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>      header;
-	qi::rule<Iterator, PVTGeodeticMsg()> pvtGeodetic;
 };
 
 /**
@@ -1503,14 +1339,20 @@ struct VelSensorSetupGrammar : qi::grammar<Iterator, VelSensorSetupMsg()>
  * @brief Qi parser for the SBF block "BlockHeader"
  */
 template<typename It, typename Hdr>
-bool BlockHeaderParser(It& it, Hdr& block_header)
+bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
 {  
     qi::parse(it, it + 1, qi::byte_, block_header.sync_1);
     if (block_header.sync_1 != SBF_SYNC_BYTE_1)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 1.");
         return false;
+    }
     qi::parse(it, it + 1, qi::byte_, block_header.sync_2);
     if (block_header.sync_2 != SBF_SYNC_BYTE_2)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 2.");
         return false;
+    }
     qi::parse(it, it + 2, qi::little_word, block_header.crc);
     uint16_t ID;
     qi::parse(it, it + 2, qi::little_word, ID);
@@ -1523,16 +1365,127 @@ bool BlockHeaderParser(It& it, Hdr& block_header)
 }
 
 /**
+ * @struct PVTCartesianParser
+ * @brief Qi parser for the SBF block "PVTCartesian"
+ */
+template<typename It>
+bool PVTCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PVTCartesianMsg& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4006)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qi::parse(it, it + 1, qi::byte_, msg.mode);
+    qi::parse(it, it + 1, qi::byte_, msg.error);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.x);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.y);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.z);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.undulation);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.vx);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.vy);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.vz);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cog);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.rx_clk_bias);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.rx_clk_drift);
+    qi::parse(it, it + 1, qi::byte_, msg.time_system);
+    qi::parse(it, it + 1, qi::byte_, msg.datum);
+    qi::parse(it, it + 1, qi::byte_, msg.nr_sv);
+    qi::parse(it, it + 1, qi::byte_, msg.wa_corr_info);
+    qi::parse(it, it + 2, qi::little_word, msg.reference_id);
+    qi::parse(it, it + 2, qi::little_word, msg.mean_corr_age);
+    qi::parse(it, it + 4, qi::little_dword, msg.signal_info);
+    qi::parse(it, it + 1, qi::byte_, msg.alert_flag);
+    if (msg.block_header.revision > 0)
+    {
+        qi::parse(it, it + 1, qi::byte_, msg.nr_bases);
+        qi::parse(it, it + 2, qi::little_word, msg.ppp_info);
+    }
+    if (msg.block_header.revision > 1)
+    {
+        qi::parse(it, it + 2, qi::little_word, msg.latency);
+        qi::parse(it, it + 2, qi::little_word, msg.h_accuracy);
+        qi::parse(it, it + 2, qi::little_word, msg.v_accuracy);
+        qi::parse(it, it + 1, qi::byte_, msg.misc);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @struct PVTGeodeticParser
+ * @brief Qi parser for the SBF block "PVTGeodetic"
+ */
+template<typename It>
+bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4007)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qi::parse(it, it + 1, qi::byte_, msg.mode);
+    qi::parse(it, it + 1, qi::byte_, msg.error);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.latitude);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.longitude);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.height);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.undulation);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.vn);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.ve);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.vu);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cog);
+    qi::parse(it, it + 8, qi::little_bin_double, msg.rx_clk_bias);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.rx_clk_drift);
+    qi::parse(it, it + 1, qi::byte_, msg.time_system);
+    qi::parse(it, it + 1, qi::byte_, msg.datum);
+    qi::parse(it, it + 1, qi::byte_, msg.nr_sv);
+    qi::parse(it, it + 1, qi::byte_, msg.wa_corr_info);
+    qi::parse(it, it + 2, qi::little_word, msg.reference_id);
+    qi::parse(it, it + 2, qi::little_word, msg.mean_corr_age);
+    qi::parse(it, it + 4, qi::little_dword, msg.signal_info);
+    qi::parse(it, it + 1, qi::byte_, msg.alert_flag);
+    if (msg.block_header.revision > 0)
+    {
+        qi::parse(it, it + 1, qi::byte_, msg.nr_bases);
+        qi::parse(it, it + 2, qi::little_word, msg.ppp_info);
+    }
+    if (msg.block_header.revision > 1)
+    {
+        qi::parse(it, it + 2, qi::little_word, msg.latency);
+        qi::parse(it, it + 2, qi::little_word, msg.h_accuracy);
+        qi::parse(it, it + 2, qi::little_word, msg.v_accuracy);
+        qi::parse(it, it + 1, qi::byte_, msg.misc);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+}
+
+/**
  * @struct INSNavCartParser
  * @brief Qi parser for the SBF block "INSNavCart"
  */
 template<typename It>
-bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_orientation)
+bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_orientation)
 {    
-    if(!BlockHeaderParser(it, msg.block_header))
+    if(!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if ((msg.block_header.id != 4225) && (msg.block_header.id != 4229))
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
         return false;
+    }
     qi::parse(it, it + 1, qi::byte_, msg.gnss_mode);
     qi::parse(it, it + 1, qi::byte_, msg.error);
     qi::parse(it, it + 2, qi::little_word, msg.info);
@@ -1545,22 +1498,18 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
     qi::parse(it, it + 1, qi::byte_, msg.datum);
     ++it; //reserved
     qi::parse(it, it + 2, qi::little_word, msg.sb_list);
-
-    // Reading sub-block from corresponding SBF block
     if((msg.sb_list & 1) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.x_std_dev);
         qi::parse(it, it + 4, qi::little_bin_float, msg.y_std_dev);
         qi::parse(it, it + 4, qi::little_bin_float, msg.z_std_dev);
     }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
     else
     {
         msg.x_std_dev = DO_NOT_USE_VALUE;
         msg.y_std_dev = DO_NOT_USE_VALUE;
         msg.z_std_dev = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 2) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading);
@@ -1578,7 +1527,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.pitch   = DO_NOT_USE_VALUE;
         msg.roll    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 4) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading_std_dev);
@@ -1591,7 +1539,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.pitch_std_dev   = DO_NOT_USE_VALUE;
         msg.roll_std_dev    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 8) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.vx);
@@ -1604,7 +1551,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.vy = DO_NOT_USE_VALUE;
         msg.vz = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 16) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.vx_std_dev);
@@ -1617,7 +1563,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.vy_std_dev = DO_NOT_USE_VALUE;
         msg.vz_std_dev = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 32) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.xy_cov);
@@ -1630,7 +1575,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.xz_cov = DO_NOT_USE_VALUE;
         msg.yz_cov = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 64) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading_pitch_cov);
@@ -1648,7 +1592,6 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.heading_roll_cov  = DO_NOT_USE_VALUE;
         msg.pitch_roll_cov    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 128) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.vx_vy_cov);
@@ -1661,10 +1604,11 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
         msg.vx_vz_cov = DO_NOT_USE_VALUE;
         msg.vy_vz_cov = DO_NOT_USE_VALUE;
     }
-
     if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
         return false;
-
+    }
     return true;
 };
 
@@ -1673,12 +1617,15 @@ bool INSNavCartParser(It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_ori
  * @brief Qi parser for the SBF block "INSNavGeod"
  */
 template<typename It>
-bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
+bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
 {    
-    if(!BlockHeaderParser(it, msg.block_header))
+    if(!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if ((msg.block_header.id != 4226) && (msg.block_header.id != 4230))
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
         return false;
+    }
     qi::parse(it, it + 1, qi::byte_, msg.gnss_mode);
     qi::parse(it, it + 1, qi::byte_, msg.error);
     qi::parse(it, it + 2, qi::little_word, msg.info);
@@ -1692,22 +1639,18 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
     qi::parse(it, it + 1, qi::byte_, msg.datum);
     ++it; //reserved
     qi::parse(it, it + 2, qi::little_word, msg.sb_list);
-
-    // Reading sub-block from corresponding SBF block
     if((msg.sb_list & 1) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.latitude_std_dev);
         qi::parse(it, it + 4, qi::little_bin_float, msg.longitude_std_dev);
         qi::parse(it, it + 4, qi::little_bin_float, msg.height_std_dev);
     }
-    // if this sub block is not available then output DO_NOT_USE_VALUE
     else
     {
         msg.latitude_std_dev  = DO_NOT_USE_VALUE;
         msg.longitude_std_dev = DO_NOT_USE_VALUE;
         msg.height_std_dev    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 2) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading);
@@ -1725,7 +1668,6 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.pitch   = DO_NOT_USE_VALUE;
         msg.roll    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 4) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading_std_dev);
@@ -1751,7 +1693,6 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.vn = DO_NOT_USE_VALUE;
         msg.vu = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 16) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.ve_std_dev);
@@ -1764,7 +1705,6 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.vn_std_dev = DO_NOT_USE_VALUE;
         msg.vu_std_dev = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 32) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.latitude_longitude_cov);
@@ -1777,7 +1717,6 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.latitude_height_cov    = DO_NOT_USE_VALUE;
         msg.longitude_height_cov   = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 64) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.heading_pitch_cov);
@@ -1795,7 +1734,6 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.heading_roll_cov  = DO_NOT_USE_VALUE;
         msg.pitch_roll_cov    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 128) !=0)
     {
         qi::parse(it, it + 4, qi::little_bin_float, msg.ve_vn_cov);
@@ -1808,10 +1746,11 @@ bool INSNavGeodParser(It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_ori
         msg.ve_vu_cov = DO_NOT_USE_VALUE;
         msg.vn_vu_cov = DO_NOT_USE_VALUE;
     }
-
     if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
         return false;
-
+    }
     return true;
 };
 

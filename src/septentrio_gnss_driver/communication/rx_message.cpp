@@ -1615,7 +1615,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			// the end of the block. Otherwise variable overloading etc.
 			PVTCartesianMsgPtr msg(new PVTCartesianMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTCartesianGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!PVTCartesianParser(node_, dvec.begin(), dvec.end(), *msg))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in PVTCartesian");
 				break;
@@ -1638,7 +1638,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), PVTGeodeticGrammar<std::vector<uint8_t>::iterator>(), last_pvtgeodetic_))
+			if (!PVTGeodeticParser(node_, dvec.begin(), dvec.end(), last_pvtgeodetic_))
 			{
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in PVTGeodetic");
 				break;
@@ -1787,7 +1787,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavCartParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavCartParser(node_, dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavCart");
 				break;
@@ -1810,7 +1810,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 							// frame)
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-            if (!INSNavGeodParser(dvec.begin(), dvec.end(), last_insnavgeod_, settings_->use_ros_axis_orientation))
+            if (!INSNavGeodParser(node_, dvec.begin(), dvec.end(), last_insnavgeod_, settings_->use_ros_axis_orientation))
 			{                
                 insnavgeod_has_arrived_gpsfix_ = false;
                 insnavgeod_has_arrived_navsatfix_ = false;
@@ -1904,7 +1904,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavCartMsgPtr msg(new INSNavCartMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavCartParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavCartParser(node_, dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavCart");
 				break;
@@ -1928,7 +1928,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			INSNavGeodMsgPtr msg(new INSNavGeodMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!INSNavGeodParser(dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
+			if (!INSNavGeodParser(node_, dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{                
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
 				break;
