@@ -1694,17 +1694,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			IMUSetupMsgPtr msg(new IMUSetupMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), IMUSetupGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!IMUSetupParser(node_, dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{                
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in IMUSetup");
 				break;
 			}
-			if (settings_->use_ros_axis_orientation)
-            {
-                msg->ant_lever_arm_y = -msg->ant_lever_arm_y;
-                msg->ant_lever_arm_z = -msg->ant_lever_arm_z;
-                msg->theta_x = parsing_utilities::wrapAngle180to180(msg->theta_x - 180.0);
-            }
 			msg->header.frame_id = settings_->vehicle_frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -1724,16 +1718,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		{
 			VelSensorSetupMsgPtr msg(new VelSensorSetupMsg);
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), VelSensorSetupGrammar<std::vector<uint8_t>::iterator>(), *msg))
+			if (!VelSensorSetupParser(node_, dvec.begin(), dvec.end(), *msg, settings_->use_ros_axis_orientation))
 			{                
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in VelSensorSetup");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                msg->lever_arm_y = -msg->lever_arm_y;
-                msg->lever_arm_z = -msg->lever_arm_z;
-            }
 			msg->header.frame_id = settings_->vehicle_frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);

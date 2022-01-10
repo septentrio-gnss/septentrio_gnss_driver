@@ -33,8 +33,6 @@
 
 // std includes
 #include <unordered_map>
-// Boost includes
-#include <boost/fusion/include/adapt_struct.hpp>
 // ROS includes
 #include <ros/ros.h>
 // tf2 includes
@@ -100,13 +98,6 @@ typedef sensor_msgs::Imu                            ImuMsg;
 typedef sensor_msgs::ImuPtr                         ImuMsgPtr;
 typedef nav_msgs::Odometry                          LocalizationUtmMsg;
 typedef nav_msgs::OdometryPtr                       LocalizationUtmMsgPtr;
-
-BOOST_FUSION_ADAPT_STRUCT(
-HeaderMsg,
-    (uint32_t, seq),
-    (TimestampRos, stamp),
-    (std::string, frame_id)
-)
 
 // Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::BlockHeader        BlockHeaderMsg;

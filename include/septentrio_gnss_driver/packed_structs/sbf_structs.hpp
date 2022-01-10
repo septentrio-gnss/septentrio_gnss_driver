@@ -380,18 +380,6 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 BOOST_FUSION_ADAPT_STRUCT(
-BlockHeaderMsg,
-    (uint8_t, sync_1),
-    (uint8_t, sync_2),
-    (uint16_t, crc),
-    (uint16_t, id),
-    (uint8_t, revision),
-    (uint16_t, length),
-    (uint32_t, tow),
-    (uint16_t, wnc)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 BlockHeader,
     (uint8_t, sync_1),
     (uint8_t, sync_2),
@@ -540,29 +528,6 @@ ReceiverStatus,
     (uint8_t, cmd_count),
     (uint8_t, temperature),
     (std::vector<AgcState>, agc_state)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-IMUSetupMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, serial_port),
-    (float, ant_lever_arm_x),
-    (float, ant_lever_arm_y),
-    (float, ant_lever_arm_z),
-    (float, theta_x),
-    (float, theta_y),
-    (float, theta_z)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-VelSensorSetupMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, port),
-    (float, lever_arm_x),
-    (float, lever_arm_y),
-    (float, lever_arm_z)
 )
 
 namespace qi  = boost::spirit::qi;
@@ -887,63 +852,6 @@ struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
     BlockHeaderGrammar<Iterator>         header;
     qi::rule<Iterator, AgcState()>       agcState;
 	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
-};
-
-/**
- * @struct IMUSetupGrammar
- * @brief Spirit grammar for the SBF block "IMUSetup"
- */
-template<typename Iterator>
-struct IMUSetupGrammar : qi::grammar<Iterator, IMUSetupMsg()>
-{
-	IMUSetupGrammar() : IMUSetupGrammar::base_type(imuSetup)
-	{
-        using namespace qi::labels;        
-
-		imuSetup %= qi::attr(HeaderMsg())
-                 >> header(4224, phx::ref(revision))
-		         >> rep::qi::advance(1) // reserved
-                 >> qi::byte_
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>   header;
-    qi::rule<Iterator, IMUSetupMsg()> imuSetup;
-};
-
-/**
- * @struct VelSensorSetupGrammar
- * @brief Spirit grammar for the SBF block "VelSensorSetup"
- */
-template<typename Iterator>
-struct VelSensorSetupGrammar : qi::grammar<Iterator, VelSensorSetupMsg()>
-{
-	VelSensorSetupGrammar() : VelSensorSetupGrammar::base_type(velSensorSetup)
-	{
-        using namespace qi::labels;        
-
-		velSensorSetup %= qi::attr(HeaderMsg())
-                       >> header(4244, phx::ref(revision))
-		               >> rep::qi::advance(1) // reserved
-                       >> qi::byte_
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::little_bin_float
-                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>         header;
-    qi::rule<Iterator, VelSensorSetupMsg()> velSensorSetup;
 };
 
 /**
@@ -1545,7 +1453,6 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         msg.pitch_std_dev   = DO_NOT_USE_VALUE;
         msg.roll_std_dev    = DO_NOT_USE_VALUE;
     }
-
     if((msg.sb_list & 8) !=0)
     {
         qiLittleEndianParser(it, msg.ve);
@@ -1610,6 +1517,74 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         msg.ve_vn_cov = DO_NOT_USE_VALUE;
         msg.ve_vu_cov = DO_NOT_USE_VALUE;
         msg.vn_vu_cov = DO_NOT_USE_VALUE;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * IMUSetupParser
+ * @brief Qi based parser for the SBF block "IMUSetup"
+ */
+template<typename It>
+bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4224)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    ++it; //reserved
+    qiLittleEndianParser(it, msg.serial_port);
+    qiLittleEndianParser(it, msg.ant_lever_arm_x);
+    qiLittleEndianParser(it, msg.ant_lever_arm_y);
+    qiLittleEndianParser(it, msg.ant_lever_arm_z);
+    qiLittleEndianParser(it, msg.theta_x);
+    qiLittleEndianParser(it, msg.theta_y);
+    qiLittleEndianParser(it, msg.theta_z);
+    if (use_ros_axis_orientation)
+    {
+        msg.ant_lever_arm_y = -msg.ant_lever_arm_y;
+        msg.ant_lever_arm_z = -msg.ant_lever_arm_z;
+        msg.theta_x = parsing_utilities::wrapAngle180to180(msg.theta_x - 180.0f);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VelSensorSetupParser
+ * @brief Qi based parser for the SBF block "VelSensorSetup"
+ */
+template<typename It>
+bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd, VelSensorSetupMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4244)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    ++it; //reserved
+    qiLittleEndianParser(it, msg.port);
+    qiLittleEndianParser(it, msg.lever_arm_x);
+    qiLittleEndianParser(it, msg.lever_arm_y);
+    qiLittleEndianParser(it, msg.lever_arm_z);    
+    if (use_ros_axis_orientation)
+    {
+        msg.lever_arm_y = -msg.lever_arm_y;
+        msg.lever_arm_z = -msg.lever_arm_z;
     }
     if (it > itEnd)
     {
