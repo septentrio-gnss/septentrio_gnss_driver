@@ -426,34 +426,6 @@ BlockHeader,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-AttEulerMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, nr_sv),
-    (uint8_t, error),
-    (uint16_t, mode),    
-    (float, heading),
-    (float, pitch),
-    (float, roll),
-    (float, pitch_dot),
-    (float, roll_dot),
-    (float, heading_dot)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-AttCovEulerMsg,
-    (HeaderMsg, header)
-    (BlockHeaderMsg, block_header),
-    (uint8_t, error),
-    (float, cov_headhead),
-    (float, cov_pitchpitch),
-    (float, cov_rollroll),
-    (float, cov_headpitch),
-    (float, cov_headroll),
-    (float, cov_pitchroll)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 ChannelStateInfo,
     (uint8_t, antenna),
     (uint16_t, tracking_status),
@@ -748,68 +720,6 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
     uint16_t id;
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
-};
-
-/**
- * @struct AttEulerGrammar
- * @brief Spirit grammar for the SBF block "AttEuler"
- */
-template<typename Iterator>
-struct AttEulerGrammar : qi::grammar<Iterator, AttEulerMsg()>
-{
-	AttEulerGrammar() : AttEulerGrammar::base_type(attEuler)
-	{
-        using namespace qi::labels;       
-
-		attEuler %= qi::attr(HeaderMsg())
-                 >> header(5938, phx::ref(revision))
-		         >> qi::byte_
-                 >> qi::byte_
-                 >> qi::little_word
-		         >> rep::qi::advance(2) // reserved
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::little_bin_float
-                 >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>   header;
-    qi::rule<Iterator, AttEulerMsg()> attEuler;
-};
-
-/**
- * @struct AttCovEulerGrammar
- * @brief Spirit grammar for the SBF block "AttCovEuler"
- */
-template<typename Iterator>
-struct AttCovEulerGrammar : qi::grammar<Iterator, AttCovEulerMsg()>
-{
-	AttCovEulerGrammar() : AttCovEulerGrammar::base_type(attCovEuler)
-	{
-        using namespace qi::labels;		
-
-		attCovEuler %= qi::attr(HeaderMsg())
-                    >> header(5939, phx::ref(revision))
-		            >> rep::qi::advance(1) // reserved
-                    >> qi::byte_
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::little_bin_float
-                    >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderMsgGrammar<Iterator>      header;
-	qi::rule<Iterator, AttCovEulerMsg()> attCovEuler;
 };
 
 /**
@@ -1403,6 +1313,86 @@ bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& ms
 }
 
 /**
+ * @struct AttEulerParser
+ * @brief Qi parser for the SBF block "AttEuler"
+ */
+template<typename It>
+bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5938)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qi::parse(it, it + 1, qi::byte_, msg.nr_sv);
+    qi::parse(it, it + 1, qi::byte_, msg.error);
+    qi::parse(it, it + 2, qi::little_word, msg.mode);
+    std::advance(it, 2); // reserved
+    qi::parse(it, it + 4, qi::little_bin_float, msg.heading);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.pitch);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.roll);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.pitch_dot);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.roll_dot);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.heading_dot);
+    if (use_ros_axis_orientation)
+    {
+        if (msg.heading != DO_NOT_USE_VALUE)
+            msg.heading = -msg.heading + parsing_utilities::pi_half;
+        if (msg.pitch != DO_NOT_USE_VALUE)
+            msg.pitch = -msg.pitch;
+        if (msg.pitch_dot != DO_NOT_USE_VALUE)
+            msg.pitch_dot = -msg.pitch_dot;
+        if (msg.heading_dot != DO_NOT_USE_VALUE)
+            msg.heading_dot = -msg.heading_dot;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * @struct AttCovEulerParser
+ * @brief Qi parser for the SBF block "AttCovEuler"
+ */
+template<typename It>
+bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& msg, bool use_ros_axis_orientation)
+{    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5939)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    ++it; // reserved
+    qi::parse(it, it + 1, qi::byte_, msg.error);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_headhead);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_pitchpitch);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_rollroll);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_headpitch); 
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_headroll);
+    qi::parse(it, it + 4, qi::little_bin_float, msg.cov_pitchroll);
+    if (use_ros_axis_orientation)
+    {        
+        if (msg.cov_headroll != DO_NOT_USE_VALUE)
+            msg.cov_headroll  = -msg.cov_headroll;
+        if (msg.cov_pitchroll != DO_NOT_USE_VALUE)
+            msg.cov_pitchroll = -msg.cov_pitchroll;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
  * @struct INSNavCartParser
  * @brief Qi parser for the SBF block "INSNavCart"
  */
@@ -1700,6 +1690,11 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
     }
     qi::parse(it, it + 1, qi::byte_, msg.n);
     qi::parse(it, it + 1, qi::byte_, msg.sb_length);
+    if (msg.sb_length != 28)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong sb_length " + std::to_string(msg.sb_length));
+        return false;
+    }
 
     msg.acceleration_x = std::numeric_limits<double>::quiet_NaN();
     msg.acceleration_y = std::numeric_limits<double>::quiet_NaN();
@@ -1760,7 +1755,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
         case 3:
         {
             qi::parse(it, it + 2, qi::little_word, msg.sensor_temperature);
-            std::advance(it, 22);
+            std::advance(it, 22); // reserved
             break;
         }
         case 4:
@@ -1781,13 +1776,13 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
         case 20:
         {
             qi::parse(it, it + 8, qi::little_bin_double, msg.zero_velocity_flag);
-            std::advance(it, 16);
+            std::advance(it, 16); // reserved
             break;
         }
         default:
         {
             node->log(LogLevel::ERROR, "Unknown external sensor measurement type in SBF ExtSensorMeas.");
-            std::advance(it, 32);
+            std::advance(it, 24);
             break;
         }
         } 

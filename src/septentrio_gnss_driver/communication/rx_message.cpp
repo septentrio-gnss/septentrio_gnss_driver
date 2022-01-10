@@ -1582,24 +1582,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evAttEuler:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttEulerGrammar<std::vector<uint8_t>::iterator>(), last_atteuler_))
+			if (!AttEulerParser(node_, dvec.begin(), dvec.end(), last_atteuler_, settings_->use_ros_axis_orientation))
 			{
                 atteuler_has_arrived_gpsfix_ = false;
 			    atteuler_has_arrived_pose_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in AttEuler");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                if (last_atteuler_.heading != DO_NOT_USE_VALUE)
-                    last_atteuler_.heading = -last_atteuler_.heading + parsing_utilities::pi_half;
-                if (last_atteuler_.pitch != DO_NOT_USE_VALUE)
-                    last_atteuler_.pitch = -last_atteuler_.pitch;
-                if (last_atteuler_.pitch_dot != DO_NOT_USE_VALUE)
-                    last_atteuler_.pitch_dot = -last_atteuler_.pitch_dot;
-                if (last_atteuler_.heading_dot != DO_NOT_USE_VALUE)
-                    last_atteuler_.heading_dot = -last_atteuler_.heading_dot;
-            }
 			last_atteuler_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
@@ -1620,20 +1609,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evAttCovEuler:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), AttCovEulerGrammar<std::vector<uint8_t>::iterator>(), last_attcoveuler_))
+			if (!AttCovEulerParser(node_, dvec.begin(), dvec.end(), last_attcoveuler_, settings_->use_ros_axis_orientation))
 			{
                 attcoveuler_has_arrived_gpsfix_ = false;
 			    attcoveuler_has_arrived_pose_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in AttCovEuler");
 				break;
 			}
-            if (settings_->use_ros_axis_orientation)
-            {
-                if (last_attcoveuler_.cov_headroll != DO_NOT_USE_VALUE)
-                    last_attcoveuler_.cov_headroll  = -last_attcoveuler_.cov_headroll;
-                 if (last_attcoveuler_.cov_pitchroll != DO_NOT_USE_VALUE)
-                    last_attcoveuler_.cov_pitchroll = -last_attcoveuler_.cov_pitchroll;
-            }
 			last_attcoveuler_.header.frame_id = settings_->frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
