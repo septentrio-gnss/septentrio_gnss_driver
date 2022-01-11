@@ -39,7 +39,6 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // ROS msg includes
-#include <std_msgs/Header.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <geometry_msgs/Quaternion.h>
@@ -80,7 +79,6 @@ typedef uint64_t  Timestamp;
 typedef ros::Time TimestampRos;
 
 // ROS messages
-typedef std_msgs::Header                            HeaderMsg;
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;

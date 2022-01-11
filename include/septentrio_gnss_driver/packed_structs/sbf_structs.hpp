@@ -125,12 +125,7 @@
 // C++
 #include <algorithm>
 // Boost
-//#define BOOST_SPIRIT_DEBUG 1
-#define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/spirit/repository/include/qi_advance.hpp>
 
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
@@ -164,7 +159,7 @@ struct BlockHeader
  */
 struct ChannelStateInfo
 {
-    uint8_t antenna;
+    uint8_t  antenna;
     uint16_t tracking_status;
     uint16_t pvt_status;
     uint16_t pvt_info;
@@ -176,13 +171,14 @@ struct ChannelStateInfo
  */
 struct ChannelSatInfo
 {
-    uint8_t sv_id;
-    uint8_t freq_nr;
+    uint8_t  sv_id;
+    uint8_t  freq_nr;
     uint16_t az_rise_set;
     uint16_t health_status;
-    int8_t elev;
-    uint8_t n2;
-    uint8_t rx_channel;
+    int8_t   elev;
+    uint8_t  n2;
+    uint8_t  rx_channel;
+
     std::vector<ChannelStateInfo> stateInfo;
 };
 
@@ -197,6 +193,7 @@ struct ChannelStatus
     uint8_t n;
     uint8_t sb1_length;
     uint8_t sb2_length;
+
     std::vector<ChannelSatInfo> satInfo;
 };
 
@@ -209,12 +206,12 @@ struct DOP
     BlockHeader block_header;
 
     uint8_t nr_sv;
-    double pdop;
-    double tdop;
-    double hdop;
-    double vdop;
-    float hpl;
-    float vpl;
+    double  pdop;
+    double  tdop;
+    double  hdop;
+    double  vdop;
+    float   hpl;
+    float   vpl;
 };
 
 /**
@@ -234,18 +231,18 @@ struct ReceiverSetup
     std::string rx_version;
     std::string ant_serial_nbr;
     std::string ant_type;
-    float delta_h; /* [m] */
-    float delta_e; /* [m] */
-    float delta_n; /* [m] */
+    float       delta_h; /* [m] */
+    float       delta_e; /* [m] */
+    float       delta_n; /* [m] */
     std::string marker_type;
     std::string gnss_fw_version;
     std::string product_name;
-    double latitude;
-    double longitude;
-    float  height;
+    double      latitude;
+    double      longitude;
+    float       height;
     std::string station_code;
-    uint8_t monument_idx;
-    uint8_t receiver_idx;
+    uint8_t     monument_idx;
+    uint8_t     receiver_idx;
     std::string country_code;
 };
 
@@ -258,6 +255,7 @@ struct QualityInd
     BlockHeader block_header;
 
     uint8_t n = 0;
+
     std::vector<uint16_t> indicators;
 };
 
@@ -267,7 +265,7 @@ struct QualityInd
 struct AgcState
 {
     uint8_t frontend_id;
-    int8_t gain;
+    int8_t  gain;
     uint8_t sample_var;
     uint8_t blanking_stat;
 };
@@ -280,15 +278,16 @@ struct ReceiverStatus
 {
     BlockHeader block_header;
 
-    uint8_t cpu_load;
-    uint8_t ext_error;
+    uint8_t  cpu_load;
+    uint8_t  ext_error;
     uint32_t up_time;
     uint32_t rx_status;
     uint32_t rx_error;
-    uint8_t n;
-    uint8_t sb_length;
-    uint8_t cmd_count;
-    uint8_t temperature;
+    uint8_t  n;
+    uint8_t  sb_length;
+    uint8_t  cmd_count;
+    uint8_t  temperature;
+    
     std::vector<AgcState> agc_state;
 };
 
