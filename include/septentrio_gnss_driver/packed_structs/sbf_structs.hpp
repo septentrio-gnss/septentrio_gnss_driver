@@ -122,6 +122,8 @@
 #define SBF_SYNC_BYTE_2 0x40
 #endif
 
+// C++
+#include <algorithm>
 // Boost
 //#define BOOST_SPIRIT_DEBUG 1
 #define BOOST_SPIRIT_USE_PHOENIX_V3
@@ -348,33 +350,6 @@ DOP,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-ReceiverSetup,
-    (BlockHeader, block_header),
-    (std::string, marker_name),
-    (std::string, marker_number),
-    (std::string, observer),
-    (std::string, agency),
-    (std::string, rx_serial_number),
-    (std::string, rx_name),
-    (std::string, rx_version),
-    (std::string, ant_serial_nbr),
-    (std::string, ant_type),
-    (float, delta_h),
-    (float, delta_e),
-    (float, delta_n),
-    (std::string, marker_type),
-    (std::string, gnss_fw_version),
-    (std::string, product_name),
-    (double, latitude),
-    (double, longitude),
-    (float, height),
-    (std::string, station_code),
-    (uint8_t, monument_idx),
-    (uint8_t, receiver_idx),
-    (std::string, country_code)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 QualityInd,
     (BlockHeader, block_header),
     (uint8_t, n),
@@ -465,53 +440,6 @@ struct DopGrammar : qi::grammar<Iterator, DOP()>
 
     BlockHeaderGrammar<Iterator> header;
 	qi::rule<Iterator, DOP()>    dop;
-};
-
-/**
- * @struct ReceiverSetupGrammar
- * @brief Spirit grammar for the SBF block "ReceiverSetup"
- */
-template<typename Iterator>
-struct ReceiverSetupGrammar : qi::grammar<Iterator, ReceiverSetup()>
-{
-	ReceiverSetupGrammar() : ReceiverSetupGrammar::base_type(receiverSetup)
-	{
-        using namespace qi::labels;        
-
-		receiverSetup %= header(5902, phx::ref(revision))
-		              >> rep::qi::advance(2) // reserved
-                      >> qi::repeat(60)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(40)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::little_bin_float
-                      >> qi::repeat(20)[qi::char_]
-                      >> qi::repeat(40)[qi::char_]
-                      >> (qi::eps(phx::ref(revision) > 0) >> qi::repeat(40)[qi::char_] | qi::attr(std::string("")))
-                      >> (qi::eps(phx::ref(revision) > 1) >> qi::little_bin_double | qi::attr(DO_NOT_USE_VALUE))
-                      >> (qi::eps(phx::ref(revision) > 2) >> qi::little_bin_double | qi::attr(DO_NOT_USE_VALUE))
-                      >> (qi::eps(phx::ref(revision) > 3) >> qi::little_bin_float | qi::attr(DO_NOT_USE_VALUE))
-                      >> (qi::eps(phx::ref(revision) > 3) >> qi::repeat(10)[qi::char_] | qi::attr(std::string("")))
-                      >> (qi::eps(phx::ref(revision) > 3) >> qi::byte_ | qi::attr(0))
-                      >> (qi::eps(phx::ref(revision) > 3) >> qi::byte_ | qi::attr(0))
-                      >> (qi::eps(phx::ref(revision) > 3) >> qi::repeat(3)[qi::char_] | qi::attr(std::string("")))
-                      >> (qi::eps(phx::ref(revision) > 3) >> rep::qi::advance(21)) // reserved
-                      >> qi::repeat[rep::qi::advance(1)]; // skip padding
-
-        BOOST_SPIRIT_DEBUG_NODE(receiverSetup);
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderGrammar<Iterator>        header;
-    qi::rule<Iterator, ReceiverSetup()> receiverSetup;
 };
 
 /**
@@ -618,6 +546,20 @@ bool qiLittleEndianParser(It& it, Val& val)
 	{
         return qi::parse(it, it + 8, qi::little_bin_double, val);
     }
+}
+
+/**
+ * qiCharsToStringParser
+ * @brief Qi parser for char array to string
+ */
+template<typename It>
+bool qiCharsToStringParser(It& it, std::string& val, std::size_t num)
+{
+    bool success = false;
+    val.clear();
+    success = qi::parse(it, it + num, qi::repeat(num)[qi::char_], val);
+    val.erase(std::remove(val.begin(), val.end(), '\0'), val.end());
+    return success;
 }
 
 /**
@@ -810,6 +752,63 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
     {
         if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length, msg.sb2_length))
             return false;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * ReceiverSetupParser
+ * @brief Qi based parser for the SBF block "ReceiverSetup"
+ */
+template<typename It>
+bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5902)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    std::advance(it, 2); // reserved
+    qiCharsToStringParser(it, msg.marker_name, 60);
+    qiCharsToStringParser(it, msg.marker_number, 20);
+    qiCharsToStringParser(it, msg.observer, 20);
+    qiCharsToStringParser(it, msg.agency, 40);
+    qiCharsToStringParser(it, msg.rx_serial_number, 20);
+    qiCharsToStringParser(it, msg.rx_name, 20);
+    qiCharsToStringParser(it, msg.rx_version, 20);
+    qiCharsToStringParser(it, msg.ant_serial_nbr, 20);
+    qiCharsToStringParser(it, msg.ant_type, 20);
+    qiLittleEndianParser(it, msg.delta_h);
+    qiLittleEndianParser(it, msg.delta_e);
+    qiLittleEndianParser(it, msg.delta_n);
+    if (msg.block_header.revision > 0)
+        qiCharsToStringParser(it, msg.marker_type, 20);
+    if (msg.block_header.revision > 1)
+        qiCharsToStringParser(it, msg.gnss_fw_version, 40);
+    if (msg.block_header.revision > 2)
+        qiCharsToStringParser(it, msg.product_name, 40);
+    if (msg.block_header.revision > 3)
+    {    
+        qiLittleEndianParser(it, msg.latitude);
+        qiLittleEndianParser(it, msg.longitude);
+        qiLittleEndianParser(it, msg.height);
+        qiCharsToStringParser(it, msg.station_code, 10);
+        qiLittleEndianParser(it, msg.monument_idx);
+        qiLittleEndianParser(it, msg.receiver_idx);
+        qiCharsToStringParser(it, msg.country_code, 3);
+    }
+    else
+    {
+        msg.latitude  = DO_NOT_USE_VALUE;
+        msg.longitude = DO_NOT_USE_VALUE;
+        msg.height    = DO_NOT_USE_VALUE;
     }
     if (it > itEnd)
     {
