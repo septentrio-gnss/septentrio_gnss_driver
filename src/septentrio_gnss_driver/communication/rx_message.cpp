@@ -908,43 +908,43 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
         msg->climb = last_pvtgeodetic_.vu;
         msg->pitch = last_atteuler_.pitch;
         msg->roll  = last_atteuler_.roll;
-        if (last_dop_.pdop == static_cast<uint16_t>(0) ||
-            last_dop_.tdop == static_cast<uint16_t>(0))
+        if (last_dop_.pdop == 0.0 ||
+            last_dop_.tdop == 0.0)
         {
             msg->gdop = -1.0;
         } else
         {
             msg->gdop =
-                std::sqrt(parsing_utilities::square(static_cast<double>(last_dop_.pdop) / 100) +
-                        parsing_utilities::square(static_cast<double>(last_dop_.tdop) / 100));
+                std::sqrt(parsing_utilities::square(last_dop_.pdop) +
+                        parsing_utilities::square(last_dop_.tdop));
         }
-        if (last_dop_.pdop == static_cast<uint16_t>(0))
+        if (last_dop_.pdop == 0.0)
         {
-            msg->pdop = static_cast<double>(-1);
+            msg->pdop = -1.0;
         } else
         {
-            msg->pdop = static_cast<double>(last_dop_.pdop) / 100;
+            msg->pdop = last_dop_.pdop;
         }
-        if (last_dop_.hdop == static_cast<uint16_t>(0))
+        if (last_dop_.hdop == 0.0)
         {
-            msg->hdop = static_cast<double>(-1);
+            msg->hdop = -1.0;
         } else
         {
-            msg->hdop = static_cast<double>(last_dop_.hdop) / 100;
+            msg->hdop = last_dop_.hdop;
         }
-        if (last_dop_.vdop == static_cast<uint16_t>(0))
+        if (last_dop_.vdop == 0.0)
         {
-            msg->vdop = static_cast<double>(-1);
+            msg->vdop = -1.0;
         } else
         {
-            msg->vdop = static_cast<double>(last_dop_.vdop) / 100;
+            msg->vdop = last_dop_.vdop;
         }
-        if (last_dop_.tdop == static_cast<uint16_t>(0))
+        if (last_dop_.tdop == 0.0)
         {
-            msg->tdop = static_cast<double>(-1);
+            msg->tdop = -1.0;
         } else
         {
-            msg->tdop = static_cast<double>(last_dop_.tdop) / 100;
+            msg->tdop = last_dop_.tdop;
         }
         msg->time = static_cast<double>(last_pvtgeodetic_.block_header.tow) / 1000 +
                     static_cast<double>(last_pvtgeodetic_.block_header.wnc * 7 * 24 * 60 * 60);
@@ -1047,47 +1047,47 @@ GPSFixMsgPtr io_comm_rx::RxMessage::GPSFixCallback()
 
 			msg->climb = last_insnavgeod_.vu;
         }
-        if (last_dop_.pdop == static_cast<uint16_t>(0) ||
-            last_dop_.tdop == static_cast<uint16_t>(0))
+        if (last_dop_.pdop == 0.0 ||
+            last_dop_.tdop == 0.0)
         {
-            msg->gdop = static_cast<double>(-1);
+            msg->gdop = -1.0;
         } else
         {
             msg->gdop =
-                std::sqrt(parsing_utilities::square(static_cast<double>(last_dop_.pdop) / 100) +
-                          parsing_utilities::square(static_cast<double>(last_dop_.tdop) / 100));
+                std::sqrt(parsing_utilities::square(last_dop_.pdop) +
+                          parsing_utilities::square(last_dop_.tdop));
         }
-        if (last_dop_.pdop == static_cast<uint16_t>(0))
+        if (last_dop_.pdop == 0.0)
         {
-            msg->pdop = static_cast<double>(-1);
+            msg->pdop = -1.0;
         } else
         {
-            msg->pdop = static_cast<double>(last_dop_.pdop) / 100;
+            msg->pdop = last_dop_.pdop;
         }
-        if (last_dop_.hdop == static_cast<uint16_t>(0))
+        if (last_dop_.hdop == 0.0)
         {
-            msg->hdop = static_cast<double>(-1);
+            msg->hdop = -1.0;
         } else
         {
-            msg->hdop = static_cast<double>(last_dop_.hdop) / 100;
+            msg->hdop = last_dop_.hdop;
         }
-        if (last_dop_.vdop == static_cast<uint16_t>(0))
+        if (last_dop_.vdop == 0.0)
         {
-            msg->vdop = static_cast<double>(-1);
+            msg->vdop = -1.0;
         } else
         {
-            msg->vdop = static_cast<double>(last_dop_.vdop) / 100;
+            msg->vdop = last_dop_.vdop;
         }
-        if (last_dop_.tdop == static_cast<uint16_t>(0))
+        if (last_dop_.tdop == 0.0)
         {
-            msg->tdop = static_cast<double>(-1);
+            msg->tdop = -1.0;
         } else
         {
-            msg->tdop = static_cast<double>(last_dop_.tdop) / 100;
+            msg->tdop = last_dop_.tdop;
         }
         msg->time = static_cast<double>(last_insnavgeod_.block_header.tow) / 1000 +
                     static_cast<double>(last_insnavgeod_.block_header.wnc * 7 * 24 * 60 * 60);
-        if((last_insnavgeod_.sb_list & 1) !=0)
+        if ((last_insnavgeod_.sb_list & 1) !=0)
         {
             msg->err = 2*(std::sqrt(parsing_utilities::square(last_insnavgeod_.latitude_std_dev) + 
                         parsing_utilities::square(last_insnavgeod_.longitude_std_dev)+ 
@@ -2246,7 +2246,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evDOP:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), DopGrammar<std::vector<uint8_t>::iterator>(), last_dop_))
+			if (!DOPParser(node_, dvec.begin(), dvec.end(), last_dop_))
 			{
 			    dop_has_arrived_gpsfix_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in DOP");

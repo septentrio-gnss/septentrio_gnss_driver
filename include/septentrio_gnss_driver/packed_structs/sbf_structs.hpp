@@ -209,10 +209,10 @@ struct DOP
     BlockHeader block_header;
 
     uint8_t nr_sv;
-    uint16_t pdop;
-    uint16_t tdop;
-    uint16_t hdop;
-    uint16_t vdop;
+    double pdop;
+    double tdop;
+    double hdop;
+    double vdop;
     float hpl;
     float vpl;
 };
@@ -338,18 +338,6 @@ BlockHeader,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-DOP,
-    (BlockHeader, block_header),
-    (uint8_t, nr_sv),
-    (uint16_t, pdop),
-    (uint16_t, tdop),
-    (uint16_t, hdop),
-    (uint16_t, vdop),
-    (float, hpl),
-    (float, vpl)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 QualityInd,
     (BlockHeader, block_header),
     (uint8_t, n),
@@ -411,35 +399,6 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
     uint16_t id;
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
-};
-
-/**
- * @struct DopGrammar
- * @brief Spirit grammar for the SBF block "DOP"
- */
-template<typename Iterator>
-struct DopGrammar : qi::grammar<Iterator, DOP()>
-{
-	DopGrammar() : DopGrammar::base_type(dop)
-	{
-        using namespace qi::labels;       
-
-		dop %= header(4001, phx::ref(revision))
-		    >> qi::byte_
-            >> rep::qi::advance(1) // reserved
-            >> qi::little_word
-		    >> qi::little_word
-            >> qi::little_word
-		    >> qi::little_word
-            >> qi::little_bin_float
-            >> qi::little_bin_float
-            >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-
-    BlockHeaderGrammar<Iterator> header;
-	qi::rule<Iterator, DOP()>    dop;
 };
 
 /**
@@ -594,7 +553,7 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
 
 /**
  * ChannelStateInfoParser
- * @brief Struct for the SBF sub-block "ChannelStateInfo"
+ * @brief Qi based parser for the SBF sub-block "ChannelStateInfo"
  */
 template<typename It>
 void ChannelStateInfoParser(It& it, ChannelStateInfo& msg, uint8_t sb2_length)
@@ -609,7 +568,7 @@ void ChannelStateInfoParser(It& it, ChannelStateInfo& msg, uint8_t sb2_length)
 
 /**
  * ChannelSatInfoParser
- * @brief Struct for the SBF sub-block "ChannelSatInfo"
+ * @brief Qi based parser or the SBF sub-block "ChannelSatInfo"
  */
 template<typename It>
 bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uint8_t sb1_length, uint8_t sb2_length)
@@ -639,7 +598,7 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uin
 
 /**
  * ChannelStatusParser
- * @brief Struct for the SBF block "ChannelStatus"
+ * @brief Qi based parser for the SBF block "ChannelStatus"
  */
 template<typename It>
 bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& msg)
@@ -666,6 +625,47 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
         if (!ChannelSatInfoParser(node, it, satInfo, msg.sb1_length, msg.sb2_length))
             return false;
     } 
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * DOPParser
+ * @brief Qi based parser for the SBF block "DOP"
+ */
+template<typename It>
+bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, DOP& msg)
+{
+    
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4001)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.nr_sv);
+    ++it; // reserved
+    uint16_t temp;
+    qiLittleEndianParser(it, temp);
+    msg.pdop = temp / 100.0;
+    qiLittleEndianParser(it, temp);
+    msg.tdop = temp / 100.0;
+    qiLittleEndianParser(it, temp);
+    msg.hdop = temp / 100.0;
+    qiLittleEndianParser(it, temp);
+    msg.vdop = temp / 100.0;
+    qiLittleEndianParser(it, msg.hpl);
+    qiLittleEndianParser(it, msg.vpl);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
     return true;
 };
 
