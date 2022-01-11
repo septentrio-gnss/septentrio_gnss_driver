@@ -58,8 +58,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 <summary>Notes Before Usage</summary>
 
   + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
-  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. 
-  + Currently, the driver only works on systems that are little-endian. Most modern computers, including PCs, are little-endian.
+  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command.
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
@@ -470,10 +469,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   <summary>Some Ideas</summary>
 
   + Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
-  + Publishing the topic `/measepoch`: It could accept the custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch` (raw GNSS data).
   + Publishing the topic `/twist`: It could accept the generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic` and others or via standardized NMEA sentences (cf. the [NMEA driver](https://wiki.ros.org/nmea_navsat_driver)).
     + The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](https://docs.ros.org/melodic/api/robot_localization/html/index.html) nodes of the ROS navigation stack.
-  + Additional ROSaic parameter: endianness of the system.
   + Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 </details>
 
