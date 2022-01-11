@@ -325,117 +325,7 @@ static const uint16_t CRC_LOOK_UP[256] = {
     0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36,
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
-BOOST_FUSION_ADAPT_STRUCT(
-BlockHeader,
-    (uint8_t, sync_1),
-    (uint8_t, sync_2),
-    (uint16_t, crc),
-    (uint16_t, id),
-    (uint8_t, revision),
-    (uint16_t, length),
-    (uint32_t, tow),
-    (uint16_t, wnc)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-AgcState,
-    (uint8_t, frontend_id),
-    (int8_t, gain),
-    (uint8_t, sample_var),
-    (uint8_t, blanking_stat)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-ReceiverStatus,
-    (BlockHeader, block_header),
-    (uint8_t, cpu_load),
-    (uint8_t, ext_error),
-    (uint32_t, up_time),
-    (uint32_t, rx_status),
-    (uint32_t, rx_error),
-    (uint8_t, n),
-    (uint8_t, sb_length),
-    (uint8_t, cmd_count),
-    (uint8_t, temperature),
-    (std::vector<AgcState>, agc_state)
-)
-
 namespace qi  = boost::spirit::qi;
-namespace rep = boost::spirit::repository;
-namespace phx = boost::phoenix;
-
-/**
- * @struct BlockHeaderGrammar
- * @brief Spirit grammar for the SBF block "BlockHeader"
- */
-template<typename Iterator>
-struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&)>
-{
-	BlockHeaderGrammar() : BlockHeaderGrammar::base_type(blockHeader)
-	{
-		using namespace qi::labels;
-		
-        blockHeader %= qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_1]
-		            >> qi::byte_[_pass = qi::_1 == SBF_SYNC_BYTE_2]
-		            >> qi::little_word
-		            >> qi::omit[qi::little_word[phx::ref(id) = (qi::_1 & 8191), _pass = (phx::ref(id) == _r1), _r2 = qi::_1 >> 13]] // revision is upper 3 bits
-                    >> qi::attr(phx::ref(id))
-                    >> qi::attr(_r2)
-                    >> qi::little_word
-                    >> qi::little_dword
-                    >> qi::little_word;
-
-        
-        BOOST_SPIRIT_DEBUG_NODE(blockHeader);
-	}
-
-    uint16_t id;
-
-	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
-};
-
-/**
- * @struct ReceiverStatusGrammar
- * @brief Spirit grammar for the SBF block "ReceiverStatus"
- */
-template<typename Iterator>
-struct ReceiverStatusGrammar : qi::grammar<Iterator, ReceiverStatus()>
-{
-	ReceiverStatusGrammar() : ReceiverStatusGrammar::base_type(receiverStatus)
-	{
-        using namespace qi::labels;        
-
-        agcState %= qi::byte_
-                 >> qi::char_
-                 >> qi::byte_
-                 >> qi::byte_
-                 >> rep::qi::advance(phx::ref(sb_length) - 4); // skip padding: sb_length - 4 bytes
-
-        receiverStatus %= header(4014, phx::ref(revision))
-		               >> qi::byte_
-                       >> qi::byte_
-                       >> qi::little_dword
-                       >> qi::little_dword
-                       >> qi::little_dword
-                       >> qi::byte_[_pass = (qi::_1 <= 18), phx::ref(n) = qi::_1] // n
-                       >> qi::byte_[phx::ref(sb_length) = qi::_1] // sb_length
-                       >> qi::byte_
-                       >> qi::byte_
-                       >> qi::eps[phx::reserve(phx::at_c<10>(_val), phx::ref(n))]
-                       >> qi::repeat(phx::ref(n))[agcState]
-                       >> qi::repeat[rep::qi::advance(1)]; // skip padding
-
-        BOOST_SPIRIT_DEBUG_NODE(receiverStatus);
-	}
-
-    uint8_t  revision;
-    uint8_t  n;
-    uint8_t  sb_length;
-
-    BlockHeaderGrammar<Iterator>         header;
-    qi::rule<Iterator, AgcState()>       agcState;
-	qi::rule<Iterator, ReceiverStatus()> receiverStatus;
-};
 
 /**
  * qiLittleEndianParser
@@ -1264,12 +1154,72 @@ bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
         return false;
     }
     qiLittleEndianParser(it, msg.n);
+    if (msg.n > 40)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Too many indicators " + std::to_string(msg.n));
+        return false;
+    }
     ++it; // reserved
     msg.indicators.resize(msg.n);
     std::vector<uint16_t> indicators;
     for (auto& indicators : msg.indicators)
     {
         qiLittleEndianParser(it, indicators);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * AgcStateParser
+ * @brief Struct for the SBF sub-block "AGCState"
+ */
+template<typename It>
+void AgcStateParser(It it, AgcState& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.frontend_id);
+    qiLittleEndianParser(it, msg.gain);
+    qiLittleEndianParser(it, msg.sample_var);
+    qiLittleEndianParser(it, msg.blanking_stat);
+    std::advance(it, sb_length - 4); // skip padding
+};
+
+/**
+ * ReceiverStatusParser
+ * @brief Struct for the SBF block "ReceiverStatus"
+ */
+template<typename It>
+bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4014)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.cpu_load);
+    qiLittleEndianParser(it, msg.ext_error);
+    qiLittleEndianParser(it, msg.up_time);
+    qiLittleEndianParser(it, msg.rx_status);
+    qiLittleEndianParser(it, msg.rx_error);
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > 18)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Too many AGCState " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb_length);
+    qiLittleEndianParser(it, msg.cmd_count);
+    qiLittleEndianParser(it, msg.temperature);
+    msg.agc_state.resize(msg.n);
+    for (auto& agc_state : msg.agc_state)
+    {
+        AgcStateParser(it, agc_state, msg.sb_length);
     }
     if (it > itEnd)
     {

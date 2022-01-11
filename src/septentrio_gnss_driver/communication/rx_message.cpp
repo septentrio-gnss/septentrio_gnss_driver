@@ -2373,7 +2373,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evReceiverStatus:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), ReceiverStatusGrammar<std::vector<uint8_t>::iterator>(), last_receiverstatus_))
+			if (!ReceiverStatusParser(node_, dvec.begin(), dvec.end(), last_receiverstatus_))
 			{                
 			    receiverstatus_has_arrived_diagnostics_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ReceiverStatus");
