@@ -853,13 +853,13 @@ namespace io_comm_rx {
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
-        NavSatFixMsgPtr NavSatFixCallback();
+        NavSatFixMsg NavSatFixCallback();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
          * @return A smart pointer to the ROS message GPSFix just created
          */
-        GPSFixMsgPtr GPSFixCallback();
+        GPSFixMsg GPSFixCallback();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
@@ -867,7 +867,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        PoseWithCovarianceStampedMsgPtr
+        PoseWithCovarianceStampedMsg
         PoseWithCovarianceStampedCallback();
 
         /**
@@ -876,7 +876,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * DiagnosticArrayMsg just created
          */
-        DiagnosticArrayMsgPtr DiagnosticArrayCallback();
+        DiagnosticArrayMsg DiagnosticArrayCallback();
 
         /**
          * @brief "Callback" function when constructing
@@ -884,7 +884,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * ImuMsg just created
          */
-        ImuMsgPtr ImuCallback();
+        ImuMsg ImuCallback();
 
         /**
          * @brief "Callback" function when constructing
@@ -892,7 +892,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * LocalizationUtmMsg just created
          */
-        LocalizationUtmMsgPtr LocalizationUtmCallback();
+        LocalizationUtmMsg LocalizationUtmCallback();
 
          /**
          * @brief Waits according to time when reading from file

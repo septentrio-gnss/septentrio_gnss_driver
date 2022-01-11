@@ -76,13 +76,13 @@
  * @brief Derived class for parsing GSV messages
  * @date 29/09/20
  */
-class GpgsvParser : public BaseParser<GpgsvMsgPtr>
+class GpgsvParser : public BaseParser<GpgsvMsg>
 {
 public:
     /**
      * @brief Constructor of the class GpgsvParser
      */
-    GpgsvParser() : BaseParser<GpgsvMsgPtr>() {}
+    GpgsvParser() : BaseParser<GpgsvMsg>() {}
 
     /**
      * @brief Returns the ASCII message ID, here "$GPGSV"
@@ -95,7 +95,7 @@ public:
      * @param[in] sentence The GSV message to be parsed
      * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
      */
-    GpgsvMsgPtr
+    GpgsvMsg
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**

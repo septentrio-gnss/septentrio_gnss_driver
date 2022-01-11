@@ -76,13 +76,13 @@
  * @brief Derived class for parsing GSA messages
  * @date 29/09/20
  */
-class GpgsaParser : public BaseParser<GpgsaMsgPtr>
+class GpgsaParser : public BaseParser<GpgsaMsg>
 {
 public:
     /**
      * @brief Constructor of the class GpgsaParser
      */
-    GpgsaParser() : BaseParser<GpgsaMsgPtr>() {}
+    GpgsaParser() : BaseParser<GpgsaMsg>() {}
 
     /**
      * @brief Returns the ASCII message ID, here "$GPGSA"
@@ -93,9 +93,9 @@ public:
     /**
      * @brief Parses one GSA message
      * @param[in] sentence The GSA message to be parsed
-     * @return A ROS message pointer of ROS type GpgsaMsgPtr
+     * @return A ROS message pointer of ROS type GpgsaMsg
      */
-    GpgsaMsgPtr
+    GpgsaMsg
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**

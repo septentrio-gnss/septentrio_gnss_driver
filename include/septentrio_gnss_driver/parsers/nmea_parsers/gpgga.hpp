@@ -76,14 +76,14 @@
  * @brief Derived class for parsing GGA messages
  * @date 13/08/20
  */
-class GpggaParser : public BaseParser<GpggaMsgPtr>
+class GpggaParser : public BaseParser<GpggaMsg>
 {
 public:
     /**
      * @brief Constructor of the class GpggaParser
      */
     GpggaParser() :
-        BaseParser<GpggaMsgPtr>(), was_last_gpgga_valid_(false)
+        BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false)
     {
     }
 
@@ -96,9 +96,9 @@ public:
     /**
      * @brief Parses one GGA message
      * @param[in] sentence The GGA message to be parsed
-     * @return A ROS message pointer of ROS type GpggaMsgPtr
+     * @return A ROS message pointer of ROS type GpggaMsg
      */
-    GpggaMsgPtr
+    GpggaMsg
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**
