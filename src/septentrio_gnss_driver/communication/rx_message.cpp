@@ -2385,7 +2385,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 		case evQualityInd:
 		{
 			std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
-			if (!boost::spirit::qi::parse(dvec.begin(), dvec.end(), QualityIndGrammar<std::vector<uint8_t>::iterator>(), last_qualityind_))
+			if (!QualityIndParser(node_, dvec.begin(), dvec.end(), last_qualityind_))
 			{
                 qualityind_has_arrived_diagnostics_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in QualityInd");

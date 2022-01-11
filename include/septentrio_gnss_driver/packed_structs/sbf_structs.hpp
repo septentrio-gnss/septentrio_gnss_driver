@@ -338,13 +338,6 @@ BlockHeader,
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-QualityInd,
-    (BlockHeader, block_header),
-    (uint8_t, n),
-    (std::vector<uint16_t>, indicators)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
 AgcState,
     (uint8_t, frontend_id),
     (int8_t, gain),
@@ -399,32 +392,6 @@ struct BlockHeaderGrammar : qi::grammar<Iterator, BlockHeader(uint16_t, uint8_t&
     uint16_t id;
 
 	qi::rule<Iterator, BlockHeader(uint16_t, uint8_t&)> blockHeader;
-};
-
-/**
- * @struct QualityIndGrammar
- * @brief Spirit grammar for the SBF block "QualityInd"
- */
-template<typename Iterator>
-struct QualityIndGrammar : qi::grammar<Iterator, QualityInd()>
-{
-	QualityIndGrammar() : QualityIndGrammar::base_type(qualityInd)
-	{
-        using namespace qi::labels;        
-
-		qualityInd %= header(4082, phx::ref(revision))
-		           >> qi::byte_[_pass = (qi::_1 <= 40), phx::ref(n) = qi::_1]
-                   >> rep::qi::advance(1) // reserved
-                   >> qi::eps[phx::reserve(phx::at_c<2>(_val), phx::ref(n))]
-                   >> qi::repeat(phx::ref(n))[qi::little_word]
-		           >> qi::repeat[rep::qi::advance(1)]; // skip padding
-	}
-
-    uint8_t  revision;
-    uint8_t  n;
-
-    BlockHeaderGrammar<Iterator>     header;
-    qi::rule<Iterator, QualityInd()> qualityInd;
 };
 
 /**
@@ -1274,6 +1241,36 @@ bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, VelCovGeodeticM
     qiLittleEndianParser(it, msg.cov_vevu);
     qiLittleEndianParser(it, msg.cov_vedt);
     qiLittleEndianParser(it, msg.cov_vudt);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * QualityIndParser
+ * @brief @brief Qi based parser for the SBF block "QualityInd"
+ */
+template<typename It>
+bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4082)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    ++it; // reserved
+    msg.indicators.resize(msg.n);
+    std::vector<uint16_t> indicators;
+    for (auto& indicators : msg.indicators)
+    {
+        qiLittleEndianParser(it, indicators);
+    }
     if (it > itEnd)
     {
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");
