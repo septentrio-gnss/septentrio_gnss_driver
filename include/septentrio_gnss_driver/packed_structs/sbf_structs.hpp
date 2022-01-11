@@ -466,7 +466,7 @@ struct QualityInd
     uint32_t tow;
     uint16_t wnc;
 
-    uint8_t n;
+    uint8_t n = 0;
     uint8_t reserved;
     uint16_t indicators[40];
 };
