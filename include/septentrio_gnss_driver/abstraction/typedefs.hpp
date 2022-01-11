@@ -51,6 +51,9 @@
 #include <nav_msgs/Odometry.h>
 // GNSS msg includes
 #include <septentrio_gnss_driver/BlockHeader.h>
+#include <septentrio_gnss_driver/MeasEpoch.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType1.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType2.h>
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
 #include <septentrio_gnss_driver/PVTCartesian.h>
@@ -100,23 +103,26 @@ typedef nav_msgs::Odometry                          LocalizationUtmMsg;
 typedef nav_msgs::OdometryPtr                       LocalizationUtmMsgPtr;
 
 // Septentrio GNSS SBF messages
-typedef septentrio_gnss_driver::BlockHeader        BlockHeaderMsg;
-typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
-typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
-typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
-typedef septentrio_gnss_driver::AttEulerPtr        AttEulerMsgPtr;
-typedef septentrio_gnss_driver::PVTCartesian       PVTCartesianMsg;
-typedef septentrio_gnss_driver::PVTCartesianPtr    PVTCartesianMsgPtr;
-typedef septentrio_gnss_driver::PVTGeodetic        PVTGeodeticMsg;
-typedef septentrio_gnss_driver::PVTGeodeticPtr     PVTGeodeticMsgPtr;
-typedef septentrio_gnss_driver::PosCovCartesian    PosCovCartesianMsg;
-typedef septentrio_gnss_driver::PosCovCartesianPtr PosCovCartesianMsgPtr;
-typedef septentrio_gnss_driver::PosCovGeodetic     PosCovGeodeticMsg;
-typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
-typedef septentrio_gnss_driver::VelCovCartesian    VelCovCartesianMsg;
-typedef septentrio_gnss_driver::VelCovCartesianPtr VelCovCartesianMsgPtr;
-typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
-typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::BlockHeader           BlockHeaderMsg;
+typedef septentrio_gnss_driver::MeasEpoch             MeasEpochMsg;
+typedef septentrio_gnss_driver::MeasEpochChannelType1 MeasEpochChannelType1Msg;
+typedef septentrio_gnss_driver::MeasEpochChannelType2 MeasEpochChannelType2Msg;
+typedef septentrio_gnss_driver::AttCovEuler           AttCovEulerMsg;
+typedef septentrio_gnss_driver::AttCovEulerPtr        AttCovEulerMsgPtr;
+typedef septentrio_gnss_driver::AttEuler              AttEulerMsg;
+typedef septentrio_gnss_driver::AttEulerPtr           AttEulerMsgPtr;
+typedef septentrio_gnss_driver::PVTCartesian          PVTCartesianMsg;
+typedef septentrio_gnss_driver::PVTCartesianPtr       PVTCartesianMsgPtr;
+typedef septentrio_gnss_driver::PVTGeodetic           PVTGeodeticMsg;
+typedef septentrio_gnss_driver::PVTGeodeticPtr        PVTGeodeticMsgPtr;
+typedef septentrio_gnss_driver::PosCovCartesian       PosCovCartesianMsg;
+typedef septentrio_gnss_driver::PosCovCartesianPtr    PosCovCartesianMsgPtr;
+typedef septentrio_gnss_driver::PosCovGeodetic        PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::PosCovGeodeticPtr     PosCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::VelCovCartesian       VelCovCartesianMsg;
+typedef septentrio_gnss_driver::VelCovCartesianPtr    VelCovCartesianMsgPtr;
+typedef septentrio_gnss_driver::VelCovGeodetic        VelCovGeodeticMsg;
+typedef septentrio_gnss_driver::VelCovGeodeticPtr     VelCovGeodeticMsgPtr;
 
 // NMEA messages
 typedef nmea_msgs::Gpgga    GpggaMsg;

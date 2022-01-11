@@ -709,7 +709,7 @@ namespace io_comm_rx {
          * @brief Since GPSFix needs MeasEpoch (for SNRs), incoming MeasEpoch blocks
          * need to be stored
          */
-        MeasEpoch last_measepoch_;
+        MeasEpochMsg last_measepoch_;
 
         /**
          * @brief Since GPSFix needs DOP, incoming DOP blocks need to be stored

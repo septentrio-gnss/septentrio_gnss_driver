@@ -2233,6 +2233,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in MeasEpoch");
 				break;
 			}
+			last_measepoch_.header.frame_id = settings_->frame_id;
+			uint32_t tow = parsing_utilities::getTow(data_);
+			uint16_t wnc = parsing_utilities::getWnc(data_);
+			Timestamp time_obj;
+			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
+			last_measepoch_.header.stamp = timestampToRos(time_obj);
+			node_->publishMessage<MeasEpochMsg>("/measepoch", last_measepoch_);
             measepoch_has_arrived_gpsfix_ = true;
 			break;
 		}

@@ -199,62 +199,6 @@ struct ChannelStatus
 };
 
 /**
- * @class MeasEpochChannelType2
- * @brief Struct for the SBF sub-block "MeasEpochChannelType2"
- */
-struct MeasEpochChannelType2
-{
-    uint8_t type;
-    uint8_t lock_time;
-    uint8_t cn0;
-    uint8_t offsets_msb;
-    int8_t carrier_msb;
-    uint8_t obs_info;
-    uint16_t code_offset_lsb;
-    uint16_t carrier_lsb;
-    uint16_t doppler_offset_lsb;
-};
-
-/**
- * @class MeasEpochChannelType1
- * @brief Struct for the SBF sub-block "MeasEpochChannelType1"
- */
-struct MeasEpochChannelType1
-{
-    uint8_t rx_channel;
-    uint8_t type;
-    uint8_t sv_id;
-    uint8_t misc;
-    uint32_t code_lsb;
-    int32_t doppler;
-    uint16_t carrier_lsb;
-    int8_t carrier_msb;
-    uint8_t cn0;
-    uint16_t lock_time;
-    uint8_t obs_info;
-    uint8_t n2;
-    std::vector<MeasEpochChannelType2> type2;
-};
-
-/**
- * @class MeasEpoch
- * @brief Struct for the SBF block "MeasEpoch"
- */
-struct MeasEpoch
-{
-    BlockHeader block_header;
-
-    /* MeasEpoch Header */
-    uint8_t n;
-    uint8_t sb1_length;
-    uint8_t sb2_length;
-
-    uint8_t common_flags;
-    uint8_t cum_clk_jumps;
-    std::vector<MeasEpochChannelType1> type1;
-};
-
-/**
  * @class DOP
  * @brief Struct for the SBF block "DOP"
  */
@@ -744,7 +688,7 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uin
     ++it; // reserved
     std::advance(it, sb1_length - 12); // skip padding
     msg.stateInfo.resize(msg.n2);
-    for (auto stateInfo : msg.stateInfo)
+    for (auto& stateInfo : msg.stateInfo)
     {
         ChannelStateInfoParser(it, stateInfo, sb2_length);
     } 
@@ -775,7 +719,7 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
     qiLittleEndianParser(it, msg.sb2_length);
     std::advance(it, 3); // reserved
     msg.satInfo.resize(msg.n);
-    for (auto satInfo : msg.satInfo)
+    for (auto& satInfo : msg.satInfo)
     {
         if (!ChannelSatInfoParser(node, it, satInfo, msg.sb1_length, msg.sb2_length))
             return false;
@@ -788,7 +732,7 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType2"
  */
 template<typename It>
-void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2& msg, uint8_t sb2_length)
+void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg, uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.type);
     qiLittleEndianParser(it, msg.lock_time);
@@ -807,7 +751,7 @@ void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2& msg, uint8_t sb2
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType1"
  */
 template<typename It>
-bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelType1& msg, uint8_t sb1_length, uint8_t sb2_length)
+bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelType1Msg& msg, uint8_t sb1_length, uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.rx_channel);
     qiLittleEndianParser(it, msg.type);
@@ -828,7 +772,7 @@ bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelT
         return false;
     }
     msg.type2.resize(msg.n2);
-    for (auto type2 : msg.type2)
+    for (auto& type2 : msg.type2)
     {
         MeasEpochChannelType2Parser(it, type2, sb2_length);
     } 
@@ -840,7 +784,7 @@ bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelT
  * @brief Qi based parser for the SBF block "MeasEpoch"
  */
 template<typename It>
-bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpoch& msg)
+bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
 {
     if(!BlockHeaderParser(node, it, msg.block_header))
         return false;
@@ -862,7 +806,7 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpoch& msg)
         qiLittleEndianParser(it, msg.cum_clk_jumps);
     ++it; // reserved
     msg.type1.resize(msg.n);
-    for (auto type1 : msg.type1)
+    for (auto& type1 : msg.type1)
     {
         if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length, msg.sb2_length))
             return false;

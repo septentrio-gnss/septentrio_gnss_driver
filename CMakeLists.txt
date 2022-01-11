@@ -72,6 +72,9 @@ endif ()
 add_message_files(
    FILES
    BlockHeader.msg
+   MeasEpoch.msg
+   MeasEpochChannelType1.msg
+   MeasEpochChannelType2.msg
    PVTCartesian.msg
    PVTGeodetic.msg
    PosCovCartesian.msg
