@@ -76,14 +76,14 @@
  * @brief Derived class for parsing RMC messages
  * @date 28/09/20
  */
-class GprmcParser : public BaseParser<GprmcMsgPtr>
+class GprmcParser : public BaseParser<GprmcMsg>
 {
 public:
     /**
      * @brief Constructor of the class GprmcParser
      */
     GprmcParser() :
-        BaseParser<GprmcMsgPtr>(), was_last_gprmc_valid_(false)
+        BaseParser<GprmcMsg>(), was_last_gprmc_valid_(false)
     {
     }
 
@@ -96,9 +96,9 @@ public:
     /**
      * @brief Parses one RMC message
      * @param[in] sentence The RMC message to be parsed
-     * @return A ROS message pointer of ROS type GprmcMsgPtr
+     * @return A ROS message pointer of ROS type GprmcMsg
      */
-    GprmcMsgPtr
+    GprmcMsg
     parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**

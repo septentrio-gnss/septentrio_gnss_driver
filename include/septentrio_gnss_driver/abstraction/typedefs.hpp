@@ -49,12 +49,17 @@
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 // GNSS msg includes
+#include <septentrio_gnss_driver/BlockHeader.h>
+#include <septentrio_gnss_driver/MeasEpoch.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType1.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType2.h>
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
 #include <septentrio_gnss_driver/PVTCartesian.h>
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/VelCovCartesian.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
 #include <nmea_msgs/Gpgga.h>
@@ -66,8 +71,6 @@
 #include <septentrio_gnss_driver/INSNavGeod.h>
 #include <septentrio_gnss_driver/IMUSetup.h>
 #include <septentrio_gnss_driver/VelSensorSetup.h>
-#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
-#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
 #include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -77,67 +80,44 @@ typedef ros::Time TimestampRos;
 
 // ROS messages
 typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
-typedef diagnostic_msgs::DiagnosticArrayPtr         DiagnosticArrayMsgPtr;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
-typedef diagnostic_msgs::DiagnosticStatusPtr        DiagnosticStatusMsgPtr;
 typedef geometry_msgs::Quaternion                   QuaternionMsg;
 typedef geometry_msgs::PoseWithCovarianceStamped    PoseWithCovarianceStampedMsg;
-typedef geometry_msgs::PoseWithCovarianceStampedPtr PoseWithCovarianceStampedMsgPtr;
 typedef geometry_msgs::TransformStamped             TransformStampedMsg;
 typedef gps_common::GPSFix                          GPSFixMsg;
-typedef gps_common::GPSFixPtr                       GPSFixMsgPtr;
 typedef gps_common::GPSStatus                       GPSStatusMsg;
 typedef sensor_msgs::NavSatFix                      NavSatFixMsg;
-typedef sensor_msgs::NavSatFixPtr                   NavSatFixMsgPtr;
 typedef sensor_msgs::NavSatStatus                   NavSatStatusMsg;
 typedef sensor_msgs::TimeReference                  TimeReferenceMsg;
-typedef sensor_msgs::TimeReferencePtr               TimeReferenceMsgPtr;
 typedef sensor_msgs::Imu                            ImuMsg;
-typedef sensor_msgs::ImuPtr                         ImuMsgPtr;
 typedef nav_msgs::Odometry                          LocalizationUtmMsg;
-typedef nav_msgs::OdometryPtr                       LocalizationUtmMsgPtr;
 
 // Septentrio GNSS SBF messages
-typedef septentrio_gnss_driver::AttCovEuler        AttCovEulerMsg;
-typedef septentrio_gnss_driver::AttCovEulerPtr     AttCovEulerMsgPtr;
-typedef septentrio_gnss_driver::AttEuler           AttEulerMsg;
-typedef septentrio_gnss_driver::AttEulerPtr        AttEulerMsgPtr;
-typedef septentrio_gnss_driver::PVTCartesian       PVTCartesianMsg;
-typedef septentrio_gnss_driver::PVTCartesianPtr    PVTCartesianMsgPtr;
-typedef septentrio_gnss_driver::PVTGeodetic        PVTGeodeticMsg;
-typedef septentrio_gnss_driver::PVTGeodeticPtr     PVTGeodeticMsgPtr;
-typedef septentrio_gnss_driver::PosCovCartesian    PosCovCartesianMsg;
-typedef septentrio_gnss_driver::PosCovCartesianPtr PosCovCartesianMsgPtr;
-typedef septentrio_gnss_driver::PosCovGeodetic     PosCovGeodeticMsg;
-typedef septentrio_gnss_driver::PosCovGeodeticPtr  PosCovGeodeticMsgPtr;
-typedef septentrio_gnss_driver::VelCovGeodetic     VelCovGeodeticMsg;
-typedef septentrio_gnss_driver::VelCovGeodeticPtr  VelCovGeodeticMsgPtr;
+typedef septentrio_gnss_driver::BlockHeader           BlockHeaderMsg;
+typedef septentrio_gnss_driver::MeasEpoch             MeasEpochMsg;
+typedef septentrio_gnss_driver::MeasEpochChannelType1 MeasEpochChannelType1Msg;
+typedef septentrio_gnss_driver::MeasEpochChannelType2 MeasEpochChannelType2Msg;
+typedef septentrio_gnss_driver::AttCovEuler           AttCovEulerMsg;
+typedef septentrio_gnss_driver::AttEuler              AttEulerMsg;
+typedef septentrio_gnss_driver::PVTCartesian          PVTCartesianMsg;
+typedef septentrio_gnss_driver::PVTGeodetic           PVTGeodeticMsg;
+typedef septentrio_gnss_driver::PosCovCartesian       PosCovCartesianMsg;
+typedef septentrio_gnss_driver::PosCovGeodetic        PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::VelCovCartesian       VelCovCartesianMsg;
+typedef septentrio_gnss_driver::VelCovGeodetic        VelCovGeodeticMsg;
 
 // NMEA messages
 typedef nmea_msgs::Gpgga    GpggaMsg;
-typedef nmea_msgs::GpggaPtr GpggaMsgPtr;
 typedef nmea_msgs::Gpgsa    GpgsaMsg;
-typedef nmea_msgs::GpgsaPtr GpgsaMsgPtr;
 typedef nmea_msgs::Gpgsv    GpgsvMsg;
-typedef nmea_msgs::GpgsvPtr GpgsvMsgPtr;
 typedef nmea_msgs::Gprmc    GprmcMsg;
-typedef nmea_msgs::GprmcPtr GprmcMsgPtr;
 
 // Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::INSNavCart            INSNavCartMsg;
-typedef septentrio_gnss_driver::INSNavCartPtr         INSNavCartMsgPtr;
 typedef septentrio_gnss_driver::INSNavGeod            INSNavGeodMsg;
-typedef septentrio_gnss_driver::INSNavGeodPtr         INSNavGeodMsgPtr;
 typedef septentrio_gnss_driver::IMUSetup              IMUSetupMsg;
-typedef septentrio_gnss_driver::IMUSetupPtr           IMUSetupMsgPtr;
 typedef septentrio_gnss_driver::VelSensorSetup        VelSensorSetupMsg;
-typedef septentrio_gnss_driver::VelSensorSetupPtr     VelSensorSetupMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavGeod    ExtEventINSNavGeodMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavGeodPtr ExtEventINSNavGeodMsgPtr;
-typedef septentrio_gnss_driver::ExtEventINSNavCart    ExtEventINSNavCartMsg;
-typedef septentrio_gnss_driver::ExtEventINSNavCartPtr ExtEventINSNavCartMsgPtr;
 typedef septentrio_gnss_driver::ExtSensorMeas         ExtSensorMeasMsg;
-typedef septentrio_gnss_driver::ExtSensorMeasPtr      ExtSensorMeasMsgPtr;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp

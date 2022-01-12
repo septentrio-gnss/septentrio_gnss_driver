@@ -50,7 +50,7 @@ const std::string GpggaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[15] if anybody ever needs it.
  */
-GpggaMsgPtr
+GpggaMsg
 GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
@@ -65,14 +65,14 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
         throw ParseException(error.str());
     }
 
-    GpggaMsgPtr msg(new GpggaMsg);
-    msg->header.frame_id = frame_id;
+    GpggaMsg msg;
+    msg.header.frame_id = frame_id;
 
-    msg->message_id = sentence.get_body()[0];
+    msg.message_id = sentence.get_body()[0];
 
     if (sentence.get_body()[1].empty() || sentence.get_body()[1] == "0")
     {
-        msg->utc_seconds = 0;
+        msg.utc_seconds = 0;
     } else
     {
         double utc_double;
@@ -81,7 +81,7 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
             if (use_gnss_time)
             {
                 // ROS_DEBUG("utc_double is %f", (float) utc_double);
-                msg->utc_seconds =
+                msg.utc_seconds =
                     parsing_utilities::convertUTCDoubleToSeconds(utc_double);
 
                 // The Header's Unix Epoch time stamp
@@ -91,10 +91,10 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
                 // point in utc_double, i.e. in the NMEA UTC time.
                 Timestamp unix_time_nanoseconds =
                     (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
-                msg->header.stamp = timestampToRos(unix_time_nanoseconds);
+                msg.header.stamp = timestampToRos(unix_time_nanoseconds);
             } else
             {
-                msg->header.stamp = timestampToRos(time_obj);
+                msg.header.stamp = timestampToRos(time_obj);
             }
         } else
         {
@@ -110,34 +110,34 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
     double latitude = 0.0;
     valid =
         valid && parsing_utilities::parseDouble(sentence.get_body()[2], latitude);
-    msg->lat = parsing_utilities::convertDMSToDegrees(latitude);
+    msg.lat = parsing_utilities::convertDMSToDegrees(latitude);
 
     double longitude = 0.0;
     valid =
         valid && parsing_utilities::parseDouble(sentence.get_body()[4], longitude);
-    msg->lon = parsing_utilities::convertDMSToDegrees(longitude);
+    msg.lon = parsing_utilities::convertDMSToDegrees(longitude);
 
-    msg->lat_dir = sentence.get_body()[3];
-    msg->lon_dir = sentence.get_body()[5];
+    msg.lat_dir = sentence.get_body()[3];
+    msg.lon_dir = sentence.get_body()[5];
     valid = valid &&
-            parsing_utilities::parseUInt32(sentence.get_body()[6], msg->gps_qual);
+            parsing_utilities::parseUInt32(sentence.get_body()[6], msg.gps_qual);
     valid = valid &&
-            parsing_utilities::parseUInt32(sentence.get_body()[7], msg->num_sats);
+            parsing_utilities::parseUInt32(sentence.get_body()[7], msg.num_sats);
     // ROS_INFO("Valid is %s so far with number of satellites in use being %s", valid
     // ? "true" : "false", sentence.get_body()[7].c_str());
 
     valid =
-        valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg->hdop);
-    valid = valid && parsing_utilities::parseFloat(sentence.get_body()[9], msg->alt);
-    msg->altitude_units = sentence.get_body()[10];
+        valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.hdop);
+    valid = valid && parsing_utilities::parseFloat(sentence.get_body()[9], msg.alt);
+    msg.altitude_units = sentence.get_body()[10];
     valid = valid &&
-            parsing_utilities::parseFloat(sentence.get_body()[11], msg->undulation);
-    msg->undulation_units = sentence.get_body()[12];
+            parsing_utilities::parseFloat(sentence.get_body()[11], msg.undulation);
+    msg.undulation_units = sentence.get_body()[12];
     double diff_age_temp;
     valid = valid &&
             parsing_utilities::parseDouble(sentence.get_body()[13], diff_age_temp);
-    msg->diff_age = static_cast<uint32_t>(round(diff_age_temp));
-    msg->station_id = sentence.get_body()[14];
+    msg.diff_age = static_cast<uint32_t>(round(diff_age_temp));
+    msg.station_id = sentence.get_body()[14];
 
     if (!valid)
     {
