@@ -310,12 +310,28 @@ namespace parsing_utilities {
     uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
 
     /**
+     * @brief Get the CRC of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message CRC 
+     */
+    uint16_t getCrc(const uint8_t* buffer);
+
+    /**
      * @brief Get the ID of the SBF message
      * 
      * @param buffer A pointer to a buffer containing an SBF message
      * @return SBF message ID 
      */
     uint16_t getId(const uint8_t* buffer);
+
+    /**
+     * @brief Get the length of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message length 
+     */
+    uint16_t getLength(const uint8_t* buffer);
 
     /**
      * @brief Get the time of week in ms of the SBF message

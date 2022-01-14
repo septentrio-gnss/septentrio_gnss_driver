@@ -33,7 +33,7 @@
 
 // C and C++ library includes
 #include <locale> // Merely for "isdigit()" function, also available in <cctype.h> C header..
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 /**

@@ -36,10 +36,14 @@ endif ()
 ## Declare  messages
 rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/BlockHeader.msg"
+   "msg/MeasEpoch.msg"
+   "msg/MeasEpochChannelType1.msg"
+   "msg/MeasEpochChannelType2.msg"
    "msg/PVTCartesian.msg"
    "msg/PVTGeodetic.msg"
    "msg/PosCovCartesian.msg"
    "msg/PosCovGeodetic.msg"
+   "msg/VelCovCartesian.msg"
    "msg/VelCovGeodetic.msg"
    "msg/AttEuler.msg"
    "msg/AttCovEuler.msg"
@@ -47,8 +51,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/INSNavGeod.msg"
    "msg/IMUSetup.msg"
    "msg/VelSensorSetup.msg"
-   "msg/ExtEventINSNavGeod.msg"
-   "msg/ExtEventINSNavCart.msg"
    "msg/ExtSensorMeas.msg"
    DEPENDENCIES std_msgs
 )
