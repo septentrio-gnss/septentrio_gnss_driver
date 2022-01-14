@@ -139,6 +139,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     gpgga: false
     gprmc: false
     gpst : false
+    measepoch: false
     pvtcartesian: false
     pvtgeodetic: true
     poscovcartesian: false
@@ -405,6 +406,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish/gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     + `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
+    + `publish/measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
     + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
