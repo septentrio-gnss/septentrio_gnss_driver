@@ -250,6 +250,8 @@ struct Settings
     bool publish_gpgsa;
     //! Whether or not to publish the GSV message
     bool publish_gpgsv;
+    //! Whether or not to publish the MeasEpoch message
+    bool publish_measepoch;
     //! Whether or not to publish the PVTCartesianMsg
     //! message
     bool publish_pvtcartesian;

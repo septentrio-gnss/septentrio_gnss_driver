@@ -1525,7 +1525,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);			
+			if (settings_->publish_pvtgeodetic)
+				node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);			
 			break;
 		}
 		case evPosCovCartesian:
@@ -1576,7 +1577,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
+			if (settings_->publish_poscovgeodetic)
+				node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
 			break;
 		}
 		case evAttEuler:
@@ -1602,8 +1604,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<AttEulerMsg>("/atteuler", last_atteuler_);		
-			
+			if (settings_->publish_atteuler)
+				node_->publishMessage<AttEulerMsg>("/atteuler", last_atteuler_);			
 			break;
 		}
 		case evAttCovEuler:
@@ -1629,7 +1631,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+			if (settings_->publish_attcoveuler)
+				node_->publishMessage<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
 			break;
 		}
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
@@ -1686,7 +1689,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+			if (settings_->publish_insnavgeod)
+				node_->publishMessage<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
 			break;
 		}
 
@@ -1807,7 +1811,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
+			if (settings_->publish_extsensormeas)
+				node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
 			break;
 		}
 
@@ -2239,9 +2244,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			last_measepoch_.header.stamp = timestampToRos(time_obj);
-			node_->publishMessage<MeasEpochMsg>("/measepoch", last_measepoch_);
-            measepoch_has_arrived_gpsfix_ = true;
-			break;
+			measepoch_has_arrived_gpsfix_ = true;
+			if (settings_->publish_measepoch)
+				node_->publishMessage<MeasEpochMsg>("/measepoch", last_measepoch_);
+            break;
 		}
 		case evDOP:
 		{
@@ -2276,7 +2282,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+			if (settings_->publish_velcovgeodetic)
+				node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
 			break;
 		}
 		case evDiagnosticArray:

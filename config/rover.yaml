@@ -76,6 +76,7 @@ publish:
   gpgga: false
   gprmc: false
   gpst : false
+  measepoch: false
   pvtcartesian: false
   pvtgeodetic: true
   poscovcartesian: false
