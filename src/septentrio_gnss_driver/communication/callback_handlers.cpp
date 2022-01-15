@@ -290,7 +290,7 @@ namespace io_comm_rx {
         // added for INS
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (settings_->publish_localization)
+            if (settings_->publish_localization || settings_->publish_tf)
             {
                 CallbackMap::key_type key = "Localization";
                 std::string ID_temp = rx_message_.messageID();
@@ -563,7 +563,7 @@ namespace io_comm_rx {
 						do_imu_ = ID_temp;
 					}
 				}
-                if (settings_->publish_localization &&
+                if ((settings_->publish_localization || settings_->publish_tf) &&
                 (ID_temp == "4226"))
                 {
                     if (rx_message_.ins_localization_complete(localization_map[ID_temp]))

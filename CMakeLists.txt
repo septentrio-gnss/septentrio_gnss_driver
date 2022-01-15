@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system thread regex)
+find_package(Boost REQUIRED) # bug with 1.71: spirit is not found ... COMPONENTS system thread regex spirit)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
 
@@ -72,10 +72,14 @@ endif ()
 add_message_files(
    FILES
    BlockHeader.msg
+   MeasEpoch.msg
+   MeasEpochChannelType1.msg
+   MeasEpochChannelType2.msg
    PVTCartesian.msg
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   VelCovCartesian.msg
    VelCovGeodetic.msg
    AttEuler.msg
    AttCovEuler.msg
@@ -83,8 +87,6 @@ add_message_files(
    INSNavGeod.msg
    IMUSetup.msg
    VelSensorSetup.msg
-   ExtEventINSNavGeod.msg
-   ExtEventINSNavCart.msg
    ExtSensorMeas.msg
 )
 

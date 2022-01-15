@@ -107,11 +107,6 @@
 #ifndef CONNECTION_DESCRIPTOR_BYTE_2
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
-//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
-//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
-#ifndef DO_NOT_USE_VALUE
-#define DO_NOT_USE_VALUE -2e10
-#endif
 
 // C++ libraries
 #include <cassert> // for assert
@@ -255,6 +250,8 @@ struct Settings
     bool publish_gpgsa;
     //! Whether or not to publish the GSV message
     bool publish_gpgsv;
+    //! Whether or not to publish the MeasEpoch message
+    bool publish_measepoch;
     //! Whether or not to publish the PVTCartesianMsg
     //! message
     bool publish_pvtcartesian;
@@ -661,37 +658,37 @@ namespace io_comm_rx {
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
          * need to be stored
          */
-        PVTGeodetic last_pvtgeodetic_;
+        PVTGeodeticMsg last_pvtgeodetic_;
 
         /**
          * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic
          * blocks need to be stored
          */
-        PosCovGeodetic last_poscovgeodetic_;
+        PosCovGeodeticMsg last_poscovgeodetic_;
 
         /**
          * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to
          * be stored
          */
-        AttEuler last_atteuler_;
+        AttEulerMsg last_atteuler_;
 
         /**
          * @brief Since GPSFix etc. need AttCovEuler, incoming AttCovEuler blocks
          * need to be stored
          */
-        AttCovEuler last_attcoveuler_;
+        AttCovEulerMsg last_attcoveuler_;
 
         /**
          * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
-        INSNavGeod last_insnavgeod_;
+        INSNavGeodMsg last_insnavgeod_;
 
          /**
          * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
          * need to be stored
          */
-        ExtSensorMeas last_extsensmeas_;
+        ExtSensorMeasMsg last_extsensmeas_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
@@ -703,7 +700,7 @@ namespace io_comm_rx {
          * @brief Since GPSFix needs MeasEpoch (for SNRs), incoming MeasEpoch blocks
          * need to be stored
          */
-        MeasEpoch last_measepoch_;
+        MeasEpochMsg last_measepoch_;
 
         /**
          * @brief Since GPSFix needs DOP, incoming DOP blocks need to be stored
@@ -714,7 +711,7 @@ namespace io_comm_rx {
          * @brief Since GPSFix needs VelCovGeodetic, incoming VelCovGeodetic blocks
          * need to be stored
          */
-        VelCovGeodetic last_velcovgeodetic_;
+        VelCovGeodeticMsg last_velcovgeodetic_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverStatus, incoming ReceiverStatus
@@ -844,141 +841,16 @@ namespace io_comm_rx {
         bool extsens_has_arrived_imu_ = false;
 
         /**
-         * @brief Callback function when reading PVTCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTCartesian
-         * @return A smart pointer to the ROS message PVTCartesian just created
-         */
-        PVTCartesianMsgPtr
-        PVTCartesianCallback(PVTCartesian& data);
-
-        /**
-         * @brief Callback function when reading PVTGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTGeodetic
-         * @return A smart pointer to the ROS message PVTGeodetic just created
-         */
-        PVTGeodeticMsgPtr
-        PVTGeodeticCallback(PVTGeodetic& data);
-
-        /**
-         * @brief Callback function when reading PosCovCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovCartesian
-         * @return A smart pointer to the ROS message PosCovCartesian just created
-         */
-        PosCovCartesianMsgPtr
-        PosCovCartesianCallback(PosCovCartesian& data);
-
-        /**
-         * @brief Callback function when reading PosCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovGeodetic
-         * @return A smart pointer to the ROS message PosCovGeodetic just created
-         */
-        PosCovGeodeticMsgPtr
-        PosCovGeodeticCallback(PosCovGeodetic& data);
-
-        /**
-         * @brief Callback function when reading VelCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelCovGeodetic
-         * @return A smart pointer to the ROS message VelCovGeodetic just created
-         */
-        VelCovGeodeticMsgPtr
-        VelCovGeodeticCallback(VelCovGeodetic& data);
-
-        /**
-         * @brief Callback function when reading AttEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttEuler
-         * @return A smart pointer to the ROS message AttEuler just created
-         */
-        AttEulerMsgPtr AttEulerCallback(AttEuler& data);
-
-        /**
-         * @brief Callback function when reading AttCovEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttCovEuler
-         * @return A smart pointer to the ROS message AttCovEuler just created
-         */
-        AttCovEulerMsgPtr
-        AttCovEulerCallback(AttCovEuler& data);
-
-        /**
-         * @brief Callback function when reading INSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavCart
-         * @return A smart pointer to the ROS message INSNavCart just created
-         */
-        INSNavCartMsgPtr
-        INSNavCartCallback(INSNavCart& data);
-
-        /**
-         * @brief Callback function when reading INSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavGeod
-         * @return A smart pointer to the ROS message INSNavGeod just created
-         */
-        INSNavGeodMsgPtr
-        INSNavGeodCallback(INSNavGeod& data);
-
-        /**
-         * @brief Callback function when reading IMUSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message IMUSetup
-         * @return A smart pointer to the ROS message IMUSetup just created
-         */
-        IMUSetupMsgPtr
-        IMUSetupCallback(IMUSetup& data);
-
-        /**
-         * @brief Callback function when reading VelSensorSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelSensorSetup
-         * @return A smart pointer to the ROS message VelSensorSetup just created
-         */
-        VelSensorSetupMsgPtr
-        VelSensorSetupCallback(VelSensorSetup& data);
-
-        /**
-         * @brief Callback function when reading ExtEventINSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavCart
-         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
-         */
-        ExtEventINSNavCartMsgPtr
-        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
-
-        /**
-         * @brief Callback function when reading ExtEventINSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavGeod
-         * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
-         */
-        ExtEventINSNavGeodMsgPtr
-        ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
-
-        /**
-         * @brief Callback function when reading ExtSensorMeas blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtSensorMeas
-         * @return A smart pointer to the ROS message ExtSensorMeas just created
-         */
-        ExtSensorMeasMsgPtr
-        ExtSensorMeasCallback(ExtSensorMeas& data);
-
-        /**
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
-        NavSatFixMsgPtr NavSatFixCallback();
+        NavSatFixMsg NavSatFixCallback();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
          * @return A smart pointer to the ROS message GPSFix just created
          */
-        GPSFixMsgPtr GPSFixCallback();
+        GPSFixMsg GPSFixCallback();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
@@ -986,7 +858,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        PoseWithCovarianceStampedMsgPtr
+        PoseWithCovarianceStampedMsg
         PoseWithCovarianceStampedCallback();
 
         /**
@@ -995,7 +867,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * DiagnosticArrayMsg just created
          */
-        DiagnosticArrayMsgPtr DiagnosticArrayCallback();
+        DiagnosticArrayMsg DiagnosticArrayCallback();
 
         /**
          * @brief "Callback" function when constructing
@@ -1003,7 +875,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * ImuMsg just created
          */
-        ImuMsgPtr ImuCallback();
+        ImuMsg ImuCallback();
 
         /**
          * @brief "Callback" function when constructing
@@ -1011,7 +883,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message
          * LocalizationUtmMsg just created
          */
-        LocalizationUtmMsgPtr LocalizationUtmCallback();
+        LocalizationUtmMsg LocalizationUtmCallback();
 
          /**
          * @brief Waits according to time when reading from file

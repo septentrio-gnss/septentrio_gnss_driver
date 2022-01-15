@@ -132,6 +132,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish/gprmc", settings_.publish_gprmc, true);
     param("publish/gpgsa", settings_.publish_gpgsa, true);
     param("publish/gpgsv", settings_.publish_gpgsv, true);
+    param("publish/measepoch", settings_.publish_measepoch, true);
     param("publish/pvtcartesian", settings_.publish_pvtcartesian, true);
     param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, true);
     param("publish/poscovcartesian", settings_.publish_poscovcartesian, true);
@@ -344,66 +345,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
         }
     }
 
-    if (settings_.septentrio_receiver_type == "gnss")
-    {
-        if (settings_.publish_navsatfix)
-        {
-            settings_.publish_pvtgeodetic    = true;
-            settings_.publish_poscovgeodetic = true;
-        }
-
-        if (settings_.publish_gpsfix)
-        {
-            settings_.publish_pvtgeodetic    = true;
-            settings_.publish_poscovgeodetic = true;
-            settings_.publish_velcovgeodetic = true;
-            settings_.publish_atteuler       = true;
-            settings_.publish_attcoveuler    = true;
-        }
-
-        if (settings_.publish_pose)
-        {
-            settings_.publish_pvtgeodetic    = true;
-            settings_.publish_poscovgeodetic = true;
-            settings_.publish_atteuler       = true;
-            settings_.publish_attcoveuler    = true;
-        }
-    }
-
-    if (settings_.septentrio_receiver_type == "ins")
-    {
-        if (settings_.publish_navsatfix)
-        {
-            settings_.publish_insnavgeod = true;
-        }
-
-        if (settings_.publish_gpsfix)
-        {
-            settings_.publish_insnavgeod = true;
-        }
-
-        if (settings_.publish_pose)
-        {
-            settings_.publish_insnavgeod = true;
-        }
-
-        if (settings_.publish_imu)
-        {
-            settings_.publish_insnavgeod    = true;
-            settings_.publish_extsensormeas = true;
-        }
-
-        if (settings_.publish_tf)
-        {
-            settings_.publish_localization = true;
-        }
-
-        if (settings_.publish_localization)
-        {
-            settings_.publish_insnavgeod  = true;
-        }
-    }
-	
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG ,"Finished getROSParams() method");
     return true;

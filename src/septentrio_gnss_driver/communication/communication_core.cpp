@@ -405,7 +405,10 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +PVTCartesian";
         }
-        if (settings_->publish_pvtgeodetic)
+        if (settings_->publish_pvtgeodetic ||
+           (settings_->publish_navsatfix && (settings_->septentrio_receiver_type == "gnss")) ||
+           (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss"))||
+           (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
         {
             blocks << " +PVTGeodetic";
         }
@@ -413,25 +416,38 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +PosCovCartesian";
         }
-        if (settings_->publish_poscovgeodetic)
+        if (settings_->publish_poscovgeodetic ||
+           (settings_->publish_navsatfix && (settings_->septentrio_receiver_type == "gnss")) ||
+           (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+           (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
         {
             blocks << " +PosCovGeodetic";
         }
-        if (settings_->publish_velcovgeodetic)
+        if (settings_->publish_velcovgeodetic ||
+           (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")))
         {
             blocks << " +VelCovGeodetic";
         }
-        if (settings_->publish_atteuler)
+        if (settings_->publish_atteuler ||
+           (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+           (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
         {
             blocks << " +AttEuler";
         } 
-        if (settings_->publish_attcoveuler)
+        if (settings_->publish_attcoveuler ||
+           (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+           (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
         {
             blocks << " +AttCovEuler";
         }
+        if (settings_->publish_measepoch ||
+            settings_->publish_gpsfix)
+        {
+            blocks << " +MeasEpoch";
+        } 
         if (settings_->publish_gpsfix)
         {
-            blocks << " +ChannelStatus +MeasEpoch +DOP";
+            blocks << " +ChannelStatus +DOP";
         }   
         // Setting SBF output of Rx depending on the receiver type
         // If INS then...
@@ -441,7 +457,13 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 blocks << " +INSNavCart";
             }
-            if (settings_->publish_insnavgeod)
+            if (settings_->publish_insnavgeod ||
+                settings_->publish_navsatfix ||
+                settings_->publish_gpsfix ||
+                settings_->publish_pose ||
+                settings_->publish_imu ||
+                settings_->publish_localization ||
+                settings_->publish_tf)
             {
                 blocks << " +INSNavGeod";
             }            
@@ -453,7 +475,8 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 blocks << " +ExtEventINSNavCart";
             }
-            if (settings_->publish_extsensormeas)
+            if (settings_->publish_extsensormeas ||
+                settings_->publish_imu)
             {
                 blocks << " +ExtSensorMeas";
             }
@@ -747,20 +770,14 @@ void io_comm_rx::Comm_IO::configureRx()
 		// INS solution reference point
 		{
 			std::stringstream ss;
-			std::string insnavconfig;
-			insnavconfig = " PosStdDev ";
-			insnavconfig += "+Att";
-			insnavconfig += "+AttStdDev";
-			insnavconfig += "+Vel";
-			insnavconfig += "+VelStdDev";
 			if (settings_->ins_use_poi)
 			{
-				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "POI1" << " \x0D";
+				ss << "sinc, on, all, " << "POI1" << " \x0D";
 				send(ss.str());
 			}
 			else
 			{
-				ss << "sinc, on, " << string_utilities::trimString(insnavconfig) << ", " << "MainAnt" << " \x0D";
+				ss << "sinc, on, all, " << "MainAnt" << " \x0D";
 				send(ss.str());
 			}
 		}
@@ -843,7 +860,10 @@ void io_comm_rx::Comm_IO::defineMessages()
         handlers_.callbackmap_ =
             handlers_.insert<PVTCartesianMsg>("4006");
     }
-    if (settings_->publish_pvtgeodetic)
+    if (settings_->publish_pvtgeodetic  ||
+       (settings_->publish_navsatfix && (settings_->septentrio_receiver_type == "gnss")) ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss"))||
+       (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ =
             handlers_.insert<PVTGeodeticMsg>("4007");
@@ -853,34 +873,54 @@ void io_comm_rx::Comm_IO::defineMessages()
         handlers_.callbackmap_ =
             handlers_.insert<PosCovCartesianMsg>("5905");
     }
-    if (settings_->publish_poscovgeodetic)
+    if (settings_->publish_poscovgeodetic ||
+       (settings_->publish_navsatfix && (settings_->septentrio_receiver_type == "gnss")) ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+       (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ =
             handlers_.insert<PosCovGeodeticMsg>("5906");
     }
-    if (settings_->publish_velcovgeodetic)
+    if (settings_->publish_velcovgeodetic ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ =
             handlers_.insert<VelCovGeodeticMsg>("5908");
     }
-    if (settings_->publish_atteuler)
+    if (settings_->publish_atteuler ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+       (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ =
             handlers_.insert<AttEulerMsg>("5938");
     }
-    if (settings_->publish_attcoveuler)
+    if (settings_->publish_attcoveuler ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "gnss")) ||
+       (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ =
             handlers_.insert<AttCovEulerMsg>("5939");
     }
-    
+    if (settings_->publish_measepoch ||
+        settings_->publish_gpsfix)
+    {
+        handlers_.callbackmap_ =
+                handlers_.insert<int32_t>("4027"); // MeasEpoch block
+    } 
+
 	// INS-related SBF blocks
     if (settings_->publish_insnavcart)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<INSNavCartMsg>("4225");
     }
-    if (settings_->publish_insnavgeod)
+    if (settings_->publish_insnavgeod ||
+       (settings_->publish_navsatfix && (settings_->septentrio_receiver_type == "ins")) ||
+       (settings_->publish_gpsfix && (settings_->septentrio_receiver_type == "ins")) ||
+       (settings_->publish_pose && (settings_->septentrio_receiver_type == "ins")) ||
+       (settings_->publish_imu && (settings_->septentrio_receiver_type == "ins")) ||
+       (settings_->publish_localization && (settings_->septentrio_receiver_type == "ins")) ||
+       (settings_->publish_tf && (settings_->septentrio_receiver_type == "ins")))
     {
         handlers_.callbackmap_ = 
             handlers_.insert<INSNavGeodMsg>("4226");
@@ -890,7 +930,8 @@ void io_comm_rx::Comm_IO::defineMessages()
         handlers_.callbackmap_ = 
             handlers_.insert<IMUSetupMsg>("4224");
     }
-    if (settings_->publish_extsensormeas)
+    if (settings_->publish_extsensormeas ||
+        settings_->publish_imu)
     {
         handlers_.callbackmap_ = 
             handlers_.insert<ExtSensorMeasMsg>("4050");
@@ -898,7 +939,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_exteventinsnavgeod)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<ExtEventINSNavGeodMsg>("4230");
+            handlers_.insert<INSNavGeodMsg>("4230");
     }
     if (settings_->publish_velsensorsetup)
     {
@@ -908,7 +949,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     if (settings_->publish_exteventinsnavcart)
     {
         handlers_.callbackmap_ = 
-            handlers_.insert<ExtEventINSNavCartMsg>("4229");
+            handlers_.insert<INSNavCartMsg>("4229");
     }
 	if (settings_->publish_gpst)
 	{
@@ -939,9 +980,7 @@ void io_comm_rx::Comm_IO::defineMessages()
             // The following blocks are never published, yet are needed for the
             // construction of the GPSFix message, hence we have empty callbacks.
             handlers_.callbackmap_ =
-                handlers_.insert<int32_t>("4013"); // ChannelStatus block
-            handlers_.callbackmap_ =
-                handlers_.insert<int32_t>("4027"); // MeasEpoch block
+                handlers_.insert<int32_t>("4013"); // ChannelStatus block            
             handlers_.callbackmap_ =
                 handlers_.insert<int32_t>("4001"); // DOP block
         }
@@ -954,8 +993,6 @@ void io_comm_rx::Comm_IO::defineMessages()
                 handlers_.insert<GPSFixMsg>("INSGPSFix");
             handlers_.callbackmap_ =
                 handlers_.insert<int32_t>("4013"); // ChannelStatus block
-            handlers_.callbackmap_ =
-                handlers_.insert<int32_t>("4027"); // MeasEpoch block
             handlers_.callbackmap_ =
                 handlers_.insert<int32_t>("4001"); // DOP block
         }
