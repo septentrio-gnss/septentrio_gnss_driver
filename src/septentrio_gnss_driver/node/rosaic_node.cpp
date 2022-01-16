@@ -87,11 +87,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, (std::string) "base_link");
     param("lock_utm_zone", settings_.lock_utm_zone, true);
-    param("publish.gpst", settings_.publish_gpst, true);
-    param("publish.navsatfix", settings_.publish_navsatfix, true);
-    param("publish.gpsfix", settings_.publish_gpsfix, true);
-    param("publish.pose", settings_.publish_pose, true);
-    param("publish.diagnostics", settings_.publish_diagnostics, true);
     getUint32Param("leap_seconds", settings_.leap_seconds,
                            static_cast<uint32_t>(18));
 
@@ -136,8 +131,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
         return false;
     }
 
-    // Publishing parameters, the others remained global since they need to be
-    // accessed in the callbackhandlers.hpp file
+    // Publishing parameters
+     param("publish.gpst", settings_.publish_gpst, true);
+    param("publish.navsatfix", settings_.publish_navsatfix, true);
+    param("publish.gpsfix", settings_.publish_gpsfix, true);
+    param("publish.pose", settings_.publish_pose, true);
+    param("publish.diagnostics", settings_.publish_diagnostics, true);
     param("publish.gpgga", settings_.publish_gpgga, true);
     param("publish.gprmc", settings_.publish_gprmc, true);
     param("publish.gpgsa", settings_.publish_gpgsa, true);
