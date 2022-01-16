@@ -98,7 +98,7 @@ namespace io_comm_rx {
         boost::mutex::scoped_lock lock(callback_mutex_);
         CallbackMap::key_type key = rx_message_.messageID();
         std::string ID_temp = rx_message_.messageID();
-        if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
+        if (!(ID_temp == "4013" || ID_temp == "4001" ||
               ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902"))
         // We only want to handle ChannelStatus, MeasEpoch, DOP, ReceiverStatus, 
         // QualityInd and ReceiverSetup blocks in case GPSFix and DiagnosticArray 
@@ -369,10 +369,10 @@ namespace io_comm_rx {
             {
                 std::string ID_temp = rx_message_.messageID();
                 CallbackMap::key_type key1 = rx_message_.messageID();
-                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
-                // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027), and DOP (4001) ROS messages, we have to save some 
-                // contents of these incoming blocks in order to publish the GPSFix message.
+                if (ID_temp == "4013" || ID_temp == "4001")
+                // Even though we are not interested in publishing ChannelStatus (4013)
+                // and DOP (4001) ROS messages, we have to save some contents of these 
+                // incoming blocks in order to publish the GPSFix message.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                         callback != callbackmap_.upper_bound(key1); ++callback)
@@ -413,11 +413,10 @@ namespace io_comm_rx {
             {
                 std::string ID_temp = rx_message_.messageID();
                 CallbackMap::key_type key1 = rx_message_.messageID();
-                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
-                // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027) and DOP (4001) ROS messages,
-                // we have to save some contents of these incoming blocks in order to
-                // publish the GPSFix message.
+                if (ID_temp == "4013" || ID_temp == "4001")
+                // Even though we are not interested in publishing ChannelStatus (4013)
+                // and DOP (4001) ROS messages, we have to save some contents of these 
+                // incoming blocks in order to publish the GPSFix message.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                         callback != callbackmap_.upper_bound(key1); ++callback)
