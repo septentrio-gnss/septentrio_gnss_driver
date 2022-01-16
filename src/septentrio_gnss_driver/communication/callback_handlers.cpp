@@ -554,14 +554,6 @@ namespace io_comm_rx {
 						do_diagnostics_ = ID_temp;
 					}
 				}
-                if (settings_->publish_imu &&
-				(ID_temp == "4050" || ID_temp == "4226"))
-				{
-					if (rx_message_.imu_complete(imu_map[ID_temp]))
-					{
-						do_imu_ = ID_temp;
-					}
-				}
                 if ((settings_->publish_localization || settings_->publish_tf) &&
                 (ID_temp == "4226"))
                 {

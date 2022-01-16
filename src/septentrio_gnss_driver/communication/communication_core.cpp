@@ -1029,12 +1029,6 @@ void io_comm_rx::Comm_IO::defineMessages()
 	}
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_imu)
-        {
-            handlers_.callbackmap_ =
-                handlers_.insert<ImuMsg>(
-                    "Imu");
-        }
         if (settings_->publish_localization)
         {
             handlers_.callbackmap_ =

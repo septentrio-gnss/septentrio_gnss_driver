@@ -281,68 +281,115 @@ DiagnosticArrayMsg io_comm_rx::RxMessage::DiagnosticArrayCallback()
 ImuMsg
 io_comm_rx::RxMessage::ImuCallback()
 {
-	ImuMsg msg;
-   
-    if (settings_->septentrio_receiver_type == "ins")
-    {
-        msg.linear_acceleration.x = last_extsensmeas_.acceleration_x;
-        msg.linear_acceleration.y = last_extsensmeas_.acceleration_y;
-        msg.linear_acceleration.z = last_extsensmeas_.acceleration_z;
-        
-        msg.angular_velocity.x = last_extsensmeas_.angular_rate_x;
-        msg.angular_velocity.y = last_extsensmeas_.angular_rate_y;
-        msg.angular_velocity.z = last_extsensmeas_.angular_rate_z;
+	ImuMsg msg;   
+    
+	msg.linear_acceleration.x = last_extsensmeas_.acceleration_x;
+	msg.linear_acceleration.y = last_extsensmeas_.acceleration_y;
+	msg.linear_acceleration.z = last_extsensmeas_.acceleration_z;
+	
+	msg.angular_velocity.x = last_extsensmeas_.angular_rate_x;
+	msg.angular_velocity.y = last_extsensmeas_.angular_rate_y;
+	msg.angular_velocity.z = last_extsensmeas_.angular_rate_z;
 
-        // Filling in the pose data
-		if ((last_insnavgeod_.sb_list & 2) !=0)
-        {
-            // Attitude
-            msg.orientation = parsing_utilities::convertEulerToQuaternion(
-                last_insnavgeod_.heading,
-                last_insnavgeod_.pitch,
-                last_insnavgeod_.roll);
-        }
-        else
-        {
-            msg.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
-        }
-        if((last_insnavgeod_.sb_list & 4) !=0)
-        {
-            // Attitude autocov
-            msg.orientation_covariance[0] = parsing_utilities::square(last_insnavgeod_.
-                                            roll_std_dev);
-            msg.orientation_covariance[4] = parsing_utilities::square(last_insnavgeod_.
-                                            pitch_std_dev);
-            msg.orientation_covariance[8] = parsing_utilities::square(last_insnavgeod_.
-                                            heading_std_dev);
-        }
-        else
-        {
-            msg.orientation_covariance[0] = -1.0;
-            msg.orientation_covariance[4] = -1.0;
-            msg.orientation_covariance[8] = -1.0;
-        }
-        if ((last_insnavgeod_.sb_list & 64) !=0)
-        {
-            // Attitude cov
-            msg.orientation_covariance[1] = last_insnavgeod_.
-                                            pitch_roll_cov;
-            msg.orientation_covariance[2] = last_insnavgeod_.
-                                            heading_roll_cov;
-            msg.orientation_covariance[3] = last_insnavgeod_.
-                                            pitch_roll_cov;
-            
-            msg.orientation_covariance[5] = last_insnavgeod_.
-                                            heading_pitch_cov;
-            msg.orientation_covariance[6] = last_insnavgeod_.
-                                            heading_roll_cov;
-            msg.orientation_covariance[7] = last_insnavgeod_.
-                                            heading_pitch_cov;
-        }
+	bool valid_orientation = true;
+    if (settings_->septentrio_receiver_type == "ins")
+    {   
+		if (validValue(last_insnavgeod_.block_header.tow))
+		{
+			valid_orientation = false;
+		}
+		else
+		{	
+			Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow, last_extsensmeas_.block_header.wnc, true);
+			Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow, last_insnavgeod_.block_header.wnc, true);// Filling in the oreintation data
+			
+			static int64_t maxDt = (settings_->polling_period_pvt == 0) ? 10000000 : settings_->polling_period_pvt * 1000000;
+			if ((tsImu - tsIns) > maxDt)
+			{
+				valid_orientation = false;
+			}
+			else
+			{
+				if ((last_insnavgeod_.sb_list & 2) !=0)
+				{
+					// Attitude
+					if (validValue(last_insnavgeod_.heading) &&
+                        validValue(last_insnavgeod_.pitch  ) &&
+						validValue(last_insnavgeod_.roll   ))
+					{
+						msg.orientation = parsing_utilities::convertEulerToQuaternion(
+							last_insnavgeod_.heading,
+							last_insnavgeod_.pitch,
+							last_insnavgeod_.roll);
+					}
+					else
+					{
+						valid_orientation = false;
+					}
+				}
+				else
+				{
+					valid_orientation = false;
+				}
+				if((last_insnavgeod_.sb_list & 4) !=0)
+				{
+					// Attitude autocov
+					if (validValue(last_insnavgeod_.roll_std_dev   ) &&
+                        validValue(last_insnavgeod_.pitch_std_dev  ) &&
+						validValue(last_insnavgeod_.heading_std_dev))
+					{
+						msg.orientation_covariance[0] = parsing_utilities::square(last_insnavgeod_.
+														roll_std_dev);
+						msg.orientation_covariance[4] = parsing_utilities::square(last_insnavgeod_.
+														pitch_std_dev);
+						msg.orientation_covariance[8] = parsing_utilities::square(last_insnavgeod_.
+														heading_std_dev);
+					}
+					else
+					{
+						valid_orientation = false;
+					}					
+				}
+				else
+				{
+					valid_orientation = false;
+				}
+				if ((last_insnavgeod_.sb_list & 64) !=0)
+				{
+					// Attitude cov
+					msg.orientation_covariance[1] = last_insnavgeod_.
+													pitch_roll_cov;
+					msg.orientation_covariance[2] = last_insnavgeod_.
+													heading_roll_cov;
+					msg.orientation_covariance[3] = last_insnavgeod_.
+													pitch_roll_cov;
+					
+					msg.orientation_covariance[5] = last_insnavgeod_.
+													heading_pitch_cov;
+					msg.orientation_covariance[6] = last_insnavgeod_.
+													heading_roll_cov;
+					msg.orientation_covariance[7] = last_insnavgeod_.
+													heading_pitch_cov;
+				}
+			}			
+		}
     }
+	else
+	{
+		valid_orientation = false;
+	}
+
+	if (!valid_orientation)
+	{
+		msg.orientation.w = std::numeric_limits<double>::quiet_NaN();
+		msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
+		msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
+		msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
+		msg.orientation_covariance[0] = -1.0;
+        msg.orientation_covariance[4] = -1.0;
+        msg.orientation_covariance[8] = -1.0;
+	}
+
 	return msg;
 };
 
@@ -1668,7 +1715,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 insnavgeod_has_arrived_gpsfix_ = false;
                 insnavgeod_has_arrived_navsatfix_ = false;
                 insnavgeod_has_arrived_pose_ = false;
-                insnavgeod_has_arrived_imu_  = 0;
                 insnavgeod_has_arrived_localization_ = false;
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavGeod");
 				break;
@@ -1682,7 +1728,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			insnavgeod_has_arrived_gpsfix_ = true;
 			insnavgeod_has_arrived_navsatfix_ = true;
 			insnavgeod_has_arrived_pose_ = true;
-            insnavgeod_has_arrived_imu_  = 2;
             insnavgeod_has_arrived_localization_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
@@ -1799,13 +1844,12 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtSensorMeas");
 				break;
 			}
-			last_extsensmeas_.header.frame_id = settings_->frame_id;
+			last_extsensmeas_.header.frame_id = settings_->imu_frame_id;
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
 			time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
 			last_extsensmeas_.header.stamp = timestampToRos(time_obj);
-            extsens_has_arrived_imu_ = true;
 			// Wait as long as necessary (only when reading from SBF/PCAP file)
 			if (settings_->read_from_sbf_log || settings_->read_from_pcap)
 			{
@@ -1813,6 +1857,21 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			if (settings_->publish_extsensormeas)
 				node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
+			if (settings_->publish_imu)
+			{
+				ImuMsg msg;
+				try
+				{
+					msg = ImuCallback();
+				} catch (std::runtime_error& e)
+				{
+					node_->log(LogLevel::DEBUG, "ImuMsg: " + std::string(e.what()));
+					break;
+				}
+				msg.header.frame_id = settings_->imu_frame_id;
+				msg.header.stamp = last_extsensmeas_.header.stamp;
+				node_->publishMessage<ImuMsg>("/imu", msg);            
+			}
 			break;
 		}
 
@@ -2320,36 +2379,6 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			node_->publishMessage<DiagnosticArrayMsg>("/diagnostics", msg);
 			break; 
 		}
-        case evImu:
-        {
-            ImuMsg msg;
-            try
-            {
-                msg = ImuCallback();
-            } catch (std::runtime_error& e)
-            {
-                node_->log(LogLevel::DEBUG, "ImuMsg: " + std::string(e.what()));
-                break;
-            }
-            msg.header.frame_id = settings_->imu_frame_id;
-            uint32_t tow = parsing_utilities::getTow(data_);
-            uint16_t wnc = parsing_utilities::getWnc(data_);
-            Timestamp time_obj;
-            time_obj = timestampSBF(tow, wnc, settings_->use_gnss_time);
-            msg.header.stamp = timestampToRos(time_obj);
-            if ((settings_->polling_period_pvt == 0) && (insnavgeod_has_arrived_imu_ > 0))
-                --insnavgeod_has_arrived_imu_;
-            else
-                insnavgeod_has_arrived_imu_ = 0;
-            extsens_has_arrived_imu_    = false;
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            node_->publishMessage<ImuMsg>("/imu", msg);
-            break;
-        }
         case evLocalization:
         {
             LocalizationUtmMsg msg;
@@ -2498,14 +2527,6 @@ bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
 		receiverstatus_has_arrived_diagnostics_,
 		qualityind_has_arrived_diagnostics_};
 	return allTrue(diagnostics_vec, id);
-}
-
-bool io_comm_rx::RxMessage::imu_complete(uint32_t id)
-{
-	std::vector<bool> imu_vec = {
-		(insnavgeod_has_arrived_imu_ > 0),
-		extsens_has_arrived_imu_};
-	return allTrue(imu_vec, id);
 }
 
 bool io_comm_rx::RxMessage::ins_localization_complete(uint32_t id)
