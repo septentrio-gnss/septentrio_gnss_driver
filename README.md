@@ -286,7 +286,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
     + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
     + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
-    + default: `false`
+    + default: `true`
   </details>
   
   <details>
