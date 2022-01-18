@@ -91,7 +91,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));
-    getUint32Param("serial/baudrate", settings_.baudrate, static_cast<uint32_t>(115200));
+    getUint32Param("serial/baudrate", settings_.baudrate, static_cast<uint32_t>(921600));
     param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
     param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
