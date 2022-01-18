@@ -121,34 +121,37 @@ bool rosaic_node::ROSaicNode::getROSParams()
         return false;
     }
 
+    // multi_antenna param
+    param("multi_antenna", settings_.multi_antenna, false);
+
     // Publishing parameters    
-    param("publish/gpst", settings_.publish_gpst, true);
+    param("publish/gpst", settings_.publish_gpst, false);
     param("publish/navsatfix", settings_.publish_navsatfix, true);
-    param("publish/gpsfix", settings_.publish_gpsfix, true);
-    param("publish/pose", settings_.publish_pose, true);
-    param("publish/diagnostics", settings_.publish_diagnostics, true);
-    param("publish/gpgga", settings_.publish_gpgga, true);
-    param("publish/gprmc", settings_.publish_gprmc, true);
-    param("publish/gpgsa", settings_.publish_gpgsa, true);
-    param("publish/gpgsv", settings_.publish_gpgsv, true);
-    param("publish/measepoch", settings_.publish_measepoch, true);
-    param("publish/pvtcartesian", settings_.publish_pvtcartesian, true);
-    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, true);
-    param("publish/poscovcartesian", settings_.publish_poscovcartesian, true);
-    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, true);
-	param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, true);
-    param("publish/atteuler", settings_.publish_atteuler, true);
-    param("publish/attcoveuler", settings_.publish_attcoveuler, true);
-    param("publish/insnavcart", settings_.publish_insnavcart, true);
-    param("publish/insnavgeod", settings_.publish_insnavgeod, true);
-    param("publish/imusetup", settings_.publish_imusetup, true);
-    param("publish/velsensorsetup", settings_.publish_velsensorsetup, true);
-    param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
-    param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
-    param("publish/extsensormeas", settings_.publish_extsensormeas, true);
-    param("publish/imu", settings_.publish_imu, true);
-    param("publish/localization", settings_.publish_localization, true);
-    param("publish/tf", settings_.publish_tf, true);
+    param("publish/gpsfix", settings_.publish_gpsfix, false);
+    param("publish/pose", settings_.publish_pose, false);
+    param("publish/diagnostics", settings_.publish_diagnostics, false);
+    param("publish/gpgga", settings_.publish_gpgga, false);
+    param("publish/gprmc", settings_.publish_gprmc, false);
+    param("publish/gpgsa", settings_.publish_gpgsa, false);
+    param("publish/gpgsv", settings_.publish_gpgsv, false);
+    param("publish/measepoch", settings_.publish_measepoch, false);
+    param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
+    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+    param("publish/poscovcartesian", settings_.publish_poscovcartesian, false);
+    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+	param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+    param("publish/atteuler", settings_.publish_atteuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish/attcoveuler", settings_.publish_attcoveuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish/insnavcart", settings_.publish_insnavcart, false);
+    param("publish/insnavgeod", settings_.publish_insnavgeod, (settings_.septentrio_receiver_type == "ins"));
+    param("publish/imusetup", settings_.publish_imusetup, false);
+    param("publish/velsensorsetup", settings_.publish_velsensorsetup, false);
+    param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
+    param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, false);
+    param("publish/extsensormeas", settings_.publish_extsensormeas, false);
+    param("publish/imu", settings_.publish_imu, false);
+    param("publish/localization", settings_.publish_localization, false);
+    param("publish/tf", settings_.publish_tf, false);
 
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("ETRS89"));
@@ -178,9 +181,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 
-    // multi_antenna param
-    param("multi_antenna", settings_.multi_antenna, false);
-	
 	// INS Spatial Configuration
     bool getConfigFromTf;
     param("get_spatial_config_from_tf", getConfigFromTf, false);
