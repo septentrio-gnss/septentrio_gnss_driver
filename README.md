@@ -184,6 +184,10 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     pos_std_dev: 0.0
 
   ins_use_poi: false
+
+  # logger
+
+  activate_debug_log: false
   ```
   In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
@@ -390,6 +394,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`).
       + default: `false`
   </details>
+
+  <details>
+  <summary>logger</summary>
+
+    + `activate_debug_log`: `true` if ROS logger level shall be set to debug.
+  </details>
   
 * Parameters Configuring (Non-)Publishing of ROS Messages
   <details>
@@ -421,7 +431,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
-    + `publish/tf`: `true` to broadcats tf of localization
+    + `publish/tf`: `true` to broadcast tf of localization
   </details>
 
 ## ROS Topic Publications

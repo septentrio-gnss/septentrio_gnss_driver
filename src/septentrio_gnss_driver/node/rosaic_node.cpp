@@ -44,13 +44,17 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions &options) :
     IO_(this, &settings_),
     tfBuffer_(this->get_clock())
 {
-    /*auto ret = rcutils_logging_set_logger_level(
-        this->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-    if (ret != RCUTILS_RET_OK) 
+    param("activate_debug_log", settings_.activate_debug_log, false);
+    if (settings_.activate_debug_log)
     {
-        RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s", rcutils_get_error_string().str);
-        rcutils_reset_error();
-    }*/
+        auto ret = rcutils_logging_set_logger_level(
+            this->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+        if (ret != RCUTILS_RET_OK) 
+        {
+            RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s", rcutils_get_error_string().str);
+            rcutils_reset_error();
+        }
+    }
     
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 

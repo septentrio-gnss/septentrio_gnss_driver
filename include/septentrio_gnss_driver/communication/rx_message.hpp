@@ -134,6 +134,8 @@ extern uint32_t g_cd_count;
 //! Settings struct
 struct Settings
 {
+    //! Set logger level to DEBUG
+    bool activate_debug_log;
     //! Device port
     std::string device;
     //! Delay in seconds between reconnection attempts to the connection type

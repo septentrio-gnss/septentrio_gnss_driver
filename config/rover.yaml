@@ -128,3 +128,7 @@ ins_std_dev_mask:
   pos_std_dev: 0.0
 
 ins_use_poi: false
+
+# logger
+
+activate_debug_log: false
