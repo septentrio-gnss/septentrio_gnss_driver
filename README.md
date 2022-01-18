@@ -63,7 +63,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   device: tcp://xxx.xxx.xxx.xxx:xxxx
 
   serial:
-    baudrate: 115200
+    baudrate: 921600
     rx_serial_port: USB1
     hw_flow_control: "off"
 
@@ -246,7 +246,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
-    + default: `115200`, `USB1`, `off`
+    + default: `921600`, `USB1`, `off`
   </details>
   
   <details>

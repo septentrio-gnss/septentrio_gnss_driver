@@ -5,7 +5,7 @@
 device: tcp://xxx.xxx.xxx.xxx:xxxx
 
 serial:
-  baudrate: 115200
+  baudrate: 921600
   rx_serial_port: USB1
   hw_flow_control: "off"
 
