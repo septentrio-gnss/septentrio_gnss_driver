@@ -42,6 +42,15 @@
 rosaic_node::ROSaicNode::ROSaicNode() :
     IO_(this, &settings_)
 {
+    param("activate_debug_log", settings_.activate_debug_log, false);
+    if (settings_.activate_debug_log)
+    {
+        if (ros::console::set_logger_level(
+                ROSCONSOLE_DEFAULT_NAME,
+                ros::console::levels::Debug)) // debug is lowest level, shows everything
+            ros::console::notifyLoggerLevelsChanged();
+    }
+
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 
     tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
