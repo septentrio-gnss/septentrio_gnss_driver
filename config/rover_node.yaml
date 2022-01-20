@@ -3,7 +3,7 @@
 # GNSS/INS Parameters
 septentrio_gnss_driver:
   ros__parameters:
-    device: tcp://xxx.xxx.xxx.xxx:xxxx
+    device: tcp://192.168.3.1:28784
 
     serial:
       baudrate: 921600

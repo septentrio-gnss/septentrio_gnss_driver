@@ -2,7 +2,7 @@
 
 # GNSS/INS Parameters
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+device: tcp://192.168.3.1:28784
 
 serial:
   baudrate: 921600

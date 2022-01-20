@@ -60,7 +60,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ```
   # Configuration Settings for the Rover Rx
 
-  device: tcp://xxx.xxx.xxx.xxx:xxxx
+  device: tcp://192.168.3.1:28784
 
   serial:
     baudrate: 921600
@@ -240,9 +240,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
-    + default: empty
+      + An RNDIS IP interface is provided via USB, assigning the address `192.168.3.1` to the receiver. This should work on most modern Linux distributions. To verify successful connection, open a web browser to access the web interface of the receiver using the IP address `192.168.3.1`.
+    + default: `tcp://192.168.3.1:28784 `
   + `serial`: specifications for serial communication
-    + `serial/baudrate`: serial baud rate to be used in a serial connection 
+    + `serial/baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
     + `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
