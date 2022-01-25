@@ -125,8 +125,8 @@ septentrio_gnss_driver:
     ins_initial_heading: auto
 
     ins_std_dev_mask:
-      att_std_dev: 0.0
-      pos_std_dev: 0.0
+      att_std_dev: 5.0
+      pos_std_dev: 10.0
 
     ins_use_poi: false
 
