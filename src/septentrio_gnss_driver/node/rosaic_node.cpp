@@ -314,8 +314,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
 
     // ins_std_dev_mask
-    param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 0.0f);
-    param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 0.0f);
+    param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 5.0f);
+    param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 10.0f);
 
     // INS solution reference point
     param("ins_use_poi", settings_.ins_use_poi, false);

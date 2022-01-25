@@ -187,8 +187,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ins_initial_heading: auto
 
   ins_std_dev_mask:
-    att_std_dev: 0.0
-    pos_std_dev: 0.0
+    att_std_dev: 5.0
+    pos_std_dev: 10.0
 
   ins_use_poi: false
 
@@ -397,7 +397,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `ins_std_dev_mask`: Maximum accepted error
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
-      + default: `2` degrees, `100` meters    
+      + default: `5` degrees, `10` meters    
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_to_imu`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`).
       + default: `false`
