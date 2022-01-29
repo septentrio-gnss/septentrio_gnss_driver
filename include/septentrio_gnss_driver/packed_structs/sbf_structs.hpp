@@ -373,15 +373,15 @@ void setDoNotUse(T& s)
 template<typename It, typename Val>
 bool qiLittleEndianParser(It& it, Val& val)
 {
-    static_assert(std::is_same<int8_t, Val>::value  ||
-                  std::is_same<uint8_t, Val>::value ||
-                  std::is_same<int16_t, Val>::value   ||
-                  std::is_same<uint16_t, Val>::value  ||
-                  std::is_same<int32_t, Val>::value   ||
-                  std::is_same<uint32_t, Val>::value  ||
-                  std::is_same<int64_t, Val>::value   ||
-                  std::is_same<uint64_t, Val>::value  ||
-                  std::is_same<float, Val>::value     ||
+    static_assert(std::is_same<int8_t, Val>::value   ||
+                  std::is_same<uint8_t, Val>::value  ||
+                  std::is_same<int16_t, Val>::value  ||
+                  std::is_same<uint16_t, Val>::value ||
+                  std::is_same<int32_t, Val>::value  ||
+                  std::is_same<uint32_t, Val>::value ||
+                  std::is_same<int64_t, Val>::value  ||
+                  std::is_same<uint64_t, Val>::value ||
+                  std::is_same<float, Val>::value    ||
                   std::is_same<double, Val>::value);
 
     if (std::is_same<int8_t, Val>::value)
@@ -424,6 +424,7 @@ bool qiCharsToStringParser(It& it, std::string& val, std::size_t num)
     bool success = false;
     val.clear();
     success = qi::parse(it, it + num, qi::repeat(num)[qi::char_], val);
+    // remove string termination characters '\0'
     val.erase(std::remove(val.begin(), val.end(), '\0'), val.end());
     return success;
 }
@@ -450,8 +451,8 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
     qiLittleEndianParser(it, block_header.crc);
     uint16_t ID;
     qiLittleEndianParser(it, ID);
-    block_header.id       = ID & 8191;   
-    block_header.revision = ID >> 13;
+    block_header.id       = ID & 8191; // lower 13 bits are id  
+    block_header.revision = ID >> 13;  // upper 3 bits are revision
     qiLittleEndianParser(it, block_header.length);
     qiLittleEndianParser(it, block_header.tow);
     qiLittleEndianParser(it, block_header.wnc);
@@ -1555,7 +1556,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
             qiLittleEndianParser(it, msg.acceleration_x);
             qiLittleEndianParser(it, msg.acceleration_y);
             qiLittleEndianParser(it, msg.acceleration_z);
-            if (!use_ros_axis_orientation)
+            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
             {
                 if (validValue(msg.acceleration_y))
                     msg.acceleration_y = -msg.acceleration_y;
@@ -1569,7 +1570,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
             qiLittleEndianParser(it, msg.angular_rate_x);
             qiLittleEndianParser(it, msg.angular_rate_y);
             qiLittleEndianParser(it, msg.angular_rate_z);
-            if (!use_ros_axis_orientation)
+            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
             {
                 if (validValue(msg.angular_rate_y))
                     msg.angular_rate_y = -msg.angular_rate_y;
