@@ -59,6 +59,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
   + Septentrio's mosaic receivers and many others are only capable of establishing 10 streams !in total! of SBF blocks / NMEA messages. Please make sure that you do not set too many ROSaic parameters specifying the publishing of ROS messages to `true`. Note that in the GNSS case `gpsfix` accounts for 3 additional streams (`ChannelStatus`, `DOP` and `MeasEpoch` blocks), for instance.
+  + There is a bug on some models that requires the IMU Orientation be set to manual mode **even if** the device is mounted such that the transform is (0,0,0)
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
 
   ```
@@ -149,6 +150,7 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
       heading: 0.0
       pitch: 0.0
     imu_orientation:
+      manual_mode: true
       theta_x: 0.0
       theta_y: 0.0
       theta_z: 0.0
@@ -330,6 +332,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
         + default: `0.0`, `0.0` (degrees)
       + `imu_orientation`: IMU sensor orientation
+        + `manual_mode`: Choose between using `SensorDefault` or `manual` orientation. If changes are made to `theta_x`, `theta_y`, `theta_z` then mode should be set to `manual`
+        + default: `true`
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
         + The nominal orientation is where the IMU is upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
         + default: `0.0`, `0.0`, `0.0` (degrees)

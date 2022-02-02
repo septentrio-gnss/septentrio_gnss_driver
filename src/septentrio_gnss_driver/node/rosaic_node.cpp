@@ -745,6 +745,7 @@ void rosaic_node::ROSaicNode::getROSParams()
 	
 	// INS Spatial Configuration
     // IMU orientation parameter
+    g_nh->param("ins_spatial_config/imu_orientation/manual_mode", manual_, true);
     g_nh->param("ins_spatial_config/imu_orientation/theta_x", theta_x_, 0.0f);
     g_nh->param("ins_spatial_config/imu_orientation/theta_y", theta_y_, 0.0f);
     g_nh->param("ins_spatial_config/imu_orientation/theta_z", theta_z_, 0.0f);

@@ -87,6 +87,7 @@ ins_spatial_config:
     heading: 0.0
     pitch: 0.0
   imu_orientation:
+    manual_mode: true
     theta_x: 0.0
     theta_y: 0.0
     theta_z: 0.0
