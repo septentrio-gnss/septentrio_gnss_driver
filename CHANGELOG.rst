@@ -2,14 +2,34 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
-* Updated Changelog
-* Merge pull request #40 from thomasemter/dev
-  Fixes for velcovgeodetic publishing and setting of antenna type
-* Fix gpsfix and velcovgeodetic interconnections
-* Fix missing quotes for antenna type
-* Increased buffer size from 8192 to 16384 bytes
+1.0.9 (Forthcoming)
+-------------------
+* New Features
+  * Add option to use ROS axis orientations according to REP103
+  * Add frame_id parameters
+  * Add option to get frames from tf
+  * Publishing of cartesian localization in UTM (topic and/or tf) for INS
+  * Publishing of IMU topic for INS
+  * Publishing of MeasEpoch
+  * ROS2 branch
+* Improvements
+  * Add multi antenna option
+  * Increase number of SBF streams
+  * Add option to set polling_period to "on change"
+  * Increased buffer size from 8192 to 16384 bytes
+  * Add endianess aware parsers
+  * Only publish topics set to true
+  * Add parameter to switch DEBUG logging on and off
+  * Change GPxxx messages to ROS built-in types
+  * Remove duplicate INS msg types
+* Fixes
+  * Setting of antenna type
+  * Publishing rate interconnections of gpsfix and velcovgeodetic
+  * Missing quotes for antenna type
+  * Broken attitude parsing pose and gpsfix from INS
+  * IMU orientation was not sent to Rx
+  * Graceful shutdown of threads
+* Update Readme and Changelog
 * Contributors: Thomas Emter, Tibor Dome, tibordome
 
 1.0.8 (2021-10-23)
