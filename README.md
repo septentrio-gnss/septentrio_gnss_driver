@@ -208,7 +208,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     <summary>Measure and Compensate for IMU-Antenna Lever Arm</summary>
   
     + The IMU-antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP), measured in the vehicle frame.
-    + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position.
+    + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
     + The IMU/antenna position can be changed by specifying the lever arm's `x`,`y`and `z` parameters in the `config.yaml` file under the `ins_spatial_config/ant_lever_arm` parameter.
   
       ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
@@ -218,7 +218,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       <details>
     <summary>Compensate for IMU Orientation</summary>
 
-    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame.
+    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. Keep in mind that the IMU orientation is rotated by 180° in  relation to the printed axes on the top panel, cf. image below.
     + The IMU's orientation can be changed by specifying the orientation angles `theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `ins_spatial_config/imu_orientation`
     + The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
 
