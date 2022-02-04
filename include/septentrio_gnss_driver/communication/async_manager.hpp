@@ -126,7 +126,7 @@ namespace io_comm_rx {
         AsyncManager(ROSaicNodeBase* node, 
                      boost::shared_ptr<StreamT> stream,
                      boost::shared_ptr<boost::asio::io_service> io_service,
-                     std::size_t buffer_size = 16384);
+                     std::size_t buffer_size = 131072);
         virtual ~AsyncManager();
 
         /**
@@ -341,7 +341,7 @@ namespace io_comm_rx {
         stopping_(false), try_parsing_(false), allow_writing_(true),
         do_read_count_(0), buffer_size_(buffer_size), count_max_(6),
         circular_buffer_(node, buffer_size)        
-    // Since buffer_size = 16384 in declaration, no need in definition anymore (even
+    // Since buffer_size = 131072 in declaration, no need in definition anymore (even
     // yields error message, due to "overwrite").
     {
         node_->log(LogLevel::DEBUG, 
