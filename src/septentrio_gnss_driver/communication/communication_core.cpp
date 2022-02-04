@@ -737,7 +737,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                node_->log(LogLevel::ERROR, "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
+                node_->log(LogLevel::ERROR, "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_lever_arm");
             }
         }
 
