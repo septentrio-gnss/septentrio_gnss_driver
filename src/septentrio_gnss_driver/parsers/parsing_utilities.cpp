@@ -310,12 +310,12 @@ namespace parsing_utilities {
                                                        double roll)
     {
         // Abbreviations for the angular functions
-        double cy = cos(yaw * 0.5);
-        double sy = sin(yaw * 0.5);
-        double cp = cos(pitch * 0.5);
-        double sp = sin(pitch * 0.5);
-        double cr = cos(roll * 0.5);
-        double sr = sin(roll * 0.5);
+        double cy = std::cos(yaw * 0.5);
+        double sy = std::sin(yaw * 0.5);
+        double cp = std::cos(pitch * 0.5);
+        double sp = std::sin(pitch * 0.5);
+        double cr = std::cos(roll * 0.5);
+        double sr = std::sin(roll * 0.5);
 
         QuaternionMsg q;
         q.w = cr * cp * cy + sr * sp * sy;
