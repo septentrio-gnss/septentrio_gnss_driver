@@ -1115,7 +1115,7 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
 void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
 {
     node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
-    std::size_t buffer_size = 16384;
+    std::size_t buffer_size = 131072;
     uint8_t* to_be_parsed;
     to_be_parsed = new uint8_t[buffer_size];
     std::ifstream bin_file(file_name, std::ios::binary);
