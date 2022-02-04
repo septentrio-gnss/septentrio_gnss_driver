@@ -305,7 +305,7 @@ struct Settings
     //! The frame ID used in the header of published ROS Imu message
     std::string imu_frame_id;
     //! The frame ID used in the header of published ROS Localization message if poi is used
-    std::string poi_frame_id;
+    std::string base_frame_id;
     //! The frame ID of the velocity sensor
     std::string vsm_frame_id;
     //! The frame ID of the aux1 antenna

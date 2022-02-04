@@ -72,8 +72,6 @@
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/imu_setup.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
-#include <septentrio_gnss_driver/msg/ext_event_ins_nav_geod.hpp>
-#include <septentrio_gnss_driver/msg/ext_event_ins_nav_cart.hpp>
 #include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -280,6 +278,9 @@ public:
      */
     void publishTf(const LocalizationUtmMsg& loc)
     {
+        if (std::isnan(loc.pose.pose.orientation.w))        
+            return;
+
         geometry_msgs::msg::TransformStamped transformStamped;
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;

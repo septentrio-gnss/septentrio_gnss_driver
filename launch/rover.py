@@ -21,12 +21,6 @@ def generate_launch_description():
         arguments = "0 0 0 0 0 0 base_link imu".split(' ')
     )
 
-    tf_poi = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments = "0 0 0 0 0 0 imu poi".split(' ')
-    )
-
     tf_gnss = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -71,4 +65,4 @@ def generate_launch_description():
         output='screen'
     )
 
-    return launch.LaunchDescription([arg_file_name, arg_file_path, container, tf_imu, tf_poi, tf_gnss, tf_vsm, tf_aux1])
+    return launch.LaunchDescription([arg_file_name, arg_file_path, container, tf_imu, tf_gnss, tf_vsm, tf_aux1])
