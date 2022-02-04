@@ -861,7 +861,7 @@ bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg, boo
     if (use_ros_axis_orientation)
     {
         if (validValue(msg.heading))
-            msg.heading = -msg.heading + parsing_utilities::pi_half;
+            msg.heading = -msg.heading + 90;
         if (validValue(msg.pitch))
             msg.pitch = -msg.pitch;
         if (validValue(msg.pitch_dot))
@@ -960,7 +960,7 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
         if (use_ros_axis_orientation)
         {
             if (validValue(msg.heading))
-                msg.heading = -msg.heading + parsing_utilities::pi_half;
+                msg.heading = -msg.heading + 90;
             if (validValue(msg.pitch))
                 msg.pitch = -msg.pitch;
         }
@@ -1331,7 +1331,7 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         if (use_ros_axis_orientation)
         {
             if (validValue(msg.heading))
-                msg.heading = -msg.heading + parsing_utilities::pi_half;
+                msg.heading = -msg.heading + 90;
             if (validValue(msg.pitch))
                 msg.pitch = -msg.pitch;
         }

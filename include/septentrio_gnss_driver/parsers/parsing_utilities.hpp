@@ -73,6 +73,15 @@ namespace parsing_utilities {
     }
 
     /***********************************************************************
+     * Convert degrees^2 to radians^2
+     **********************************************************************/
+    template<class T>
+    inline T deg2radSq(T deg)
+    {
+        return deg * boost::math::constants::degree<T>() * boost::math::constants::degree<T>();
+    }
+
+    /***********************************************************************
      * Convert radians to degree
      **********************************************************************/
     template<class T>
