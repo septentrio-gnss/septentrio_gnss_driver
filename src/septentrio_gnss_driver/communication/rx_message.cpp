@@ -59,10 +59,19 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
     if (settings_->septentrio_receiver_type == "gnss")
     {
         // Filling in the pose data
+		double yaw = 0.0;
+		if (validValue(last_atteuler_.heading))
+			yaw = last_atteuler_.heading;
+		double pitch = 0.0;
+		if (validValue(last_atteuler_.pitch))
+			pitch = last_atteuler_.pitch;
+		double roll = 0.0;
+		if (validValue(last_atteuler_.roll))
+			roll = last_atteuler_.roll;
         msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                deg2rad(last_atteuler_.heading),
-                deg2rad(last_atteuler_.pitch),
-                deg2rad(last_atteuler_.roll));
+                deg2rad(yaw),
+                deg2rad(pitch),
+                deg2rad(roll));
         msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
         msg.pose.pose.position.y = rad2deg(last_pvtgeodetic_.latitude);
         msg.pose.pose.position.z = last_pvtgeodetic_.height;
@@ -111,11 +120,20 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         }
         if ((last_insnavgeod_.sb_list & 2) !=0)
         {
+			double yaw = 0.0;
+			if (validValue(last_insnavgeod_.heading))
+				yaw = last_insnavgeod_.heading;
+			double pitch = 0.0;
+			if (validValue(last_insnavgeod_.pitch))
+				pitch = last_insnavgeod_.pitch;
+			double roll = 0.0;
+			if (validValue(last_insnavgeod_.roll))
+				roll = last_insnavgeod_.roll;	
             // Attitude
             msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                deg2rad(last_insnavgeod_.heading),
-                deg2rad(last_insnavgeod_.pitch),
-                deg2rad(last_insnavgeod_.roll));
+                deg2rad(yaw),
+                deg2rad(pitch),
+                deg2rad(roll));
         }
         else
         {
@@ -127,12 +145,21 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         if((last_insnavgeod_.sb_list & 4) !=0)
         {
             // Attitude autocov
-            msg.pose.covariance[21] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+			if (validValue(last_insnavgeod_.roll_std_dev))
+            	msg.pose.covariance[21] = parsing_utilities::square(deg2rad(last_insnavgeod_.
                                             roll_std_dev));
-            msg.pose.covariance[28] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+			else
+				msg.pose.covariance[21] = -1.0;
+			if (validValue(last_insnavgeod_.pitch_std_dev))	
+            	msg.pose.covariance[28] = parsing_utilities::square(deg2rad(last_insnavgeod_.
                                             pitch_std_dev));
-            msg.pose.covariance[35] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+			else
+				msg.pose.covariance[28] = -1.0;
+			if (validValue(last_insnavgeod_.heading_std_dev))
+            	msg.pose.covariance[35] = parsing_utilities::square(deg2rad(last_insnavgeod_.
                                             heading_std_dev));
+			else
+				msg.pose.covariance[35] = -1.0;
         }
         else
         {
@@ -461,14 +488,20 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     }
 
     // Euler angles (ENU), gamma for conversion from true north to grid north
-    double roll  = deg2rad(last_insnavgeod_.roll);
-    double pitch = deg2rad(last_insnavgeod_.pitch);
-    double yaw   = deg2rad(last_insnavgeod_.heading) - deg2rad(gamma);
+	double roll = 0.0;
+	if (validValue(last_insnavgeod_.roll))
+    	roll  = deg2rad(last_insnavgeod_.roll);
+	double pitch = 0.0;
+	if (validValue(last_insnavgeod_.pitch))
+    	pitch = deg2rad(last_insnavgeod_.pitch);
+	double yaw = 0.0;
+	if (validValue(last_insnavgeod_.heading))
+    	yaw   = deg2rad(last_insnavgeod_.heading) - deg2rad(gamma);
     Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
     if ((last_insnavgeod_.sb_list & 2) !=0)
     {
         // Attitude (ENU)
-        msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
+        msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(yaw, pitch, roll);
     }
     else
     {
@@ -480,9 +513,21 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     if((last_insnavgeod_.sb_list & 4) !=0)
     {
         // Attitude autocovariance
-        msg.pose.covariance[21] = parsing_utilities::square(deg2rad(last_insnavgeod_.roll_std_dev));
-        msg.pose.covariance[28] = parsing_utilities::square(deg2rad(last_insnavgeod_.pitch_std_dev));
-        msg.pose.covariance[35] = parsing_utilities::square(deg2rad(last_insnavgeod_.heading_std_dev));
+        if (validValue(last_insnavgeod_.roll_std_dev))
+			msg.pose.covariance[21] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+										roll_std_dev));
+		else
+			msg.pose.covariance[21] = -1.0;
+		if (validValue(last_insnavgeod_.pitch_std_dev))	
+			msg.pose.covariance[28] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+										pitch_std_dev));
+		else
+			msg.pose.covariance[28] = -1.0;
+		if (validValue(last_insnavgeod_.heading_std_dev))
+			msg.pose.covariance[35] = parsing_utilities::square(deg2rad(last_insnavgeod_.
+										heading_std_dev));
+		else
+			msg.pose.covariance[35] = -1.0;
     }
     else
     {
@@ -493,10 +538,19 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     if((last_insnavgeod_.sb_list & 8) !=0)
     {
         // Linear velocity (ENU)
+		double ve = 0.0;
+		if (validValue(last_insnavgeod_.ve))
+			ve = last_insnavgeod_.ve;
+		double vn = 0.0;
+		if (validValue(last_insnavgeod_.vn))
+			vn = last_insnavgeod_.vn;
+		double vu = 0.0;
+		if (validValue(last_insnavgeod_.vu))
+			vu = last_insnavgeod_.vu;
         Eigen::Vector3d vel_enu;
-        vel_enu << last_insnavgeod_.ve,
-                   last_insnavgeod_.vn,
-                   last_insnavgeod_.vu;
+        vel_enu << ve,
+                   vn,
+                   vu;
         // Linear velocity, rotate to body coordinates
 		Eigen::Vector3d vel_body = R_n_b * vel_enu;
 		msg.twist.twist.linear.x = vel_body(0);
@@ -513,9 +567,18 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     if ((last_insnavgeod_.sb_list & 16) !=0)
     {
         // Linear velocity autocovariance
-        Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
-        Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
-        Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.vu_std_dev);
+		if (validValue(last_insnavgeod_.ve_std_dev))
+        	Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
+		else
+			Cov_vel_enu(0,0) = -1.0;
+		if (validValue(last_insnavgeod_.vn_std_dev))
+        	Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+		else
+			Cov_vel_enu(1,1) = -1.0;
+		if (validValue(last_insnavgeod_.vu_std_dev))
+        	Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.vu_std_dev);
+		else
+			Cov_vel_enu(2,2) = -1.0;
     }
     else
     {
