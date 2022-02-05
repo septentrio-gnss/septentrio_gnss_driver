@@ -327,11 +327,7 @@ io_comm_rx::RxMessage::ImuCallback()
     if (settings_->septentrio_receiver_type == "ins")
     {   
 		if (validValue(last_insnavgeod_.block_header.tow))
-		{
-			valid_orientation = false;
-		}
-		else
-		{	
+		{		
 			Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow, last_extsensmeas_.block_header.wnc, true);
 			Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow, last_insnavgeod_.block_header.wnc, true);// Filling in the oreintation data
 			
@@ -404,6 +400,10 @@ io_comm_rx::RxMessage::ImuCallback()
 													heading_pitch_cov);
 				}
 			}			
+		}
+		else
+		{	
+			valid_orientation = false;
 		}
     }
 	else
