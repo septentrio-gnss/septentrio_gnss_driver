@@ -81,7 +81,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
     param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
-    param("base_frame_id", settings_.base_frame_id, (std::string) "poi");
+    param("base_frame_id", settings_.base_frame_id, (std::string) "base_link");
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.base_frame_id);
