@@ -218,7 +218,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       <details>
     <summary>Compensate for IMU Orientation</summary>
 
-    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. Keep in mind that the IMU orientation is rotated by 180° in relation to the printed axes on the top panel, cf. image below.
+    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. The IMU position and orientation is printed on the top panel, cf. image below.
     + The IMU's orientation can be changed by specifying the orientation angles `theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `ins_spatial_config/imu_orientation`
     + The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
 
@@ -271,7 +271,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Frame ID</summary>
   
-  + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
+  + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
   + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
