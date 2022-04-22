@@ -16,7 +16,7 @@ Changelog for package septentrio_gnss_driver
    * Add multi antenna option
    * Increase number of SBF streams
    * Add option to set polling_period to "on change"
-   * Increased buffer size from 8192 to 16384 bytes
+   * Increased buffer size from 8192 to 131072 bytes
    * Add endianess aware parsers
    * Only publish topics set to true
    * Add parameter to switch DEBUG logging on and off
