@@ -1090,6 +1090,7 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
         // This keeps the client program independent of a specific IP version. The
         // boost::asio::connect() function does this for us automatically.
         socket->connect(*endpoint);
+        socket->set_option(boost::asio::ip::tcp::no_delay(true));
     } catch (std::runtime_error& e)
     {
         throw std::runtime_error("Could not connect to " + endpoint->host_name() +
