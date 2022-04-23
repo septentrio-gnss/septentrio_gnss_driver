@@ -57,14 +57,6 @@
 // *****************************************************************************
 
 //! 0x24 is ASCII for $ - 1st byte in each message
-#ifndef SBF_SYNC_BYTE_1
-#define SBF_SYNC_BYTE_1 0x24
-#endif
-//! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
-#ifndef SBF_SYNC_BYTE_2
-#define SBF_SYNC_BYTE_2 0x40
-#endif
-//! 0x24 is ASCII for $ - 1st byte in each message
 #ifndef NMEA_SYNC_BYTE_1
 #define NMEA_SYNC_BYTE_1 0x24
 #endif
@@ -142,6 +134,8 @@ extern uint32_t g_cd_count;
 //! Settings struct
 struct Settings
 {
+    //! Set logger level to DEBUG
+    bool activate_debug_log;
     //! Device port
     std::string device;
     //! Delay in seconds between reconnection attempts to the connection type
@@ -311,7 +305,7 @@ struct Settings
     //! The frame ID used in the header of published ROS Imu message
     std::string imu_frame_id;
     //! The frame ID used in the header of published ROS Localization message if poi is used
-    std::string poi_frame_id;
+    std::string base_frame_id;
     //! The frame ID of the velocity sensor
     std::string vsm_frame_id;
     //! The frame ID of the aux1 antenna
@@ -380,7 +374,6 @@ enum RxID_Enum
     evDOP,
     evVelCovGeodetic,
     evDiagnosticArray,
-    evImu,
     evLocalization,
     evReceiverStatus,
     evQualityInd,
@@ -456,7 +449,6 @@ namespace io_comm_rx {
             std::make_pair("4001", evDOP),
             std::make_pair("5908", evVelCovGeodetic),
             std::make_pair("DiagnosticArray", evDiagnosticArray),
-            std::make_pair("Imu", evImu),
             std::make_pair("Localization", evLocalization),
             std::make_pair("4014", evReceiverStatus),
             std::make_pair("4082", evQualityInd),
@@ -605,11 +597,6 @@ namespace io_comm_rx {
          * @brief Wether all blocks have arrived for Diagnostics Message
          */
         bool diagnostics_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks have arrived for Imu Message
-         */
-        bool imu_complete(uint32_t id);
 
          /**
          * @brief Wether all blocks have arrived for Localization Message
@@ -828,17 +815,9 @@ namespace io_comm_rx {
         //! arrived or not
         bool qualityind_has_arrived_diagnostics_ = false;
 
-        //! For Imu: Whether the INSNavGeod block of the current epoch
-        //! has arrived or not
-        uint8_t insnavgeod_has_arrived_imu_ = 0;
-
         //! For Localization: Whether the INSNavGeod block of the current epoch
         //! has arrived or not
         bool insnavgeod_has_arrived_localization_ = false;
-
-        //! For Imu: Whether the ExtSensorMeas block of the current epoch
-        //! has arrived or not
-        bool extsens_has_arrived_imu_ = false;
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages

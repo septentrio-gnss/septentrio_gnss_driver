@@ -265,6 +265,8 @@ public:
      */
     void publishTf(const LocalizationUtmMsg& loc)
     {
+        if (std::isnan(loc.pose.pose.orientation.w))
+            return;
         geometry_msgs::TransformStamped transformStamped;
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;

@@ -42,6 +42,15 @@
 rosaic_node::ROSaicNode::ROSaicNode() :
     IO_(this, &settings_)
 {
+    param("activate_debug_log", settings_.activate_debug_log, false);
+    if (settings_.activate_debug_log)
+    {
+        if (ros::console::set_logger_level(
+                ROSCONSOLE_DEFAULT_NAME,
+                ros::console::levels::Debug)) // debug is lowest level, shows everything
+            ros::console::notifyLoggerLevelsChanged();
+    }
+
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 
     tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
@@ -72,22 +81,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
     param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
-    param("poi_frame_id", settings_.poi_frame_id, (std::string) "poi");
+    param("base_frame_id", settings_.base_frame_id, (std::string) "base_link");
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
-    param("vehicle_frame_id", settings_.vehicle_frame_id, (std::string) "base_link");
+    param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.base_frame_id);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
-    param("publish/gpst", settings_.publish_gpst, true);
-    param("publish/navsatfix", settings_.publish_navsatfix, true);
-    param("publish/gpsfix", settings_.publish_gpsfix, true);
-    param("publish/pose", settings_.publish_pose, true);
-    param("publish/diagnostics", settings_.publish_diagnostics, true);
     getUint32Param("leap_seconds", settings_.leap_seconds,
                            static_cast<uint32_t>(18));
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));
-    getUint32Param("serial/baudrate", settings_.baudrate, static_cast<uint32_t>(115200));
+    getUint32Param("serial/baudrate", settings_.baudrate, static_cast<uint32_t>(921600));
     param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
     param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
@@ -126,30 +130,37 @@ bool rosaic_node::ROSaicNode::getROSParams()
         return false;
     }
 
-    // Publishing parameters, the others remained global since they need to be
-    // accessed in the callbackhandlers.hpp file
-    param("publish/gpgga", settings_.publish_gpgga, true);
-    param("publish/gprmc", settings_.publish_gprmc, true);
-    param("publish/gpgsa", settings_.publish_gpgsa, true);
-    param("publish/gpgsv", settings_.publish_gpgsv, true);
-    param("publish/measepoch", settings_.publish_measepoch, true);
-    param("publish/pvtcartesian", settings_.publish_pvtcartesian, true);
-    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, true);
-    param("publish/poscovcartesian", settings_.publish_poscovcartesian, true);
-    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, true);
-	param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, true);
-    param("publish/atteuler", settings_.publish_atteuler, true);
-    param("publish/attcoveuler", settings_.publish_attcoveuler, true);
-    param("publish/insnavcart", settings_.publish_insnavcart, true);
-    param("publish/insnavgeod", settings_.publish_insnavgeod, true);
-    param("publish/imusetup", settings_.publish_imusetup, true);
-    param("publish/velsensorsetup", settings_.publish_velsensorsetup, true);
-    param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, true);
-    param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, true);
-    param("publish/extsensormeas", settings_.publish_extsensormeas, true);
-    param("publish/imu", settings_.publish_imu, true);
-    param("publish/localization", settings_.publish_localization, true);
-    param("publish/tf", settings_.publish_tf, true);
+    // multi_antenna param
+    param("multi_antenna", settings_.multi_antenna, false);
+
+    // Publishing parameters    
+    param("publish/gpst", settings_.publish_gpst, false);
+    param("publish/navsatfix", settings_.publish_navsatfix, true);
+    param("publish/gpsfix", settings_.publish_gpsfix, false);
+    param("publish/pose", settings_.publish_pose, false);
+    param("publish/diagnostics", settings_.publish_diagnostics, false);
+    param("publish/gpgga", settings_.publish_gpgga, false);
+    param("publish/gprmc", settings_.publish_gprmc, false);
+    param("publish/gpgsa", settings_.publish_gpgsa, false);
+    param("publish/gpgsv", settings_.publish_gpgsv, false);
+    param("publish/measepoch", settings_.publish_measepoch, false);
+    param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
+    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+    param("publish/poscovcartesian", settings_.publish_poscovcartesian, false);
+    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+	param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+    param("publish/atteuler", settings_.publish_atteuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish/attcoveuler", settings_.publish_attcoveuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish/insnavcart", settings_.publish_insnavcart, false);
+    param("publish/insnavgeod", settings_.publish_insnavgeod, (settings_.septentrio_receiver_type == "ins"));
+    param("publish/imusetup", settings_.publish_imusetup, false);
+    param("publish/velsensorsetup", settings_.publish_velsensorsetup, false);
+    param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
+    param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, false);
+    param("publish/extsensormeas", settings_.publish_extsensormeas, false);
+    param("publish/imu", settings_.publish_imu, false);
+    param("publish/localization", settings_.publish_localization, false);
+    param("publish/tf", settings_.publish_tf, false);
 
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("ETRS89"));
@@ -179,9 +190,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 
-    // multi_antenna param
-    param("multi_antenna", settings_.multi_antenna, false);
-	
 	// INS Spatial Configuration
     bool getConfigFromTf;
     param("get_spatial_config_from_tf", getConfigFromTf, false);
@@ -189,10 +197,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         if (settings_.septentrio_receiver_type == "ins")
         {
-            TransformStampedMsg T_imu_base;
-            getTransform(settings_.imu_frame_id, settings_.vehicle_frame_id, T_imu_base);
+            TransformStampedMsg T_imu_vehicle;
+            getTransform(settings_.vehicle_frame_id, settings_.imu_frame_id, T_imu_vehicle);
             TransformStampedMsg T_poi_imu;
-            getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
+            getTransform(settings_.imu_frame_id, settings_.base_frame_id, T_poi_imu);
             TransformStampedMsg T_vsm_imu;
             getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
             TransformStampedMsg T_ant_imu;
@@ -200,7 +208,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
             // IMU orientation parameter
             double roll, pitch, yaw;
-            getRPY(T_imu_base.transform.rotation, roll, pitch, yaw);
+            getRPY(T_imu_vehicle.transform.rotation, roll, pitch, yaw);
             settings_.theta_x = parsing_utilities::rad2deg(roll);
             settings_.theta_y = parsing_utilities::rad2deg(pitch);
             settings_.theta_z = parsing_utilities::rad2deg(yaw);
@@ -232,16 +240,16 @@ bool rosaic_node::ROSaicNode::getROSParams()
         }
         if ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna)
         {
-            TransformStampedMsg T_ant_base;
-            getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_base);
-            TransformStampedMsg T_aux1_base;
-            getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id, T_aux1_base);
+            TransformStampedMsg T_ant_vehicle;
+            getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_vehicle);
+            TransformStampedMsg T_aux1_vehicle;
+            getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id, T_aux1_vehicle);
 
             // Antenna Attitude Determination parameter
-            double dy = T_aux1_base.transform.translation.y - T_ant_base.transform.translation.y;
-            double dx = T_aux1_base.transform.translation.x - T_ant_base.transform.translation.x;
+            double dy = T_aux1_vehicle.transform.translation.y - T_ant_vehicle.transform.translation.y;
+            double dx = T_aux1_vehicle.transform.translation.x - T_ant_vehicle.transform.translation.x;
             settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
-            double dz = T_aux1_base.transform.translation.z - T_ant_base.transform.translation.z;
+            double dz = T_aux1_vehicle.transform.translation.z - T_ant_vehicle.transform.translation.z;
             double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
             settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
         }
@@ -257,9 +265,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ins_spatial_config/ant_lever_arm/y", settings_.ant_lever_y, 0.0);
         param("ins_spatial_config/ant_lever_arm/z", settings_.ant_lever_z, 0.0);
         // INS POI ofset paramter
-        param("ins_spatial_config/poi_to_imu/delta_x", settings_.poi_x, 0.0);
-        param("ins_spatial_config/poi_to_imu/delta_y", settings_.poi_y, 0.0);
-        param("ins_spatial_config/poi_to_imu/delta_z", settings_.poi_z, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_x", settings_.poi_x, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_y", settings_.poi_y, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_z", settings_.poi_z, 0.0);
         // INS velocity sensor lever arm offset parameter
         param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", settings_.vsm_x, 0.0);
         param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", settings_.vsm_y, 0.0);
@@ -306,11 +314,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
 
     // ins_std_dev_mask
-    param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 0.0f);
-    param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 0.0f);
+    param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 5.0f);
+    param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 10.0f);
 
     // INS solution reference point
     param("ins_use_poi", settings_.ins_use_poi, false);
+
+    if (settings_.publish_tf && !settings_.ins_use_poi)
+    {
+        this->log(LogLevel::ERROR , "If tf shall be published, ins_use_poi has to be set to true! It is set automatically to true."); 
+        settings_.ins_use_poi = true;
+    }
 
     // Correction service parameters
     param("ntrip_settings/mode", settings_.ntrip_mode, std::string("off"));
@@ -333,8 +347,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
               static_cast<uint32_t>(28785));
     param("ntrip_settings/rx_input_corrections_serial",
                 settings_.rx_input_corrections_serial, std::string("USB2"));    
-
-    // Automatically activate needed sub messages
 
     if (settings_.publish_atteuler)
     {

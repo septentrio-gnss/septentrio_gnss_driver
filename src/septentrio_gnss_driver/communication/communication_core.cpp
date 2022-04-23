@@ -737,7 +737,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
             else
             {
-                node_->log(LogLevel::ERROR, "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_to_imu");
+                node_->log(LogLevel::ERROR, "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_lever_arm");
             }
         }
 
@@ -1029,12 +1029,6 @@ void io_comm_rx::Comm_IO::defineMessages()
 	}
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_imu)
-        {
-            handlers_.callbackmap_ =
-                handlers_.insert<ImuMsg>(
-                    "Imu");
-        }
         if (settings_->publish_localization)
         {
             handlers_.callbackmap_ =
@@ -1096,6 +1090,7 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
         // This keeps the client program independent of a specific IP version. The
         // boost::asio::connect() function does this for us automatically.
         socket->connect(*endpoint);
+        socket->set_option(boost::asio::ip::tcp::no_delay(true));
     } catch (std::runtime_error& e)
     {
         throw std::runtime_error("Could not connect to " + endpoint->host_name() +
@@ -1121,7 +1116,7 @@ bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
 void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
 {
     node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
-    std::size_t buffer_size = 16384;
+    std::size_t buffer_size = 131072;
     uint8_t* to_be_parsed;
     to_be_parsed = new uint8_t[buffer_size];
     std::ifstream bin_file(file_name, std::ios::binary);

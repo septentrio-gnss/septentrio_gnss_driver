@@ -31,6 +31,8 @@
 #ifndef SBFStructs_HPP
 #define SBFStructs_HPP
 
+#include <cstdint>
+
 //! Using maximum value of NR_OF_LOGICALCHANNELS for SBF definitions
 #ifndef NR_OF_LOGICALCHANNELS
 #define NR_OF_LOGICALCHANNELS 80
@@ -107,20 +109,10 @@
 #define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
 #define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
 
-//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
-//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
-#ifndef DO_NOT_USE_VALUE
-#define DO_NOT_USE_VALUE -2e10f
-#endif
-
 //! 0x24 is ASCII for $ - 1st byte in each message
-#ifndef SBF_SYNC_BYTE_1
-#define SBF_SYNC_BYTE_1 0x24
-#endif
+static const uint8_t SBF_SYNC_BYTE_1 = 0x24;
 //! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
-#ifndef SBF_SYNC_BYTE_2
-#define SBF_SYNC_BYTE_2 0x40
-#endif
+static const uint8_t SBF_SYNC_BYTE_2 = 0x40;
 
 // C++
 #include <algorithm>
@@ -296,7 +288,7 @@ struct ReceiverStatus
  *
  * Provided by Septenrio (c) 2020 Septentrio N.V./S.A., Belgium.
  */
-static const uint16_t CRC_LOOK_UP[256] = {
+static const std::array<uint16_t, 256> CRC_LOOK_UP = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129,
     0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef, 0x1231, 0x0210, 0x3273, 0x2252,
     0x52b5, 0x4294, 0x72f7, 0x62d6, 0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c,
@@ -327,12 +319,71 @@ static const uint16_t CRC_LOOK_UP[256] = {
 namespace qi  = boost::spirit::qi;
 
 /**
+ * validValue
+ * @brief Check if value is not set to Do-Not-Use -2e10
+ */
+template<typename T>
+bool validValue(T s)
+{
+    static_assert(std::is_same<uint16_t, T>::value ||
+                  std::is_same<uint32_t, T>::value ||
+                  std::is_same<float, T>::value    ||
+                  std::is_same<double, T>::value);
+    if (std::is_same<uint16_t, T>::value)
+    {
+        return (s != static_cast<uint16_t>(65535));
+    }
+    else if (std::is_same<uint32_t, T>::value)
+    {
+        return (s != 4294967295u);
+    }
+    else if (std::is_same<float, T>::value)
+	{
+        return (s != -2e10f);
+    }
+    else if (std::is_same<double, T>::value)
+	{
+        return (s != -2e10);
+    }
+}
+
+/**
+ * setDoNotUse
+ * @brief Sets scalar to Do-Not-Use value -2e10
+ */
+template<typename T>
+void setDoNotUse(T& s)
+{
+    static_assert(std::is_same<float, T>::value ||
+                  std::is_same<double, T>::value);
+    if (std::is_same<float, T>::value)
+	{
+        s = -2e10f;
+    }
+    else if (std::is_same<double, T>::value)
+	{
+        s = -2e10;
+    }
+}
+
+/**
  * qiLittleEndianParser
  * @brief Qi little endian parsers for numeric values
  */
 template<typename It, typename Val>
 bool qiLittleEndianParser(It& it, Val& val)
 {
+    static_assert(std::is_same<int8_t, Val>::value   ||
+                  std::is_same<uint8_t, Val>::value  ||
+                  std::is_same<int16_t, Val>::value  ||
+                  std::is_same<uint16_t, Val>::value ||
+                  std::is_same<int32_t, Val>::value  ||
+                  std::is_same<uint32_t, Val>::value ||
+                  std::is_same<int64_t, Val>::value  ||
+                  std::is_same<uint64_t, Val>::value ||
+                  std::is_same<float, Val>::value    ||
+                  std::is_same<double, Val>::value);
+
     if (std::is_same<int8_t, Val>::value)
 	{
         return qi::parse(it, it + 1, qi::char_, val);
@@ -373,6 +424,7 @@ bool qiCharsToStringParser(It& it, std::string& val, std::size_t num)
     bool success = false;
     val.clear();
     success = qi::parse(it, it + num, qi::repeat(num)[qi::char_], val);
+    // remove string termination characters '\0'
     val.erase(std::remove(val.begin(), val.end(), '\0'), val.end());
     return success;
 }
@@ -399,8 +451,8 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
     qiLittleEndianParser(it, block_header.crc);
     uint16_t ID;
     qiLittleEndianParser(it, ID);
-    block_header.id       = ID & 8191;   
-    block_header.revision = ID >> 13;
+    block_header.id       = ID & 8191; // lower 13 bits are id  
+    block_header.revision = ID >> 13;  // upper 3 bits are revision
     qiLittleEndianParser(it, block_header.length);
     qiLittleEndianParser(it, block_header.tow);
     qiLittleEndianParser(it, block_header.wnc);
@@ -662,9 +714,9 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
     }
     else
     {
-        msg.latitude  = DO_NOT_USE_VALUE;
-        msg.longitude = DO_NOT_USE_VALUE;
-        msg.height    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.latitude);
+        setDoNotUse(msg.longitude);
+        setDoNotUse(msg.height);
     }
     if (it > itEnd)
     {
@@ -808,13 +860,13 @@ bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg, boo
     qiLittleEndianParser(it, msg.heading_dot);
     if (use_ros_axis_orientation)
     {
-        if (msg.heading != DO_NOT_USE_VALUE)
-            msg.heading = -msg.heading + parsing_utilities::pi_half;
-        if (msg.pitch != DO_NOT_USE_VALUE)
+        if (validValue(msg.heading))
+            msg.heading = -msg.heading + 90;
+        if (validValue(msg.pitch))
             msg.pitch = -msg.pitch;
-        if (msg.pitch_dot != DO_NOT_USE_VALUE)
+        if (validValue(msg.pitch_dot))
             msg.pitch_dot = -msg.pitch_dot;
-        if (msg.heading_dot != DO_NOT_USE_VALUE)
+        if (validValue(msg.heading_dot))
             msg.heading_dot = -msg.heading_dot;
     }
     if (it > itEnd)
@@ -849,9 +901,9 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
     qiLittleEndianParser(it, msg.cov_pitchroll);
     if (use_ros_axis_orientation)
     {        
-        if (msg.cov_headroll != DO_NOT_USE_VALUE)
+        if (validValue(msg.cov_headroll))
             msg.cov_headroll  = -msg.cov_headroll;
-        if (msg.cov_pitchroll != DO_NOT_USE_VALUE)
+        if (validValue(msg.cov_pitchroll))
             msg.cov_pitchroll = -msg.cov_pitchroll;
     }
     if (it > itEnd)
@@ -896,9 +948,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.x_std_dev = DO_NOT_USE_VALUE;
-        msg.y_std_dev = DO_NOT_USE_VALUE;
-        msg.z_std_dev = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.x_std_dev);
+        setDoNotUse(msg.y_std_dev);
+        setDoNotUse(msg.z_std_dev);
     }
     if((msg.sb_list & 2) !=0)
     {
@@ -907,15 +959,17 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
         qiLittleEndianParser(it, msg.roll);
         if (use_ros_axis_orientation)
         {
-            msg.heading = -msg.heading + parsing_utilities::pi_half;
-            msg.pitch   = -msg.pitch;
+            if (validValue(msg.heading))
+                msg.heading = -msg.heading + 90;
+            if (validValue(msg.pitch))
+                msg.pitch = -msg.pitch;
         }
     }
     else
     {
-        msg.heading = DO_NOT_USE_VALUE;
-        msg.pitch   = DO_NOT_USE_VALUE;
-        msg.roll    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading);
+        setDoNotUse(msg.pitch );
+        setDoNotUse(msg.roll);
     }
     if((msg.sb_list & 4) !=0)
     {
@@ -925,9 +979,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.heading_std_dev = DO_NOT_USE_VALUE;
-        msg.pitch_std_dev   = DO_NOT_USE_VALUE;
-        msg.roll_std_dev    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading_std_dev);
+        setDoNotUse(msg.pitch_std_dev );
+        setDoNotUse(msg.roll_std_dev);
     }
     if((msg.sb_list & 8) !=0)
     {
@@ -937,9 +991,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.vx = DO_NOT_USE_VALUE;
-        msg.vy = DO_NOT_USE_VALUE;
-        msg.vz = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.vx);
+        setDoNotUse(msg.vy);
+        setDoNotUse(msg.vz);
     }
     if((msg.sb_list & 16) !=0)
     {
@@ -949,9 +1003,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.vx_std_dev = DO_NOT_USE_VALUE;
-        msg.vy_std_dev = DO_NOT_USE_VALUE;
-        msg.vz_std_dev = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.vx_std_dev);
+        setDoNotUse(msg.vy_std_dev);
+        setDoNotUse(msg.vz_std_dev);
     }
     if((msg.sb_list & 32) !=0)
     {
@@ -961,9 +1015,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.xy_cov = DO_NOT_USE_VALUE;
-        msg.xz_cov = DO_NOT_USE_VALUE;
-        msg.yz_cov = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.xy_cov);
+        setDoNotUse(msg.xz_cov);
+        setDoNotUse(msg.yz_cov);
     }
     if((msg.sb_list & 64) !=0)
     {
@@ -972,15 +1026,17 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
         {   
-            msg.heading_roll_cov = -msg.heading_roll_cov;
-            msg.pitch_roll_cov   = -msg.pitch_roll_cov;
+            if (validValue(msg.heading_roll_cov))
+                msg.heading_roll_cov = -msg.heading_roll_cov;
+            if (validValue(msg.pitch_roll_cov))
+                msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
     }
     else
     {
-        msg.heading_pitch_cov = DO_NOT_USE_VALUE;
-        msg.heading_roll_cov  = DO_NOT_USE_VALUE;
-        msg.pitch_roll_cov    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading_pitch_cov);
+        setDoNotUse(msg.heading_roll_cov);
+        setDoNotUse(msg.pitch_roll_cov);
     }
     if((msg.sb_list & 128) !=0)
     {
@@ -990,9 +1046,9 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     else
     {
-        msg.vx_vy_cov = DO_NOT_USE_VALUE;
-        msg.vx_vz_cov = DO_NOT_USE_VALUE;
-        msg.vy_vz_cov = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.vx_vy_cov);
+        setDoNotUse(msg.vx_vz_cov);
+        setDoNotUse(msg.vy_vz_cov);
     }
     if (it > itEnd)
     {
@@ -1263,9 +1319,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.latitude_std_dev  = DO_NOT_USE_VALUE;
-        msg.longitude_std_dev = DO_NOT_USE_VALUE;
-        msg.height_std_dev    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.latitude_std_dev);
+        setDoNotUse(msg.longitude_std_dev);
+        setDoNotUse(msg.height_std_dev);
     }
     if((msg.sb_list & 2) !=0)
     {
@@ -1274,15 +1330,17 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         qiLittleEndianParser(it, msg.roll);
         if (use_ros_axis_orientation)
         {
-            msg.heading = -msg.heading + parsing_utilities::pi_half;
-            msg.pitch   = -msg.pitch;
+            if (validValue(msg.heading))
+                msg.heading = -msg.heading + 90;
+            if (validValue(msg.pitch))
+                msg.pitch = -msg.pitch;
         }
     }
     else
     {
-        msg.heading = DO_NOT_USE_VALUE;
-        msg.pitch   = DO_NOT_USE_VALUE;
-        msg.roll    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading);
+        setDoNotUse(msg.pitch );
+        setDoNotUse(msg.roll);
     }
     if((msg.sb_list & 4) !=0)
     {
@@ -1292,9 +1350,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.heading_std_dev = DO_NOT_USE_VALUE;
-        msg.pitch_std_dev   = DO_NOT_USE_VALUE;
-        msg.roll_std_dev    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading_std_dev);
+        setDoNotUse(msg.pitch_std_dev );
+        setDoNotUse(msg.roll_std_dev);
     }
     if((msg.sb_list & 8) !=0)
     {
@@ -1304,9 +1362,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.ve = DO_NOT_USE_VALUE;
-        msg.vn = DO_NOT_USE_VALUE;
-        msg.vu = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.ve);
+        setDoNotUse(msg.vn);
+        setDoNotUse(msg.vu);
     }
     if((msg.sb_list & 16) !=0)
     {
@@ -1316,9 +1374,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.ve_std_dev = DO_NOT_USE_VALUE;
-        msg.vn_std_dev = DO_NOT_USE_VALUE;
-        msg.vu_std_dev = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.ve_std_dev);
+        setDoNotUse(msg.vn_std_dev);
+        setDoNotUse(msg.vu_std_dev);
     }
     if((msg.sb_list & 32) !=0)
     {
@@ -1328,9 +1386,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.latitude_longitude_cov = DO_NOT_USE_VALUE;
-        msg.latitude_height_cov    = DO_NOT_USE_VALUE;
-        msg.longitude_height_cov   = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.latitude_longitude_cov);
+        setDoNotUse(msg.latitude_height_cov);
+        setDoNotUse(msg.longitude_height_cov );
     }
     if((msg.sb_list & 64) !=0)
     {
@@ -1338,16 +1396,18 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         qiLittleEndianParser(it, msg.heading_roll_cov);
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
-        {   
-            msg.heading_roll_cov = -msg.heading_roll_cov;
-            msg.pitch_roll_cov   = -msg.pitch_roll_cov;
+        {
+            if (validValue(msg.heading_roll_cov))   
+                msg.heading_roll_cov = -msg.heading_roll_cov;
+            if (validValue(msg.pitch_roll_cov))
+                msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
     }
     else
     {
-        msg.heading_pitch_cov = DO_NOT_USE_VALUE;
-        msg.heading_roll_cov  = DO_NOT_USE_VALUE;
-        msg.pitch_roll_cov    = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.heading_pitch_cov);
+        setDoNotUse(msg.heading_roll_cov);
+        setDoNotUse(msg.pitch_roll_cov);
     }
     if((msg.sb_list & 128) !=0)
     {
@@ -1357,9 +1417,9 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     else
     {
-        msg.ve_vn_cov = DO_NOT_USE_VALUE;
-        msg.ve_vu_cov = DO_NOT_USE_VALUE;
-        msg.vn_vu_cov = DO_NOT_USE_VALUE;
+        setDoNotUse(msg.ve_vn_cov);
+        setDoNotUse(msg.ve_vu_cov);
+        setDoNotUse(msg.vn_vu_cov);
     }
     if (it > itEnd)
     {
@@ -1496,10 +1556,12 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
             qiLittleEndianParser(it, msg.acceleration_x);
             qiLittleEndianParser(it, msg.acceleration_y);
             qiLittleEndianParser(it, msg.acceleration_z);
-            if (!use_ros_axis_orientation)
+            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
             {
-                msg.acceleration_y = -msg.acceleration_y;
-                msg.acceleration_z = -msg.acceleration_z;
+                if (validValue(msg.acceleration_y))
+                    msg.acceleration_y = -msg.acceleration_y;
+                if (validValue(msg.acceleration_z))
+                    msg.acceleration_z = -msg.acceleration_z;
             }
             break;
         }
@@ -1508,10 +1570,12 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
             qiLittleEndianParser(it, msg.angular_rate_x);
             qiLittleEndianParser(it, msg.angular_rate_y);
             qiLittleEndianParser(it, msg.angular_rate_z);
-            if (!use_ros_axis_orientation)
+            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
             {
-                msg.angular_rate_y = -msg.angular_rate_y;
-                msg.angular_rate_z = -msg.angular_rate_z;
+                if (validValue(msg.angular_rate_y))
+                    msg.angular_rate_y = -msg.angular_rate_y;
+                if (validValue(msg.angular_rate_z))
+                    msg.angular_rate_z = -msg.angular_rate_z;
             }
             break;
         }
@@ -1532,8 +1596,10 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
             qiLittleEndianParser(it, msg.std_dev_z);
             if (use_ros_axis_orientation)
             {
-                msg.velocity_y = -msg.velocity_y;
-                msg.velocity_z = -msg.velocity_z;
+                if (validValue(msg.velocity_y))
+                    msg.velocity_y = -msg.velocity_y;
+                if (validValue(msg.velocity_z))
+                    msg.velocity_z = -msg.velocity_z;
             }
             break;
         }

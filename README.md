@@ -67,10 +67,10 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ```
   # Configuration Settings for the Rover Rx
 
-  device: tcp://xxx.xxx.xxx.xxx:xxxx
+  device: tcp://192.168.3.1:28784
 
   serial:
-    baudrate: 115200
+    baudrate: 921600
     rx_serial_port: USB1
     hw_flow_control: off
 
@@ -78,7 +78,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   imu_frame_id: imu
 
-  poi_frame_id: poi
+  base_frame_id: base_link
 
   vsm_frame_id: vsm
 
@@ -171,7 +171,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       theta_x: 0.0
       theta_y: 0.0
       theta_z: 0.0
-    poi_to_imu:
+    poi_lever_arm:
       delta_x: 0.0
       delta_y: 0.0
       delta_z: 0.0
@@ -187,10 +187,14 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ins_initial_heading: auto
 
   ins_std_dev_mask:
-    att_std_dev: 0.0
-    pos_std_dev: 0.0
+    att_std_dev: 5.0
+    pos_std_dev: 10.0
 
-  ins_use_poi: false
+  ins_use_poi: true
+
+  # logger
+
+  activate_debug_log: false
   ```
   In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
 
@@ -204,7 +208,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     <summary>Measure and Compensate for IMU-Antenna Lever Arm</summary>
   
     + The IMU-antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP), measured in the vehicle frame.
-    + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position.
+    + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
     + The IMU/antenna position can be changed by specifying the lever arm's `x`,`y`and `z` parameters in the `config.yaml` file under the `ins_spatial_config/ant_lever_arm` parameter.
   
       ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
@@ -214,7 +218,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       <details>
     <summary>Compensate for IMU Orientation</summary>
 
-    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame.
+    + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. The IMU position and orientation is printed on the top panel, cf. image below.
     + The IMU's orientation can be changed by specifying the orientation angles `theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `ins_spatial_config/imu_orientation`
     + The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation
 
@@ -226,7 +230,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     - Specify `receiver_type: INS`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `ins_spatial_config/imu_orientation` parameter
     - Specify the IMU-antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna. This can be done by means of the `ins_spatial_config/ant_lever_arm` parameter.
-    - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_to_imu` parameter.
+    - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_lever_arm` parameter.
     
   - For further more information about Septentrio receivers, visit Septentrio [support resources](https://www.septentrio.com/en/supportresources) or check out the [user manual](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) and [reference guide](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf) of the AsteRx SBi3 receiver.
 
@@ -243,13 +247,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
-    + default: empty
+      + An RNDIS IP interface is provided via USB, assigning the address `192.168.3.1` to the receiver. This should work on most modern Linux distributions. To verify successful connection, open a web browser to access the web interface of the receiver using the IP address `192.168.3.1`.
+    + default: `tcp://192.168.3.1:28784 `
   + `serial`: specifications for serial communication
-    + `serial/baudrate`: serial baud rate to be used in a serial connection 
+    + `serial/baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
     + `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
-    + default: `115200`, `USB1`, `off`
+    + default: `921600`, `USB1`, `off`
   </details>
   
   <details>
@@ -266,27 +271,27 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Frame ID</summary>
   
-  + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of all published messages
+  + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
   + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
     + default: `imu`
-  + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
-    + default: `poi`
+  + `base_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
+    + default: `base_link`
   + `vsm_frame_id`: name of the ROS tf frame for the velocity sensor.
     + default: `vsm`
   + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `aux1`
-  + `vehicle_frame_id`: name of the ROS tf frame for the aux1 antenna.
+  + `vehicle_frame_id`: name of the ROS tf frame for the vehicle. Default is the same as `base_frame_id` but may be set otherwise.
     + default: `base_link`
-  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `vehicle_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus, if the POI is the vehicle frame, transfrom from IMU to POI is given as inverse of vehicle frame to IMU. 
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `base_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus,  `base_frame_id` is the base for all mentioned frames. 
     + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
     + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
     + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
-    + default: `false`
+    + default: `true`
   </details>
   
   <details>
@@ -309,9 +314,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Antenna Attitude Offset</summary>
 
-    + `att_offset`: Angular offset between two antenna (Main and Aux) and vehicle frame
-    + `heading`: The perpendicular axis can be compensated for by adjusting the `heading` parameter
-    + `pitch`: Vertical offset can be compensated for by adjusting the `pitch` parameter
+    + `att_offset`: Angular offset between two antennas (Main and Aux) and vehicle frame
+    + `heading`: The perpendicular (azimuth) axis can be compensated for by adjusting the `heading` parameter
+    + `pitch`: Vertical (elevation) offset can be compensated for by adjusting the `pitch` parameter
     + default: `0.0`, `0.0` (degrees)
   </details>
   
@@ -374,9 +379,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
       + `imu_orientation`: IMU sensor orientation
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
-        + The nominal orientation is where the IMU is upside up and with the `X axis` marked on the receiver pointing to the front of the vehicle.
+        + The nominal orientation is where the IMU is upside down and with the `X axis` marked on the receiver pointing to the front of the vehicle.
         + default: `0.0`, `0.0`, `0.0` (degrees)
-      + `poi_to_imu`: The lever arm from the IMU reference point to a user-defined POI
+      + `poi_lever_arm`: The lever arm from the IMU reference point to a user-defined POI
         + Parameters `delta_x`,`delta_y` and `delta_z` refer to the vehicle reference frame
         + default: `0.0`, `0.0`, `0.0` (meters)
       + `ant_lever_arm`: The lever arm from the IMU reference point to the main GNSS antenna
@@ -392,10 +397,16 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `ins_std_dev_mask`: Maximum accepted error
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
-      + default: `2` degrees, `100` meters    
-    + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_to_imu`
-      + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`).
-      + default: `false`
+      + default: `5` degrees, `10` meters    
+    + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_lever_arm`
+      + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`base_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
+      + default: `true`
+  </details>
+
+  <details>
+  <summary>logger</summary>
+
+    + `activate_debug_log`: `true` if ROS logger level shall be set to debug.
   </details>
   
 * Parameters Configuring (Non-)Publishing of ROS Messages
@@ -428,7 +439,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
-    + `publish/tf`: `true` to broadcats tf of localization
+    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf.
   </details>
 
 ## ROS Topic Publications

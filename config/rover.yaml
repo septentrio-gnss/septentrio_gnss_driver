@@ -2,10 +2,10 @@
 
 # GNSS/INS Parameters
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+device: tcp://192.168.3.1:28784
 
 serial:
-  baudrate: 115200
+  baudrate: 921600
   rx_serial_port: USB1
   hw_flow_control: off
 
@@ -13,7 +13,7 @@ frame_id: gnss
 
 imu_frame_id: imu
 
-poi_frame_id: poi
+base_frame_id: base_link
 
 vsm_frame_id: vsm
 
@@ -108,7 +108,7 @@ ins_spatial_config:
     theta_x: 0.0
     theta_y: 0.0
     theta_z: 0.0
-  poi_to_imu:
+  poi_lever_arm:
     delta_x: 0.0
     delta_y: 0.0
     delta_z: 0.0
@@ -124,7 +124,11 @@ ins_spatial_config:
 ins_initial_heading: auto
 
 ins_std_dev_mask:
-  att_std_dev: 0.0
-  pos_std_dev: 0.0
+  att_std_dev: 5.0
+  pos_std_dev: 10.0
 
 ins_use_poi: false
+
+# logger
+
+activate_debug_log: false
