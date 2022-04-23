@@ -71,7 +71,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   imu_frame_id: imu
 
-  base_frame_id: base_link
+  poi_frame_id: base_link
 
   vsm_frame_id: vsm
 
@@ -269,15 +269,15 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `gnss`
   + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
     + default: `imu`
-  + `base_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
+  + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
     + default: `base_link`
   + `vsm_frame_id`: name of the ROS tf frame for the velocity sensor.
     + default: `vsm`
   + `aux1_frame_id`: name of the ROS tf frame for the aux1 antenna.
     + default: `aux1`
-  + `vehicle_frame_id`: name of the ROS tf frame for the vehicle. Default is the same as `base_frame_id` but may be set otherwise.
+  + `vehicle_frame_id`: name of the ROS tf frame for the vehicle. Default is the same as `poi_frame_id` but may be set otherwise.
     + default: `base_link`
-  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `base_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus,  `base_frame_id` is the base for all mentioned frames. 
+  + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `poi_frame_id` are needed. Do not use for single-antenna `gnss`. Keep in mind that tf has a tree structure. Thus,  `poi_frame_id` is the base for all mentioned frames. 
     + default: `false`
   + `lock_utm_zone`: wether the UTM zone of the first localization is locked
     + default: `true`
@@ -392,7 +392,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `5` degrees, `10` meters    
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_lever_arm`
-      + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`base_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
+      + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
   </details>
 
