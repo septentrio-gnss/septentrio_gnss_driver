@@ -102,30 +102,6 @@
  * @brief Handles callbacks when reading NMEA/SBF messages
  */
 
-extern bool g_channelstatus_has_arrived_gpsfix;
-extern bool g_measepoch_has_arrived_gpsfix;
-extern bool g_dop_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_navsatfix;
-extern bool g_pvtgeodetic_has_arrived_pose;
-extern bool g_poscovgeodetic_has_arrived_gpsfix;
-extern bool g_poscovgeodetic_has_arrived_navsatfix;
-extern bool g_poscovgeodetic_has_arrived_pose;
-extern bool g_velcovgeodetic_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_pose;
-extern bool g_attcoveuler_has_arrived_gpsfix;
-extern bool g_attcoveuler_has_arrived_pose;
-extern bool g_insnavgeod_has_arrived_gpsfix;
-extern bool g_insnavgeod_has_arrived_navsatfix;
-extern bool g_insnavgeod_has_arrived_pose;
-extern bool g_receiverstatus_has_arrived_diagnostics;
-extern bool g_qualityind_has_arrived_diagnostics;
-extern bool g_publish_navsatfix;
-extern bool g_publish_gpsfix;
-extern bool g_publish_gpst;
-extern bool g_publish_pose;
-extern bool g_publish_diagnostics;
 extern bool g_response_received;
 extern boost::mutex g_response_mutex;
 extern boost::condition_variable g_response_condition;
@@ -212,7 +188,11 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers() = default;
+        CallbackHandlers(ROSaicNodeBase* node, Settings* settings) : 
+            node_(node),
+            rx_message_(node, settings),
+            settings_(settings)
+        {}
 
         /**
          * @brief Adds a pair to the multimap "callbackmap_", with the message_key
@@ -220,7 +200,7 @@ namespace io_comm_rx {
          *
          * This method is called by "handlers_" in rosaic_node.cpp.
          * T would be a (custom or not) ROS message, e.g.
-         * septentrio_gnss_driver::PVTGeodetic, or nmea_msgs::GPGGA. Note that
+         * PVTGeodeticMsg, or nmea_msgs::GPGGA. Note that
          * "typename" could be omitted in the argument.
          * @param message_key The pair's key
          * @return The modified multimap "callbackmap_"
@@ -234,26 +214,25 @@ namespace io_comm_rx {
             callbackmap_.insert(std::make_pair(
                 message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
             CallbackMap::key_type key = message_key;
-            ROS_DEBUG("Key %s successfully inserted into multimap: %s",
-                      message_key.c_str(),
-                      ((unsigned int)callbackmap_.count(key)) ? "true" : "false");
+            node_->log(LogLevel::DEBUG, "Key " +  message_key + " successfully inserted into multimap: " +
+                                        (((unsigned int)callbackmap_.count(key)) ? "true" : "false"));
             return callbackmap_;
         }
 
         /**
          * @brief Called every time rx_message is found to contain some potentially
          * useful message
-         * @param rx_message
          */
-        void handle(RxMessage& rx_message);
+        void handle();
 
         /**
          * @brief Searches for Rx messages that could potentially be
          * decoded/parsed/published
+         * @param[in] recvTimestamp Timestamp of buffer reception passed on from AsyncManager class
          * @param[in] data Buffer passed on from AsyncManager class
          * @param[in] size Size of the buffer
          */
-        void readCallback(const uint8_t* data, std::size_t& size);
+        void readCallback(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size);
 
         //! Callback handlers multimap for Rx messages; it needs to be public since
         //! we copy-assign (did not work otherwise) new callbackmap_, after inserting
@@ -262,6 +241,15 @@ namespace io_comm_rx {
         CallbackMap callbackmap_;
 
     private:
+        //! Pointer to Node
+        ROSaicNodeBase* node_;
+
+        //! RxMessage parser
+        RxMessage rx_message_;
+
+        //! Settings
+        Settings* settings_;
+
         //! The "static" keyword resolves construct-by-copying issues related to this
         //! mutex by making it available throughout the code unit. The mutex
         //! constructor list contains "mutex (const mutex&) = delete", hence
@@ -278,12 +266,12 @@ namespace io_comm_rx {
         static std::string do_insgpsfix_;
 
         //! Determines which of the SBF blocks necessary for the
-        //! sensor_msgs::NavSatFix ROS message arrives last and thus launches its
+        //! NavSatFixMsg ROS message arrives last and thus launches its
         //! construction
         static std::string do_navsatfix_;
 
         //! Determines which of the INS integrated SBF blocks necessary for the
-        //! sensor_msgs::NavSatFix ROS message arrives last and thus launches its construction
+        //! NavSatFixMsg ROS message arrives last and thus launches its construction
         static std::string do_insnavsatfix_;
 
         //! Determines which of the SBF blocks necessary for the
@@ -300,6 +288,16 @@ namespace io_comm_rx {
         //! diagnostic_msgs/DiagnosticArray ROS message arrives last and thus
         //! launches its construction
         static std::string do_diagnostics_;
+
+        //! Determines which of the SBF blocks necessary for the
+        //! sensor_msgs/Imu ROS message arrives last and thus
+        //! launches its construction
+        static std::string do_imu_;
+
+        //! Determines which of the SBF blocks necessary for the
+        //! nav_msgs/Odometry ROS message arrives last and thus
+        //! launches its construction
+        static std::string do_inslocalization_;
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for GPSFix to a uint32_t
@@ -332,6 +330,22 @@ namespace io_comm_rx {
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
         static DiagnosticArrayMap diagnosticarray_map;
+
+        //! Shorthand for the map responsible for matching ROS message identifiers
+        //! relevant for Imu to a uint32_t
+        typedef std::map<std::string, uint32_t> ImuMap;
+
+        //! All instances of the CallbackHandlers class shall have access to the map
+        //! without reinitializing it, hence static
+        static ImuMap imu_map;
+
+        //! Shorthand for the map responsible for matching ROS message identifiers
+        //! relevant for Localization to a uint32_t
+        typedef std::map<std::string, uint32_t> LocalizationMap;
+
+        //! All instances of the CallbackHandlers class shall have access to the map
+        //! without reinitializing it, hence static
+        static LocalizationMap localization_map;
     };
 
 } // namespace io_comm_rx

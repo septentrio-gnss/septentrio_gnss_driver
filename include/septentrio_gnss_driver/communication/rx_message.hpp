@@ -57,14 +57,6 @@
 // *****************************************************************************
 
 //! 0x24 is ASCII for $ - 1st byte in each message
-#ifndef SBF_SYNC_BYTE_1
-#define SBF_SYNC_BYTE_1 0x24
-#endif
-//! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
-#ifndef SBF_SYNC_BYTE_2
-#define SBF_SYNC_BYTE_2 0x40
-#endif
-//! 0x24 is ASCII for $ - 1st byte in each message
 #ifndef NMEA_SYNC_BYTE_1
 #define NMEA_SYNC_BYTE_1 0x24
 #endif
@@ -107,11 +99,6 @@
 #ifndef CONNECTION_DESCRIPTOR_BYTE_2
 #define CONNECTION_DESCRIPTOR_BYTE_2 0x50
 #endif
-//! -2e10 shall be the do-not-use value. When an INS solution is not available, 
-//! INS-related SBF sub-blocks are output with fields set to this DO_NOT_USE_VALUE.
-#ifndef DO_NOT_USE_VALUE
-#define DO_NOT_USE_VALUE -2e10
-#endif
 
 // C++ libraries
 #include <cassert> // for assert
@@ -123,35 +110,14 @@
 #include <boost/format.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/tokenizer.hpp>
-// ROS includes
-#include <diagnostic_msgs/DiagnosticArray.h>
-#include <diagnostic_msgs/DiagnosticStatus.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <gps_common/GPSFix.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/TimeReference.h>
 // ROSaic includes
-#include <septentrio_gnss_driver/AttCovEuler.h>
-#include <septentrio_gnss_driver/AttEuler.h>
-#include <septentrio_gnss_driver/PVTCartesian.h>
-#include <septentrio_gnss_driver/PVTGeodetic.h>
-#include <septentrio_gnss_driver/PosCovCartesian.h>
-#include <septentrio_gnss_driver/PosCovGeodetic.h>
-#include <septentrio_gnss_driver/VelCovGeodetic.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/crc/crc.h>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gprmc.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
-// INS includes
-#include <septentrio_gnss_driver/INSNavCart.h>
-#include <septentrio_gnss_driver/INSNavGeod.h>
-#include <septentrio_gnss_driver/IMUSetup.h>
-#include <septentrio_gnss_driver/VelSensorSetup.h>
-#include <septentrio_gnss_driver/ExtEventINSNavGeod.h>
-#include <septentrio_gnss_driver/ExtEventINSNavCart.h>
-#include <septentrio_gnss_driver/ExtSensorMeas.h>
 
 #ifndef RX_MESSAGE_HPP
 #define RX_MESSAGE_HPP
@@ -162,35 +128,199 @@
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
-extern bool g_use_gnss_time;
 extern bool g_read_cd;
 extern uint32_t g_cd_count;
-extern uint32_t g_leap_seconds;
-extern bool g_channelstatus_has_arrived_gpsfix;
-extern bool g_measepoch_has_arrived_gpsfix;
-extern bool g_dop_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_gpsfix;
-extern bool g_pvtgeodetic_has_arrived_navsatfix;
-extern bool g_pvtgeodetic_has_arrived_pose;
-extern bool g_poscovgeodetic_has_arrived_gpsfix;
-extern bool g_poscovgeodetic_has_arrived_navsatfix;
-extern bool g_poscovgeodetic_has_arrived_pose;
-extern bool g_velcovgeodetic_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_gpsfix;
-extern bool g_atteuler_has_arrived_pose;
-extern bool g_attcoveuler_has_arrived_gpsfix;
-extern bool g_attcoveuler_has_arrived_pose;
-extern bool g_receiverstatus_has_arrived_diagnostics;
-extern bool g_qualityind_has_arrived_diagnostics;
-extern boost::shared_ptr<ros::NodeHandle> g_nh;
-extern const uint32_t g_ROS_QUEUE_SIZE;
-extern ros::Time g_unix_time;
-extern bool g_read_from_sbf_log;
-extern bool g_read_from_pcap;
-extern bool g_insnavgeod_has_arrived_gpsfix;
-extern bool g_insnavgeod_has_arrived_navsatfix;
-extern bool g_insnavgeod_has_arrived_pose;
-extern std::string septentrio_receiver_type_;
+
+//! Settings struct
+struct Settings
+{
+    //! Set logger level to DEBUG
+    bool activate_debug_log;
+    //! Device port
+    std::string device;
+    //! Delay in seconds between reconnection attempts to the connection type
+    //! specified in the parameter connection_type
+    float reconnect_delay_s;
+    //! Baudrate
+    uint32_t baudrate;
+    //! HW flow control
+    std::string hw_flow_control;
+    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
+    //! serial port connected to, e.g. USB1 or COM1
+    std::string rx_serial_port;
+    //! Datum to be used
+    std::string datum;
+    //! Polling period for PVT-related SBF blocks
+    uint32_t polling_period_pvt;
+    //! Polling period for all other SBF blocks and NMEA messages
+    uint32_t polling_period_rest;
+    //! Marker-to-ARP offset in the eastward direction
+    float delta_e;
+    //! Marker-to-ARP offset in the northward direction
+    float delta_n;
+    //! Marker-to-ARP offset in the upward direction
+    float delta_u;
+    //! Main antenna type, from the list returned by the command "lstAntennaInfo,
+    //! Overview"
+    std::string ant_type;
+    //! Aux1 antenna type, from the list returned by the command "lstAntennaInfo,
+    //! Overview"
+    std::string ant_aux1_type;
+    //! Serial number of your particular Main antenna
+    std::string ant_serial_nr;
+    //! Serial number of your particular Aux1 antenna
+    std::string ant_aux1_serial_nr;
+    //! ROS axis orientation, body: front-left-up, geographic: ENU
+    bool use_ros_axis_orientation;
+    //! IMU orientation x-angle
+    double theta_x;
+    //! IMU orientation y-angle
+    double theta_y;
+    //! IMU orientation z-angle
+    double theta_z;
+    //! INS antenna lever arm x-offset
+    double ant_lever_x;
+    //! INS antenna lever arm y-offset
+    double ant_lever_y;
+    //! INS antenna lever arm z-offset
+    double ant_lever_z;
+    //! INS POI offset in x-dimension
+    double poi_x;
+    //! INS POI offset in y-dimension
+    double poi_y;
+    //! INS POI offset in z-dimension
+    double poi_z;
+    //! INS velocity sensor lever arm x-offset
+    double vsm_x;
+    //! INS velocity sensor lever arm y-offset
+    double vsm_y;
+    //! INS velocity sensor lever arm z-offset
+    double vsm_z;
+    //! Attitude offset determination in longitudinal direction
+    double heading_offset;
+    //! Attitude offset determination in latitudinal direction
+    double pitch_offset;
+    //! INS multiantenna
+    bool multi_antenna;
+    //! INS solution reference point
+    bool ins_use_poi;
+    //! For heading computation when unit is powered-cycled
+    std::string ins_initial_heading;
+    //! Attitude deviation mask
+    float att_std_dev;
+    //! Position deviation mask
+    float pos_std_dev;
+    //! Type of NTRIP connection
+    std::string ntrip_mode;
+    //! Hostname or IP address of the NTRIP caster to connect to
+    std::string caster;
+    //! IP port number of NTRIP caster to connect to
+    uint32_t caster_port;
+    //! Username for NTRIP service
+    std::string ntrip_username;
+    //! Password for NTRIP service
+    std::string ntrip_password;
+    //! Mountpoint for NTRIP service
+    std::string mountpoint;
+    //! NTRIP version for NTRIP service
+    std::string ntrip_version;
+    //! Whether Rx has internet or not
+    bool rx_has_internet;
+    //! RTCM version for NTRIP service (if Rx does not have internet)
+    std::string rtcm_version;
+    //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
+    //! (can't be the same as main connection unless localhost concept is used)
+    uint32_t rx_input_corrections_tcp;
+    //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
+    //! the same as main connection unless localhost concept is used)
+    std::string rx_input_corrections_serial;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string send_gga;
+    //! Whether or not to publish the GGA message
+    bool publish_gpgga;
+    //! Whether or not to publish the RMC message
+    bool publish_gprmc;
+    //! Whether or not to publish the GSA message
+    bool publish_gpgsa;
+    //! Whether or not to publish the GSV message
+    bool publish_gpgsv;
+    //! Whether or not to publish the MeasEpoch message
+    bool publish_measepoch;
+    //! Whether or not to publish the PVTCartesianMsg
+    //! message
+    bool publish_pvtcartesian;
+    //! Whether or not to publish the PVTGeodeticMsg message
+    bool publish_pvtgeodetic;
+    //! Whether or not to publish the PosCovCartesianMsg
+    //! message
+    bool publish_poscovcartesian;
+    //! Whether or not to publish the PosCovGeodeticMsg
+    //! message
+    bool publish_poscovgeodetic;
+    //! Whether or not to publish the VelCovGeodeticMsg
+    //! message
+    bool publish_velcovgeodetic;
+    //! Whether or not to publish the AttEulerMsg message
+    bool publish_atteuler;
+    //! Whether or not to publish the AttCovEulerMsg message
+    bool publish_attcoveuler;
+    //! Whether or not to publish the INSNavCartMsg message
+    bool publish_insnavcart;
+    //! Whether or not to publish the INSNavGeodMsg message
+    bool publish_insnavgeod;
+    //! Whether or not to publish the IMUSetupMsg message
+    bool publish_imusetup;
+    //! Whether or not to publish the VelSensorSetupMsg message
+    bool publish_velsensorsetup;
+    //! Whether or not to publish the ExtEventINSNavGeodMsg message
+    bool publish_exteventinsnavgeod;
+    //! Whether or not to publish the ExtEventINSNavCartMsg message
+    bool publish_exteventinsnavcart;
+    //! Whether or not to publish the ExtSensorMeasMsg message
+    bool publish_extsensormeas;
+    //! Whether or not to publish the TimeReferenceMsg message with GPST
+    bool publish_gpst;
+    //! Whether or not to publish the NavSatFixMsg message
+    bool publish_navsatfix;
+    //! Whether or not to publish the GPSFixMsg message
+    bool publish_gpsfix;
+    //! Whether or not to publish the PoseWithCovarianceStampedMsg message
+    bool publish_pose;
+    //! Whether or not to publish the DiagnosticArrayMsg message
+    bool publish_diagnostics;
+    //! Whether or not to publish the ImuMsg message
+    bool publish_imu;
+    //! Whether or not to publish the LocalizationMsg message
+    bool publish_localization;
+    //! Whether or not to publish the tf of the localization
+    bool publish_tf;
+    //! Septentrio receiver type, either "gnss" or "ins"
+    std::string septentrio_receiver_type;
+    //! If true, the ROS message headers' unix time field is constructed from the TOW (in
+    //! the SBF case) and UTC (in the NMEA case) data. If false, times are constructed
+    //! within the driver via time(NULL) of the \<ctime\> library.
+    bool use_gnss_time;
+    //! The frame ID used in the header of every published ROS message
+    std::string frame_id;
+    //! The frame ID used in the header of published ROS Imu message
+    std::string imu_frame_id;
+    //! The frame ID used in the header of published ROS Localization message if poi is used
+    std::string poi_frame_id;
+    //! The frame ID of the velocity sensor
+    std::string vsm_frame_id;
+    //! The frame ID of the aux1 antenna
+    std::string aux1_frame_id;
+    //! The frame ID of the vehicle frame
+    std::string vehicle_frame_id;
+    //! Wether the UTM zone of the localization is locked
+    bool lock_utm_zone;
+    //! The number of leap seconds that have been inserted into the UTC time
+    uint32_t leap_seconds;
+    //! Whether or not we are reading from an SBF file
+    bool read_from_sbf_log;
+    //! Whether or not we are reading from a PCAP file
+    bool read_from_pcap;
+};
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field
@@ -244,24 +374,14 @@ enum RxID_Enum
     evDOP,
     evVelCovGeodetic,
     evDiagnosticArray,
+    evLocalization,
     evReceiverStatus,
     evQualityInd,
     evReceiverSetup
 };
 
 namespace io_comm_rx {
-    /**
-     * @brief Calculates the timestamp, in the Unix Epoch time format
-     * This is either done using the TOW as transmitted with the SBF block (if
-     * "use_gnss" is true), or using the current time.
-     * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
-     * beginning of the current GPS week as transmitted by the SBF block
-     * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
-     * used, otherwise the current time
-     * @return ros::Time object containing seconds and nanoseconds since last epoch
-     */
-    ros::Time timestampSBF(uint32_t tow, bool use_gnss);
-
+   
     /**
      * @class RxMessage
      * @brief Can search buffer for messages, read/parse them, and so on
@@ -279,8 +399,83 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer that is about to be analyzed
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
-        RxMessage(const uint8_t* data, std::size_t& size) : data_(data), count_(size)
+        RxMessage(ROSaicNodeBase* node, Settings* settings) :
+            node_(node),
+            settings_(settings),
+            unix_time_(0)
         {
+            found_ = false;
+            crc_check_ = false;
+            message_size_ = 0;
+                    
+            //! Pair of iterators to facilitate initialization of the map
+            std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
+            std::make_pair(static_cast<uint16_t>(0), evNoPVT),
+            std::make_pair(static_cast<uint16_t>(1), evStandAlone),
+            std::make_pair(static_cast<uint16_t>(2), evDGPS),
+            std::make_pair(static_cast<uint16_t>(3), evFixed),
+            std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
+            std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
+            std::make_pair(static_cast<uint16_t>(6), evSBAS),
+            std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
+            std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
+            std::make_pair(static_cast<uint16_t>(10), evPPP)};
+
+            type_of_pvt_map = TypeOfPVTMap(type_of_pvt_pairs, type_of_pvt_pairs + evPPP + 1);
+            
+            //! Pair of iterators to facilitate initialization of the map
+            std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
+            std::make_pair("NavSatFix", evNavSatFix),
+            std::make_pair("INSNavSatFix", evINSNavSatFix),   
+            std::make_pair("GPSFix", evGPSFix),
+            std::make_pair("INSGPSFix", evINSGPSFix),
+            std::make_pair("PoseWithCovarianceStamped", evPoseWithCovarianceStamped),
+            std::make_pair("INSPoseWithCovarianceStamped", evINSPoseWithCovarianceStamped),
+            std::make_pair("$GPGGA", evGPGGA),
+            std::make_pair("$GPRMC", evGPRMC),
+            std::make_pair("$GPGSA", evGPGSA),
+            std::make_pair("$GPGSV", evGPGSV),
+            std::make_pair("$GLGSV", evGLGSV),
+            std::make_pair("$GAGSV", evGAGSV),
+            std::make_pair("4006", evPVTCartesian),
+            std::make_pair("4007", evPVTGeodetic),
+            std::make_pair("5905", evPosCovCartesian),
+            std::make_pair("5906", evPosCovGeodetic),
+            std::make_pair("5938", evAttEuler),
+            std::make_pair("5939", evAttCovEuler),
+            std::make_pair("GPST", evGPST),
+            std::make_pair("4013", evChannelStatus),
+            std::make_pair("4027", evMeasEpoch),
+            std::make_pair("4001", evDOP),
+            std::make_pair("5908", evVelCovGeodetic),
+            std::make_pair("DiagnosticArray", evDiagnosticArray),
+            std::make_pair("Localization", evLocalization),
+            std::make_pair("4014", evReceiverStatus),
+            std::make_pair("4082", evQualityInd),
+            std::make_pair("5902", evReceiverSetup),
+            std::make_pair("4225", evINSNavCart),
+            std::make_pair("4226", evINSNavGeod),
+            std::make_pair("4230", evExtEventINSNavGeod),
+            std::make_pair("4229", evExtEventINSNavCart),
+            std::make_pair("4224", evIMUSetup),
+            std::make_pair("4244", evVelSensorSetup),
+            std::make_pair("4050", evExtSensorMeas)
+            };
+
+            rx_id_map = RxIDMap(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
+        }
+
+         /**
+         * @brief Put new data
+         * @param[in] recvTimestamp Timestamp of receiving buffer
+         * @param[in] data Pointer to the buffer that is about to be analyzed
+         * @param[in] size Size of the buffer (as handed over by async_read_some)
+         */
+        void newData(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size)
+        {
+            recvTimestamp_ = recvTimestamp;
+            data_ = data;
+            count_ = size;
             found_ = false;
             crc_check_ = false;
             message_size_ = 0;
@@ -368,7 +563,57 @@ namespace io_comm_rx {
          */
         bool found_;
 
+         /**
+         * @brief Wether all blocks from GNSS have arrived for GpsFix Message
+         */
+        bool gnss_gpsfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for GpsFix Message
+         */
+        bool ins_gpsfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from GNSS have arrived for NavSatFix Message
+         */
+        bool gnss_navsatfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for NavSatFix Message
+         */
+        bool ins_navsatfix_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from GNSS have arrived for Pose Message
+         */
+        bool gnss_pose_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks from INS have arrived for Pose Message
+         */
+        bool ins_pose_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks have arrived for Diagnostics Message
+         */
+        bool diagnostics_complete(uint32_t id);
+
+         /**
+         * @brief Wether all blocks have arrived for Localization Message
+         */
+        bool ins_localization_complete(uint32_t id);
+
     private:
+        /**
+         * @brief Pointer to the node
+         */
+        ROSaicNodeBase* node_;
+
+        /**
+         * @brief Timestamp of receiving buffer
+         */
+        Timestamp recvTimestamp_;
+
         /**
          * @brief Pointer to the buffer of messages
          */
@@ -392,80 +637,86 @@ namespace io_comm_rx {
         std::size_t message_size_;
 
         /**
-         * @brief Number of times the gps_common::GPSFix message has been published
+         * @brief Number of times the GPSFixMsg message has been published
          */
-        static uint32_t count_gpsfix_;
+        uint32_t count_gpsfix_ = 0;
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
          * need to be stored
          */
-        static PVTGeodetic last_pvtgeodetic_;
+        PVTGeodeticMsg last_pvtgeodetic_;
 
         /**
          * @brief Since NavSatFix etc. need PosCovGeodetic, incoming PosCovGeodetic
          * blocks need to be stored
          */
-        static PosCovGeodetic last_poscovgeodetic_;
+        PosCovGeodeticMsg last_poscovgeodetic_;
 
         /**
          * @brief Since GPSFix etc. need AttEuler, incoming AttEuler blocks need to
          * be stored
          */
-        static AttEuler last_atteuler_;
+        AttEulerMsg last_atteuler_;
 
         /**
          * @brief Since GPSFix etc. need AttCovEuler, incoming AttCovEuler blocks
          * need to be stored
          */
-        static AttCovEuler last_attcoveuler_;
+        AttCovEulerMsg last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix, GPSFix and Pose. need INSNavGeod, incoming INSNavGeod blocks
+         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
          * need to be stored
          */
-        static INSNavGeod last_insnavgeod_;
+        INSNavGeodMsg last_insnavgeod_;
+
+         /**
+         * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
+         * need to be stored
+         */
+        ExtSensorMeasMsg last_extsensmeas_;
 
         /**
          * @brief Since GPSFix needs ChannelStatus, incoming ChannelStatus blocks
          * need to be stored
          */
-        static ChannelStatus last_channelstatus_;
+        ChannelStatus last_channelstatus_;
 
         /**
          * @brief Since GPSFix needs MeasEpoch (for SNRs), incoming MeasEpoch blocks
          * need to be stored
          */
-        static MeasEpoch last_measepoch_;
+        MeasEpochMsg last_measepoch_;
 
         /**
          * @brief Since GPSFix needs DOP, incoming DOP blocks need to be stored
          */
-        static DOP last_dop_;
+        DOP last_dop_;
 
         /**
          * @brief Since GPSFix needs VelCovGeodetic, incoming VelCovGeodetic blocks
          * need to be stored
          */
-        static VelCovGeodetic last_velcovgeodetic_;
+        VelCovGeodeticMsg last_velcovgeodetic_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverStatus, incoming ReceiverStatus
          * blocks need to be stored
          */
-        static ReceiverStatus last_receiverstatus_;
+        ReceiverStatus last_receiverstatus_;
 
         /**
          * @brief Since DiagnosticArray needs QualityInd, incoming QualityInd blocks
          * need to be stored
          */
-        static QualityInd last_qualityind_;
+        QualityInd last_qualityind_;
 
         /**
          * @brief Since DiagnosticArray needs ReceiverSetup, incoming ReceiverSetup
          * blocks need to be stored
          */
-        static ReceiverSetup last_receiversetup_;
+        ReceiverSetup last_receiversetup_;
 
         //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
         //! to an enum value
@@ -475,7 +726,7 @@ namespace io_comm_rx {
          * @brief All instances of the RxMessage class shall have access to the map
          * without reinitializing it, hence static
          */
-        static TypeOfPVTMap type_of_pvt_map;
+        TypeOfPVTMap type_of_pvt_map;
 
         //! Shorthand for the map responsible for matching ROS message identifiers to
         //! an enum value
@@ -489,144 +740,96 @@ namespace io_comm_rx {
          * enumeration and makes the switch-case formalism in rx_message.hpp more
          * explicit.
          */
-        static RxIDMap rx_id_map;
+        RxIDMap rx_id_map;
 
-        /**
-         * @brief Callback function when reading PVTCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTCartesian
-         * @return A smart pointer to the ROS message PVTCartesian just created
-         */
-        septentrio_gnss_driver::PVTCartesianPtr
-        PVTCartesianCallback(PVTCartesian& data);
+        //! When reading from an SBF file, the ROS publishing frequency is governed by the
+        //! time stamps found in the SBF blocks therein.
+        Timestamp unix_time_;
 
-        /**
-         * @brief Callback function when reading PVTGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PVTGeodetic
-         * @return A smart pointer to the ROS message PVTGeodetic just created
-         */
-        septentrio_gnss_driver::PVTGeodeticPtr
-        PVTGeodeticCallback(PVTGeodetic& data);
+        //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
+        //! not
+        bool channelstatus_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading PosCovCartesian blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovCartesian
-         * @return A smart pointer to the ROS message PosCovCartesian just created
-         */
-        septentrio_gnss_driver::PosCovCartesianPtr
-        PosCovCartesianCallback(PosCovCartesian& data);
+        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
+        bool measepoch_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading PosCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message PosCovGeodetic
-         * @return A smart pointer to the ROS message PosCovGeodetic just created
-         */
-        septentrio_gnss_driver::PosCovGeodeticPtr
-        PosCovGeodeticCallback(PosCovGeodetic& data);
+        //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
+        bool dop_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading VelCovGeodetic blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelCovGeodetic
-         * @return A smart pointer to the ROS message VelCovGeodetic just created
-         */
-        septentrio_gnss_driver::VelCovGeodeticPtr
-        VelCovGeodeticCallback(VelCovGeodetic& data);
+        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
+        bool pvtgeodetic_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading AttEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttEuler
-         * @return A smart pointer to the ROS message AttEuler just created
-         */
-        septentrio_gnss_driver::AttEulerPtr AttEulerCallback(AttEuler& data);
+        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool poscovgeodetic_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading AttCovEuler blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message AttCovEuler
-         * @return A smart pointer to the ROS message AttCovEuler just created
-         */
-        septentrio_gnss_driver::AttCovEulerPtr
-        AttCovEulerCallback(AttCovEuler& data);
+        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
+        //! not
+        bool velcovgeodetic_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading INSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavCart
-         * @return A smart pointer to the ROS message INSNavCart just created
-         */
-        septentrio_gnss_driver::INSNavCartPtr
-        INSNavCartCallback(INSNavCart& data);
+        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
+        bool atteuler_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading INSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message INSNavGeod
-         * @return A smart pointer to the ROS message INSNavGeod just created
-         */
-        septentrio_gnss_driver::INSNavGeodPtr
-        INSNavGeodCallback(INSNavGeod& data);
+        //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
+        bool attcoveuler_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading IMUSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message IMUSetup
-         * @return A smart pointer to the ROS message IMUSetup just created
-         */
-        septentrio_gnss_driver::IMUSetupPtr
-        IMUSetupCallback(IMUSetup& data);
+        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+        bool insnavgeod_has_arrived_gpsfix_ = false;
 
-        /**
-         * @brief Callback function when reading VelSensorSetup blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message VelSensorSetup
-         * @return A smart pointer to the ROS message VelSensorSetup just created
-         */
-        septentrio_gnss_driver::VelSensorSetupPtr
-        VelSensorSetupCallback(VelSensorSetup& data);
+        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
+        //! not
+        bool pvtgeodetic_has_arrived_navsatfix_ = false;
 
-        /**
-         * @brief Callback function when reading ExtEventINSNavCart blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavCart
-         * @return A smart pointer to the ROS message ExtEventINSNavCart just created
-         */
-        septentrio_gnss_driver::ExtEventINSNavCartPtr
-        ExtEventINSNavCartCallback(ExtEventINSNavCart& data);
+        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
+        //! or not
+        bool poscovgeodetic_has_arrived_navsatfix_ = false;
 
-        /**
-         * @brief Callback function when reading ExtEventINSNavGeod blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtEventINSNavGeod
-         * @return A smart pointer to the ROS message ExtEventINSNavGeod just created
-         */
-        septentrio_gnss_driver::ExtEventINSNavGeodPtr
-        ExtEventINSNavGeodCallback(ExtEventINSNavGeod& data);
+        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
+        //! or not
+        bool insnavgeod_has_arrived_navsatfix_ = false;
+        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
+        //! has arrived or not
+        bool pvtgeodetic_has_arrived_pose_ = false;
 
-        /**
-         * @brief Callback function when reading ExtSensorMeas blocks
-         * @param[in] data The (packed and aligned) struct instance used to populate
-         * the ROS message ExtSensorMeas
-         * @return A smart pointer to the ROS message ExtSensorMeas just created
-         */
-        septentrio_gnss_driver::ExtSensorMeasPtr
-        ExtSensorMeasCallback(ExtSensorMeas& data);
+        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
+        //! epoch has arrived or not
+        bool poscovgeodetic_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
+        //! has arrived or not
+        bool atteuler_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
+        //! has arrived or not
+        bool attcoveuler_has_arrived_pose_ = false;
+
+        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_pose_ = false;
+
+        //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
+        //! arrived or not
+        bool receiverstatus_has_arrived_diagnostics_ = false;
+        
+        //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
+        //! arrived or not
+        bool qualityind_has_arrived_diagnostics_ = false;
+
+        //! For Localization: Whether the INSNavGeod block of the current epoch
+        //! has arrived or not
+        bool insnavgeod_has_arrived_localization_ = false;
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
-        sensor_msgs::NavSatFixPtr NavSatFixCallback();
+        NavSatFixMsg NavSatFixCallback();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
          * @return A smart pointer to the ROS message GPSFix just created
          */
-        gps_common::GPSFixPtr GPSFixCallback();
+        GPSFixMsg GPSFixCallback();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
@@ -634,16 +837,66 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        geometry_msgs::PoseWithCovarianceStampedPtr
+        PoseWithCovarianceStampedMsg
         PoseWithCovarianceStampedCallback();
 
         /**
          * @brief "Callback" function when constructing
-         * diagnostic_msgs::DiagnosticArray messages
+         * DiagnosticArrayMsg messages
          * @return A smart pointer to the ROS message
-         * diagnostic_msgs::DiagnosticArray just created
+         * DiagnosticArrayMsg just created
          */
-        diagnostic_msgs::DiagnosticArrayPtr DiagnosticArrayCallback();
+        DiagnosticArrayMsg DiagnosticArrayCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * ImuMsg messages
+         * @return A smart pointer to the ROS message
+         * ImuMsg just created
+         */
+        ImuMsg ImuCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * LocalizationUtmMsg messages
+         * @return A smart pointer to the ROS message
+         * LocalizationUtmMsg just created
+         */
+        LocalizationUtmMsg LocalizationUtmCallback();
+
+         /**
+         * @brief Waits according to time when reading from file
+         */
+        void wait(Timestamp time_obj);
+
+        /**
+         * @brief Wether all elements are true
+         */
+        bool allTrue(std::vector<bool>& vec, uint32_t id);  
+
+        /**
+         * @brief Settings struct
+         */
+        Settings* settings_;
+
+        /**
+         * @brief Fixed UTM zone
+         */
+        std::shared_ptr<std::string> fixedUtmZone_;
+
+        /**
+         * @brief Calculates the timestamp, in the Unix Epoch time format
+         * This is either done using the TOW as transmitted with the SBF block (if
+         * "use_gnss" is true), or using the current time.
+         * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
+         * beginning of the current GPS week as transmitted by the SBF block
+         * @param[in] wnc (Week Number Counter) counts the number of complete weeks 
+         * elapsed since January 6, 1980
+         * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
+         * used, otherwise the current time
+         * @return Timestamp object containing seconds and nanoseconds since last epoch
+         */
+        Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);    
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP

@@ -34,7 +34,7 @@
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <thread>
 
 /**
@@ -50,7 +50,7 @@
 
 namespace pcapReader {
 
-    PcapDevice::PcapDevice(buffer_t& buffer) : m_dataBuff{buffer} {}
+    PcapDevice::PcapDevice(ROSaicNodeBase* node, buffer_t& buffer) : node_(node), m_dataBuff{buffer} {}
 
     PcapDevice::~PcapDevice() { disconnect(); }
 
@@ -68,7 +68,7 @@ namespace pcapReader {
                          PCAP_NETMASK_UNKNOWN) != 0)
             return false;
 
-        ROS_INFO("Connected to %s", m_deviceName);
+        node_->log(LogLevel::INFO, "Connected to" + std::string(m_deviceName));
         return true;
     }
 
@@ -79,7 +79,7 @@ namespace pcapReader {
 
         pcap_close(m_device);
         m_device = nullptr;
-        ROS_INFO("Disconnected from %s", m_deviceName);
+        node_->log(LogLevel::INFO, "Disconnected from " + std::string(m_deviceName));
     }
 
     bool PcapDevice::isConnected() const { return m_device; }
@@ -151,7 +151,7 @@ namespace pcapReader {
 
             default:
             {
-                ROS_ERROR("Skipping protocol: %d", result);
+                node_->log(LogLevel::ERROR, "Skipping protocol: " + std::to_string(result));
                 return READ_ERROR;
             }
             }
@@ -160,7 +160,7 @@ namespace pcapReader {
             return READ_SUCCESS;
         } else if (result == -2)
         {
-            ROS_INFO("Done reading from %s", m_deviceName);
+            node_->log(LogLevel::INFO, "Done reading from " + std::string(m_deviceName));
             if (!m_lastPkt.empty())
             {
                 auto lastIpHdr = reinterpret_cast<const iphdr*>(&(m_lastPkt[0]));
@@ -180,7 +180,7 @@ namespace pcapReader {
             return READ_SUCCESS;
         } else
         {
-            ROS_ERROR("Error reading data");
+            node_->log(LogLevel::ERROR, "Error reading data");
             return READ_ERROR;
         }
     }

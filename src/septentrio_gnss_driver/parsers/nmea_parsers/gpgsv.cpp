@@ -50,8 +50,8 @@ const std::string GpgsvParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: E.g. for
  * message with 4 Svs it would be sentence.get_body()[20] if anybody ever needs it.
  */
-septentrio_gnss_driver::GpgsvPtr
-GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpgsvMsg
+GpgsvParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, Timestamp /*time_obj*/) noexcept(false)
 {
 
     const size_t MIN_LENGTH = 4;
@@ -63,54 +63,53 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
               << ". The actual length is " << sentence.get_body().size();
         throw ParseException(error.str());
     }
-    septentrio_gnss_driver::GpgsvPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gpgsv>();
-    msg->header.frame_id = g_frame_id;
-    msg->message_id = sentence.get_body()[0];
-    if (!parsing_utilities::parseUInt8(sentence.get_body()[1], msg->n_msgs))
+    GpgsvMsg msg;
+    msg.header.frame_id = frame_id;
+    msg.message_id = sentence.get_body()[0];
+    if (!parsing_utilities::parseUInt8(sentence.get_body()[1], msg.n_msgs))
     {
         throw ParseException("Error parsing n_msgs in GSV.");
     }
-    if (msg->n_msgs >
+    if (msg.n_msgs >
         9) // Checking that the number of messages is smaller or equal to 9
     {
         std::stringstream error;
-        error << "n_msgs in GSV is too large: " << msg->n_msgs << ".";
+        error << "n_msgs in GSV is too large: " << msg.n_msgs << ".";
         throw ParseException(error.str());
     }
 
-    if (!parsing_utilities::parseUInt8(sentence.get_body()[2], msg->msg_number))
+    if (!parsing_utilities::parseUInt8(sentence.get_body()[2], msg.msg_number))
     {
         throw ParseException("Error parsing msg_number in GSV.");
     }
-    if (msg->msg_number >
-        msg->n_msgs) // Checking that this message is within the sequence range
+    if (msg.msg_number >
+        msg.n_msgs) // Checking that this message is within the sequence range
     {
         std::stringstream error;
-        error << "msg_number in GSV is larger than n_msgs: " << msg->msg_number
-              << " > " << msg->n_msgs << ".";
+        error << "msg_number in GSV is larger than n_msgs: " << msg.msg_number
+              << " > " << msg.n_msgs << ".";
         throw ParseException(error.str());
     }
-    if (!parsing_utilities::parseUInt8(sentence.get_body()[3], msg->n_satellites))
+    if (!parsing_utilities::parseUInt8(sentence.get_body()[3], msg.n_satellites))
     {
         throw ParseException("Error parsing n_satellites in GSV.");
     }
     // Figuring out how many satellites should be described in this sentence
     size_t n_sats_in_sentence = 4;
-    if (msg->msg_number == msg->n_msgs)
+    if (msg.msg_number == msg.n_msgs)
     {
-        n_sats_in_sentence = msg->n_satellites % static_cast<uint8_t>(4);
-        if (msg->n_satellites % static_cast<uint8_t>(4) == 0)
+        n_sats_in_sentence = msg.n_satellites % static_cast<uint8_t>(4);
+        if (msg.n_satellites % static_cast<uint8_t>(4) == 0)
         {
             n_sats_in_sentence = 4;
         }
-        if (msg->n_satellites == 0)
+        if (msg.n_satellites == 0)
         {
             n_sats_in_sentence = 0;
         }
-        if (msg->msg_number == 1)
+        if (msg.msg_number == 1)
         {
-            n_sats_in_sentence = msg->n_satellites;
+            n_sats_in_sentence = msg.n_satellites;
         }
     }
     // Checking that the sentence is the right length for the number of satellites
@@ -124,10 +123,10 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         expected_length += 4;
     }
     // ROS_DEBUG("number of sats is %u but nsats in sentence if msg_number = max is
-    // %u and msg->msg_number == msg->n_msgs is %s and nsats in sentence is %li",
-    // msg->n_satellites, msg->n_satellites % static_cast<uint8_t>(4),
-    // msg->msg_number
-    // == msg->n_msgs ? "true" : "false", n_sats_in_sentence);
+    // %u and msg.msg_number == msg.n_msgs is %s and nsats in sentence is %li",
+    // msg.n_satellites, msg.n_satellites % static_cast<uint8_t>(4),
+    // msg.msg_number
+    // == msg.n_msgs ? "true" : "false", n_sats_in_sentence);
     if (sentence.get_body().size() != expected_length &&
         sentence.get_body().size() != expected_length - 1)
     {
@@ -149,12 +148,12 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
     }
 
     // Parsing information about n_sats_in_sentence SVs..
-    msg->satellites.resize(n_sats_in_sentence);
+    msg.satellites.resize(n_sats_in_sentence);
     for (size_t sat = 0, index = MIN_LENGTH; sat < n_sats_in_sentence;
          ++sat, index += 4)
     {
         if (!parsing_utilities::parseUInt8(sentence.get_body()[index],
-                                           msg->satellites[sat].prn))
+                                           msg.satellites[sat].prn))
         {
             std::stringstream error;
             error << "Error parsing PRN for satellite " << sat << " in GSV.";
@@ -168,7 +167,7 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
             error << "Error parsing elevation for satellite " << sat << " in GSV.";
             throw ParseException(error.str());
         }
-        msg->satellites[sat].elevation = static_cast<uint8_t>(elevation);
+        msg.satellites[sat].elevation = static_cast<uint8_t>(elevation);
 
         float azimuth;
         if (!parsing_utilities::parseFloat(sentence.get_body()[index + 2], azimuth))
@@ -177,12 +176,12 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
             error << "Error parsing azimuth for satellite " << sat << " in GSV.";
             throw ParseException(error.str());
         }
-        msg->satellites[sat].azimuth = static_cast<uint16_t>(azimuth);
+        msg.satellites[sat].azimuth = static_cast<uint16_t>(azimuth);
 
         if ((index + 3) >= sentence.get_body().size() ||
             sentence.get_body()[index + 3].empty())
         {
-            msg->satellites[sat].snr = -1;
+            msg.satellites[sat].snr = -1;
         } else
         {
             uint8_t snr;
@@ -192,7 +191,7 @@ GpgsvParser::parseASCII(const NMEASentence& sentence) noexcept(false)
                 error << "Error parsing snr for satellite " << sat << " in GSV.";
                 throw ParseException(error.str());
             }
-            msg->satellites[sat].snr = static_cast<int8_t>(snr);
+            msg.satellites[sat].snr = static_cast<int8_t>(snr);
         }
     }
     return msg;

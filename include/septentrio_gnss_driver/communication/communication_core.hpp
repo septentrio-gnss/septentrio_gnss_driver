@@ -107,14 +107,59 @@ namespace io_comm_rx {
     {
     public:
         /**
-         * @brief Default constructor of the class Comm_IO
+         * @brief Constructor of the class Comm_IO
+         * @param[in] node Pointer to node
          */
-        Comm_IO();
-
+        Comm_IO(ROSaicNodeBase* node, Settings* settings);
         /**
          * @brief Default destructor of the class Comm_IO
          */
-        virtual ~Comm_IO() = default;
+        ~Comm_IO()
+        {
+            stopping_ = true;
+            connectionThread_->join();
+        }
+
+        /**
+         * @brief Initializes the I/O handling
+         */
+        void initializeIO();
+
+        /**
+         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
+         * correction settings
+         * @param[in] settings The device's settings
+         * */
+        void configureRx();
+
+        /**
+         * @brief Defines which Rx messages to read and which ROS messages to publish
+         * @param[in] settings The device's settings
+         * */
+        void defineMessages();        
+
+    private:
+        /**
+         * @brief Sets up the stage for SBF file reading
+         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+         */
+        void prepareSBFFileReading(std::string file_name);
+
+        /**
+         * @brief Sets up the stage for PCAP file reading
+         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
+         */
+        void preparePCAPFileReading(std::string file_name);
+
+        /**
+         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
+         */
+        void reconnect();
+
+        /**
+         * @brief Calls the reconnect() method
+         */
+        void connect();
 
         /**
          * @brief Initializes the serial port
@@ -163,21 +208,33 @@ namespace io_comm_rx {
         void resetSerial(std::string port);
 
         /**
-         * @brief Returns the CallbackHandlers instance
-         * @return The class instance
-         */
-        CallbackHandlers getHandlers() const { return handlers_; }
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
         void send(std::string cmd);
 
+        //! Pointer to Node
+        ROSaicNodeBase* node_;
         //! Callback handlers for the inwards streaming messages
         CallbackHandlers handlers_;
-
-    private:
+        //! Settings
+        Settings* settings_;
+        //! Whether connecting to Rx was successful
+        bool connected_ = false;
+        //! Since the configureRx() method should only be called once the connection
+        //! was established, we need the threads to communicate this to each other.
+        //! Associated mutex..
+        boost::mutex connection_mutex_;
+        //! Since the configureRx() method should only be called once the connection
+        //! was established, we need the threads to communicate this to each other.
+        //! Associated condition variable..
+        boost::condition_variable connection_condition_;
+        //! Host name of TCP server
+        std::string tcp_host_;
+        //! TCP port number
+        std::string tcp_port_;
+        //! Whether yet-to-be-established connection to Rx will be serial or TCP
+        bool serial_;
         //! Saves the port description
         std::string serial_port_;
         //! Processes I/O stream data
@@ -185,6 +242,11 @@ namespace io_comm_rx {
         boost::shared_ptr<Manager> manager_;
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
+
+        //! Connection or reading thread
+        std::unique_ptr<boost::thread> connectionThread_;
+        //! Indicator for threads to exit
+        std::atomic<bool> stopping_;
 
         friend class CallbackHandlers;
         friend class RxMessage;

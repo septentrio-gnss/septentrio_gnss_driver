@@ -36,8 +36,8 @@
  * @date 25/09/20
  */
 
-CircularBuffer::CircularBuffer(std::size_t capacity) :
-    head_(0), tail_(0), size_(0), capacity_(capacity)
+CircularBuffer::CircularBuffer(ROSaicNodeBase* node, std::size_t capacity) :
+    node_(node), head_(0), tail_(0), size_(0), capacity_(capacity)
 {
     data_ = new uint8_t[capacity];
 }
@@ -59,7 +59,7 @@ std::size_t CircularBuffer::write(const uint8_t* data, std::size_t bytes)
     std::size_t bytes_to_write = std::min(bytes, capacity - size_);
     if (bytes_to_write != bytes)
     {
-        ROS_ERROR(
+        node_->log(LogLevel::ERROR, 
             "You are trying to overwrite parts of the circular buffer that have not yet been read!");
     }
 
@@ -94,7 +94,7 @@ std::size_t CircularBuffer::read(uint8_t* data, std::size_t bytes)
     std::size_t bytes_to_read = std::min(bytes, size_);
     if (bytes_to_read != bytes)
     {
-        ROS_ERROR(
+        node_->log(LogLevel::ERROR, 
             "You are trying to read parts of the circular buffer that have not yet been written!");
     }
 

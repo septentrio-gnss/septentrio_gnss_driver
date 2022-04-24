@@ -1,0 +1,135 @@
+# Configuration Settings for the Rover Rx
+
+# GNSS/INS Parameters
+septentrio_gnss_driver:
+  ros__parameters:
+    device: tcp://192.168.3.1:28784
+
+    serial:
+      baudrate: 921600
+      rx_serial_port: USB1
+      hw_flow_control: "off"
+
+    frame_id: gnss
+
+    imu_frame_id: imu
+
+    poi_frame_id: base_link
+
+    vsm_frame_id: vsm
+
+    aux1_frame_id: aux1
+
+    vehicle_frame_id: base_link
+
+    get_spatial_config_from_tf: false
+
+    lock_utm_zone: true
+
+    use_ros_axis_orientation: true
+
+    receiver_type: gnss    
+
+    multi_antenna: false
+
+    datum: ETRS89
+
+    poi_to_arp:
+      delta_e: 0.0
+      delta_n: 0.0
+      delta_u: 0.0
+
+    att_offset:
+      heading: 0.0
+      pitch: 0.0
+      
+    ant_type: Unknown
+    ant_serial_nr: Unknown
+    ant_aux1_type: Unknown
+    ant_aux1_serial_nr: Unknown
+
+    leap_seconds: 18
+
+    polling_period:
+      pvt: 500
+      rest: 500
+
+    use_gnss_time: false
+
+    ntrip_settings:
+      mode: off
+      caster: 0
+      caster_port: 0
+      username: 0
+      password: 0
+      mountpoint: 0
+      ntrip_version: v2
+      send_gga: auto
+      rx_has_internet: false
+      rtcm_version: RTCMv2
+      rx_input_corrections_tcp: 6666
+      rx_input_corrections_serial: USB2
+
+    publish:
+      # For both GNSS and INS Rxs
+      navsatfix: false
+      gpsfix: true
+      gpgga: false
+      gprmc: false
+      gpst : false
+      measepoch: false
+      pvtcartesian: false
+      pvtgeodetic: true
+      poscovcartesian: false
+      poscovgeodetic: true
+      velcovgeodetic: true
+      atteuler: true
+      attcoveuler: true
+      pose: false
+      diagnostics: false
+      # For GNSS Rx only
+      gpgsa: false
+      gpgsv: false
+      # For INS Rx only
+      insnavcart: false
+      insnavgeod: false
+      extsensormeas: false
+      imusetup: false
+      velsensorsetup: false
+      exteventinsnavcart: false
+      exteventinsnavgeod: false
+      imu: false
+      localization: false
+      tf: false
+      
+    # INS-Specific Parameters
+
+    ins_spatial_config:
+      imu_orientation:
+        theta_x: 0.0
+        theta_y: 0.0
+        theta_z: 0.0
+      poi_to_imu:
+        delta_x: 0.0
+        delta_y: 0.0
+        delta_z: 0.0
+      ant_lever_arm:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      vel_sensor_lever_arm:
+        vsm_x: 0.0
+        vsm_y: 0.0
+        vsm_z: 0.0
+
+    ins_initial_heading: auto
+
+    ins_std_dev_mask:
+      att_std_dev: 5.0
+      pos_std_dev: 10.0
+
+    ins_use_poi: false
+
+    # logger
+
+    activate_debug_log: false

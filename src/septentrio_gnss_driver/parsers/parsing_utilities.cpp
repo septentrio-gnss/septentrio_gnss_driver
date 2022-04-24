@@ -33,6 +33,8 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // C++ library includes
 #include <limits>
+// Boost
+#include <boost/spirit/include/qi_binary.hpp>
 
 /**
  * @file parsing_utilities.cpp
@@ -42,19 +44,26 @@
 
 namespace parsing_utilities {
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + sizeof(double)) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
+    namespace qi = boost::spirit::qi;
+
+    double wrapAngle180to180(double angle)
+    {
+        while (angle > 180.0)
+        {
+            angle -= 360.0;
+        }
+        while (angle < -180.0)
+        {
+            angle += 360.0;
+        }
+        return angle;
+    }
+
     double parseDouble(const uint8_t* buffer)
     {
-        double diff_loc;
-        std::copy(buffer, buffer + sizeof(double),
-                  reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        double val;
+        qi::parse(buffer, buffer + 8, qi::little_bin_double, val);
+        return val;
     }
 
     /**
@@ -67,19 +76,11 @@ namespace parsing_utilities {
         return string_utilities::toDouble(string, value) || string.empty();
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + sizeof(double)) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     float parseFloat(const uint8_t* buffer)
     {
-        float diff_loc;
-        std::copy(buffer, buffer + sizeof(float),
-                  reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        float val;
+        qi::parse(buffer, buffer + 4, qi::little_bin_float, val);
+        return val;
     }
 
     /**
@@ -101,9 +102,9 @@ namespace parsing_utilities {
      */
     int16_t parseInt16(const uint8_t* buffer)
     {
-        int16_t diff_loc;
-        std::copy(buffer, buffer + 2, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        int16_t val;
+        qi::parse(buffer, buffer + 2, qi::little_word, val);
+        return val;
     }
 
     /**
@@ -131,18 +132,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 4) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     int32_t parseInt32(const uint8_t* buffer)
     {
-        int32_t diff_loc;
-        std::copy(buffer, buffer + 4, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        int32_t val;
+        qi::parse(buffer, buffer + 4, qi::little_dword, val);
+        return val;
     }
 
     /**
@@ -179,18 +173,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 2) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     uint16_t parseUInt16(const uint8_t* buffer)
     {
-        uint16_t number;
-        std::copy(buffer, buffer + 2, reinterpret_cast<uint8_t*>(&number));
-        return number;
+        uint16_t val;
+        qi::parse(buffer, buffer + 2, qi::little_word, val);
+        return val;
     }
 
     /**
@@ -217,18 +204,11 @@ namespace parsing_utilities {
         return false;
     }
 
-    /**
-     * The function assumes that the bytes in the buffer are already arranged with
-     * the same endianness as the local platform. It copies the elements in the range
-     * [buffer,buffer + 4) into the range beginning at
-     * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
-     * <data_type *>(pointer_variable) converts the pointer type, no return type
-     */
     uint32_t parseUInt32(const uint8_t* buffer)
     {
-        uint32_t diff_loc;
-        std::copy(buffer, buffer + 4, reinterpret_cast<uint8_t*>(&diff_loc));
-        return diff_loc;
+        uint32_t val;
+        qi::parse(buffer, buffer + 4, qi::little_dword, val);
+        return val;
     }
 
     /**
@@ -326,18 +306,18 @@ namespace parsing_utilities {
     //! 3-2-1 sequence: The body first does yaw around the Z=Down-axis, then pitches
     //! around the new Y=East=right-axis and finally rolls around the new
     //! X=North=forward-axis.
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll)
     {
         // Abbreviations for the angular functions
-        double cy = cos(yaw * 0.5);
-        double sy = sin(yaw * 0.5);
-        double cp = cos(pitch * 0.5);
-        double sp = sin(pitch * 0.5);
-        double cr = cos(roll * 0.5);
-        double sr = sin(roll * 0.5);
+        double cy = std::cos(yaw * 0.5);
+        double sy = std::sin(yaw * 0.5);
+        double cp = std::cos(pitch * 0.5);
+        double sp = std::sin(pitch * 0.5);
+        double cr = std::cos(roll * 0.5);
+        double sr = std::sin(roll * 0.5);
 
-        geometry_msgs::Quaternion q;
+        QuaternionMsg q;
         q.w = cr * cp * cy + sr * sp * sy;
         q.x = sr * cp * cy - cr * sp * sy;
         q.y = cr * sp * cy + sr * cp * sy;
@@ -354,5 +334,35 @@ namespace parsing_utilities {
         {
             return period_user / 1000;
         }
+    }
+
+    uint16_t getCrc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 2);
+    }
+
+    uint16_t getId(const uint8_t* buffer)
+    {
+        // Defines bit mask..
+        // Highest three bits are for revision and rest for block number
+        static uint16_t mask = 8191;
+        // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
+
+        return parseUInt16(buffer + 4)  & mask;
+    }
+
+    uint16_t getLength(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 6);
+    }   
+
+    uint32_t getTow(const uint8_t* buffer)
+    {
+        return parseUInt32(buffer + 8);
+    }
+
+    uint16_t getWnc(const uint8_t* buffer)
+    {
+        return parseUInt16(buffer + 12);
     }
 } // namespace parsing_utilities

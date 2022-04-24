@@ -64,10 +64,6 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // Boost and ROS includes
 #include <boost/make_shared.hpp>
-#include <septentrio_gnss_driver/Gpgga.h>
-
-extern std::string g_frame_id;
-extern bool g_use_gnss_time;
 
 /**
  * @file gpgga.hpp
@@ -80,14 +76,14 @@ extern bool g_use_gnss_time;
  * @brief Derived class for parsing GGA messages
  * @date 13/08/20
  */
-class GpggaParser : public BaseParser<septentrio_gnss_driver::GpggaPtr>
+class GpggaParser : public BaseParser<GpggaMsg>
 {
 public:
     /**
      * @brief Constructor of the class GpggaParser
      */
     GpggaParser() :
-        BaseParser<septentrio_gnss_driver::GpggaPtr>(), was_last_gpgga_valid_(false)
+        BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false)
     {
     }
 
@@ -100,10 +96,10 @@ public:
     /**
      * @brief Parses one GGA message
      * @param[in] sentence The GGA message to be parsed
-     * @return A ROS message pointer of ROS type septentrio_gnss_driver::GpggaPtr
+     * @return A ROS message pointer of ROS type GpggaMsg
      */
-    septentrio_gnss_driver::GpggaPtr
-    parseASCII(const NMEASentence& sentence) noexcept(false) override;
+    GpggaMsg
+    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Tells us whether the last GGA message was valid or not
