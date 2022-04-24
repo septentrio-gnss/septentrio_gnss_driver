@@ -14,7 +14,7 @@ septentrio_gnss_driver:
 
     imu_frame_id: imu
 
-    base_frame_id: base_link
+    poi_frame_id: base_link
 
     vsm_frame_id: vsm
 
