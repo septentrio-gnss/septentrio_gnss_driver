@@ -57,7 +57,8 @@
   <depend>nav_msgs</depend>
   <depend>gps_common</depend>
   <depend>boost</depend>
-  <depend>libpcap</depend>
+  <depend>libpcap</depend>  
+  <depend>geographiclib</depend>
   <depend>tf2</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
@@ -72,7 +73,7 @@
   <build_depend>rostime</build_depend>
   <build_depend>xmlrpcpp</build_depend>
  
- 
+  
  
   <build_export_depend>cpp_common</build_export_depend>
   <build_export_depend>rosconsole</build_export_depend>
