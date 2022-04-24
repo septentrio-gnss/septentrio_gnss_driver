@@ -594,7 +594,8 @@ namespace io_comm_rx {
                 }
                 if (rx_message_.isErrorMessage())
                 {
-                    node_->log(LogLevel::ERROR, "Invalid command just sent to the Rx!");
+                    node_->log(LogLevel::ERROR, "Invalid command just sent to the Rx! The Rx's response contains " + 
+                               std::to_string(response_size) + " bytes and reads:\n " + block_in_string);
                 }
                 continue;
             }

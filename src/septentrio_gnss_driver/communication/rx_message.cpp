@@ -469,7 +469,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
 
     msg.header.frame_id = "utm_" + zonestring;
     if (settings_->ins_use_poi)
-        msg.child_frame_id  = settings_->base_frame_id; // TODO param
+        msg.child_frame_id  = settings_->poi_frame_id; // TODO param
     else 
         msg.child_frame_id  = settings_->frame_id;
 
