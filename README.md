@@ -6,12 +6,15 @@
 This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, we plan to make ROSaic compatible with ROS2.
 
 Main Features:
+- Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
-- Easy to add support for more log types
+- Can publish `nav_msgs/Odometry` message for INS receivers
+- Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
+- Easy configuration of correction services
 - Can play back PCAP capture logs for testing purposes
-- Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` messages
-- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 pro+ and the AsteRx-SBi3 Pro receiver
+- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
+- Easy to add support for more log types
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
@@ -62,7 +65,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
-  + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
+  + Note for setting `ant_serial_nr` and `ant_aux1_serial_nr`: This is a string parameter, numeric-only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
 
   ```
   # Configuration Settings for the Rover Rx
@@ -192,7 +195,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   ins_use_poi: true
 
-  # logger
+  # Logger
 
   activate_debug_log: false
   ```
@@ -227,7 +230,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     </details>
  
   - These Steps should be followed to configure the receiver in INS integration mode:
-    - Specify `receiver_type: INS`
+    - Specify `receiver_type: ins`
     - Specify the orientation of the IMU sensor with respect to your vehicle, using the `ins_spatial_config/imu_orientation` parameter
     - Specify the IMU-antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna. This can be done by means of the `ins_spatial_config/ant_lever_arm` parameter.
     - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_lever_arm` parameter.
@@ -287,13 +290,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `poi_frame_id` are needed. For single-antenna `gnss` no frames are needed. Keep in mind that tf has a tree structure. Thus, `poi_frame_id` is the base for all mentioned frames. 
     + default: `false`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
-    + If set to `false` Septentrios definition is used, i.e., front-right-down body releated frames and NED (north-east-down) for orientation frames. 
-    + If set to `true` ROS definition is used, i.e., front-left-up body releated frames and ENU (east-north-up) for orientation frames.
+    + If set to `false` Septentrios definition is used, i.e., front-right-down body related frames and NED (north-east-down) for orientation frames. 
+    + If set to `true` ROS definition is used, i.e., front-left-up body related frames and ENU (east-north-up) for orientation frames.
     + default: `true`
   </details>
 
   <details>
-  <summary>UTM zone locking</summary>
+  <summary>UTM Zone Locking</summary>
+
   + `lock_utm_zone`: wether the UTM zone of the inital localization is locked, i.e., this zone is kept even if a zone transition would occur.
     + default: `true`
   </details>
@@ -408,12 +412,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
 
   <details>
-  <summary>logger</summary>
+  <summary>Logger</summary>
 
     + `activate_debug_log`: `true` if ROS logger level shall be set to debug.
   </details>
   
-* Parameters Configuring (Non-)Publishing of ROS Messages
+* Parameters Configuring Publishing of ROS Messages
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   

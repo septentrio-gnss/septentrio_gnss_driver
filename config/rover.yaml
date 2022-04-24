@@ -129,6 +129,6 @@ ins_std_dev_mask:
 
 ins_use_poi: false
 
-# logger
+# Logger
 
 activate_debug_log: false
