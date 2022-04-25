@@ -2,8 +2,8 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (Forthcoming)
--------------------
+1.1.0 (2022-04-25)
+------------------
 * New Features
    * Add option to use ROS axis orientations according to REP103
    * Add frame_id parameters
