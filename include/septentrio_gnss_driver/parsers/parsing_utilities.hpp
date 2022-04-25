@@ -36,9 +36,13 @@
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <ctime>   // C++ header, corresponds to <time.h> in C
 #include <string>  // C++ header, corresponds to <string.h> in C
+// Eigen Includes
+#include <Eigen/Core>
+#include <Eigen/LU>
+// Boost includes
+#include <boost/math/constants/constants.hpp>
 // ROS includes
-#include <geometry_msgs/Quaternion.h>
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 /**
  * @file parsing_utilities.hpp
@@ -46,7 +50,71 @@
  * @date 17/08/20
  */
 
-namespace parsing_utilities {
+namespace parsing_utilities {    
+
+    constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
+
+    /***********************************************************************
+     * Square value
+     **********************************************************************/
+    template<class T>
+    inline T square(T val)
+    {
+        return val * val;
+    }
+
+    /***********************************************************************
+     * Convert degrees to radians
+     **********************************************************************/
+    template<class T>
+    inline T deg2rad(T deg)
+    {
+        return deg * boost::math::constants::degree<T>();
+    }
+
+    /***********************************************************************
+     * Convert degrees^2 to radians^2
+     **********************************************************************/
+    template<class T>
+    inline T deg2radSq(T deg)
+    {
+        return deg * boost::math::constants::degree<T>() * boost::math::constants::degree<T>();
+    }
+
+    /***********************************************************************
+     * Convert radians to degree
+     **********************************************************************/
+    template<class T>
+    inline T rad2deg(T rad)
+    {
+        return rad * boost::math::constants::radian<T>();
+    }
+
+    /***********************************************************************
+     * Convert Euler angles to rotation matrix
+     **********************************************************************/
+    inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
+    {
+        Eigen::Matrix3d M;
+        double          sa, ca, sb, cb, sc, cc;
+        sa = std::sin(roll);
+        ca = std::cos(roll);
+        sb = std::sin(pitch);
+        cb = std::cos(pitch);
+        sc = std::sin(yaw);
+        cc = std::cos(yaw);
+
+        M << cb * cc, -ca * sc + sa * sb * cc, sc* sa + ca * sb * cc,
+            cb* sc, ca* cc + sa * sb * sc, -sa * cc + ca * sb * sc,
+            -sb,          sa* cb,           ca* cb;
+        return M;
+    }
+
+    /**
+     * @brief Wraps an angle between -180 and 180 degrees
+     * @param[in] angle The angle to be wrapped
+     */
+    double wrapAngle180to180(double angle);
 
     /**
      * @brief Converts an 8-byte-buffer into a double
@@ -237,7 +305,7 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new East-axis
      * @return ROS message representing a quaternion
      */
-    geometry_msgs::Quaternion convertEulerToQuaternion(double yaw, double pitch,
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
                                                        double roll);
 
     /**
@@ -249,6 +317,46 @@ namespace parsing_utilities {
      * the Rx
      */
     uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
+
+    /**
+     * @brief Get the CRC of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message CRC 
+     */
+    uint16_t getCrc(const uint8_t* buffer);
+
+    /**
+     * @brief Get the ID of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message ID 
+     */
+    uint16_t getId(const uint8_t* buffer);
+
+    /**
+     * @brief Get the length of the SBF message
+     * 
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF message length 
+     */
+    uint16_t getLength(const uint8_t* buffer);
+
+    /**
+     * @brief Get the time of week in ms of the SBF message
+     * 
+     * @param[in] buffer A pointer to a buffer containing an SBF message
+     * @return SBF time of week in ms
+     */
+    uint32_t getTow(const uint8_t* buffer);
+
+    /**
+     * @brief Get the GPS week counter of the SBF message
+     *  
+     * @param buffer A pointer to a buffer containing an SBF message
+     * @return SBF GPS week counter 
+     */
+    uint16_t getWnc(const uint8_t* buffer);
 } // namespace parsing_utilities
 
 #endif // PARSING_UTILITIES_HPP

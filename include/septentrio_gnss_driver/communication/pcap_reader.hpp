@@ -32,8 +32,9 @@
 #define PCAP_READER_H
 
 #include <pcap/pcap.h>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 /**
  * @file pcap_reader.hpp
@@ -74,7 +75,7 @@ namespace pcapReader {
          * @brief Constructor for PcapDevice
          * @param[out] buffer Buffer to write read raw data to
          */
-        explicit PcapDevice(buffer_t& buffer);
+        explicit PcapDevice(ROSaicNodeBase* node, buffer_t& buffer);
 
         /**
          * @brief Try to open a pcap file
@@ -104,6 +105,8 @@ namespace pcapReader {
         ~PcapDevice();
 
     private:
+        //! Pointer to the node
+        ROSaicNodeBase* node_;
         //! Reference to raw data buffer to write to
         buffer_t& m_dataBuff;
         //! File handle to pcap file

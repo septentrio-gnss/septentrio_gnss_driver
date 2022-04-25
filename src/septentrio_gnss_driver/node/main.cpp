@@ -26,46 +26,23 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// *****************************************************************************
+// ****************************************************************************
 
-#ifndef SSNTYPES_HPP
-#define SSNTYPES_HPP
+#include <septentrio_gnss_driver/node/rosaic_node.hpp>
 
 /**
- * @file ssn_types.hpp
- * @brief Aims at making the C++ code as portable as possible, by dealing with all
- * compilers except for MS compilers
- *
- * MS compilers are disregarded since ROS Windows is not supported.
- * Here we declare Septentrio types and implement common C/C++ types which are not
- * implemented by every compiler. If your compiler does not support the standard C99
- * types from \p stdint.h and \p stdbool.h, please define them for your platform.
- * @date 17/08/20
+ * @file main.cpp
+ * @date 01/12/21
+ * @brief Main function of the ROSaic driver:
  */
 
-#ifdef SSN_DLL
-#ifdef _WIN32
-#ifdef FW_MAKE_DLL
-#define FW_EXPORT __declspec(dllexport)
-#else
-#define FW_EXPORT __declspec(dllimport)
-#endif
-#else
-#ifdef FW_MAKE_DLL
-#define FW_EXPORT __attribute__((visibility("default")))
-#else
-#define FW_EXPORT
-#endif
-#endif
-#else
-#define FW_EXPORT
-#endif
-
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||                 \
-    defined(__GNUC__) || defined(__ARMCC__)
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdint.h> // see comment in preamble
-#endif
-
-#endif // SSNTYPES_HPP
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "septentrio_gnss");
+  	
+    rosaic_node::ROSaicNode
+        rx_node; // This launches everything we need, in theory :)
+    ros::spin();
+    
+    return 0;
+}

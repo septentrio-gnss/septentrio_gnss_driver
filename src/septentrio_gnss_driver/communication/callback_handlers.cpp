@@ -52,6 +52,12 @@ std::pair<std::string, uint32_t> pose_pairs[] = {
 std::pair<std::string, uint32_t> diagnosticarray_pairs[] = {
     std::make_pair("4014", 0), std::make_pair("4082", 1)};
 
+std::pair<std::string, uint32_t> imu_pairs[] = {
+    std::make_pair("4226", 0), std::make_pair("4050", 1)};
+
+std::pair<std::string, uint32_t> localization_pairs[] = {
+    std::make_pair("4226", 0)};
+
 namespace io_comm_rx {
     boost::mutex CallbackHandlers::callback_mutex_;
 
@@ -64,6 +70,13 @@ namespace io_comm_rx {
     CallbackHandlers::DiagnosticArrayMap
         CallbackHandlers::diagnosticarray_map(diagnosticarray_pairs,
                                               diagnosticarray_pairs + 2);
+    CallbackHandlers::ImuMap
+        CallbackHandlers::imu_map(imu_pairs,
+                                  imu_pairs + 2);
+                                  
+    CallbackHandlers::LocalizationMap
+        CallbackHandlers::localization_map(localization_pairs,
+                                           localization_pairs + 1);
 
     std::string CallbackHandlers::do_gpsfix_ = "4007";
     std::string CallbackHandlers::do_navsatfix_ = "4007";
@@ -72,18 +85,20 @@ namespace io_comm_rx {
     
     std::string CallbackHandlers::do_insgpsfix_ = "4226";
     std::string CallbackHandlers::do_insnavsatfix_ = "4226"; 
-    std::string CallbackHandlers::do_inspose_ = "4226";  
+    std::string CallbackHandlers::do_inspose_ = "4226"; 
+    std::string CallbackHandlers::do_imu_ = "4226";
+    std::string CallbackHandlers::do_inslocalization_ = "4226";
 
     //! The for loop forwards to a ROS message specific handle if the latter was
     //! added via callbackmap_.insert at some earlier point.
-    void CallbackHandlers::handle(RxMessage& rx_message)
+    void CallbackHandlers::handle()
     {
         // Find the ROS message callback handler for the equivalent Rx message
         // (SBF/NMEA) at hand & call it
         boost::mutex::scoped_lock lock(callback_mutex_);
-        CallbackMap::key_type key = rx_message.messageID();
-        std::string ID_temp = rx_message.messageID();
-        if (!(ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
+        CallbackMap::key_type key = rx_message_.messageID();
+        std::string ID_temp = rx_message_.messageID();
+        if (!(ID_temp == "4013" || ID_temp == "4001" ||
               ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902"))
         // We only want to handle ChannelStatus, MeasEpoch, DOP, ReceiverStatus, 
         // QualityInd and ReceiverSetup blocks in case GPSFix and DiagnosticArray 
@@ -94,7 +109,7 @@ namespace io_comm_rx {
             {
                 try
                 {
-                    callback->second->handle(rx_message, callback->first);
+                    callback->second->handle(rx_message_, callback->first);
                 } catch (std::runtime_error& e)
                 {
                     throw std::runtime_error(e.what());
@@ -102,12 +117,12 @@ namespace io_comm_rx {
             }
         }
         // Call NavSatFix callback function if it was added for GNSS 
-		if (septentrio_receiver_type_ == "gnss")
+		if (settings_->septentrio_receiver_type == "gnss")
 		{
-			if (g_publish_navsatfix)
+			if (settings_->publish_navsatfix)
 			{
 				CallbackMap::key_type key = "NavSatFix";
-				std::string ID_temp = rx_message.messageID();
+				std::string ID_temp = rx_message_.messageID();
 				if (ID_temp == do_navsatfix_)
 				// The last incoming block PVTGeodetic triggers
 				// the publishing of NavSatFix.
@@ -117,7 +132,7 @@ namespace io_comm_rx {
 					{
 						try
 						{
-							callback->second->handle(rx_message, callback->first);
+							callback->second->handle(rx_message_, callback->first);
 						} catch (std::runtime_error& e)
 						{
 							throw std::runtime_error(e.what());
@@ -128,12 +143,12 @@ namespace io_comm_rx {
 			}
 		}
         // Call NavSatFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_navsatfix)
+            if (settings_->publish_navsatfix)
             {
                 CallbackMap::key_type key = "INSNavSatFix";
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 if (ID_temp == do_insnavsatfix_)
                 // The last incoming block INSNavGeod triggers
                 // the publishing of NavSatFix.
@@ -143,7 +158,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -153,14 +168,14 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
+        // Call PoseWithCovarianceStampedMsg callback function if it was
         // added for GNSS
-        if (septentrio_receiver_type_ == "gnss")
+        if (settings_->septentrio_receiver_type == "gnss")
         {
-            if (g_publish_pose)
+            if (settings_->publish_pose)
             {
                 CallbackMap::key_type key = "PoseWithCovarianceStamped";
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 if (ID_temp == do_pose_)
                 // The last incoming block among PVTGeodetic, PosCovGeodetic, AttEuler
                 // and AttCovEuler triggers the publishing of PoseWithCovarianceStamped.
@@ -170,7 +185,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -180,14 +195,14 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call geometry_msgs::PoseWithCovarianceStamped callback function if it was
+        // Call PoseWithCovarianceStampedMsg callback function if it was
         // added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_pose)
+            if (settings_->publish_pose)
             {
                 CallbackMap::key_type key = "INSPoseWithCovarianceStamped";
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 if (ID_temp == do_inspose_)
                 // The last incoming block INSNavGeod triggers the publishing of PoseWithCovarianceStamped.
                 {
@@ -196,7 +211,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -206,12 +221,12 @@ namespace io_comm_rx {
                 }
             }
         }
-        // Call diagnostic_msgs::DiagnosticArray callback function if it was added
+        // Call DiagnosticArrayMsg callback function if it was added
         // for the both type of receivers
-		if (g_publish_diagnostics)
+		if (settings_->publish_diagnostics)
 		{
-			CallbackMap::key_type key1 = rx_message.messageID();
-			std::string ID_temp = rx_message.messageID();
+			CallbackMap::key_type key1 = rx_message_.messageID();
+			std::string ID_temp = rx_message_.messageID();
 			if (ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902")
 			{
 				for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
@@ -219,7 +234,7 @@ namespace io_comm_rx {
 				{
 					try
 					{
-						callback->second->handle(rx_message, callback->first);
+						callback->second->handle(rx_message_, callback->first);
 					} catch (std::runtime_error& e)
 					{
 						throw std::runtime_error(e.what());
@@ -236,7 +251,7 @@ namespace io_comm_rx {
 				{
 					try
 					{
-						callback->second->handle(rx_message, callback->first);
+						callback->second->handle(rx_message_, callback->first);
 					} catch (std::runtime_error& e)
 					{
 						throw std::runtime_error(e.what());
@@ -245,16 +260,68 @@ namespace io_comm_rx {
 				do_diagnostics_ = std::string();
 			}
 		}
-        // Call sensor_msgs::TimeReference (with GPST) callback function if it was
-        // added
-        if (septentrio_receiver_type_ == "gnss")
+        // Call ImuMsg callback function if it was
+        // added for INS
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_gpst)
+            if (settings_->publish_imu)
+            {
+                CallbackMap::key_type key = "Imu";
+                std::string ID_temp = rx_message_.messageID();
+                if (ID_temp == do_imu_)
+                // The last incoming block INSNavGeod triggers the publishing of PoseWithCovarianceStamped.
+                {
+                    for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
+                        callback != callbackmap_.upper_bound(key); ++callback)
+                    {
+                        try
+                        {
+                            callback->second->handle(rx_message_, callback->first);
+                        } catch (std::runtime_error& e)
+                        {
+                            throw std::runtime_error(e.what());
+                        }
+                    }
+                    do_imu_ = std::string();
+                }
+            }
+        }
+         // Call LocalizationMsg callback function if it was
+        // added for INS
+        if (settings_->septentrio_receiver_type == "ins")
+        {
+            if (settings_->publish_localization || settings_->publish_tf)
+            {
+                CallbackMap::key_type key = "Localization";
+                std::string ID_temp = rx_message_.messageID();
+                if (ID_temp == do_inslocalization_)
+                // The last incoming block INSNavGeod triggers the publishing of PoseWithCovarianceStamped.
+                {
+                    for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
+                        callback != callbackmap_.upper_bound(key); ++callback)
+                    {
+                        try
+                        {
+                            callback->second->handle(rx_message_, callback->first);
+                        } catch (std::runtime_error& e)
+                        {
+                            throw std::runtime_error(e.what());
+                        }
+                    }
+                    do_inslocalization_ = std::string();
+                }
+            }
+        }
+        // Call TimeReferenceMsg (with GPST) callback function if it was
+        // added
+        if (settings_->septentrio_receiver_type == "gnss")
+        {
+            if (settings_->publish_gpst)
             {
                 CallbackMap::key_type key1 = "GPST";
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 // If no new PVTGeodetic block is coming in, there is no need to publish
-                // sensor_msgs::TimeReference (with GPST) anew.
+                // TimeReferenceMsg (with GPST) anew.
                 if (ID_temp == "4007")
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
@@ -262,7 +329,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -271,14 +338,14 @@ namespace io_comm_rx {
                 }
             }
         }
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_gpst)
+            if (settings_->publish_gpst)
             {
                 CallbackMap::key_type key1 = "GPST";
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 // If no new INSNavGeod block is coming in, there is no need to publish
-                // sensor_msgs::TimeReference (with GPST) anew.
+                // TimeReferenceMsg (with GPST) anew.
                 if (ID_temp == "4226")
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
@@ -286,7 +353,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -296,23 +363,23 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for GNSS
-        if (septentrio_receiver_type_ == "gnss")
+        if (settings_->septentrio_receiver_type == "gnss")
         {
-            if (g_publish_gpsfix)
+            if (settings_->publish_gpsfix)
             {
-                std::string ID_temp = rx_message.messageID();
-                CallbackMap::key_type key1 = rx_message.messageID();
-                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
-                // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027), and DOP (4001) ROS messages, we have to save some 
-                // contents of these incoming blocks in order to publish the GPSFix message.
+                std::string ID_temp = rx_message_.messageID();
+                CallbackMap::key_type key1 = rx_message_.messageID();
+                if (ID_temp == "4013" || ID_temp == "4001")
+                // Even though we are not interested in publishing ChannelStatus (4013)
+                // and DOP (4001) ROS messages, we have to save some contents of these 
+                // incoming blocks in order to publish the GPSFix message.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                         callback != callbackmap_.upper_bound(key1); ++callback)
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -329,7 +396,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -340,24 +407,23 @@ namespace io_comm_rx {
             }
         }
         // Call GPSFix callback function if it was added for INS
-        if (septentrio_receiver_type_ == "ins")
+        if (settings_->septentrio_receiver_type == "ins")
         {
-            if (g_publish_gpsfix)
+            if (settings_->publish_gpsfix)
             {
-                std::string ID_temp = rx_message.messageID();
-                CallbackMap::key_type key1 = rx_message.messageID();
-                if (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001")
-                // Even though we are not interested in publishing ChannelStatus (4013),
-                // MeasEpoch (4027) and DOP (4001) ROS messages,
-                // we have to save some contents of these incoming blocks in order to
-                // publish the GPSFix message.
+                std::string ID_temp = rx_message_.messageID();
+                CallbackMap::key_type key1 = rx_message_.messageID();
+                if (ID_temp == "4013" || ID_temp == "4001")
+                // Even though we are not interested in publishing ChannelStatus (4013)
+                // and DOP (4001) ROS messages, we have to save some contents of these 
+                // incoming blocks in order to publish the GPSFix message.
                 {
                     for (CallbackMap::iterator callback = callbackmap_.lower_bound(key1);
                         callback != callbackmap_.upper_bound(key1); ++callback)
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -375,7 +441,7 @@ namespace io_comm_rx {
                     {
                         try
                         {
-                            callback->second->handle(rx_message, callback->first);
+                            callback->second->handle(rx_message_, callback->first);
                         } catch (std::runtime_error& e)
                         {
                             throw std::runtime_error(e.what());
@@ -387,205 +453,161 @@ namespace io_comm_rx {
         }
     }
 
-    void CallbackHandlers::readCallback(const uint8_t* data, std::size_t& size)
+    void CallbackHandlers::readCallback(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size)
     {
-        RxMessage rx_message(data, size);
+        rx_message_.newData(recvTimestamp, data, size);
         // Read !all! (there might be many) messages in the buffer
-        while (rx_message.search() != rx_message.getEndBuffer() &&
-               rx_message.found())
+        while (rx_message_.search() != rx_message_.getEndBuffer() &&
+               rx_message_.found())
         {
             // Print the found message (if NMEA) or just show messageID (if SBF)..
-            if (rx_message.isSBF())
+            if (rx_message_.isSBF())
             {
                 std::size_t sbf_block_length;
-                std::string ID_temp = rx_message.messageID();
+                std::string ID_temp = rx_message_.messageID();
                 sbf_block_length =
-                    static_cast<std::size_t>(rx_message.getBlockLength());
-                ROS_DEBUG("ROSaic reading SBF block %s made up of %li bytes...",
-                          ID_temp.c_str(), sbf_block_length);
+                    static_cast<std::size_t>(rx_message_.getBlockLength());
+                node_->log(LogLevel::DEBUG, "ROSaic reading SBF block " + ID_temp + " made up of " + 
+                                            std::to_string(sbf_block_length) + " bytes...");
                 // If full message did not yet arrive, throw an error message.
-                if (sbf_block_length > rx_message.getCount())
+                if (sbf_block_length > rx_message_.getCount())
                 {
-                    ROS_DEBUG(
+                    node_->log(LogLevel::DEBUG, 
                         "Not a valid SBF block, parts of the SBF block are yet to be received. Ignore..");
                     throw(
-                        static_cast<std::size_t>(rx_message.getPosBuffer() - data));
+                        static_cast<std::size_t>(rx_message_.getPosBuffer() - data));
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_gpsfix == true &&
+                    if (settings_->publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" ||
                      ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5908" ||
                      ID_temp == "5938" || ID_temp == "5939"))
                     {
-                        std::vector<bool> gpsfix_vec = {
-                            g_channelstatus_has_arrived_gpsfix,
-                            g_measepoch_has_arrived_gpsfix,
-                            g_dop_has_arrived_gpsfix,
-                            g_pvtgeodetic_has_arrived_gpsfix,
-                            g_poscovgeodetic_has_arrived_gpsfix,
-                            g_velcovgeodetic_has_arrived_gpsfix,
-                            g_atteuler_has_arrived_gpsfix,
-                            g_attcoveuler_has_arrived_gpsfix};
-                        gpsfix_vec.erase(gpsfix_vec.begin() + gpsfix_map[ID_temp]);
-                        // Checks whether all entries in gpsfix_vec are true
-                        if (std::all_of(gpsfix_vec.begin(), gpsfix_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.gnss_gpsfix_complete(gpsfix_map[ID_temp]))
                         {
                             do_gpsfix_ = ID_temp;
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_gpsfix == true &&
+                    if (settings_->publish_gpsfix == true &&
                     (ID_temp == "4013" || ID_temp == "4027" || ID_temp == "4001" || ID_temp == "4226"))
                     {
-                        std::vector<bool> gpsfix_vec = {
-                            g_channelstatus_has_arrived_gpsfix,
-                            g_measepoch_has_arrived_gpsfix,
-                            g_dop_has_arrived_gpsfix,
-                            g_insnavgeod_has_arrived_gpsfix};
-                        gpsfix_vec.erase(gpsfix_vec.begin() + gpsfix_map[ID_temp]);
-                        // Checks whether all entries in gpsfix_vec are true
-                        if (std::all_of(gpsfix_vec.begin(), gpsfix_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.ins_gpsfix_complete(gpsfix_map[ID_temp]))
                         {
                             do_insgpsfix_ = ID_temp;
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_navsatfix == true &&
+                    if (settings_->publish_navsatfix == true &&
                     (ID_temp == "4007" || ID_temp == "5906"))
                     {
-                        std::vector<bool> navsatfix_vec = {
-                            g_pvtgeodetic_has_arrived_navsatfix,
-                            g_poscovgeodetic_has_arrived_navsatfix};
-                        navsatfix_vec.erase(navsatfix_vec.begin() +
-                                            navsatfix_map[ID_temp]);
-                        // Checks whether all entries in navsatfix_vec are true
-                        if (std::all_of(navsatfix_vec.begin(), navsatfix_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.gnss_navsatfix_complete(navsatfix_map[ID_temp]))
                         {
                             do_navsatfix_ = ID_temp;
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_navsatfix == true &&
+                    if (settings_->publish_navsatfix == true &&
                     (ID_temp == "4226"))
                     {
-                        std::vector<bool> navsatfix_vec = {
-                            g_insnavgeod_has_arrived_navsatfix};
-                        navsatfix_vec.erase(navsatfix_vec.begin() +
-                                            navsatfix_map[ID_temp]);
-                        // Checks whether all entries in navsatfix_vec are true
-                        if (std::all_of(navsatfix_vec.begin(), navsatfix_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.ins_navsatfix_complete(navsatfix_map[ID_temp]))
                         {
                             do_insnavsatfix_ = ID_temp;
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "gnss")
+                if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (g_publish_pose == true &&
+                    if (settings_->publish_pose == true &&
                     (ID_temp == "4007" || ID_temp == "5906" || ID_temp == "5938" ||
                      ID_temp == "5939"))
                     {
-                        std::vector<bool> pose_vec = {g_pvtgeodetic_has_arrived_pose,
-                                                    g_poscovgeodetic_has_arrived_pose,
-                                                    g_atteuler_has_arrived_pose,
-                                                    g_attcoveuler_has_arrived_pose,};
-                        pose_vec.erase(pose_vec.begin() + pose_map[ID_temp]);
-                        // Checks whether all entries in pose_vec are true
-                        if (std::all_of(pose_vec.begin(), pose_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.gnss_pose_complete(pose_map[ID_temp]))
                         {
                             do_pose_ = ID_temp;
                         }
                     }
                 }
-                if (septentrio_receiver_type_ == "ins")
+                if (settings_->septentrio_receiver_type == "ins")
                 {
-                    if (g_publish_pose == true &&
+                    if (settings_->publish_pose == true &&
                     (ID_temp == "4226"))
                     {
-                        std::vector<bool> pose_vec = {
-                                                    g_insnavgeod_has_arrived_pose};
-                        pose_vec.erase(pose_vec.begin() + pose_map[ID_temp]);
-                        // Checks whether all entries in pose_vec are true
-                        if (std::all_of(pose_vec.begin(), pose_vec.end(),
-                                        [](bool v) { return v; }) == true)
+                        if (rx_message_.ins_pose_complete(pose_map[ID_temp]))
                         {
                             do_inspose_ = ID_temp;
                         }
                     }
                 }
-				if (g_publish_diagnostics == true &&
+				if (settings_->publish_diagnostics == true &&
 				(ID_temp == "4014" || ID_temp == "4082"))
 				{
-					std::vector<bool> diagnostics_vec = {
-						g_receiverstatus_has_arrived_diagnostics,
-						g_qualityind_has_arrived_diagnostics};
-					diagnostics_vec.erase(diagnostics_vec.begin() +
-										diagnosticarray_map[ID_temp]);
-					// Checks whether all entries in diagnostics_vec are true
-					if (std::all_of(diagnostics_vec.begin(), diagnostics_vec.end(),
-									[](bool v) { return v; }) == true)
+					if (rx_message_.diagnostics_complete(diagnosticarray_map[ID_temp]))
 					{
 						do_diagnostics_ = ID_temp;
 					}
 				}
+                if ((settings_->publish_localization || settings_->publish_tf) &&
+                (ID_temp == "4226"))
+                {
+                    if (rx_message_.ins_localization_complete(localization_map[ID_temp]))
+                    {
+                        do_inslocalization_ = ID_temp;
+                    }
+                }
             }
-            if (rx_message.isNMEA())
+            if (rx_message_.isNMEA())
             {
                 boost::char_separator<char> sep("\r"); // Carriage Return (CR)
                 typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-                std::size_t nmea_size = rx_message.messageSize();
+                std::size_t nmea_size = rx_message_.messageSize();
                 // Syntax: new_string_name (const char* s, size_t n); size_t is
                 // either 2 or 8 bytes, depending on your system
                 std::string block_in_string(
-                    reinterpret_cast<const char*>(rx_message.getPosBuffer()),
+                    reinterpret_cast<const char*>(rx_message_.getPosBuffer()),
                     nmea_size);
                 tokenizer tokens(block_in_string, sep);
-                ROS_DEBUG(
-                    "The NMEA message contains %li bytes and is ready to be parsed. It reads: %s",
-                    nmea_size, (*tokens.begin()).c_str());
+                node_->log(LogLevel::DEBUG, "The NMEA message contains " + std::to_string(nmea_size) + 
+                                            " bytes and is ready to be parsed. It reads: " + *tokens.begin());
             }
-            if (rx_message.isResponse()) // If the response is not sent at once, only
+            if (rx_message_.isResponse()) // If the response is not sent at once, only
                                          // first part is ROS_DEBUG-printed
             {
-                std::size_t response_size = rx_message.messageSize();
+                std::size_t response_size = rx_message_.messageSize();
                 std::string block_in_string(
-                    reinterpret_cast<const char*>(rx_message.getPosBuffer()),
+                    reinterpret_cast<const char*>(rx_message_.getPosBuffer()),
                     response_size);
-                ROS_DEBUG("The Rx's response contains %li bytes and reads:\n %s",
-                          response_size, block_in_string.c_str());
+                node_->log(LogLevel::DEBUG, "The Rx's response contains " + std::to_string(response_size) +
+                                            " bytes and reads:\n " + block_in_string);
                 {
                     boost::mutex::scoped_lock lock(g_response_mutex);
                     g_response_received = true;
                     lock.unlock();
                     g_response_condition.notify_one();
                 }
-                if (rx_message.isErrorMessage())
+                if (rx_message_.isErrorMessage())
                 {
-                    ROS_ERROR("Invalid command just sent to the Rx!");
+                    node_->log(LogLevel::ERROR, "Invalid command just sent to the Rx! The Rx's response contains " + 
+                               std::to_string(response_size) + " bytes and reads:\n " + block_in_string);
                 }
                 continue;
             }
-            if (rx_message.isConnectionDescriptor())
+            if (rx_message_.isConnectionDescriptor())
             {
                 std::string cd(
-                    reinterpret_cast<const char*>(rx_message.getPosBuffer()), 4);
+                    reinterpret_cast<const char*>(rx_message_.getPosBuffer()), 4);
                 g_rx_tcp_port = cd;
-                ROS_INFO_COND(
-                    g_cd_count == 0,
-                    "The connection descriptor for the TCP connection is %s",
-                    cd.c_str());
+                if (g_cd_count == 0)
+                {
+                    node_->log(LogLevel::INFO, "The connection descriptor for the TCP connection is " + cd);
+                }
                 if (g_cd_count < 3)
                     ++g_cd_count;
                 if (g_cd_count == 2)
@@ -599,11 +621,11 @@ namespace io_comm_rx {
             }
             try
             {
-                handle(rx_message);
+                handle();
             } catch (std::runtime_error& e)
             {
-                ROS_DEBUG("Incomplete message: %s", e.what());
-                throw(static_cast<std::size_t>(rx_message.getPosBuffer() - data));
+                node_->log(LogLevel::DEBUG, "Incomplete message: " + std::string(e.what()));
+                throw(static_cast<std::size_t>(rx_message_.getPosBuffer() - data));
             }
         }
     }

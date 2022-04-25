@@ -50,8 +50,8 @@ const std::string GpgsaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[18] if anybody ever needs it.
  */
-septentrio_gnss_driver::GpgsaPtr
-GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GpgsaMsg
+GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, Timestamp /*time_obj*/) noexcept(false)
 {
 
     // Checking the length first, it should be 19 elements
@@ -64,16 +64,15 @@ GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GpgsaPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gpgsa>();
-    msg->header.frame_id = g_frame_id;
-    msg->message_id = sentence.get_body()[0];
-    msg->auto_manual_mode = sentence.get_body()[1];
-    parsing_utilities::parseUInt8(sentence.get_body()[2], msg->fix_mode);
+    GpgsaMsg msg;
+    msg.header.frame_id = frame_id;
+    msg.message_id = sentence.get_body()[0];
+    msg.auto_manual_mode = sentence.get_body()[1];
+    parsing_utilities::parseUInt8(sentence.get_body()[2], msg.fix_mode);
     // Words 3-14 of the sentence are SV PRNs. Copying only the non-null strings..
     // 0 is the character needed to fill the new character space, in case 12 (first
     // argument) is larger than sv_ids.
-    msg->sv_ids.resize(12, 0);
+    msg.sv_ids.resize(12, 0);
     size_t n_svs = 0;
     for (std::vector<std::string>::const_iterator id =
              sentence.get_body().begin() + 3;
@@ -81,14 +80,14 @@ GpgsaParser::parseASCII(const NMEASentence& sentence) noexcept(false)
     {
         if (!id->empty())
         {
-            parsing_utilities::parseUInt8(*id, msg->sv_ids[n_svs]);
+            parsing_utilities::parseUInt8(*id, msg.sv_ids[n_svs]);
             ++n_svs;
         }
     }
-    msg->sv_ids.resize(n_svs);
+    msg.sv_ids.resize(n_svs);
 
-    parsing_utilities::parseFloat(sentence.get_body()[15], msg->pdop);
-    parsing_utilities::parseFloat(sentence.get_body()[16], msg->hdop);
-    parsing_utilities::parseFloat(sentence.get_body()[17], msg->vdop);
+    parsing_utilities::parseFloat(sentence.get_body()[15], msg.pdop);
+    parsing_utilities::parseFloat(sentence.get_body()[16], msg.hdop);
+    parsing_utilities::parseFloat(sentence.get_body()[17], msg.vdop);
     return msg;
 }

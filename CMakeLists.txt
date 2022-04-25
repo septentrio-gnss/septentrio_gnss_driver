@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(septentrio_gnss_driver)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+## Compile as C++14, supported in ROS Melodic and newer
+add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -14,15 +14,22 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp_serialization
   rostime
   xmlrpcpp
+  nmea_msgs
   sensor_msgs
   geometry_msgs
+  nav_msgs
   diagnostic_msgs
   gps_common
   message_generation
+  tf2
+  tf2_geometry_msgs
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system thread regex)
+find_package(Boost REQUIRED) # bug with 1.71: spirit is not found ... COMPONENTS system thread regex spirit)
+LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
+find_package(GeographicLib REQUIRED)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -65,24 +72,21 @@ endif ()
 add_message_files(
    FILES
    BlockHeader.msg
+   MeasEpoch.msg
+   MeasEpochChannelType1.msg
+   MeasEpochChannelType2.msg
    PVTCartesian.msg
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   VelCovCartesian.msg
    VelCovGeodetic.msg
    AttEuler.msg
    AttCovEuler.msg
-   Gpgga.msg
-   Gprmc.msg
-   Gpgsa.msg
-   Gpgsv.msg
-   GpgsvSatellite.msg
    INSNavCart.msg
    INSNavGeod.msg
    IMUSetup.msg
    VelSensorSetup.msg
-   ExtEventINSNavGeod.msg
-   ExtEventINSNavCart.msg
    ExtSensorMeas.msg
 )
 
@@ -142,7 +146,7 @@ catkin_package(
    INCLUDE_DIRS include
    LIBRARIES 
    CATKIN_DEPENDS cpp_common rosconsole roscpp roscpp_serialization rostime xmlrpcpp message_runtime
-   DEPENDS Boost 
+   DEPENDS Boost
 )
 
 ###########
@@ -155,6 +159,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${GeographicLib_INCLUDE_DIRS}
 )
 
 ## Add cmake target dependencies of the library
@@ -166,7 +171,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node 
-    src/septentrio_gnss_driver/node/rosaic_node.cpp 
+    src/septentrio_gnss_driver/node/main.cpp
+    src/septentrio_gnss_driver/node/rosaic_node.cpp
     src/septentrio_gnss_driver/communication/circular_buffer.cpp 
     src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
@@ -174,7 +180,7 @@ add_executable(${PROJECT_NAME}_node
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-    src/septentrio_gnss_driver/crc/crc.c 
+    src/septentrio_gnss_driver/crc/crc.cpp
     src/septentrio_gnss_driver/communication/communication_core.cpp 
     src/septentrio_gnss_driver/communication/rx_message.cpp 
     src/septentrio_gnss_driver/communication/callback_handlers.cpp
@@ -193,7 +199,10 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node 
-   ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${libpcap_LIBRARIES}
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES} 
+   ${libpcap_LIBRARIES}
+   ${GeographicLib_LIBRARIES}
 )
 
 #############

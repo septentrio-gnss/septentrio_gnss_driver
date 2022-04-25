@@ -29,7 +29,7 @@
 // *****************************************************************************
 
 // ROS includes
-#include <ros/ros.h>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 
 // C++ library includes
 #include <algorithm>
@@ -53,7 +53,7 @@ class CircularBuffer
 {
 public:
     //! Constructor of CircularBuffer
-    explicit CircularBuffer(std::size_t capacity);
+    explicit CircularBuffer(ROSaicNodeBase* node, std::size_t capacity);
     //! Destructor of CircularBuffer
     ~CircularBuffer();
     //! Returns size_
@@ -66,6 +66,8 @@ public:
     std::size_t read(uint8_t* data, std::size_t bytes);
 
 private:
+    //! Pointer to the node
+    ROSaicNodeBase* node_;
     //! Specifies where we start writing
     std::size_t head_;
     //! Specifies where we start reading

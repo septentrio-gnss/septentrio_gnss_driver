@@ -54,8 +54,8 @@ const std::string GprmcParser::getMessageID() const
  * you should thus ignore it. This usually occurs when the GPS is still searching for
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
-septentrio_gnss_driver::GprmcPtr
-GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
+GprmcMsg
+GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
 {
 
     // Checking the length first, it should be between 13 and 14 elements
@@ -70,40 +70,35 @@ GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
         throw ParseException(error.str());
     }
 
-    septentrio_gnss_driver::GprmcPtr msg =
-        boost::make_shared<septentrio_gnss_driver::Gprmc>();
+    GprmcMsg msg;
 
-    msg->header.frame_id = g_frame_id;
+    msg.header.frame_id = frame_id;
 
-    msg->message_id = sentence.get_body()[0];
+    msg.message_id = sentence.get_body()[0];
 
     if (sentence.get_body()[1].empty() || sentence.get_body()[1] == "0")
     {
-        msg->utc_seconds = 0;
+        msg.utc_seconds = 0;
     } else
     {
         double utc_double;
         if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
         {
-            msg->utc_seconds =
+            msg.utc_seconds =
                 parsing_utilities::convertUTCDoubleToSeconds(utc_double);
-            if (g_use_gnss_time)
+            if (use_gnss_time)
             {
                 // The Header's Unix Epoch time stamp
                 time_t unix_time_seconds =
                     parsing_utilities::convertUTCtoUnix(utc_double);
                 // The following assumes that there are two digits after the decimal
                 // point in utc_double, i.e. in the NMEA UTC time.
-                uint32_t unix_time_nanoseconds =
-                    (static_cast<uint32_t>(utc_double * 100) % 100) * 10000;
-                msg->header.stamp.sec = unix_time_seconds;
-                msg->header.stamp.nsec = unix_time_nanoseconds;
+                Timestamp unix_time_nanoseconds =
+                    (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                msg.header.stamp = timestampToRos(unix_time_nanoseconds);
             } else
             {
-                ros::Time time_obj;
-                time_obj = ros::Time::now();
-                msg->header.stamp.sec = time_obj.sec;
-                msg->header.stamp.nsec = time_obj.nsec;
+                msg.header.stamp = timestampToRos(time_obj);
             }
         } else
         {
@@ -116,7 +111,7 @@ GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
     bool valid = true;
     bool to_be_ignored = false;
 
-    msg->position_status = sentence.get_body()[2];
+    msg.position_status = sentence.get_body()[2];
     // Check to see whether this message should be ignored
     to_be_ignored &= !(sentence.get_body()[2].compare("A") ==
                        0); // 0 : if both strings are equal.
@@ -126,35 +121,35 @@ GprmcParser::parseASCII(const NMEASentence& sentence) noexcept(false)
     double latitude = 0.0;
     valid =
         valid && parsing_utilities::parseDouble(sentence.get_body()[3], latitude);
-    msg->lat = parsing_utilities::convertDMSToDegrees(latitude);
+    msg.lat = parsing_utilities::convertDMSToDegrees(latitude);
 
     double longitude = 0.0;
     valid =
         valid && parsing_utilities::parseDouble(sentence.get_body()[5], longitude);
-    msg->lon = parsing_utilities::convertDMSToDegrees(longitude);
+    msg.lon = parsing_utilities::convertDMSToDegrees(longitude);
 
-    msg->lat_dir = sentence.get_body()[4];
-    msg->lon_dir = sentence.get_body()[6];
-
-    valid =
-        valid && parsing_utilities::parseFloat(sentence.get_body()[7], msg->speed);
-    msg->speed *= KNOTS_TO_MPS;
+    msg.lat_dir = sentence.get_body()[4];
+    msg.lon_dir = sentence.get_body()[6];
 
     valid =
-        valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg->track);
+        valid && parsing_utilities::parseFloat(sentence.get_body()[7], msg.speed);
+    msg.speed *= KNOTS_TO_MPS;
+
+    valid =
+        valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.track);
 
     std::string date_str = sentence.get_body()[9];
     if (!date_str.empty())
     {
-        msg->date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
+        msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
                     date_str.substr(2, 2) + std::string("-") + date_str.substr(0, 2);
     }
     valid = valid &&
-            parsing_utilities::parseFloat(sentence.get_body()[10], msg->mag_var);
-    msg->mag_var_direction = sentence.get_body()[11];
+            parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);
+    msg.mag_var_direction = sentence.get_body()[11];
     if (sentence.get_body().size() == LEN_MAX)
     {
-        msg->mode_indicator = sentence.get_body()[12];
+        msg.mode_indicator = sentence.get_body()[12];
     }
 
     if (!valid)

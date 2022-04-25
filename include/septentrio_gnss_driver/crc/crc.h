@@ -38,27 +38,7 @@
 // C++ libary includes
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// By wrapping the C code with extern "C" the C++ compiler will not mangle the C
-// code's names (official term: name mangling, allows C++ function overloading),
-// Therefore, !all! generic C style header files (stdio.h for e.g. printf(...),
-// string.h, .. etc) have their declarations in extern “C” block, do the same for
-// your C style header files!! extern "C" doesn't really change the way that the
-// compiler reads the code. If your code is in a .c file, it will be compiled as C,
-// if it is in a .cpp file, it will be compiled as C++ (unless you do something
-// strange to your configuration). What extern "C" does is affect linkage. C++
-// functions, when compiled, have their names mangled -- this is what makes
-// overloading possible. The function name gets modified based on the types and
-// number of parameters, so that two functions with the same name will have different
-// symbol names. Code inside an extern "C" is still C++ code. There are limitations
-// on what you can do in an extern "C" block, but they're all about linkage. You
-// can't define any new symbols that can't be built with C linkage. That means no
-// classes or templates, for example.
+#include <cstdint>
 
 /**
  * @file crc.h
@@ -73,7 +53,7 @@ extern "C" {
  * @param[in] buf_length Number of bytes in "buf"
  * @return The calculated CRC
  */
-uint16_t FW_EXPORT compute16CCITT(const void* buf, size_t buf_length);
+uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
 
 /**
  * @brief Validates whether the calculated CRC of the SBF block at hand matches the
@@ -81,10 +61,6 @@ uint16_t FW_EXPORT compute16CCITT(const void* buf, size_t buf_length);
  * @param block The SBF block that we are interested in
  * @return True if the CRC check of the SBFBlock has passed, false otherwise
  */
-bool FW_EXPORT isValid(const void* block);
-
-#ifdef __cplusplus
-}
-#endif
+bool isValid(const uint8_t* block);
 
 #endif // CRC_H

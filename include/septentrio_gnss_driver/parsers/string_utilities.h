@@ -33,7 +33,7 @@
 
 // C and C++ library includes
 #include <locale> // Merely for "isdigit()" function, also available in <cctype.h> C header..
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 /**
@@ -143,6 +143,13 @@ namespace string_utilities {
      * @return The trimmed string
      */
     std::string trimString(std::string str);
+
+    /**
+     * @brief Trims decimal places to two
+     * @param[in] num The double who shall be trimmed
+     * @return The string
+     */
+    std::string trimDecimalPlaces(double num);
 } // namespace string_utilities
 
 #ifdef __cplusplus

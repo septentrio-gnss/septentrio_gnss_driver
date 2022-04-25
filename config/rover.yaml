@@ -2,16 +2,34 @@
 
 # GNSS/INS Parameters
 
-device: tcp://xxx.xxx.xxx.xxx:xxxx
+device: tcp://192.168.3.1:28784
 
 serial:
-  baudrate: 115200
+  baudrate: 921600
   rx_serial_port: USB1
   hw_flow_control: off
 
 frame_id: gnss
 
+imu_frame_id: imu
+
+poi_frame_id: base_link
+
+vsm_frame_id: vsm
+
+aux1_frame_id: aux1
+
+vehicle_frame_id: base_link
+
+get_spatial_config_from_tf: false
+
+lock_utm_zone: true
+
+use_ros_axis_orientation: true
+
 receiver_type: gnss
+
+multi_antenna: false
 
 datum: ETRS89
 
@@ -20,10 +38,9 @@ poi_to_arp:
   delta_n: 0.0
   delta_u: 0.0
 
-poi_to_aux1_arp:
-  delta_e: 0.0
-  delta_n: 0.0
-  delta_u: 0.0
+att_offset:
+  heading: 0.0
+  pitch: 0.0
   
 ant_type: Unknown
 ant_serial_nr: Unknown
@@ -59,6 +76,7 @@ publish:
   gpgga: false
   gprmc: false
   gpst : false
+  measepoch: false
   pvtcartesian: false
   pvtgeodetic: true
   poscovcartesian: false
@@ -79,18 +97,18 @@ publish:
   velsensorsetup: false
   exteventinsnavcart: false
   exteventinsnavgeod: false
+  imu: false
+  localization: false
+  tf: false
 
 # INS-Specific Parameters
 
 ins_spatial_config:
-  att_offset:
-    heading: 0.0
-    pitch: 0.0
   imu_orientation:
     theta_x: 0.0
     theta_y: 0.0
     theta_z: 0.0
-  poi_to_imu:
+  poi_lever_arm:
     delta_x: 0.0
     delta_y: 0.0
     delta_z: 0.0
@@ -106,7 +124,11 @@ ins_spatial_config:
 ins_initial_heading: auto
 
 ins_std_dev_mask:
-  att_std_dev: 0.0
-  pos_std_dev: 0.0
+  att_std_dev: 5.0
+  pos_std_dev: 10.0
 
 ins_use_poi: false
+
+# Logger
+
+activate_debug_log: false
