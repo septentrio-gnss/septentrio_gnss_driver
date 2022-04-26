@@ -76,6 +76,10 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     baudrate: 921600
     rx_serial_port: USB1
     hw_flow_control: off
+  
+  login:
+    user: ""
+    password: ""
 
   frame_id: gnss
 

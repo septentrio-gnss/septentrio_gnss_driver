@@ -9,6 +9,10 @@ serial:
   rx_serial_port: USB1
   hw_flow_control: off
 
+login:
+  user: ""
+  password: ""
+
 frame_id: gnss
 
 imu_frame_id: imu
