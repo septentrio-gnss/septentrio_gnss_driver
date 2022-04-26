@@ -394,6 +394,9 @@ void io_comm_rx::Comm_IO::configureRx()
     send("sso, all, none, none, off \x0D");
     send("sno, all, none, none, off \x0D");
 
+    // Activate NTP server
+    send("sntp, on \x0D");
+
     // Setting the datum to be used by the Rx (not the NMEA output though, which only
     // provides MSL and undulation (by default with respect to WGS84), but not
     // ellipsoidal height)
