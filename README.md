@@ -262,6 +262,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
+  + `login`: credentials for user authentification to perform actions not allowed to anonymous users. Leave empty for anonymous access.
+    + `login/user`: user name
+    + `login/password`: password
   </details>
   
   <details>
