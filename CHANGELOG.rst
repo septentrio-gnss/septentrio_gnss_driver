@@ -2,6 +2,12 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.1 (upcoming)
+------------------
+* New Features
+   * Add login credentials
+   * Activate NTP server by default
+
 1.2.0 (2022-04-27)
 ------------------
 * New Features
