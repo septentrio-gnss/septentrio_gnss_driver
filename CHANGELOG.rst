@@ -267,8 +267,13 @@ Changelog for package septentrio_gnss_driver
     * Change UTC calculation to use tow and wnc
     * WIP, add boost spirit and endian buffers
     * Change UTC calculation to use tow and wnc
-* Update Readme and Changelog
-* Contributors: Thomas Emter, Tibor Dome
+* ROS2 Commits
+    * Prepare ros2 release
+    * Merge pull request `#54 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/54>`_ from thomasemter/dev/ros2
+      ROS2 branch
+    * Port driver to ros2
+* Change UTC calculation to use tow and wnc
+* Contributors: Thomas Emter, Tibor Dome, tibordome
 
 1.0.8 (2021-10-23)
 ------------------
