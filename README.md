@@ -3,15 +3,18 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Foxy and beyond driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond.
+This repository hosts a ROS 2 Foxy and Galactic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond.
 
 Main Features:
+- Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
-- Easy to add support for more log types
+- Can publish `nav_msgs/Odometry` message for INS receivers
+- Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
+- Easy configuration of correction services
 - Can play back PCAP capture logs for testing purposes
-- Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_msgs/GPSFix` messages
-- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 pro+ and the AsteRx-SBi3 Pro receiver
+- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
+- Easy to add support for more log types
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
@@ -27,8 +30,6 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 `sudo apt install libgeographic-dev`
 
 ## Usage
-<details>
-
 <details>
 <summary>Build from Source </summary>
   
@@ -185,7 +186,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   ins_use_poi: true
 
-  # logger
+  # Logger
 
   activate_debug_log: false
   ```
@@ -359,7 +360,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + The two implemented use cases are 
       + a) The Rx has internet access, set `rx_has_internet` to true, and 
       + b) The Rx has no internet access, set `rx_has_internet` to false, but `Data Link` from Septentrio's RxTools is installed on the computer.
-    + The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client`, `Client-Sapcorda` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. When selecting the `Client-Sapcorda` mode, the receiver receives data from the Sapcorda NTRIP service and no further settings are required, i.e. all other nested parameters are ignored. Note that the latter mode only works in Europe and North America. Set mode to `off` to disable all correction services.
+    + The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. Set mode to `off` to disable all correction services.
     + Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
     + Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
     + Further, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster. 
@@ -401,7 +402,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
 
   <details>
-  <summary>logger</summary>
+  <summary>Logger</summary>
 
     + `activate_debug_log`: `true` if ROS logger level shall be set to debug.
   </details>
