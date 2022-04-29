@@ -31,6 +31,12 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
 ## Usage
 <details>
+<summary>Binary Install</summary>
+  
+  The binary release is now available for Foxy and Galactic. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
+</details>
+
+<details>
 <summary>Build from Source </summary>
   
   The package has to be built from source using [`colcon`](https://docs.ros.org/en/foxy/Tutorials/Colcon-Tutorial.html):
