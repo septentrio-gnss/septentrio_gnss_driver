@@ -1318,7 +1318,7 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
     // Gradually increase the baudrate to the desired value
     // The desired baudrate can be lower or larger than the
     // current baudrate; the for loop takes care of both scenarios.
-    node_->log(LogLevel::DEBUG, "Current baudrate is " + current_baudrate.value());
+    node_->log(LogLevel::DEBUG, "Current baudrate is " + std::to_string(current_baudrate.value()));
     for (uint8_t i = 0; i < sizeof(BAUDRATES) / sizeof(BAUDRATES[0]); i++)
     {
         if (current_baudrate.value() == baudrate_)
@@ -1364,7 +1364,7 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
             */
             return false;
         }
-        node_->log(LogLevel::DEBUG, "Set ASIO baudrate to " + current_baudrate.value());
+        node_->log(LogLevel::DEBUG, "Set ASIO baudrate to " + std::to_string(current_baudrate.value()));
     }
     node_->log(LogLevel::INFO, "Set ASIO baudrate to " + std::to_string(current_baudrate.value())  + 
                                ", leaving InitializeSerial() method");
