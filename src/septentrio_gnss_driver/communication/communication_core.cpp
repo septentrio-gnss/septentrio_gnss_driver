@@ -524,6 +524,12 @@ void io_comm_rx::Comm_IO::configureRx()
     }
     
     // Setting up NMEA streams
+    {
+		std::stringstream ss;
+
+		ss << "snti, GP" << "\x0D";
+		send(ss.str());
+	}       
 	if (settings_->publish_gpgga)
 	{
 		std::stringstream ss;
