@@ -7,6 +7,8 @@ Changelog for package septentrio_gnss_driver
 * New Features
    * Add login credentials
    * Activate NTP server by default
+* Improvements
+   * Add NED option to localization
 
 1.2.0 (2022-04-27)
 ------------------
