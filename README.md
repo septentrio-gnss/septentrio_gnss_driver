@@ -25,7 +25,7 @@ Additional ROS packages have to be installed for the NMEA and GPSFix messages.<b
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
-`sudo apt install libpcap-dev`.
+`sudo apt install libpcap-dev`.<br><br>
 Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
 `sudo apt install libgeographic-dev`
 
