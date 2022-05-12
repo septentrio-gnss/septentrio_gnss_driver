@@ -6,9 +6,11 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * New Features
    * Add login credentials
-   * Activate NTP server by default
+   * Activate NTP server if use_gnss_time is set to true
 * Improvements
    * Add NED option to localization
+* Fixes
+   * IMU orientation for ROS axis convention
 
 1.2.0 (2022-04-27)
 ------------------
