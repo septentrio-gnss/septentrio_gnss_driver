@@ -395,7 +395,8 @@ void io_comm_rx::Comm_IO::configureRx()
     send("sno, all, none, none, off \x0D");
 
     // Activate NTP server
-    send("sntp, on \x0D");
+    if (settings_->use_gnss_time)
+        send("sntp, on \x0D");
 
     // Setting the datum to be used by the Rx (not the NMEA output though, which only
     // provides MSL and undulation (by default with respect to WGS84), but not
