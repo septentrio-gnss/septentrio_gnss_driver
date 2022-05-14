@@ -1388,12 +1388,14 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
 
 void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
 {
+    namespace bp = boost::placeholders;
+    
     node_->log(LogLevel::DEBUG, "Called setManager() method");
     if (manager_)
         return;
     manager_ = manager;
     manager_->setCallback(
-        boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2, _3));
+        boost::bind(&CallbackHandlers::readCallback, &handlers_, bp::_1, bp::_2, bp::_3));
     node_->log(LogLevel::DEBUG, "Leaving setManager() method");
 }
 
