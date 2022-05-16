@@ -101,7 +101,14 @@ ament_target_dependencies(${library_name}
   ${dependencies}
 )
 
-rosidl_target_interfaces(${library_name} ${PROJECT_NAME} "rosidl_typesupport_cpp")
+if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
+  rosidl_target_interfaces(${library_name}
+    ${PROJECT_NAME} "rosidl_typesupport_cpp")
+else()
+  rosidl_get_typesupport_target(
+    cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+  target_link_libraries(${library_name} "${cpp_typesupport_target}")
+endif()
 
 ## executable
 add_executable(${executable_name}
