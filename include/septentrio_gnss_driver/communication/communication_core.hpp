@@ -116,6 +116,7 @@ namespace io_comm_rx {
          */
         ~Comm_IO()
         {
+            send("logout \x0D");
             stopping_ = true;
             connectionThread_->join();
         }

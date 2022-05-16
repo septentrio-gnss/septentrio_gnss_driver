@@ -426,9 +426,8 @@ io_comm_rx::RxMessage::ImuCallback()
 };
 
 /**
- * Localization in UTM coordinates (ENU). Yaw angle is converted from true north to grid north 
- * and ENU convention, i.e., 0 deg means pointing east. Altitude, roll and pitch left unchanged, 
- * except for the conversion to ENU. Linear velocity of twist in body frame as per msg definition, 
+ * Localization in UTM coordinates. Yaw angle is converted from true north to grid north.
+ * Linear velocity of twist in body frame as per msg definition.
  * Angular velocity not available, thus according autocovariances are set to -1.0.
  */
 LocalizationUtmMsg
@@ -463,9 +462,18 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
 		fixedUtmZone_ = std::make_shared<std::string>(zonestring);
 
     // UTM position (ENU)
-    msg.pose.pose.position.x = easting;
-    msg.pose.pose.position.y = northing;
-    msg.pose.pose.position.z = last_insnavgeod_.height;
+	if (settings_->use_ros_axis_orientation)
+	{
+		msg.pose.pose.position.x = easting;
+		msg.pose.pose.position.y = northing;
+		msg.pose.pose.position.z = last_insnavgeod_.height;
+	}
+	else // (NED)
+	{
+		msg.pose.pose.position.x = northing;
+		msg.pose.pose.position.y = easting;
+		msg.pose.pose.position.z = -last_insnavgeod_.height;
+	}
 
     msg.header.frame_id = "utm_" + zonestring;
     if (settings_->ins_use_poi)
@@ -487,7 +495,7 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg.pose.covariance[14] = -1.0;
     }
 
-    // Euler angles (ENU), gamma for conversion from true north to grid north
+    // Euler angles
 	double roll = 0.0;
 	if (validValue(last_insnavgeod_.roll))
     	roll  = deg2rad(last_insnavgeod_.roll);
@@ -496,11 +504,17 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
     	pitch = deg2rad(last_insnavgeod_.pitch);
 	double yaw = 0.0;
 	if (validValue(last_insnavgeod_.heading))
-    	yaw   = deg2rad(last_insnavgeod_.heading) - deg2rad(gamma);
+		yaw   = deg2rad(last_insnavgeod_.heading);
+	// gamma for conversion from true north to grid north
+	if (settings_->use_ros_axis_orientation)
+		yaw -= deg2rad(gamma);
+	else
+		yaw += deg2rad(gamma);
+
     Eigen::Matrix3d R_n_b = parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
     if ((last_insnavgeod_.sb_list & 2) !=0)
     {
-        // Attitude (ENU)
+        // Attitude
         msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(yaw, pitch, roll);
     }
     else
@@ -548,9 +562,20 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
 		if (validValue(last_insnavgeod_.vu))
 			vu = last_insnavgeod_.vu;
         Eigen::Vector3d vel_enu;
-        vel_enu << ve,
-                   vn,
-                   vu;
+		if (settings_->use_ros_axis_orientation)
+		{
+			// (ENU)
+			vel_enu << ve,
+					   vn,
+					   vu;
+		}
+		else
+		{
+			// (NED)
+			vel_enu << vn,
+					   ve,
+					   -vu;
+		}
         // Linear velocity, rotate to body coordinates
 		Eigen::Vector3d vel_body = R_n_b * vel_enu;
 		msg.twist.twist.linear.x = vel_body(0);
@@ -563,42 +588,61 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
 		msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
 		msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
     }
-    Eigen::Matrix3d Cov_vel_enu;
+    Eigen::Matrix3d Cov_vel_n;
     if ((last_insnavgeod_.sb_list & 16) !=0)
     {
         // Linear velocity autocovariance
 		if (validValue(last_insnavgeod_.ve_std_dev))
-        	Cov_vel_enu(0,0) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
-		else
-			Cov_vel_enu(0,0) = -1.0;
+			if (settings_->use_ros_axis_orientation)
+				Cov_vel_n(0,0) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
+			else
+				Cov_vel_n(0,0) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+		else	
+			Cov_vel_n(0,0) = -1.0;
 		if (validValue(last_insnavgeod_.vn_std_dev))
-        	Cov_vel_enu(1,1) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+			if (settings_->use_ros_axis_orientation)
+				Cov_vel_n(1,1) = parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+			else
+				Cov_vel_n(1,1) = parsing_utilities::square(last_insnavgeod_.ve_std_dev);
 		else
-			Cov_vel_enu(1,1) = -1.0;
+			Cov_vel_n(1,1) = -1.0;
 		if (validValue(last_insnavgeod_.vu_std_dev))
-        	Cov_vel_enu(2,2) = parsing_utilities::square(last_insnavgeod_.vu_std_dev);
+        	Cov_vel_n(2,2) = parsing_utilities::square(last_insnavgeod_.vu_std_dev);
 		else
-			Cov_vel_enu(2,2) = -1.0;
+			Cov_vel_n(2,2) = -1.0;
     }
     else
     {
-        Cov_vel_enu(0,0) = -1.0;
-        Cov_vel_enu(1,1) = -1.0;
-        Cov_vel_enu(2,2) = -1.0;
+        Cov_vel_n(0,0) = -1.0;
+        Cov_vel_n(1,1) = -1.0;
+        Cov_vel_n(2,2) = -1.0;
     }
     if((last_insnavgeod_.sb_list & 32) !=0)
     {
         // Position covariance
-        msg.pose.covariance[1] = last_insnavgeod_.latitude_longitude_cov;
-        msg.pose.covariance[2] = last_insnavgeod_.longitude_height_cov;
-        msg.pose.covariance[6] = last_insnavgeod_.latitude_longitude_cov;
-        msg.pose.covariance[8] = last_insnavgeod_.latitude_height_cov;
-        msg.pose.covariance[12] = last_insnavgeod_.longitude_height_cov;
-        msg.pose.covariance[13] = last_insnavgeod_.latitude_height_cov;
+        msg.pose.covariance[1]  = last_insnavgeod_.latitude_longitude_cov;
+		msg.pose.covariance[6]  = last_insnavgeod_.latitude_longitude_cov;
+
+        if (settings_->use_ros_axis_orientation)
+		{
+			// (ENU)
+			msg.pose.covariance[2]  = last_insnavgeod_.longitude_height_cov;        
+			msg.pose.covariance[8]  = last_insnavgeod_.latitude_height_cov;
+			msg.pose.covariance[12] = last_insnavgeod_.longitude_height_cov;
+			msg.pose.covariance[13] = last_insnavgeod_.latitude_height_cov;
+		}
+		else
+		{
+			// (NED)
+			msg.pose.covariance[2]  = -last_insnavgeod_.latitude_height_cov;        
+			msg.pose.covariance[8]  = -last_insnavgeod_.longitude_height_cov;
+			msg.pose.covariance[12] = -last_insnavgeod_.latitude_height_cov;
+			msg.pose.covariance[13] = -last_insnavgeod_.longitude_height_cov;
+		}
     }
     if ((last_insnavgeod_.sb_list & 64) !=0)
     {
-        // Attitude covariacne
+        // Attitude covariancae
         msg.pose.covariance[22] = deg2radSq(last_insnavgeod_.pitch_roll_cov);
         msg.pose.covariance[23] = deg2radSq(last_insnavgeod_.heading_roll_cov);
         msg.pose.covariance[27] = deg2radSq(last_insnavgeod_.pitch_roll_cov);
@@ -606,20 +650,40 @@ io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg.pose.covariance[29] = deg2radSq(last_insnavgeod_.heading_pitch_cov);
         msg.pose.covariance[33] = deg2radSq(last_insnavgeod_.heading_roll_cov);
         msg.pose.covariance[34] = deg2radSq(last_insnavgeod_.heading_pitch_cov);
+
+		if (!settings_->use_ros_axis_orientation)
+        {
+			// (NED)
+            msg.pose.covariance[33] *= -1.0;
+			msg.pose.covariance[23] *= -1.0;
+            msg.pose.covariance[22] *= -1.0;       
+       		msg.pose.covariance[27] *= -1.0;
+        }
     }
     if((last_insnavgeod_.sb_list & 128) !=0)
     {
-        Cov_vel_enu(0,1) = Cov_vel_enu(1,0) = last_insnavgeod_.ve_vn_cov;
-        Cov_vel_enu(0,2) = Cov_vel_enu(2,0) = last_insnavgeod_.ve_vu_cov;
-        Cov_vel_enu(2,1) = Cov_vel_enu(1,2) = last_insnavgeod_.vn_vu_cov;
+        Cov_vel_n(0,1) = Cov_vel_n(1,0) = last_insnavgeod_.ve_vn_cov;
+		if (settings_->use_ros_axis_orientation)
+		{
+			Cov_vel_n(0,2) = Cov_vel_n(2,0) = last_insnavgeod_.ve_vu_cov;
+			Cov_vel_n(2,1) = Cov_vel_n(1,2) = last_insnavgeod_.vn_vu_cov;
+		}
+		else
+		{
+			Cov_vel_n(0,2) = Cov_vel_n(2,0) = -last_insnavgeod_.vn_vu_cov;
+			Cov_vel_n(2,1) = Cov_vel_n(1,2) = -last_insnavgeod_.ve_vu_cov;
+		}
     }
 
-    if (((last_insnavgeod_.sb_list & 16) !=0) &&
-        ((last_insnavgeod_.sb_list & 2) !=0) &&
-        ((last_insnavgeod_.sb_list & 8) !=0))
+    if (((last_insnavgeod_.sb_list & 16) !=0)   &&
+        ((last_insnavgeod_.sb_list & 2) !=0)    &&
+        ((last_insnavgeod_.sb_list & 8) !=0)    &&
+		validValue(last_insnavgeod_.ve_std_dev) &&
+		validValue(last_insnavgeod_.vn_std_dev) &&
+		validValue(last_insnavgeod_.vu_std_dev))
     {
         // Rotate covariance matrix to body coordinates
-        Eigen::Matrix3d Cov_vel_body = R_n_b * Cov_vel_enu * R_n_b.transpose();
+        Eigen::Matrix3d Cov_vel_body = R_n_b * Cov_vel_n * R_n_b.transpose();
         
         msg.twist.covariance[0]  = Cov_vel_body(0,0);
         msg.twist.covariance[1]  = Cov_vel_body(0,1);

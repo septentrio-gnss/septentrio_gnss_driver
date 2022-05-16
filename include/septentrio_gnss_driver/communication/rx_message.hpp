@@ -138,6 +138,10 @@ struct Settings
     bool activate_debug_log;
     //! Device port
     std::string device;
+     //! Username for login
+    std::string login_user;
+     //! Password for login
+    std::string login_password;
     //! Delay in seconds between reconnection attempts to the connection type
     //! specified in the parameter connection_type
     float reconnect_delay_s;
