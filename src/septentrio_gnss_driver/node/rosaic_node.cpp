@@ -94,6 +94,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     getUint32Param("serial/baudrate", settings_.baudrate, static_cast<uint32_t>(921600));
     param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
     param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
+    param("login/user", settings_.login_user, std::string(""));
+    param("login/password", settings_.login_password, std::string(""));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
     if (!((settings_.septentrio_receiver_type == "gnss") || (settings_.septentrio_receiver_type == "ins")))
@@ -280,6 +282,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (settings_.use_ros_axis_orientation)
     {
         settings_.theta_x = parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
+        settings_.theta_y *= -1.0;
+        settings_.theta_z *= -1.0;
         settings_.ant_lever_y *= -1.0;
         settings_.ant_lever_z *= -1.0;
         settings_.poi_y *= -1.0;
