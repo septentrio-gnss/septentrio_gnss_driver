@@ -11,6 +11,29 @@ Changelog for package septentrio_gnss_driver
    * Add NED option to localization
 * Fixes
    * IMU orientation for ROS axis convention
+* Commits
+    * Merge pull request `#63 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/63>`_ from thomasemter/dev/next2
+      Small fixes and additions
+    * Merge pull request `#60 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/60>`_ from wep21/support-rolling
+      fix: modify build error for rolling/humble
+    * Revert change for deprecation warning in Humble
+    * Change links to reflect ROS2
+    * Amend readme regarding robot_localization
+    * Fix compiler warnings for humble
+    * Add more explanations for IMU orientation in ROS convention
+    * Fix formatting in readme
+    * Fix package name in readme
+    * Update readme
+    * Update changelog
+    * Fix IMU orientation for ROS axis orientation
+    * Activate NTP only if GNSS time is used
+    * Add NED option to localization
+    * Set NMEA header to GP
+    * Update readme and changelog
+    * Activate NTP server
+    * Add credentials for access control
+    * fix: modify build error for rolling/humble
+    * Contributors: Daisuke Nishimatsu, Thomas Emter, Tibor Dome
 
 1.2.0 (2022-04-27)
 ------------------
