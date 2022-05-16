@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.2.1 (upcoming)
+1.2.1 (2022-05-16)
 ------------------
 * New Features
    * Add login credentials
