@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.1 (upcoming)
+1.1.1 (2022-05-16)
 ------------------
 * New Features
    * Add login credentials
@@ -11,6 +11,24 @@ Changelog for package septentrio_gnss_driver
    * Add NED option to localization
 * Fixes
    * IMU orientation for ROS axis convention
+* Commits
+    * Merge pull request `#62 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/62>`_ from thomasemter/dev/next
+      Small fixes and additions
+    * Amend readme regarding robot_localization
+    * Add more explanations for IMU orientation in ROS convention
+    * Fix formatting in readme
+    * Fix package name in readme
+    * Update readme
+    * Update changelog
+    * Fix IMU orientation for ROS axis orientation
+    * Activate NTP only if GNSS time is used
+    * Add NED option to localization
+    * Set NMEA header to
+    * Fix logging causing crash
+    * Update readme and changelog
+    * Activate NTP server
+    * Add credentials for access control
+    * Contributors: Thomas Emter, Tibor Dome
 
 1.1.0 (2022-04-25)
 ------------------
