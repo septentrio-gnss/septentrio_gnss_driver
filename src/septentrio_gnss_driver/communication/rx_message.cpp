@@ -1824,7 +1824,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavCart");
 				break;
 			}
-			msg.header.frame_id = settings_->frame_id;
+			if (settings_->ins_use_poi)
+			{
+				msg.header.frame_id = settings_->poi_frame_id;
+			}
+			else
+			{
+				msg.header.frame_id = settings_->frame_id;
+			}
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
@@ -1851,7 +1858,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in INSNavGeod");
 				break;
 			}
-			last_insnavgeod_.header.frame_id = settings_->frame_id;
+			if (settings_->ins_use_poi)
+			{
+				last_insnavgeod_.header.frame_id = settings_->poi_frame_id;
+			}
+			else
+			{
+				last_insnavgeod_.header.frame_id = settings_->frame_id;
+			}
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
@@ -1929,7 +1943,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavCart");
 				break;
 			}
-			msg.header.frame_id = settings_->frame_id;
+			if (settings_->ins_use_poi)
+			{
+				msg.header.frame_id = settings_->poi_frame_id;
+			}
+			else
+			{
+				msg.header.frame_id = settings_->frame_id;
+			}
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
@@ -1953,7 +1974,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                 node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
 				break;
 			}
-			msg.header.frame_id = settings_->frame_id;
+			if (settings_->ins_use_poi)
+			{
+				msg.header.frame_id = settings_->poi_frame_id;
+			}
+			else
+			{
+				msg.header.frame_id = settings_->frame_id;
+			}
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
 			Timestamp time_obj;
@@ -2257,7 +2285,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					node_->log(LogLevel::DEBUG, "NavSatFixMsg: " + std::string(e.what()));
                     break;
 				}
-				msg.header.frame_id = settings_->frame_id;
+				if (settings_->ins_use_poi)
+				{
+					msg.header.frame_id = settings_->poi_frame_id;
+				}
+				else
+				{
+					msg.header.frame_id = settings_->frame_id;
+				}
 				uint32_t tow = parsing_utilities::getTow(data_);
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
@@ -2326,8 +2361,15 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					node_->log(LogLevel::DEBUG, "GPSFixMsg: " + std::string(e.what()));
                     break;
 				}
-				msg.header.frame_id = settings_->frame_id;
-				msg.status.header.frame_id = settings_->frame_id;
+				if (settings_->ins_use_poi)
+				{
+					msg.header.frame_id = settings_->poi_frame_id;
+				}
+				else
+				{
+					msg.header.frame_id = settings_->frame_id;
+				}
+				msg.status.header.frame_id = msg.header.frame_id;
 				uint32_t tow = parsing_utilities::getTow(data_);
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
@@ -2393,7 +2435,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 					node_->log(LogLevel::DEBUG, "PoseWithCovarianceStampedMsg: " + std::string(e.what()));
                     break;
 				}
-				msg.header.frame_id = settings_->frame_id;
+				if (settings_->ins_use_poi)
+				{
+					msg.header.frame_id = settings_->poi_frame_id;
+				}
+				else
+				{
+					msg.header.frame_id = settings_->frame_id;
+				}
 				uint32_t tow = parsing_utilities::getTow(data_);
 				uint16_t wnc = parsing_utilities::getWnc(data_);
 				Timestamp time_obj;
@@ -2494,7 +2543,14 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			if (settings_->septentrio_receiver_type == "ins")
 			{
-				msg.header.frame_id = settings_->frame_id;
+				if (settings_->ins_use_poi)
+				{
+					msg.header.frame_id = settings_->poi_frame_id;
+				}
+				else
+				{
+					msg.header.frame_id = settings_->frame_id;
+				}
 			}
 			uint32_t tow = parsing_utilities::getTow(data_);
 			uint16_t wnc = parsing_utilities::getWnc(data_);
