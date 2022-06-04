@@ -724,7 +724,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
         //! to an enum value
-        typedef std::map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
+        typedef std::unordered_map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
 
         /**
          * @brief All instances of the RxMessage class shall have access to the map
@@ -734,7 +734,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers to
         //! an enum value
-        typedef std::map<std::string, RxID_Enum> RxIDMap;
+        typedef std::unordered_map<std::string, RxID_Enum> RxIDMap;
 
         /**
          * @brief All instances of the RxMessage class shall have access to the map
