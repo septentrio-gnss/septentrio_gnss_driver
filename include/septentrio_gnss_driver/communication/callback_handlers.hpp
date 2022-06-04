@@ -301,7 +301,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for GPSFix to a uint32_t
-        typedef std::map<std::string, uint32_t> GPSFixMap;
+        typedef std::unordered_map<std::string, uint32_t> GPSFixMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -309,7 +309,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for NavSatFix to a uint32_t
-        typedef std::map<std::string, uint32_t> NavSatFixMap;
+        typedef std::unordered_map<std::string, uint32_t> NavSatFixMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -317,7 +317,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for PoseWithCovarianceStamped to a uint32_t
-        typedef std::map<std::string, uint32_t> PoseWithCovarianceStampedMap;
+        typedef std::unordered_map<std::string, uint32_t> PoseWithCovarianceStampedMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -325,7 +325,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for DiagnosticArray to a uint32_t
-        typedef std::map<std::string, uint32_t> DiagnosticArrayMap;
+        typedef std::unordered_map<std::string, uint32_t> DiagnosticArrayMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -333,7 +333,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for Imu to a uint32_t
-        typedef std::map<std::string, uint32_t> ImuMap;
+        typedef std::unordered_map<std::string, uint32_t> ImuMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -341,7 +341,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for Localization to a uint32_t
-        typedef std::map<std::string, uint32_t> LocalizationMap;
+        typedef std::unordered_map<std::string, uint32_t> LocalizationMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
