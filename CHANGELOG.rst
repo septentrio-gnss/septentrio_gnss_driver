@@ -2,6 +2,11 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (upcoming)
+------------------
+* Fixes
+   * Memory corruption under adverse conditions
+
 1.1.1 (2022-05-16)
 ------------------
 * New Features
