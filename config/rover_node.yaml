@@ -30,7 +30,7 @@ septentrio_gnss_driver:
 
     receiver_type: gnss    
 
-    multi_antenna: false
+    multi_antenna: true
 
     datum: ETRS89
 
@@ -57,12 +57,12 @@ septentrio_gnss_driver:
     use_gnss_time: false
 
     ntrip_settings:
-      mode: off
-      caster: 0
+      mode: "off"
+      caster: ""
       caster_port: 0
-      username: 0
-      password: 0
-      mountpoint: 0
+      username: ""
+      password: ""
+      mountpoint: ""
       ntrip_version: v2
       send_gga: auto
       rx_has_internet: false
