@@ -6,6 +6,23 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Fixes
    * Memory corruption under adverse conditions
+* Commits
+    * Merge pull request `#66 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/66>`_ from thomasemter/dev/next2
+      Fix memory corruption
+    * Fix parameter warnings
+    * Reset buffer size to 16384
+    * Update changelog
+    * Fix memory corruption
+    * Replace maps with unordered_maps
+    * Overload timestamp function
+    * Fix frame ids for INS msgs
+    * Add define to avoid usage of deprecated header
+    * Change readme on gps-msgs packet
+    * Add info on user credentials
+    * Fix spelling in readme
+    * Merge remote-tracking branch 'upstream/ros2' into dev/next2
+    * Add comment for heading from pose
+    * Contributors: Thomas Emter, Tibor Dome
 
 1.2.1 (2022-05-16)
 ------------------
