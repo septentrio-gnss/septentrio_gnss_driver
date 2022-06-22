@@ -126,7 +126,7 @@ namespace io_comm_rx {
         AsyncManager(ROSaicNodeBase* node, 
                      boost::shared_ptr<StreamT> stream,
                      boost::shared_ptr<boost::asio::io_service> io_service,
-                     std::size_t buffer_size = 131072);
+                     std::size_t buffer_size = 16384);
         virtual ~AsyncManager();
 
         /**
@@ -196,10 +196,6 @@ namespace io_comm_rx {
         //! messages
         CircularBuffer circular_buffer_;
 
-        //! Memory location where read_callback_ will start reading unless part of
-        //! SBF/NMEA had to be appended before
-        uint8_t* to_be_parsed_;
-
         //! New thread for receiving incoming messages
         boost::shared_ptr<boost::thread> async_background_thread_;
 
@@ -240,8 +236,8 @@ namespace io_comm_rx {
     template <typename StreamT>
     void AsyncManager<StreamT>::tryParsing()
     {
-        uint8_t* to_be_parsed = new uint8_t[buffer_size_];
-        to_be_parsed_ = to_be_parsed;
+        uint8_t* to_be_parsed = new uint8_t[buffer_size_ * 16];
+        uint8_t* to_be_parsed_index = to_be_parsed;
         bool timed_out = false;
         std::size_t shift_bytes = 0;
         std::size_t arg_for_read_callback = 0;
@@ -268,10 +264,10 @@ namespace io_comm_rx {
                 node_->log(LogLevel::DEBUG, 
                     "Calling read_callback_() method, with number of bytes to be parsed being " +
                     std::to_string(arg_for_read_callback));
-                read_callback_(revcTime, to_be_parsed_, arg_for_read_callback);
+                read_callback_(revcTime, to_be_parsed_index, arg_for_read_callback);
             } catch (std::size_t& parsing_failed_here)
             {
-                to_be_parsed_ += parsing_failed_here;
+                to_be_parsed_index += parsing_failed_here;
                 arg_for_read_callback -= parsing_failed_here;
                 node_->log(LogLevel::DEBUG, 
                     "Current buffer size is " + std::to_string(current_buffer_size) + 
@@ -279,9 +275,7 @@ namespace io_comm_rx {
                 if (arg_for_read_callback < 0) // In case some parsing error was not
                                                // caught, which should never happen..
                 {
-                    delete[] to_be_parsed; // Freeing memory
-                    uint8_t* to_be_parsed = new uint8_t[buffer_size_];
-                    to_be_parsed_ = to_be_parsed;
+                    to_be_parsed_index = to_be_parsed;
                     shift_bytes = 0;
                     arg_for_read_callback = 0;
                     continue;
@@ -289,14 +283,13 @@ namespace io_comm_rx {
                 shift_bytes += current_buffer_size;
                 continue;
             }
-            delete[] to_be_parsed; // Freeing memory
-            uint8_t* to_be_parsed = new uint8_t[buffer_size_];
-            to_be_parsed_ = to_be_parsed;
+            to_be_parsed_index = to_be_parsed;
             shift_bytes = 0;
             arg_for_read_callback = 0;
         }
         node_->log(LogLevel::INFO, 
             "TryParsing() method finished since it did not receive anything to parse for 10 seconds..");
+        delete[] to_be_parsed; // Freeing memory
     }
 
     template <typename StreamT>
@@ -341,7 +334,7 @@ namespace io_comm_rx {
         stopping_(false), try_parsing_(false), allow_writing_(true),
         do_read_count_(0), buffer_size_(buffer_size), count_max_(6),
         circular_buffer_(node, buffer_size)        
-    // Since buffer_size = 131072 in declaration, no need in definition anymore (even
+    // Since buffer_size = 16384 in declaration, no need in definition anymore (even
     // yields error message, due to "overwrite").
     {
         node_->log(LogLevel::DEBUG, 
