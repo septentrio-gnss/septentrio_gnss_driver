@@ -21,7 +21,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 ## Dependencies
 The `ros2` branch for this driver functions on both ROS Foxy and Galactic (Ubuntu 20.04). It is thus necessary to [install](https://wiki.ros.org/Installation/Ubuntu) the ROS version that has been designed for your Linux distro.<br><br>
 Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
-`sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-umd`.<br><br>
+`sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
 `sudo apt install libboost-all-dev`.<br><br>
 Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
@@ -46,7 +46,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   mkdir -p ~/septentrio/src                                           # Note: Change accordingly dependending on where you want your package to be installed.
   cd ~/septentrio/src
   git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-umd libboost-all-dev libpcap-dev`)  
+  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-msgs libboost-all-dev libpcap-dev libgeographic-dev`)  
   colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with insatlling by symlinks: add `--symlink-install`
   echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
   source ~/.bashrc 
@@ -57,7 +57,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 <summary>Notes Before Usage</summary>
 
   + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
-  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command.
+  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.
   + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++17 onwards due to std::any() etc.  
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
@@ -213,7 +213,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   
     + The IMU-antenna lever-arm is the relative position between the IMU reference point and the GNSS Antenna Reference Point (ARP), measured in the vehicle frame.
     + In case of AsteRx SBi3, the IMU reference point is clearly marked on the top panel of the receiver. It is important to compensate for the effect of the lever arm, otherwise the receiver may not be able to calculate an accurate INS position. 
-    + The IMU/antenna position can be changed by specifying the lever arm's `x`,`y`and `z` parameters in the `config.yaml` file under the `ins_spatial_config/ant_lever_arm` parameter.
+    + The IMU/antenna position can be changed by specifying the lever arm's `x`,`y`and `z` parameters in the `config.yaml` file under the `ins_spatial_config.ant_lever_arm` parameter.
   
       ![Screenshot from 2021-08-03 09-23-19 (1)](https://user-images.githubusercontent.com/62261460/127984869-f6892a30-e30d-4d41-bee3-ee1e4bfceab8.jpg)
   
@@ -223,7 +223,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     <summary>Compensate for IMU Orientation</summary>
 
     + It is important to take into consideration the mounting direction of the IMU in the body frame of the vehicle. For e.g. when the receiver is installed horizontally with the front panel facing the direction of travel, we must compensate for the IMU’s orientation to make sure the IMU reference frame is aligned with the vehicle reference frame. The IMU position and orientation is printed on the top panel, cf. image below.
-    + The IMU's orientation can be changed by specifying the orientation angles `theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under the `ins_spatial_config/imu_orientation`
+    + The IMU's orientation can be changed by specifying the orientation angles `theta_x`,`theta_y`and `theta_z` in the `config.yaml` file under `ins_spatial_config.imu_orientation`
     + The below image illustrates the orientation of the IMU reference frame with the associated IMU orientation for the depicted installation. Note that for `use_ros_axis_orientation: true` sensor_default is the top left position.
 
     ![Capture (1)](https://user-images.githubusercontent.com/62261460/135855781-96459583-5268-4cf0-8995-f00cd0bd91e9.jpg)
@@ -232,8 +232,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
  
   - These Steps should be followed to configure the receiver in INS integration mode:
     - Specify `receiver_type: INS`
-    - Specify the orientation of the IMU sensor with respect to your vehicle, using the `ins_spatial_config/imu_orientation` parameter
-    - Specify the IMU-antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna. This can be done by means of the `ins_spatial_config/ant_lever_arm` parameter.
+    - Specify the orientation of the IMU sensor with respect to your vehicle, using the `ins_spatial_config.imu_orientation` parameter
+    - Specify the IMU-antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna. This can be done by means of the `ins_spatial_config.ant_lever_arm` parameter.
     - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_lever_arm` parameter.
     
   - For further more information about Septentrio receivers, visit Septentrio [support resources](https://www.septentrio.com/en/supportresources) or check out the [user manual](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) and [reference guide](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf) of the AsteRx SBi3 receiver.
@@ -254,14 +254,14 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + An RNDIS IP interface is provided via USB, assigning the address `192.168.3.1` to the receiver. This should work on most modern Linux distributions. To verify successful connection, open a web browser to access the web interface of the receiver using the IP address `192.168.3.1`.
     + default: `tcp://192.168.3.1:28784 `
   + `serial`: specifications for serial communication
-    + `serial/baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
-    + `serial/rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
+    + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
+    + `rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
   + `login`: credentials for user authentification to perform actions not allowed to anonymous users. Leave empty for anonymous access.
-    + `login/user`: user name
-    + `login/password`: password
+    + `user`: user name
+    + `password`: password
   </details>
   
   <details>
@@ -352,10 +352,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Polling Periods</summary>
   
-  + `polling_period/pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`). If set to `0`, the SBF blocks are output at their natural renewal rate (`OnChange`).
-    + Clearly, the publishing of composite ROS messages such as [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) or [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/tree/dashing-devel) is triggered by the SBF block that arrives last among the blocks of the current epoch.
+  + `polling_period.pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`). If set to `0`, the SBF blocks are output at their natural renewal rate (`OnChange`).
+    + Clearly, the publishing of composite ROS messages such as [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) or [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg) is triggered by the SBF block that arrives last among the blocks of the current epoch.
     + default: `500` (2 Hz)
-  + `polling_period/rest`: desired period in milliseconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
+  + `polling_period.rest`: desired period in milliseconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
     + default: `500` (2 Hz)
   </details>
   
@@ -373,9 +373,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + The two implemented use cases are 
       + a) The Rx has internet access, set `rx_has_internet` to true, and 
       + b) The Rx has no internet access, set `rx_has_internet` to false, but `Data Link` from Septentrio's RxTools is installed on the computer.
-    + The first nested ROS parameter, `ntrip_settings/mode`, specifies the type of the NTRIP connection and must be one of `Client` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. Set mode to `off` to disable all correction services.
-    + Next, `ntrip_settings/caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
-    + Note that `ntrip_settings/port`, `ntrip_settings/username`, `ntrip_settings/password` and `ntrip_settings/mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings/version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
+    + The first nested ROS parameter, `ntrip_settings.mode`, specifies the type of the NTRIP connection and must be one of `Client` or `off`. In `Client` mode, the receiver receives data from the NTRIP caster. Set mode to `off` to disable all correction services.
+    + Next, `ntrip_settings.caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
+    + Note that `ntrip_settings.port`, `ntrip_settings.username`, `ntrip_settings.password` and `ntrip_settings.mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `ntrip_settings.version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
     + Further, `send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster. 
     + The boolean parameter `rx_has_internet` specifies whether the Rx has internet access or not. Note that an Ethernet cable is the only way to enable internet access on mosaic receivers (and most others) at the moment. In case internet is available, NTRIP will be configured with a simple command `snts, ...` that ROSaic sends to the receiver.
     + The parameter `rtcm_version` specifies the type of RTCM data transmitted to ROSaic by the NTRIP caster, either `RTCMv2` or `RTCMv3`. It depends on the mountpoint.
@@ -387,7 +387,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>INS Specs</summary>
 
-    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to body realted frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
+    + `ins_spatial_config`: Spatial configuration of INS/IMU. Coordinates according to vehicle related frame directions chosen by `use_ros_axis_orientation` (front-left-up if `true` and front-right-down if `false`).
       + `imu_orientation`: IMU sensor orientation
         + Parameters `theta_x`, `theta_y` and `theta_z` are used to determine the sensor orientation with respect to the vehicle frame. Positive angles correspond to a right-handed (clockwise) rotation of the IMU with respect to its nominal orientation (see below). The order of the rotations is as follows: `theta_z` first, then `theta_y`, then `theta_x`.
         + The nominal orientation is where the IMU is upside down and with the `X axis` marked on the receiver pointing to the front of the vehicle. By contrast, for `use_ros_axis_orientation: true`, nominal orientation is where the `Z axis` of the IMU is pointing upwards and also with the `X axis` marked on the receiver pointing to the front of the vehicle.
@@ -409,7 +409,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `5` degrees, `10` meters    
-    + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config/poi_lever_arm`
+    + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config.poi_lever_arm`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
   </details>
@@ -472,9 +472,10 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its header, or - if `use_gnss_time` is set to `false` - from the systems's wall-clock time
   + `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case)
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/en/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
-  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/tree/dashing-devel), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case)
+  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case)
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case).
     + Note that GNSS provides absolute positioning, while robots are often localized within a local level cartesian frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), i.e. not a cartesian frame, while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
+    + `robot_localization` allows to setup sensors very [felixibly](https://docs.ros.org/en/api/robot_localization/html/configuring_robot_localization.html#configuring-robot-localization), so it is possible to fuse only heading from the `/pose` topic. Note that `use_ros_axis_directions` should be set to `true` for `robot_localization`.
   + `/insnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
   + `/insnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
   + `/extsensormeas`: publishes custom ROS message `septentrio_gnss_driver/ExtSensorMeas.msg`, corresponding to SBF block `ExtSensorMeas` 

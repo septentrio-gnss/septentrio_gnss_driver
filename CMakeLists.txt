@@ -108,6 +108,7 @@ else()
   rosidl_get_typesupport_target(
     cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
   target_link_libraries(${library_name} "${cpp_typesupport_target}")
+  add_compile_definitions(ROS2_VER_N250)
 endif()
 
 ## executable

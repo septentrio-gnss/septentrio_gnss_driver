@@ -724,7 +724,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
         //! to an enum value
-        typedef std::map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
+        typedef std::unordered_map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
 
         /**
          * @brief All instances of the RxMessage class shall have access to the map
@@ -734,7 +734,7 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers to
         //! an enum value
-        typedef std::map<std::string, RxID_Enum> RxIDMap;
+        typedef std::unordered_map<std::string, RxID_Enum> RxIDMap;
 
         /**
          * @brief All instances of the RxMessage class shall have access to the map
@@ -887,6 +887,17 @@ namespace io_comm_rx {
          * @brief Fixed UTM zone
          */
         std::shared_ptr<std::string> fixedUtmZone_;
+
+        /**
+         * @brief Calculates the timestamp, in the Unix Epoch time format
+         * This is either done using the TOW as transmitted with the SBF block (if
+         * "use_gnss" is true), or using the current time.
+         * @param[in] data Pointer to the buffer
+         * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
+         * used, otherwise the current time
+         * @return Timestamp object containing seconds and nanoseconds since last epoch
+         */
+        Timestamp timestampSBF(const uint8_t* data, bool use_gnss_time);
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format
