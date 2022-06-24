@@ -84,7 +84,7 @@ publish:
   atteuler: false
   attcoveuler: false
   pose: false
-  diagnostics: false
+  diagnostics: true
   # For INS Rx only
   insnavcart: true
   insnavgeod: true
