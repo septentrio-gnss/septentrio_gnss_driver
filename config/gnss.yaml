@@ -1,0 +1,84 @@
+# Configuration Settings for the Rover Rx
+
+# GNSS/INS Parameters
+
+device: tcp://192.168.3.1:28784
+
+serial:
+  baudrate: 921600
+  rx_serial_port: USB1
+  hw_flow_control: "off"
+
+login:
+  user: ""
+  password: ""
+
+frame_id: gnss
+
+aux1_frame_id: aux1
+
+get_spatial_config_from_tf: true
+
+use_ros_axis_orientation: true
+
+receiver_type: gnss
+
+multi_antenna: true
+
+datum: ETRS89
+
+att_offset:
+  heading: 0.0
+  pitch: 0.0
+
+ant_type: Unknown
+ant_serial_nr: Unknown
+ant_aux1_type: Unknown
+ant_aux1_serial_nr: Unknown
+
+leap_seconds: 18
+
+polling_period:
+  pvt: 0
+  rest: 500
+
+use_gnss_time: false
+
+ntrip_settings:
+  mode: "off"
+  caster: ""
+  caster_port: 0
+  username: ""
+  password: ""
+  mountpoint: ""
+  ntrip_version: v2
+  send_gga: auto
+  rx_has_internet: false
+  rtcm_version: RTCMv2
+  rx_input_corrections_tcp: 6666
+  rx_input_corrections_serial: USB2
+
+publish:
+  # For both GNSS and INS Rxs
+  navsatfix: true
+  gpsfix: true
+  gpgga: true
+  gprmc: true
+  gpst : true
+  measepoch: true
+  pvtcartesian: true
+  pvtgeodetic: true
+  poscovcartesian: true
+  poscovgeodetic: true
+  velcovgeodetic: true
+  atteuler: true
+  attcoveuler: true
+  pose: true
+  diagnostics: true
+  # For GNSS Rx only
+  gpgsa: false
+  gpgsv: false
+
+# logger
+
+activate_debug_log: false
