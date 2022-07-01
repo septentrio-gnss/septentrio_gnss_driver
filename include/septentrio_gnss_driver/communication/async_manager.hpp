@@ -416,9 +416,6 @@ namespace io_comm_rx {
                 recvTime_ = inTime;
                 lock.unlock();
                 parsing_condition_.notify_one();
-                std::vector<uint8_t> empty;
-                in_ = empty;
-                in_.resize(buffer_size_);
             }
         }
 

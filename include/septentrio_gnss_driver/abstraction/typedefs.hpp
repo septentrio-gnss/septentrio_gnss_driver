@@ -269,6 +269,10 @@ public:
     {
         if (std::isnan(loc.pose.pose.orientation.w))
             return;
+
+        if (lastTfStamp_ == loc.header.stamp)
+            return;
+        
         geometry_msgs::TransformStamped transformStamped;
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;
@@ -280,8 +284,10 @@ public:
         transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
         transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
-
+       
         tf2Publisher_.sendTransform(transformStamped);
+
+        lastTfStamp_ = loc.header.stamp;
     }
 
 protected:
@@ -295,6 +301,8 @@ private:
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
+    //! Last tf stamp
+    TimestampRos lastTfStamp_;
 };
 
 #endif // Typedefs_HPP

@@ -319,11 +319,11 @@ struct Settings
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
-    uint32_t leap_seconds;
+    int32_t leap_seconds;
     //! Whether or not we are reading from an SBF file
-    bool read_from_sbf_log;
+    bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
-    bool read_from_pcap;
+    bool read_from_pcap = false;
 };
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
@@ -381,6 +381,7 @@ enum RxID_Enum
     evLocalization,
     evReceiverStatus,
     evQualityInd,
+    evReceiverTime,
     evReceiverSetup
 };
 
@@ -463,7 +464,8 @@ namespace io_comm_rx {
             std::make_pair("4229", evExtEventINSNavCart),
             std::make_pair("4224", evIMUSetup),
             std::make_pair("4244", evVelSensorSetup),
-            std::make_pair("4050", evExtSensorMeas)
+            std::make_pair("4050", evExtSensorMeas),
+            std::make_pair("5914", evReceiverTime)
             };
 
             rx_id_map = RxIDMap(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
@@ -555,6 +557,20 @@ namespace io_comm_rx {
          * length of current message
          */
         void next();
+
+        /**
+         * @brief Publishing function
+         * @param[in] topic String of topic
+         * @param[in] msg ROS message to be published
+         */
+        template <typename M>
+        void publish(const std::string& topic, const M& msg);
+
+        /**
+         * @brief Publishing function
+         * @param[in] msg Localization message
+         */
+        void publishTf(const LocalizationUtmMsg& msg);
 
         /**
          * @brief Performs the CRC check (if SBF) and publishes ROS messages
@@ -749,6 +765,9 @@ namespace io_comm_rx {
         //! When reading from an SBF file, the ROS publishing frequency is governed by the
         //! time stamps found in the SBF blocks therein.
         Timestamp unix_time_;
+
+        //! Current leap seconds as received, do not use value is -128
+        int8_t current_leap_seconds_ = -128;
 
         //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
         //! not
