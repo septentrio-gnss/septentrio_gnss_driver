@@ -2,6 +2,12 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.3 (upcoming)
+------------------
+* New Features
+   * Example config files for GNSS and INS (TODO: add to README)
+   * Get leap seconds from receiver (WIP)
+
 1.2.2 (2022-06-22)
 ------------------
 * Fixes
