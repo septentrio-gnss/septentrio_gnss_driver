@@ -62,7 +62,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   + ROSaic only works from C++17 onwards due to std::any() etc.  
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
-  + Once the colcon build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one. Launch as composition with `ros2 launch septentrio_gnss_driver rover.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
+  + Once the colcon build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one. Launch as composition with `ros2 launch septentrio_gnss_driver rover.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
+  + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
+  :<br>
   
   ```
   # Configuration Settings for the Rover Rx
@@ -345,8 +347,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Leap Seconds</summary>
   
-  + `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
-    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_gnss_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
+  + `leap_seconds`: Leap seconds are automatically gathered from the receiver via the SBF block `ReceiverTime`. If a log file is used for simulation and this block was not recorded, the number of leap seconds that have been inserted up until the point of ROSaic usage can be set by this parameter. 
+    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the `leap_seconds` parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations.
   </details>
   
   <details>
