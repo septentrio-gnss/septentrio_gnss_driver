@@ -6,7 +6,9 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * New Features
    * Example config files for GNSS and INS (TODO: add to README)
-   * Get leap seconds from receiver (WIP)
+   * Get leap seconds from receiver (TODO: add to README)
+* Fixes
+   * /tf not being published without /localization
 
 1.2.2 (2022-06-22)
 ------------------

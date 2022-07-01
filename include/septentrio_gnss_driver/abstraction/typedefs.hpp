@@ -287,6 +287,10 @@ public:
         if (std::isnan(loc.pose.pose.orientation.w))        
             return;
 
+        Timestamp currentStamp = timestampFromRos(loc.header.stamp);
+        if (lastTfStamp_ == currentStamp)
+            return;
+
         geometry_msgs::msg::TransformStamped transformStamped;
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;
@@ -298,8 +302,10 @@ public:
         transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
         transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
-
+       
         tf2Publisher_.sendTransform(transformStamped);
+
+        lastTfStamp_ = currentStamp;
     }
 
 private:
@@ -309,6 +315,8 @@ private:
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
+    //! Last tf stamp
+    Timestamp lastTfStamp_;
 };
 
 #endif // Typedefs_HPP

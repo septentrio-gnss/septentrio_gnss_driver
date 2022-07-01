@@ -36,8 +36,6 @@ ant_serial_nr: Unknown
 ant_aux1_type: Unknown
 ant_aux1_serial_nr: Unknown
 
-leap_seconds: 18
-
 polling_period:
   pvt: 0
   rest: 500

@@ -116,6 +116,7 @@ namespace io_comm_rx {
                 }
             }
         }
+        
         // Call NavSatFix callback function if it was added for GNSS 
 		if (settings_->septentrio_receiver_type == "gnss")
 		{

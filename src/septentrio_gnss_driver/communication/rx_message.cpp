@@ -1347,7 +1347,10 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc, bool u
 		static uint64_t nsOfGpsStart = 315964800 * secToNSec; // GPS week counter starts at 1980-01-06 which is 315964800 seconds since Unix epoch (1970-01-01 UTC)
 		static uint64_t nsecPerWeek  = 7 * 24 * 60 * 60 * secToNSec;
 		
-        time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek - settings_->leap_seconds * secToNSec;
+        time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek;
+		
+		if (current_leap_seconds_ != -128)
+			time_obj -= current_leap_seconds_ * secToNSec;
 	}
 	else
     {
@@ -1636,6 +1639,47 @@ void io_comm_rx::RxMessage::next()
 }
 
 /**
+ * If GNSS time is used, Publishing is only done with valid leap seconds
+ */
+template <typename M>
+void io_comm_rx::RxMessage::publish(const std::string& topic, const M& msg)
+{
+	// TODO: maybe publish only if wnc and tow is valid?
+	if (!settings_->use_gnss_time ||
+		(settings_->use_gnss_time && (current_leap_seconds_ != -128)))
+	{
+		node_->publishMessage<M>(topic, msg);
+	}
+	else
+	{
+		node_->log(LogLevel::DEBUG, "Not publishing message with GNSS time because no leap seconds are available yet.");
+		if (settings_->read_from_sbf_log ||
+        	settings_->read_from_pcap)
+			node_->log(LogLevel::WARN, "No leap seconds were set and none were received from log yet.");
+	}
+}
+
+/**
+ * If GNSS time is used, Publishing is only done with valid leap seconds
+ */
+void io_comm_rx::RxMessage::publishTf(const LocalizationUtmMsg& msg)
+{
+	// TODO: maybe publish only if wnc and tow is valid?
+	if (!settings_->use_gnss_time ||
+		(settings_->use_gnss_time && (current_leap_seconds_ != -128) && (current_leap_seconds_ != 0)))
+	{
+		node_->publishTf(msg);
+	}
+	else
+	{
+		node_->log(LogLevel::DEBUG, "Not publishing tf with GNSS time because no leap seconds are available yet.");
+		if (settings_->read_from_sbf_log ||
+        	settings_->read_from_pcap)
+			node_->log(LogLevel::WARN, "No leap seconds were set and none were received from log yet.");
+	}
+}
+
+/**
  * Note that putting the default in the definition's argument list instead of the
  * declaration's is an added extra that is not available for function templates,
  * hence no search = false here. Also note that the SBF block header part of the
@@ -1683,7 +1727,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PVTCartesianMsg>("/pvtcartesian", msg);
+			publish<PVTCartesianMsg>("/pvtcartesian", msg);
 			break;
 		}
 		case evPVTGeodetic: // Position and velocity in geodetic coordinate frame (ENU
@@ -1707,7 +1751,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_pvtgeodetic)
-				node_->publishMessage<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);			
+				publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);			
 			break;
 		}
 		case evPosCovCartesian:
@@ -1727,7 +1771,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<PosCovCartesianMsg>("/poscovcartesian", msg);
+			publish<PosCovCartesianMsg>("/poscovcartesian", msg);
 			break;
 		}
 		case evPosCovGeodetic:
@@ -1753,7 +1797,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_poscovgeodetic)
-				node_->publishMessage<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
+				publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
 			break;
 		}
 		case evAttEuler:
@@ -1777,7 +1821,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_atteuler)
-				node_->publishMessage<AttEulerMsg>("/atteuler", last_atteuler_);			
+				publish<AttEulerMsg>("/atteuler", last_atteuler_);			
 			break;
 		}
 		case evAttCovEuler:
@@ -1801,7 +1845,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_attcoveuler)
-				node_->publishMessage<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+				publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
 			break;
 		}
 		case evINSNavCart: // Position, velocity and orientation in cartesian coordinate frame (ENU
@@ -1829,7 +1873,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<INSNavCartMsg>("/insnavcart", msg);
+			publish<INSNavCartMsg>("/insnavcart", msg);
 			break;
 		}
 		case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate frame (ENU
@@ -1865,7 +1909,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_insnavgeod)
-				node_->publishMessage<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+				publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
 			break;
 		}
 
@@ -1886,7 +1930,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<IMUSetupMsg>("/imusetup", msg);
+			publish<IMUSetupMsg>("/imusetup", msg);
 			break;
 		}
 
@@ -1907,7 +1951,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<VelSensorSetupMsg>("/velsensorsetup", msg);
+			publish<VelSensorSetupMsg>("/velsensorsetup", msg);
 			break;
 		}
 
@@ -1936,7 +1980,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<INSNavCartMsg>("/exteventinsnavcart", msg);
+			publish<INSNavCartMsg>("/exteventinsnavcart", msg);
 			break;
 		}
 
@@ -1964,7 +2008,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<INSNavGeodMsg>("/exteventinsnavgeod", msg);
+			publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
 			break;
 		}
 
@@ -1985,7 +2029,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_extsensormeas)
-				node_->publishMessage<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
+				publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
 			if (settings_->publish_imu)
 			{
 				ImuMsg msg;
@@ -1999,7 +2043,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				}
 				msg.header.frame_id = settings_->imu_frame_id;
 				msg.header.stamp = last_extsensmeas_.header.stamp;
-				node_->publishMessage<ImuMsg>("/imu", msg);            
+				publish<ImuMsg>("/imu", msg);            
 			}
 			break;
 		}
@@ -2015,7 +2059,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<TimeReferenceMsg>("/gpst", msg);
+			publish<TimeReferenceMsg>("/gpst", msg);
 			break;
 		}
 		case evGPGGA:
@@ -2059,7 +2103,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				Timestamp time_obj = timestampFromRos(msg.header.stamp);
 				wait(time_obj);
 			}
-			node_->publishMessage<GpggaMsg>("/gpgga", msg);
+			publish<GpggaMsg>("/gpgga", msg);
 			break;
 		}
 		case evGPRMC:
@@ -2100,7 +2144,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				Timestamp time_obj = timestampFromRos(msg.header.stamp);
 				wait(time_obj);
 			}
-			node_->publishMessage<GprmcMsg>("/gprmc", msg);
+			publish<GprmcMsg>("/gprmc", msg);
 			break;
 		}
 		case evGPGSA:
@@ -2151,7 +2195,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				Timestamp time_obj = timestampFromRos(msg.header.stamp);
 				wait(time_obj);
 			}
-			node_->publishMessage<GpgsaMsg>("/gpgsa", msg);
+			publish<GpgsaMsg>("/gpgsa", msg);
 			break;
 		}
 		case evGPGSV:
@@ -2204,7 +2248,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				Timestamp time_obj = timestampFromRos(msg.header.stamp);
 				wait(time_obj);
 			}
-			node_->publishMessage<GpgsvMsg>("/gpgsv", msg);
+			publish<GpgsvMsg>("/gpgsv", msg);
 			break;
 		}
 		
@@ -2231,7 +2275,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<NavSatFixMsg>("/navsatfix", msg);
+				publish<NavSatFixMsg>("/navsatfix", msg);
 				break;
 			}
 		}
@@ -2264,7 +2308,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<NavSatFixMsg>("/navsatfix", msg);
+				publish<NavSatFixMsg>("/navsatfix", msg);
 				break;
 			}
 		}
@@ -2301,7 +2345,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<GPSFixMsg>("/gpsfix", msg);
+				publish<GPSFixMsg>("/gpsfix", msg);
 				break;
 			}
 		}
@@ -2340,7 +2384,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<GPSFixMsg>("/gpsfix", msg);
+				publish<GPSFixMsg>("/gpsfix", msg);
 				break;
 			}
 		}
@@ -2369,7 +2413,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", msg);
+				publish<PoseWithCovarianceStampedMsg>("/pose", msg);
 				break;
 			}
 		}
@@ -2402,7 +2446,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				{
 					wait(time_obj);
 				}
-				node_->publishMessage<PoseWithCovarianceStampedMsg>("/pose", msg);
+				publish<PoseWithCovarianceStampedMsg>("/pose", msg);
 				break;
 			}
 			
@@ -2431,7 +2475,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			last_measepoch_.header.stamp = timestampToRos(time_obj);
 			measepoch_has_arrived_gpsfix_ = true;
 			if (settings_->publish_measepoch)
-				node_->publishMessage<MeasEpochMsg>("/measepoch", last_measepoch_);
+				publish<MeasEpochMsg>("/measepoch", last_measepoch_);
             break;
 		}
 		case evDOP:
@@ -2465,7 +2509,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 				wait(time_obj);
 			}
 			if (settings_->publish_velcovgeodetic)
-				node_->publishMessage<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+				publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
 			break;
 		}
 		case evDiagnosticArray:
@@ -2503,7 +2547,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			{
 				wait(time_obj);
 			}
-			node_->publishMessage<DiagnosticArrayMsg>("/diagnostics", msg);
+			publish<DiagnosticArrayMsg>("/diagnostics", msg);
 			break; 
 		}
         case evLocalization:
@@ -2525,9 +2569,10 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             {
                 wait(time_obj);
             }
-            node_->publishMessage<LocalizationUtmMsg>("/localization", msg);
+			if (settings_->publish_localization)
+				publish<LocalizationUtmMsg>("/localization", msg);
             if (settings_->publish_tf)
-                node_->publishTf(msg);
+                publishTf(msg);
             break;
         }
 		case evReceiverStatus:
@@ -2564,6 +2609,18 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 			}
 			break;
 		}
+		case evReceiverTime:
+		{
+			ReceiverTimeMsg msg;
+            std::vector<uint8_t> dvec(data_, data_ + parsing_utilities::getLength(data_));
+			if (!ReceiverTimeParser(node_, dvec.begin(), dvec.end(), msg))
+			{
+				node_->log(LogLevel::ERROR, "septentrio_gnss_driver: parse error in ReceiverTime");
+				break;
+			}
+			current_leap_seconds_ = msg.delta_ls;
+			break;
+		}
 		
 		// Many more to be implemented...
     }
@@ -2589,6 +2646,10 @@ void io_comm_rx::RxMessage::wait(Timestamp time_obj)
 		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
         }
 	}
+
+	// set leap seconds to paramter only if it was not set otherwise (by ReceiverTime)
+	if (current_leap_seconds_ == -128)
+		current_leap_seconds_ = settings_->leap_seconds;
 }
 
 bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)

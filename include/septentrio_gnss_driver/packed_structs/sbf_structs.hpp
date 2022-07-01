@@ -1315,6 +1315,36 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
 };
 
 /**
+ * ReceiverTimeParser
+ * @brief Struct for the SBF block "ReceiverTime"
+ */
+template<typename It>
+bool ReceiverTimeParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg& msg)
+{
+    if(!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5914)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.utc_year);
+    qiLittleEndianParser(it, msg.utc_month);
+    qiLittleEndianParser(it, msg.utc_day);
+    qiLittleEndianParser(it, msg.utc_hour);
+    qiLittleEndianParser(it, msg.utc_min);
+    qiLittleEndianParser(it, msg.utc_second);
+    qiLittleEndianParser(it, msg.delta_ls);
+    qiLittleEndianParser(it, msg.sync_level);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
  * INSNavGeodParser
  * @brief Qi based parser for the SBF block "INSNavGeod"
  */
