@@ -59,6 +59,7 @@
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/ReceiverTime.h>
 #include <septentrio_gnss_driver/VelCovCartesian.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
@@ -103,6 +104,7 @@ typedef septentrio_gnss_driver::PVTCartesian          PVTCartesianMsg;
 typedef septentrio_gnss_driver::PVTGeodetic           PVTGeodeticMsg;
 typedef septentrio_gnss_driver::PosCovCartesian       PosCovCartesianMsg;
 typedef septentrio_gnss_driver::PosCovGeodetic        PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::ReceiverTime          ReceiverTimeMsg;
 typedef septentrio_gnss_driver::VelCovCartesian       VelCovCartesianMsg;
 typedef septentrio_gnss_driver::VelCovGeodetic        VelCovGeodeticMsg;
 

@@ -79,6 +79,7 @@ add_message_files(
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   ReceiverTime.msg
    VelCovCartesian.msg
    VelCovGeodetic.msg
    AttEuler.msg
