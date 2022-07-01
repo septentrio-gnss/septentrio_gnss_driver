@@ -43,6 +43,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/PVTGeodetic.msg"
    "msg/PosCovCartesian.msg"
    "msg/PosCovGeodetic.msg"
+   "msg/ReceiverTime.msg"
    "msg/VelCovCartesian.msg"
    "msg/VelCovGeodetic.msg"
    "msg/AttEuler.msg"
