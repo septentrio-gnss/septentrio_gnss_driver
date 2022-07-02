@@ -48,6 +48,7 @@
   <depend>libpcap</depend>  
   <depend>geographiclib</depend>
   <depend>tf2</depend>
+  <depend>tf2_eigen</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
 

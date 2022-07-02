@@ -16,6 +16,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(gps_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
@@ -69,6 +70,7 @@ set(dependencies
    gps_msgs
    nav_msgs
    tf2
+   tf2_eigen
    tf2_geometry_msgs
    tf2_ros
 )

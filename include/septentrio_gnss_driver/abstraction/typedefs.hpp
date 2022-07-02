@@ -38,11 +38,13 @@
 #include <rclcpp/rclcpp.hpp>
 // tf2 includes
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
 #ifdef ROS2_VER_N250
     #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #else
     #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #endif
+#include <tf2_eigen/tf2_eigen.h>
 // ROS msg includes
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
@@ -167,7 +169,9 @@ class ROSaicNodeBase : public rclcpp::Node
 public:
     ROSaicNodeBase(const rclcpp::NodeOptions &options) :
     Node("septentrio_gnss", options),
-    tf2Publisher_(this)
+    tf2Publisher_(this),
+    tfBuffer_(this->get_clock()),
+    tfListener_(tfBuffer_)
     {}
 
     virtual ~ROSaicNodeBase(){}
@@ -291,7 +295,10 @@ public:
         if (lastTfStamp_ == currentStamp)
             return;
 
+        lastTfStamp_ = currentStamp;
+
         geometry_msgs::msg::TransformStamped transformStamped;
+
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;
         transformStamped.child_frame_id          = loc.child_frame_id;
@@ -302,11 +309,46 @@ public:
         transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
         transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
+        
+        if (insert_local_frame_)
+        {
+            geometry_msgs::msg::TransformStamped T_b_l;
+            try
+            {
+                // try to get tf at timestamp of message
+                T_b_l = tfBuffer_.lookupTransform(local_frame_id_, loc.child_frame_id, loc.header.stamp);
+            }
+            catch (const tf2::TransformException& ex)
+            {
+                try
+                {
+                    // TODO throttled debug message;
+                    // try to get latest tf
+                    T_b_l = tfBuffer_.lookupTransform(local_frame_id_, loc.child_frame_id, loc.header.stamp);
+                }
+                catch (const tf2::TransformException& ex)
+                {
+                    // TODO throttled error message;
+                    return;
+                }
+            }
+            
+            // T_l_g = T_b_l.inverse() * A_b_g;
+            transformStamped = tf2::eigenToTransform(tf2::transformToEigen(T_b_l).inverse() *
+                                                     tf2::transformToEigen(transformStamped));
+            transformStamped.header.stamp    = loc.header.stamp;
+            transformStamped.header.frame_id = loc.header.frame_id;
+            transformStamped.child_frame_id  = local_frame_id_;
+        }
        
-        tf2Publisher_.sendTransform(transformStamped);
-
-        lastTfStamp_ = currentStamp;
+        tf2Publisher_.sendTransform(transformStamped); 
     }
+
+protected:
+    //! Wether local frame should be inserted into tf
+    bool insert_local_frame_ = false;
+    //! Frame id of the local frame to be inserted
+    std::string local_frame_id_;
 
 private:
     //! Map of topics and publishers
@@ -317,6 +359,10 @@ private:
     tf2_ros::TransformBroadcaster tf2Publisher_;
     //! Last tf stamp
     Timestamp lastTfStamp_;
+    //! tf buffer
+    tf2_ros::Buffer tfBuffer_;
+	// tf listener
+    tf2_ros::TransformListener tfListener_;
 };
 
 #endif // Typedefs_HPP
