@@ -22,6 +22,10 @@ septentrio_gnss_driver:
 
     vehicle_frame_id: base_link
 
+    local_frame_id: odom
+
+    insert_local_frame: false
+
     get_spatial_config_from_tf: false
 
     lock_utm_zone: true

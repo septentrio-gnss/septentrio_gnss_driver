@@ -92,6 +92,10 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   vehicle_frame_id: base_link
 
+  insert_local_frame: false
+
+  local_frame_id: odom
+
   get_spatial_config_from_tf: true
 
   lock_utm_zone: true
@@ -283,7 +287,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages. It corresponds to the frame of the main antenna.
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
-  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
+  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published IMU message
     + default: `imu`
   + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
     + default: `base_link`
@@ -293,6 +297,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `aux1`
   + `vehicle_frame_id`: name of the ROS tf frame for the vehicle. Default is the same as `poi_frame_id` but may be set otherwise.
     + default: `base_link`
+  + `local_frame_id`: name of the ROS tf frame for the local frame.
+    + default: `odom`
+  + `insert_local_frame`: Wether to insert a local frame to published tf according to [ROS REP 105](https://www.ros.org/reps/rep-0105.html#relationship-between-frames). The transform from the local frame specified by `local_frame_id` to the vehicle frame specified by `vehicle_frame_id` has to be provided, e.g. by odometry. Insertion of the local frame means the transform between local frame and global frame is published instead of transfrom between vehicle frame and global frame.
+    + default: `false`
   + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `poi_frame_id` are needed. For single-antenna `gnss` no frames are needed. Keep in mind that tf has a tree structure. Thus, `poi_frame_id` is the base for all mentioned frames. 
     + default: `false`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
