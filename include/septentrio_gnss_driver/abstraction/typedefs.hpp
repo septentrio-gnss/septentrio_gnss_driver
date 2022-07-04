@@ -291,30 +291,30 @@ public:
 
         if (insert_local_frame_)
         {
-            geometry_msgs::TransformStamped T_b_l;
+            geometry_msgs::TransformStamped T_l_b;
             try
             {
                 // try to get tf at timestamp of message
-                T_b_l = tfBuffer_.lookupTransform(local_frame_id_, loc.child_frame_id, lastTfStamp_);
+                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, lastTfStamp_);
             }
             catch (const tf2::TransformException& ex)
             {
                 try
                 {
-                    // TODO throttled debug message;
+                    ROS_DEBUG_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No transform for insertion of local frame at t=" << lastTfStamp_.toNSec() << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
-                    T_b_l = tfBuffer_.lookupTransform(local_frame_id_, loc.child_frame_id, lastTfStamp_);
+                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, ros::Time(0));
                 }
                 catch (const tf2::TransformException& ex)
                 {
-                    // TODO throttled error message;
+                    ROS_ERROR_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
                     return;
                 }
             }
             
-            // T_l_g = T_b_l.inverse() * A_b_g;
-            transformStamped = tf2::eigenToTransform(tf2::transformToEigen(T_b_l).inverse() *
-                                                     tf2::transformToEigen(transformStamped));
+            // T_l_g = T_b_g * T_l_b;
+            transformStamped = tf2::eigenToTransform(tf2::transformToEigen(transformStamped) *
+                                                     tf2::transformToEigen(T_l_b));
             transformStamped.header.stamp    = loc.header.stamp;
             transformStamped.header.frame_id = loc.header.frame_id;
             transformStamped.child_frame_id  = local_frame_id_;
