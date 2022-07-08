@@ -62,11 +62,17 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login/user` and `login/password`.
-  + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
   + Note for setting `ant_serial_nr` and `ant_aux1_serial_nr`: This is a string parameter, numeric-only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
+  + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be avaliable. Known limitations are:
+    * GNSS with firmware < 4.10.0 does not support IP over USB.
+    * INS with firmware < 1.3.2 does not support NTP.
+    * INS with firmware 1.2.0 does not support velocity aiding.
+    * INS with firmware 1.2.0 does not support setting of initial heading.
+  + An INS can be used in GNSS mode but some features may not be supported. Known limitations are:
+    * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
   ```
   # Configuration Settings for the Rover Rx
