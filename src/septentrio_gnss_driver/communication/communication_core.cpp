@@ -511,8 +511,10 @@ void io_comm_rx::Comm_IO::configureRx()
         }
         if (settings_->publish_diagnostics)
         {
-            blocks << " +ReceiverStatus +QualityInd +ReceiverSetup";
+            blocks << " +ReceiverStatus +QualityInd";
         }
+
+        blocks << " +ReceiverSetup";
 
         std::stringstream ss;
         ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
@@ -1042,9 +1044,7 @@ void io_comm_rx::Comm_IO::defineMessages()
 		handlers_.callbackmap_ =
 			handlers_.insert<int32_t>("4014"); // ReceiverStatus block
 		handlers_.callbackmap_ =
-			handlers_.insert<int32_t>("4082"); // QualityInd block
-		handlers_.callbackmap_ =
-			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
+			handlers_.insert<int32_t>("4082"); // QualityInd block		
 	}
     if (settings_->septentrio_receiver_type == "ins")
     {
@@ -1056,6 +1056,8 @@ void io_comm_rx::Comm_IO::defineMessages()
                     "Localization");
         }
     }
+    handlers_.callbackmap_ =
+			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	// so on and so forth...
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }
