@@ -2655,7 +2655,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
 													   std::to_string(ins_major) + "." + std::to_string(ins_minor) + "." + 
 													   std::to_string(ins_patch) + " or consult README.");							 
 						}
-						node_->log(LogLevel::WARN, "INS receiver seems to be used as GNSS. Some settings may trigger warnings.");
+						node_->log(LogLevel::WARN, "INS receiver seems to be used as GNSS. Some settings may trigger warnings or errors.");
 					}
 					else if ((major_minor_patch[0] < gnss_major) ||
 							((major_minor_patch[0] == gnss_major) && (major_minor_patch[1] < gnss_minor)) ||
