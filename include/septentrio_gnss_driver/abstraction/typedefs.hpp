@@ -301,13 +301,13 @@ public:
             {
                 try
                 {
-                    ROS_DEBUG_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No transform for insertion of local frame at t=" << lastTfStamp_.toNSec() << ". Exception: " << std::string(ex.what()));
+                    ROS_INFO_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No transform for insertion of local frame at t=" << lastTfStamp_.toNSec() << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
                     T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, ros::Time(0));
                 }
                 catch (const tf2::TransformException& ex)
                 {
-                    ROS_ERROR_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
+                    ROS_WARN_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
                     return;
                 }
             }
