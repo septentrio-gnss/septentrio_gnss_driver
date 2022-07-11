@@ -322,13 +322,13 @@ public:
             {
                 try
                 {
-                    RCLCPP_DEBUG_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No transform for insertion of local frame at t=" << std::to_string(currentStamp) << ". Exception: " << std::string(ex.what()));
+                    RCLCPP_INFO_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No transform for insertion of local frame at t=" << std::to_string(currentStamp) << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
                     T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, rclcpp::Time(0));
                 }
                 catch (const tf2::TransformException& ex)
                 {
-                    RCLCPP_ERROR_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
+                    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
                     return;
                 }
             }
