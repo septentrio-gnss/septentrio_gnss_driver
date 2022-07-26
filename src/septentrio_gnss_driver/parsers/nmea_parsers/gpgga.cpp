@@ -50,8 +50,9 @@ const std::string GpggaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[15] if anybody ever needs it.
  */
-GpggaMsg
-GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
+GpggaMsg GpggaParser::parseASCII(const NMEASentence& sentence,
+                                 const std::string& frame_id, bool use_gnss_time,
+                                 Timestamp time_obj) noexcept(false)
 {
     // ROS_DEBUG("Just testing that first entry is indeed what we expect it to be:
     // %s", sentence.get_body()[0].c_str());
@@ -126,8 +127,7 @@ GpggaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
     // ROS_INFO("Valid is %s so far with number of satellites in use being %s", valid
     // ? "true" : "false", sentence.get_body()[7].c_str());
 
-    valid =
-        valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.hdop);
+    valid = valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.hdop);
     valid = valid && parsing_utilities::parseFloat(sentence.get_body()[9], msg.alt);
     msg.altitude_units = sentence.get_body()[10];
     valid = valid &&

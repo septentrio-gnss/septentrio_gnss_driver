@@ -29,8 +29,7 @@
 // ****************************************************************************
 
 // Eigen include
-#include <Eigen/Geometry> 
-
+#include <Eigen/Geometry>
 #include <septentrio_gnss_driver/node/rosaic_node.hpp>
 
 /**
@@ -39,23 +38,22 @@
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
-rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions &options) :
-    ROSaicNodeBase(options),
-    IO_(this, &settings_),
-    tfBuffer_(this->get_clock())
+rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
+    ROSaicNodeBase(options), IO_(this, &settings_), tfBuffer_(this->get_clock())
 {
     param("activate_debug_log", settings_.activate_debug_log, false);
     if (settings_.activate_debug_log)
     {
-        auto ret = rcutils_logging_set_logger_level(
-            this->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-        if (ret != RCUTILS_RET_OK) 
+        auto ret = rcutils_logging_set_logger_level(this->get_logger().get_name(),
+                                                    RCUTILS_LOG_SEVERITY_DEBUG);
+        if (ret != RCUTILS_RET_OK)
         {
-            RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s", rcutils_get_error_string().str);
+            RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s",
+                         rcutils_get_error_string().str);
             rcutils_reset_error();
         }
     }
-    
+
     this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
 
     tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
@@ -97,44 +95,57 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));
-    getUint32Param("serial.baudrate", settings_.baudrate, static_cast<uint32_t>(921600));
+    getUint32Param("serial.baudrate", settings_.baudrate,
+                   static_cast<uint32_t>(921600));
     param("serial.hw_flow_control", settings_.hw_flow_control, std::string("off"));
     param("serial.rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     param("login.user", settings_.login_user, std::string(""));
     param("login.password", settings_.login_password, std::string(""));
-    
+
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
-    if (!((settings_.septentrio_receiver_type == "gnss") || (settings_.septentrio_receiver_type == "ins")))
+    if (!((settings_.septentrio_receiver_type == "gnss") ||
+          (settings_.septentrio_receiver_type == "ins")))
     {
-        this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " + settings_.septentrio_receiver_type + " use either gnss or ins.");
+        this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " +
+                                       settings_.septentrio_receiver_type +
+                                       " use either gnss or ins.");
         return false;
     }
-	
+
     // Polling period parameters
     getUint32Param("polling_period.pvt", settings_.polling_period_pvt,
-              static_cast<uint32_t>(1000));
+                   static_cast<uint32_t>(1000));
     if (settings_.polling_period_pvt != 10 && settings_.polling_period_pvt != 20 &&
         settings_.polling_period_pvt != 50 && settings_.polling_period_pvt != 100 &&
         settings_.polling_period_pvt != 200 && settings_.polling_period_pvt != 250 &&
-        settings_.polling_period_pvt != 500 && settings_.polling_period_pvt != 1000 &&
-        settings_.polling_period_pvt != 2000 && settings_.polling_period_pvt != 5000 &&
+        settings_.polling_period_pvt != 500 &&
+        settings_.polling_period_pvt != 1000 &&
+        settings_.polling_period_pvt != 2000 &&
+        settings_.polling_period_pvt != 5000 &&
         settings_.polling_period_pvt != 10000 && settings_.polling_period_pvt != 0)
     {
-        this->log(LogLevel::FATAL,
-            "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " + std::to_string(settings_.polling_period_pvt));
+        this->log(
+            LogLevel::FATAL,
+            "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " +
+                std::to_string(settings_.polling_period_pvt));
         return false;
     }
     getUint32Param("polling_period.rest", settings_.polling_period_rest,
-              static_cast<uint32_t>(1000));
+                   static_cast<uint32_t>(1000));
     if (settings_.polling_period_rest != 10 && settings_.polling_period_rest != 20 &&
-        settings_.polling_period_rest != 50 && settings_.polling_period_rest != 100 &&
-        settings_.polling_period_rest != 200 && settings_.polling_period_rest != 250 &&
-        settings_.polling_period_rest != 500 && settings_.polling_period_rest != 1000 &&
-        settings_.polling_period_rest != 2000 && settings_.polling_period_rest != 5000 &&
+        settings_.polling_period_rest != 50 &&
+        settings_.polling_period_rest != 100 &&
+        settings_.polling_period_rest != 200 &&
+        settings_.polling_period_rest != 250 &&
+        settings_.polling_period_rest != 500 &&
+        settings_.polling_period_rest != 1000 &&
+        settings_.polling_period_rest != 2000 &&
+        settings_.polling_period_rest != 5000 &&
         settings_.polling_period_rest != 10000)
     {
-        this->log(LogLevel::FATAL,
+        this->log(
+            LogLevel::FATAL,
             "Please specify a valid polling period for PVT-unrelated SBF blocks and NMEA messages.");
         return false;
     }
@@ -154,14 +165,22 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.gpgsv", settings_.publish_gpgsv, false);
     param("publish.measepoch", settings_.publish_measepoch, false);
     param("publish.pvtcartesian", settings_.publish_pvtcartesian, false);
-    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, (settings_.septentrio_receiver_type == "gnss"));
+    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic,
+          (settings_.septentrio_receiver_type == "gnss"));
     param("publish.poscovcartesian", settings_.publish_poscovcartesian, false);
-    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
-	param("publish.velcovgeodetic", settings_.publish_velcovgeodetic, (settings_.septentrio_receiver_type == "gnss"));
-    param("publish.atteuler", settings_.publish_atteuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
-    param("publish.attcoveuler", settings_.publish_attcoveuler, ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic,
+          (settings_.septentrio_receiver_type == "gnss"));
+    param("publish.velcovgeodetic", settings_.publish_velcovgeodetic,
+          (settings_.septentrio_receiver_type == "gnss"));
+    param(
+        "publish.atteuler", settings_.publish_atteuler,
+        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param(
+        "publish.attcoveuler", settings_.publish_attcoveuler,
+        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
     param("publish.insnavcart", settings_.publish_insnavcart, false);
-    param("publish.insnavgeod", settings_.publish_insnavgeod, (settings_.septentrio_receiver_type == "ins"));
+    param("publish.insnavgeod", settings_.publish_insnavgeod,
+          (settings_.septentrio_receiver_type == "ins"));
     param("publish.imusetup", settings_.publish_imusetup, false);
     param("publish.velsensorsetup", settings_.publish_velsensorsetup, false);
     param("publish.exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
@@ -197,7 +216,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 
-	// INS Spatial Configuration
+    // INS Spatial Configuration
     bool getConfigFromTf;
     param("get_spatial_config_from_tf", getConfigFromTf, false);
     if (getConfigFromTf)
@@ -209,13 +228,14 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (settings_.septentrio_receiver_type == "ins")
         {
             TransformStampedMsg T_imu_vehicle;
-            getTransform(settings_.vehicle_frame_id, settings_.imu_frame_id, T_imu_vehicle);
+            getTransform(settings_.vehicle_frame_id, settings_.imu_frame_id,
+                         T_imu_vehicle);
             TransformStampedMsg T_poi_imu;
             getTransform(settings_.imu_frame_id, settings_.poi_frame_id, T_poi_imu);
             TransformStampedMsg T_vsm_imu;
             getTransform(settings_.imu_frame_id, settings_.vsm_frame_id, T_vsm_imu);
             TransformStampedMsg T_ant_imu;
-            getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu); 
+            getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
 
             // IMU orientation parameter
             double roll, pitch, yaw;
@@ -239,33 +259,47 @@ bool rosaic_node::ROSaicNode::getROSParams()
             if (settings_.multi_antenna)
             {
                 TransformStampedMsg T_aux1_imu;
-                getTransform(settings_.imu_frame_id, settings_.aux1_frame_id, T_aux1_imu);
+                getTransform(settings_.imu_frame_id, settings_.aux1_frame_id,
+                             T_aux1_imu);
                 // Antenna Attitude Determination parameter
-                double dy = T_aux1_imu.transform.translation.y - T_ant_imu.transform.translation.y;
-                double dx = T_aux1_imu.transform.translation.x - T_ant_imu.transform.translation.x;
-                settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
-                double dz = T_aux1_imu.transform.translation.z - T_ant_imu.transform.translation.z;
-                double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
-                settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
+                double dy = T_aux1_imu.transform.translation.y -
+                            T_ant_imu.transform.translation.y;
+                double dx = T_aux1_imu.transform.translation.x -
+                            T_ant_imu.transform.translation.x;
+                settings_.heading_offset =
+                    parsing_utilities::rad2deg(std::atan2(dy, dx));
+                double dz = T_aux1_imu.transform.translation.z -
+                            T_ant_imu.transform.translation.z;
+                double dr = std::sqrt(parsing_utilities::square(dx) +
+                                      parsing_utilities::square(dy));
+                settings_.pitch_offset =
+                    parsing_utilities::rad2deg(std::atan2(-dz, dr));
             }
         }
-        if ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna)
+        if ((settings_.septentrio_receiver_type == "gnss") &&
+            settings_.multi_antenna)
         {
             TransformStampedMsg T_ant_vehicle;
-            getTransform(settings_.vehicle_frame_id, settings_.frame_id, T_ant_vehicle);
+            getTransform(settings_.vehicle_frame_id, settings_.frame_id,
+                         T_ant_vehicle);
             TransformStampedMsg T_aux1_vehicle;
-            getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id, T_aux1_vehicle);
+            getTransform(settings_.vehicle_frame_id, settings_.aux1_frame_id,
+                         T_aux1_vehicle);
 
             // Antenna Attitude Determination parameter
-            double dy = T_aux1_vehicle.transform.translation.y - T_ant_vehicle.transform.translation.y;
-            double dx = T_aux1_vehicle.transform.translation.x - T_ant_vehicle.transform.translation.x;
-            settings_.heading_offset = parsing_utilities::rad2deg(std::atan2(dy, dx));
-            double dz = T_aux1_vehicle.transform.translation.z - T_ant_vehicle.transform.translation.z;
-            double dr = std::sqrt(parsing_utilities::square(dx) + parsing_utilities::square(dy));
+            double dy = T_aux1_vehicle.transform.translation.y -
+                        T_ant_vehicle.transform.translation.y;
+            double dx = T_aux1_vehicle.transform.translation.x -
+                        T_ant_vehicle.transform.translation.x;
+            settings_.heading_offset =
+                parsing_utilities::rad2deg(std::atan2(dy, dx));
+            double dz = T_aux1_vehicle.transform.translation.z -
+                        T_ant_vehicle.transform.translation.z;
+            double dr = std::sqrt(parsing_utilities::square(dx) +
+                                  parsing_utilities::square(dy));
             settings_.pitch_offset = parsing_utilities::rad2deg(std::atan2(-dz, dr));
         }
-    }
-    else
+    } else
     {
         // IMU orientation parameter
         param("ins_spatial_config.imu_orientation.theta_x", settings_.theta_x, 0.0);
@@ -287,10 +321,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("att_offset.heading", settings_.heading_offset, 0.0);
         param("att_offset.pitch", settings_.pitch_offset, 0.0);
     }
-    
+
     if (settings_.use_ros_axis_orientation)
     {
-        settings_.theta_x = parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
+        settings_.theta_x =
+            parsing_utilities::wrapAngle180to180(settings_.theta_x + 180.0);
         settings_.theta_y *= -1.0;
         settings_.theta_z *= -1.0;
         settings_.ant_lever_y *= -1.0;
@@ -300,29 +335,38 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.vsm_y *= -1.0;
         settings_.vsm_z *= -1.0;
         settings_.heading_offset *= -1.0;
-        settings_.pitch_offset   *= -1.0;
+        settings_.pitch_offset *= -1.0;
     }
 
     if (std::abs(settings_.heading_offset) > std::numeric_limits<double>::epsilon())
     {
         if (settings_.publish_atteuler)
         {
-            this->log(LogLevel::WARN , "Pitch angle output by topic /atteuler is a tilt angle rotated by " + 
-                                    std::to_string(settings_.heading_offset) + ".");
+            this->log(
+                LogLevel::WARN,
+                "Pitch angle output by topic /atteuler is a tilt angle rotated by " +
+                    std::to_string(settings_.heading_offset) + ".");
         }
         if (settings_.publish_pose && (settings_.septentrio_receiver_type == "gnss"))
         {
-            this->log(LogLevel::WARN , "Pitch angle output by topic /pose is a tilt angle rotated by " + 
-                                        std::to_string(settings_.heading_offset) + ".");
+            this->log(
+                LogLevel::WARN,
+                "Pitch angle output by topic /pose is a tilt angle rotated by " +
+                    std::to_string(settings_.heading_offset) + ".");
         }
     }
 
-    this->log(LogLevel::DEBUG , "IMU roll offset: "+ std::to_string(settings_.theta_x));
-    this->log(LogLevel::DEBUG , "IMU pitch offset: "+ std::to_string(settings_.theta_y));
-    this->log(LogLevel::DEBUG , "IMU yaw offset: "+ std::to_string(settings_.theta_z));
-    this->log(LogLevel::DEBUG , "Ant heading offset: " + std::to_string(settings_.heading_offset));
-    this->log(LogLevel::DEBUG , "Ant pitch offset: " + std::to_string(settings_.pitch_offset));
-    
+    this->log(LogLevel::DEBUG,
+              "IMU roll offset: " + std::to_string(settings_.theta_x));
+    this->log(LogLevel::DEBUG,
+              "IMU pitch offset: " + std::to_string(settings_.theta_y));
+    this->log(LogLevel::DEBUG,
+              "IMU yaw offset: " + std::to_string(settings_.theta_z));
+    this->log(LogLevel::DEBUG,
+              "Ant heading offset: " + std::to_string(settings_.heading_offset));
+    this->log(LogLevel::DEBUG,
+              "Ant pitch offset: " + std::to_string(settings_.pitch_offset));
+
     // ins_initial_heading param
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
 
@@ -335,14 +379,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     if (settings_.publish_tf && !settings_.ins_use_poi)
     {
-        this->log(LogLevel::ERROR , "If tf shall be published, ins_use_poi has to be set to true! It is set automatically to true."); 
+        this->log(
+            LogLevel::ERROR,
+            "If tf shall be published, ins_use_poi has to be set to true! It is set automatically to true.");
         settings_.ins_use_poi = true;
     }
 
     // Correction service parameters
     param("ntrip_settings.mode", settings_.ntrip_mode, std::string("off"));
     param("ntrip_settings.caster", settings_.caster, std::string());
-    getUint32Param("ntrip_settings.caster_port", settings_.caster_port, static_cast<uint32_t>(0));
+    getUint32Param("ntrip_settings.caster_port", settings_.caster_port,
+                   static_cast<uint32_t>(0));
     param("ntrip_settings.username", settings_.ntrip_username, std::string());
     if (!param("ntrip_settings.password", settings_.ntrip_password, std::string()))
     {
@@ -351,30 +398,36 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.ntrip_password = std::to_string(pwd_tmp);
     }
     param("ntrip_settings.mountpoint", settings_.mountpoint, std::string());
-    param("ntrip_settings.ntrip_version", settings_.ntrip_version, std::string("v2"));
+    param("ntrip_settings.ntrip_version", settings_.ntrip_version,
+          std::string("v2"));
     param("ntrip_settings.send_gga", settings_.send_gga, std::string("auto"));
     param("ntrip_settings.rx_has_internet", settings_.rx_has_internet, false);
-    param("ntrip_settings.rtcm_version", settings_.rtcm_version, std::string("RTCMv3"));
-    getUint32Param("ntrip_settings.rx_input_corrections_tcp", settings_.rx_input_corrections_tcp,
-              static_cast<uint32_t>(28785));
+    param("ntrip_settings.rtcm_version", settings_.rtcm_version,
+          std::string("RTCMv3"));
+    getUint32Param("ntrip_settings.rx_input_corrections_tcp",
+                   settings_.rx_input_corrections_tcp, static_cast<uint32_t>(28785));
     param("ntrip_settings.rx_input_corrections_serial",
-                settings_.rx_input_corrections_serial, std::string("USB2"));
+          settings_.rx_input_corrections_serial, std::string("USB2"));
 
     if (settings_.publish_atteuler)
     {
         if (!settings_.multi_antenna)
         {
-            this->log(LogLevel::WARN ,"AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
+            this->log(
+                LogLevel::WARN,
+                "AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
             settings_.multi_antenna = true;
         }
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
-    this->log(LogLevel::DEBUG ,"Finished getROSParams() method");
+    this->log(LogLevel::DEBUG, "Finished getROSParams() method");
     return true;
 }
 
-void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const std::string& sourceFrame, TransformStampedMsg& T_s_t)
+void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
+                                           const std::string& sourceFrame,
+                                           TransformStampedMsg& T_s_t)
 {
     bool found = false;
     while (!found)
@@ -382,12 +435,14 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const
         try
         {
             // try to get tf from source frame to target frame
-            T_s_t = tfBuffer_.lookupTransform(targetFrame, sourceFrame, rclcpp::Time(0));
+            T_s_t =
+                tfBuffer_.lookupTransform(targetFrame, sourceFrame, rclcpp::Time(0));
             found = true;
-        }
-        catch (const tf2::TransformException& ex)
+        } catch (const tf2::TransformException& ex)
         {
-            this->log(LogLevel::WARN, "Waiting for transform from " + sourceFrame + " to " + targetFrame + ": " + ex.what() + ".");
+            this->log(LogLevel::WARN, "Waiting for transform from " + sourceFrame +
+                                          " to " + targetFrame + ": " + ex.what() +
+                                          ".");
             found = false;
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(2000ms);
@@ -395,19 +450,20 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame, const
     }
 }
 
-void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll, double& pitch, double& yaw)
+void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
+                                     double& pitch, double& yaw)
 {
     Eigen::Quaterniond q(qm.w, qm.x, qm.y, qm.z);
-	Eigen::Quaterniond::RotationMatrixType C = q.matrix();
+    Eigen::Quaterniond::RotationMatrixType C = q.matrix();
 
-	roll  = std::atan2(C(2, 1), C(2, 2));
-	pitch = std::asin(-C(2, 0));
-	yaw   = std::atan2(C(1, 0), C(0, 0));
+    roll = std::atan2(C(2, 1), C(2, 2));
+    pitch = std::asin(-C(2, 0));
+    yaw = std::atan2(C(1, 0), C(0, 0));
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
+// This acts as a sort of entry point, allowing the component to be discoverable when
+// its library is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(rosaic_node::ROSaicNode)

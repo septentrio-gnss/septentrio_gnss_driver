@@ -31,10 +31,10 @@
 #ifndef PCAP_READER_H
 #define PCAP_READER_H
 
-#include <pcap/pcap.h>
 #include <cstdint>
-#include <vector>
+#include <pcap/pcap.h>
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <vector>
 
 /**
  * @file pcap_reader.hpp

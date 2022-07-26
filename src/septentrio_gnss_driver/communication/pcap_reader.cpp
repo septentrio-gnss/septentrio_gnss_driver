@@ -50,7 +50,10 @@
 
 namespace pcapReader {
 
-    PcapDevice::PcapDevice(ROSaicNodeBase* node, buffer_t& buffer) : node_(node), m_dataBuff{buffer} {}
+    PcapDevice::PcapDevice(ROSaicNodeBase* node, buffer_t& buffer) :
+        node_(node), m_dataBuff{buffer}
+    {
+    }
 
     PcapDevice::~PcapDevice() { disconnect(); }
 
@@ -151,7 +154,8 @@ namespace pcapReader {
 
             default:
             {
-                node_->log(LogLevel::ERROR, "Skipping protocol: " + std::to_string(result));
+                node_->log(LogLevel::ERROR,
+                           "Skipping protocol: " + std::to_string(result));
                 return READ_ERROR;
             }
             }
@@ -160,7 +164,8 @@ namespace pcapReader {
             return READ_SUCCESS;
         } else if (result == -2)
         {
-            node_->log(LogLevel::INFO, "Done reading from " + std::string(m_deviceName));
+            node_->log(LogLevel::INFO,
+                       "Done reading from " + std::string(m_deviceName));
             if (!m_lastPkt.empty())
             {
                 auto lastIpHdr = reinterpret_cast<const iphdr*>(&(m_lastPkt[0]));

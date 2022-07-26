@@ -32,40 +32,40 @@
 #define Typedefs_HPP
 
 // std includes
-#include <unordered_map>
 #include <any>
+#include <unordered_map>
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
 // tf2 includes
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 #ifdef ROS2_VER_N250
-    #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #else
-    #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #endif
 #include <tf2_eigen/tf2_eigen.h>
 // ROS msg includes
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <gps_msgs/msg/gps_fix.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <sensor_msgs/msg/time_reference.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-#include <nav_msgs/msg/odometry.hpp>
 // GNSS msg includes
+#include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
+#include <septentrio_gnss_driver/msg/att_euler.hpp>
 #include <septentrio_gnss_driver/msg/block_header.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type1.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type2.hpp>
-#include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
-#include <septentrio_gnss_driver/msg/att_euler.hpp>
-#include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
-#include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
 #include <septentrio_gnss_driver/msg/pos_cov_cartesian.hpp>
 #include <septentrio_gnss_driver/msg/pos_cov_geodetic.hpp>
+#include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
+#include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
 #include <septentrio_gnss_driver/msg/receiver_time.hpp>
 #include <septentrio_gnss_driver/msg/vel_cov_cartesian.hpp>
 #include <septentrio_gnss_driver/msg/vel_cov_geodetic.hpp>
@@ -75,71 +75,69 @@
 #include <nmea_msgs/msg/gpgsv.hpp>
 #include <nmea_msgs/msg/gprmc.hpp>
 // INS msg includes
+#include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
+#include <septentrio_gnss_driver/msg/imu_setup.hpp>
 #include <septentrio_gnss_driver/msg/ins_nav_cart.hpp>
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
-#include <septentrio_gnss_driver/msg/imu_setup.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
-#include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
-typedef uint64_t     Timestamp;
+typedef uint64_t Timestamp;
 // ROS timestamp
 typedef rclcpp::Time TimestampRos;
 
 // ROS messages
-typedef diagnostic_msgs::msg::DiagnosticArray         DiagnosticArrayMsg;
-typedef diagnostic_msgs::msg::DiagnosticStatus        DiagnosticStatusMsg;
-typedef geometry_msgs::msg::Quaternion                QuaternionMsg;
+typedef diagnostic_msgs::msg::DiagnosticArray DiagnosticArrayMsg;
+typedef diagnostic_msgs::msg::DiagnosticStatus DiagnosticStatusMsg;
+typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
-typedef geometry_msgs::msg::TransformStamped          TransformStampedMsg;
-typedef gps_msgs::msg::GPSFix                         GPSFixMsg;
-typedef gps_msgs::msg::GPSStatus                      GPSStatusMsg;
-typedef sensor_msgs::msg::NavSatFix                   NavSatFixMsg;
-typedef sensor_msgs::msg::NavSatStatus                NavSatStatusMsg;
-typedef sensor_msgs::msg::TimeReference               TimeReferenceMsg;
-typedef sensor_msgs::msg::Imu                         ImuMsg;
-typedef nav_msgs::msg::Odometry                       LocalizationUtmMsg;
+typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
+typedef gps_msgs::msg::GPSFix GPSFixMsg;
+typedef gps_msgs::msg::GPSStatus GPSStatusMsg;
+typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
+typedef sensor_msgs::msg::NavSatStatus NavSatStatusMsg;
+typedef sensor_msgs::msg::TimeReference TimeReferenceMsg;
+typedef sensor_msgs::msg::Imu ImuMsg;
+typedef nav_msgs::msg::Odometry LocalizationUtmMsg;
 
 // Septentrio GNSS SBF messages
-typedef septentrio_gnss_driver::msg::BlockHeader           BlockHeaderMsg;
-typedef septentrio_gnss_driver::msg::MeasEpoch             MeasEpochMsg;
+typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;
+typedef septentrio_gnss_driver::msg::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType1 MeasEpochChannelType1Msg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType2 MeasEpochChannelType2Msg;
-typedef septentrio_gnss_driver::msg::AttCovEuler           AttCovEulerMsg;
-typedef septentrio_gnss_driver::msg::AttEuler              AttEulerMsg;
-typedef septentrio_gnss_driver::msg::PVTCartesian          PVTCartesianMsg;
-typedef septentrio_gnss_driver::msg::PVTGeodetic           PVTGeodeticMsg;
-typedef septentrio_gnss_driver::msg::PosCovCartesian       PosCovCartesianMsg;
-typedef septentrio_gnss_driver::msg::PosCovGeodetic        PosCovGeodeticMsg;
-typedef septentrio_gnss_driver::msg::ReceiverTime          ReceiverTimeMsg;
-typedef septentrio_gnss_driver::msg::VelCovCartesian       VelCovCartesianMsg;
-typedef septentrio_gnss_driver::msg::VelCovGeodetic        VelCovGeodeticMsg;
+typedef septentrio_gnss_driver::msg::AttCovEuler AttCovEulerMsg;
+typedef septentrio_gnss_driver::msg::AttEuler AttEulerMsg;
+typedef septentrio_gnss_driver::msg::PVTCartesian PVTCartesianMsg;
+typedef septentrio_gnss_driver::msg::PVTGeodetic PVTGeodeticMsg;
+typedef septentrio_gnss_driver::msg::PosCovCartesian PosCovCartesianMsg;
+typedef septentrio_gnss_driver::msg::PosCovGeodetic PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::msg::ReceiverTime ReceiverTimeMsg;
+typedef septentrio_gnss_driver::msg::VelCovCartesian VelCovCartesianMsg;
+typedef septentrio_gnss_driver::msg::VelCovGeodetic VelCovGeodeticMsg;
 
 // NMEA message
 typedef nmea_msgs::msg::Gpgga GpggaMsg;
 typedef nmea_msgs::msg::Gpgsa GpgsaMsg;
 typedef nmea_msgs::msg::Gpgsv GpgsvMsg;
-typedef nmea_msgs::msg::Gprmc GprmcMsg;;
+typedef nmea_msgs::msg::Gprmc GprmcMsg;
+;
 
 // Septentrio INS+GNSS SBF messages
-typedef septentrio_gnss_driver::msg::INSNavCart     INSNavCartMsg;
-typedef septentrio_gnss_driver::msg::INSNavGeod     INSNavGeodMsg;
-typedef septentrio_gnss_driver::msg::IMUSetup       IMUSetupMsg;
+typedef septentrio_gnss_driver::msg::INSNavCart INSNavCartMsg;
+typedef septentrio_gnss_driver::msg::INSNavGeod INSNavGeodMsg;
+typedef septentrio_gnss_driver::msg::IMUSetup IMUSetupMsg;
 typedef septentrio_gnss_driver::msg::VelSensorSetup VelSensorSetupMsg;
-typedef septentrio_gnss_driver::msg::ExtSensorMeas  ExtSensorMeasMsg;
+typedef septentrio_gnss_driver::msg::ExtSensorMeas ExtSensorMeasMsg;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
  * @param[in] ts timestamp in nanoseconds (Unix epoch)
  * @return ROS timestamp
  */
-inline TimestampRos timestampToRos(Timestamp ts)
-{
-   return TimestampRos(ts);
-}
+inline TimestampRos timestampToRos(Timestamp ts) { return TimestampRos(ts); }
 
 /**
- * @brief Convert ROS timestamp to nsec timestamp 
+ * @brief Convert ROS timestamp to nsec timestamp
  * @param[in] ts ROS timestamp
  * @return timestamp in nanoseconds (Unix epoch)
  */
@@ -167,20 +165,19 @@ enum LogLevel
 class ROSaicNodeBase : public rclcpp::Node
 {
 public:
-    ROSaicNodeBase(const rclcpp::NodeOptions &options) :
-    Node("septentrio_gnss", options),
-    tf2Publisher_(this),
-    tfBuffer_(this->get_clock()),
-    tfListener_(tfBuffer_)
-    {}
+    ROSaicNodeBase(const rclcpp::NodeOptions& options) :
+        Node("septentrio_gnss", options), tf2Publisher_(this),
+        tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
+    {
+    }
 
-    virtual ~ROSaicNodeBase(){}
+    virtual ~ROSaicNodeBase() {}
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
      * @param[in] name The key to be used in the parameter server's dictionary
-     * @param[out] val Storage for the retrieved value, of type U, which can be either
-     * unsigned int or int
+     * @param[out] val Storage for the retrieved value, of type U, which can be
+     * either unsigned int or int
      * @param[in] defaultVal Value to use if the server doesn't contain this
      * parameter
      */
@@ -188,7 +185,7 @@ public:
     {
         int32_t tempVal;
         if ((!this->param(name, tempVal, -1)) || (tempVal < 0))
-        {            
+        {
             val = defaultVal;
             return false;
         }
@@ -204,7 +201,7 @@ public:
      * parameter
      * @return True if it could be retrieved, false if not
      */
-    template<typename T>
+    template <typename T>
     bool param(const std::string& name, T& val, const T& defaultVal)
     {
         if (this->has_parameter(name))
@@ -213,8 +210,7 @@ public:
         try
         {
             val = this->declare_parameter<T>(name, defaultVal);
-        }
-        catch (std::runtime_error& e)
+        } catch (std::runtime_error& e)
         {
             RCLCPP_WARN_STREAM(this->get_logger(), e.what());
             return false;
@@ -245,7 +241,7 @@ public:
             break;
         case LogLevel::FATAL:
             RCLCPP_FATAL_STREAM(this->get_logger(), s);
-            break;    
+            break;
         default:
             break;
         }
@@ -255,10 +251,7 @@ public:
      * @brief Gets current timestamp
      * @return Timestamp
      */
-    Timestamp getTime()
-    {
-        return this->now().nanoseconds();
-    }    
+    Timestamp getTime() { return this->now().nanoseconds(); }
 
     /**
      * @brief Publishing function
@@ -271,12 +264,13 @@ public:
         auto it = topicMap_.find(topic);
         if (it != topicMap_.end())
         {
-            typename rclcpp::Publisher<M>::SharedPtr ptr = std::any_cast<typename rclcpp::Publisher<M>::SharedPtr>(it->second);
+            typename rclcpp::Publisher<M>::SharedPtr ptr =
+                std::any_cast<typename rclcpp::Publisher<M>::SharedPtr>(it->second);
             ptr->publish(msg);
-        }
-        else
+        } else
         {
-            typename rclcpp::Publisher<M>::SharedPtr pub = this->create_publisher<M>(topic, queueSize_);
+            typename rclcpp::Publisher<M>::SharedPtr pub =
+                this->create_publisher<M>(topic, queueSize_);
             topicMap_.insert(std::make_pair(topic, pub));
             pub->publish(msg);
         }
@@ -288,7 +282,7 @@ public:
      */
     void publishTf(const LocalizationUtmMsg& loc)
     {
-        if (std::isnan(loc.pose.pose.orientation.w))        
+        if (std::isnan(loc.pose.pose.orientation.w))
             return;
 
         Timestamp currentStamp = timestampFromRos(loc.header.stamp);
@@ -299,49 +293,57 @@ public:
 
         geometry_msgs::msg::TransformStamped transformStamped;
 
-        transformStamped.header.stamp            = loc.header.stamp;
-        transformStamped.header.frame_id         = loc.header.frame_id;
-        transformStamped.child_frame_id          = loc.child_frame_id;
+        transformStamped.header.stamp = loc.header.stamp;
+        transformStamped.header.frame_id = loc.header.frame_id;
+        transformStamped.child_frame_id = loc.child_frame_id;
         transformStamped.transform.translation.x = loc.pose.pose.position.x;
         transformStamped.transform.translation.y = loc.pose.pose.position.y;
         transformStamped.transform.translation.z = loc.pose.pose.position.z;
-        transformStamped.transform.rotation.x    = loc.pose.pose.orientation.x;
-        transformStamped.transform.rotation.y    = loc.pose.pose.orientation.y;
-        transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
-        transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
-        
+        transformStamped.transform.rotation.x = loc.pose.pose.orientation.x;
+        transformStamped.transform.rotation.y = loc.pose.pose.orientation.y;
+        transformStamped.transform.rotation.z = loc.pose.pose.orientation.z;
+        transformStamped.transform.rotation.w = loc.pose.pose.orientation.w;
+
         if (insert_local_frame_)
         {
             geometry_msgs::msg::TransformStamped T_l_b;
             try
             {
                 // try to get tf at timestamp of message
-                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, loc.header.stamp);
-            }
-            catch (const tf2::TransformException& ex)
+                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
+                                                  local_frame_id_, loc.header.stamp);
+            } catch (const tf2::TransformException& ex)
             {
                 try
                 {
-                    RCLCPP_INFO_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No transform for insertion of local frame at t=" << std::to_string(currentStamp) << ". Exception: " << std::string(ex.what()));
+                    RCLCPP_INFO_STREAM_THROTTLE(
+                        this->get_logger(), *this->get_clock(), 10000,
+                        ": No transform for insertion of local frame at t="
+                            << std::to_string(currentStamp)
+                            << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
-                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, rclcpp::Time(0));
-                }
-                catch (const tf2::TransformException& ex)
+                    T_l_b = tfBuffer_.lookupTransform(
+                        loc.child_frame_id, local_frame_id_, rclcpp::Time(0));
+                } catch (const tf2::TransformException& ex)
                 {
-                    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10000, ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
+                    RCLCPP_WARN_STREAM_THROTTLE(
+                        this->get_logger(), *this->get_clock(), 10000,
+                        ": No most recent transform for insertion of local frame. Exception: "
+                            << std::string(ex.what()));
                     return;
                 }
             }
-            
+
             // T_l_g = T_b_l^-1 * T_b_g;
-            transformStamped = tf2::eigenToTransform(tf2::transformToEigen(transformStamped) *
-                                                     tf2::transformToEigen(T_l_b));
-            transformStamped.header.stamp    = loc.header.stamp;
+            transformStamped =
+                tf2::eigenToTransform(tf2::transformToEigen(transformStamped) *
+                                      tf2::transformToEigen(T_l_b));
+            transformStamped.header.stamp = loc.header.stamp;
             transformStamped.header.frame_id = loc.header.frame_id;
-            transformStamped.child_frame_id  = local_frame_id_;
+            transformStamped.child_frame_id = local_frame_id_;
         }
-       
-        tf2Publisher_.sendTransform(transformStamped); 
+
+        tf2Publisher_.sendTransform(transformStamped);
     }
 
 protected:
@@ -361,7 +363,7 @@ private:
     Timestamp lastTfStamp_;
     //! tf buffer
     tf2_ros::Buffer tfBuffer_;
-	// tf listener
+    // tf listener
     tf2_ros::TransformListener tfListener_;
 };
 

@@ -54,8 +54,9 @@ const std::string GprmcParser::getMessageID() const
  * you should thus ignore it. This usually occurs when the GPS is still searching for
  * satellites. WasLastGPRMCValid() will return false in this case.
  */
-GprmcMsg
-GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false)
+GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
+                                 const std::string& frame_id, bool use_gnss_time,
+                                 Timestamp time_obj) noexcept(false)
 {
 
     // Checking the length first, it should be between 13 and 14 elements
@@ -142,10 +143,10 @@ GprmcParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
     if (!date_str.empty())
     {
         msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
-                    date_str.substr(2, 2) + std::string("-") + date_str.substr(0, 2);
+                   date_str.substr(2, 2) + std::string("-") + date_str.substr(0, 2);
     }
-    valid = valid &&
-            parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);
+    valid =
+        valid && parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);
     msg.mag_var_direction = sentence.get_body()[11];
     if (sentence.get_body().size() == LEN_MAX)
     {
