@@ -32,11 +32,11 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // C++ library includes
 #include <cerrno>
+#include <cmath>
 #include <cstdlib>
+#include <iomanip>
 #include <limits>
 #include <sstream>
-#include <iomanip>
-#include <cmath>
 
 /**
  * @file string_utilities.cpp

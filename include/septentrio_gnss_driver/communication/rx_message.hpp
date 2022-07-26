@@ -138,9 +138,9 @@ struct Settings
     bool activate_debug_log;
     //! Device port
     std::string device;
-     //! Username for login
+    //! Username for login
     std::string login_user;
-     //! Password for login
+    //! Password for login
     std::string login_password;
     //! Delay in seconds between reconnection attempts to the connection type
     //! specified in the parameter connection_type
@@ -300,15 +300,16 @@ struct Settings
     bool publish_tf;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
-    //! If true, the ROS message headers' unix time field is constructed from the TOW (in
-    //! the SBF case) and UTC (in the NMEA case) data. If false, times are constructed
-    //! within the driver via time(NULL) of the \<ctime\> library.
+    //! If true, the ROS message headers' unix time field is constructed from the TOW
+    //! (in the SBF case) and UTC (in the NMEA case) data. If false, times are
+    //! constructed within the driver via time(NULL) of the \<ctime\> library.
     bool use_gnss_time;
     //! The frame ID used in the header of every published ROS message
     std::string frame_id;
     //! The frame ID used in the header of published ROS Imu message
     std::string imu_frame_id;
-    //! The frame ID used in the header of published ROS Localization message if poi is used
+    //! The frame ID used in the header of published ROS Localization message if poi
+    //! is used
     std::string poi_frame_id;
     //! The frame ID of the velocity sensor
     std::string vsm_frame_id;
@@ -386,7 +387,7 @@ enum RxID_Enum
 };
 
 namespace io_comm_rx {
-   
+
     /**
      * @class RxMessage
      * @brief Can search buffer for messages, read/parse them, and so on
@@ -405,73 +406,73 @@ namespace io_comm_rx {
          * @param[in] size Size of the buffer (as handed over by async_read_some)
          */
         RxMessage(ROSaicNodeBase* node, Settings* settings) :
-            node_(node),
-            settings_(settings),
-            unix_time_(0)
+            node_(node), settings_(settings), unix_time_(0)
         {
             found_ = false;
             crc_check_ = false;
             message_size_ = 0;
-                    
+
             //! Pair of iterators to facilitate initialization of the map
             std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
-            std::make_pair(static_cast<uint16_t>(0), evNoPVT),
-            std::make_pair(static_cast<uint16_t>(1), evStandAlone),
-            std::make_pair(static_cast<uint16_t>(2), evDGPS),
-            std::make_pair(static_cast<uint16_t>(3), evFixed),
-            std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
-            std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
-            std::make_pair(static_cast<uint16_t>(6), evSBAS),
-            std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
-            std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
-            std::make_pair(static_cast<uint16_t>(10), evPPP)};
+                std::make_pair(static_cast<uint16_t>(0), evNoPVT),
+                std::make_pair(static_cast<uint16_t>(1), evStandAlone),
+                std::make_pair(static_cast<uint16_t>(2), evDGPS),
+                std::make_pair(static_cast<uint16_t>(3), evFixed),
+                std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
+                std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
+                std::make_pair(static_cast<uint16_t>(6), evSBAS),
+                std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
+                std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
+                std::make_pair(static_cast<uint16_t>(10), evPPP)};
 
-            type_of_pvt_map = TypeOfPVTMap(type_of_pvt_pairs, type_of_pvt_pairs + evPPP + 1);
-            
+            type_of_pvt_map =
+                TypeOfPVTMap(type_of_pvt_pairs, type_of_pvt_pairs + evPPP + 1);
+
             //! Pair of iterators to facilitate initialization of the map
             std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
-            std::make_pair("NavSatFix", evNavSatFix),
-            std::make_pair("INSNavSatFix", evINSNavSatFix),   
-            std::make_pair("GPSFix", evGPSFix),
-            std::make_pair("INSGPSFix", evINSGPSFix),
-            std::make_pair("PoseWithCovarianceStamped", evPoseWithCovarianceStamped),
-            std::make_pair("INSPoseWithCovarianceStamped", evINSPoseWithCovarianceStamped),
-            std::make_pair("$GPGGA", evGPGGA),
-            std::make_pair("$GPRMC", evGPRMC),
-            std::make_pair("$GPGSA", evGPGSA),
-            std::make_pair("$GPGSV", evGPGSV),
-            std::make_pair("$GLGSV", evGLGSV),
-            std::make_pair("$GAGSV", evGAGSV),
-            std::make_pair("4006", evPVTCartesian),
-            std::make_pair("4007", evPVTGeodetic),
-            std::make_pair("5905", evPosCovCartesian),
-            std::make_pair("5906", evPosCovGeodetic),
-            std::make_pair("5938", evAttEuler),
-            std::make_pair("5939", evAttCovEuler),
-            std::make_pair("GPST", evGPST),
-            std::make_pair("4013", evChannelStatus),
-            std::make_pair("4027", evMeasEpoch),
-            std::make_pair("4001", evDOP),
-            std::make_pair("5908", evVelCovGeodetic),
-            std::make_pair("DiagnosticArray", evDiagnosticArray),
-            std::make_pair("Localization", evLocalization),
-            std::make_pair("4014", evReceiverStatus),
-            std::make_pair("4082", evQualityInd),
-            std::make_pair("5902", evReceiverSetup),
-            std::make_pair("4225", evINSNavCart),
-            std::make_pair("4226", evINSNavGeod),
-            std::make_pair("4230", evExtEventINSNavGeod),
-            std::make_pair("4229", evExtEventINSNavCart),
-            std::make_pair("4224", evIMUSetup),
-            std::make_pair("4244", evVelSensorSetup),
-            std::make_pair("4050", evExtSensorMeas),
-            std::make_pair("5914", evReceiverTime)
-            };
+                std::make_pair("NavSatFix", evNavSatFix),
+                std::make_pair("INSNavSatFix", evINSNavSatFix),
+                std::make_pair("GPSFix", evGPSFix),
+                std::make_pair("INSGPSFix", evINSGPSFix),
+                std::make_pair("PoseWithCovarianceStamped",
+                               evPoseWithCovarianceStamped),
+                std::make_pair("INSPoseWithCovarianceStamped",
+                               evINSPoseWithCovarianceStamped),
+                std::make_pair("$GPGGA", evGPGGA),
+                std::make_pair("$GPRMC", evGPRMC),
+                std::make_pair("$GPGSA", evGPGSA),
+                std::make_pair("$GPGSV", evGPGSV),
+                std::make_pair("$GLGSV", evGLGSV),
+                std::make_pair("$GAGSV", evGAGSV),
+                std::make_pair("4006", evPVTCartesian),
+                std::make_pair("4007", evPVTGeodetic),
+                std::make_pair("5905", evPosCovCartesian),
+                std::make_pair("5906", evPosCovGeodetic),
+                std::make_pair("5938", evAttEuler),
+                std::make_pair("5939", evAttCovEuler),
+                std::make_pair("GPST", evGPST),
+                std::make_pair("4013", evChannelStatus),
+                std::make_pair("4027", evMeasEpoch),
+                std::make_pair("4001", evDOP),
+                std::make_pair("5908", evVelCovGeodetic),
+                std::make_pair("DiagnosticArray", evDiagnosticArray),
+                std::make_pair("Localization", evLocalization),
+                std::make_pair("4014", evReceiverStatus),
+                std::make_pair("4082", evQualityInd),
+                std::make_pair("5902", evReceiverSetup),
+                std::make_pair("4225", evINSNavCart),
+                std::make_pair("4226", evINSNavGeod),
+                std::make_pair("4230", evExtEventINSNavGeod),
+                std::make_pair("4229", evExtEventINSNavCart),
+                std::make_pair("4224", evIMUSetup),
+                std::make_pair("4244", evVelSensorSetup),
+                std::make_pair("4050", evExtSensorMeas),
+                std::make_pair("5914", evReceiverTime)};
 
             rx_id_map = RxIDMap(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
         }
 
-         /**
+        /**
          * @brief Put new data
          * @param[in] recvTimestamp Timestamp of receiving buffer
          * @param[in] data Pointer to the buffer that is about to be analyzed
@@ -583,7 +584,7 @@ namespace io_comm_rx {
          */
         bool found_;
 
-         /**
+        /**
          * @brief Wether all blocks from GNSS have arrived for GpsFix Message
          */
         bool gnss_gpsfix_complete(uint32_t id);
@@ -618,7 +619,7 @@ namespace io_comm_rx {
          */
         bool diagnostics_complete(uint32_t id);
 
-         /**
+        /**
          * @brief Wether all blocks have arrived for Localization Message
          */
         bool ins_localization_complete(uint32_t id);
@@ -686,12 +687,12 @@ namespace io_comm_rx {
         AttCovEulerMsg last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming INSNavGeod blocks
-         * need to be stored
+         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming
+         * INSNavGeod blocks need to be stored
          */
         INSNavGeodMsg last_insnavgeod_;
 
-         /**
+        /**
          * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
          * need to be stored
          */
@@ -762,80 +763,85 @@ namespace io_comm_rx {
          */
         RxIDMap rx_id_map;
 
-        //! When reading from an SBF file, the ROS publishing frequency is governed by the
-        //! time stamps found in the SBF blocks therein.
+        //! When reading from an SBF file, the ROS publishing frequency is governed
+        //! by the time stamps found in the SBF blocks therein.
         Timestamp unix_time_;
 
         //! Current leap seconds as received, do not use value is -128
         int8_t current_leap_seconds_ = -128;
 
-        //! For GPSFix: Whether the ChannelStatus block of the current epoch has arrived or
-        //! not
+        //! For GPSFix: Whether the ChannelStatus block of the current epoch has
+        //! arrived or not
         bool channelstatus_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived or not
+        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived
+        //! or not
         bool measepoch_has_arrived_gpsfix_ = false;
 
         //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
         bool dop_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has arrived or not
+        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has
+        //! arrived or not
         bool pvtgeodetic_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has arrived or
-        //! not
+        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has
+        //! arrived or not
         bool poscovgeodetic_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has arrived or
-        //! not
+        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has
+        //! arrived or not
         bool velcovgeodetic_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived or not
+        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived
+        //! or not
         bool atteuler_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the AttCovEuler block of the current epoch has arrived or not
+        //! For GPSFix: Whether the AttCovEuler block of the current epoch has
+        //! arrived or not
         bool attcoveuler_has_arrived_gpsfix_ = false;
 
-        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived or not
+        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived
+        //! or not
         bool insnavgeod_has_arrived_gpsfix_ = false;
 
-        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has arrived or
-        //! not
+        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has
+        //! arrived or not
         bool pvtgeodetic_has_arrived_navsatfix_ = false;
 
-        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has arrived
-        //! or not
+        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has
+        //! arrived or not
         bool poscovgeodetic_has_arrived_navsatfix_ = false;
 
-        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has arrived
-        //! or not
+        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has
+        //! arrived or not
         bool insnavgeod_has_arrived_navsatfix_ = false;
-        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the current epoch
-        //! has arrived or not
+        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the
+        //! current epoch has arrived or not
         bool pvtgeodetic_has_arrived_pose_ = false;
 
-        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the current
-        //! epoch has arrived or not
+        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the
+        //! current epoch has arrived or not
         bool poscovgeodetic_has_arrived_pose_ = false;
 
-        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current epoch
-        //! has arrived or not
+        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current
+        //! epoch has arrived or not
         bool atteuler_has_arrived_pose_ = false;
 
-        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the current epoch
-        //! has arrived or not
+        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the
+        //! current epoch has arrived or not
         bool attcoveuler_has_arrived_pose_ = false;
 
-        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the current epoch
-        //! has arrived or not
+        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the
+        //! current epoch has arrived or not
         bool insnavgeod_has_arrived_pose_ = false;
 
-        //! For DiagnosticArray: Whether the ReceiverStatus block of the current epoch has
-        //! arrived or not
+        //! For DiagnosticArray: Whether the ReceiverStatus block of the current
+        //! epoch has arrived or not
         bool receiverstatus_has_arrived_diagnostics_ = false;
-        
-        //! For DiagnosticArray: Whether the QualityInd block of the current epoch has
-        //! arrived or not
+
+        //! For DiagnosticArray: Whether the QualityInd block of the current epoch
+        //! has arrived or not
         bool qualityind_has_arrived_diagnostics_ = false;
 
         //! For Localization: Whether the INSNavGeod block of the current epoch
@@ -860,8 +866,7 @@ namespace io_comm_rx {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        PoseWithCovarianceStampedMsg
-        PoseWithCovarianceStampedCallback();
+        PoseWithCovarianceStampedMsg PoseWithCovarianceStampedCallback();
 
         /**
          * @brief "Callback" function when constructing
@@ -887,7 +892,7 @@ namespace io_comm_rx {
          */
         LocalizationUtmMsg LocalizationUtmCallback();
 
-         /**
+        /**
          * @brief Waits according to time when reading from file
          */
         void wait(Timestamp time_obj);
@@ -895,7 +900,7 @@ namespace io_comm_rx {
         /**
          * @brief Wether all elements are true
          */
-        bool allTrue(std::vector<bool>& vec, uint32_t id);  
+        bool allTrue(std::vector<bool>& vec, uint32_t id);
 
         /**
          * @brief Settings struct
@@ -914,7 +919,8 @@ namespace io_comm_rx {
          * @param[in] data Pointer to the buffer
          * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
          * used, otherwise the current time
-         * @return Timestamp object containing seconds and nanoseconds since last epoch
+         * @return Timestamp object containing seconds and nanoseconds since last
+         * epoch
          */
         Timestamp timestampSBF(const uint8_t* data, bool use_gnss_time);
 
@@ -922,15 +928,16 @@ namespace io_comm_rx {
          * @brief Calculates the timestamp, in the Unix Epoch time format
          * This is either done using the TOW as transmitted with the SBF block (if
          * "use_gnss" is true), or using the current time.
-         * @param[in] tow (Time of Week) Number of milliseconds that elapsed since the
-         * beginning of the current GPS week as transmitted by the SBF block
-         * @param[in] wnc (Week Number Counter) counts the number of complete weeks 
+         * @param[in] tow (Time of Week) Number of milliseconds that elapsed since
+         * the beginning of the current GPS week as transmitted by the SBF block
+         * @param[in] wnc (Week Number Counter) counts the number of complete weeks
          * elapsed since January 6, 1980
          * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
          * used, otherwise the current time
-         * @return Timestamp object containing seconds and nanoseconds since last epoch
+         * @return Timestamp object containing seconds and nanoseconds since last
+         * epoch
          */
-        Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);    
+        Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);
     };
 } // namespace io_comm_rx
 #endif // for RX_MESSAGE_HPP
