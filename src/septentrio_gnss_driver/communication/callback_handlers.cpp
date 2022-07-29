@@ -99,9 +99,9 @@ namespace io_comm_rx {
         CallbackMap::key_type key = rx_message_.messageID();
         std::string ID_temp = rx_message_.messageID();
         if (!(ID_temp == "4013" || ID_temp == "4001" ||
-              ID_temp == "4014" || ID_temp == "4082" || ID_temp == "5902"))
+              ID_temp == "4014" || ID_temp == "4082"))
         // We only want to handle ChannelStatus, MeasEpoch, DOP, ReceiverStatus, 
-        // QualityInd and ReceiverSetup blocks in case GPSFix and DiagnosticArray 
+        // QualityInd blocks in case GPSFix and DiagnosticArray 
         // messages are to be published, respectively, see few lines below.
         {
             for (CallbackMap::iterator callback = callbackmap_.lower_bound(key);
@@ -116,6 +116,7 @@ namespace io_comm_rx {
                 }
             }
         }
+        
         // Call NavSatFix callback function if it was added for GNSS 
 		if (settings_->septentrio_receiver_type == "gnss")
 		{

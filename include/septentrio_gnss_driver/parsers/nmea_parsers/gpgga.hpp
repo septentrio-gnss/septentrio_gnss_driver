@@ -82,10 +82,7 @@ public:
     /**
      * @brief Constructor of the class GpggaParser
      */
-    GpggaParser() :
-        BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false)
-    {
-    }
+    GpggaParser() : BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false) {}
 
     /**
      * @brief Returns the ASCII message ID, here "$GPGGA"
@@ -98,8 +95,9 @@ public:
      * @param[in] sentence The GGA message to be parsed
      * @return A ROS message pointer of ROS type GpggaMsg
      */
-    GpggaMsg
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
+    GpggaMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
+                        bool use_gnss_time,
+                        Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Tells us whether the last GGA message was valid or not

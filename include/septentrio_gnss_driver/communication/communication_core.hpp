@@ -137,7 +137,7 @@ namespace io_comm_rx {
          * @brief Defines which Rx messages to read and which ROS messages to publish
          * @param[in] settings The device's settings
          * */
-        void defineMessages();        
+        void defineMessages();
 
     private:
         /**
@@ -192,7 +192,8 @@ namespace io_comm_rx {
         /**
          * @brief Initializes PCAP file reading and reads PCAP file by repeatedly
          * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the PCAP file, e.g. "/tmp/capture.pcap"
+         * @param[in] file_name The name of (or path to) the PCAP file, e.g.
+         * "/tmp/capture.pcap"
          */
         void initializePCAPFileReading(std::string file_name);
 

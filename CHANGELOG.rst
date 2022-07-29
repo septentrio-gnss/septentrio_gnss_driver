@@ -2,6 +2,15 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (upcoming)
+------------------
+* New Features
+   * Example config files for GNSS and INS
+   * Get leap seconds from receiver
+   * Firmware check
+* Fixes
+   * /tf not being published without /localization
+
 1.1.2 (2022-06-22)
 ------------------
 * Fixes

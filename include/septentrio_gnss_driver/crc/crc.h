@@ -36,9 +36,9 @@
 // to handler functions
 #include <septentrio_gnss_driver/packed_structs/sbf_structs.hpp>
 // C++ libary includes
+#include <cstdint>
 #include <stdbool.h>
 #include <stddef.h>
-#include <cstdint>
 
 /**
  * @file crc.h

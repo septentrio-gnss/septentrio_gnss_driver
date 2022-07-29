@@ -151,15 +151,12 @@ void io_comm_rx::Comm_IO::initializeIO()
         tcp_port_ = match[3];
 
         serial_ = false;
-        settings_->read_from_sbf_log = false;
-        settings_->read_from_pcap = false;
         connectionThread_.reset(new  boost::thread (boost::bind(&Comm_IO::connect, this)));
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
         serial_ = false;
         settings_->read_from_sbf_log = true;
-        settings_->read_from_pcap = false;
         settings_->use_gnss_time = true;
         connectionThread_.reset(new  boost::thread (
             boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2])));
@@ -169,7 +166,6 @@ void io_comm_rx::Comm_IO::initializeIO()
                    boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
     {
         serial_ = false;
-        settings_->read_from_sbf_log = false;
         settings_->read_from_pcap = true;
         settings_->use_gnss_time = true;
         connectionThread_.reset(new  boost::thread (
@@ -178,8 +174,6 @@ void io_comm_rx::Comm_IO::initializeIO()
     } else if (boost::regex_match(settings_->device, match, boost::regex("(serial):(.+)")))
     {
         serial_ = true;
-        settings_->read_from_sbf_log = false;
-        settings_->read_from_pcap = false;
         std::string proto(match[2]);
         std::stringstream ss;
         ss << "Searching for serial port" << proto;
@@ -410,6 +404,10 @@ void io_comm_rx::Comm_IO::configureRx()
     // Setting up SBF blocks with rx_period_pvt
     {
         std::stringstream blocks;
+        if (settings_->use_gnss_time)
+        {
+            blocks << " +ReceiverTime";
+        }
         if (settings_->publish_pvtcartesian)
         {
             blocks << " +PVTCartesian";
@@ -513,8 +511,10 @@ void io_comm_rx::Comm_IO::configureRx()
         }
         if (settings_->publish_diagnostics)
         {
-            blocks << " +ReceiverStatus +QualityInd +ReceiverSetup";
+            blocks << " +ReceiverStatus +QualityInd";
         }
+
+        blocks << " +ReceiverSetup";
 
         std::stringstream ss;
         ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port
@@ -844,6 +844,12 @@ void io_comm_rx::Comm_IO::defineMessages()
 {
     node_->log(LogLevel::DEBUG, "Called defineMessages() method");
 
+     if (settings_->use_gnss_time || 
+         settings_->publish_gpst)
+    {
+        handlers_.callbackmap_ =
+            handlers_.insert<ReceiverTimeMsg>("5914");
+    }
     if (settings_->publish_gpgga)
     {
         handlers_.callbackmap_ =
@@ -1038,19 +1044,20 @@ void io_comm_rx::Comm_IO::defineMessages()
 		handlers_.callbackmap_ =
 			handlers_.insert<int32_t>("4014"); // ReceiverStatus block
 		handlers_.callbackmap_ =
-			handlers_.insert<int32_t>("4082"); // QualityInd block
-		handlers_.callbackmap_ =
-			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
+			handlers_.insert<int32_t>("4082"); // QualityInd block		
 	}
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->publish_localization)
+        if (settings_->publish_localization ||
+            settings_->publish_tf)
         {
             handlers_.callbackmap_ =
                 handlers_.insert<LocalizationUtmMsg>(
                     "Localization");
         }
     }
+    handlers_.callbackmap_ =
+			handlers_.insert<int32_t>("5902"); // ReceiverSetup block
 	// so on and so forth...
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }

@@ -85,9 +85,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
+    param("local_frame_id", local_frame_id_, (std::string) "odom");
+    param("insert_local_frame", insert_local_frame_, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
-    getUint32Param("leap_seconds", settings_.leap_seconds,
-                           static_cast<uint32_t>(18));
+    param("leap_seconds", settings_.leap_seconds, -128);
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));

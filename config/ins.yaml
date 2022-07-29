@@ -25,6 +25,13 @@ aux1_frame_id: aux1
 
 vehicle_frame_id: base_link
 
+<<<<<<< HEAD
+=======
+local_frame_id: odom
+
+insert_local_frame: false
+
+>>>>>>> dev/next
 get_spatial_config_from_tf: true
 
 lock_utm_zone: true
@@ -46,8 +53,11 @@ ant_serial_nr: Unknown
 ant_aux1_type: Unknown
 ant_aux1_serial_nr: Unknown
 
+<<<<<<< HEAD
 leap_seconds: 18
 
+=======
+>>>>>>> dev/next
 polling_period:
   pvt: 0
   rest: 500

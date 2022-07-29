@@ -62,11 +62,18 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login/user` and `login/password`.
-  + The development process of this driver has been performed with mosaic-x5, firmware (FW) revision number 2, and AsteRx-SBi3 Pro, FW revision number 1. If a more up-to-date FW (higher revision number) is uploaded to the mosaic, the driver will not be able to take account of new or updated SBF fields. 
   + ROSaic only works from C++11 onwards due to std::to_string() etc.
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
   + Note for setting `ant_serial_nr` and `ant_aux1_serial_nr`: This is a string parameter, numeric-only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
-
+  + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
+  + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be avaliable. Known limitations are:
+    * GNSS with firmware < 4.10.0 does not support IP over USB.
+    * INS with firmware < 1.3.2 does not support NTP.
+    * INS with firmware 1.2.0 does not support velocity aiding.
+    * INS with firmware 1.2.0 does not support setting of initial heading.
+  + An INS can be used in GNSS mode but some features may not be supported. Known limitations are:
+    * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
+  :<br>
   ```
   # Configuration Settings for the Rover Rx
 
@@ -92,6 +99,10 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   aux1_frame_id: aux1
 
   vehicle_frame_id: base_link
+
+  insert_local_frame: false
+
+  local_frame_id: odom
 
   get_spatial_config_from_tf: true
 
@@ -285,7 +296,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages. It corresponds to the frame of the main antenna.
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
     + default: `gnss`
-  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published Imu message
+  + `imu_frame_id`: name of the ROS tf frame for the IMU, placed in the header of published IMU message
     + default: `imu`
   + `poi_frame_id`: name of the ROS tf frame for the POI, placed in the child frame_id of localization if `ins_use_poi` is set to `true`.
     + default: `base_link`
@@ -295,6 +306,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `aux1`
   + `vehicle_frame_id`: name of the ROS tf frame for the vehicle. Default is the same as `poi_frame_id` but may be set otherwise.
     + default: `base_link`
+  + `local_frame_id`: name of the ROS tf frame for the local frame.
+    + default: `odom`
+  + `insert_local_frame`: Wether to insert a local frame to published tf according to [ROS REP 105](https://www.ros.org/reps/rep-0105.html#relationship-between-frames). The transform from the local frame specified by `local_frame_id` to the vehicle frame specified by `vehicle_frame_id` has to be provided, e.g. by odometry. Insertion of the local frame means the transform between local frame and global frame is published instead of transfrom between vehicle frame and global frame.
+    + default: `false`
   + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `poi_frame_id` are needed. For single-antenna `gnss` no frames are needed. Keep in mind that tf has a tree structure. Thus, `poi_frame_id` is the base for all mentioned frames. 
     + default: `false`
   + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
@@ -350,8 +365,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Leap Seconds</summary>
   
-  + `leap_seconds`: number of leap seconds that have been inserted up until the point of ROSaic usage
-    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the leap_seconds parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations. In the latter case, in addition please set the parameter `use_gnss_time` to true and uncomment a paragraph in the `UTCtoUnix()` function definition found in the file `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/parsing_utilities.cpp` and enter the year, month and date to be simulated.
+  + `leap_seconds`: Leap seconds are automatically gathered from the receiver via the SBF block `ReceiverTime`. If a log file is used for simulation and this block was not recorded, the number of leap seconds that have been inserted up until the point of ROSaic usage can be set by this parameter. 
+    + At the time of writing the code (2020), the GPS time, which is unaffected by leap seconds, was ahead of UTC time by 18 leap seconds. Adapt the `leap_seconds` parameter accordingly as soon as the next leap second is inserted into the UTC time or in case you are using ROSaic for the purpose of simulations.
   </details>
   
   <details>

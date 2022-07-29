@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   gps_common
   message_generation
   tf2
+  tf2_eigen
   tf2_geometry_msgs
   tf2_ros
 )
@@ -79,6 +80,7 @@ add_message_files(
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   ReceiverTime.msg
    VelCovCartesian.msg
    VelCovGeodetic.msg
    AttEuler.msg

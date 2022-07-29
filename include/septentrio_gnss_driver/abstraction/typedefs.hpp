@@ -37,7 +37,9 @@
 #include <ros/ros.h>
 // tf2 includes
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_eigen/tf2_eigen.h>
 // ROS msg includes
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
@@ -59,6 +61,7 @@
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/ReceiverTime.h>
 #include <septentrio_gnss_driver/VelCovCartesian.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
@@ -103,6 +106,7 @@ typedef septentrio_gnss_driver::PVTCartesian          PVTCartesianMsg;
 typedef septentrio_gnss_driver::PVTGeodetic           PVTGeodeticMsg;
 typedef septentrio_gnss_driver::PosCovCartesian       PosCovCartesianMsg;
 typedef septentrio_gnss_driver::PosCovGeodetic        PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::ReceiverTime          ReceiverTimeMsg;
 typedef septentrio_gnss_driver::VelCovCartesian       VelCovCartesianMsg;
 typedef septentrio_gnss_driver::VelCovGeodetic        VelCovGeodeticMsg;
 
@@ -161,7 +165,8 @@ class ROSaicNodeBase
 {
 public:
     ROSaicNodeBase() :
-    pNh_(new ros::NodeHandle("~"))
+    pNh_(new ros::NodeHandle("~")),
+    tfListener_(tfBuffer_)
     {}
 
     virtual ~ROSaicNodeBase(){}
@@ -267,6 +272,11 @@ public:
     {
         if (std::isnan(loc.pose.pose.orientation.w))
             return;
+
+        if (lastTfStamp_ == loc.header.stamp)
+            return;
+        lastTfStamp_ = loc.header.stamp;
+
         geometry_msgs::TransformStamped transformStamped;
         transformStamped.header.stamp            = loc.header.stamp;
         transformStamped.header.frame_id         = loc.header.frame_id;
@@ -279,12 +289,47 @@ public:
         transformStamped.transform.rotation.z    = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w    = loc.pose.pose.orientation.w;
 
-        tf2Publisher_.sendTransform(transformStamped);
+        if (insert_local_frame_)
+        {
+            geometry_msgs::TransformStamped T_l_b;
+            try
+            {
+                // try to get tf at timestamp of message
+                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, lastTfStamp_);
+            }
+            catch (const tf2::TransformException& ex)
+            {
+                try
+                {
+                    ROS_INFO_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No transform for insertion of local frame at t=" << lastTfStamp_.toNSec() << ". Exception: " << std::string(ex.what()));
+                    // try to get latest tf
+                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id, local_frame_id_, ros::Time(0));
+                }
+                catch (const tf2::TransformException& ex)
+                {
+                    ROS_WARN_STREAM_THROTTLE(10.0, ros::this_node::getName() << ": No most recent transform for insertion of local frame. Exception: " << std::string(ex.what()));
+                    return;
+                }
+            }
+            
+            // T_l_g = T_b_g * T_l_b;
+            transformStamped = tf2::eigenToTransform(tf2::transformToEigen(transformStamped) *
+                                                     tf2::transformToEigen(T_l_b));
+            transformStamped.header.stamp    = loc.header.stamp;
+            transformStamped.header.frame_id = loc.header.frame_id;
+            transformStamped.child_frame_id  = local_frame_id_;
+        }
+       
+        tf2Publisher_.sendTransform(transformStamped);        
     }
 
 protected:
     //! Node handle pointer
-    std::shared_ptr<ros::NodeHandle> pNh_;    
+    std::shared_ptr<ros::NodeHandle> pNh_;
+    //! Wether local frame should be inserted into tf
+    bool insert_local_frame_ = false;
+    //! Frame id of the local frame to be inserted
+    std::string local_frame_id_;
 
 private:
     //! Map of topics and publishers
@@ -293,6 +338,12 @@ private:
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
+    //! Last tf stamp
+    TimestampRos lastTfStamp_;
+    //! tf buffer
+    tf2_ros::Buffer tfBuffer_;
+    // tf listener
+	tf2_ros::TransformListener tfListener_;
 };
 
 #endif // Typedefs_HPP
