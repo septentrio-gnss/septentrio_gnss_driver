@@ -11,7 +11,7 @@ Changelog for package septentrio_gnss_driver
    * Firmware check
 * Fixes
    * /tf not being published without /localization
-   * Tiwst covariance matrix of localization
+   * Twist covariance matrix of localization
 
 1.1.2 (2022-06-22)
 ------------------
