@@ -94,6 +94,7 @@ publish:
   atteuler: false
   attcoveuler: false
   pose: false
+  twist: true
   diagnostics: true
   # For INS Rx only
   insnavcart: true

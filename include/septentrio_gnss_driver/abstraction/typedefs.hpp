@@ -45,6 +45,7 @@
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <gps_common/GPSFix.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/TimeReference.h>
@@ -86,6 +87,7 @@ typedef diagnostic_msgs::DiagnosticArray            DiagnosticArrayMsg;
 typedef diagnostic_msgs::DiagnosticStatus           DiagnosticStatusMsg;
 typedef geometry_msgs::Quaternion                   QuaternionMsg;
 typedef geometry_msgs::PoseWithCovarianceStamped    PoseWithCovarianceStampedMsg;
+typedef geometry_msgs::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::TransformStamped             TransformStampedMsg;
 typedef gps_common::GPSFix                          GPSFixMsg;
 typedef gps_common::GPSStatus                       GPSStatusMsg;
