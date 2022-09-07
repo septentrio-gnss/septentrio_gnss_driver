@@ -514,8 +514,6 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   <summary>Some Ideas</summary>
 
   + Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
-  + Publishing the topic `/twist`: It could accept the generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic` and others or via standardized NMEA sentences (cf. the [NMEA driver](https://wiki.ros.org/nmea_navsat_driver)).
-    + The ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) could be fed directly into the [`robot_localization`](ttps://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) nodes of the ROS navigation stack.
   + Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 </details>
 
