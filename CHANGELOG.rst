@@ -5,11 +5,13 @@ Changelog for package septentrio_gnss_driver
 1.2.3 (upcoming)
 ------------------
 * New Features
+   * Twist output option
    * Example config files for GNSS and INS
    * Get leap seconds from receiver
    * Firmware check
 * Fixes
    * /tf not being published without /localization
+   * Tiwst covariance matrix of localization
 
 1.2.2 (2022-06-22)
 ------------------

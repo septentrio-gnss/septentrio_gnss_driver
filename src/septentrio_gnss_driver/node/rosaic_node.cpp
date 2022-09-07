@@ -188,6 +188,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.extsensormeas", settings_.publish_extsensormeas, false);
     param("publish.imu", settings_.publish_imu, false);
     param("publish.localization", settings_.publish_localization, false);
+    param("publish.twist", settings_.publish_twist, false);
     param("publish.tf", settings_.publish_tf, false);
 
     // Datum and marker-to-ARP offset

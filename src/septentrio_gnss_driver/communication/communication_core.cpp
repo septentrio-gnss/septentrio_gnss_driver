@@ -418,7 +418,7 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +PVTCartesian";
         }
-        if (settings_->publish_pvtgeodetic ||
+        if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
             (settings_->publish_navsatfix &&
              (settings_->septentrio_receiver_type == "gnss")) ||
             (settings_->publish_gpsfix &&
@@ -442,7 +442,7 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +PosCovGeodetic";
         }
-        if (settings_->publish_velcovgeodetic ||
+        if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
             (settings_->publish_gpsfix &&
              (settings_->septentrio_receiver_type == "gnss")))
         {
@@ -483,7 +483,7 @@ void io_comm_rx::Comm_IO::configureRx()
             if (settings_->publish_insnavgeod || settings_->publish_navsatfix ||
                 settings_->publish_gpsfix || settings_->publish_pose ||
                 settings_->publish_imu || settings_->publish_localization ||
-                settings_->publish_tf)
+                settings_->publish_tf || settings_->publish_twist)
             {
                 blocks << " +INSNavGeod";
             }
@@ -948,7 +948,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         handlers_.callbackmap_ = handlers_.insert<PVTCartesianMsg>("4006");
     }
-    if (settings_->publish_pvtgeodetic ||
+    if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
         (settings_->publish_navsatfix &&
          (settings_->septentrio_receiver_type == "gnss")) ||
         (settings_->publish_gpsfix &&
@@ -970,7 +970,7 @@ void io_comm_rx::Comm_IO::defineMessages()
     {
         handlers_.callbackmap_ = handlers_.insert<PosCovGeodeticMsg>("5906");
     }
-    if (settings_->publish_velcovgeodetic ||
+    if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
         (settings_->publish_gpsfix &&
          (settings_->septentrio_receiver_type == "gnss")))
     {
@@ -1010,6 +1010,8 @@ void io_comm_rx::Comm_IO::defineMessages()
          (settings_->septentrio_receiver_type == "ins")) ||
         (settings_->publish_imu && (settings_->septentrio_receiver_type == "ins")) ||
         (settings_->publish_localization &&
+         (settings_->septentrio_receiver_type == "ins")) ||
+        (settings_->publish_twist &&
          (settings_->septentrio_receiver_type == "ins")) ||
         (settings_->publish_tf && (settings_->septentrio_receiver_type == "ins")))
     {

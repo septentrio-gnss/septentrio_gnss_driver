@@ -296,6 +296,8 @@ struct Settings
     bool publish_imu;
     //! Whether or not to publish the LocalizationMsg message
     bool publish_localization;
+    //! Whether or not to publish the TwistWithCovarianceStampedMsg message
+    bool publish_twist;
     //! Whether or not to publish the tf of the localization
     bool publish_tf;
     //! Septentrio receiver type, either "gnss" or "ins"
@@ -871,7 +873,7 @@ namespace io_comm_rx {
         /**
          * @brief "Callback" function when constructing
          * DiagnosticArrayMsg messages
-         * @return A smart pointer to the ROS message
+         * @return A ROS message
          * DiagnosticArrayMsg just created
          */
         DiagnosticArrayMsg DiagnosticArrayCallback();
@@ -879,7 +881,7 @@ namespace io_comm_rx {
         /**
          * @brief "Callback" function when constructing
          * ImuMsg messages
-         * @return A smart pointer to the ROS message
+         * @return A ROS message
          * ImuMsg just created
          */
         ImuMsg ImuCallback();
@@ -887,10 +889,19 @@ namespace io_comm_rx {
         /**
          * @brief "Callback" function when constructing
          * LocalizationUtmMsg messages
-         * @return A smart pointer to the ROS message
+         * @return A ROS message
          * LocalizationUtmMsg just created
          */
         LocalizationUtmMsg LocalizationUtmCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * TwistWithCovarianceStampedMsg messages
+         * @param[in] fromIns Wether to contruct message from INS data
+         * @return A ROS message
+         * TwistWithCovarianceStampedMsg just created
+         */
+        TwistWithCovarianceStampedMsg TwistCallback(bool fromIns = false);
 
         /**
          * @brief Waits according to time when reading from file

@@ -404,6 +404,223 @@ ImuMsg io_comm_rx::RxMessage::ImuCallback()
     return msg;
 };
 
+TwistWithCovarianceStampedMsg
+io_comm_rx::RxMessage::TwistCallback(bool fromIns /* = false*/)
+{
+    TwistWithCovarianceStampedMsg msg;
+
+    if (fromIns)
+    {
+        msg.header = last_insnavgeod_.header;
+
+        if ((last_insnavgeod_.sb_list & 8) != 0)
+        {
+            // Linear velocity in navigation frame
+            double ve = 0.0;
+            if (validValue(last_insnavgeod_.ve))
+                ve = last_insnavgeod_.ve;
+            double vn = 0.0;
+            if (validValue(last_insnavgeod_.vn))
+                vn = last_insnavgeod_.vn;
+            double vu = 0.0;
+            if (validValue(last_insnavgeod_.vu))
+                vu = last_insnavgeod_.vu;
+            Eigen::Vector3d vel;
+            if (settings_->use_ros_axis_orientation)
+            {
+                // (ENU)
+                vel << ve, vn, vu;
+            } else
+            {
+                // (NED)
+                vel << vn, ve, -vu;
+            }
+            // Linear velocity
+            msg.twist.twist.linear.x = vel(0);
+            msg.twist.twist.linear.y = vel(1);
+            msg.twist.twist.linear.z = vel(2);
+        } else
+        {
+            msg.twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+            msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+            msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+        }
+
+        if (((last_insnavgeod_.sb_list & 16) != 0) &&
+            ((last_insnavgeod_.sb_list & 2) != 0) &&
+            ((last_insnavgeod_.sb_list & 8) != 0))
+        {
+            Eigen::Matrix3d Cov_vel_n = Eigen::Matrix3d::Zero();
+            if ((last_insnavgeod_.sb_list & 128) != 0)
+            {
+                // Linear velocity covariance
+                if (validValue(last_insnavgeod_.ve_std_dev))
+                    if (settings_->use_ros_axis_orientation)
+                        Cov_vel_n(0, 0) =
+                            parsing_utilities::square(last_insnavgeod_.ve_std_dev);
+                    else
+                        Cov_vel_n(1, 1) =
+                            parsing_utilities::square(last_insnavgeod_.ve_std_dev);
+                else
+                    Cov_vel_n(0, 0) = -1.0;
+                if (validValue(last_insnavgeod_.vn_std_dev))
+                    if (settings_->use_ros_axis_orientation)
+                        Cov_vel_n(1, 1) =
+                            parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+                    else
+                        Cov_vel_n(0, 0) =
+                            parsing_utilities::square(last_insnavgeod_.vn_std_dev);
+                else
+                    Cov_vel_n(1, 1) = -1.0;
+                if (validValue(last_insnavgeod_.vu_std_dev))
+                    Cov_vel_n(2, 2) =
+                        parsing_utilities::square(last_insnavgeod_.vu_std_dev);
+                else
+                    Cov_vel_n(2, 2) = -1.0;
+
+                if (validValue(last_insnavgeod_.ve_vn_cov))
+                    Cov_vel_n(0, 1) = Cov_vel_n(1, 0) = last_insnavgeod_.ve_vn_cov;
+                if (settings_->use_ros_axis_orientation)
+                {
+                    if (validValue(last_insnavgeod_.ve_vu_cov))
+                        Cov_vel_n(0, 2) = Cov_vel_n(2, 0) =
+                            last_insnavgeod_.ve_vu_cov;
+                    if (validValue(last_insnavgeod_.vn_vu_cov))
+                        Cov_vel_n(2, 1) = Cov_vel_n(1, 2) =
+                            last_insnavgeod_.vn_vu_cov;
+                } else
+                {
+                    if (validValue(last_insnavgeod_.vn_vu_cov))
+                        Cov_vel_n(0, 2) = Cov_vel_n(2, 0) =
+                            -last_insnavgeod_.vn_vu_cov;
+                    if (validValue(last_insnavgeod_.ve_vu_cov))
+                        Cov_vel_n(2, 1) = Cov_vel_n(1, 2) =
+                            -last_insnavgeod_.ve_vu_cov;
+                }
+            } else
+            {
+                Cov_vel_n(0, 0) = -1.0;
+                Cov_vel_n(1, 1) = -1.0;
+                Cov_vel_n(2, 2) = -1.0;
+            }
+
+            msg.twist.covariance[0] = Cov_vel_n(0, 0);
+            msg.twist.covariance[1] = Cov_vel_n(0, 1);
+            msg.twist.covariance[2] = Cov_vel_n(0, 2);
+            msg.twist.covariance[6] = Cov_vel_n(1, 0);
+            msg.twist.covariance[7] = Cov_vel_n(1, 1);
+            msg.twist.covariance[8] = Cov_vel_n(1, 2);
+            msg.twist.covariance[12] = Cov_vel_n(2, 0);
+            msg.twist.covariance[13] = Cov_vel_n(2, 1);
+            msg.twist.covariance[14] = Cov_vel_n(2, 2);
+        } else
+        {
+            msg.twist.covariance[0] = -1.0;
+            msg.twist.covariance[7] = -1.0;
+            msg.twist.covariance[14] = -1.0;
+        }
+        // Autocovariances of angular velocity
+        msg.twist.covariance[21] = -1.0;
+        msg.twist.covariance[28] = -1.0;
+        msg.twist.covariance[35] = -1.0;
+
+    } else
+    {
+        msg.header = last_pvtgeodetic_.header;
+
+        if (last_pvtgeodetic_.error == 0)
+        {
+            // Linear velocity in navigation frame
+            double ve = 0.0;
+            if (validValue(last_pvtgeodetic_.ve))
+                ve = last_pvtgeodetic_.ve;
+            double vn = 0.0;
+            if (validValue(last_pvtgeodetic_.vn))
+                vn = last_pvtgeodetic_.vn;
+            double vu = 0.0;
+            if (validValue(last_pvtgeodetic_.vu))
+                vu = last_pvtgeodetic_.vu;
+            Eigen::Vector3d vel;
+            if (settings_->use_ros_axis_orientation)
+            {
+                // (ENU)
+                vel << ve, vn, vu;
+            } else
+            {
+                // (NED)
+                vel << vn, ve, -vu;
+            }
+            // Linear velocity
+            msg.twist.twist.linear.x = vel(0);
+            msg.twist.twist.linear.y = vel(1);
+            msg.twist.twist.linear.z = vel(2);
+        } else
+        {
+            msg.twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+            msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+            msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+        }
+
+        if (last_velcovgeodetic_.error == 0)
+        {
+            Eigen::Matrix3d Cov_vel_n = Eigen::Matrix3d::Zero();
+            // Linear velocity covariance in navigation frame
+            if (validValue(last_velcovgeodetic_.cov_veve))
+                if (settings_->use_ros_axis_orientation)
+                    Cov_vel_n(0, 0) = last_velcovgeodetic_.cov_veve;
+                else
+                    Cov_vel_n(1, 1) = last_velcovgeodetic_.cov_veve;
+            else
+                Cov_vel_n(0, 0) = -1.0;
+            if (validValue(last_velcovgeodetic_.cov_vnvn))
+                if (settings_->use_ros_axis_orientation)
+                    Cov_vel_n(1, 1) = last_velcovgeodetic_.cov_vnvn;
+                else
+                    Cov_vel_n(0, 0) = last_velcovgeodetic_.cov_vnvn;
+            else
+                Cov_vel_n(1, 1) = -1.0;
+            if (validValue(last_velcovgeodetic_.cov_vuvu))
+                Cov_vel_n(2, 2) = last_velcovgeodetic_.cov_vuvu;
+            else
+                Cov_vel_n(2, 2) = -1.0;
+
+            Cov_vel_n(0, 1) = Cov_vel_n(1, 0) = last_velcovgeodetic_.cov_vnve;
+            if (settings_->use_ros_axis_orientation)
+            {
+                Cov_vel_n(0, 2) = Cov_vel_n(2, 0) = last_velcovgeodetic_.cov_vevu;
+                Cov_vel_n(2, 1) = Cov_vel_n(1, 2) = last_velcovgeodetic_.cov_vnvu;
+            } else
+            {
+                Cov_vel_n(0, 2) = Cov_vel_n(2, 0) = -last_velcovgeodetic_.cov_vnvu;
+                Cov_vel_n(2, 1) = Cov_vel_n(1, 2) = -last_velcovgeodetic_.cov_vevu;
+            }
+
+            msg.twist.covariance[0] = Cov_vel_n(0, 0);
+            msg.twist.covariance[1] = Cov_vel_n(0, 1);
+            msg.twist.covariance[2] = Cov_vel_n(0, 2);
+            msg.twist.covariance[6] = Cov_vel_n(1, 0);
+            msg.twist.covariance[7] = Cov_vel_n(1, 1);
+            msg.twist.covariance[8] = Cov_vel_n(1, 2);
+            msg.twist.covariance[12] = Cov_vel_n(2, 0);
+            msg.twist.covariance[13] = Cov_vel_n(2, 1);
+            msg.twist.covariance[14] = Cov_vel_n(2, 2);
+        } else
+        {
+            msg.twist.covariance[0] = -1.0;
+            msg.twist.covariance[7] = -1.0;
+            msg.twist.covariance[14] = -1.0;
+        }
+        // Autocovariances of angular velocity
+        msg.twist.covariance[21] = -1.0;
+        msg.twist.covariance[28] = -1.0;
+        msg.twist.covariance[35] = -1.0;
+    }
+
+    msg.header.frame_id = "navigation";
+
+    return msg;
+};
+
 /**
  * Localization in UTM coordinates. Yaw angle is converted from true north to grid
  * north. Linear velocity of twist in body frame as per msg definition. Angular
@@ -559,7 +776,7 @@ LocalizationUtmMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
         msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
     }
-    Eigen::Matrix3d Cov_vel_n;
+    Eigen::Matrix3d Cov_vel_n = Eigen::Matrix3d::Zero();
     if ((last_insnavgeod_.sb_list & 16) != 0)
     {
         // Linear velocity autocovariance
@@ -664,7 +881,7 @@ LocalizationUtmMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg.twist.covariance[7] = Cov_vel_body(1, 1);
         msg.twist.covariance[8] = Cov_vel_body(1, 2);
         msg.twist.covariance[12] = Cov_vel_body(2, 0);
-        msg.twist.covariance[13] = Cov_vel_body(1, 1);
+        msg.twist.covariance[13] = Cov_vel_body(2, 1);
         msg.twist.covariance[14] = Cov_vel_body(2, 2);
     } else
     {
@@ -1718,7 +1935,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     switch (rx_id_map[message_key])
     {
     case evPVTCartesian: // Position and velocity in XYZ
-    {   // The curly bracket here is crucial: Declarations inside a block remain
+    { // The curly bracket here is crucial: Declarations inside a block remain
         // inside, and will die at
         // the end of the block. Otherwise variable overloading etc.
         PVTCartesianMsg msg;
@@ -1938,6 +2155,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         }
         if (settings_->publish_insnavgeod)
             publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+        if (settings_->publish_twist)
+        {
+            TwistWithCovarianceStampedMsg twist = TwistCallback(true);
+            publish<TwistWithCovarianceStampedMsg>("/twist_ins", twist);
+        }
         break;
     }
 
@@ -2574,6 +2796,11 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         }
         if (settings_->publish_velcovgeodetic)
             publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+        if (settings_->publish_twist)
+        {
+            TwistWithCovarianceStampedMsg twist = TwistCallback();
+            publish<TwistWithCovarianceStampedMsg>("/twist", twist);
+        }
         break;
     }
     case evDiagnosticArray:

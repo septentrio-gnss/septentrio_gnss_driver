@@ -50,6 +50,7 @@
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -91,6 +92,7 @@ typedef diagnostic_msgs::msg::DiagnosticArray DiagnosticArrayMsg;
 typedef diagnostic_msgs::msg::DiagnosticStatus DiagnosticStatusMsg;
 typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
+typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
 typedef gps_msgs::msg::GPSFix GPSFixMsg;
 typedef gps_msgs::msg::GPSStatus GPSStatusMsg;

@@ -93,6 +93,7 @@ publish:
   atteuler: true
   attcoveuler: true
   pose: false
+  twist: false
   diagnostics: false
   # For GNSS Rx only
   gpgsa: false
