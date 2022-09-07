@@ -32,8 +32,8 @@
 #define STRING_UTILITIES_H
 
 // C and C++ library includes
-#include <locale> // Merely for "isdigit()" function, also available in <cctype.h> C header..
 #include <cstdint>
+#include <locale> // Merely for "isdigit()" function, also available in <cctype.h> C header..
 #include <string>
 
 /**
