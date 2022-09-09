@@ -139,6 +139,13 @@ namespace io_comm_rx {
          * */
         void defineMessages();
 
+        /**
+         * @brief Hands over NMEA velocity message over to the send() method of
+         * manager_
+         * @param cmd The command to hand over
+         */
+        void sendVelocity(const std::string& velNmea);
+
     private:
         /**
          * @brief Sets up the stage for SBF file reading
@@ -207,7 +214,7 @@ namespace io_comm_rx {
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(std::string cmd);
+        void send(const std::string&);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;

@@ -334,7 +334,7 @@ void io_comm_rx::Comm_IO::configureRx()
         // Escape sequence (escape from correction mode), ensuring that we can send
         // our real commands afterwards...
         std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-        manager_.get()->send(cmd, cmd.size());
+        manager_.get()->send(cmd);
         // We wait for the connection descriptor before we send another command,
         // otherwise the latter would not be processed.
         g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
@@ -909,6 +909,14 @@ void io_comm_rx::Comm_IO::configureRx()
             }
         }
     }
+
+    if (true) // settings_->send_vsm
+    {
+        std::string s;
+        s = "sdio, " + rx_port + ", NMEA, auto  \x0D";
+        send(s);
+    }
+
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 
@@ -1116,15 +1124,21 @@ void io_comm_rx::Comm_IO::defineMessages()
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }
 
-void io_comm_rx::Comm_IO::send(std::string cmd)
+void io_comm_rx::Comm_IO::send(const std::string& cmd)
 {
     // It is imperative to hold a lock on the mutex "g_response_mutex" while
     // modifying the variable "g_response_received".
     boost::mutex::scoped_lock lock(g_response_mutex);
     // Determine byte size of cmd and hand over to send() method of manager_
-    manager_.get()->send(cmd, cmd.size());
+    manager_.get()->send(cmd);
     g_response_condition.wait(lock, []() { return g_response_received; });
     g_response_received = false;
+}
+
+void io_comm_rx::Comm_IO::sendVelocity(const std::string& velNmea)
+{
+    // Determine byte size of cmd and hand over to send() method of manager_
+    manager_.get()->send(velNmea);
 }
 
 bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)

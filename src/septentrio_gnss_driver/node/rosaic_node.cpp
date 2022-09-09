@@ -462,6 +462,11 @@ void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
     yaw = std::atan2(C(1, 0), C(0, 0));
 }
 
+void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
+{
+    IO_.sendVelocity(velNmea);
+}
+
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.

@@ -33,6 +33,7 @@
 
 // std includes
 #include <any>
+#include <sstream>
 #include <unordered_map>
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
@@ -82,6 +83,8 @@
 #include <septentrio_gnss_driver/msg/ins_nav_cart.hpp>
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
+// Rosaic includes
+#include <septentrio_gnss_driver/parsers/string_utilities.h>
 
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;
@@ -349,11 +352,50 @@ public:
         tf2Publisher_.sendTransform(transformStamped);
     }
 
+    void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr& odo)
+    {
+        Timestamp stamp = getTime(); // TODO timestampFromRos(odo->stamp);
+        std::stringstream velNmea;
+
+        //$PSSN,VSM,091327.000,5.952,0.123,0.023,0.001,-0.087,0.189*6F
+
+        std::string timeUtc;
+        time_t epochSeconds = stamp / 1000000000;
+        struct tm* time_temp = std::gmtime(&epochSeconds);
+
+        timeUtc = std::to_string(time_temp->tm_hour) +
+                  std::to_string(time_temp->tm_min) +
+                  std::to_string(time_temp->tm_sec) + "." +
+                  std::to_string((stamp - stamp / 1000000000) / 1000000);
+
+        velNmea
+            << "$PSSN,VSM," << timeUtc << ","
+            << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) << ","
+            << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) << ","
+            << string_utilities::trimDecimalPlaces(
+                   std::sqrt(odo->twist.covariance[0]))
+            << ","
+            << string_utilities::trimDecimalPlaces(
+                   std::sqrt(odo->twist.covariance[7]))
+            << "," << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.z)
+            << ","
+            << string_utilities::trimDecimalPlaces(std::sqrt(
+                   odo->twist.covariance[14])); // TODO if cov -1, if set manually
+
+        char crc = std::accumulate(velNmea.str().begin() + 1, velNmea.str().end(), 0,
+                                   [](char sum, char ch) { return sum ^ ch; });
+
+        velNmea << "*" << std::hex << static_cast<int32_t>(crc);
+        sendVelocity(velNmea.str());
+    }
+
 protected:
     //! Wether local frame should be inserted into tf
     bool insert_local_frame_ = false;
     //! Frame id of the local frame to be inserted
     std::string local_frame_id_;
+
+    virtual void sendVelocity(const std::string& velNmea) = 0;
 
 private:
     //! Map of topics and publishers

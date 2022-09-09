@@ -116,6 +116,8 @@ namespace rosaic_node {
         void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
                     double& yaw);
 
+        void sendVelocity(const std::string& velNmea);
+
         //! Settings
         Settings settings_;
         //! Handles communication with the Rx
