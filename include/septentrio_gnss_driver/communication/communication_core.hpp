@@ -204,12 +204,6 @@ namespace io_comm_rx {
         void setManager(const boost::shared_ptr<Manager>& manager);
 
         /**
-         * @brief Reset the Serial I/O port, e.g. after a Rx reset
-         * @param[in] port The device's port address
-         */
-        void resetSerial(std::string port);
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */

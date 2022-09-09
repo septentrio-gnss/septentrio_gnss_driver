@@ -1473,33 +1473,3 @@ void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
                                       bp::_1, bp::_2, bp::_3));
     node_->log(LogLevel::DEBUG, "Leaving setManager() method");
 }
-
-void io_comm_rx::Comm_IO::resetSerial(std::string port)
-{
-    serial_port_ = port;
-    boost::shared_ptr<boost::asio::io_service> io_service(
-        new boost::asio::io_service);
-    boost::shared_ptr<boost::asio::serial_port> serial(
-        new boost::asio::serial_port(*io_service));
-
-    // Try to open serial port
-    try
-    {
-        serial->open(serial_port_);
-    } catch (std::runtime_error& e)
-    {
-        throw std::runtime_error("Could not open serial port :" + serial_port_ +
-                                 " " + e.what());
-    }
-
-    node_->log(LogLevel::INFO, "Reset serial port " + serial_port_);
-
-    // Sets the I/O worker
-    if (manager_)
-        return;
-    setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::serial_port>(node_, serial, io_service)));
-
-    // Set the baudrate
-    serial->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
-}
