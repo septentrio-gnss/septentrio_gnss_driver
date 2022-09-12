@@ -910,11 +910,12 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if (true) // settings_->send_vsm
+    if (true) // TODO settings_->send_vsm
     {
         std::string s;
-        s = "sdio, " + rx_port + ", NMEA, auto  \x0D";
+        s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
         send(s);
+        nmeaActivated_ = true;
     }
 
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
@@ -1137,8 +1138,8 @@ void io_comm_rx::Comm_IO::send(const std::string& cmd)
 
 void io_comm_rx::Comm_IO::sendVelocity(const std::string& velNmea)
 {
-    // Determine byte size of cmd and hand over to send() method of manager_
-    manager_.get()->send(velNmea);
+    if (nmeaActivated_)
+        manager_.get()->send(velNmea);
 }
 
 bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)

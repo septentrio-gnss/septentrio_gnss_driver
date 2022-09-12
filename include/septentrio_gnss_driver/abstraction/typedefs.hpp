@@ -350,43 +350,53 @@ public:
         }
 
         tf2Publisher_.sendTransform(transformStamped);
+
+        nav_msgs::msg::Odometry::SharedPtr odo(new nav_msgs::msg::Odometry);
+
+        odo->twist.twist.linear.x = 1.0;
+        odo->twist.twist.linear.y = 2.0;
+        odo->twist.twist.linear.z = 3.0;
+
+        // TODO just to test
+        callbackOdometry(odo);
     }
 
     void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr& odo)
     {
         Timestamp stamp = getTime(); // TODO timestampFromRos(odo->stamp);
-        std::stringstream velNmea;
-
-        //$PSSN,VSM,091327.000,5.952,0.123,0.023,0.001,-0.087,0.189*6F
+        std::string velNmea;
 
         std::string timeUtc;
         time_t epochSeconds = stamp / 1000000000;
         struct tm* time_temp = std::gmtime(&epochSeconds);
 
-        timeUtc = std::to_string(time_temp->tm_hour) +
-                  std::to_string(time_temp->tm_min) +
-                  std::to_string(time_temp->tm_sec) + "." +
-                  std::to_string((stamp - stamp / 1000000000) / 1000000);
+        timeUtc =
+            std::to_string(time_temp->tm_hour) + std::to_string(time_temp->tm_min) +
+            std::to_string(time_temp->tm_sec) + "." +
+            std::to_string((stamp - stamp / 1000000000 * 1000000000) / 1000000);
+        // TODO if ros_axis_directions y = -y, z = -z
+        velNmea =
+            "$PSSN,VSM," + timeUtc + "," +
+            string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) + "," +
+            string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) + "," +
+            string_utilities::trimDecimalPlaces(
+                std::sqrt(odo->twist.covariance[0])) +
+            "," +
+            string_utilities::trimDecimalPlaces(
+                std::sqrt(odo->twist.covariance[7])) +
+            "," + string_utilities::trimDecimalPlaces(odo->twist.twist.linear.z) +
+            "," +
+            string_utilities::trimDecimalPlaces(std::sqrt(
+                odo->twist.covariance[14])); // TODO if cov -1, if set manually
 
-        velNmea
-            << "$PSSN,VSM," << timeUtc << ","
-            << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) << ","
-            << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) << ","
-            << string_utilities::trimDecimalPlaces(
-                   std::sqrt(odo->twist.covariance[0]))
-            << ","
-            << string_utilities::trimDecimalPlaces(
-                   std::sqrt(odo->twist.covariance[7]))
-            << "," << string_utilities::trimDecimalPlaces(odo->twist.twist.linear.z)
-            << ","
-            << string_utilities::trimDecimalPlaces(std::sqrt(
-                   odo->twist.covariance[14])); // TODO if cov -1, if set manually
-
-        char crc = std::accumulate(velNmea.str().begin() + 1, velNmea.str().end(), 0,
+        char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
                                    [](char sum, char ch) { return sum ^ ch; });
 
-        velNmea << "*" << std::hex << static_cast<int32_t>(crc);
-        sendVelocity(velNmea.str());
+        std::stringstream crcss;
+        crcss << std::hex << static_cast<int32_t>(crc);
+
+        velNmea += "*" + crcss.str() + "\r\n";
+        sendVelocity(velNmea);
     }
 
 protected:

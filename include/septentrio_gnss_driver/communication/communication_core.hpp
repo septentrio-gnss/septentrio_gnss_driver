@@ -246,6 +246,8 @@ namespace io_comm_rx {
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
 
+        bool nmeaActivated_ = false;
+
         //! Connection or reading thread
         std::unique_ptr<boost::thread> connectionThread_;
         //! Indicator for threads to exit
