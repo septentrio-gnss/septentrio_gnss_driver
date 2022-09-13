@@ -33,6 +33,7 @@
 
 // std includes
 #include <any>
+#include <iomanip>
 #include <sstream>
 #include <unordered_map>
 // ROS includes
@@ -353,9 +354,13 @@ public:
 
         nav_msgs::msg::Odometry::SharedPtr odo(new nav_msgs::msg::Odometry);
 
-        odo->twist.twist.linear.x = 1.0;
-        odo->twist.twist.linear.y = 2.0;
-        odo->twist.twist.linear.z = 3.0;
+        odo->twist.twist.linear.x = 42.0;
+        odo->twist.twist.linear.y = 4.20;
+        odo->twist.twist.linear.z = 0.42;
+
+        odo->twist.covariance[0] = 4;
+        odo->twist.covariance[7] = 16;
+        odo->twist.covariance[14] = 64;
 
         // TODO just to test
         callbackOdometry(odo);
@@ -366,17 +371,18 @@ public:
         Timestamp stamp = getTime(); // TODO timestampFromRos(odo->stamp);
         std::string velNmea;
 
-        std::string timeUtc;
         time_t epochSeconds = stamp / 1000000000;
-        struct tm* time_temp = std::gmtime(&epochSeconds);
-
-        timeUtc =
-            std::to_string(time_temp->tm_hour) + std::to_string(time_temp->tm_min) +
-            std::to_string(time_temp->tm_sec) + "." +
-            std::to_string((stamp - stamp / 1000000000 * 1000000000) / 1000000);
+        struct tm* tm_temp = std::gmtime(&epochSeconds);
+        std::stringstream timeUtc;
+        timeUtc << std::setfill('0') << std::setw(2)
+                << std::to_string(tm_temp->tm_hour) << std::setw(2)
+                << std::to_string(tm_temp->tm_min) << std::setw(2)
+                << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
+                << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
+                                  1000000);
         // TODO if ros_axis_directions y = -y, z = -z
         velNmea =
-            "$PSSN,VSM," + timeUtc + "," +
+            "$PSSN,VSM," + timeUtc.str() + "," +
             string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) + "," +
             string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) + "," +
             string_utilities::trimDecimalPlaces(
