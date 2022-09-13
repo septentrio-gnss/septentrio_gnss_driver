@@ -327,6 +327,14 @@ struct Settings
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
     bool read_from_pcap = false;
+    //! Whether or not to use VSM for INS
+    bool ins_use_vsm = false;
+    //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
+    std::vector<bool> ins_vsm_config = {false, false, false};
+    //! Whether or not to use variance defined by ROS parameter
+    bool ins_vsm_variance_by_parameter = false;
+    //! Variances of the 3D velocity (var_x, var_y, var_z)
+    std::vector<double> ins_vsm_variance = {-1.0, -1.0, -1.0};
 };
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's

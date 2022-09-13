@@ -910,7 +910,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if (true) // TODO settings_->send_vsm
+    if (settings_->ins_use_vsm)
     {
         std::string s;
         s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
