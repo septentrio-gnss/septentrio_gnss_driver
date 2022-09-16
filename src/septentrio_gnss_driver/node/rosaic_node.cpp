@@ -425,40 +425,42 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ins_use_vsm", settings_.ins_use_vsm, false);
     param("ins_vsm_config", settings_.ins_vsm_config,
           std::vector<bool>({false, false, false}));
-    if (settings_.ins_use_vsm && (settings_.ins_vsm_config.size() != 3))
+    if (settings_.ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
+    {
+        param("ins_vsm_variance_by_parameter",
+              settings_.ins_vsm_variance_by_parameter, false);
+        if (settings_.ins_vsm_variance_by_parameter)
+        {
+            param("ins_vsm_variance", settings_.ins_vsm_variance,
+                  std::vector<double>({-1.0, -1.0, -1.0}));
+            if (settings_.ins_vsm_variance.size() != 3)
+            {
+                this->log(
+                    LogLevel::ERROR,
+                    "ins_vsm_variance has to be of size 3 for var_x, var_y, and var_z -> vsm info cannot be used!");
+                settings_.ins_use_vsm = false;
+            } else
+            {
+                for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
+                {
+                    if (settings_.ins_vsm_config[i] &&
+                        (settings_.ins_vsm_variance[i] <= 0.0))
+                    {
+                        this->log(
+                            LogLevel::ERROR,
+                            "ins_vsm_config of element " + std::to_string(i) +
+                                " has been set to be used but its variance is not > 0.0 -> vsm info cannot be used!");
+                        settings_.ins_use_vsm = false;
+                    }
+                }
+            }
+        }
+    } else if (settings_.ins_use_vsm)
     {
         this->log(
             LogLevel::ERROR,
             "ins_vsm_config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> vsm info cannot be used!");
         settings_.ins_use_vsm = false;
-    }
-    param("ins_vsm_variance_by_param", settings_.ins_vsm_variance_by_parameter,
-          false);
-    if (settings_.ins_use_vsm && settings_.ins_vsm_variance_by_parameter)
-    {
-        param("ins_vsm_variance", settings_.ins_vsm_variance,
-              std::vector<double>({-1.0, -1.0, -1.0}));
-        if (settings_.ins_use_vsm && (settings_.ins_vsm_variance.size() != 3))
-        {
-            this->log(
-                LogLevel::ERROR,
-                "ins_vsm_variance has to be of size 3 for var_x, var_y, and var_z -> vsm info cannot be used!");
-            settings_.ins_use_vsm = false;
-        } else
-        {
-            for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
-            {
-                if (settings_.ins_vsm_config[i] &&
-                    (settings_.ins_vsm_variance[i] <= 0.0))
-                {
-                    this->log(
-                        LogLevel::ERROR,
-                        "ins_vsm_config of element " + std::to_string(i) +
-                            " has been set to be used but its variance is not > 0.0 -> vsm info cannot be used!");
-                    settings_.ins_use_vsm = false;
-                }
-            }
-        }
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...

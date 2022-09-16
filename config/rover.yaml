@@ -138,6 +138,11 @@ ins_std_dev_mask:
 
 ins_use_poi: false
 
+ins_use_vsm: True
+ins_vsm_config: [True, False, False]
+ins_vsm_variance_by_parameter: True
+ins_vsm_variance: [1.0, 0.0, 0.0]
+
 # logger
 
 activate_debug_log: false

@@ -358,9 +358,9 @@ public:
         odo->twist.twist.linear.y = 4.20;
         odo->twist.twist.linear.z = 0.42;
 
-        odo->twist.covariance[0] = 4;
-        odo->twist.covariance[7] = 16;
-        odo->twist.covariance[14] = 64;
+        odo->twist.covariance[0] = 1e6;
+        odo->twist.covariance[7] = 1e6;
+        odo->twist.covariance[14] = 1e6;
 
         // TODO just to test
         callbackOdometry(odo);
