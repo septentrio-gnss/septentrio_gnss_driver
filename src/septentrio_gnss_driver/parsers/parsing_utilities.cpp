@@ -327,7 +327,7 @@ namespace parsing_utilities {
 
     uint32_t convertUserPeriodToRxCommand(uint32_t period_user)
     {
-        if (period_user <= 500 && period_user >= 10)
+        if ((period_user) < 1000 && (period_user >= 1))
             return period_user;
         else
         {
