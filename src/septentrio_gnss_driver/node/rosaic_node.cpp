@@ -111,10 +111,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // Polling period parameters
     getUint32Param("polling_period/pvt", settings_.polling_period_pvt,
                    static_cast<uint32_t>(1000));
-    if (settings_.polling_period_pvt != 10 && settings_.polling_period_pvt != 20 &&
-        settings_.polling_period_pvt != 50 && settings_.polling_period_pvt != 100 &&
-        settings_.polling_period_pvt != 200 && settings_.polling_period_pvt != 250 &&
-        settings_.polling_period_pvt != 500 &&
+    if (settings_.polling_period_pvt != 5 && settings_.polling_period_pvt != 10 &&
+        settings_.polling_period_pvt != 20 && settings_.polling_period_pvt != 50 &&
+        settings_.polling_period_pvt != 100 && settings_.polling_period_pvt != 200 &&
+        settings_.polling_period_pvt != 250 && settings_.polling_period_pvt != 500 &&
         settings_.polling_period_pvt != 1000 &&
         settings_.polling_period_pvt != 2000 &&
         settings_.polling_period_pvt != 5000 &&
