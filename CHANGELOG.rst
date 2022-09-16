@@ -12,6 +12,7 @@ Changelog for package septentrio_gnss_driver
 * Fixes
    * /tf not being published without /localization
    * Twist covariance matrix of localization
+   * Support 5 ms period for IMU explicitly
 
 1.2.2 (2022-06-22)
 ------------------
