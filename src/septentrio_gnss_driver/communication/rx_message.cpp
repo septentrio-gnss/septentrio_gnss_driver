@@ -2276,8 +2276,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     {
         std::vector<uint8_t> dvec(data_,
                                   data_ + parsing_utilities::getLength(data_));
+        bool hasImuMeas = false;
         if (!ExtSensorMeasParser(node_, dvec.begin(), dvec.end(), last_extsensmeas_,
-                                 settings_->use_ros_axis_orientation))
+                                 settings_->use_ros_axis_orientation, hasImuMeas))
         {
             node_->log(LogLevel::ERROR,
                        "septentrio_gnss_driver: parse error in ExtSensorMeas");
@@ -2293,7 +2294,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         }
         if (settings_->publish_extsensormeas)
             publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
-        if (settings_->publish_imu)
+        if (settings_->publish_imu && hasImuMeas)
         {
             ImuMsg msg;
             try
