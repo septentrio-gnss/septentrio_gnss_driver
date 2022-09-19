@@ -111,14 +111,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // Polling period parameters
     getUint32Param("polling_period/pvt", settings_.polling_period_pvt,
                    static_cast<uint32_t>(1000));
-    if (settings_.polling_period_pvt != 5 && settings_.polling_period_pvt != 10 &&
-        settings_.polling_period_pvt != 20 && settings_.polling_period_pvt != 50 &&
-        settings_.polling_period_pvt != 100 && settings_.polling_period_pvt != 200 &&
-        settings_.polling_period_pvt != 250 && settings_.polling_period_pvt != 500 &&
-        settings_.polling_period_pvt != 1000 &&
-        settings_.polling_period_pvt != 2000 &&
-        settings_.polling_period_pvt != 5000 &&
-        settings_.polling_period_pvt != 10000 && settings_.polling_period_pvt != 0)
+    if (!(validPeriod(settings_.polling_period_pvt,
+                      settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
             LogLevel::FATAL,
@@ -127,16 +121,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
     getUint32Param("polling_period/rest", settings_.polling_period_rest,
                    static_cast<uint32_t>(1000));
-    if (settings_.polling_period_rest != 10 && settings_.polling_period_rest != 20 &&
-        settings_.polling_period_rest != 50 &&
-        settings_.polling_period_rest != 100 &&
-        settings_.polling_period_rest != 200 &&
-        settings_.polling_period_rest != 250 &&
-        settings_.polling_period_rest != 500 &&
-        settings_.polling_period_rest != 1000 &&
-        settings_.polling_period_rest != 2000 &&
-        settings_.polling_period_rest != 5000 &&
-        settings_.polling_period_rest != 10000)
+    if (!(validPeriod(settings_.polling_period_rest,
+                      settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
             LogLevel::FATAL,
@@ -417,6 +403,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG, "Finished getROSParams() method");
     return true;
+}
+
+bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns)
+{
+    return ((period == 0) || ((period == 5 && isIns)) || (period == 10) ||
+            (period == 20) || (period == 40) || (period == 50) || (period == 100) ||
+            (period == 200) || (period == 500) || (period == 1000) ||
+            (period == 2000) || (period == 5000) || (period == 10000) ||
+            (period == 15000) || (period == 30000) || (period == 60000) ||
+            (period == 120000) || (period == 300000) || (period == 600000) ||
+            (period == 900000) || (period == 1800000) || (period == 3600000));
 }
 
 void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,

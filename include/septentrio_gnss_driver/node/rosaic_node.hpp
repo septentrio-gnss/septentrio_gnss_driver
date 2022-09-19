@@ -100,6 +100,13 @@ namespace rosaic_node {
          */
         bool getROSParams();
         /**
+         * @brief Checks if the period has a valid value
+         * @param[in] period period [ms]
+         * @param[in] isIns wether recevier is an INS
+         * @return wether the period is valid
+         */
+        bool validPeriod(uint32_t period, bool isIns);
+        /**
          * @brief Gets transforms from tf2
          * @param[in] targetFrame traget frame id
          * @param[in] sourceFrame source frame id
