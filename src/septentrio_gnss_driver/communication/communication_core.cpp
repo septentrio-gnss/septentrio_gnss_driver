@@ -349,41 +349,11 @@ void io_comm_rx::Comm_IO::configureRx()
         send("lif, Identification \x0D");
     }
 
-    std::string pvt_interval;
-    if (settings_->polling_period_pvt == 0)
-    {
-        pvt_interval = "OnChange";
-    } else
-    {
-        uint32_t rx_period_pvt = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_pvt);
-        std::string pvt_sec_or_msec;
-        if (settings_->polling_period_pvt == 1000 ||
-            settings_->polling_period_pvt == 2000 ||
-            settings_->polling_period_pvt == 5000 ||
-            settings_->polling_period_pvt == 10000)
-            pvt_sec_or_msec = "sec";
-        else
-            pvt_sec_or_msec = "msec";
+    std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
+        settings_->polling_period_pvt);
 
-        pvt_interval = pvt_sec_or_msec + std::to_string(rx_period_pvt);
-    }
-
-    std::string rest_interval;
-    {
-        uint32_t rx_period_rest = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_rest);
-        std::string rest_sec_or_msec;
-        if (settings_->polling_period_rest == 1000 ||
-            settings_->polling_period_rest == 2000 ||
-            settings_->polling_period_rest == 5000 ||
-            settings_->polling_period_rest == 10000)
-            rest_sec_or_msec = "sec";
-        else
-            rest_sec_or_msec = "msec";
-
-        rest_interval = rest_sec_or_msec + std::to_string(rx_period_rest);
-    }
+    std::string rest_interval = parsing_utilities::convertUserPeriodToRxCommand(
+        settings_->polling_period_rest);
 
     // Credentials for login
     if (!settings_->login_user.empty() && !settings_->login_password.empty())

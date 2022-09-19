@@ -116,14 +116,24 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // Polling period parameters
     getUint32Param("polling_period.pvt", settings_.polling_period_pvt,
                    static_cast<uint32_t>(1000));
-    if (settings_.polling_period_pvt != 5 && settings_.polling_period_pvt != 10 &&
-        settings_.polling_period_pvt != 20 && settings_.polling_period_pvt != 50 &&
+    if (settings_.polling_period_pvt != 0 && settings_.polling_period_pvt != 5 &&
+        settings_.polling_period_pvt != 10 && settings_.polling_period_pvt != 20 &&
+        settings_.polling_period_pvt != 40 && settings_.polling_period_pvt != 50 &&
         settings_.polling_period_pvt != 100 && settings_.polling_period_pvt != 200 &&
-        settings_.polling_period_pvt != 250 && settings_.polling_period_pvt != 500 &&
+        settings_.polling_period_pvt != 500 &&
         settings_.polling_period_pvt != 1000 &&
         settings_.polling_period_pvt != 2000 &&
         settings_.polling_period_pvt != 5000 &&
-        settings_.polling_period_pvt != 10000 && settings_.polling_period_pvt != 0)
+        settings_.polling_period_pvt != 10000 &&
+        settings_.polling_period_pvt != 15000 &&
+        settings_.polling_period_pvt != 30000 &&
+        settings_.polling_period_pvt != 60000 &&
+        settings_.polling_period_pvt != 120000 &&
+        settings_.polling_period_pvt != 300000 &&
+        settings_.polling_period_pvt != 600000 &&
+        settings_.polling_period_pvt != 900000 &&
+        settings_.polling_period_pvt != 1800000 &&
+        settings_.polling_period_pvt != 3600000)
     {
         this->log(
             LogLevel::FATAL,
@@ -133,16 +143,25 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
     getUint32Param("polling_period.rest", settings_.polling_period_rest,
                    static_cast<uint32_t>(1000));
-    if (settings_.polling_period_rest != 10 && settings_.polling_period_rest != 20 &&
+    if (settings_.polling_period_rest != 0 && settings_.polling_period_rest != 10 &&
+        settings_.polling_period_rest != 20 && settings_.polling_period_rest != 40 &&
         settings_.polling_period_rest != 50 &&
         settings_.polling_period_rest != 100 &&
         settings_.polling_period_rest != 200 &&
-        settings_.polling_period_rest != 250 &&
         settings_.polling_period_rest != 500 &&
         settings_.polling_period_rest != 1000 &&
         settings_.polling_period_rest != 2000 &&
         settings_.polling_period_rest != 5000 &&
-        settings_.polling_period_rest != 10000)
+        settings_.polling_period_rest != 10000 &&
+        settings_.polling_period_rest != 15000 &&
+        settings_.polling_period_rest != 30000 &&
+        settings_.polling_period_rest != 60000 &&
+        settings_.polling_period_rest != 120000 &&
+        settings_.polling_period_rest != 300000 &&
+        settings_.polling_period_rest != 600000 &&
+        settings_.polling_period_rest != 900000 &&
+        settings_.polling_period_rest != 1800000 &&
+        settings_.polling_period_rest != 3600000)
     {
         this->log(
             LogLevel::FATAL,
