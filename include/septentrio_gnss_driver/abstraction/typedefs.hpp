@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef Typedefs_HPP
-#define Typedefs_HPP
+#pragma once
 
 // std includes
 #include <any>
@@ -85,6 +84,7 @@
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
 // Rosaic includes
+#include <septentrio_gnss_driver/communication/settings.h>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -176,6 +176,13 @@ public:
         Node("septentrio_gnss", options), tf2Publisher_(this),
         tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
     {
+        if (settings_.ins_use_vsm)
+        {
+            odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
+                "odometry", 10,
+                std::bind(&ROSaicNodeBase::callbackOdometry, this,
+                          std::placeholders::_1));
+        }
     }
 
     virtual ~ROSaicNodeBase() {}
@@ -351,25 +358,12 @@ public:
         }
 
         tf2Publisher_.sendTransform(transformStamped);
-
-        nav_msgs::msg::Odometry::SharedPtr odo(new nav_msgs::msg::Odometry);
-
-        odo->twist.twist.linear.x = 42.0;
-        odo->twist.twist.linear.y = 4.20;
-        odo->twist.twist.linear.z = 0.42;
-
-        odo->twist.covariance[0] = 1e6;
-        odo->twist.covariance[7] = 1e6;
-        odo->twist.covariance[14] = 1e6;
-
-        // TODO just to test
-        callbackOdometry(odo);
     }
 
-    void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr& odo)
+private:
+    void callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr odo)
     {
-        Timestamp stamp = getTime(); // TODO timestampFromRos(odo->stamp);
-        std::string velNmea;
+        Timestamp stamp = timestampFromRos(odo->header.stamp);
 
         time_t epochSeconds = stamp / 1000000000;
         struct tm* tm_temp = std::gmtime(&epochSeconds);
@@ -381,7 +375,7 @@ public:
                 << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
                                   1000000);
         // TODO if ros_axis_directions y = -y, z = -z
-        velNmea =
+        std::string velNmea =
             "$PSSN,VSM," + timeUtc.str() + "," +
             string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) + "," +
             string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) + "," +
@@ -406,6 +400,8 @@ public:
     }
 
 protected:
+    //! Settings
+    Settings settings_;
     //! Wether local frame should be inserted into tf
     bool insert_local_frame_ = false;
     //! Frame id of the local frame to be inserted
@@ -420,6 +416,8 @@ private:
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
+    //! Odometry subscriber
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySubscriber_;
     //! Last tf stamp
     Timestamp lastTfStamp_;
     //! tf buffer
@@ -427,5 +425,3 @@ private:
     // tf listener
     tf2_ros::TransformListener tfListener_;
 };
-
-#endif // Typedefs_HPP

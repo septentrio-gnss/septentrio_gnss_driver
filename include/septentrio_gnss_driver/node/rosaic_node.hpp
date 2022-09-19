@@ -125,8 +125,6 @@ namespace rosaic_node {
 
         void sendVelocity(const std::string& velNmea);
 
-        //! Settings
-        Settings settings_;
         //! Handles communication with the Rx
         io_comm_rx::Comm_IO IO_;
         //! tf2 buffer and listener
