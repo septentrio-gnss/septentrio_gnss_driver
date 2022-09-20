@@ -88,8 +88,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
-    param("local_frame_id", local_frame_id_, (std::string) "odom");
-    param("insert_local_frame", insert_local_frame_, false);
+    param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
+    param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
 
@@ -408,10 +408,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // VSM - velocity sensor measurements for INS
-    param("ins_use_vsm", settings_.ins_use_vsm, false);
+    param("ins_vsm_source", settings_.ins_vsm_source, std::string(""));
     param("ins_vsm_config", settings_.ins_vsm_config,
           std::vector<bool>({false, false, false}));
-    if (settings_.ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
+    bool ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
+                        (settings_.ins_vsm_source == "twist"));
+    if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
     {
         param("ins_vsm_variance_by_parameter",
               settings_.ins_vsm_variance_by_parameter, false);
@@ -424,7 +426,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 this->log(
                     LogLevel::ERROR,
                     "ins_vsm_variance has to be of size 3 for var_x, var_y, and var_z -> vsm info cannot be used!");
-                settings_.ins_use_vsm = false;
+                ins_use_vsm = false;
             } else
             {
                 for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
@@ -436,17 +438,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
                             LogLevel::ERROR,
                             "ins_vsm_config of element " + std::to_string(i) +
                                 " has been set to be used but its variance is not > 0.0 -> vsm info cannot be used!");
-                        settings_.ins_use_vsm = false;
+                        ins_use_vsm = false;
                     }
                 }
             }
         }
-    } else if (settings_.ins_use_vsm)
+    } else if (ins_use_vsm)
     {
         this->log(
             LogLevel::ERROR,
             "ins_vsm_config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> vsm info cannot be used!");
-        settings_.ins_use_vsm = false;
+        ins_use_vsm = false;
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...

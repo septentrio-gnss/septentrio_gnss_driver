@@ -52,6 +52,7 @@
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/twist_with_covariance.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -176,13 +177,17 @@ public:
         Node("septentrio_gnss", options), tf2Publisher_(this),
         tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
     {
-        if (settings_.ins_use_vsm)
-        {
+        if (settings_.ins_vsm_source == "odometry")
             odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
-                "odometry", 10,
+                "odometry_vsm", 10,
                 std::bind(&ROSaicNodeBase::callbackOdometry, this,
                           std::placeholders::_1));
-        }
+        else if (settings_.ins_vsm_source == "twist")
+            twistSubscriber_ =
+                this->create_subscription<TwistWithCovarianceStampedMsg>(
+                    "twist_vsm", 10,
+                    std::bind(&ROSaicNodeBase::callbackTwist, this,
+                              std::placeholders::_1));
     }
 
     virtual ~ROSaicNodeBase() {}
@@ -318,14 +323,14 @@ public:
         transformStamped.transform.rotation.z = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w = loc.pose.pose.orientation.w;
 
-        if (insert_local_frame_)
+        if (settings_.insert_local_frame)
         {
             geometry_msgs::msg::TransformStamped T_l_b;
             try
             {
                 // try to get tf at timestamp of message
-                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
-                                                  local_frame_id_, loc.header.stamp);
+                T_l_b = tfBuffer_.lookupTransform(
+                    loc.child_frame_id, settings_.local_frame_id, loc.header.stamp);
             } catch (const tf2::TransformException& ex)
             {
                 try
@@ -336,8 +341,9 @@ public:
                             << std::to_string(currentStamp)
                             << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
-                    T_l_b = tfBuffer_.lookupTransform(
-                        loc.child_frame_id, local_frame_id_, rclcpp::Time(0));
+                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
+                                                      settings_.local_frame_id,
+                                                      rclcpp::Time(0));
                 } catch (const tf2::TransformException& ex)
                 {
                     RCLCPP_WARN_STREAM_THROTTLE(
@@ -354,7 +360,7 @@ public:
                                       tf2::transformToEigen(T_l_b));
             transformStamped.header.stamp = loc.header.stamp;
             transformStamped.header.frame_id = loc.header.frame_id;
-            transformStamped.child_frame_id = local_frame_id_;
+            transformStamped.child_frame_id = settings_.local_frame_id;
         }
 
         tf2Publisher_.sendTransform(transformStamped);
@@ -365,6 +371,19 @@ private:
     {
         Timestamp stamp = timestampFromRos(odo->header.stamp);
 
+        processTwist(stamp, odo->twist);
+    }
+
+    void callbackTwist(const TwistWithCovarianceStampedMsg::SharedPtr twist)
+    {
+        Timestamp stamp = timestampFromRos(twist->header.stamp);
+
+        processTwist(stamp, twist->twist);
+    }
+
+    void processTwist(Timestamp stamp,
+                      const geometry_msgs::msg::TwistWithCovariance& twist)
+    {
         time_t epochSeconds = stamp / 1000000000;
         struct tm* tm_temp = std::gmtime(&epochSeconds);
         std::stringstream timeUtc;
@@ -377,17 +396,14 @@ private:
         // TODO if ros_axis_directions y = -y, z = -z
         std::string velNmea =
             "$PSSN,VSM," + timeUtc.str() + "," +
-            string_utilities::trimDecimalPlaces(odo->twist.twist.linear.x) + "," +
-            string_utilities::trimDecimalPlaces(odo->twist.twist.linear.y) + "," +
-            string_utilities::trimDecimalPlaces(
-                std::sqrt(odo->twist.covariance[0])) +
+            string_utilities::trimDecimalPlaces(twist.twist.linear.x) + "," +
+            string_utilities::trimDecimalPlaces(twist.twist.linear.y) + "," +
+            string_utilities::trimDecimalPlaces(std::sqrt(twist.covariance[0])) +
             "," +
+            string_utilities::trimDecimalPlaces(std::sqrt(twist.covariance[7])) +
+            "," + string_utilities::trimDecimalPlaces(twist.twist.linear.z) + "," +
             string_utilities::trimDecimalPlaces(
-                std::sqrt(odo->twist.covariance[7])) +
-            "," + string_utilities::trimDecimalPlaces(odo->twist.twist.linear.z) +
-            "," +
-            string_utilities::trimDecimalPlaces(std::sqrt(
-                odo->twist.covariance[14])); // TODO if cov -1, if set manually
+                std::sqrt(twist.covariance[14])); // TODO if cov -1, if set manually
 
         char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
                                    [](char sum, char ch) { return sum ^ ch; });
@@ -402,11 +418,7 @@ private:
 protected:
     //! Settings
     Settings settings_;
-    //! Wether local frame should be inserted into tf
-    bool insert_local_frame_ = false;
-    //! Frame id of the local frame to be inserted
-    std::string local_frame_id_;
-
+    //! Send velocity to communication layer (virtual)
     virtual void sendVelocity(const std::string& velNmea) = 0;
 
 private:
@@ -418,6 +430,8 @@ private:
     tf2_ros::TransformBroadcaster tf2Publisher_;
     //! Odometry subscriber
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySubscriber_;
+    //! Twist subscriber
+    rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
     //! Last tf stamp
     Timestamp lastTfStamp_;
     //! tf buffer

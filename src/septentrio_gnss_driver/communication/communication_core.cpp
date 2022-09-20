@@ -880,7 +880,8 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if (settings_->ins_use_vsm)
+    if ((settings_->ins_vsm_source == "odometry") ||
+        (settings_->ins_vsm_source == "twist"))
     {
         std::string s;
         s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";

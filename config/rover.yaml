@@ -138,7 +138,7 @@ ins_std_dev_mask:
 
 ins_use_poi: false
 
-ins_use_vsm: false
+ins_vsm_source: ""
 ins_vsm_config: [false, false, false]
 ins_vsm_variance_by_parameter: false
 ins_vsm_variance: [0.0, 0.0, 0.0]
