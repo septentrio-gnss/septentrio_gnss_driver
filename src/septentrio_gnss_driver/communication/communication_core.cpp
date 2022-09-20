@@ -29,6 +29,7 @@
 // *****************************************************************************
 
 #include <chrono>
+#include <linux/serial.h>
 
 // Boost includes
 #include <boost/regex.hpp>
@@ -1344,6 +1345,13 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
         // int tcsetattr(int fd, int optional_actions, const struct termios
         // *termios_p);
         tcsetattr(fd, TCSANOW, &tio);
+
+        // Set low latency
+        struct serial_struct serialInfo;
+
+        ioctl(fd, TIOCGSERIAL, &serialInfo);
+        serialInfo.flags |= ASYNC_LOW_LATENCY;
+        ioctl(fd, TIOCSSERIAL, &serialInfo);
     }
 
     // Set the I/O manager
