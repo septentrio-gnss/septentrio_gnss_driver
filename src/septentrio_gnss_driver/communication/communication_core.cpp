@@ -536,45 +536,29 @@ void io_comm_rx::Comm_IO::configureRx()
 
     // Setting up NMEA streams
     {
-        std::stringstream ss;
+        send("snti, GP\x0D");
 
-        ss << "snti, GP"
-           << "\x0D";
-        send(ss.str());
-    }
-    if (settings_->publish_gpgga)
-    {
-        std::stringstream ss;
+        std::stringstream blocks;
+        if (settings_->publish_gpgga)
+        {
+            blocks << " +GGA";
+        }
+        if (settings_->publish_gprmc)
+        {
+            blocks << " +RMC";
+        }
+        if (settings_->publish_gpgsa)
+        {
+            blocks << " +GSA";
+        }
+        if (settings_->publish_gpgsv)
+        {
+            blocks << " +GSV";
+        }
 
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GGA, "
-           << pvt_interval << "\x0D";
-        send(ss.str());
-        ++stream;
-    }
-    if (settings_->publish_gprmc)
-    {
         std::stringstream ss;
-
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", RMC, "
-           << pvt_interval << "\x0D";
-        send(ss.str());
-        ++stream;
-    }
-    if (settings_->publish_gpgsa)
-    {
-        std::stringstream ss;
-
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSA, "
-           << pvt_interval << "\x0D";
-        send(ss.str());
-        ++stream;
-    }
-    if (settings_->publish_gpgsv)
-    {
-        std::stringstream ss;
-
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ", GSV, "
-           << rest_interval << "\x0D";
+        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ","
+           << blocks.str() << ", " << pvt_interval << "\x0D";
         send(ss.str());
         ++stream;
     }
