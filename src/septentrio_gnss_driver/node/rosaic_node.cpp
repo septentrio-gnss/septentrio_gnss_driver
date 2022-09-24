@@ -415,30 +415,40 @@ bool rosaic_node::ROSaicNode::getROSParams()
                         (settings_.ins_vsm_source == "twist"));
     if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
     {
-        param("ins_vsm_variance_by_parameter",
-              settings_.ins_vsm_variance_by_parameter, false);
-        if (settings_.ins_vsm_variance_by_parameter)
+        if (std::all_of(settings_.ins_vsm_config.begin(),
+                        settings_.ins_vsm_config.end(), [](bool v) { return !v; }))
         {
-            param("ins_vsm_variance", settings_.ins_vsm_variance,
-                  std::vector<double>({-1.0, -1.0, -1.0}));
-            if (settings_.ins_vsm_variance.size() != 3)
+            settings_.ins_vsm_source = "";
+            this->log(
+                LogLevel::ERROR,
+                "all elements of ins_vsm_config have been set to false -> vsm info cannot be used!");
+        } else
+        {
+            param("ins_vsm_variance_by_parameter",
+                  settings_.ins_vsm_variance_by_parameter, false);
+            if (settings_.ins_vsm_variance_by_parameter)
             {
-                this->log(
-                    LogLevel::ERROR,
-                    "ins_vsm_variance has to be of size 3 for var_x, var_y, and var_z -> vsm info cannot be used!");
-                ins_use_vsm = false;
-            } else
-            {
-                for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
+                param("ins_vsm_variance", settings_.ins_vsm_variance,
+                      std::vector<double>({-1.0, -1.0, -1.0}));
+                if (settings_.ins_vsm_variance.size() != 3)
                 {
-                    if (settings_.ins_vsm_config[i] &&
-                        (settings_.ins_vsm_variance[i] <= 0.0))
+                    this->log(
+                        LogLevel::ERROR,
+                        "ins_vsm_variance has to be of size 3 for var_x, var_y, and var_z -> vsm info cannot be used!");
+                    ins_use_vsm = false;
+                } else
+                {
+                    for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
                     {
-                        this->log(
-                            LogLevel::ERROR,
-                            "ins_vsm_config of element " + std::to_string(i) +
-                                " has been set to be used but its variance is not > 0.0 -> vsm info cannot be used!");
-                        ins_use_vsm = false;
+                        if (settings_.ins_vsm_config[i] &&
+                            (settings_.ins_vsm_variance[i] <= 0.0))
+                        {
+                            this->log(
+                                LogLevel::ERROR,
+                                "ins_vsm_config of element " + std::to_string(i) +
+                                    " has been set to be used but its variance is not > 0.0 -> vsm info cannot be used!");
+                            ins_use_vsm = false;
+                        }
                     }
                 }
             }
