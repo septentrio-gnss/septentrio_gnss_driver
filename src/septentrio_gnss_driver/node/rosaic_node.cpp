@@ -418,7 +418,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (std::all_of(settings_.ins_vsm_config.begin(),
                         settings_.ins_vsm_config.end(), [](bool v) { return !v; }))
         {
-            settings_.ins_vsm_source = "";
+            ins_use_vsm = false;
             this->log(
                 LogLevel::ERROR,
                 "all elements of ins_vsm_config have been set to false -> vsm info cannot be used!");
@@ -460,6 +460,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
             "ins_vsm_config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> vsm info cannot be used!");
         ins_use_vsm = false;
     }
+    if (ins_use_vsm == false)
+        settings_.ins_vsm_source = "";
+    else
+        registerSubscriber();
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG, "Finished getROSParams() method");

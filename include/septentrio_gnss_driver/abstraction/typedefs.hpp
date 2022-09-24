@@ -177,6 +177,12 @@ public:
         Node("septentrio_gnss", options), tf2Publisher_(this),
         tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
     {
+    }
+
+    virtual ~ROSaicNodeBase() {}
+
+    void registerSubscriber()
+    {
         if (settings_.ins_vsm_source == "odometry")
             odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
                 "odometry_vsm", 10,
@@ -189,8 +195,6 @@ public:
                     std::bind(&ROSaicNodeBase::callbackTwist, this,
                               std::placeholders::_1));
     }
-
-    virtual ~ROSaicNodeBase() {}
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
@@ -404,9 +408,11 @@ private:
         {
             v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
             if (settings_.ins_vsm_variance_by_parameter)
-                std_x = std::to_string(settings_.ins_vsm_variance[0]);
+                std_x = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variance[0]);
             else if (twist.covariance[0] > 0.0)
-                string_utilities::trimDecimalPlaces(std::sqrt(twist.covariance[0]));
+                std_x = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[0]));
             else
             {
                 RCLCPP_ERROR_STREAM(this->get_logger(),
@@ -415,43 +421,51 @@ private:
                                         ". Ignoring measurement.");
             }
         } else
-            std_x = std::to_string(1000000);
+            std_x = std::to_string(1000000.0);
         if (settings_.ins_vsm_config[1])
         {
             if (settings_.use_ros_axis_orientation)
                 v_y = "-";
             v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
             if (settings_.ins_vsm_variance_by_parameter)
-                std_y = std::to_string(settings_.ins_vsm_variance[1]);
-            else if (twist.covariance[1] > 0.0)
-                string_utilities::trimDecimalPlaces(std::sqrt(twist.covariance[1]));
+                std_y = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variance[1]);
+            else if (twist.covariance[7] > 0.0)
+                std_y = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[7]));
             else
             {
                 RCLCPP_ERROR_STREAM(this->get_logger(),
                                     "Invalid covariance value for v_y: " +
                                         std::to_string(twist.covariance[1]) +
                                         ". Ignoring measurement.");
+                v_y = "";
+                std_y = string_utilities::trimDecimalPlaces(1000000.0);
             }
         } else
-            std_y = std::to_string(1000000);
+            std_y = string_utilities::trimDecimalPlaces(1000000.0);
         if (settings_.ins_vsm_config[2])
         {
             if (settings_.use_ros_axis_orientation)
                 v_z = "-";
             v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
             if (settings_.ins_vsm_variance_by_parameter)
-                std_z = std::to_string(settings_.ins_vsm_variance[2]);
-            else if (twist.covariance[2] > 0.0)
-                string_utilities::trimDecimalPlaces(std::sqrt(twist.covariance[2]));
+                std_z = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variance[2]);
+            else if (twist.covariance[14] > 0.0)
+                std_z = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[14]));
             else
             {
                 RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_x: " +
+                                    "Invalid covariance value for v_z: " +
                                         std::to_string(twist.covariance[2]) +
                                         ". Ignoring measurement.");
+                v_z = "";
+                std_z = string_utilities::trimDecimalPlaces(1000000.0);
             }
         } else
-            std_z = std::to_string(1000000);
+            std_z = string_utilities::trimDecimalPlaces(1000000.0);
 
         std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," + v_y +
                               "," + std_x + "," + std_y + "," + v_z + "," + std_z;
