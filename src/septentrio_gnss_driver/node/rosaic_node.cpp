@@ -301,9 +301,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ins_spatial_config.poi_lever_arm.delta_y", settings_.poi_y, 0.0);
         param("ins_spatial_config.poi_lever_arm.delta_z", settings_.poi_z, 0.0);
         // INS velocity sensor lever arm offset parameter
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_x", settings_.vsm_x, 0.0);
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_y", settings_.vsm_y, 0.0);
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_z", settings_.vsm_z, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_x", settings_.vsm_x, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_y", settings_.vsm_y, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_z", settings_.vsm_z, 0.0);
         // Antenna Attitude Determination parameter
         param("att_offset.heading", settings_.heading_offset, 0.0);
         param("att_offset.pitch", settings_.pitch_offset, 0.0);
@@ -424,24 +424,24 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 "all elements of ins_vsm_config have been set to false -> vsm info will not be used!");
         } else
         {
-            param("ins_vsm.variance_by_parameter",
-                  settings_.ins_vsm_variance_by_parameter, false);
-            if (settings_.ins_vsm_variance_by_parameter)
+            param("ins_vsm.variancess_by_parameter",
+                  settings_.ins_vsm_variances_by_parameter, false);
+            if (settings_.ins_vsm_variances_by_parameter)
             {
-                param("ins_vsm.variance", settings_.ins_vsm_variance,
+                param("ins_vsm.variances", settings_.ins_vsm_variances,
                       std::vector<double>({-1.0, -1.0, -1.0}));
-                if (settings_.ins_vsm_variance.size() != 3)
+                if (settings_.ins_vsm_variances.size() != 3)
                 {
                     this->log(
                         LogLevel::ERROR,
-                        "ins_vsm.variance has to be of size 3 for var_x, var_y, and var_z -> vsm info will not be used!");
+                        "ins_vsm.variances has to be of size 3 for var_x, var_y, and var_z -> vsm info will not be used!");
                     ins_use_vsm = false;
                 } else
                 {
                     for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
                     {
                         if (settings_.ins_vsm_config[i] &&
-                            (settings_.ins_vsm_variance[i] <= 0.0))
+                            (settings_.ins_vsm_variances[i] <= 0.0))
                         {
                             this->log(
                                 LogLevel::ERROR,

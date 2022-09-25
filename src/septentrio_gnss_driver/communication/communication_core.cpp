@@ -793,7 +793,7 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 node_->log(
                     LogLevel::ERROR,
-                    "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
+                    "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vsm_lever_arm");
             }
         }
 

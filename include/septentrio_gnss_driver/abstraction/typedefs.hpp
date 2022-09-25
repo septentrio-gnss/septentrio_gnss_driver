@@ -407,9 +407,9 @@ private:
         if (settings_.ins_vsm_config[0])
         {
             v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
-            if (settings_.ins_vsm_variance_by_parameter)
+            if (settings_.ins_vsm_variances_by_parameter)
                 std_x = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variance[0]);
+                    settings_.ins_vsm_variances[0]);
             else if (twist.covariance[0] > 0.0)
                 std_x = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[0]));
@@ -427,9 +427,9 @@ private:
             if (settings_.use_ros_axis_orientation)
                 v_y = "-";
             v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
-            if (settings_.ins_vsm_variance_by_parameter)
+            if (settings_.ins_vsm_variances_by_parameter)
                 std_y = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variance[1]);
+                    settings_.ins_vsm_variances[1]);
             else if (twist.covariance[7] > 0.0)
                 std_y = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[7]));
@@ -449,9 +449,9 @@ private:
             if (settings_.use_ros_axis_orientation)
                 v_z = "-";
             v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
-            if (settings_.ins_vsm_variance_by_parameter)
+            if (settings_.ins_vsm_variances_by_parameter)
                 std_z = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variance[2]);
+                    settings_.ins_vsm_variances[2]);
             else if (twist.covariance[14] > 0.0)
                 std_z = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[14]));
