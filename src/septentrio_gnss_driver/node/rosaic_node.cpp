@@ -84,8 +84,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
-    param("local_frame_id", local_frame_id_, (std::string) "odom");
-    param("insert_local_frame", insert_local_frame_, false);
+    param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
+    param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
 
@@ -293,9 +293,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ins_spatial_config/poi_lever_arm/delta_y", settings_.poi_y, 0.0);
         param("ins_spatial_config/poi_lever_arm/delta_z", settings_.poi_z, 0.0);
         // INS velocity sensor lever arm offset parameter
-        param("ins_spatial_config/vel_sensor_lever_arm/vsm_x", settings_.vsm_x, 0.0);
-        param("ins_spatial_config/vel_sensor_lever_arm/vsm_y", settings_.vsm_y, 0.0);
-        param("ins_spatial_config/vel_sensor_lever_arm/vsm_z", settings_.vsm_z, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_x", settings_.vsm_x, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_y", settings_.vsm_y, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_z", settings_.vsm_z, 0.0);
         // Antenna Attitude Determination parameter
         param("att_offset/heading", settings_.heading_offset, 0.0);
         param("att_offset/pitch", settings_.pitch_offset, 0.0);
@@ -400,6 +400,73 @@ bool rosaic_node::ROSaicNode::getROSParams()
         }
     }
 
+    // VSM - velocity sensor measurements for INS
+    param("ins_vsm/source", settings_.ins_vsm_source, std::string(""));
+    param("ins_vsm/config", settings_.ins_vsm_config,
+          std::vector<bool>({false, false, false}));
+    bool ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
+                        (settings_.ins_vsm_source == "twist"));
+    if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
+    {
+        if (std::all_of(settings_.ins_vsm_config.begin(),
+                        settings_.ins_vsm_config.end(), [](bool v) { return !v; }))
+        {
+            ins_use_vsm = false;
+            this->log(
+                LogLevel::ERROR,
+                "all elements of ins_vsm_config have been set to false -> vsm info will not be used!");
+        } else
+        {
+            param("ins_vsm/variances_by_parameter",
+                  settings_.ins_vsm_variances_by_parameter, false);
+            if (settings_.ins_vsm_variances_by_parameter)
+            {
+                param("ins_vsm/variances", settings_.ins_vsm_variances,
+                      std::vector<double>({-1.0, -1.0, -1.0}));
+                if (settings_.ins_vsm_variances.size() != 3)
+                {
+                    this->log(
+                        LogLevel::ERROR,
+                        "ins_vsm/variances has to be of size 3 for var_x, var_y, and var_z -> vsm info will not be used!");
+                    ins_use_vsm = false;
+                } else
+                {
+                    for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
+                    {
+                        if (settings_.ins_vsm_config[i] &&
+                            (settings_.ins_vsm_variances[i] <= 0.0))
+                        {
+                            this->log(
+                                LogLevel::ERROR,
+                                "ins_vsm/config of element " + std::to_string(i) +
+                                    " has been set to be used but its variance is not > 0.0 -> its vsm info will not be used!");
+                            settings_.ins_vsm_config[i] = false;
+                        }
+                    }
+                }
+                if (std::all_of(settings_.ins_vsm_config.begin(),
+                                settings_.ins_vsm_config.end(),
+                                [](bool v) { return !v; }))
+                {
+                    ins_use_vsm = false;
+                    this->log(
+                        LogLevel::ERROR,
+                        "all elements of ins_vsm_config have been set to false due to invalid covariances -> vsm info will not be used!");
+                }
+            }
+        }
+    } else if (ins_use_vsm)
+    {
+        this->log(
+            LogLevel::ERROR,
+            "ins_vsm/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> vsm info will not be used!");
+        ins_use_vsm = false;
+    }
+    if (ins_use_vsm == false)
+        settings_.ins_vsm_source = "";
+    else
+        registerSubscriber();
+
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG, "Finished getROSParams() method");
     return true;
@@ -448,4 +515,9 @@ void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
     roll = std::atan2(C(2, 1), C(2, 2));
     pitch = std::asin(-C(2, 0));
     yaw = std::atan2(C(1, 0), C(0, 0));
+}
+
+void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
+{
+    IO_.sendVelocity(velNmea);
 }

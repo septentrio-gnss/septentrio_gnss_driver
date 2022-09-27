@@ -115,7 +115,7 @@ ins_spatial_config:
     x: 0.0
     y: 0.0
     z: 0.0
-  vel_sensor_lever_arm:
+  vsm_lever_arm:
     vsm_x: 0.0
     vsm_y: 0.0
     vsm_z: 0.0
@@ -127,6 +127,12 @@ ins_std_dev_mask:
   pos_std_dev: 10.0
 
 ins_use_poi: true
+
+ins_vsm:
+  source: ""
+  config: [false, false, false]
+  variances_by_parameter: false
+  variances: [0.0, 0.0, 0.0]
 
 # logger
 

@@ -29,6 +29,7 @@
 // *****************************************************************************
 
 #include <chrono>
+#include <linux/serial.h>
 
 // Boost includes
 #include <boost/regex.hpp>
@@ -334,7 +335,7 @@ void io_comm_rx::Comm_IO::configureRx()
         // Escape sequence (escape from correction mode), ensuring that we can send
         // our real commands afterwards...
         std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-        manager_.get()->send(cmd, cmd.size());
+        manager_.get()->send(cmd);
         // We wait for the connection descriptor before we send another command,
         // otherwise the latter would not be processed.
         g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
@@ -349,41 +350,11 @@ void io_comm_rx::Comm_IO::configureRx()
         send("lif, Identification \x0D");
     }
 
-    std::string pvt_interval;
-    if (settings_->polling_period_pvt == 0)
-    {
-        pvt_interval = "OnChange";
-    } else
-    {
-        uint32_t rx_period_pvt = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_pvt);
-        std::string pvt_sec_or_msec;
-        if (settings_->polling_period_pvt == 1000 ||
-            settings_->polling_period_pvt == 2000 ||
-            settings_->polling_period_pvt == 5000 ||
-            settings_->polling_period_pvt == 10000)
-            pvt_sec_or_msec = "sec";
-        else
-            pvt_sec_or_msec = "msec";
+    std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
+        settings_->polling_period_pvt);
 
-        pvt_interval = pvt_sec_or_msec + std::to_string(rx_period_pvt);
-    }
-
-    std::string rest_interval;
-    {
-        uint32_t rx_period_rest = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_rest);
-        std::string rest_sec_or_msec;
-        if (settings_->polling_period_rest == 1000 ||
-            settings_->polling_period_rest == 2000 ||
-            settings_->polling_period_rest == 5000 ||
-            settings_->polling_period_rest == 10000)
-            rest_sec_or_msec = "sec";
-        else
-            rest_sec_or_msec = "msec";
-
-        rest_interval = rest_sec_or_msec + std::to_string(rx_period_rest);
-    }
+    std::string rest_interval = parsing_utilities::convertUserPeriodToRxCommand(
+        settings_->polling_period_rest);
 
     // Credentials for login
     if (!settings_->login_user.empty() && !settings_->login_password.empty())
@@ -822,7 +793,7 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 node_->log(
                     LogLevel::ERROR,
-                    "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vel_sensor_lever_arm");
+                    "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vsm_lever_arm");
             }
         }
 
@@ -893,6 +864,16 @@ void io_comm_rx::Comm_IO::configureRx()
             }
         }
     }
+
+    if ((settings_->ins_vsm_source == "odometry") ||
+        (settings_->ins_vsm_source == "twist"))
+    {
+        std::string s;
+        s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
+        send(s);
+        nmeaActivated_ = true;
+    }
+
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 
@@ -1100,15 +1081,21 @@ void io_comm_rx::Comm_IO::defineMessages()
     node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
 }
 
-void io_comm_rx::Comm_IO::send(std::string cmd)
+void io_comm_rx::Comm_IO::send(const std::string& cmd)
 {
     // It is imperative to hold a lock on the mutex "g_response_mutex" while
     // modifying the variable "g_response_received".
     boost::mutex::scoped_lock lock(g_response_mutex);
     // Determine byte size of cmd and hand over to send() method of manager_
-    manager_.get()->send(cmd, cmd.size());
+    manager_.get()->send(cmd);
     g_response_condition.wait(lock, []() { return g_response_received; });
     g_response_received = false;
+}
+
+void io_comm_rx::Comm_IO::sendVelocity(const std::string& velNmea)
+{
+    if (nmeaActivated_)
+        manager_.get()->send(velNmea);
 }
 
 bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
@@ -1342,6 +1329,13 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
         // int tcsetattr(int fd, int optional_actions, const struct termios
         // *termios_p);
         tcsetattr(fd, TCSANOW, &tio);
+
+        // Set low latency
+        struct serial_struct serialInfo;
+
+        ioctl(fd, TIOCGSERIAL, &serialInfo);
+        serialInfo.flags |= ASYNC_LOW_LATENCY;
+        ioctl(fd, TIOCSSERIAL, &serialInfo);
     }
 
     // Set the I/O manager
@@ -1447,41 +1441,13 @@ bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
 
 void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
 {
+    namespace bp = boost::placeholders;
+
     node_->log(LogLevel::DEBUG, "Called setManager() method");
     if (manager_)
         return;
     manager_ = manager;
-    manager_->setCallback(
-        boost::bind(&CallbackHandlers::readCallback, &handlers_, _1, _2, _3));
+    manager_->setCallback(boost::bind(&CallbackHandlers::readCallback, &handlers_,
+                                      bp::_1, bp::_2, bp::_3));
     node_->log(LogLevel::DEBUG, "Leaving setManager() method");
-}
-
-void io_comm_rx::Comm_IO::resetSerial(std::string port)
-{
-    serial_port_ = port;
-    boost::shared_ptr<boost::asio::io_service> io_service(
-        new boost::asio::io_service);
-    boost::shared_ptr<boost::asio::serial_port> serial(
-        new boost::asio::serial_port(*io_service));
-
-    // Try to open serial port
-    try
-    {
-        serial->open(serial_port_);
-    } catch (std::runtime_error& e)
-    {
-        throw std::runtime_error("Could not open serial port :" + serial_port_ +
-                                 " " + e.what());
-    }
-
-    node_->log(LogLevel::INFO, "Reset serial port " + serial_port_);
-
-    // Sets the I/O worker
-    if (manager_)
-        return;
-    setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::serial_port>(node_, serial, io_service)));
-
-    // Set the baudrate
-    serial->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
 }

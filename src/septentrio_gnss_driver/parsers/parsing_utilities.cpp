@@ -325,14 +325,18 @@ namespace parsing_utilities {
         return q;
     }
 
-    uint32_t convertUserPeriodToRxCommand(uint32_t period_user)
+    std::string convertUserPeriodToRxCommand(uint32_t period_user)
     {
-        if ((period_user) < 1000 && (period_user >= 1))
-            return period_user;
+        std::string cmd;
+
+        if (period_user == 0)
+            return "OnChange";
+        else if (period_user < 1000)
+            return "msec" + std::to_string(period_user);
+        else if (period_user <= 60000)
+            return "sec" + std::to_string(period_user / 1000);
         else
-        {
-            return period_user / 1000;
-        }
+            return "min" + std::to_string(period_user / 60000);
     }
 
     uint16_t getCrc(const uint8_t* buffer) { return parseUInt16(buffer + 2); }

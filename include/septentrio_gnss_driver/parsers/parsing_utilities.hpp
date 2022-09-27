@@ -308,14 +308,14 @@ namespace parsing_utilities {
     QuaternionMsg convertEulerToQuaternion(double yaw, double pitch, double roll);
 
     /**
-     * @brief Transforms the input polling period [milliseconds] into a uint32_t
+     * @brief Transforms the input polling period [milliseconds] into a std::string
      * number that can be appended to either sec or msec for Rx commands
      * @param[in] period_user Polling period in milliseconds as specified by the
      * ROSaic user
-     * @return Number to be appended to either sec or msec when sending commands to
-     * the Rx
+     * @return Number to be appended to either msec, sec or min when sending commands
+     * to the Rx
      */
-    uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
+    std::string convertUserPeriodToRxCommand(uint32_t period_user);
 
     /**
      * @brief Get the CRC of the SBF message
