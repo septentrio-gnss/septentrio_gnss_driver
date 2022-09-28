@@ -404,8 +404,17 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("ins_vsm/source", settings_.ins_vsm_source, std::string(""));
     param("ins_vsm/config", settings_.ins_vsm_config,
           std::vector<bool>({false, false, false}));
-    bool ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
-                        (settings_.ins_vsm_source == "twist"));
+    bool ins_use_vsm = false;
+    if (settings_.septentrio_receiver_type == "ins")
+    {
+        ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
+                       (settings_.ins_vsm_source == "twist"));
+        if (!settings_.ins_vsm_source.empty() && !ins_use_vsm)
+            this->log(LogLevel::ERROR, "unknown ins_vsm/source " +
+                                           settings_.ins_vsm_source +
+                                           " -> vsm info will not be used!");
+    }
+
     if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
     {
         if (std::all_of(settings_.ins_vsm_config.begin(),
@@ -414,7 +423,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             ins_use_vsm = false;
             this->log(
                 LogLevel::ERROR,
-                "all elements of ins_vsm_config have been set to false -> vsm info will not be used!");
+                "all elements of ins_vsm/config have been set to false -> vsm info will not be used!");
         } else
         {
             param("ins_vsm/variances_by_parameter",
@@ -451,7 +460,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                     ins_use_vsm = false;
                     this->log(
                         LogLevel::ERROR,
-                        "all elements of ins_vsm_config have been set to false due to invalid covariances -> vsm info will not be used!");
+                        "all elements of ins_vsm/config have been set to false due to invalid covariances -> vsm info will not be used!");
                 }
             }
         }
@@ -465,7 +474,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (ins_use_vsm == false)
         settings_.ins_vsm_source = "";
     else
+    {
+        this->log(LogLevel::INFO,
+                  "ins_vsm/source " + settings_.ins_vsm_source + " will be used.");
         registerSubscriber();
+    }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(LogLevel::DEBUG, "Finished getROSParams() method");
