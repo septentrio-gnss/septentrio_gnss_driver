@@ -424,7 +424,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 "all elements of ins_vsm_config have been set to false -> vsm info will not be used!");
         } else
         {
-            param("ins_vsm.variancess_by_parameter",
+            param("ins_vsm.variances_by_parameter",
                   settings_.ins_vsm_variances_by_parameter, false);
             if (settings_.ins_vsm_variances_by_parameter)
             {

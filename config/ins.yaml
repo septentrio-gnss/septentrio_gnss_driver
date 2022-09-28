@@ -134,7 +134,6 @@ ins_vsm:
   variances_by_parameter: false
   variances: [0.0, 0.0, 0.0]
 
-
 # logger
 
 activate_debug_log: false
