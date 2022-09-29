@@ -865,13 +865,27 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if ((settings_->ins_vsm_source == "odometry") ||
-        (settings_->ins_vsm_source == "twist"))
+    if (settings_->septentrio_receiver_type == "ins")
     {
-        std::string s;
-        s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
-        send(s);
-        nmeaActivated_ = true;
+        if ((settings_->ins_vsm_source == "odometry") ||
+            (settings_->ins_vsm_source == "twist"))
+        {
+            std::string s;
+            s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
+            send(s);
+            nmeaActivated_ = true;
+        } else if (settings_->ins_vsm_source == "tcp")
+        {
+            send("siss, IPS2, " + std::to_string(settings_->ins_vsm_tcp_port) +
+                 ", TCP2Way \x0D");
+            send("sdio, IPS2, NMEA, none\x0D");
+        } else if (settings_->ins_vsm_source == "serial")
+        {
+            send("scs, " + settings_->ins_vsm_serial_port + ", baud" +
+                 std::to_string(settings_->ins_vsm_serial_baud_rate) +
+                 ", bits8, No, bit1, none\x0D");
+            send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
+        }
     }
 
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");

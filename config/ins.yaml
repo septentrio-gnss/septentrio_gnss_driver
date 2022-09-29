@@ -133,7 +133,10 @@ ins_vsm:
   config: [false, false, false]
   variances_by_parameter: false
   variances: [0.0, 0.0, 0.0]
-
+  tcp_port: 0
+  serial_port: ""
+  serial_baud_rate: 115200
+  
 # logger
 
 activate_debug_log: false

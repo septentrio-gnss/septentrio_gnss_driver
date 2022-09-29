@@ -409,10 +409,27 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
                        (settings_.ins_vsm_source == "twist"));
-        if (!settings_.ins_vsm_source.empty() && !ins_use_vsm)
+        if (((settings_.ins_vsm_source == "tcp") ||
+             (settings_.ins_vsm_source == "serial")))
+        {
+            if (settings_.ins_vsm_source == "tcp")
+                getUint32Param("ins_vsm/tcp_port", settings_.ins_vsm_tcp_port,
+                               static_cast<uint32_t>(7777));
+            if (settings_.ins_vsm_source == "serial")
+            {
+                param("ins_vsm/serial_port", settings_.ins_vsm_serial_port,
+                      std::string("COM1"));
+                getUint32Param("ins_vsm/serial_baud_rate",
+                               settings_.ins_vsm_serial_baud_rate,
+                               static_cast<uint32_t>(115200));
+            }
+            this->log(LogLevel::INFO,
+                      "external velocity sensor measurements are used.");
+
+        } else if (!settings_.ins_vsm_source.empty() && !ins_use_vsm)
             this->log(LogLevel::ERROR, "unknown ins_vsm/source " +
                                            settings_.ins_vsm_source +
-                                           " -> vsm info will not be used!");
+                                           " -> VSM input will not be used!");
     }
 
     if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
@@ -423,7 +440,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             ins_use_vsm = false;
             this->log(
                 LogLevel::ERROR,
-                "all elements of ins_vsm/config have been set to false -> vsm info will not be used!");
+                "all elements of ins_vsm/config have been set to false -> VSM info will not be used!");
         } else
         {
             param("ins_vsm/variances_by_parameter",
@@ -436,8 +453,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 {
                     this->log(
                         LogLevel::ERROR,
-                        "ins_vsm/variances has to be of size 3 for var_x, var_y, and var_z -> vsm info will not be used!");
+                        "ins_vsm/variances has to be of size 3 for var_x, var_y, and var_z -> VSM info will not be used!");
                     ins_use_vsm = false;
+                    settings_.ins_vsm_source = "";
                 } else
                 {
                     for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
@@ -448,7 +466,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                             this->log(
                                 LogLevel::ERROR,
                                 "ins_vsm/config of element " + std::to_string(i) +
-                                    " has been set to be used but its variance is not > 0.0 -> its vsm info will not be used!");
+                                    " has been set to be used but its variance is not > 0.0 -> its VSM info will not be used!");
                             settings_.ins_vsm_config[i] = false;
                         }
                     }
@@ -458,9 +476,10 @@ bool rosaic_node::ROSaicNode::getROSParams()
                                 [](bool v) { return !v; }))
                 {
                     ins_use_vsm = false;
+                    settings_.ins_vsm_source = "";
                     this->log(
                         LogLevel::ERROR,
-                        "all elements of ins_vsm/config have been set to false due to invalid covariances -> vsm info will not be used!");
+                        "all elements of ins_vsm/config have been set to false due to invalid covariances -> VSM info will not be used!");
                 }
             }
         }
@@ -468,12 +487,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         this->log(
             LogLevel::ERROR,
-            "ins_vsm/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> vsm info will not be used!");
+            "ins_vsm/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM info will not be used!");
         ins_use_vsm = false;
-    }
-    if (ins_use_vsm == false)
         settings_.ins_vsm_source = "";
-    else
+    }
+    if (ins_use_vsm)
     {
         this->log(LogLevel::INFO,
                   "ins_vsm/source " + settings_.ins_vsm_source + " will be used.");
