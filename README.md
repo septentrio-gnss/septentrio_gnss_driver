@@ -292,10 +292,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Receiver Type</summary>
   
   + `receiver_type`: This parameter is to select the type of the Septentrio receiver
-    + If `gnss`, then ROS can only output data related to GNSS receivers.
-    + If `ins`, then ROS can only output data related to INS receivers.
-    + If `ins_in_gnss_mode` then ROS can only output data related to GNSS receivers.
-	+ default: `gnss`
+    + `gnss` for GNSS receivers.
+    + `ins` for INS receivers.
+    + `ins_in_gnss_mode` INS receivers in GNSS mode.
+    + default: `gnss`
   + `multi_antenna`: Whether or not the Rx has multiple antennas.
       + default: `false`
   </details>
@@ -442,7 +442,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
     + `ins_vsm`: Configuration of the velocity sensor measurements.
-      + `source`: Specifies which ROS message type shall be used, options are `odometry`, `twist`, `tcp` or `serial`. Accordingly, for the first two a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`. The option `ins_vsm.tcp` opens a TCP port, specified by the parameter `tcp_port` and the option `serial` opens e serial port specified by `ins_vsm.serial_port`.
+      + `source`: Specifies which ROS message type shall be used, options are `odometry`, `twist`, `tcp` or `serial`. Accordingly, for the first two a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`. The last two options are for external input of velocity sensor measurements. The option `ins_vsm.tcp` opens a TCP port, specified by the parameter `tcp_port` and the option `serial` opens e serial port specified by `ins_vsm.serial_port`.
         + default: ""
       + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z can be sent. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
         + default: [false, false, false]
