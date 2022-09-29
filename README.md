@@ -295,9 +295,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Receiver Type</summary>
   
   + `receiver_type`: This parameter is to select the type of the Septentrio receiver
-    + If `gnss`, then ROS can only output data related to GNSS receivers.
-    + If `ins`, then ROS can only output data related to INS receivers.
-	+ default: `gnss`
+    + `gnss` for GNSS receivers.
+    + `ins` for INS receivers.
+    + `ins_in_gnss_mode` INS receivers in GNSS mode.
+    + default: `gnss`    
   + `multi_antenna`: Whether or not the Rx has multiple antennas.
       + default: `false`
   </details>

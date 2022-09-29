@@ -10,6 +10,7 @@ Changelog for package septentrio_gnss_driver
    * Get leap seconds from receiver
    * Firmware check
    * VSM from odometry or twist ROS messages
+   * Add receiver type in case INS is used in GNSS mode
 * Fixes
    * /tf not being published without /localization
    * Twist covariance matrix of localization

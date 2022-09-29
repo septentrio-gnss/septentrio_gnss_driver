@@ -100,12 +100,19 @@ bool rosaic_node::ROSaicNode::getROSParams()
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
     if (!((settings_.septentrio_receiver_type == "gnss") ||
-          (settings_.septentrio_receiver_type == "ins")))
+          (settings_.septentrio_receiver_type == "ins") ||
+          (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))
     {
         this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " +
                                        settings_.septentrio_receiver_type +
                                        " use either gnss or ins.");
         return false;
+    }
+
+    if (settings_.septentrio_receiver_type == "ins_in_gnss_mode")
+    {
+        settings_.septentrio_receiver_type = "gnss";
+        settings_.ins_in_gnss_mode = true;
     }
 
     // Polling period parameters

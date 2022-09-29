@@ -534,7 +534,24 @@ void io_comm_rx::Comm_IO::configureRx()
         ++stream;
     }
 
-    if (settings_->septentrio_receiver_type == "gnss")
+    if ((settings_->septentrio_receiver_type == "ins") ||
+        settings_->ins_in_gnss_mode)
+    {
+        {
+            std::stringstream ss;
+            ss << "sat, Main, \"" << settings_->ant_type << "\""
+               << "\x0D";
+            send(ss.str());
+        }
+
+        // Configure Aux1 antenna
+        {
+            std::stringstream ss;
+            ss << "sat, Aux1, \"" << settings_->ant_type << "\""
+               << "\x0D";
+            send(ss.str());
+        }
+    } else if (settings_->septentrio_receiver_type == "gnss")
     {
         // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
         // ReceiverSetup, ..." command, since the latter is only generated when a
@@ -559,22 +576,6 @@ void io_comm_rx::Comm_IO::configureRx()
                << ", " << string_utilities::trimString(std::to_string(0.0)) << ", "
                << string_utilities::trimString(std::to_string(0.0)) << ", \""
                << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr
-               << "\x0D";
-            send(ss.str());
-        }
-    } else if (settings_->septentrio_receiver_type == "ins")
-    {
-        {
-            std::stringstream ss;
-            ss << "sat, Main, \"" << settings_->ant_type << "\""
-               << "\x0D";
-            send(ss.str());
-        }
-
-        // Configure Aux1 antenna
-        {
-            std::stringstream ss;
-            ss << "sat, Aux1, \"" << settings_->ant_type << "\""
                << "\x0D";
             send(ss.str());
         }
