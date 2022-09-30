@@ -60,19 +60,22 @@ septentrio_gnss_driver:
 
     use_gnss_time: false
 
-    ntrip_settings:
-      mode: "off"
-      caster: ""
-      caster_port: 0
-      username: ""
-      password: ""
-      mountpoint: ""
-      ntrip_version: v2
-      send_gga: auto
-      rx_has_internet: false
-      rtcm_version: RTCMv2
-      rx_input_corrections_tcp: 6666
-      rx_input_corrections_serial: USB2
+    rtcm_settings:
+      rtcm_version: auto
+      source: "off"
+      ntrip:
+        caster: ""
+        caster_port: 0
+        username: ""
+        password: ""
+        mountpoint: ""
+        version: v2
+        send_gga: auto
+      tcp:
+        port: 28785
+      serial:
+        port: COM2
+        baud_rate: 115200
 
     publish:
       # For both GNSS and INS Rxs

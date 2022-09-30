@@ -117,32 +117,32 @@ struct Settings
     float att_std_dev;
     //! Position deviation mask
     float pos_std_dev;
-    //! Type of NTRIP connection
-    std::string ntrip_mode;
+    //! RTCM version for correction data
+    std::string rtcm_settings_rtcm_version;
+    //! Source of correction data
+    std::string rtcm_settings_source;
     //! Hostname or IP address of the NTRIP caster to connect to
-    std::string caster;
+    std::string rtcm_settings_ntrip_caster;
     //! IP port number of NTRIP caster to connect to
-    uint32_t caster_port;
+    uint32_t rtcm_settings_ntrip_caster_port;
     //! Username for NTRIP service
-    std::string ntrip_username;
+    std::string rtcm_settings_ntrip_username;
     //! Password for NTRIP service
-    std::string ntrip_password;
+    std::string rtcm_settings_ntrip_password;
     //! Mountpoint for NTRIP service
-    std::string mountpoint;
+    std::string rtcm_settings_mountpoint;
     //! NTRIP version for NTRIP service
-    std::string ntrip_version;
-    //! Whether Rx has internet or not
-    bool rx_has_internet;
-    //! RTCM version for NTRIP service (if Rx does not have internet)
-    std::string rtcm_version;
+    std::string rtcm_settings_ntrip_version;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string rtcm_settings_ntrip_send_gga;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rx_input_corrections_tcp;
+    uint32_t rtcm_settings_tcp_port;
     //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
     //! the same as main connection unless localhost concept is used)
-    std::string rx_input_corrections_serial;
-    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string send_gga;
+    std::string rtcm_settings_serial_port;
+    //! Baud rate of the serial port on which Rx receives the corrections
+    uint32_t rtcm_settings_serial_baud_rate;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message
