@@ -603,7 +603,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if (settings_->rtk_settings_tcp_server_port != 0)
+    if (settings_->rtk_settings_ip_server_port != 0)
     // Since the Rx does not have internet (and you will not
     // be able to share it via USB), we need to forward the
     // corrections ourselves, though not on the same port.
@@ -612,20 +612,20 @@ void io_comm_rx::Comm_IO::configureRx()
             std::stringstream ss;
             // In case IPS1 was used before, old configuration is lost of course.
             ss << "siss, IPS1, "
-               << std::to_string(settings_->rtk_settings_tcp_server_port)
+               << std::to_string(settings_->rtk_settings_ip_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
         }
         {
             std::stringstream ss;
-            ss << "sdio, IPS1, " << settings_->rtk_settings_tcp_server_rtk_standard
+            ss << "sdio, IPS1, " << settings_->rtk_settings_ip_server_rtk_standard
                << ", +SBF+NMEA \x0D";
             send(ss.str());
         }
-        if (settings_->rtk_settings_tcp_server_send_gga != "off")
+        if (settings_->rtk_settings_ip_server_send_gga != "off")
         {
-            std::string rate = settings_->rtk_settings_tcp_server_send_gga;
-            if (settings_->rtk_settings_tcp_server_send_gga == "auto")
+            std::string rate = settings_->rtk_settings_ip_server_send_gga;
+            if (settings_->rtk_settings_ip_server_send_gga == "auto")
                 rate = "sec1";
             std::stringstream ss;
             ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, " << rate
@@ -867,9 +867,9 @@ void io_comm_rx::Comm_IO::configureRx()
             s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
             send(s);
             nmeaActivated_ = true;
-        } else if (settings_->ins_vsm_source == "tcp")
+        } else if (settings_->ins_vsm_source == "ip_server")
         {
-            send("siss, IPS2, " + std::to_string(settings_->ins_vsm_tcp_port) +
+            send("siss, IPS2, " + std::to_string(settings_->ins_vsm_ip_server_port) +
                  ", TCP2Way \x0D");
             send("sdio, IPS2, NMEA, none\x0D");
         } else if (settings_->ins_vsm_source == "serial")

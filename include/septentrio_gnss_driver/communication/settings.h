@@ -135,11 +135,11 @@ struct Settings
     std::string rtk_settings_ntrip_send_gga;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rtk_settings_tcp_server_port;
+    uint32_t rtk_settings_ip_server_port;
     //! RTCM version for correction data
-    std::string rtk_settings_tcp_server_rtk_standard;
+    std::string rtk_settings_ip_server_rtk_standard;
     //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string rtk_settings_tcp_server_send_gga;
+    std::string rtk_settings_ip_server_send_gga;
     //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
     //! the same as main connection unless localhost concept is used)
     std::string rtk_settings_serial_port;
@@ -249,7 +249,7 @@ struct Settings
     //! Variances of the 3D velocity (var_x, var_y, var_z)
     std::vector<double> ins_vsm_variances = {-1.0, -1.0, -1.0};
     //! VSM tcp port
-    uint32_t ins_vsm_tcp_port;
+    uint32_t ins_vsm_ip_server_port;
     //! VSM serial port
     std::string ins_vsm_serial_port;
     //! VSM serial baud rate

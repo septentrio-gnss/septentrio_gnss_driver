@@ -399,14 +399,14 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (settings_.rtk_settings_ntrip_send_gga.empty())
         settings_.rtk_settings_ntrip_send_gga = "off";
     // IP server
-    getUint32Param("rtk_settings/tcp_server/port",
-                   settings_.rtk_settings_tcp_server_port, static_cast<uint32_t>(0));
-    param("rtk_settings/tcp_server/rtk_standard",
-          settings_.rtk_settings_tcp_server_rtk_standard, std::string("auto"));
-    param("rtk_settings/tcp_server/send_gga",
-          settings_.rtk_settings_tcp_server_send_gga, std::string("auto"));
-    if (settings_.rtk_settings_tcp_server_send_gga.empty())
-        settings_.rtk_settings_tcp_server_send_gga = "off";
+    getUint32Param("rtk_settings/ip_server/port",
+                   settings_.rtk_settings_ip_server_port, static_cast<uint32_t>(0));
+    param("rtk_settings/ip_server/rtk_standard",
+          settings_.rtk_settings_ip_server_rtk_standard, std::string("auto"));
+    param("rtk_settings/ip_server/send_gga",
+          settings_.rtk_settings_ip_server_send_gga, std::string("auto"));
+    if (settings_.rtk_settings_ip_server_send_gga.empty())
+        settings_.rtk_settings_ip_server_send_gga = "off";
     // Serial
     param("rtk_settings/serial/port", settings_.rtk_settings_serial_port,
           std::string(""));
@@ -468,11 +468,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
                        (settings_.ins_vsm_source == "twist"));
-        if (((settings_.ins_vsm_source == "tcp") ||
+        if (((settings_.ins_vsm_source == "ip_server") ||
              (settings_.ins_vsm_source == "serial")))
         {
-            if (settings_.ins_vsm_source == "tcp")
-                getUint32Param("ins_vsm/tcp_port", settings_.ins_vsm_tcp_port,
+            if (settings_.ins_vsm_source == "ip_server")
+                getUint32Param("ins_vsm/ip_server_port",
+                               settings_.ins_vsm_ip_server_port,
                                static_cast<uint32_t>(7777));
             if (settings_.ins_vsm_source == "serial")
             {

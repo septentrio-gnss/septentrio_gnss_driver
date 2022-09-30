@@ -52,7 +52,7 @@ rtk_settings:
     version: v2
     rtk_standard: auto
     send_gga: auto
-  tcp_server:
+  ip_server:
     port: 0
     rtk_standard: auto
     send_gga: auto
