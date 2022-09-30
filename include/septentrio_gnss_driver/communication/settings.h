@@ -137,7 +137,7 @@ struct Settings
     std::string rtk_settings_ntrip_send_gga;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rtk_settings_tcp_port;
+    uint32_t rtk_settings_tcp_server_port;
     //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
     //! the same as main connection unless localhost concept is used)
     std::string rtk_settings_serial_port;

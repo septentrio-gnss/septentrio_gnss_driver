@@ -609,7 +609,8 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::stringstream ss;
             // In case IPS1 was used before, old configuration is lost of course.
-            ss << "siss, IPS1, " << std::to_string(settings_->rtk_settings_tcp_port)
+            ss << "siss, IPS1, "
+               << std::to_string(settings_->rtk_settings_tcp_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
         }
