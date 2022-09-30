@@ -183,12 +183,12 @@ public:
 
     void registerSubscriber()
     {
-        if (settings_.ins_vsm_source == "odometry")
+        if (settings_.ins_vsm_ros_source == "odometry")
             odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
                 "odometry_vsm", 10,
                 std::bind(&ROSaicNodeBase::callbackOdometry, this,
                           std::placeholders::_1));
-        else if (settings_.ins_vsm_source == "twist")
+        else if (settings_.ins_vsm_ros_source == "twist")
             twistSubscriber_ =
                 this->create_subscription<TwistWithCovarianceStampedMsg>(
                     "twist_vsm", 10,
@@ -404,12 +404,12 @@ private:
         std::string std_x;
         std::string std_y;
         std::string std_z;
-        if (settings_.ins_vsm_config[0])
+        if (settings_.ins_vsm_ros_config[0])
         {
             v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
-            if (settings_.ins_vsm_variances_by_parameter)
+            if (settings_.ins_vsm_ros_variances_by_parameter)
                 std_x = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variances[0]);
+                    settings_.ins_vsm_ros_variances[0]);
             else if (twist.covariance[0] > 0.0)
                 std_x = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[0]));
@@ -422,14 +422,14 @@ private:
             }
         } else
             std_x = std::to_string(1000000.0);
-        if (settings_.ins_vsm_config[1])
+        if (settings_.ins_vsm_ros_config[1])
         {
             if (settings_.use_ros_axis_orientation)
                 v_y = "-";
             v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
-            if (settings_.ins_vsm_variances_by_parameter)
+            if (settings_.ins_vsm_ros_variances_by_parameter)
                 std_y = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variances[1]);
+                    settings_.ins_vsm_ros_variances[1]);
             else if (twist.covariance[7] > 0.0)
                 std_y = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[7]));
@@ -444,14 +444,14 @@ private:
             }
         } else
             std_y = string_utilities::trimDecimalPlaces(1000000.0);
-        if (settings_.ins_vsm_config[2])
+        if (settings_.ins_vsm_ros_config[2])
         {
             if (settings_.use_ros_axis_orientation)
                 v_z = "-";
             v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
-            if (settings_.ins_vsm_variances_by_parameter)
+            if (settings_.ins_vsm_ros_variances_by_parameter)
                 std_z = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_variances[2]);
+                    settings_.ins_vsm_ros_variances[2]);
             else if (twist.covariance[14] > 0.0)
                 std_z = string_utilities::trimDecimalPlaces(
                     std::sqrt(twist.covariance[14]));

@@ -221,9 +221,11 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     config: [false, false, false]
     variances_by_parameter: false
     variances: [0.0, 0.0, 0.0]
-    ip_server_port: 0
-    serial_port: ""
-    serial_baud_rate: 115200
+    ip_server:
+      port: 0
+    serial:
+      port: ""
+      baud_rate: 115200
 
   # Logger
 
@@ -446,20 +448,23 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
     + `ins_vsm`: Configuration of the velocity sensor measurements.
-      + `source`: Specifies which ROS message type shall be used, options are `odometry`, `twist`, `ip_server` or `serial`. Accordingly, for the first two a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`. The last two options are for external input of velocity sensor measurements. The option `ip_server` opens a TCP port, specified by the parameter `ins_vsm.ip_server_port` and the option `serial` opens a serial port specified by `ins_vsm.serial_port`.
-        + default: ""
-      + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z can be sent. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
-        + default: [false, false, false]
-      + `variances_by_parameter`: Wether variances shall be entered by parameter or the values inside the messaged are used. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
-        + default: false
-      + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter`is set to `true`. Values must be > 0.0, else measurements cannot not be used.
-        + default: [0.0, 0.0, 0.0]
-      + `ip_server_port`: TCP port to receive the VSM info if `ins_vsm.source` is set to `ip_server`.
-        + default: 7777
-      + `serial_port`: Serial port to receive the VSM info if `ins_vsm.source` is set to `serial`.
-        + default: "COM1"
-       + `serial_baud_rate`: Baud rate of the serial port to receive the VSM info if `ins_vsm.source` is set to `serial`.
-        + default: 115200
+      + `ros`: VSM info received from ROS msgs
+        + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`.
+          + default: ""
+        + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z can be sent. Only has to be set if `ins_vsm.ros.source`is set to `odometry` or `twist`.
+          + default: [false, false, false]
+        + `variances_by_parameter`: Wether variances shall be entered by parameter or the values inside the messaged are used. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
+          + default: false
+        + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter`is set to `true`. Values must be > 0.0, else measurements cannot not be used.
+          + default: [0.0, 0.0, 0.0]
+      + `ip_server`:
+        + `port`: TCP port to receive the VSM info.
+          + default: 0
+      + `serial`:
+        + `port`: Serial port to receive the VSM info.
+          + default: ""
+        + `baud_rate`: Baud rate of the serial port to receive the VSM info.
+          + default: 115200
   </details>
 
   <details>

@@ -466,101 +466,108 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // VSM - velocity sensor measurements for INS
-    param("ins_vsm.source", settings_.ins_vsm_source, std::string(""));
-    param("ins_vsm.config", settings_.ins_vsm_config,
-          std::vector<bool>({false, false, false}));
-    bool ins_use_vsm = false;
     if (settings_.septentrio_receiver_type == "ins")
     {
-        ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
-                       (settings_.ins_vsm_source == "twist"));
-        if (((settings_.ins_vsm_source == "ip_server") ||
-             (settings_.ins_vsm_source == "serial")))
-        {
-            if (settings_.ins_vsm_source == "ip_server")
-                getUint32Param("ins_vsm.ip_server_port",
-                               settings_.ins_vsm_ip_server_port,
-                               static_cast<uint32_t>(7777));
-            else if (settings_.ins_vsm_source == "serial")
-            {
-                param("ins_vsm.serial_port", settings_.ins_vsm_serial_port,
-                      std::string("COM1"));
-                getUint32Param("ins_vsm.serial_baud_rate",
-                               settings_.ins_vsm_serial_baud_rate,
-                               static_cast<uint32_t>(115200));
-            }
-            this->log(LogLevel::INFO,
-                      "external velocity sensor measurements are used.");
+        param("ins_vsm.ros.source", settings_.ins_vsm_ros_source, std::string(""));
 
-        } else if (!settings_.ins_vsm_source.empty() && !ins_use_vsm)
-            this->log(LogLevel::ERROR, "unknown ins_vsm.source " +
-                                           settings_.ins_vsm_source +
+        bool ins_use_vsm = false;
+        ins_use_vsm = ((settings_.ins_vsm_ros_source == "odometry") ||
+                       (settings_.ins_vsm_ros_source == "twist"));
+        if (!settings_.ins_vsm_ros_source.empty() && !ins_use_vsm)
+            this->log(LogLevel::ERROR, "unknown ins_vsm.ros.source " +
+                                           settings_.ins_vsm_ros_source +
                                            " -> VSM input will not be used!");
-    }
 
-    if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
-    {
-        if (std::all_of(settings_.ins_vsm_config.begin(),
-                        settings_.ins_vsm_config.end(), [](bool v) { return !v; }))
+        getUint32Param("ins_vsm.ip_server.port", settings_.ins_vsm_ip_server_port,
+                       static_cast<uint32_t>(0));
+        if (settings_.ins_vsm_ip_server_port != 0)
         {
-            ins_use_vsm = false;
             this->log(
-                LogLevel::ERROR,
-                "all elements of ins_vsm.config have been set to false -> VSM input will not be used!");
-        } else
+                LogLevel::INFO,
+                "external velocity sensor measurements via ip_server are used.");
+        }
+
+        param("ins_vsm.serial.port", settings_.ins_vsm_serial_port, std::string(""));
+
+        if (!settings_.ins_vsm_serial_port.empty())
         {
-            param("ins_vsm.variances_by_parameter",
-                  settings_.ins_vsm_variances_by_parameter, false);
-            if (settings_.ins_vsm_variances_by_parameter)
+            getUint32Param("ins_vsm.serial.baud_rate",
+                           settings_.ins_vsm_serial_baud_rate,
+                           static_cast<uint32_t>(115200));
+            this->log(LogLevel::INFO,
+                      "external velocity sensor measurements via serial are used.");
+        }
+
+        param("ins_vsm.ros.config", settings_.ins_vsm_ros_config,
+              std::vector<bool>({false, false, false}));
+        if (ins_use_vsm && (settings_.ins_vsm_ros_config.size() == 3))
+        {
+            if (std::all_of(settings_.ins_vsm_ros_config.begin(),
+                            settings_.ins_vsm_ros_config.end(),
+                            [](bool v) { return !v; }))
             {
-                param("ins_vsm.variances", settings_.ins_vsm_variances,
-                      std::vector<double>({-1.0, -1.0, -1.0}));
-                if (settings_.ins_vsm_variances.size() != 3)
+                ins_use_vsm = false;
+                this->log(
+                    LogLevel::ERROR,
+                    "all elements of ins_vsm.ros.config have been set to false -> VSM input will not be used!");
+            } else
+            {
+                param("ins_vsm.ros.variances_by_parameter",
+                      settings_.ins_vsm_ros_variances_by_parameter, false);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
                 {
-                    this->log(
-                        LogLevel::ERROR,
-                        "ins_vsm.variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
-                    ins_use_vsm = false;
-                    settings_.ins_vsm_source = "";
-                } else
-                {
-                    for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
+                    param("ins_vsm.ros.variances", settings_.ins_vsm_ros_variances,
+                          std::vector<double>({-1.0, -1.0, -1.0}));
+                    if (settings_.ins_vsm_ros_variances.size() != 3)
                     {
-                        if (settings_.ins_vsm_config[i] &&
-                            (settings_.ins_vsm_variances[i] <= 0.0))
+                        this->log(
+                            LogLevel::ERROR,
+                            "ins_vsm.ros.variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
+                        ins_use_vsm = false;
+                        settings_.ins_vsm_ros_source = "";
+                    } else
+                    {
+                        for (size_t i = 0; i < settings_.ins_vsm_ros_config.size();
+                             ++i)
                         {
-                            this->log(
-                                LogLevel::ERROR,
-                                "ins_vsm.config of element " + std::to_string(i) +
-                                    " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
-                            settings_.ins_vsm_config[i] = false;
+                            if (settings_.ins_vsm_ros_config[i] &&
+                                (settings_.ins_vsm_ros_variances[i] <= 0.0))
+                            {
+                                this->log(
+                                    LogLevel::ERROR,
+                                    "ins_vsm.ros.config of element " +
+                                        std::to_string(i) +
+                                        " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
+                                settings_.ins_vsm_ros_config[i] = false;
+                            }
                         }
                     }
-                }
-                if (std::all_of(settings_.ins_vsm_config.begin(),
-                                settings_.ins_vsm_config.end(),
-                                [](bool v) { return !v; }))
-                {
-                    ins_use_vsm = false;
-                    settings_.ins_vsm_source = "";
-                    this->log(
-                        LogLevel::ERROR,
-                        "all elements of ins_vsm.config have been set to false due to invalid covariances -> VSM input will not be used!");
+                    if (std::all_of(settings_.ins_vsm_ros_config.begin(),
+                                    settings_.ins_vsm_ros_config.end(),
+                                    [](bool v) { return !v; }))
+                    {
+                        ins_use_vsm = false;
+                        settings_.ins_vsm_ros_source = "";
+                        this->log(
+                            LogLevel::ERROR,
+                            "all elements of ins_vsm.ros.config have been set to false due to invalid covariances -> VSM input will not be used!");
+                    }
                 }
             }
+        } else if (ins_use_vsm)
+        {
+            settings_.ins_vsm_ros_source = "";
+            this->log(
+                LogLevel::ERROR,
+                "ins_vsm.ros.config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
         }
-    } else if (ins_use_vsm)
-    {
-        settings_.ins_vsm_source = "";
-        this->log(
-            LogLevel::ERROR,
-            "ins_vsm.config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
-    }
-    if (ins_use_vsm)
-    {
-        this->log(LogLevel::INFO,
-                  "ins_vsm.source " + settings_.ins_vsm_source + " will be used.");
-        registerSubscriber();
+        if (ins_use_vsm)
+        {
+            this->log(LogLevel::INFO, "ins_vsm.ros.source " +
+                                          settings_.ins_vsm_ros_source +
+                                          " will be used.");
+            registerSubscriber();
+        }
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
@@ -623,6 +630,6 @@ void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when
-// its library is being loaded into a running process.
+// This acts as a sort of entry point, allowing the component to be discoverable
+// when its library is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(rosaic_node::ROSaicNode)
