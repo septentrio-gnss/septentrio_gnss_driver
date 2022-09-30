@@ -88,8 +88,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
     param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
-    param("local_frame_id", local_frame_id_, (std::string) "odom");
-    param("insert_local_frame", insert_local_frame_, false);
+    param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
+    param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
 
@@ -105,12 +105,19 @@ bool rosaic_node::ROSaicNode::getROSParams()
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
     if (!((settings_.septentrio_receiver_type == "gnss") ||
-          (settings_.septentrio_receiver_type == "ins")))
+          (settings_.septentrio_receiver_type == "ins") ||
+          (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))
     {
         this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " +
                                        settings_.septentrio_receiver_type +
                                        " use either gnss or ins.");
         return false;
+    }
+
+    if (settings_.septentrio_receiver_type == "ins_in_gnss_mode")
+    {
+        settings_.septentrio_receiver_type = "gnss";
+        settings_.ins_in_gnss_mode = true;
     }
 
     // Polling period parameters
@@ -301,9 +308,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ins_spatial_config.poi_lever_arm.delta_y", settings_.poi_y, 0.0);
         param("ins_spatial_config.poi_lever_arm.delta_z", settings_.poi_z, 0.0);
         // INS velocity sensor lever arm offset parameter
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_x", settings_.vsm_x, 0.0);
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_y", settings_.vsm_y, 0.0);
-        param("ins_spatial_config.vel_sensor_lever_arm.vsm_z", settings_.vsm_z, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_x", settings_.vsm_x, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_y", settings_.vsm_y, 0.0);
+        param("ins_spatial_config.vsm_lever_arm.vsm_z", settings_.vsm_z, 0.0);
         // Antenna Attitude Determination parameter
         param("att_offset.heading", settings_.heading_offset, 0.0);
         param("att_offset.pitch", settings_.pitch_offset, 0.0);
@@ -373,28 +380,69 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // Correction service parameters
-    param("ntrip_settings.mode", settings_.ntrip_mode, std::string("off"));
-    param("ntrip_settings.caster", settings_.caster, std::string());
-    getUint32Param("ntrip_settings.caster_port", settings_.caster_port,
+    param("rtk_settings.rtk_standard", settings_.rtk_settings_rtk_standard,
+          std::string("auto"));
+    param("rtk_settings.source", settings_.rtk_settings_source, std::string());
+    param("rtk_settings.ntrip.caster", settings_.rtk_settings_ntrip_caster,
+          std::string());
+    getUint32Param("rtk_settings.ntrip.caster_port",
+                   settings_.rtk_settings_ntrip_caster_port,
                    static_cast<uint32_t>(0));
-    param("ntrip_settings.username", settings_.ntrip_username, std::string());
-    if (!param("ntrip_settings.password", settings_.ntrip_password, std::string()))
+    param("rtk_settings.ntrip.username", settings_.rtk_settings_ntrip_username,
+          std::string());
+    if (!param("rtk_settings.ntrip.password", settings_.rtk_settings_ntrip_password,
+               std::string()))
     {
         uint32_t pwd_tmp;
-        getUint32Param("ntrip_settings.password", pwd_tmp, static_cast<uint32_t>(0));
-        settings_.ntrip_password = std::to_string(pwd_tmp);
+        getUint32Param("rtk_settings.ntrip.password", pwd_tmp,
+                       static_cast<uint32_t>(0));
+        settings_.rtk_settings_ntrip_password = std::to_string(pwd_tmp);
     }
-    param("ntrip_settings.mountpoint", settings_.mountpoint, std::string());
-    param("ntrip_settings.ntrip_version", settings_.ntrip_version,
+    param("rtk_settings.ntrip.mountpoint", settings_.rtk_settings_mountpoint,
+          std::string());
+    param("rtk_settings.ntrip.version", settings_.rtk_settings_ntrip_version,
           std::string("v2"));
-    param("ntrip_settings.send_gga", settings_.send_gga, std::string("auto"));
-    param("ntrip_settings.rx_has_internet", settings_.rx_has_internet, false);
-    param("ntrip_settings.rtcm_version", settings_.rtcm_version,
-          std::string("RTCMv3"));
-    getUint32Param("ntrip_settings.rx_input_corrections_tcp",
-                   settings_.rx_input_corrections_tcp, static_cast<uint32_t>(28785));
-    param("ntrip_settings.rx_input_corrections_serial",
-          settings_.rx_input_corrections_serial, std::string("USB2"));
+    param("rtk_settings.ntrip.send_gga", settings_.rtk_settings_ntrip_send_gga,
+          std::string("auto"));
+    getUint32Param("rtk_settings.tcp.port", settings_.rtk_settings_tcp_port,
+                   static_cast<uint32_t>(28785));
+    param("rtk_settings.serial.port", settings_.rtk_settings_serial_port,
+          std::string("COM2"));
+    getUint32Param("rtk_settings.serial.baud_rate",
+                   settings_.rtk_settings_serial_baud_rate,
+                   static_cast<uint32_t>(115200));
+    {
+        // deprecation warnings
+        std::string tempString;
+        int32_t tempInt;
+        bool tempBool;
+        param("ntrip_settings.mode", tempString, std::string(""));
+        if (tempString != "")
+            this->log(
+                LogLevel::WARN,
+                "Deprecation warning: parameter ntrip_settings.mode has been removed, see README under section rtk_settings.");
+        param("ntrip_settings.caster", tempString, std::string(""));
+        if (tempString != "")
+            this->log(
+                LogLevel::WARN,
+                "Deprecation warning: parameter ntrip_settings.caster has been removed, see README under section rtk_settings.");
+        param("ntrip_settings.rx_has_internet", tempBool, false);
+        if (tempBool)
+            this->log(
+                LogLevel::WARN,
+                "Deprecation warning: parameter ntrip_settings.rx_has_internet has been removed, see README under section rtk_settings.");
+        param("ntrip_settings.rx_input_corrections_tcp", tempInt, 0);
+        if (tempInt != 0)
+            this->log(
+                LogLevel::WARN,
+                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
+        param("ntrip_settings.rx_input_corrections_serial", tempString,
+              std::string(""));
+        if (tempString != "")
+            this->log(
+                LogLevel::WARN,
+                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtk_settings.");
+    }
 
     if (settings_.publish_atteuler)
     {
@@ -405,6 +453,103 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 "AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
             settings_.multi_antenna = true;
         }
+    }
+
+    // VSM - velocity sensor measurements for INS
+    param("ins_vsm.source", settings_.ins_vsm_source, std::string(""));
+    param("ins_vsm.config", settings_.ins_vsm_config,
+          std::vector<bool>({false, false, false}));
+    bool ins_use_vsm = false;
+    if (settings_.septentrio_receiver_type == "ins")
+    {
+        ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
+                       (settings_.ins_vsm_source == "twist"));
+        if (((settings_.ins_vsm_source == "tcp") ||
+             (settings_.ins_vsm_source == "serial")))
+        {
+            if (settings_.ins_vsm_source == "tcp")
+                getUint32Param("ins_vsm.tcp_port", settings_.ins_vsm_tcp_port,
+                               static_cast<uint32_t>(7777));
+            else if (settings_.ins_vsm_source == "serial")
+            {
+                param("ins_vsm.serial_port", settings_.ins_vsm_serial_port,
+                      std::string("COM1"));
+                getUint32Param("ins_vsm.serial_baud_rate",
+                               settings_.ins_vsm_serial_baud_rate,
+                               static_cast<uint32_t>(115200));
+            }
+            this->log(LogLevel::INFO,
+                      "external velocity sensor measurements are used.");
+
+        } else if (!settings_.ins_vsm_source.empty() && !ins_use_vsm)
+            this->log(LogLevel::ERROR, "unknown ins_vsm.source " +
+                                           settings_.ins_vsm_source +
+                                           " -> VSM input will not be used!");
+    }
+
+    if (ins_use_vsm && (settings_.ins_vsm_config.size() == 3))
+    {
+        if (std::all_of(settings_.ins_vsm_config.begin(),
+                        settings_.ins_vsm_config.end(), [](bool v) { return !v; }))
+        {
+            ins_use_vsm = false;
+            this->log(
+                LogLevel::ERROR,
+                "all elements of ins_vsm.config have been set to false -> VSM input will not be used!");
+        } else
+        {
+            param("ins_vsm.variances_by_parameter",
+                  settings_.ins_vsm_variances_by_parameter, false);
+            if (settings_.ins_vsm_variances_by_parameter)
+            {
+                param("ins_vsm.variances", settings_.ins_vsm_variances,
+                      std::vector<double>({-1.0, -1.0, -1.0}));
+                if (settings_.ins_vsm_variances.size() != 3)
+                {
+                    this->log(
+                        LogLevel::ERROR,
+                        "ins_vsm.variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
+                    ins_use_vsm = false;
+                    settings_.ins_vsm_source = "";
+                } else
+                {
+                    for (size_t i = 0; i < settings_.ins_vsm_config.size(); ++i)
+                    {
+                        if (settings_.ins_vsm_config[i] &&
+                            (settings_.ins_vsm_variances[i] <= 0.0))
+                        {
+                            this->log(
+                                LogLevel::ERROR,
+                                "ins_vsm.config of element " + std::to_string(i) +
+                                    " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
+                            settings_.ins_vsm_config[i] = false;
+                        }
+                    }
+                }
+                if (std::all_of(settings_.ins_vsm_config.begin(),
+                                settings_.ins_vsm_config.end(),
+                                [](bool v) { return !v; }))
+                {
+                    ins_use_vsm = false;
+                    settings_.ins_vsm_source = "";
+                    this->log(
+                        LogLevel::ERROR,
+                        "all elements of ins_vsm.config have been set to false due to invalid covariances -> VSM input will not be used!");
+                }
+            }
+        }
+    } else if (ins_use_vsm)
+    {
+        settings_.ins_vsm_source = "";
+        this->log(
+            LogLevel::ERROR,
+            "ins_vsm.config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
+    }
+    if (ins_use_vsm)
+    {
+        this->log(LogLevel::INFO,
+                  "ins_vsm.source " + settings_.ins_vsm_source + " will be used.");
+        registerSubscriber();
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
@@ -457,6 +602,11 @@ void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
     roll = std::atan2(C(2, 1), C(2, 2));
     pitch = std::asin(-C(2, 0));
     yaw = std::atan2(C(1, 0), C(0, 0));
+}
+
+void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
+{
+    IO_.sendVelocity(velNmea);
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

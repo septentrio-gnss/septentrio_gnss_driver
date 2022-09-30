@@ -2276,8 +2276,9 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     {
         std::vector<uint8_t> dvec(data_,
                                   data_ + parsing_utilities::getLength(data_));
+        bool hasImuMeas = false;
         if (!ExtSensorMeasParser(node_, dvec.begin(), dvec.end(), last_extsensmeas_,
-                                 settings_->use_ros_axis_orientation))
+                                 settings_->use_ros_axis_orientation, hasImuMeas))
         {
             node_->log(LogLevel::ERROR,
                        "septentrio_gnss_driver: parse error in ExtSensorMeas");
@@ -2293,7 +2294,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         }
         if (settings_->publish_extsensormeas)
             publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
-        if (settings_->publish_imu)
+        if (settings_->publish_imu && hasImuMeas)
         {
             ImuMsg msg;
             try
@@ -2927,7 +2928,8 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                        "septentrio_gnss_driver: parse error of firmware version.");
         } else
         {
-            if (settings_->septentrio_receiver_type == "ins")
+            if ((settings_->septentrio_receiver_type == "ins") ||
+                settings_->ins_in_gnss_mode)
             {
                 if ((major_minor_patch[0] < ins_major) ||
                     ((major_minor_patch[0] == ins_major) &&
@@ -2945,28 +2947,13 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
                             std::to_string(ins_minor) + "." +
                             std::to_string(ins_patch) + " or consult README.");
                 }
-            }
-            if (settings_->septentrio_receiver_type == "gnss")
+            } else if (settings_->septentrio_receiver_type == "gnss")
             {
                 if (major_minor_patch[0] < 3)
                 {
-                    // Assuming INS is used as GNSS
-                    if ((major_minor_patch[1] < ins_minor) ||
-                        (major_minor_patch[1] == ins_minor) &&
-                            (major_minor_patch[2] < ins_patch))
-                    {
-                        node_->log(
-                            LogLevel::WARN,
-                            "INS receiver has firmware version: " +
-                                last_receiversetup_.rx_version +
-                                ", which does not support all features. Please update to at least " +
-                                std::to_string(ins_major) + "." +
-                                std::to_string(ins_minor) + "." +
-                                std::to_string(ins_patch) + " or consult README.");
-                    }
                     node_->log(
                         LogLevel::WARN,
-                        "INS receiver seems to be used as GNSS. Some settings may trigger warnings or errors.");
+                        "INS receiver seems to be used as GNSS. Some settings may trigger warnings or errors. Consider using 'ins_in_gnss_mode' as receiver type.");
                 } else if ((major_minor_patch[0] < gnss_major) ||
                            ((major_minor_patch[0] == gnss_major) &&
                             (major_minor_patch[1] < gnss_minor)) ||

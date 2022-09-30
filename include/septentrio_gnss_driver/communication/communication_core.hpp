@@ -139,6 +139,13 @@ namespace io_comm_rx {
          * */
         void defineMessages();
 
+        /**
+         * @brief Hands over NMEA velocity message over to the send() method of
+         * manager_
+         * @param cmd The command to hand over
+         */
+        void sendVelocity(const std::string& velNmea);
+
     private:
         /**
          * @brief Sets up the stage for SBF file reading
@@ -204,16 +211,10 @@ namespace io_comm_rx {
         void setManager(const boost::shared_ptr<Manager>& manager);
 
         /**
-         * @brief Reset the Serial I/O port, e.g. after a Rx reset
-         * @param[in] port The device's port address
-         */
-        void resetSerial(std::string port);
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(std::string cmd);
+        void send(const std::string&);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
@@ -244,6 +245,8 @@ namespace io_comm_rx {
         boost::shared_ptr<Manager> manager_;
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
+
+        bool nmeaActivated_ = false;
 
         //! Connection or reading thread
         std::unique_ptr<boost::thread> connectionThread_;

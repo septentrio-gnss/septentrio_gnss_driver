@@ -28,11 +28,12 @@
 //
 // *****************************************************************************
 
-#ifndef Typedefs_HPP
-#define Typedefs_HPP
+#pragma once
 
 // std includes
 #include <any>
+#include <iomanip>
+#include <sstream>
 #include <unordered_map>
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
@@ -51,6 +52,7 @@
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/twist_with_covariance.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -82,6 +84,9 @@
 #include <septentrio_gnss_driver/msg/ins_nav_cart.hpp>
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
+// Rosaic includes
+#include <septentrio_gnss_driver/communication/settings.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.h>
 
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;
@@ -175,6 +180,21 @@ public:
     }
 
     virtual ~ROSaicNodeBase() {}
+
+    void registerSubscriber()
+    {
+        if (settings_.ins_vsm_source == "odometry")
+            odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
+                "odometry_vsm", 10,
+                std::bind(&ROSaicNodeBase::callbackOdometry, this,
+                          std::placeholders::_1));
+        else if (settings_.ins_vsm_source == "twist")
+            twistSubscriber_ =
+                this->create_subscription<TwistWithCovarianceStampedMsg>(
+                    "twist_vsm", 10,
+                    std::bind(&ROSaicNodeBase::callbackTwist, this,
+                              std::placeholders::_1));
+    }
 
     /**
      * @brief Gets an integer or unsigned integer value from the parameter server
@@ -307,14 +327,14 @@ public:
         transformStamped.transform.rotation.z = loc.pose.pose.orientation.z;
         transformStamped.transform.rotation.w = loc.pose.pose.orientation.w;
 
-        if (insert_local_frame_)
+        if (settings_.insert_local_frame)
         {
             geometry_msgs::msg::TransformStamped T_l_b;
             try
             {
                 // try to get tf at timestamp of message
-                T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
-                                                  local_frame_id_, loc.header.stamp);
+                T_l_b = tfBuffer_.lookupTransform(
+                    loc.child_frame_id, settings_.local_frame_id, loc.header.stamp);
             } catch (const tf2::TransformException& ex)
             {
                 try
@@ -325,8 +345,9 @@ public:
                             << std::to_string(currentStamp)
                             << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
-                    T_l_b = tfBuffer_.lookupTransform(
-                        loc.child_frame_id, local_frame_id_, rclcpp::Time(0));
+                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
+                                                      settings_.local_frame_id,
+                                                      rclcpp::Time(0));
                 } catch (const tf2::TransformException& ex)
                 {
                     RCLCPP_WARN_STREAM_THROTTLE(
@@ -343,17 +364,127 @@ public:
                                       tf2::transformToEigen(T_l_b));
             transformStamped.header.stamp = loc.header.stamp;
             transformStamped.header.frame_id = loc.header.frame_id;
-            transformStamped.child_frame_id = local_frame_id_;
+            transformStamped.child_frame_id = settings_.local_frame_id;
         }
 
         tf2Publisher_.sendTransform(transformStamped);
     }
 
+private:
+    void callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr odo)
+    {
+        Timestamp stamp = timestampFromRos(odo->header.stamp);
+
+        processTwist(stamp, odo->twist);
+    }
+
+    void callbackTwist(const TwistWithCovarianceStampedMsg::SharedPtr twist)
+    {
+        Timestamp stamp = timestampFromRos(twist->header.stamp);
+
+        processTwist(stamp, twist->twist);
+    }
+
+    void processTwist(Timestamp stamp,
+                      const geometry_msgs::msg::TwistWithCovariance& twist)
+    {
+        time_t epochSeconds = stamp / 1000000000;
+        struct tm* tm_temp = std::gmtime(&epochSeconds);
+        std::stringstream timeUtc;
+        timeUtc << std::setfill('0') << std::setw(2)
+                << std::to_string(tm_temp->tm_hour) << std::setw(2)
+                << std::to_string(tm_temp->tm_min) << std::setw(2)
+                << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
+                << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
+                                  1000000);
+
+        std::string v_x;
+        std::string v_y;
+        std::string v_z;
+        std::string std_x;
+        std::string std_y;
+        std::string std_z;
+        if (settings_.ins_vsm_config[0])
+        {
+            v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
+            if (settings_.ins_vsm_variances_by_parameter)
+                std_x = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variances[0]);
+            else if (twist.covariance[0] > 0.0)
+                std_x = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[0]));
+            else
+            {
+                RCLCPP_ERROR_STREAM(this->get_logger(),
+                                    "Invalid covariance value for v_x: " +
+                                        std::to_string(twist.covariance[0]) +
+                                        ". Ignoring measurement.");
+            }
+        } else
+            std_x = std::to_string(1000000.0);
+        if (settings_.ins_vsm_config[1])
+        {
+            if (settings_.use_ros_axis_orientation)
+                v_y = "-";
+            v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
+            if (settings_.ins_vsm_variances_by_parameter)
+                std_y = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variances[1]);
+            else if (twist.covariance[7] > 0.0)
+                std_y = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[7]));
+            else
+            {
+                RCLCPP_ERROR_STREAM(this->get_logger(),
+                                    "Invalid covariance value for v_y: " +
+                                        std::to_string(twist.covariance[1]) +
+                                        ". Ignoring measurement.");
+                v_y = "";
+                std_y = string_utilities::trimDecimalPlaces(1000000.0);
+            }
+        } else
+            std_y = string_utilities::trimDecimalPlaces(1000000.0);
+        if (settings_.ins_vsm_config[2])
+        {
+            if (settings_.use_ros_axis_orientation)
+                v_z = "-";
+            v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
+            if (settings_.ins_vsm_variances_by_parameter)
+                std_z = string_utilities::trimDecimalPlaces(
+                    settings_.ins_vsm_variances[2]);
+            else if (twist.covariance[14] > 0.0)
+                std_z = string_utilities::trimDecimalPlaces(
+                    std::sqrt(twist.covariance[14]));
+            else
+            {
+                RCLCPP_ERROR_STREAM(this->get_logger(),
+                                    "Invalid covariance value for v_z: " +
+                                        std::to_string(twist.covariance[2]) +
+                                        ". Ignoring measurement.");
+                v_z = "";
+                std_z = string_utilities::trimDecimalPlaces(1000000.0);
+            }
+        } else
+            std_z = string_utilities::trimDecimalPlaces(1000000.0);
+
+        std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," + v_y +
+                              "," + std_x + "," + std_y + "," + v_z + "," + std_z;
+
+        char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
+                                   [](char sum, char ch) { return sum ^ ch; });
+
+        std::stringstream crcss;
+        crcss << std::hex << static_cast<int32_t>(crc);
+
+        velNmea += "*" + crcss.str() + "\r\n";
+        sendVelocity(velNmea);
+    }
+
 protected:
-    //! Wether local frame should be inserted into tf
-    bool insert_local_frame_ = false;
-    //! Frame id of the local frame to be inserted
-    std::string local_frame_id_;
+    //! Settings
+    Settings settings_;
+    //! Send velocity to communication layer (virtual)
+    virtual void sendVelocity(const std::string& velNmea) = 0;
 
 private:
     //! Map of topics and publishers
@@ -362,6 +493,10 @@ private:
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
+    //! Odometry subscriber
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySubscriber_;
+    //! Twist subscriber
+    rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
     //! Last tf stamp
     Timestamp lastTfStamp_;
     //! tf buffer
@@ -369,5 +504,3 @@ private:
     // tf listener
     tf2_ros::TransformListener tfListener_;
 };
-
-#endif // Typedefs_HPP

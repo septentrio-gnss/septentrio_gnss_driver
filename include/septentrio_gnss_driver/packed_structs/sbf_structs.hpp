@@ -1576,7 +1576,8 @@ bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd,
  */
 template <typename It>
 bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
-                         ExtSensorMeasMsg& msg, bool use_ros_axis_orientation)
+                         ExtSensorMeasMsg& msg, bool use_ros_axis_orientation,
+                         bool& hasImuMeas)
 {
     if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
@@ -1618,6 +1619,9 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
     msg.sensor_model.resize(msg.n);
     msg.type.resize(msg.n);
     msg.obs_info.resize(msg.n);
+    bool hasAcc = false;
+    bool hasOmega = false;
+    hasImuMeas = false;
     for (size_t i = 0; i < msg.n; i++)
     {
         qiLittleEndianParser(it, msg.source[i]);
@@ -1639,6 +1643,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
                 if (validValue(msg.acceleration_z))
                     msg.acceleration_z = -msg.acceleration_z;
             }
+            hasAcc = true;
             break;
         }
         case 1:
@@ -1653,6 +1658,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
                 if (validValue(msg.angular_rate_z))
                     msg.angular_rate_z = -msg.angular_rate_z;
             }
+            hasOmega = true;
             break;
         }
         case 3:
@@ -1700,6 +1706,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");
         return false;
     }
+    hasImuMeas = hasAcc && hasOmega;
     return true;
 };
 

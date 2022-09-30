@@ -56,19 +56,22 @@ polling_period:
 
 use_gnss_time: false
 
-ntrip_settings:
-  mode: "off"
-  caster: ""
-  caster_port: 0
-  username: ""
-  password: ""
-  mountpoint: ""
-  ntrip_version: v2
-  send_gga: auto
-  rx_has_internet: false
-  rtcm_version: RTCMv2
-  rx_input_corrections_tcp: 6666
-  rx_input_corrections_serial: USB2
+rtk_settings:
+  rtk_standard: auto
+  source: ""
+  ntrip:
+    caster: ""
+    caster_port: 2101
+    username: ""
+    password: ""
+    mountpoint: ""
+    version: v2
+    send_gga: auto
+  tcp:
+    port: 28785
+  serial:
+    port: COM2
+    baud_rate: 115200
 
 publish:
   # For both GNSS and INS Rxs
@@ -115,7 +118,7 @@ ins_spatial_config:
     x: 0.0
     y: 0.0
     z: 0.0
-  vel_sensor_lever_arm:
+  vsm_lever_arm:
     vsm_x: 0.0
     vsm_y: 0.0
     vsm_z: 0.0
@@ -127,6 +130,15 @@ ins_std_dev_mask:
   pos_std_dev: 10.0
 
 ins_use_poi: true
+
+ins_vsm:
+  source: ""
+  config: [false, false, false]
+  variances_by_parameter: false
+  variances: [0.0, 0.0, 0.0]
+  tcp_port: 0
+  serial_port: ""
+  serial_baud_rate: 115200
 
 # logger
 
