@@ -588,20 +588,20 @@ void io_comm_rx::Comm_IO::configureRx()
         ss << "snts, NTR1, off \x0D";
         send(ss.str());
     }
-    if (settings_->rtcm_settings_source == "ntrip")
+    if (settings_->rtk_settings_source == "ntrip")
     {
         {
             std::stringstream ss;
-            ss << "snts, NTR1, Client, " << settings_->rtcm_settings_ntrip_caster
-               << ", " << std::to_string(settings_->rtcm_settings_ntrip_caster_port)
-               << ", " << settings_->rtcm_settings_ntrip_username << ", "
-               << settings_->rtcm_settings_ntrip_password << ", "
-               << settings_->rtcm_settings_mountpoint << ", "
-               << settings_->rtcm_settings_ntrip_version << ", "
-               << settings_->rtcm_settings_ntrip_send_gga << " \x0D";
+            ss << "snts, NTR1, Client, " << settings_->rtk_settings_ntrip_caster
+               << ", " << std::to_string(settings_->rtk_settings_ntrip_caster_port)
+               << ", " << settings_->rtk_settings_ntrip_username << ", "
+               << settings_->rtk_settings_ntrip_password << ", "
+               << settings_->rtk_settings_mountpoint << ", "
+               << settings_->rtk_settings_ntrip_version << ", "
+               << settings_->rtk_settings_ntrip_send_gga << " \x0D";
             send(ss.str());
         }
-    } else if (settings_->rtcm_settings_source ==
+    } else if (settings_->rtk_settings_source ==
                "tcp") // Since the Rx does not have internet (and you will not be
                       // able to share it via USB), we need to forward the
                       // corrections ourselves, though not on the same port.
@@ -609,20 +609,20 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::stringstream ss;
             // In case IPS1 was used before, old configuration is lost of course.
-            ss << "siss, IPS1, " << std::to_string(settings_->rtcm_settings_tcp_port)
+            ss << "siss, IPS1, " << std::to_string(settings_->rtk_settings_tcp_port)
                << ", TCP2Way \x0D";
             send(ss.str());
         }
         {
             std::stringstream ss;
-            ss << "sdio, IPS1, " << settings_->rtcm_settings_rtcm_version
+            ss << "sdio, IPS1, " << settings_->rtk_settings_rtk_standard
                << ", +SBF+NMEA \x0D";
             send(ss.str());
         }
-        if (settings_->rtcm_settings_ntrip_send_gga != "off")
+        if (settings_->rtk_settings_ntrip_send_gga != "off")
         {
-            std::string rate = settings_->rtcm_settings_ntrip_send_gga;
-            if (settings_->rtcm_settings_ntrip_send_gga == "auto")
+            std::string rate = settings_->rtk_settings_ntrip_send_gga;
+            if (settings_->rtk_settings_ntrip_send_gga == "auto")
                 rate = "sec1";
             std::stringstream ss;
             ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, " << rate
@@ -630,12 +630,16 @@ void io_comm_rx::Comm_IO::configureRx()
             ++stream;
             send(ss.str());
         }
-    } else if (settings_->rtcm_settings_source == "serial")
+    } else if (settings_->rtk_settings_source == "serial")
     {
         std::stringstream ss;
-        ss << "sdio, " << settings_->rtcm_settings_serial_port << ", "
-           << settings_->rtcm_settings_rtcm_version << ", +SBF+NMEA \x0D";
+        ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
+           << settings_->rtk_settings_rtk_standard << ", +SBF+NMEA \x0D";
         send(ss.str());
+    } else if (!settings_->rtk_settings_source.empty())
+    {
+        node_->log(LogLevel::ERROR, "Unknown RTK corrections source " +
+                                        settings_->rtk_settings_source + "!");
     }
 
     // Setting multi antenna

@@ -380,36 +380,36 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // Correction service parameters
-    param("rtcm_settings.rtcm_version", settings_.rtcm_settings_rtcm_version,
+    param("rtk_settings.rtk_standard", settings_.rtk_settings_rtk_standard,
           std::string("auto"));
-    param("rtcm_settings.source", settings_.rtcm_settings_source, std::string());
-    param("rtcm_settings.ntrip.caster", settings_.rtcm_settings_ntrip_caster,
+    param("rtk_settings.source", settings_.rtk_settings_source, std::string());
+    param("rtk_settings.ntrip.caster", settings_.rtk_settings_ntrip_caster,
           std::string());
-    getUint32Param("rtcm_settings.ntrip.caster_port",
-                   settings_.rtcm_settings_ntrip_caster_port,
+    getUint32Param("rtk_settings.ntrip.caster_port",
+                   settings_.rtk_settings_ntrip_caster_port,
                    static_cast<uint32_t>(0));
-    param("rtcm_settings.ntrip.username", settings_.rtcm_settings_ntrip_username,
+    param("rtk_settings.ntrip.username", settings_.rtk_settings_ntrip_username,
           std::string());
-    if (!param("rtcm_settings.ntrip.password",
-               settings_.rtcm_settings_ntrip_password, std::string()))
+    if (!param("rtk_settings.ntrip.password", settings_.rtk_settings_ntrip_password,
+               std::string()))
     {
         uint32_t pwd_tmp;
-        getUint32Param("rtcm_settings.ntrip.password", pwd_tmp,
+        getUint32Param("rtk_settings.ntrip.password", pwd_tmp,
                        static_cast<uint32_t>(0));
-        settings_.rtcm_settings_ntrip_password = std::to_string(pwd_tmp);
+        settings_.rtk_settings_ntrip_password = std::to_string(pwd_tmp);
     }
-    param("rtcm_settings.ntrip.mountpoint", settings_.rtcm_settings_mountpoint,
+    param("rtk_settings.ntrip.mountpoint", settings_.rtk_settings_mountpoint,
           std::string());
-    param("rtcm_settings.ntrip.version", settings_.rtcm_settings_ntrip_version,
+    param("rtk_settings.ntrip.version", settings_.rtk_settings_ntrip_version,
           std::string("v2"));
-    param("rtcm_settings.ntrip.send_gga", settings_.rtcm_settings_ntrip_send_gga,
+    param("rtk_settings.ntrip.send_gga", settings_.rtk_settings_ntrip_send_gga,
           std::string("auto"));
-    getUint32Param("rtcm_settings.tcp.port", settings_.rtcm_settings_tcp_port,
+    getUint32Param("rtk_settings.tcp.port", settings_.rtk_settings_tcp_port,
                    static_cast<uint32_t>(28785));
-    param("rtcm_settings.serial.port", settings_.rtcm_settings_serial_port,
+    param("rtk_settings.serial.port", settings_.rtk_settings_serial_port,
           std::string("COM2"));
-    getUint32Param("rtcm_settings.serial.baud_rate",
-                   settings_.rtcm_settings_serial_baud_rate,
+    getUint32Param("rtk_settings.serial.baud_rate",
+                   settings_.rtk_settings_serial_baud_rate,
                    static_cast<uint32_t>(115200));
     {
         // deprecation warnings
@@ -420,28 +420,28 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (tempString != "")
             this->log(
                 LogLevel::WARN,
-                "Deprecation warning: parameter ntrip_settings.mode has been removed, see README under section rtcm_settings.");
+                "Deprecation warning: parameter ntrip_settings.mode has been removed, see README under section rtk_settings.");
         param("ntrip_settings.caster", tempString, std::string(""));
         if (tempString != "")
             this->log(
                 LogLevel::WARN,
-                "Deprecation warning: parameter ntrip_settings.caster has been removed, see README under section rtcm_settings.");
+                "Deprecation warning: parameter ntrip_settings.caster has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_has_internet", tempBool, false);
         if (tempBool)
             this->log(
                 LogLevel::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_has_internet has been removed, see README under section rtcm_settings.");
+                "Deprecation warning: parameter ntrip_settings.rx_has_internet has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_input_corrections_tcp", tempInt, 0);
         if (tempInt != 0)
             this->log(
                 LogLevel::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_tcp has been removed, see README under section rtcm_settings.");
+                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_input_corrections_serial", tempString,
               std::string(""));
         if (tempString != "")
             this->log(
                 LogLevel::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtcm_settings.");
+                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtk_settings.");
     }
 
     if (settings_.publish_atteuler)

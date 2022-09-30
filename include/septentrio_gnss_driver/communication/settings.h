@@ -118,31 +118,31 @@ struct Settings
     //! Position deviation mask
     float pos_std_dev;
     //! RTCM version for correction data
-    std::string rtcm_settings_rtcm_version;
+    std::string rtk_settings_rtk_standard;
     //! Source of correction data
-    std::string rtcm_settings_source;
+    std::string rtk_settings_source;
     //! Hostname or IP address of the NTRIP caster to connect to
-    std::string rtcm_settings_ntrip_caster;
+    std::string rtk_settings_ntrip_caster;
     //! IP port number of NTRIP caster to connect to
-    uint32_t rtcm_settings_ntrip_caster_port;
+    uint32_t rtk_settings_ntrip_caster_port;
     //! Username for NTRIP service
-    std::string rtcm_settings_ntrip_username;
+    std::string rtk_settings_ntrip_username;
     //! Password for NTRIP service
-    std::string rtcm_settings_ntrip_password;
+    std::string rtk_settings_ntrip_password;
     //! Mountpoint for NTRIP service
-    std::string rtcm_settings_mountpoint;
+    std::string rtk_settings_mountpoint;
     //! NTRIP version for NTRIP service
-    std::string rtcm_settings_ntrip_version;
+    std::string rtk_settings_ntrip_version;
     //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string rtcm_settings_ntrip_send_gga;
+    std::string rtk_settings_ntrip_send_gga;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rtcm_settings_tcp_port;
+    uint32_t rtk_settings_tcp_port;
     //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
     //! the same as main connection unless localhost concept is used)
-    std::string rtcm_settings_serial_port;
+    std::string rtk_settings_serial_port;
     //! Baud rate of the serial port on which Rx receives the corrections
-    uint32_t rtcm_settings_serial_baud_rate;
+    uint32_t rtk_settings_serial_baud_rate;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message

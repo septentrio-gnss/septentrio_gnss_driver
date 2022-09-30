@@ -60,12 +60,12 @@ septentrio_gnss_driver:
 
     use_gnss_time: false
 
-    rtcm_settings:
-      rtcm_version: auto
-      source: "off"
+    rtk_settings:
+      rtk_standard: auto
+      source: ""
       ntrip:
         caster: ""
-        caster_port: 0
+        caster_port: 2101
         username: ""
         password: ""
         mountpoint: ""
