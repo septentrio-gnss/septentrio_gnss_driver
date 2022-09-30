@@ -241,13 +241,13 @@ struct Settings
     //! Whether or not we are reading from a PCAP file
     bool read_from_pcap = false;
     //! VSM source for INS
-    std::string ins_vsm_source;
+    std::string ins_vsm_ros_source;
     //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
-    std::vector<bool> ins_vsm_config = {false, false, false};
+    std::vector<bool> ins_vsm_ros_config = {false, false, false};
     //! Whether or not to use variance defined by ROS parameter
-    bool ins_vsm_variances_by_parameter = false;
+    bool ins_vsm_ros_variances_by_parameter = false;
     //! Variances of the 3D velocity (var_x, var_y, var_z)
-    std::vector<double> ins_vsm_variances = {-1.0, -1.0, -1.0};
+    std::vector<double> ins_vsm_ros_variances = {-1.0, -1.0, -1.0};
     //! VSM tcp port
     uint32_t ins_vsm_ip_server_port;
     //! VSM serial port

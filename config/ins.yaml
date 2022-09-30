@@ -134,13 +134,16 @@ ins_std_dev_mask:
 ins_use_poi: true
 
 ins_vsm:
-  source: ""
-  config: [false, false, false]
-  variances_by_parameter: false
-  variances: [0.0, 0.0, 0.0]
-  ip_server_port: 0
-  serial_port: ""
-  serial_baud_rate: 115200
+  ros:
+    source: ""
+    config: [false, false, false]
+    variances_by_parameter: false
+    variances: [0.0, 0.0, 0.0]
+  ip_server:
+    port: 0
+  serial:
+    port: ""
+    baud_rate: 115200
   
 # logger
 
