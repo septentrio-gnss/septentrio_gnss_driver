@@ -404,7 +404,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
           std::string("v2"));
     param("rtk_settings.ntrip.send_gga", settings_.rtk_settings_ntrip_send_gga,
           std::string("auto"));
-    getUint32Param("rtk_settings.tcp.port", settings_.rtk_settings_tcp_port,
+    getUint32Param("rtk_settings.tcp_server.port",
+                   settings_.rtk_settings_tcp_server_port,
                    static_cast<uint32_t>(28785));
     param("rtk_settings.serial.port", settings_.rtk_settings_serial_port,
           std::string("COM2"));

@@ -602,14 +602,15 @@ void io_comm_rx::Comm_IO::configureRx()
             send(ss.str());
         }
     } else if (settings_->rtk_settings_source ==
-               "tcp") // Since the Rx does not have internet (and you will not be
-                      // able to share it via USB), we need to forward the
-                      // corrections ourselves, though not on the same port.
+               "tcp_server") // Since the Rx does not have internet (and you will not
+                             // be able to share it via USB), we need to forward the
+                             // corrections ourselves, though not on the same port.
     {
         {
             std::stringstream ss;
             // In case IPS1 was used before, old configuration is lost of course.
-            ss << "siss, IPS1, " << std::to_string(settings_->rtk_settings_tcp_port)
+            ss << "siss, IPS1, "
+               << std::to_string(settings_->rtk_settings_tcp_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
         }

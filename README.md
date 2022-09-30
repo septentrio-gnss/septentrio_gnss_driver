@@ -147,7 +147,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       mountpoint: ""
       version: v2
       send_gga: auto
-  tcp:
+  tcp_server:
     port: 28785
   serial:
     port: COM2
@@ -407,12 +407,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `rtk_settings.rtk_standard`: determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`.
     + `rtk_settings.source` determines the use cases
       + a) `ntrip` if the Rx has internet access and is able to receieve NTRIP streams from a caster.
-      + b) `tcp` if corrections are to be receieved via TCP/IP for example over `Data Link` from Septentrio's RxTools is installed on a computer.
+      + b) `tcp_server` if corrections are to be receieved via TCP/IP for example over `Data Link` from Septentrio's RxTools is installed on a computer.
       + c) `serial` if corrections are to be receieved via a serial port for example over radio link from a local RTK base or over `Data Link` from Septentrio's RxTools is installed on a computer.
     + `rtk_settings.ntrip.caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. 
     + `rtk_settings.ntrip.caster_port`, `rtk_settings.ntrip.username`, `rtk_settings.ntrip.password` and `rtk_settings.ntrip.mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `rtk_settings.ntrip.version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
     + Further, `rtk_settings.ntrip.send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster.
-    + In case the connection to the receiver is via TCP/IP, `rtk_settings.tcp.port` specifies the port number of the IP server (IPS1) connection that ROSaic establishes on the receiver. Note that ROSaic will send GGA messages on this connection, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `rtk_settings.tcp.port`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.
+    + In case the connection to the receiver is via TCP/IP, `rtk_settings.tcp_server.port` specifies the port number of the IP server (IPS1) connection that ROSaic establishes on the receiver. Note that ROSaic will send GGA messages on this connection, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `rtk_settings.tcp_server.port`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.
     + Finally, in case we are facing a serial connection (COM or USB), the parameter `rtk_settings.serial.port` analogously determines the port on which corrections could be serially forwarded to the Rx from a serially connected radio link modem or via `Data Link`. And `rtk_settings.serial.baud_rate` sets the baud rate of this port.
     + default: `auto`, `""`, `""`, `2101`, `""`, `""`, `v2`, `auto`, `28785`, `COM2`, `115200`
   </details>

@@ -67,7 +67,7 @@ rtk_settings:
     mountpoint: ""
     version: v2
     send_gga: auto
-  tcp:
+  tcp_server:
     port: 28785
   serial:
     port: COM2
