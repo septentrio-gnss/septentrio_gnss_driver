@@ -11,6 +11,7 @@ Main Features:
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
+- Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
 - Easy configuration of correction services
 - Can play back PCAP capture logs for testing purposes
 - Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
@@ -71,6 +72,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware 1.2.0 does not support velocity aiding.
     * INS with firmware 1.2.0 does not support setting of initial heading.
+  + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI.
   + An INS can be used in GNSS mode but some features may not be supported. Known limitations are:
     * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
@@ -286,7 +288,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
-  + `login`: credentials for user authentification to perform actions not allowed to anonymous users. Leave empty for anonymous access.
+  + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
   </details>
@@ -321,11 +323,11 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `base_link`
   + `local_frame_id`: name of the ROS tf frame for the local frame.
     + default: `odom`
-  + `insert_local_frame`: Wether to insert a local frame to published tf according to [ROS REP 105](https://www.ros.org/reps/rep-0105.html#relationship-between-frames). The transform from the local frame specified by `local_frame_id` to the vehicle frame specified by `vehicle_frame_id` has to be provided, e.g. by odometry. Insertion of the local frame means the transform between local frame and global frame is published instead of transfrom between vehicle frame and global frame.
+  + `insert_local_frame`: Wether to insert a local frame to published tf according to [ROS REP 105](https://www.ros.org/reps/rep-0105.html#relationship-between-frames). The transform from the local frame specified by `local_frame_id` to the vehicle frame specified by `vehicle_frame_id` has to be provided, e.g. by odometry. Insertion of the local frame means the transform between local frame and global frame is published instead of transform between vehicle frame and global frame.
     + default: `false`
   + `get_spatial_config_from_tf`: wether to get the spatial config via tf with the above mentioned frame ids. This will override spatial settings of the config file. For receiver type `ins` with `multi_antenna` set to `true` all frames have to be provided, with `multi_antenna` set to `false`, `aux1_frame_id` is not necessary. For type `gnss` with dual-antenna setup only `frame_id`, `aux1_frame_id`, and `poi_frame_id` are needed. For single-antenna `gnss` no frames are needed. Keep in mind that tf has a tree structure. Thus, `poi_frame_id` is the base for all mentioned frames. 
     + default: `false`
-  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS.
+  + `use_ros_axis_orientation` Wether to use ROS axis orientations according to [ROS REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation) for body related frames and geographic frames. Body frame directions affect INS lever arms and IMU orientation setup parameters. Geographic frame directions affect orientation Euler angles for INS+GNSS and attitude of dual-antenna GNSS. If `use_ros_axis_orientation` is set to `true`, the driver converts between the NED convention (Septentrio: yaw = 0 is north, positive clockwise), and ENU convention (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI in this case.
     + If set to `false` Septentrios definition is used, i.e., front-right-down body related frames and NED (north-east-down) for orientation frames. 
     + If set to `true` ROS definition is used, i.e., front-left-up body related frames and ENU (east-north-up) for orientation frames.
     + default: `true`
@@ -334,7 +336,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>UTM Zone Locking</summary>
 
-  + `lock_utm_zone`: wether the UTM zone of the inital localization is locked, i.e., this zone is kept even if a zone transition would occur.
+  + `lock_utm_zone`: wether the UTM zone of the initial localization is locked, i.e., this zone is kept even if a zone transition would occur.
     + default: `true`
   </details>
   
@@ -395,7 +397,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio recevier since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio recevier (for INS/GNSS a firmware >= 1.3.3 is needed).
+  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio receiver (for INS/GNSS a firmware >= 1.3.3 is needed).
     + default: `true`
   </details>
   
