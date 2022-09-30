@@ -372,9 +372,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // Correction service parameters
-    param("rtk_settings/rtk_standard", settings_.rtk_settings_rtk_standard,
-          std::string("auto"));
-    param("rtk_settings/source", settings_.rtk_settings_source, std::string());
+    // NTRIP
     param("rtk_settings/ntrip/caster", settings_.rtk_settings_ntrip_caster,
           std::string());
     getUint32Param("rtk_settings/ntrip/caster_port",
@@ -394,16 +392,29 @@ bool rosaic_node::ROSaicNode::getROSParams()
           std::string());
     param("rtk_settings/ntrip/version", settings_.rtk_settings_ntrip_version,
           std::string("v2"));
+    param("rtk_settings/ntrip/rtk_standard",
+          settings_.rtk_settings_ntrip_rtk_standard, std::string("auto"));
     param("rtk_settings/ntrip/send_gga", settings_.rtk_settings_ntrip_send_gga,
           std::string("auto"));
+    if (settings_.rtk_settings_ntrip_send_gga.empty())
+        settings_.rtk_settings_ntrip_send_gga = "off";
+    // IP server
     getUint32Param("rtk_settings/tcp_server/port",
-                   settings_.rtk_settings_tcp_server_port,
-                   static_cast<uint32_t>(28785));
+                   settings_.rtk_settings_tcp_server_port, static_cast<uint32_t>(0));
+    param("rtk_settings/tcp_server/rtk_standard",
+          settings_.rtk_settings_tcp_server_rtk_standard, std::string("auto"));
+    param("rtk_settings/tcp_server/send_gga",
+          settings_.rtk_settings_tcp_server_send_gga, std::string("auto"));
+    if (settings_.rtk_settings_tcp_server_send_gga.empty())
+        settings_.rtk_settings_tcp_server_send_gga = "off";
+    // Serial
     param("rtk_settings/serial/port", settings_.rtk_settings_serial_port,
-          std::string("COM2"));
+          std::string(""));
     getUint32Param("rtk_settings/serial/baud_rate",
                    settings_.rtk_settings_serial_baud_rate,
                    static_cast<uint32_t>(115200));
+    param("rtk_settings/serial/rtk_standard",
+          settings_.rtk_settings_serial_rtk_standard, std::string("auto"));
     {
         // deprecation warnings
         std::string tempString;

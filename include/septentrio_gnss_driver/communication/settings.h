@@ -117,10 +117,6 @@ struct Settings
     float att_std_dev;
     //! Position deviation mask
     float pos_std_dev;
-    //! RTCM version for correction data
-    std::string rtk_settings_rtk_standard;
-    //! Source of correction data
-    std::string rtk_settings_source;
     //! Hostname or IP address of the NTRIP caster to connect to
     std::string rtk_settings_ntrip_caster;
     //! IP port number of NTRIP caster to connect to
@@ -133,16 +129,24 @@ struct Settings
     std::string rtk_settings_mountpoint;
     //! NTRIP version for NTRIP service
     std::string rtk_settings_ntrip_version;
+    //! RTCM version for correction data
+    std::string rtk_settings_ntrip_rtk_standard;
     //! Whether (and at which rate) or not to send GGA to the NTRIP caster
     std::string rtk_settings_ntrip_send_gga;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
     uint32_t rtk_settings_tcp_server_port;
+    //! RTCM version for correction data
+    std::string rtk_settings_tcp_server_rtk_standard;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string rtk_settings_tcp_server_send_gga;
     //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
     //! the same as main connection unless localhost concept is used)
     std::string rtk_settings_serial_port;
     //! Baud rate of the serial port on which Rx receives the corrections
     uint32_t rtk_settings_serial_baud_rate;
+    //! RTCM version for correction data
+    std::string rtk_settings_serial_rtk_standard;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message

@@ -64,8 +64,6 @@ polling_period:
 use_gnss_time: false
 
 rtk_settings:
-  rtk_standard: auto
-  source: ""
   ntrip:
     caster: ""
     caster_port: 2101
@@ -73,12 +71,16 @@ rtk_settings:
     password: ""
     mountpoint: ""
     version: v2
+    rtk_standard: auto
     send_gga: auto
   tcp_server:
-    port: 28785
+    port: 0
+    rtk_standard: auto
+    send_gga: auto
   serial:
-    port: COM2
+    port: ""
     baud_rate: 115200
+    rtk_standard: auto
 
 publish:
   # For both GNSS and INS Rxs
