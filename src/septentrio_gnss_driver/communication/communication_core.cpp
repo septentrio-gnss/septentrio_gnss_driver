@@ -602,9 +602,9 @@ void io_comm_rx::Comm_IO::configureRx()
             send(ss.str());
         }
     } else if (settings_->rtk_settings_source ==
-               "tcp") // Since the Rx does not have internet (and you will not be
-                      // able to share it via USB), we need to forward the
-                      // corrections ourselves, though not on the same port.
+               "tcp_server") // Since the Rx does not have internet (and you will not
+                             // be able to share it via USB), we need to forward the
+                             // corrections ourselves, though not on the same port.
     {
         {
             std::stringstream ss;
