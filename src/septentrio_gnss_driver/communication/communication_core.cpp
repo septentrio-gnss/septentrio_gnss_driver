@@ -581,78 +581,65 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    // Configuring the NTRIP connection
+    // Configuring the corrections connection
     // First disable any existing NTRIP connection on NTR1
     {
         std::stringstream ss;
         ss << "snts, NTR1, off \x0D";
         send(ss.str());
     }
-    if (settings_->rx_has_internet)
+    if (settings_->rtk_settings_source == "ntrip")
     {
-        if (settings_->ntrip_mode == "off")
         {
-        } else if (settings_->ntrip_mode == "Client")
-        {
-            {
-                std::stringstream ss;
-                ss << "snts, NTR1, " << settings_->ntrip_mode << ", "
-                   << settings_->caster << ", "
-                   << std::to_string(settings_->caster_port) << ", "
-                   << settings_->ntrip_username << ", " << settings_->ntrip_password
-                   << ", " << settings_->mountpoint << ", "
-                   << settings_->ntrip_version << ", " << settings_->send_gga
-                   << " \x0D";
-                send(ss.str());
-            }
-        } else if (settings_->ntrip_mode == "Client-Sapcorda")
-        {
-            {
-                std::stringstream ss;
-                ss << "snts, NTR1, Client-Sapcorda, , , , , , , , \x0D";
-                send(ss.str());
-            }
-        } else
-        {
-            node_->log(LogLevel::ERROR,
-                       "Invalid mode specified for NTRIP settings_->");
+            std::stringstream ss;
+            ss << "snts, NTR1, Client, " << settings_->rtk_settings_ntrip_caster
+               << ", " << std::to_string(settings_->rtk_settings_ntrip_caster_port)
+               << ", " << settings_->rtk_settings_ntrip_username << ", "
+               << settings_->rtk_settings_ntrip_password << ", "
+               << settings_->rtk_settings_mountpoint << ", "
+               << settings_->rtk_settings_ntrip_version << ", "
+               << settings_->rtk_settings_ntrip_send_gga << " \x0D";
+            send(ss.str());
         }
-    } else // Since the Rx does not have internet (and you will not be able to share
-           // it via USB),
-           // we need to forward the corrections ourselves, though not on the same
-           // port.
+    } else if (settings_->rtk_settings_source ==
+               "tcp") // Since the Rx does not have internet (and you will not be
+                      // able to share it via USB), we need to forward the
+                      // corrections ourselves, though not on the same port.
     {
-        if (proto == "tcp")
         {
-            {
-                std::stringstream ss;
-                // In case IPS1 was used before, old configuration is lost of course.
-                ss << "siss, IPS1, "
-                   << std::to_string(settings_->rx_input_corrections_tcp)
-                   << ", TCP2Way \x0D";
-                send(ss.str());
-            }
-            {
-                std::stringstream ss;
-                ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, "
-                   << pvt_interval << " \x0D";
-                ++stream;
-                send(ss.str());
-            }
+            std::stringstream ss;
+            // In case IPS1 was used before, old configuration is lost of course.
+            ss << "siss, IPS1, " << std::to_string(settings_->rtk_settings_tcp_port)
+               << ", TCP2Way \x0D";
+            send(ss.str());
         }
         {
             std::stringstream ss;
-            if (proto == "tcp")
-            {
-                ss << "sdio, IPS1, " << settings_->rtcm_version
-                   << ", +SBF+NMEA \x0D";
-            } else
-            {
-                ss << "sdio, " << settings_->rx_input_corrections_serial << ", "
-                   << settings_->rtcm_version << ", +SBF+NMEA \x0D";
-            }
+            ss << "sdio, IPS1, " << settings_->rtk_settings_rtk_standard
+               << ", +SBF+NMEA \x0D";
             send(ss.str());
         }
+        if (settings_->rtk_settings_ntrip_send_gga != "off")
+        {
+            std::string rate = settings_->rtk_settings_ntrip_send_gga;
+            if (settings_->rtk_settings_ntrip_send_gga == "auto")
+                rate = "sec1";
+            std::stringstream ss;
+            ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, " << rate
+               << " \x0D";
+            ++stream;
+            send(ss.str());
+        }
+    } else if (settings_->rtk_settings_source == "serial")
+    {
+        std::stringstream ss;
+        ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
+           << settings_->rtk_settings_rtk_standard << ", +SBF+NMEA \x0D";
+        send(ss.str());
+    } else if (!settings_->rtk_settings_source.empty())
+    {
+        node_->log(LogLevel::ERROR, "Unknown RTK corrections source " +
+                                        settings_->rtk_settings_source + "!");
     }
 
     // Setting multi antenna

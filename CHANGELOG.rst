@@ -11,6 +11,8 @@ Changelog for package septentrio_gnss_driver
    * Firmware check
    * VSM from odometry or twist ROS messages
    * Add receiver type in case INS is used in GNSS mode
+* Improvements
+   * Rework RTK corrections parameters and improve flexibility
 * Fixes
    * /tf not being published without /localization
    * Twist covariance matrix of localization
