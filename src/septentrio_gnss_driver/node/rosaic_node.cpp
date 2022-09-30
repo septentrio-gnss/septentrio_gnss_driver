@@ -380,9 +380,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // Correction service parameters
-    param("rtk_settings.rtk_standard", settings_.rtk_settings_rtk_standard,
-          std::string("auto"));
-    param("rtk_settings.source", settings_.rtk_settings_source, std::string());
+    // NTRIP
     param("rtk_settings.ntrip.caster", settings_.rtk_settings_ntrip_caster,
           std::string());
     getUint32Param("rtk_settings.ntrip.caster_port",
@@ -404,14 +402,25 @@ bool rosaic_node::ROSaicNode::getROSParams()
           std::string("v2"));
     param("rtk_settings.ntrip.send_gga", settings_.rtk_settings_ntrip_send_gga,
           std::string("auto"));
-    getUint32Param("rtk_settings.tcp_server.port",
-                   settings_.rtk_settings_tcp_server_port,
-                   static_cast<uint32_t>(28785));
+    param("rtk_settings/ntrip/rtk_standard",
+          settings_.rtk_settings_ntrip_rtk_standard, std::string("auto"));
+    // IP server
+    getUint32Param("rtk_settings.ip_server.port",
+                   settings_.rtk_settings_ip_server_port, static_cast<uint32_t>(0));
+    param("rtk_settings.ip_server.rtk_standard",
+          settings_.rtk_settings_ip_server_rtk_standard, std::string("auto"));
+    param("rtk_settings.ip_server.send_gga",
+          settings_.rtk_settings_ip_server_send_gga, std::string("auto"));
+    if (settings_.rtk_settings_ip_server_send_gga.empty())
+        settings_.rtk_settings_ip_server_send_gga = "off";
+    // Serial
     param("rtk_settings.serial.port", settings_.rtk_settings_serial_port,
-          std::string("COM2"));
+          std::string(""));
     getUint32Param("rtk_settings.serial.baud_rate",
                    settings_.rtk_settings_serial_baud_rate,
                    static_cast<uint32_t>(115200));
+    param("rtk_settings.serial.rtk_standard",
+          settings_.rtk_settings_serial_rtk_standard, std::string("auto"));
     {
         // deprecation warnings
         std::string tempString;
@@ -465,11 +474,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
     {
         ins_use_vsm = ((settings_.ins_vsm_source == "odometry") ||
                        (settings_.ins_vsm_source == "twist"));
-        if (((settings_.ins_vsm_source == "tcp") ||
+        if (((settings_.ins_vsm_source == "ip_server") ||
              (settings_.ins_vsm_source == "serial")))
         {
-            if (settings_.ins_vsm_source == "tcp")
-                getUint32Param("ins_vsm.tcp_port", settings_.ins_vsm_tcp_port,
+            if (settings_.ins_vsm_source == "ip_server")
+                getUint32Param("ins_vsm.ip_server_port",
+                               settings_.ins_vsm_ip_server_port,
                                static_cast<uint32_t>(7777));
             else if (settings_.ins_vsm_source == "serial")
             {
