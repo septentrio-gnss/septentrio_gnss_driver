@@ -623,7 +623,7 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::string rate = settings_->rtcm_settings_ntrip_send_gga;
             if (settings_->rtcm_settings_ntrip_send_gga == "auto")
-                rate = "1sec";
+                rate = "sec1";
             std::stringstream ss;
             ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, " << rate
                << " \x0D";
