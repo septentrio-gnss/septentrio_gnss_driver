@@ -128,6 +128,41 @@ io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, Settings* settings) :
     g_cd_count = 0;
 }
 
+io_comm_rx::Comm_IO::~Comm_IO()
+{
+    std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+    manager_.get()->send(cmd);
+    for (auto port : additionalIpPorts_)
+    {
+        send("sdio, " + port + ",  auto, none\x0D");
+        send("siss, " + port + ",  0\x0D");
+    }
+    for (auto port : additionalSerialPorts_)
+    {
+        send("sdio, " + port + ",  auto, none\x0D");
+        send("scs, " + port + ", baud115200, bits8, No, bit1, none\x0D");
+    }
+    send("logout \x0D");
+
+    stopping_ = true;
+    connectionThread_->join();
+}
+
+void io_comm_rx::Comm_IO::resetMainPort()
+{
+    // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
+    // modifying the variable and "g_cd_received".
+    boost::mutex::scoped_lock lock_cd(g_cd_mutex);
+    // Escape sequence (escape from correction mode), ensuring that we can send
+    // our real commands afterwards...
+    std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+    manager_.get()->send(cmd);
+    // We wait for the connection descriptor before we send another command,
+    // otherwise the latter would not be processed.
+    g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
+    g_cd_received = false;
+}
+
 void io_comm_rx::Comm_IO::initializeIO()
 {
     node_->log(LogLevel::DEBUG, "Called initializeIO() method");
@@ -326,24 +361,13 @@ void io_comm_rx::Comm_IO::configureRx()
     boost::regex_match(settings_->device, match,
                        boost::regex("(tcp)://(.+):(\\d+)"));
     std::string proto(match[1]);
-    std::string rx_port;
+    resetMainPort();
     if (proto == "tcp")
     {
-        // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
-        // modifying the variable and "g_cd_received".
-        boost::mutex::scoped_lock lock_cd(g_cd_mutex);
-        // Escape sequence (escape from correction mode), ensuring that we can send
-        // our real commands afterwards...
-        std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-        manager_.get()->send(cmd);
-        // We wait for the connection descriptor before we send another command,
-        // otherwise the latter would not be processed.
-        g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
-        g_cd_received = false;
-        rx_port = g_rx_tcp_port;
+        mainPort_ = g_rx_tcp_port;
     } else
     {
-        rx_port = settings_->rx_serial_port;
+        mainPort_ = settings_->rx_serial_port;
         // After booting, the Rx sends the characters "x?" to all ports, which could
         // potentially mingle with our first command. Hence send a safeguard command
         // "lif", whose potentially false processing is harmless.
@@ -472,7 +496,7 @@ void io_comm_rx::Comm_IO::configureRx()
             }
         }
         std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ","
+        ss << "sso, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
            << blocks.str() << ", " << pvt_interval << "\x0D";
         send(ss.str());
         ++stream;
@@ -499,7 +523,7 @@ void io_comm_rx::Comm_IO::configureRx()
         blocks << " +ReceiverSetup";
 
         std::stringstream ss;
-        ss << "sso, Stream" << std::to_string(stream) << ", " << rx_port << ","
+        ss << "sso, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
            << blocks.str() << ", " << rest_interval << "\x0D";
         send(ss.str());
         ++stream;
@@ -528,7 +552,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
 
         std::stringstream ss;
-        ss << "sno, Stream" << std::to_string(stream) << ", " << rx_port << ","
+        ss << "sno, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
            << blocks.str() << ", " << pvt_interval << "\x0D";
         send(ss.str());
         ++stream;
@@ -615,6 +639,7 @@ void io_comm_rx::Comm_IO::configureRx()
                << std::to_string(settings_->rtk_settings_ip_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
+            additionalIpPorts_.push_back("IPS1");
         }
         {
             std::stringstream ss;
@@ -640,7 +665,7 @@ void io_comm_rx::Comm_IO::configureRx()
         send("scs, " + settings_->rtk_settings_serial_port + ", baud" +
              std::to_string(settings_->rtk_settings_serial_baud_rate) +
              ", bits8, No, bit1, none\x0D");
-
+        additionalSerialPorts_.push_back(settings_->rtk_settings_serial_port);
         std::stringstream ss;
         ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
            << settings_->rtk_settings_serial_rtk_standard << ", +SBF+NMEA \x0D";
@@ -865,6 +890,7 @@ void io_comm_rx::Comm_IO::configureRx()
             send("siss, IPS2, " + std::to_string(settings_->ins_vsm_ip_server_port) +
                  ", TCP2Way \x0D");
             send("sdio, IPS2, NMEA, none\x0D");
+            additionalIpPorts_.push_back("IPS2");
         }
         if (!settings_->ins_vsm_serial_port.empty())
         {
@@ -872,17 +898,17 @@ void io_comm_rx::Comm_IO::configureRx()
                  std::to_string(settings_->ins_vsm_serial_baud_rate) +
                  ", bits8, No, bit1, none\x0D");
             send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
+            additionalSerialPorts_.push_back(settings_->ins_vsm_serial_port);
         }
         if ((settings_->ins_vsm_ros_source == "odometry") ||
             (settings_->ins_vsm_ros_source == "twist"))
         {
             std::string s;
-            s = "sdio, " + rx_port + ", NMEA, +NMEA +SBF\x0D";
+            s = "sdio, " + mainPort_ + ", NMEA, +NMEA +SBF\x0D";
             send(s);
             nmeaActivated_ = true;
         }
     }
-
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 

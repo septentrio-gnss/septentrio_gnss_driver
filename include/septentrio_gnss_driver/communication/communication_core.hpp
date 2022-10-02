@@ -114,12 +114,7 @@ namespace io_comm_rx {
         /**
          * @brief Default destructor of the class Comm_IO
          */
-        ~Comm_IO()
-        {
-            send("logout \x0D");
-            stopping_ = true;
-            connectionThread_->join();
-        }
+        ~Comm_IO();
 
         /**
          * @brief Initializes the I/O handling
@@ -147,6 +142,11 @@ namespace io_comm_rx {
         void sendVelocity(const std::string& velNmea);
 
     private:
+        /**
+         * @brief Reset main port so it can receive commands
+         */
+        void resetMainPort();
+
         /**
          * @brief Sets up the stage for SBF file reading
          * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
@@ -255,6 +255,11 @@ namespace io_comm_rx {
 
         friend class CallbackHandlers;
         friend class RxMessage;
+
+        //! Communication ports
+        std::string mainPort_;
+        std::list<std::string> additionalIpPorts_;
+        std::list<std::string> additionalSerialPorts_;
 
         //! Host currently connected to
         std::string host_;
