@@ -132,6 +132,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
 {
     std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
     manager_.get()->send(cmd);
+    send("sdio, " + mainPort_ + ", auto, none\x0D");
     for (auto port : additionalIpPorts_)
     {
         send("sdio, " + port + ",  auto, none\x0D");
