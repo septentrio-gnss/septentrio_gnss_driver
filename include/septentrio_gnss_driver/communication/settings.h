@@ -150,6 +150,8 @@ struct Settings
     //! RTCM version for correction data
     std::string rtk_settings_serial_rtk_standard;
     //! Whether or not to publish the GGA message
+    //! Whether (and at which rate) or not to send GGA to the serial port
+    std::string rtk_settings_serial_send_gga;
     bool publish_gpgga;
     //! Whether or not to publish the RMC message
     bool publish_gprmc;
