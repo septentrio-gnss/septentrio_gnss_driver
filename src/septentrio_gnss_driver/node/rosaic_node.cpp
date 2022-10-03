@@ -373,6 +373,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     // Correction service parameters
     // NTRIP
+    param("rtk_settings/keep_open", settings_.rtk_settings_keep_open, true);
     param("rtk_settings/ntrip/caster", settings_.rtk_settings_ntrip_caster,
           std::string());
     getUint32Param("rtk_settings/ntrip/caster_port",
@@ -466,6 +467,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // VSM - velocity sensor measurements for INS
     if (settings_.septentrio_receiver_type == "ins")
     {
+        param("ins_vsm/keep_open", settings_.ins_vsm_keep_open, true);
         param("ins_vsm/ros/source", settings_.ins_vsm_ros_source, std::string(""));
 
         bool ins_use_vsm = false;
