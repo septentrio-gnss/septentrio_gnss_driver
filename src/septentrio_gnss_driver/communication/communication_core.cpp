@@ -143,6 +143,10 @@ io_comm_rx::Comm_IO::~Comm_IO()
         send("sdio, " + port + ",  auto, none\x0D");
         send("scs, " + port + ", baud115200, bits8, No, bit1, none\x0D");
     }
+    if (!settings_->rtk_settings_ntrip_caster.empty())
+    {
+        send("snts, NTR1, off \x0D");
+    }
     send("logout \x0D");
 
     stopping_ = true;
@@ -618,11 +622,7 @@ void io_comm_rx::Comm_IO::configureRx()
     if (!settings_->rtk_settings_ntrip_caster.empty())
     {
         // First disable any existing NTRIP connection on NTR1
-        {
-            std::stringstream ss;
-            ss << "snts, NTR1, off \x0D";
-            send(ss.str());
-        }
+        send("snts, NTR1, off \x0D");
         {
             std::stringstream ss;
             ss << "snts, NTR1, Client, " << settings_->rtk_settings_ntrip_caster
