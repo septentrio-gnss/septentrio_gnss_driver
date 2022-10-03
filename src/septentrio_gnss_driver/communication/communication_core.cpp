@@ -628,7 +628,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
     }
 
-    if (settings_->rtk_settings_ip_server_port != 0)
+    if (!settings_->rtk_settings_ip_server_id.empty())
     // Since the Rx does not have internet (and you will not
     // be able to share it via USB), we need to forward the
     // corrections ourselves, though not on the same port.
@@ -636,11 +636,11 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::stringstream ss;
             // In case IPS1 was used before, old configuration is lost of course.
-            ss << "siss, IPS1, "
+            ss << "siss, " << settings_->rtk_settings_ip_server_id << ", "
                << std::to_string(settings_->rtk_settings_ip_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
-            additionalIpPorts_.push_back("IPS1");
+            additionalIpPorts_.push_back(settings_->rtk_settings_ip_server_id);
         }
         {
             std::stringstream ss;
@@ -886,12 +886,13 @@ void io_comm_rx::Comm_IO::configureRx()
 
     if (settings_->septentrio_receiver_type == "ins")
     {
-        if (settings_->ins_vsm_ip_server_port != 0)
+        if (!settings_->ins_vsm_ip_server_id.empty())
         {
-            send("siss, IPS2, " + std::to_string(settings_->ins_vsm_ip_server_port) +
+            send("siss, " + settings_->ins_vsm_ip_server_id + ", " +
+                 std::to_string(settings_->ins_vsm_ip_server_port) +
                  ", TCP2Way \x0D");
             send("sdio, IPS2, NMEA, none\x0D");
-            additionalIpPorts_.push_back("IPS2");
+            additionalIpPorts_.push_back(settings_->ins_vsm_ip_server_id);
         }
         if (!settings_->ins_vsm_serial_port.empty())
         {

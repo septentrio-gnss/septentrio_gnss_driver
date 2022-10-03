@@ -71,6 +71,7 @@ septentrio_gnss_driver:
         rtk_standard: auto
         send_gga: auto
       ip_server:
+        id: ""
         port: 0
         rtk_standard: auto
         send_gga: auto
@@ -147,11 +148,11 @@ septentrio_gnss_driver:
         variances_by_parameter: false
         variances: [0.0, 0.0, 0.0]
       ip_server:
+        id: ""
         port: 0
       serial:
         port: ""
         baud_rate: 115200
-
 
     # logger
 

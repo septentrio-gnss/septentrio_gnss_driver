@@ -402,9 +402,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
           std::string("v2"));
     param("rtk_settings.ntrip.send_gga", settings_.rtk_settings_ntrip_send_gga,
           std::string("auto"));
-    param("rtk_settings/ntrip/rtk_standard",
+    param("rtk_settings.ntrip.rtk_standard",
           settings_.rtk_settings_ntrip_rtk_standard, std::string("auto"));
     // IP server
+    param("rtk_settings.ip_server.id", settings_.rtk_settings_ip_server_id,
+          std::string(""));
     getUint32Param("rtk_settings.ip_server.port",
                    settings_.rtk_settings_ip_server_port, static_cast<uint32_t>(0));
     param("rtk_settings.ip_server.rtk_standard",
@@ -478,9 +480,11 @@ bool rosaic_node::ROSaicNode::getROSParams()
                                            settings_.ins_vsm_ros_source +
                                            " -> VSM input will not be used!");
 
+        param("ins_vsm.ip_server.id", settings_.ins_vsm_ip_server_id,
+              std::string(""));
         getUint32Param("ins_vsm.ip_server.port", settings_.ins_vsm_ip_server_port,
                        static_cast<uint32_t>(0));
-        if (settings_.ins_vsm_ip_server_port != 0)
+        if (!settings_.ins_vsm_ip_server_id.empty())
         {
             this->log(
                 LogLevel::INFO,

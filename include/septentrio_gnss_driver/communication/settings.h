@@ -133,6 +133,8 @@ struct Settings
     std::string rtk_settings_ntrip_rtk_standard;
     //! Whether (and at which rate) or not to send GGA to the NTRIP caster
     std::string rtk_settings_ntrip_send_gga;
+    //! The IP server id
+    std::string rtk_settings_ip_server_id;
     //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
     //! (can't be the same as main connection unless localhost concept is used)
     uint32_t rtk_settings_ip_server_port;
@@ -248,6 +250,8 @@ struct Settings
     bool ins_vsm_ros_variances_by_parameter = false;
     //! Variances of the 3D velocity (var_x, var_y, var_z)
     std::vector<double> ins_vsm_ros_variances = {-1.0, -1.0, -1.0};
+    //! VSM IP server id
+    std::string ins_vsm_ip_server_id;
     //! VSM tcp port
     uint32_t ins_vsm_ip_server_port;
     //! VSM serial port

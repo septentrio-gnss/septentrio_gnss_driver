@@ -74,6 +74,7 @@ rtk_settings:
     rtk_standard: auto
     send_gga: auto
   ip_server:
+    id: ""
     port: 0
     rtk_standard: auto
     send_gga: auto
@@ -81,6 +82,7 @@ rtk_settings:
     port: ""
     baud_rate: 115200
     rtk_standard: auto
+    
 publish:
   # For both GNSS and INS Rxs
   navsatfix: false
@@ -149,6 +151,7 @@ ins_vsm:
     variances_by_parameter: false
     variances: [0.0, 0.0, 0.0]
   ip_server:
+    id: ""
     port: 0
   serial:
     port: ""

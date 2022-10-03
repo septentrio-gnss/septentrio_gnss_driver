@@ -53,6 +53,7 @@ rtk_settings:
     rtk_standard: auto
     send_gga: auto
   ip_server:
+    id: ""
     port: 0
     rtk_standard: auto
     send_gga: auto
