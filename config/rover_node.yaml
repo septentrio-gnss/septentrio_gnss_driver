@@ -79,6 +79,7 @@ septentrio_gnss_driver:
         port: ""
         baud_rate: 115200
         rtk_standard: auto
+        send_gga: auto
 
     publish:
       # For both GNSS and INS Rxs

@@ -423,6 +423,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
                    static_cast<uint32_t>(115200));
     param("rtk_settings.serial.rtk_standard",
           settings_.rtk_settings_serial_rtk_standard, std::string("auto"));
+    param("rtk_settings.serial.send_gga", settings_.rtk_settings_serial_send_gga,
+          std::string("auto"));
     {
         // deprecation warnings
         std::string tempString;

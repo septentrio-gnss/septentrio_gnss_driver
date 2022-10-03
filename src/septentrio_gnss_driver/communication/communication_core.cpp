@@ -635,7 +635,8 @@ void io_comm_rx::Comm_IO::configureRx()
     {
         {
             std::stringstream ss;
-            // In case IPS1 was used before, old configuration is lost of course.
+            // In case this IP server was used before, old configuration is lost of
+            // course.
             ss << "siss, " << settings_->rtk_settings_ip_server_id << ", "
                << std::to_string(settings_->rtk_settings_ip_server_port)
                << ", TCP2Way \x0D";
@@ -644,7 +645,8 @@ void io_comm_rx::Comm_IO::configureRx()
         }
         {
             std::stringstream ss;
-            ss << "sdio, IPS1, " << settings_->rtk_settings_ip_server_rtk_standard
+            ss << "sdio, " << settings_->rtk_settings_ip_server_id << ", "
+               << settings_->rtk_settings_ip_server_rtk_standard
                << ", +SBF+NMEA \x0D";
             send(ss.str());
         }
@@ -654,7 +656,8 @@ void io_comm_rx::Comm_IO::configureRx()
             if (settings_->rtk_settings_ip_server_send_gga == "auto")
                 rate = "sec1";
             std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", IPS1, GGA, " << rate
+            ss << "sno, Stream" << std::to_string(stream) << ", "
+               << settings_->rtk_settings_ip_server_id << ", GGA, " << rate
                << " \x0D";
             ++stream;
             send(ss.str());
@@ -671,6 +674,18 @@ void io_comm_rx::Comm_IO::configureRx()
         ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
            << settings_->rtk_settings_serial_rtk_standard << ", +SBF+NMEA \x0D";
         send(ss.str());
+        if (settings_->rtk_settings_serial_send_gga != "off")
+        {
+            std::string rate = settings_->rtk_settings_serial_send_gga;
+            if (settings_->rtk_settings_serial_send_gga == "auto")
+                rate = "sec1";
+            std::stringstream ss;
+            ss << "sno, Stream" << std::to_string(stream) << ", "
+               << settings_->rtk_settings_serial_port << ", GGA, " << rate
+               << " \x0D";
+            ++stream;
+            send(ss.str());
+        }
     }
 
     // Setting multi antenna
