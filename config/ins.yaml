@@ -57,6 +57,7 @@ polling_period:
 use_gnss_time: false
 
 rtk_settings:
+  keep_open: true
   ntrip:
     caster: ""
     caster_port: 2101
@@ -138,6 +139,7 @@ ins_std_dev_mask:
 ins_use_poi: true
 
 ins_vsm:
+  keep_open: true
   ros:
     source: ""
     config: [false, false, false]

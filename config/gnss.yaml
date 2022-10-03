@@ -43,6 +43,7 @@ polling_period:
 use_gnss_time: false
 
 rtk_settings:
+  keep_open: true
   ntrip:
     caster: ""
     caster_port: 2101

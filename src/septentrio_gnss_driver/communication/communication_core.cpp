@@ -143,7 +143,8 @@ io_comm_rx::Comm_IO::~Comm_IO()
         send("sdio, " + port + ",  auto, none\x0D");
         send("scs, " + port + ", baud115200, bits8, No, bit1, none\x0D");
     }
-    if (!settings_->rtk_settings_ntrip_caster.empty())
+    if (!settings_->rtk_settings_keep_open &&
+        !settings_->rtk_settings_ntrip_caster.empty())
     {
         send("snts, NTR1, off \x0D");
     }
@@ -649,7 +650,8 @@ void io_comm_rx::Comm_IO::configureRx()
                << std::to_string(settings_->rtk_settings_ip_server_port)
                << ", TCP2Way \x0D";
             send(ss.str());
-            additionalIpPorts_.push_back(settings_->rtk_settings_ip_server_id);
+            if (!settings_->rtk_settings_keep_open)
+                additionalIpPorts_.push_back(settings_->rtk_settings_ip_server_id);
         }
         {
             std::stringstream ss;
@@ -677,7 +679,8 @@ void io_comm_rx::Comm_IO::configureRx()
         send("scs, " + settings_->rtk_settings_serial_port + ", baud" +
              std::to_string(settings_->rtk_settings_serial_baud_rate) +
              ", bits8, No, bit1, none\x0D");
-        additionalSerialPorts_.push_back(settings_->rtk_settings_serial_port);
+        if (!settings_->rtk_settings_keep_open)
+            additionalSerialPorts_.push_back(settings_->rtk_settings_serial_port);
         std::stringstream ss;
         ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
            << settings_->rtk_settings_serial_rtk_standard << ", +SBF+NMEA \x0D";
@@ -915,7 +918,8 @@ void io_comm_rx::Comm_IO::configureRx()
                  std::to_string(settings_->ins_vsm_ip_server_port) +
                  ", TCP2Way \x0D");
             send("sdio, IPS2, NMEA, none\x0D");
-            additionalIpPorts_.push_back(settings_->ins_vsm_ip_server_id);
+            if (!settings_->ins_vsm_keep_open)
+                additionalIpPorts_.push_back(settings_->ins_vsm_ip_server_id);
         }
         if (!settings_->ins_vsm_serial_port.empty())
         {
@@ -923,7 +927,8 @@ void io_comm_rx::Comm_IO::configureRx()
                  std::to_string(settings_->ins_vsm_serial_baud_rate) +
                  ", bits8, No, bit1, none\x0D");
             send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
-            additionalSerialPorts_.push_back(settings_->ins_vsm_serial_port);
+            if (!settings_->ins_vsm_keep_open)
+                additionalSerialPorts_.push_back(settings_->ins_vsm_serial_port);
         }
         if ((settings_->ins_vsm_ros_source == "odometry") ||
             (settings_->ins_vsm_ros_source == "twist"))
