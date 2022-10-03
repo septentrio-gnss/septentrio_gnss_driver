@@ -117,6 +117,8 @@ struct Settings
     float att_std_dev;
     //! Position deviation mask
     float pos_std_dev;
+    //! Wether RTK connections shall be kept open om shutdown
+    bool rtk_settings_keep_open;
     //! Hostname or IP address of the NTRIP caster to connect to
     std::string rtk_settings_ntrip_caster;
     //! IP port number of NTRIP caster to connect to
@@ -166,6 +168,11 @@ struct Settings
     bool publish_pvtcartesian;
     //! Whether or not to publish the PVTGeodeticMsg message
     bool publish_pvtgeodetic;
+    //! Whether or not to publish the BaseVectorCartMsg
+    //! message
+    bool publish_basevectorcart;
+    //! Whether or not to publish the BaseVectorGeodMsg message
+    bool publish_basevectorgeod;
     //! Whether or not to publish the PosCovCartesianMsg
     //! message
     bool publish_poscovcartesian;
@@ -244,6 +251,8 @@ struct Settings
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
     bool read_from_pcap = false;
+    //! Wether VSM shall be kept open om shutdown
+    bool ins_vsm_keep_open;
     //! VSM source for INS
     std::string ins_vsm_ros_source;
     //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
