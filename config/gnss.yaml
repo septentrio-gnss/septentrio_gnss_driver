@@ -73,6 +73,8 @@ publish:
   measepoch: true
   pvtcartesian: true
   pvtgeodetic: true
+  basevectorcart: false
+  basevectorgeod: false
   poscovcartesian: true
   poscovgeodetic: true
   velcovgeodetic: true

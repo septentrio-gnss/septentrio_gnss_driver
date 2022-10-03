@@ -1008,8 +1008,7 @@ bool BaseVectorCartParser(ROSaicNodeBase* node, It it, It itEnd,
     msg.vector_info_cart.resize(msg.n);
     for (auto& vector_info_cart : msg.vector_info_cart)
     {
-        if (!VectorInfoCartParser(node, it, vector_info_cart, msg.sb_length))
-            return false;
+        VectorInfoCartParser(it, vector_info_cart, msg.sb_length);
     }
     if (it > itEnd)
     {
@@ -1071,8 +1070,7 @@ bool BaseVectorGeodParser(ROSaicNodeBase* node, It it, It itEnd,
     msg.vector_info_geod.resize(msg.n);
     for (auto& vector_info_geod : msg.vector_info_geod)
     {
-        if (!VectorInfoGeodParser(node, it, vector_info_geod, msg.sb_length))
-            return false;
+        VectorInfoGeodParser(it, vector_info_geod, msg.sb_length);
     }
     if (it > itEnd)
     {

@@ -166,6 +166,11 @@ struct Settings
     bool publish_pvtcartesian;
     //! Whether or not to publish the PVTGeodeticMsg message
     bool publish_pvtgeodetic;
+    //! Whether or not to publish the BaseVectorCartMsg
+    //! message
+    bool publish_basevectorcart;
+    //! Whether or not to publish the BaseVectorGeodMsg message
+    bool publish_basevectorgeod;
     //! Whether or not to publish the PosCovCartesianMsg
     //! message
     bool publish_poscovcartesian;
