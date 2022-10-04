@@ -160,6 +160,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.pvtcartesian", settings_.publish_pvtcartesian, false);
     param("publish.pvtgeodetic", settings_.publish_pvtgeodetic,
           (settings_.septentrio_receiver_type == "gnss"));
+    param("publish.basevectorcart", settings_.publish_basevectorcart, false);
+    param("publish.basevectorgeod", settings_.publish_basevectorgeod, false);
     param("publish.poscovcartesian", settings_.publish_poscovcartesian, false);
     param("publish.poscovgeodetic", settings_.publish_poscovgeodetic,
           (settings_.septentrio_receiver_type == "gnss"));

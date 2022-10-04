@@ -1984,6 +1984,50 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);
         break;
     }
+    case evBaseVectorCart:
+    {
+        BaseVectorCartMsg msg;
+        std::vector<uint8_t> dvec(data_,
+                                  data_ + parsing_utilities::getLength(data_));
+        if (!BaseVectorCartParser(node_, dvec.begin(), dvec.end(), msg))
+        {
+            node_->log(LogLevel::ERROR,
+                       "septentrio_gnss_driver: parse error in BaseVectorCart");
+            break;
+        }
+        msg.header.frame_id = settings_->frame_id;
+        Timestamp time_obj = timestampSBF(data_, settings_->use_gnss_time);
+        msg.header.stamp = timestampToRos(time_obj);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+        {
+            wait(time_obj);
+        }
+        publish<BaseVectorCartMsg>("/basevectorcart", msg);
+        break;
+    }
+    case evBaseVectorGeod:
+    {
+        BaseVectorGeodMsg msg;
+        std::vector<uint8_t> dvec(data_,
+                                  data_ + parsing_utilities::getLength(data_));
+        if (!BaseVectorGeodParser(node_, dvec.begin(), dvec.end(), msg))
+        {
+            node_->log(LogLevel::ERROR,
+                       "septentrio_gnss_driver: parse error in BaseVectorGeod");
+            break;
+        }
+        msg.header.frame_id = settings_->frame_id;
+        Timestamp time_obj = timestampSBF(data_, settings_->use_gnss_time);
+        msg.header.stamp = timestampToRos(time_obj);
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+        {
+            wait(time_obj);
+        }
+        publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
+        break;
+    }
     case evPosCovCartesian:
     {
         PosCovCartesianMsg msg;
