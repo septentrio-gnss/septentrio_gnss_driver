@@ -88,6 +88,8 @@ publish:
   measepoch: false
   pvtcartesian: false
   pvtgeodetic: false
+  basevectorcart: false
+  basevectorgeod: false
   poscovcartesian: false
   poscovgeodetic: false
   velcovgeodetic: false
