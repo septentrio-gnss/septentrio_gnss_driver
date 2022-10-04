@@ -150,6 +150,13 @@ namespace string_utilities {
      * @return The string
      */
     std::string trimDecimalPlaces(double num);
+
+    /**
+     * @brief Checks if a string contains spaces
+     * @param[in] str the string to be analyzed
+     * @return true if string contains space
+     */
+    bool containsSpace(const std::string str);
 } // namespace string_utilities
 
 #ifdef __cplusplus
