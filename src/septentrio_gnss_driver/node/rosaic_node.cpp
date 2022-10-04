@@ -500,7 +500,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         }
 
         param("ins_vsm/ros/config", settings_.ins_vsm_ros_config,
-              std::vector<bool>({false, false, false}));
+              std::vector<bool>());
         if (ins_use_vsm && (settings_.ins_vsm_ros_config.size() == 3))
         {
             if (std::all_of(settings_.ins_vsm_ros_config.begin(),
@@ -518,7 +518,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                 if (settings_.ins_vsm_ros_variances_by_parameter)
                 {
                     param("ins_vsm/ros/variances", settings_.ins_vsm_ros_variances,
-                          std::vector<double>({-1.0, -1.0, -1.0}));
+                          std::vector<double>());
                     if (settings_.ins_vsm_ros_variances.size() != 3)
                     {
                         this->log(
