@@ -995,11 +995,11 @@ void io_comm_rx::Comm_IO::defineMessages()
     }
     if (settings_->publish_basevectorcart)
     {
-        handlers_.callbackmap_ = handlers_.insert<PosCovCartesianMsg>("4043");
+        handlers_.callbackmap_ = handlers_.insert<BaseVectorCartMsg>("4043");
     }
     if (settings_->publish_basevectorgeod)
     {
-        handlers_.callbackmap_ = handlers_.insert<PosCovCartesianMsg>("4028");
+        handlers_.callbackmap_ = handlers_.insert<BaseVectorGeodMsg>("4028");
     }
     if (settings_->publish_poscovcartesian)
     {

@@ -62,6 +62,8 @@
 // GNSS msg includes
 #include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
 #include <septentrio_gnss_driver/msg/att_euler.hpp>
+#include <septentrio_gnss_driver/msg/base_vector_cart.hpp>
+#include <septentrio_gnss_driver/msg/base_vector_geod.hpp>
 #include <septentrio_gnss_driver/msg/block_header.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type1.hpp>
@@ -71,6 +73,8 @@
 #include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
 #include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
 #include <septentrio_gnss_driver/msg/receiver_time.hpp>
+#include <septentrio_gnss_driver/msg/vector_info_cart.hpp>
+#include <septentrio_gnss_driver/msg/vector_info_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_cov_cartesian.hpp>
 #include <septentrio_gnss_driver/msg/vel_cov_geodetic.hpp>
 // NMEA msg includes
@@ -109,6 +113,8 @@ typedef sensor_msgs::msg::Imu ImuMsg;
 typedef nav_msgs::msg::Odometry LocalizationUtmMsg;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
+typedef septentrio_gnss_driver::msg::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;
 typedef septentrio_gnss_driver::msg::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType1 MeasEpochChannelType1Msg;
@@ -120,6 +126,8 @@ typedef septentrio_gnss_driver::msg::PVTGeodetic PVTGeodeticMsg;
 typedef septentrio_gnss_driver::msg::PosCovCartesian PosCovCartesianMsg;
 typedef septentrio_gnss_driver::msg::PosCovGeodetic PosCovGeodeticMsg;
 typedef septentrio_gnss_driver::msg::ReceiverTime ReceiverTimeMsg;
+typedef septentrio_gnss_driver::msg::VectorInfoCart VectorInfoCartMsg;
+typedef septentrio_gnss_driver::msg::VectorInfoGeod VectorInfoGeodMsg;
 typedef septentrio_gnss_driver::msg::VelCovCartesian VelCovCartesianMsg;
 typedef septentrio_gnss_driver::msg::VelCovGeodetic VelCovGeodeticMsg;
 

@@ -92,6 +92,8 @@ septentrio_gnss_driver:
       measepoch: false
       pvtcartesian: false
       pvtgeodetic: true
+      basevectorcart: false
+      basevectorgeod: false
       poscovcartesian: false
       poscovgeodetic: true
       velcovgeodetic: true

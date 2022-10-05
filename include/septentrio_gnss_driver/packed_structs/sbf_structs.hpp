@@ -83,6 +83,10 @@
 #ifndef SBF_EXTEVENTINSNAVGEOD_LENGTH_1
 #define SBF_EXTEVENTINSNAVGEOD_LENGTH_1 16
 #endif
+//! Max number of vector info sub-blocks
+#ifndef MAXSB_NBVECTORINFO
+#define MAXSB_NBVECTORINFO 40
+#endif
 //! Max number of bytes that INSNavCart sub-block can consist of
 #ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1
 #define SBF_EXTEVENTINSNAVCART_LENGTH_1 16
@@ -478,7 +482,7 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg,
     qiLittleEndianParser(it, msg.health_status);
     qiLittleEndianParser(it, msg.elev);
     qiLittleEndianParser(it, msg.n2);
-    if (msg.n2 > MAXSB_MEASEPOCH_T2)
+    if (msg.n2 > MAXSB_CHANNELSTATEINFO)
     {
         node->log(LogLevel::ERROR, "Parse error: Too many ChannelStateInfo " +
                                        std::to_string(msg.n2));
@@ -943,6 +947,130 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
             msg.cov_headroll = -msg.cov_headroll;
         if (validValue(msg.cov_pitchroll))
             msg.cov_pitchroll = -msg.cov_pitchroll;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VectorInfoCartParser
+ * @brief Qi based parser for the SBF sub-block "VectorInfoCart"
+ */
+template <typename It>
+void VectorInfoCartParser(It& it, VectorInfoCartMsg& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.nr_sv);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.misc);
+    qiLittleEndianParser(it, msg.delta_x);
+    qiLittleEndianParser(it, msg.delta_y);
+    qiLittleEndianParser(it, msg.delta_z);
+    qiLittleEndianParser(it, msg.delta_vx);
+    qiLittleEndianParser(it, msg.delta_vy);
+    qiLittleEndianParser(it, msg.delta_vz);
+    qiLittleEndianParser(it, msg.azimuth);
+    qiLittleEndianParser(it, msg.elevation);
+    qiLittleEndianParser(it, msg.reference_id);
+    qiLittleEndianParser(it, msg.corr_age);
+    qiLittleEndianParser(it, msg.signal_info);
+    std::advance(it, sb_length - 52); // skip padding
+};
+
+/**
+ * @class BaseVectorCart
+ * @brief Qi based parser for the SBF block "BaseVectorCart"
+ */
+template <typename It>
+bool BaseVectorCartParser(ROSaicNodeBase* node, It it, It itEnd,
+                          BaseVectorCartMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4043)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > MAXSB_NBVECTORINFO)
+    {
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many VectorInfoCart " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb_length);
+    msg.vector_info_cart.resize(msg.n);
+    for (auto& vector_info_cart : msg.vector_info_cart)
+    {
+        VectorInfoCartParser(it, vector_info_cart, msg.sb_length);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VectorInfoGeodParser
+ * @brief Qi based parser for the SBF sub-block "VectorInfoGeod"
+ */
+template <typename It>
+void VectorInfoGeodParser(It& it, VectorInfoGeodMsg& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.nr_sv);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.misc);
+    qiLittleEndianParser(it, msg.delta_east);
+    qiLittleEndianParser(it, msg.delta_north);
+    qiLittleEndianParser(it, msg.delta_up);
+    qiLittleEndianParser(it, msg.delta_ve);
+    qiLittleEndianParser(it, msg.delta_vn);
+    qiLittleEndianParser(it, msg.delta_vu);
+    qiLittleEndianParser(it, msg.azimuth);
+    qiLittleEndianParser(it, msg.elevation);
+    qiLittleEndianParser(it, msg.reference_id);
+    qiLittleEndianParser(it, msg.corr_age);
+    qiLittleEndianParser(it, msg.signal_info);
+    std::advance(it, sb_length - 52); // skip padding
+};
+
+/**
+ * @class BaseVectorGeod
+ * @brief Qi based parser for the SBF block "BaseVectorGeod"
+ */
+template <typename It>
+bool BaseVectorGeodParser(ROSaicNodeBase* node, It it, It itEnd,
+                          BaseVectorGeodMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4028)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > MAXSB_NBVECTORINFO)
+    {
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many VectorInfoGeod " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb_length);
+    msg.vector_info_geod.resize(msg.n);
+    for (auto& vector_info_geod : msg.vector_info_geod)
+    {
+        VectorInfoGeodParser(it, vector_info_geod, msg.sb_length);
     }
     if (it > itEnd)
     {

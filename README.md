@@ -165,6 +165,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     measepoch: false
     pvtcartesian: false
     pvtgeodetic: true
+    basevectorcart: false
+    basevectorgeod: false
     poscovcartesian: false
     poscovgeodetic: true
 	  velcovgeodetic: false
@@ -454,11 +456,11 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to the frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`.
           + default: ""
         + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z may be sent. Only has to be set if `ins_vsm.ros.source`is set to `odometry` or `twist`.
-          + default: [false, false, false]
+          + default: []
         + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm.ros.variances` or the values inside the messaged are used. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
           + default: false
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
-          + default: [0.0, 0.0, 0.0]
+          + default: []
       + `ip_server`:
         + `id`: IP server to receive the VSM info (e.g. `IPS2`).
             + default: ""
@@ -488,6 +490,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
     + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
+    + `publish/basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
+    + `publish/basevectorgeod`: `true` to publish `septentrio_gnss_driver/BaseVectorGeod.msg` messages into the topic `/basevectorgeod`
     + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
     + `publish/velcovgeodetic`: `true` to publish `septentrio_gnss_driver/VelCovGeodetic.msg` messages into the topic `/velcovgeodetic`
@@ -520,8 +524,11 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC.
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
+  + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
+  + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.
+  + `/basevectorgeod`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorGeod.msg`, corresponding to the SBF block `BaseVectorGeod`.
   + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
   + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
