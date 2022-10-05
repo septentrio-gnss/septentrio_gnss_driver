@@ -54,6 +54,8 @@
 // GNSS msg includes
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
+#include <septentrio_gnss_driver/BaseVectorCart.h>
+#include <septentrio_gnss_driver/BaseVectorGeod.h>
 #include <septentrio_gnss_driver/BlockHeader.h>
 #include <septentrio_gnss_driver/MeasEpoch.h>
 #include <septentrio_gnss_driver/MeasEpochChannelType1.h>
@@ -63,6 +65,8 @@
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
 #include <septentrio_gnss_driver/ReceiverTime.h>
+#include <septentrio_gnss_driver/VectorInfoCart.h>
+#include <septentrio_gnss_driver/VectorInfoGeod.h>
 #include <septentrio_gnss_driver/VelCovCartesian.h>
 #include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
@@ -101,6 +105,8 @@ typedef sensor_msgs::Imu ImuMsg;
 typedef nav_msgs::Odometry LocalizationUtmMsg;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::BaseVectorCart BaseVectorCartMsg;
+typedef septentrio_gnss_driver::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::BlockHeader BlockHeaderMsg;
 typedef septentrio_gnss_driver::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::MeasEpochChannelType1 MeasEpochChannelType1Msg;
@@ -112,6 +118,8 @@ typedef septentrio_gnss_driver::PVTGeodetic PVTGeodeticMsg;
 typedef septentrio_gnss_driver::PosCovCartesian PosCovCartesianMsg;
 typedef septentrio_gnss_driver::PosCovGeodetic PosCovGeodeticMsg;
 typedef septentrio_gnss_driver::ReceiverTime ReceiverTimeMsg;
+typedef septentrio_gnss_driver::VectorInfoCart VectorInfoCartMsg;
+typedef septentrio_gnss_driver::VectorInfoGeod VectorInfoGeodMsg;
 typedef septentrio_gnss_driver::VelCovCartesian VelCovCartesianMsg;
 typedef septentrio_gnss_driver::VelCovGeodetic VelCovGeodeticMsg;
 

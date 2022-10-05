@@ -72,6 +72,8 @@ endif ()
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
+   BaseVectorCart.msg
+   BaseVectorGeod.msg
    BlockHeader.msg
    MeasEpoch.msg
    MeasEpochChannelType1.msg
@@ -88,6 +90,8 @@ add_message_files(
    INSNavCart.msg
    INSNavGeod.msg
    IMUSetup.msg
+   VectorInfoCart.msg
+   VectorInfoGeod.msg
    VelSensorSetup.msg
    ExtSensorMeas.msg
 )

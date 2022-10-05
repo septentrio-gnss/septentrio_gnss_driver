@@ -435,6 +435,14 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             blocks << " +PVTGeodetic";
         }
+        if (settings_->publish_basevectorcart)
+        {
+            blocks << " +BaseVectorCart";
+        }
+        if (settings_->publish_basevectorgeod)
+        {
+            blocks << " +BaseVectorGeod";
+        }
         if (settings_->publish_poscovcartesian)
         {
             blocks << " +PosCovCartesian";
@@ -984,6 +992,14 @@ void io_comm_rx::Comm_IO::defineMessages()
         (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
     {
         handlers_.callbackmap_ = handlers_.insert<PVTGeodeticMsg>("4007");
+    }
+    if (settings_->publish_basevectorcart)
+    {
+        handlers_.callbackmap_ = handlers_.insert<BaseVectorCartMsg>("4043");
+    }
+    if (settings_->publish_basevectorgeod)
+    {
+        handlers_.callbackmap_ = handlers_.insert<BaseVectorGeodMsg>("4028");
     }
     if (settings_->publish_poscovcartesian)
     {
