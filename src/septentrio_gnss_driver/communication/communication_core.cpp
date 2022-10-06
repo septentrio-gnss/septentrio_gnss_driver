@@ -603,12 +603,10 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::stringstream ss;
             ss << "sao, Main, "
-               << string_utilities::trimString(std::to_string(settings_->delta_e))
-               << ", "
-               << string_utilities::trimString(std::to_string(settings_->delta_n))
-               << ", "
-               << string_utilities::trimString(std::to_string(settings_->delta_u))
-               << ", \"" << settings_->ant_type << "\", " << settings_->ant_serial_nr
+               << string_utilities::trimDecimalPlaces(settings_->delta_e) << ", "
+               << string_utilities::trimDecimalPlaces(settings_->delta_n) << ", "
+               << string_utilities::trimDecimalPlaces(settings_->delta_u) << ", \""
+               << settings_->ant_type << "\", " << settings_->ant_serial_nr
                << "\x0D";
             send(ss.str());
         }
@@ -616,9 +614,9 @@ void io_comm_rx::Comm_IO::configureRx()
         // Configure Aux1 antenna
         {
             std::stringstream ss;
-            ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(0.0))
-               << ", " << string_utilities::trimString(std::to_string(0.0)) << ", "
-               << string_utilities::trimString(std::to_string(0.0)) << ", \""
+            ss << "sao, Aux1, " << string_utilities::trimDecimalPlaces(0.0) << ", "
+               << string_utilities::trimDecimalPlaces(0.0) << ", "
+               << string_utilities::trimDecimalPlaces(0.0) << ", \""
                << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr
                << "\x0D";
             send(ss.str());
@@ -748,15 +746,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 ss << " sio, "
                    << "manual"
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_x))
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_y))
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_z))
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_x)
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_y)
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -778,14 +770,11 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sial, "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_x))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_x)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_y))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_y)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_z))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -807,11 +796,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sipl, POI1, "
-                   << string_utilities::trimString(std::to_string(settings_->poi_x))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->poi_y))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->poi_z))
+                   << string_utilities::trimDecimalPlaces(settings_->poi_x) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->poi_y) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->poi_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -833,11 +820,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sivl, VSM1, "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_x))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_y))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_z))
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_x) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_y) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -901,11 +886,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sism, "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->att_std_dev))
+                   << string_utilities::trimDecimalPlaces(settings_->att_std_dev)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->pos_std_dev))
+                   << string_utilities::trimDecimalPlaces(settings_->pos_std_dev)
                    << " \x0D";
                 send(ss.str());
             } else
