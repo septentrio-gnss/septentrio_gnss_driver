@@ -137,24 +137,56 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   use_gnss_time: false
 
   rtk_settings:
-    keep_open: true
-    ntrip:
-      caster: ""
+    ntrip_1:
+      id: "NTR1"
+      caster: "1.2.3.4"
       caster_port: 2101
-      username: ""
-      password: ""
-      mountpoint: ""
-      version: v2
-      rtk_standard: auto
-      send_gga: auto
-    ip_server:
-      port: 0
-      rtk_standard: auto
-      send_gga: auto
-    serial:
-      port: ""
-      baud_rate: 115200
-      rtk_standard: auto
+      username: "Asterix"
+      password: "password"
+      mountpoint: "mtpt1"
+      version: "v2"
+      tls: true
+      fingerprint: "AA:BB:56:78:90:12: ... 78:90:12:34"
+      rtk_standard: "RTCMv3"
+      send_gga: "auto"
+      keep_open: true
+    ntrip_2:
+      id: "NTR3"
+      caster: "5.6.7.8"
+      caster_port: 2101
+      username: "Obelix"
+      password: "password"
+      mountpoint: "mtpt2"
+      version: "v2"
+      tls: false
+      fingerprint: ""
+      rtk_standard: "RTCMv2"
+      send_gga: "auto"
+      keep_open: true
+    ip_server_1:
+      id: "IPS3"
+      port: 28785
+      rtk_standard: "RTCMv2"
+      send_gga: "auto"
+      keep_open: true
+    ip_server_2:
+      id: "IPS5"
+      port: 28786
+      rtk_standard: "CMRv2"
+      send_gga: "auto"
+      keep_open: true
+    serial_1:
+      port: "COM1"
+      baud_rate: 230400
+      rtk_standard: "auto"
+      send_gga: "sec1"
+      keep_open: true
+    serial_2:
+      port: "COM2"
+      baud_rate: 230400
+      rtk_standard: "auto"
+      send_gga: "off"
+      keep_open: true
 
   publish:
     # For both GNSS and INS Rxs
@@ -225,11 +257,13 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     variances_by_parameter: true
     variances: [0.1, 0.0, 0.0]
     ip_server:
-      id: "IPS3"
+      id: "IPS2"
       port: 28787
+      keep_open: true
     serial:
       port: "COM3"
       baud_rate: 115200
+      keep_open: true
 
   # Logger
 
@@ -413,14 +447,56 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   + `rtk_settings`: determines RTK connection parameters
     + There are multiple possibilities to feed RTK corrections to the Rx. They may be set simultaneously and the Rx will choose the nearest source.
-      + a) `ntrip` if the Rx has internet access and is able to receieve NTRIP streams from a caster.
-      + b) `ip_server` if corrections are to be receieved via TCP/IP for example over `Data Link` from Septentrio's RxTools is installed on a computer.
-      + c) `serial` if corrections are to be receieved via a serial port for example over radio link from a local RTK base or over `Data Link` from Septentrio's RxTools installed on a computer.
-    + `rtk_settings.keep_open` determines wether connections to receive RTK corrections shall be kept open on shutdown. If set to `true` the Rx will still be able to use RTK correction info to improve precision.
-    + `rtk_settings.ntrip.caster` is the hostname or IP address of the NTRIP caster to connect to. To send data to the built-in NTRIP caster, use "localhost" for this parameter. `rtk_settings.ntrip.caster_port`, `rtk_settings.ntrip.username`, `rtk_settings.ntrip.password` and `rtk_settings.ntrip.mountpoint` are the IP port number, the user name, the password and the mount point, respectively, to be used when connecting to the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings". The `rtk_settings.ntrip.version` argument specifies which version of the NTRIP protocol to use (`v1` or `v2`). `rtk_settings.ntrip.rtk_standard` determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`. Further, `rtk_settings.ntrip.send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster.
-    + In case the connection to the receiver is via TCP/IP, `rtk_settings/ip_server/id` specifies the IP server (e.g. `IPS1`) and  `rtk_settings.ip_server.port` its port number of the connection that ROSaic establishes on the receiver. When selecting a port number, make sure to avoid conflicts with other services. Note that ROSaic will send GGA messages on this connection if `rtk_settings.ip_server.send_gga` is set, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `rtk_settings.ip_server.port`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.  `rtk_settings.ip_server.rtk_standard` determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`. Further, `rtk_settings.ip_server.send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver sends with `sec1`.
-    + Finally, in case we are facing a serial connection (COM or USB), the parameter `rtk_settings.serial.port` analogously determines the port on which corrections could be forwarded to the Rx from a serially connected radio link modem or via `Data Link`. `rtk_settings.serial.baud_rate` sets the baud rate of this port. `rtk_settings.serial.rtk_standard` determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`. Further, `rtk_settings.serial.send_gga` specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver sends with `sec1`.
-    + default: `true`, `""`, `""`, `2101`, `""`, `""`, `v2`, `auto`, `auto`, `0`, `auto`, `""`, `115200`, `auto`, `auto`
+      + a) `ntrip_#` if the Rx has internet access and is able to receieve NTRIP streams from a caster. Up to three NTRIP connections are possible.
+      + b) `ip_server_#` if corrections are to be receieved via TCP/IP for example over `Data Link` from Septentrio's RxTools is installed on a computer. Up to five IP server connections are possible.
+      + c) `serial_#` if corrections are to be receieved via a serial port for example over radio link from a local RTK base or over `Data Link` from Septentrio's RxTools installed on a computer. Up to five serial connections are possible.
+    + `ntrip_#`: for receiving corretions from an NTRIP caster (`#` is from 1 ... 3).
+      + `id`: NTRIP connection `NTR1`, `NTR2`, or `NTR3`.
+        + default: ""
+      + `caster`: is the hostname or IP address of the NTRIP caster to connect to.
+        + default: ""
+      + `caster_port`: IP port of the NTRIP caster.
+        + default: 2021
+      + `username`: user name for the NTRIP caster.
+        + default: ""
+      + `pasword`: password for the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings".
+        + default: ""
+      + `mountpoint`: mount point of the NTRP caster to be used.
+        + default: ""
+      + `version`: argument specifies which version of the NTRIP protocol to use (`v1` or `v2`).
+        + default: "v2"
+      + `tls`: determines wether to use TLS.
+        + default: false
+      + `fingerprint`: fingerprint to be used if the certificate is self-signed. If the caster’s certificate is known by a publicly-trusted certification authority, fingerprint should be left empty.
+        + default: ""
+      + `rtk_standard`: determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`.
+        + default: "auto"
+      + `send_gga`: specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver automatically sends GGA messages if requested by the caster.
+        + default: "auto"
+      + `keep_open`: determines wether this connection shall be kept open. If set to `true` the Rx will still be able to receive RTK corrections to improve precision after driver is shut down.
+        + default: true
+    + `ip_server_#`: for receiving corretions via TCP/IP (`#` is from 1 ... 5).
+      + `id`: specifies the IP server `IPS1`, `IPS2`, `IPS3`, `IPS4`, or `IPS5`. Note that ROSaic will send GGA messages on this connection if `send_gga` is set, such that in the `Data Link` application of `RxTools` one just needs to set up a TCP client to the host name as found in the ROSaic parameter `device` with the port as found in `port`. If the latter connection were connection 1 on `Data Link`, then connection 2 would set up an NTRIP client connecting to the NTRIP caster as specified in the above parameters in order to forward the corrections from connection 2 to connection 1.
+        + default: ""      
+      + `port`: its port number of the connection that ROSaic establishes on the receiver. When selecting a port number, make sure to avoid conflicts with other services.
+        + default: 0
+      + `rtk_standard`: determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`.
+        + default: ""
+      + `send_gga`: specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver sends with `sec1`.
+        + default: "auto"
+      + `keep_open`: determines wether this connection shall be kept open. If set to `true` the Rx will still be able to receive RTK corrections to improve precision after driver is shut down.
+        + default: true
+    + `serial_#`: for receiving corretions via serial connection (`#` is from 1 ... 5).
+      + `port`: Serial connection `COM1`, `COM2`, `COM3`, `USB1`, or `USB2` on which corrections could be forwarded to the Rx from a serially connected radio link modem or via `Data Link` for example.
+        + default: ""
+      + `baud_rate`: sets the baud rate of this port for genuine serial ports, i.e., not relevant for USB connection.
+        + default: 115200
+      + `rtk_standard`: determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`.
+        + default: "auto"
+      + `send_gga`: specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver sends with `sec1`.
+        + default: "auto"
+      + `keep_open`: determines wether this connection shall be kept open. If set to `true` the Rx will still be able to receive RTK corrections to improve precision after driver is shut down.
+        + default: true
   </details>
   
   <details>
@@ -452,8 +528,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
     + `ins_vsm`: Configuration of the velocity sensor measurements.
-      + `keep_open` determines wether connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
-        + default: `true`
       + `ros`: VSM info received from ROS msgs
         + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to the frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`.
           + default: ""
@@ -468,11 +542,15 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
             + default: ""
         + `port`: TCP port to receive the VSM info. When selecting a port number, make sure to avoid conflicts with other services.
           + default: 0
+        + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
+          + default: `true`
       + `serial`:
         + `port`: Serial port to receive the VSM info.
           + default: ""
         + `baud_rate`: Baud rate of the serial port to receive the VSM info.
           + default: 115200
+        + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
+          + default: `true`
   </details>
 
   <details>

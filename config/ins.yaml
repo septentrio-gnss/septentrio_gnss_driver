@@ -45,10 +45,10 @@ att_offset:
   heading: 0.0
   pitch: 0.0
 
-ant_type: Unknown
-ant_serial_nr: Unknown
-ant_aux1_type: Unknown
-ant_aux1_serial_nr: Unknown
+ant_type: "Unknown"
+ant_serial_nr: "Unknown"
+ant_aux1_type: "Unknown"
+ant_aux1_serial_nr: "Unknown"
 
 polling_period:
   pvt: 0
@@ -58,25 +58,28 @@ use_gnss_time: false
 
 rtk_settings:
   keep_open: true
-  ntrip:
+  ntrip_1:
+    id: ""
     caster: ""
     caster_port: 2101
     username: ""
     password: ""
     mountpoint: ""
-    version: v2
-    rtk_standard: auto
-    send_gga: auto
-  ip_server:
+    version: "v2"
+    tls: false
+    fingerprint: ""
+    rtk_standard: "auto"
+    send_gga: "auto"
+  ip_server_1:
     id: ""
     port: 0
-    rtk_standard: auto
-    send_gga: auto
-  serial:
+    rtk_standard: "auto"
+    send_gga: "auto"
+  serial_1:
     port: ""
     baud_rate: 115200
-    rtk_standard: auto
-    send_gga: auto
+    rtk_standard: "auto"
+    send_gga: "auto"
 
 publish:
   # For both GNSS and INS Rxs
@@ -96,7 +99,7 @@ publish:
   atteuler: false
   attcoveuler: false
   pose: false
-  twist: false
+  twist: true
   diagnostics: true
   # For INS Rx only
   insnavcart: true
@@ -139,7 +142,6 @@ ins_std_dev_mask:
 ins_use_poi: true
 
 ins_vsm:
-  keep_open: true
   ros:
     source: ""
     config: [false, false, false]
@@ -148,10 +150,12 @@ ins_vsm:
   ip_server:
     id: ""
     port: 0
+    keep_open: true
   serial:
     port: ""
     baud_rate: 115200
-
+    keep_open: true
+  
 # logger
 
 activate_debug_log: false

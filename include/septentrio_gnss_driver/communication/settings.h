@@ -34,6 +34,71 @@
 #include <string>
 #include <vector>
 
+struct RtkNtrip
+{
+    //! Id of the NTRIP port
+    std::string id;
+    //! Hostname or IP address of the NTRIP caster to connect to
+    std::string caster;
+    //! IP port number of NTRIP caster to connect to
+    uint32_t caster_port;
+    //! Username for NTRIP service
+    std::string username;
+    //! Password for NTRIP service
+    std::string password;
+    //! Mountpoint for NTRIP service
+    std::string mountpoint;
+    //! NTRIP version for NTRIP service
+    std::string version;
+    //! Wether to use TLS
+    bool tls;
+    //! Self-signed certificate fingerprint
+    std::string fingerprint;
+    //! RTCM version for correction data
+    std::string rtk_standard;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string send_gga;
+    //! Wether RTK connections shall be kept open on shutdown
+    bool keep_open;
+};
+
+struct RtkIpServer
+{
+    //! The IP server id
+    std::string id;
+    //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
+    //! (can't be the same as main connection unless localhost concept is used)
+    uint32_t port;
+    //! RTCM version for correction data
+    std::string rtk_standard;
+    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
+    std::string send_gga;
+    //! Wether RTK connections shall be kept open on shutdown
+    bool keep_open;
+};
+
+struct RtkSerial
+{
+    //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
+    //! the same as main connection unless localhost concept is used)
+    std::string port;
+    //! Baud rate of the serial port on which Rx receives the corrections
+    uint32_t baud_rate;
+    //! RTCM version for correction data
+    std::string rtk_standard;
+    //! Whether (and at which rate) or not to send GGA to the serial port
+    std::string send_gga;
+    //! Wether RTK connections shall be kept open on shutdown
+    bool keep_open;
+};
+
+struct RtkSettings
+{
+    std::vector<RtkNtrip> ntrip;
+    std::vector<RtkIpServer> ip_server;
+    std::vector<RtkSerial> serial;
+};
+
 //! Settings struct
 struct Settings
 {
@@ -117,42 +182,8 @@ struct Settings
     float att_std_dev;
     //! Position deviation mask
     float pos_std_dev;
-    //! Wether RTK connections shall be kept open om shutdown
-    bool rtk_settings_keep_open;
-    //! Hostname or IP address of the NTRIP caster to connect to
-    std::string rtk_settings_ntrip_caster;
-    //! IP port number of NTRIP caster to connect to
-    uint32_t rtk_settings_ntrip_caster_port;
-    //! Username for NTRIP service
-    std::string rtk_settings_ntrip_username;
-    //! Password for NTRIP service
-    std::string rtk_settings_ntrip_password;
-    //! Mountpoint for NTRIP service
-    std::string rtk_settings_mountpoint;
-    //! NTRIP version for NTRIP service
-    std::string rtk_settings_ntrip_version;
-    //! RTCM version for correction data
-    std::string rtk_settings_ntrip_rtk_standard;
-    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string rtk_settings_ntrip_send_gga;
-    //! The IP server id
-    std::string rtk_settings_ip_server_id;
-    //! Rx TCP port number, e.g. 28785, on which Rx receives the corrections
-    //! (can't be the same as main connection unless localhost concept is used)
-    uint32_t rtk_settings_ip_server_port;
-    //! RTCM version for correction data
-    std::string rtk_settings_ip_server_rtk_standard;
-    //! Whether (and at which rate) or not to send GGA to the NTRIP caster
-    std::string rtk_settings_ip_server_send_gga;
-    //! Rx serial port, e.g. USB2, on which Rx receives the corrections (can't be
-    //! the same as main connection unless localhost concept is used)
-    std::string rtk_settings_serial_port;
-    //! Baud rate of the serial port on which Rx receives the corrections
-    uint32_t rtk_settings_serial_baud_rate;
-    //! RTCM version for correction data
-    std::string rtk_settings_serial_rtk_standard;
-    //! Whether (and at which rate) or not to send GGA to the serial port
-    std::string rtk_settings_serial_send_gga;
+    //! RTK corrections settings
+    RtkSettings rtk_settings;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message
@@ -251,8 +282,6 @@ struct Settings
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
     bool read_from_pcap = false;
-    //! Wether VSM shall be kept open om shutdown
-    bool ins_vsm_keep_open;
     //! VSM source for INS
     std::string ins_vsm_ros_source;
     //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
@@ -265,8 +294,12 @@ struct Settings
     std::string ins_vsm_ip_server_id;
     //! VSM tcp port
     uint32_t ins_vsm_ip_server_port;
+    //! Wether VSM shall be kept open om shutdown
+    bool ins_vsm_ip_server_keep_open;
     //! VSM serial port
     std::string ins_vsm_serial_port;
     //! VSM serial baud rate
     uint32_t ins_vsm_serial_baud_rate;
+    //! Wether VSM shall be kept open om shutdown
+    bool ins_vsm_serial_keep_open;
 };

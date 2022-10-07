@@ -47,40 +47,43 @@ septentrio_gnss_driver:
       heading: 0.0
       pitch: 0.0
       
-    ant_type: Unknown
-    ant_serial_nr: Unknown
-    ant_aux1_type: Unknown
-    ant_aux1_serial_nr: Unknown
-
-    leap_seconds: 18
+    ant_type: "Unknown"
+    ant_serial_nr: "Unknown"
+    ant_aux1_type: "Unknown"
+    ant_aux1_serial_nr: "Unknown"
 
     polling_period:
-      pvt: 500
+      pvt: 0
       rest: 500
 
     use_gnss_time: false
 
-    rtk_settings:
-      keep_open: true
-      ntrip:
+    rtk_settings:  
+      ntrip_1:
+        id: ""
         caster: ""
         caster_port: 2101
         username: ""
         password: ""
         mountpoint: ""
-        version: v2
-        rtk_standard: auto
-        send_gga: auto
-      ip_server:
+        version: "v2"
+        tls: false
+        fingerprint: ""
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
+      ip_server_1:
         id: ""
         port: 0
-        rtk_standard: auto
-        send_gga: auto
-      serial:
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
+      serial_1:
         port: ""
         baud_rate: 115200
-        rtk_standard: auto
-        send_gga: auto
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
 
     publish:
       # For both GNSS and INS Rxs
@@ -146,7 +149,6 @@ septentrio_gnss_driver:
     ins_use_poi: false
 
     ins_vsm:
-      keep_open: true
       ros:
         source: ""
         config: [false, false, false]
@@ -155,9 +157,11 @@ septentrio_gnss_driver:
       ip_server:
         id: ""
         port: 0
+        keep_open: true
       serial:
         port: ""
         baud_rate: 115200
+        keep_open: true
 
     # logger
 

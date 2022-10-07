@@ -137,14 +137,6 @@ namespace string_utilities {
     uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 
     /**
-     * @brief Removes trailing zeros from a string representing a float or double
-     * except for the first zero after the decimal point
-     * @param[in] str The string whose trailing zeros shall be removed
-     * @return The trimmed string
-     */
-    std::string trimString(std::string str);
-
-    /**
      * @brief Trims decimal places to two
      * @param[in] num The double who shall be trimmed
      * @return The string
