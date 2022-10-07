@@ -75,7 +75,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   :<br>
   
   ```
-  # Configuration Settings for the Rover Rx
+  # Example configuration Settings for the Rover Rx
 
   device: tcp://192.168.3.1:28784
 
@@ -137,6 +137,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   use_gnss_time: false
 
   rtk_settings:
+    keep_open: true
     ntrip:
       caster: ""
       caster_port: 2101
@@ -161,7 +162,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     gpsfix: true
     gpgga: false
     gprmc: false
-    gpst : false
+    gpst: false
     measepoch: false
     pvtcartesian: false
     pvtgeodetic: true
@@ -219,21 +220,22 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ins_use_poi: true
 
   ins_vsm:
-    source: ""
-    config: [false, false, false]
-    variances_by_parameter: false
-    variances: [0.0, 0.0, 0.0]
+    source: "twist"
+    config: [true, false, false]
+    variances_by_parameter: true
+    variances: [0.1, 0.0, 0.0]
     ip_server:
-      port: 0
+      id: "IPS3"
+      port: 28787
     serial:
-      port: ""
+      port: "COM3"
       baud_rate: 115200
 
   # Logger
 
   activate_debug_log: false
   ```
-  In order to launch ROSaic, one must specify all `arg` fields of the `rover.launch` file which have no associated default values, i.e. for now only the `param_file_name` field. Hence, the launch command reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover`.
+  In order to launch ROSaic, one must specify all `arg` fields of the `rover.py` file which have no associated default values, i.e. for now only the `file_name` field. Hence, the launch command reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`.
 
 </details>
 
