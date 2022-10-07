@@ -139,25 +139,22 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   rtk_settings:
     keep_open: true
     ntrip:
-      ids: ["NTR1", "NTR2"]      
-      casters: ["1.2.3.4", "5.6.7.8"]
-      caster_ports: [2101, 2101]
-      usernames: ["Asterix", "Obelix"]
-      passwords: ["password", "password"]
-      mountpoints: ["mtpt1", "mtpt2"]
-      versions: [v2, v2]
-      rtk_standards: [RTCMv2, auto]
-      send_gga: [auto, auto]
+      caster: ""
+      caster_port: 2101
+      username: ""
+      password: ""
+      mountpoint: ""
+      version: v2
+      rtk_standard: auto
+      send_gga: auto
     ip_server:
-      ids: ["IPS1", "IPS2"]
-      ports: [28785, 28786]
-      rtk_standards: [RTCMv2, RTCMv3]
-      send_gga: [auto, off] # optional
+      port: 0
+      rtk_standard: auto
+      send_gga: auto
     serial:
-      ports: [COM1, COM3]
-      baud_rates: [230400, 230400]
-      rtk_standards: [RTCMv2, RTCMv3]
-      send_gga: [sec1, auto]
+      port: ""
+      baud_rate: 115200
+      rtk_standard: auto
 
   publish:
     # For both GNSS and INS Rxs
