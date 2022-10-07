@@ -70,7 +70,7 @@ publish:
   gpsfix: true
   gpgga: true
   gprmc: true
-  gpst : true
+  gpst: true
   measepoch: true
   pvtcartesian: true
   pvtgeodetic: true

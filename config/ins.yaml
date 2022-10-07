@@ -84,7 +84,7 @@ publish:
   gpsfix: false
   gpgga: false
   gprmc: false
-  gpst : false
+  gpst: false
   measepoch: false
   pvtcartesian: false
   pvtgeodetic: false

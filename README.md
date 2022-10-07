@@ -77,7 +77,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
   ```
-  # Configuration Settings for the Rover Rx
+  # Example configuration Settings for the Rover Rx
 
   device: tcp://192.168.3.1:28784
 
@@ -139,6 +139,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   use_gnss_time: false
 
   rtk_settings:
+    keep_open: true
     ntrip:
       caster: ""
       caster_port: 2101
@@ -151,6 +152,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     ip_server:
       port: 0
       rtk_standard: auto
+      send_gga: auto
     serial:
       port: ""
       baud_rate: 115200
@@ -162,7 +164,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     gpsfix: true
     gpgga: false
     gprmc: false
-    gpst : false
+    gpst: false
     measepoch: false
     pvtcartesian: false
     pvtgeodetic: true
@@ -220,14 +222,15 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   ins_use_poi: true
  
   ins_vsm:
-    source: ""
-    config: [false, false, false]
-    variances_by_parameter: false
-    variances: [0.0, 0.0, 0.0]
+    source: "twist"
+    config: [true, false, false]
+    variances_by_parameter: true
+    variances: [0.1, 0.0, 0.0]
     ip_server:
-      port: 0
+      id: "IPS3"
+      port: 28787
     serial:
-      port: ""
+      port: "COM3"
       baud_rate: 115200
 
   # Logger
