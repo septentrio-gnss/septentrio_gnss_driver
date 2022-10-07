@@ -91,7 +91,7 @@ publish:
   gpsfix: true
   gpgga: false
   gprmc: false
-  gpst : false
+  gpst: false
   measepoch: false
   pvtcartesian: false
   pvtgeodetic: true
