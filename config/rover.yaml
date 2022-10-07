@@ -50,10 +50,10 @@ att_offset:
   heading: 0.0
   pitch: 0.0
   
-ant_type: Unknown
-ant_serial_nr: Unknown
-ant_aux1_type: Unknown
-ant_aux1_serial_nr: Unknown
+ant_type: "Unknown"
+ant_serial_nr: "Unknown"
+ant_aux1_type: "Unknown"
+ant_aux1_serial_nr: "Unknown"
 
 leap_seconds: 18
 
@@ -64,26 +64,30 @@ polling_period:
 use_gnss_time: false
 
 rtk_settings:
-  keep_open: true
-  ntrip:
+  ntrip_1:
     caster: ""
     caster_port: 2101
     username: ""
     password: ""
     mountpoint: ""
-    version: v2
-    rtk_standard: auto
-    send_gga: auto
-  ip_server:
+    version: "v2"
+    tls: false
+    fingerprint: ""
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
+  ip_server_1:
     id: ""
     port: 0
-    rtk_standard: auto
-    send_gga: auto
-  serial:
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
+  serial_1:
     port: ""
     baud_rate: 115200
-    rtk_standard: auto
-    send_gga: auto
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
 
 publish:
   # For both GNSS and INS Rxs
@@ -91,7 +95,7 @@ publish:
   gpsfix: true
   gpgga: false
   gprmc: false
-  gpst : false
+  gpst: false
   measepoch: false
   pvtcartesian: false
   pvtgeodetic: true
@@ -149,7 +153,6 @@ ins_std_dev_mask:
 ins_use_poi: false
 
 ins_vsm:
-  keep_open: true
   ros:
     source: ""
     config: [false, false, false]
@@ -158,9 +161,11 @@ ins_vsm:
   ip_server:
     id: ""
     port: 0
+    keep_open: true
   serial:
     port: ""
     baud_rate: 115200
+    keep_open: true
   
 # Logger
 

@@ -133,21 +133,53 @@ io_comm_rx::Comm_IO::~Comm_IO()
     std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
     manager_.get()->send(cmd);
     send("sdio, " + mainPort_ + ", auto, none\x0D");
-    for (auto port : additionalIpPorts_)
+    for (auto ntrip : settings_->rtk_settings.ntrip)
     {
-        send("sdio, " + port + ",  auto, none\x0D");
-        send("siss, " + port + ",  0\x0D");
+
+        if (!ntrip.id.empty() && !ntrip.keep_open)
+        {
+            send("snts, " + ntrip.id + ", off \x0D");
+        }
     }
-    for (auto port : additionalSerialPorts_)
+    for (auto ip_server : settings_->rtk_settings.ip_server)
     {
-        send("sdio, " + port + ",  auto, none\x0D");
-        send("scs, " + port + ", baud115200, bits8, No, bit1, none\x0D");
+        if (!ip_server.id.empty() && !ip_server.keep_open)
+        {
+            send("sdio, " + ip_server.id + ",  auto, none\x0D");
+            send("siss, " + ip_server.id + ",  0\x0D");
+        }
     }
-    if (!settings_->rtk_settings_keep_open &&
-        !settings_->rtk_settings_ntrip_caster.empty())
+    for (auto serial : settings_->rtk_settings.serial)
     {
-        send("snts, NTR1, off \x0D");
+        if (!serial.port.empty() && !serial.keep_open)
+        {
+            send("sdio, " + serial.port + ",  auto, none\x0D");
+            if (serial.port.rfind("COM", 0) == 0)
+                send("scs, " + serial.port +
+                     ", baud115200, bits8, No, bit1, none\x0D");
+        }
     }
+    if (!settings_->ins_vsm_ip_server_id.empty())
+    {
+        if (!settings_->ins_vsm_ip_server_id.empty() &&
+            !settings_->ins_vsm_ip_server_keep_open)
+        {
+            send("sdio, " + settings_->ins_vsm_ip_server_id + ",  auto, none\x0D");
+            send("siss, " + settings_->ins_vsm_ip_server_id + ",  0\x0D");
+        }
+    }
+    if (!settings_->ins_vsm_serial_port.empty())
+    {
+        if (!settings_->ins_vsm_serial_port.empty() &&
+            !settings_->ins_vsm_serial_keep_open)
+        {
+            if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
+                send("scs, " + settings_->ins_vsm_serial_port +
+                     ", baud115200, bits8, No, bit1, none\x0D");
+            send("sdio, " + settings_->ins_vsm_serial_port + ",  auto, none\x0D");
+        }
+    }
+
     send("logout \x0D");
 
     stopping_ = true;
@@ -603,12 +635,10 @@ void io_comm_rx::Comm_IO::configureRx()
         {
             std::stringstream ss;
             ss << "sao, Main, "
-               << string_utilities::trimString(std::to_string(settings_->delta_e))
-               << ", "
-               << string_utilities::trimString(std::to_string(settings_->delta_n))
-               << ", "
-               << string_utilities::trimString(std::to_string(settings_->delta_u))
-               << ", \"" << settings_->ant_type << "\", " << settings_->ant_serial_nr
+               << string_utilities::trimDecimalPlaces(settings_->delta_e) << ", "
+               << string_utilities::trimDecimalPlaces(settings_->delta_n) << ", "
+               << string_utilities::trimDecimalPlaces(settings_->delta_u) << ", \""
+               << settings_->ant_type << "\", " << settings_->ant_serial_nr
                << "\x0D";
             send(ss.str());
         }
@@ -616,9 +646,9 @@ void io_comm_rx::Comm_IO::configureRx()
         // Configure Aux1 antenna
         {
             std::stringstream ss;
-            ss << "sao, Aux1, " << string_utilities::trimString(std::to_string(0.0))
-               << ", " << string_utilities::trimString(std::to_string(0.0)) << ", "
-               << string_utilities::trimString(std::to_string(0.0)) << ", \""
+            ss << "sao, Aux1, " << string_utilities::trimDecimalPlaces(0.0) << ", "
+               << string_utilities::trimDecimalPlaces(0.0) << ", "
+               << string_utilities::trimDecimalPlaces(0.0) << ", \""
                << settings_->ant_aux1_type << "\", " << settings_->ant_aux1_serial_nr
                << "\x0D";
             send(ss.str());
@@ -626,82 +656,89 @@ void io_comm_rx::Comm_IO::configureRx()
     }
 
     // Configuring the corrections connection
-    if (!settings_->rtk_settings_ntrip_caster.empty())
+    for (auto ntrip : settings_->rtk_settings.ntrip)
     {
-        // First disable any existing NTRIP connection on NTR1
-        send("snts, NTR1, off \x0D");
+        if (!ntrip.id.empty())
         {
-            std::stringstream ss;
-            ss << "snts, NTR1, Client, " << settings_->rtk_settings_ntrip_caster
-               << ", " << std::to_string(settings_->rtk_settings_ntrip_caster_port)
-               << ", " << settings_->rtk_settings_ntrip_username << ", "
-               << settings_->rtk_settings_ntrip_password << ", "
-               << settings_->rtk_settings_mountpoint << ", "
-               << settings_->rtk_settings_ntrip_version << ", "
-               << settings_->rtk_settings_ntrip_send_gga << " \x0D";
-            send(ss.str());
+            // First disable any existing NTRIP connection on NTR1
+            send("snts, " + ntrip.id + ", off \x0D");
+            {
+                std::stringstream ss;
+                ss << "snts, " << ntrip.id << ", Client, " << ntrip.caster << ", "
+                   << std::to_string(ntrip.caster_port) << ", " << ntrip.username
+                   << ", " << ntrip.password << ", " << ntrip.mountpoint << ", "
+                   << ntrip.version << ", " << ntrip.send_gga << " \x0D";
+                send(ss.str());
+            }
+            if (ntrip.tls)
+            {
+                std::stringstream ss;
+                ss << "sntt, " << ntrip.id << ", on, \"" << ntrip.fingerprint
+                   << "\" \x0D";
+                send(ss.str());
+            }
         }
     }
 
-    if (!settings_->rtk_settings_ip_server_id.empty())
-    // Since the Rx does not have internet (and you will not
-    // be able to share it via USB), we need to forward the
-    // corrections ourselves, though not on the same port.
+    for (auto ip_server : settings_->rtk_settings.ip_server)
     {
+        if (!ip_server.id.empty())
+        // Since the Rx does not have internet (and you will not
+        // be able to share it via USB), we need to forward the
+        // corrections ourselves, though not on the same port.
         {
-            std::stringstream ss;
-            // In case this IP server was used before, old configuration is lost of
-            // course.
-            ss << "siss, " << settings_->rtk_settings_ip_server_id << ", "
-               << std::to_string(settings_->rtk_settings_ip_server_port)
-               << ", TCP2Way \x0D";
-            send(ss.str());
-            if (!settings_->rtk_settings_keep_open)
-                additionalIpPorts_.push_back(settings_->rtk_settings_ip_server_id);
+            {
+                std::stringstream ss;
+                // In case this IP server was used before, old configuration is lost
+                // of course.
+                ss << "siss, " << ip_server.id << ", "
+                   << std::to_string(ip_server.port) << ", TCP2Way \x0D";
+                send(ss.str());
+            }
+            {
+                std::stringstream ss;
+                ss << "sdio, " << ip_server.id << ", " << ip_server.rtk_standard
+                   << ", +SBF+NMEA \x0D";
+                send(ss.str());
+            }
+            if (ip_server.send_gga != "off")
+            {
+                std::string rate = ip_server.send_gga;
+                if (ip_server.send_gga == "auto")
+                    rate = "sec1";
+                std::stringstream ss;
+                ss << "sno, Stream" << std::to_string(stream) << ", " << ip_server.id
+                   << ", GGA, " << rate << " \x0D";
+                ++stream;
+                send(ss.str());
+            }
         }
+    }
+
+    for (auto serial : settings_->rtk_settings.serial)
+    {
+        if (!serial.port.empty())
         {
+            if (serial.port.rfind("COM", 0) == 0)
+                send("scs, " + serial.port + ", baud" +
+                     std::to_string(serial.baud_rate) +
+                     ", bits8, No, bit1, none\x0D");
+
             std::stringstream ss;
-            ss << "sdio, " << settings_->rtk_settings_ip_server_id << ", "
-               << settings_->rtk_settings_ip_server_rtk_standard
+            ss << "sdio, " << serial.port << ", " << serial.rtk_standard
                << ", +SBF+NMEA \x0D";
             send(ss.str());
-        }
-        if (settings_->rtk_settings_ip_server_send_gga != "off")
-        {
-            std::string rate = settings_->rtk_settings_ip_server_send_gga;
-            if (settings_->rtk_settings_ip_server_send_gga == "auto")
-                rate = "sec1";
-            std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", "
-               << settings_->rtk_settings_ip_server_id << ", GGA, " << rate
-               << " \x0D";
-            ++stream;
-            send(ss.str());
-        }
-    }
-
-    if (!settings_->rtk_settings_serial_port.empty())
-    {
-        send("scs, " + settings_->rtk_settings_serial_port + ", baud" +
-             std::to_string(settings_->rtk_settings_serial_baud_rate) +
-             ", bits8, No, bit1, none\x0D");
-        if (!settings_->rtk_settings_keep_open)
-            additionalSerialPorts_.push_back(settings_->rtk_settings_serial_port);
-        std::stringstream ss;
-        ss << "sdio, " << settings_->rtk_settings_serial_port << ", "
-           << settings_->rtk_settings_serial_rtk_standard << ", +SBF+NMEA \x0D";
-        send(ss.str());
-        if (settings_->rtk_settings_serial_send_gga != "off")
-        {
-            std::string rate = settings_->rtk_settings_serial_send_gga;
-            if (settings_->rtk_settings_serial_send_gga == "auto")
-                rate = "sec1";
-            std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", "
-               << settings_->rtk_settings_serial_port << ", GGA, " << rate
-               << " \x0D";
-            ++stream;
-            send(ss.str());
+            if (serial.send_gga != "off")
+            {
+                std::string rate = serial.send_gga;
+                if (serial.send_gga == "auto")
+                    rate = "sec1";
+                std::stringstream ss;
+                ss << "sno, Stream" << std::to_string(stream) << ", " << serial.port
+                   << ", GGA, " << rate << " \x0D";
+                ++stream;
+                send(ss.str());
+            }
         }
     }
 
@@ -748,15 +785,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 ss << " sio, "
                    << "manual"
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_x))
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_y))
-                   << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->theta_z))
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_x)
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_y)
+                   << ", " << string_utilities::trimDecimalPlaces(settings_->theta_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -778,14 +809,11 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sial, "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_x))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_x)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_y))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_y)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->ant_lever_z))
+                   << string_utilities::trimDecimalPlaces(settings_->ant_lever_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -807,11 +835,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sipl, POI1, "
-                   << string_utilities::trimString(std::to_string(settings_->poi_x))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->poi_y))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->poi_z))
+                   << string_utilities::trimDecimalPlaces(settings_->poi_x) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->poi_y) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->poi_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -833,11 +859,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sivl, VSM1, "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_x))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_y))
-                   << ", "
-                   << string_utilities::trimString(std::to_string(settings_->vsm_z))
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_x) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_y) << ", "
+                   << string_utilities::trimDecimalPlaces(settings_->vsm_z)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -901,11 +925,9 @@ void io_comm_rx::Comm_IO::configureRx()
             {
                 std::stringstream ss;
                 ss << "sism, "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->att_std_dev))
+                   << string_utilities::trimDecimalPlaces(settings_->att_std_dev)
                    << ", "
-                   << string_utilities::trimString(
-                          std::to_string(settings_->pos_std_dev))
+                   << string_utilities::trimDecimalPlaces(settings_->pos_std_dev)
                    << " \x0D";
                 send(ss.str());
             } else
@@ -924,17 +946,14 @@ void io_comm_rx::Comm_IO::configureRx()
                  std::to_string(settings_->ins_vsm_ip_server_port) +
                  ", TCP2Way \x0D");
             send("sdio, IPS2, NMEA, none\x0D");
-            if (!settings_->ins_vsm_keep_open)
-                additionalIpPorts_.push_back(settings_->ins_vsm_ip_server_id);
         }
         if (!settings_->ins_vsm_serial_port.empty())
         {
-            send("scs, " + settings_->ins_vsm_serial_port + ", baud" +
-                 std::to_string(settings_->ins_vsm_serial_baud_rate) +
-                 ", bits8, No, bit1, none\x0D");
+            if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
+                send("scs, " + settings_->ins_vsm_serial_port + ", baud" +
+                     std::to_string(settings_->ins_vsm_serial_baud_rate) +
+                     ", bits8, No, bit1, none\x0D");
             send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
-            if (!settings_->ins_vsm_keep_open)
-                additionalSerialPorts_.push_back(settings_->ins_vsm_serial_port);
         }
         if ((settings_->ins_vsm_ros_source == "odometry") ||
             (settings_->ins_vsm_ros_source == "twist"))

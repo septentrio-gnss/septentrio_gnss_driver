@@ -373,55 +373,96 @@ bool rosaic_node::ROSaicNode::getROSParams()
         settings_.ins_use_poi = true;
     }
 
-    // Correction service parameters
+    // RTK correction parameters
     // NTRIP
-    param("rtk_settings/keep_open", settings_.rtk_settings_keep_open, true);
-    param("rtk_settings/ntrip/caster", settings_.rtk_settings_ntrip_caster,
-          std::string());
-    getUint32Param("rtk_settings/ntrip/caster_port",
-                   settings_.rtk_settings_ntrip_caster_port,
-                   static_cast<uint32_t>(0));
-    param("rtk_settings/ntrip/username", settings_.rtk_settings_ntrip_username,
-          std::string());
-    if (!param("rtk_settings/ntrip/password", settings_.rtk_settings_ntrip_password,
-               std::string()))
+    for (uint8_t i = 1; i < 4; ++i)
     {
-        uint32_t pwd_tmp;
-        getUint32Param("rtk_settings/ntrip/password", pwd_tmp,
-                       static_cast<uint32_t>(0));
-        settings_.rtk_settings_ntrip_password = std::to_string(pwd_tmp);
+        RtkNtrip ntripSettings;
+        std::string ntrip = "ntrip_" + std::to_string(i);
+
+        param("rtk_settings/" + ntrip + "/id", ntripSettings.id, std::string());
+        if (ntripSettings.id.empty())
+            continue;
+
+        param("rtk_settings/" + ntrip + "/caster", ntripSettings.caster,
+              std::string());
+        getUint32Param("rtk_settings/" + ntrip + "/caster_port",
+                       ntripSettings.caster_port, static_cast<uint32_t>(0));
+        param("rtk_settings/" + ntrip + "/username", ntripSettings.username,
+              std::string());
+        if (!param("rtk_settings/" + ntrip + "/password", ntripSettings.password,
+                   std::string()))
+        {
+            uint32_t pwd_tmp;
+            getUint32Param("rtk_settings/" + ntrip + "/password", pwd_tmp,
+                           static_cast<uint32_t>(0));
+            ntripSettings.password = std::to_string(pwd_tmp);
+        }
+        param("rtk_settings/" + ntrip + "/mountpoint", ntripSettings.mountpoint,
+              std::string());
+        param("rtk_settings/" + ntrip + "/version", ntripSettings.version,
+              std::string("v2"));
+        param("rtk_settings/" + ntrip + "/tls", ntripSettings.tls, false);
+        if (ntripSettings.tls)
+            param("rtk_settings/" + ntrip + "/fingerprint",
+                  ntripSettings.fingerprint, std::string(""));
+        param("rtk_settings/" + ntrip + "/rtk_standard", ntripSettings.rtk_standard,
+              std::string("auto"));
+        param("rtk_settings/" + ntrip + "/send_gga", ntripSettings.send_gga,
+              std::string("auto"));
+        if (ntripSettings.send_gga.empty())
+            ntripSettings.send_gga = "off";
+        param("rtk_settings/" + ntrip + "/keep_open", ntripSettings.keep_open, true);
+
+        settings_.rtk_settings.ntrip.push_back(ntripSettings);
     }
-    param("rtk_settings/ntrip/mountpoint", settings_.rtk_settings_mountpoint,
-          std::string());
-    param("rtk_settings/ntrip/version", settings_.rtk_settings_ntrip_version,
-          std::string("v2"));
-    param("rtk_settings/ntrip/rtk_standard",
-          settings_.rtk_settings_ntrip_rtk_standard, std::string("auto"));
-    param("rtk_settings/ntrip/send_gga", settings_.rtk_settings_ntrip_send_gga,
-          std::string("auto"));
-    if (settings_.rtk_settings_ntrip_send_gga.empty())
-        settings_.rtk_settings_ntrip_send_gga = "off";
     // IP server
-    param("rtk_settings/ip_server/id", settings_.rtk_settings_ip_server_id,
-          std::string(""));
-    getUint32Param("rtk_settings/ip_server/port",
-                   settings_.rtk_settings_ip_server_port, static_cast<uint32_t>(0));
-    param("rtk_settings/ip_server/rtk_standard",
-          settings_.rtk_settings_ip_server_rtk_standard, std::string("auto"));
-    param("rtk_settings/ip_server/send_gga",
-          settings_.rtk_settings_ip_server_send_gga, std::string("auto"));
-    if (settings_.rtk_settings_ip_server_send_gga.empty())
-        settings_.rtk_settings_ip_server_send_gga = "off";
+    for (uint8_t i = 1; i < 6; ++i)
+    {
+        RtkIpServer ipSettings;
+        std::string ips = "ip_server_" + std::to_string(i);
+
+        param("rtk_settings/" + ips + "/id", ipSettings.id, std::string(""));
+        if (ipSettings.id.empty())
+            continue;
+
+        getUint32Param("rtk_settings/" + ips + "/port", ipSettings.port,
+                       static_cast<uint32_t>(0));
+        param("rtk_settings/" + ips + "/rtk_standard", ipSettings.rtk_standard,
+              std::string("auto"));
+        param("rtk_settings/" + ips + "/send_gga", ipSettings.send_gga,
+              std::string("auto"));
+        if (ipSettings.send_gga.empty())
+            ipSettings.send_gga = "off";
+        param("rtk_settings/" + ips + "/keep_open", ipSettings.keep_open, true);
+
+        settings_.rtk_settings.ip_server.push_back(ipSettings);
+    }
     // Serial
-    param("rtk_settings/serial/port", settings_.rtk_settings_serial_port,
-          std::string(""));
-    getUint32Param("rtk_settings/serial/baud_rate",
-                   settings_.rtk_settings_serial_baud_rate,
-                   static_cast<uint32_t>(115200));
-    param("rtk_settings/serial/rtk_standard",
-          settings_.rtk_settings_serial_rtk_standard, std::string("auto"));
-    param("rtk_settings/serial/send_gga", settings_.rtk_settings_serial_send_gga,
-          std::string("auto"));
+    for (uint8_t i = 1; i < 6; ++i)
+    {
+        RtkSerial serialSettings;
+        std::string serial = "serial_" + std::to_string(i);
+
+        param("rtk_settings/" + serial + "/port", serialSettings.port,
+              std::string());
+        if (serialSettings.port.empty())
+            continue;
+
+        getUint32Param("rtk_settings/" + serial + "/baud_rate",
+                       serialSettings.baud_rate, static_cast<uint32_t>(115200));
+        param("rtk_settings/" + serial + "/rtk_standard",
+              serialSettings.rtk_standard, std::string("auto"));
+        param("rtk_settings/" + serial + "/send_gga", serialSettings.send_gga,
+              std::string("auto"));
+        if (serialSettings.send_gga.empty())
+            serialSettings.send_gga = "off";
+        param("rtk_settings/" + serial + "/keep_open", serialSettings.keep_open,
+              true);
+
+        settings_.rtk_settings.serial.push_back(serialSettings);
+    }
+
     {
         // deprecation warnings
         std::string tempString;
@@ -469,7 +510,6 @@ bool rosaic_node::ROSaicNode::getROSParams()
     // VSM - velocity sensor measurements for INS
     if (settings_.septentrio_receiver_type == "ins")
     {
-        param("ins_vsm/keep_open", settings_.ins_vsm_keep_open, true);
         param("ins_vsm/ros/source", settings_.ins_vsm_ros_source, std::string(""));
 
         bool ins_use_vsm = false;
@@ -481,22 +521,26 @@ bool rosaic_node::ROSaicNode::getROSParams()
                                            " -> VSM input will not be used!");
         param("ins_vsm/ip_server/id", settings_.ins_vsm_ip_server_id,
               std::string(""));
-        getUint32Param("ins_vsm/ip_server/port", settings_.ins_vsm_ip_server_port,
-                       static_cast<uint32_t>(0));
         if (!settings_.ins_vsm_ip_server_id.empty())
         {
+            getUint32Param("ins_vsm/ip_server/port",
+                           settings_.ins_vsm_ip_server_port,
+                           static_cast<uint32_t>(0));
+            param("ins_vsm/ip_server/keep_open",
+                  settings_.ins_vsm_ip_server_keep_open, true);
             this->log(
                 LogLevel::INFO,
                 "external velocity sensor measurements via ip_server are used.");
         }
 
         param("ins_vsm/serial/port", settings_.ins_vsm_serial_port, std::string(""));
-
         if (!settings_.ins_vsm_serial_port.empty())
         {
             getUint32Param("ins_vsm/serial/baud_rate",
                            settings_.ins_vsm_serial_baud_rate,
                            static_cast<uint32_t>(115200));
+            param("ins_vsm/serial/keep_open", settings_.ins_vsm_serial_keep_open,
+                  true);
             this->log(LogLevel::INFO,
                       "external velocity sensor measurements via serial are used.");
         }

@@ -258,8 +258,6 @@ namespace io_comm_rx {
 
         //! Communication ports
         std::string mainPort_;
-        std::list<std::string> additionalIpPorts_;
-        std::list<std::string> additionalSerialPorts_;
 
         //! Host currently connected to
         std::string host_;
