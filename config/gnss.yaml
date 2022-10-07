@@ -44,6 +44,7 @@ use_gnss_time: false
 
 rtk_settings:  
   ntrip_1:
+    id: ""
     caster: ""
     caster_port: 2101
     username: ""

@@ -161,8 +161,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
     }
     if (!settings_->ins_vsm_ip_server_id.empty())
     {
-        if (!settings_->ins_vsm_ip_server_id.empty() &&
-            !settings_->ins_vsm_ip_server_keep_open)
+        if (!settings_->ins_vsm_ip_server_keep_open)
         {
             send("sdio, " + settings_->ins_vsm_ip_server_id + ",  auto, none\x0D");
             send("siss, " + settings_->ins_vsm_ip_server_id + ",  0\x0D");
@@ -170,8 +169,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
     }
     if (!settings_->ins_vsm_serial_port.empty())
     {
-        if (!settings_->ins_vsm_serial_port.empty() &&
-            !settings_->ins_vsm_serial_keep_open)
+        if (!settings_->ins_vsm_serial_keep_open)
         {
             if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
                 send("scs, " + settings_->ins_vsm_serial_port +
@@ -675,6 +673,11 @@ void io_comm_rx::Comm_IO::configureRx()
                 std::stringstream ss;
                 ss << "sntt, " << ntrip.id << ", on, \"" << ntrip.fingerprint
                    << "\" \x0D";
+                send(ss.str());
+            } else
+            {
+                std::stringstream ss;
+                ss << "sntt, " << ntrip.id << ", off \x0D";
                 send(ss.str());
             }
         }
