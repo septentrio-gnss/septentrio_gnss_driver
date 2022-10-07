@@ -141,7 +141,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
     for (auto port : additionalSerialPorts_)
     {
         send("sdio, " + port + ",  auto, none\x0D");
-        if (port[0] == 'C')
+        if (port.rfind("COM", 0) == 0)
             send("scs, " + port + ", baud115200, bits8, No, bit1, none\x0D");
     }
     if (!settings_->rtk_settings_keep_open &&
@@ -681,7 +681,7 @@ void io_comm_rx::Comm_IO::configureRx()
 
     if (!settings_->rtk_settings_serial_port.empty())
     {
-        if (settings_->rtk_settings_serial_port[0] == 'C')
+        if (settings_->rtk_settings_serial_port.rfind("COM", 0) == 0)
             send("scs, " + settings_->rtk_settings_serial_port + ", baud" +
                  std::to_string(settings_->rtk_settings_serial_baud_rate) +
                  ", bits8, No, bit1, none\x0D");
@@ -914,7 +914,7 @@ void io_comm_rx::Comm_IO::configureRx()
         }
         if (!settings_->ins_vsm_serial_port.empty())
         {
-            if (settings_->ins_vsm_serial_port[0] == 'C')
+            if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
                 send("scs, " + settings_->ins_vsm_serial_port + ", baud" +
                      std::to_string(settings_->ins_vsm_serial_baud_rate) +
                      ", bits8, No, bit1, none\x0D");
