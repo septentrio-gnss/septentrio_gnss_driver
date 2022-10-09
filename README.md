@@ -269,7 +269,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   activate_debug_log: false
   ```
-  In order to launch ROSaic, one must specify all `arg` fields of the `rover.py` file which have no associated default values, i.e. for now only the `file_name` field. Hence, the launch command reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`.
+  In order to launch ROSaic, one must specify all `arg` fields of the `rover.py` file which have no associated default values, i.e. for now only the `file_name` field. Hence, the launch command reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. This can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.py`and `rover_node.py` respectively.
 
 </details>
 

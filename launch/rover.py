@@ -60,6 +60,7 @@ def generate_launch_description():
         package='rclcpp_components',
         executable='component_container',
         emulate_tty=True,
+        sigterm_timeout = '10',
         composable_node_descriptions=[composable_node],
         output='screen'
     )
