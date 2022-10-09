@@ -130,54 +130,59 @@ io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, Settings* settings) :
 
 io_comm_rx::Comm_IO::~Comm_IO()
 {
-    std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-    manager_.get()->send(cmd);
-    send("sdio, " + mainPort_ + ", auto, none\x0D");
-    for (auto ntrip : settings_->rtk_settings.ntrip)
+    if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
     {
-        if (!ntrip.id.empty() && !ntrip.keep_open)
+        std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+        manager_.get()->send(cmd);
+        send("sdio, " + mainPort_ + ", auto, none\x0D");
+        for (auto ntrip : settings_->rtk_settings.ntrip)
         {
-            send("snts, " + ntrip.id + ", off \x0D");
+            if (!ntrip.id.empty() && !ntrip.keep_open)
+            {
+                send("snts, " + ntrip.id + ", off \x0D");
+            }
         }
-    }
-    for (auto ip_server : settings_->rtk_settings.ip_server)
-    {
-        if (!ip_server.id.empty() && !ip_server.keep_open)
+        for (auto ip_server : settings_->rtk_settings.ip_server)
         {
-            send("sdio, " + ip_server.id + ",  auto, none\x0D");
-            send("siss, " + ip_server.id + ",  0\x0D");
+            if (!ip_server.id.empty() && !ip_server.keep_open)
+            {
+                send("sdio, " + ip_server.id + ",  auto, none\x0D");
+                send("siss, " + ip_server.id + ",  0\x0D");
+            }
         }
-    }
-    for (auto serial : settings_->rtk_settings.serial)
-    {
-        if (!serial.port.empty() && !serial.keep_open)
+        for (auto serial : settings_->rtk_settings.serial)
         {
-            send("sdio, " + serial.port + ",  auto, none\x0D");
-            if (serial.port.rfind("COM", 0) == 0)
-                send("scs, " + serial.port +
-                     ", baud115200, bits8, No, bit1, none\x0D");
+            if (!serial.port.empty() && !serial.keep_open)
+            {
+                send("sdio, " + serial.port + ",  auto, none\x0D");
+                if (serial.port.rfind("COM", 0) == 0)
+                    send("scs, " + serial.port +
+                         ", baud115200, bits8, No, bit1, none\x0D");
+            }
         }
-    }
-    if (!settings_->ins_vsm_ip_server_id.empty())
-    {
-        if (!settings_->ins_vsm_ip_server_keep_open)
+        if (!settings_->ins_vsm_ip_server_id.empty())
         {
-            send("sdio, " + settings_->ins_vsm_ip_server_id + ",  auto, none\x0D");
-            send("siss, " + settings_->ins_vsm_ip_server_id + ",  0\x0D");
+            if (!settings_->ins_vsm_ip_server_keep_open)
+            {
+                send("sdio, " + settings_->ins_vsm_ip_server_id +
+                     ",  auto, none\x0D");
+                send("siss, " + settings_->ins_vsm_ip_server_id + ",  0\x0D");
+            }
         }
-    }
-    if (!settings_->ins_vsm_serial_port.empty())
-    {
-        if (!settings_->ins_vsm_serial_keep_open)
+        if (!settings_->ins_vsm_serial_port.empty())
         {
-            if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
-                send("scs, " + settings_->ins_vsm_serial_port +
-                     ", baud115200, bits8, No, bit1, none\x0D");
-            send("sdio, " + settings_->ins_vsm_serial_port + ",  auto, none\x0D");
+            if (!settings_->ins_vsm_serial_keep_open)
+            {
+                if (settings_->ins_vsm_serial_port.rfind("COM", 0) == 0)
+                    send("scs, " + settings_->ins_vsm_serial_port +
+                         ", baud115200, bits8, No, bit1, none\x0D");
+                send("sdio, " + settings_->ins_vsm_serial_port +
+                     ",  auto, none\x0D");
+            }
         }
-    }
 
-    send("logout \x0D");
+        send("logout \x0D");
+    }
 
     stopping_ = true;
     connectionThread_->join();
