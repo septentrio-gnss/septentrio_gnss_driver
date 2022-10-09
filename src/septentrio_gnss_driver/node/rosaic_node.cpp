@@ -187,7 +187,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.tf", settings_.publish_tf, false);
 
     // Datum and marker-to-ARP offset
-    param("datum", settings_.datum, std::string("ETRS89"));
+    param("datum", settings_.datum, std::string("WGS84"));
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
     if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))

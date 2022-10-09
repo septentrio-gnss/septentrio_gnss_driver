@@ -36,7 +36,7 @@ septentrio_gnss_driver:
 
     multi_antenna: true
 
-    datum: ETRS89
+    datum: WGS84
 
     poi_to_arp:
       delta_e: 0.0
