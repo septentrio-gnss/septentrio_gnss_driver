@@ -39,7 +39,7 @@ receiver_type: ins
 
 multi_antenna: true
 
-datum: ETRS89
+datum: WGS84
 
 att_offset:
   heading: 0.0
