@@ -52,7 +52,7 @@ def generate_launch_description():
             executable='septentrio_gnss_driver_node',
             name='septentrio_gnss_driver',
             emulate_tty=True,
-            sigterm_timeout = '10',
+            sigterm_timeout = '20',
             parameters=[LaunchConfiguration(name_arg_file_path)])
 
     return launch.LaunchDescription([arg_file_name, arg_file_path, node, tf_imu, tf_gnss, tf_vsm, tf_aux1])

@@ -137,7 +137,6 @@ io_comm_rx::Comm_IO::~Comm_IO()
         send("sdio, " + mainPort_ + ", auto, none\x0D");
         for (auto ntrip : settings_->rtk_settings.ntrip)
         {
-
             if (!ntrip.id.empty() && !ntrip.keep_open)
             {
                 send("snts, " + ntrip.id + ", off \x0D");

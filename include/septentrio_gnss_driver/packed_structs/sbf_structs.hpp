@@ -85,7 +85,7 @@
 #endif
 //! Max number of vector info sub-blocks
 #ifndef MAXSB_NBVECTORINFO
-#define MAXSB_NBVECTORINFO 40
+#define MAXSB_NBVECTORINFO 30
 #endif
 //! Max number of bytes that INSNavCart sub-block can consist of
 #ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1
