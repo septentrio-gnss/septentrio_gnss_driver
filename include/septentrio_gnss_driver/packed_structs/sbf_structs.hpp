@@ -28,93 +28,35 @@
 //
 // *****************************************************************************
 
-#ifndef SBFStructs_HPP
-#define SBFStructs_HPP
+#pragma once
 
 #include <cstdint>
 
 //! Using maximum value of NR_OF_LOGICALCHANNELS for SBF definitions
-#ifndef NR_OF_LOGICALCHANNELS
-#define NR_OF_LOGICALCHANNELS 80
-#endif
+static const uint8_t NR_OF_LOGICALCHANNELS = 80;
 //! Inmarsat is a British satellite telecommunications company.
-#ifndef MAX_NB_INMARSATCHANNELS
-#define MAX_NB_INMARSATCHANNELS 1
-#endif
+static const uint8_t MAX_NB_INMARSATCHANNELS = 1;
 //! Using maximum value of MAX_NR_OF_SIGNALS_PER_SATELLITE for SBF definitions
-#ifndef MAX_NR_OF_SIGNALS_PER_SATELLITE
-#define MAX_NR_OF_SIGNALS_PER_SATELLITE 7
-#endif
+static const uint8_t MAX_NR_OF_SIGNALS_PER_SATELLITE = 7;
 //! Using maximum value of NR_OF_ANTENNAS for SBF definitions
-#ifndef NR_OF_ANTENNAS
-#define NR_OF_ANTENNAS 3
-#endif
+static const uint8_t NR_OF_ANTENNAS = 3;
 //! Maximum number of antennas that mosaic etc. can handle
-#ifndef MAXSB_NBRANTENNA
-#define MAXSB_NBRANTENNA 4
-#endif
+static const uint8_t MAXSB_NBRANTENNA = 4;
 //! Max number of bytes that ChannelSatInfo sub-block can consist of
-#ifndef MAXSB_CHANNELSATINFO
-#define MAXSB_CHANNELSATINFO (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
-#endif
+static const uint8_t MAXSB_CHANNELSATINFO =
+    (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS);
 //! Max number of bytes that ChannelStateInfo sub-block can consist of
-#ifndef MAXSB_CHANNELSTATEINFO
-#define MAXSB_CHANNELSTATEINFO (MAXSB_CHANNELSATINFO * MAXSB_NBRANTENNA)
-#endif
+static const uint16_t MAXSB_CHANNELSTATEINFO =
+    (MAXSB_CHANNELSATINFO * MAXSB_NBRANTENNA);
 //! Max number of bytes that MeasEpochChannelType1 sub-block can consist of
-#ifndef MAXSB_MEASEPOCH_T1
-#define MAXSB_MEASEPOCH_T1 (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
-#endif
+static const uint8_t MAXSB_MEASEPOCH_T1 =
+    (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS);
 //! Max number of bytes that MeasEpochChannelType2 sub-block can consist of
-#ifndef MAXSB_MEASEPOCH_T2
-#define MAXSB_MEASEPOCH_T2                                                          \
-    ((MAXSB_MEASEPOCH_T1) *                                                         \
-     (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1))
-#endif
-//! Max number of bytes that INSNavGeod sub-block can consist of
-#ifndef SBF_INSNAVGEOD_LENGTH_1
-#define SBF_INSNAVGEOD_LENGTH_1 16
-#endif
-//! Max number of bytes that INSNavCart sub-block can consist of
-#ifndef SBF_INSNAVCART_LENGTH_1
-#define SBF_INSNAVCART_LENGTH_1 16
-#endif
-//! Max number of bytes that INSNavGeod sub-block can consist of
-#ifndef SBF_EXTEVENTINSNAVGEOD_LENGTH_1
-#define SBF_EXTEVENTINSNAVGEOD_LENGTH_1 16
-#endif
+static const uint16_t MAXSB_MEASEPOCH_T2 =
+    ((MAXSB_MEASEPOCH_T1) *
+     (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1));
 //! Max number of vector info sub-blocks
-#ifndef MAXSB_NBVECTORINFO
-#define MAXSB_NBVECTORINFO 30
-#endif
-//! Max number of bytes that INSNavCart sub-block can consist of
-#ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1
-#define SBF_EXTEVENTINSNAVCART_LENGTH_1 16
-#endif
-//! Max number of bytes that the Data part of the ChannelStatus struct can consist of
-#ifndef SBF_CHANNELSTATUS_DATA_LENGTH
-#define SBF_CHANNELSTATUS_DATA_LENGTH                                               \
-    MAXSB_CHANNELSATINFO * sizeof(ChannelSatInfo) +                                 \
-        MAXSB_CHANNELSTATEINFO * sizeof(ChannelStateInfo)
-#endif
-//! Max number of bytes that the data part of the MeasEpoch struct can consist of
-#ifndef MEASEPOCH_DATA_LENGTH
-#define MEASEPOCH_DATA_LENGTH                                                       \
-    (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) +                           \
-     MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
-#endif
-//! Max size for ExtSensorMeasSet_1 sub-block
-#ifndef SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH
-#define SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 4
-#endif
-
-// Couple of redefinitions
-#define SBF_INSNAVCART_LENGTH SBF_INSNAVCART_LENGTH_1
-#define SBF_EXTSENSORMEAS_1_EXTSENSORMEAS_LENGTH                                    \
-    SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH
-#define SBF_EXTEVENTINSNAVCART_LENGTH SBF_EXTEVENTINSNAVCART_LENGTH_1
-#define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
-#define SBF_INSNAVGEOD_LENGTH         SBF_INSNAVGEOD_LENGTH_1
+static const uint8_t MAXSB_NBVECTORINFO = 30;
 
 //! 0x24 is ASCII for $ - 1st byte in each message
 static const uint8_t SBF_SYNC_BYTE_1 = 0x24;
@@ -1837,5 +1779,3 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
     hasImuMeas = hasAcc && hasOmega;
     return true;
 };
-
-#endif // SBFStructs_HPP
