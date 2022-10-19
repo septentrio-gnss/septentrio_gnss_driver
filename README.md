@@ -115,7 +115,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   
   receiver_type: gnss
 
-  datum: WGS84
+  datum: Default
 
   poi_to_arp:
     delta_e: 0.0
@@ -389,9 +389,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Datum</summary>
   
-  + `datum`: datum that (ellipsoidal) height should be referenced to in all published ROS messages
+  + `datum`: With this command, the datum the coordinates should refer to is selected. With setting it to `Default`, the datum depends on the positioning mode, e.g. `WGS84` for standalone positioning.
     + Since the standardized GGA message does only provide the orthometric height (= MSL height = distance from Earth's surface to geoid) and the geoid undulation (distance from geoid to ellipsoid) for which non-WGS84 datums cannot be specified, it does not affect the GGA message.
-    + default: `WGS84`
+    + default: `Default`
   </details>
   
   <details>

@@ -39,7 +39,7 @@ receiver_type: gnss
 
 multi_antenna: false
 
-datum: WGS84
+datum: Default
 
 poi_to_arp:
   delta_e: 0.0
