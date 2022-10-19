@@ -444,6 +444,9 @@ void io_comm_rx::Comm_IO::configureRx()
     // ellipsoidal height)
     {
         std::stringstream ss;
+        // WGS84 is equivalent to Default and kept for backwards compatibility
+        if (settings_->datum == "Default")
+            settings_->datum = "WGS84";
         ss << "sgd, " << settings_->datum << "\x0D";
         send(ss.str());
     }

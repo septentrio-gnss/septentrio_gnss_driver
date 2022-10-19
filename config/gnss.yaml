@@ -25,7 +25,7 @@ receiver_type: gnss
 
 multi_antenna: true
 
-datum: WGS84
+datum: Default
 
 att_offset:
   heading: 0.0
