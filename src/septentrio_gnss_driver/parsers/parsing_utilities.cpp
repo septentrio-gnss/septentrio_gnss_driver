@@ -351,10 +351,10 @@ namespace parsing_utilities {
     Eigen::Quaterniond q_ned_ecef(double lat, double lon)
     {
         static double pihalf = boost::math::constants::pi<double>() / 2.0;
-        double sp = sin((-lat - pihalf) / 2);
-        double cp = cos((-lat - pihalf) / 2);
-        double sy = sin(lon / 2);
-        double cy = cos(lon / 2);
+        double sp = sin((-lat - pihalf) / 2.0);
+        double cp = cos((-lat - pihalf) / 2.0);
+        double sy = sin(lon / 2.0);
+        double cy = cos(lon / 2.0);
 
         return Eigen::Quaterniond(cp * cy, -sp * sy, sp * cy, cp * sy);
     }
@@ -390,14 +390,14 @@ namespace parsing_utilities {
         double sin_lon = sin(lon);
         double cos_lon = cos(lon);
 
-        R(0, 0) = cos_lon;
-        R(0, 1) = -sin_lon * sin_lat;
-        R(0, 2) = sin_lon * cos_lat;
-        R(1, 0) = -sin_lon;
-        R(1, 1) = -cos_lon * sin_lat;
-        R(1, 2) = cos_lon * cos_lat;
-        R(2, 0) = 0.0;
-        R(2, 1) = -cos_lat;
+        R(0, 0) = -cos_lon * sin_lat;
+        R(0, 1) = -sin_lon;
+        R(0, 2) = -cos_lon * cos_lat;
+        R(1, 0) = -sin_lon * sin_lat;
+        R(1, 1) = cos_lon;
+        R(1, 2) = -sin_lon * cos_lat;
+        R(2, 0) = cos_lat;
+        R(2, 1) = 0.0;
         R(2, 2) = -sin_lat;
 
         return R;
