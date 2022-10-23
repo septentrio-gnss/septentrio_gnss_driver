@@ -67,7 +67,7 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
         double roll = 0.0;
         if (validValue(last_atteuler_.roll))
             roll = last_atteuler_.roll;
-        msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
+        msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternionMsg(
             deg2rad(yaw), deg2rad(pitch), deg2rad(roll));
         msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
         msg.pose.pose.position.y = rad2deg(last_pvtgeodetic_.latitude);
@@ -126,8 +126,9 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
             if (validValue(last_insnavgeod_.roll))
                 roll = last_insnavgeod_.roll;
             // Attitude
-            msg.pose.pose.orientation = parsing_utilities::convertEulerToQuaternion(
-                deg2rad(yaw), deg2rad(pitch), deg2rad(roll));
+            msg.pose.pose.orientation =
+                parsing_utilities::convertEulerToQuaternionMsg(
+                    deg2rad(yaw), deg2rad(pitch), deg2rad(roll));
         } else
         {
             msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
@@ -330,7 +331,7 @@ ImuMsg io_comm_rx::RxMessage::ImuCallback()
                         validValue(last_insnavgeod_.roll))
                     {
                         msg.orientation =
-                            parsing_utilities::convertEulerToQuaternion(
+                            parsing_utilities::convertEulerToQuaternionMsg(
                                 deg2rad(last_insnavgeod_.heading),
                                 deg2rad(last_insnavgeod_.pitch),
                                 deg2rad(last_insnavgeod_.roll));
@@ -711,7 +712,7 @@ LocalizationUtmMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
     {
         // Attitude
         msg.pose.pose.orientation =
-            parsing_utilities::convertEulerToQuaternion(yaw, pitch, roll);
+            parsing_utilities::convertEulerToQuaternionMsg(yaw, pitch, roll);
     } else
     {
         msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();

@@ -303,12 +303,11 @@ namespace parsing_utilities {
 
     //! The rotational sequence convention we adopt here (and Septentrio receivers'
     //! pitch, roll, yaw definition too) is the yaw-pitch-roll sequence, i.e. the
-    //! 3-2-1 sequence: The body first does yaw around the Z=Down-axis, then pitches
-    //! around the new Y=East=right-axis and finally rolls around the new
-    //! X=North=forward-axis.
-    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch, double roll)
+    //! 3-2-1 sequence: The body first does yaw around the z-axis, then pitches
+    //! around the new y-axis and finally rolls around the new x-axis.
+    Eigen::Quaterniond convertEulerToQuaternion(double roll, double pitch,
+                                                double yaw)
     {
-        // Abbreviations for the angular functions
         double cy = std::cos(yaw * 0.5);
         double sy = std::sin(yaw * 0.5);
         double cp = std::cos(pitch * 0.5);
@@ -316,13 +315,89 @@ namespace parsing_utilities {
         double cr = std::cos(roll * 0.5);
         double sr = std::sin(roll * 0.5);
 
-        QuaternionMsg q;
-        q.w = cr * cp * cy + sr * sp * sy;
-        q.x = sr * cp * cy - cr * sp * sy;
-        q.y = cr * sp * cy + sr * cp * sy;
-        q.z = cr * cp * sy - sr * sp * cy;
+        return Eigen::Quaterniond(
+            cr * cp * cy + sr * sp * sy, sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy);
+    }
 
-        return q;
+    QuaternionMsg convertEulerToQuaternionMsg(double yaw, double pitch, double roll)
+    {
+        QuaternionMsg qm;
+
+        Eigen::Quaterniond q = convertEulerToQuaternion(roll, pitch, yaw);
+
+        qm.w = q.w();
+        qm.x = q.x();
+        qm.y = q.y();
+        qm.z = q.z();
+
+        return qm;
+    }
+
+    Eigen::Quaterniond q_enu_ecef(double lat, double lon)
+    {
+        static double pihalf = boost::math::constants::pi<double>() / 2.0;
+        double sr = sin((pihalf - lat) / 2.0);
+        double cr = cos((pihalf - lat) / 2.0);
+        double sy = sin((lon + pihalf) / 2.0);
+        double cy = cos((lon + pihalf) / 2.0);
+
+        return Eigen::Quaterniond(cr * cy, sr * cy, sr * sy, cr * sy);
+    }
+
+    Eigen::Quaterniond q_ned_ecef(double lat, double lon)
+    {
+        static double pihalf = boost::math::constants::pi<double>() / 2.0;
+        double sp = sin((-lat - pihalf) / 2);
+        double cp = cos((-lat - pihalf) / 2);
+        double sy = sin(lon / 2);
+        double cy = cos(lon / 2);
+
+        return Eigen::Quaterniond(cp * cy, -sp * sy, sp * cy, cp * sy);
+    }
+
+    Eigen::Matrix3d R_enu_ecef(double lat, double lon)
+    {
+        Eigen::Matrix3d R;
+
+        double sin_lat = sin(lat);
+        double cos_lat = cos(lat);
+        double sin_lon = sin(lon);
+        double cos_lon = cos(lon);
+
+        R(0, 0) = -sin_lon;
+        R(0, 1) = -cos_lon * sin_lat;
+        R(0, 2) = cos_lon * cos_lat;
+        R(1, 0) = cos_lon;
+        R(1, 1) = -sin_lon * sin_lat;
+        R(1, 2) = sin_lon * cos_lat;
+        R(2, 0) = 0.0;
+        R(2, 1) = cos_lat;
+        R(2, 2) = sin_lat;
+
+        return R;
+    }
+
+    Eigen::Matrix3d R_ned_ecef(double lat, double lon)
+    {
+        Eigen::Matrix3d R;
+
+        double sin_lat = sin(lat);
+        double cos_lat = cos(lat);
+        double sin_lon = sin(lon);
+        double cos_lon = cos(lon);
+
+        R(0, 0) = cos_lon;
+        R(0, 1) = -sin_lon * sin_lat;
+        R(0, 2) = sin_lon * cos_lat;
+        R(1, 0) = -sin_lon;
+        R(1, 1) = -cos_lon * sin_lat;
+        R(1, 2) = cos_lon * cos_lat;
+        R(2, 0) = 0.0;
+        R(2, 1) = -cos_lat;
+        R(2, 2) = -sin_lat;
+
+        return R;
     }
 
     std::string convertUserPeriodToRxCommand(uint32_t period_user)
@@ -356,4 +431,5 @@ namespace parsing_utilities {
     uint32_t getTow(const uint8_t* buffer) { return parseUInt32(buffer + 8); }
 
     uint16_t getWnc(const uint8_t* buffer) { return parseUInt16(buffer + 12); }
+
 } // namespace parsing_utilities
