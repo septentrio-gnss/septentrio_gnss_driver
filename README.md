@@ -3,16 +3,16 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, a ROS2 version is available.
+This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, a ROS2 version is available in the branch `ros2`.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
-- Supports serial, TCP/IP and USB connections, the latter being compatible with both serial and TCP/IP protocols
+- Supports serial, TCP/IP and USB connections, the latter being compatible with both serial (RNDIS) and TCP/IP protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
 - Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
-- Easy configuration of correction services
+- Easy configuration of multiple RTK corrections simultaneously (via NTRIP, TCP/IP stream, or serial)
 - Can play back PCAP capture logs for testing purposes
 - Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
 - Easy to add support for more log types
@@ -77,7 +77,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
   ```
-  # Example Configuration Settings for the Rover Rx
+  # Example configuration Settings for the Rover Rx
+
 
   device: tcp://192.168.3.1:28784
 
@@ -114,7 +115,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   
   receiver_type: gnss
 
-  datum: ETRS89
+  datum: Default
 
   poi_to_arp:
     delta_e: 0.0
@@ -388,9 +389,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Datum</summary>
   
-  + `datum`: datum that (ellipsoidal) height should be referenced to in all published ROS messages
+  + `datum`: With this command, the datum the coordinates should refer to is selected. With setting it to `Default`, the datum depends on the positioning mode, e.g. `WGS84` for standalone positioning.
     + Since the standardized GGA message does only provide the orthometric height (= MSL height = distance from Earth's surface to geoid) and the geoid undulation (distance from geoid to ellipsoid) for which non-WGS84 datums cannot be specified, it does not affect the GGA message.
-    + default: `ETRS89`
+    + default: `Default`
   </details>
   
   <details>

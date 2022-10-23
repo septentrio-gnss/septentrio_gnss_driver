@@ -627,7 +627,6 @@ io_comm_rx::RxMessage::TwistCallback(bool fromIns /* = false*/)
 LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
 {
     LocalizationMsg msg;
-    msg.header.stamp = last_insnavgeod_.header.stamp;
 
     int zone;
     std::string zonestring;
@@ -793,7 +792,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
 LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
 {
     LocalizationMsg msg;
-    msg.header.stamp = last_insnavcart_.header.stamp;
+
     msg.header.frame_id = "ecef";
     if (settings_->ins_use_poi)
         msg.child_frame_id = settings_->poi_frame_id; // TODO param
