@@ -188,11 +188,10 @@ namespace io_comm_rx {
                               boost::shared_ptr<AbstractCallbackHandler>>
             CallbackMap;
 
-        CallbackHandlers(ROSaicNodeBase* node, Settings* settings) : 
-            node_(node),
-            rx_message_(node, settings),
-            settings_(settings)
-        {}
+        CallbackHandlers(ROSaicNodeBase* node, Settings* settings) :
+            node_(node), rx_message_(node, settings), settings_(settings)
+        {
+        }
 
         /**
          * @brief Adds a pair to the multimap "callbackmap_", with the message_key
@@ -214,8 +213,10 @@ namespace io_comm_rx {
             callbackmap_.insert(std::make_pair(
                 message_key, boost::shared_ptr<AbstractCallbackHandler>(handler)));
             CallbackMap::key_type key = message_key;
-            node_->log(LogLevel::DEBUG, "Key " +  message_key + " successfully inserted into multimap: " +
-                                        (((unsigned int)callbackmap_.count(key)) ? "true" : "false"));
+            node_->log(
+                LogLevel::DEBUG,
+                "Key " + message_key + " successfully inserted into multimap: " +
+                    (((unsigned int)callbackmap_.count(key)) ? "true" : "false"));
             return callbackmap_;
         }
 
@@ -228,11 +229,13 @@ namespace io_comm_rx {
         /**
          * @brief Searches for Rx messages that could potentially be
          * decoded/parsed/published
-         * @param[in] recvTimestamp Timestamp of buffer reception passed on from AsyncManager class
+         * @param[in] recvTimestamp Timestamp of buffer reception passed on from
+         * AsyncManager class
          * @param[in] data Buffer passed on from AsyncManager class
          * @param[in] size Size of the buffer
          */
-        void readCallback(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size);
+        void readCallback(Timestamp recvTimestamp, const uint8_t* data,
+                          std::size_t& size);
 
         //! Callback handlers multimap for Rx messages; it needs to be public since
         //! we copy-assign (did not work otherwise) new callbackmap_, after inserting
@@ -261,8 +264,9 @@ namespace io_comm_rx {
         //! ROS message arrives last and thus launches its construction
         static std::string do_gpsfix_;
 
-        //! Determines which of the INS integrated SBF blocks necessary for the gps_common::GPSFix
-        //! ROS message arrives last and thus launches its construction
+        //! Determines which of the INS integrated SBF blocks necessary for the
+        //! gps_common::GPSFix ROS message arrives last and thus launches its
+        //! construction
         static std::string do_insgpsfix_;
 
         //! Determines which of the SBF blocks necessary for the
@@ -299,6 +303,11 @@ namespace io_comm_rx {
         //! launches its construction
         static std::string do_inslocalization_;
 
+        //! Determines which of the SBF blocks necessary for the
+        //! nav_msgs/Odometry ROS message arrives last and thus
+        //! launches its construction
+        static std::string do_inslocalization_ecef_;
+
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for GPSFix to a uint32_t
         typedef std::unordered_map<std::string, uint32_t> GPSFixMap;
@@ -317,7 +326,8 @@ namespace io_comm_rx {
 
         //! Shorthand for the map responsible for matching ROS message identifiers
         //! relevant for PoseWithCovarianceStamped to a uint32_t
-        typedef std::unordered_map<std::string, uint32_t> PoseWithCovarianceStampedMap;
+        typedef std::unordered_map<std::string, uint32_t>
+            PoseWithCovarianceStampedMap;
 
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
@@ -343,9 +353,17 @@ namespace io_comm_rx {
         //! relevant for Localization to a uint32_t
         typedef std::unordered_map<std::string, uint32_t> LocalizationMap;
 
+        //! Shorthand for the map responsible for matching ROS message identifiers
+        //! relevant for Localization to a uint32_t
+        typedef std::unordered_map<std::string, uint32_t> LocalizationEcefMap;
+
         //! All instances of the CallbackHandlers class shall have access to the map
         //! without reinitializing it, hence static
         static LocalizationMap localization_map;
+
+        //! All instances of the CallbackHandlers class shall have access to the map
+        //! without reinitializing it, hence static
+        static LocalizationMap localization_ecef_map;
     };
 
 } // namespace io_comm_rx

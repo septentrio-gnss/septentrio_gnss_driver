@@ -245,10 +245,14 @@ struct Settings
     bool publish_imu;
     //! Whether or not to publish the LocalizationMsg message
     bool publish_localization;
+    //! Whether or not to publish the LocalizationMsg message
+    bool publish_localization_ecef;
     //! Whether or not to publish the TwistWithCovarianceStampedMsg message
     bool publish_twist;
     //! Whether or not to publish the tf of the localization
     bool publish_tf;
+    //! Whether or not to publish the tf of the localization
+    bool publish_tf_ecef;
     //! Wether local frame should be inserted into tf
     bool insert_local_frame = false;
     //! Frame id of the local frame to be inserted

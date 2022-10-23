@@ -112,6 +112,8 @@ publish:
   imu: true
   localization: true
   tf: true
+  localization_ecef: false
+  tf_ecef: false
 
 # INS-Specific Parameters
 

@@ -186,6 +186,7 @@ enum RxID_Enum
     evVelCovGeodetic,
     evDiagnosticArray,
     evLocalization,
+    evLocalizationEcef,
     evReceiverStatus,
     evQualityInd,
     evReceiverTime,
@@ -265,6 +266,7 @@ namespace io_comm_rx {
                 std::make_pair("5908", evVelCovGeodetic),
                 std::make_pair("DiagnosticArray", evDiagnosticArray),
                 std::make_pair("Localization", evLocalization),
+                std::make_pair("LocalizationEcef", evLocalizationEcef),
                 std::make_pair("4014", evReceiverStatus),
                 std::make_pair("4082", evQualityInd),
                 std::make_pair("5902", evReceiverSetup),
@@ -431,6 +433,11 @@ namespace io_comm_rx {
          * @brief Wether all blocks have arrived for Localization Message
          */
         bool ins_localization_complete(uint32_t id);
+
+        /**
+         * @brief Wether all blocks have arrived for Localization Message
+         */
+        bool ins_localization_ecef_complete(uint32_t id);
 
     private:
         /**
@@ -658,9 +665,11 @@ namespace io_comm_rx {
         //! has arrived or not
         bool qualityind_has_arrived_diagnostics_ = false;
 
-        //! For Localization: Whether the INSNavGeod block of the current epoch
-        //! has arrived or not
+        //! For Localization: Whether the INSNavGeod and INSNavCart blocks of the
+        //! current epoch have arrived or not
         bool insnavgeod_has_arrived_localization_ = false;
+        bool insnavgeod_has_arrived_localization_ecef_ = false;
+        bool insnavcart_has_arrived_localization_ecef_ = false;
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
