@@ -300,12 +300,54 @@ namespace parsing_utilities {
 
     /**
      * @brief Transforms Euler angles to a quaternion
-     * @param[in] yaw Yaw, i.e. heading, about the Up-axis
-     * @param[in] pitch Pitch about the new North-axis
-     * @param[in] roll Roll about the new East-axis
+     * @param[in] yaw Yaw, i.e. heading, about the z-axis [rad]
+     * @param[in] pitch Pitch about the new y-axis [rad]
+     * @param[in] roll Roll about the new y-axis [rad]
+     * @return quaternion
+     */
+    Eigen::Quaterniond convertEulerToQuaternion(double roll, double pitch,
+                                                double yaw);
+
+    /**
+     * @brief Transforms Euler angles to a QuaternionMsg
+     * @param[in] yaw Yaw, i.e. heading, about the z-axis [rad]
+     * @param[in] pitch Pitch about the new y-axis [rad]
+     * @param[in] roll Roll about the new x-axis [rad]
      * @return ROS message representing a quaternion
      */
-    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch, double roll);
+    QuaternionMsg convertEulerToQuaternionMsg(double yaw, double pitch, double roll);
+
+    /**
+     * @brief Generates the quaternion to rotate from local ENU to ECEF
+     * @param[in] lat gedoetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return quaternion
+     */
+    Eigen::Quaterniond q_enu_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the quaternion to rotate from local NED to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    Eigen::Quaterniond q_ned_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the matrix to rotate from local ENU to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    Eigen::Matrix3d R_enu_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the matrix to rotate from local NED to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    Eigen::Matrix3d R_ned_ecef(double lat, double lon);
 
     /**
      * @brief Transforms the input polling period [milliseconds] into a std::string
