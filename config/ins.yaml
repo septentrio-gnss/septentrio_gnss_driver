@@ -39,7 +39,7 @@ receiver_type: ins
 
 multi_antenna: true
 
-datum: ETRS89
+datum: Default
 
 att_offset:
   heading: 0.0
@@ -59,6 +59,7 @@ use_gnss_time: false
 rtk_settings:
   keep_open: true
   ntrip_1:
+    id: ""
     caster: ""
     caster_port: 2101
     username: ""
