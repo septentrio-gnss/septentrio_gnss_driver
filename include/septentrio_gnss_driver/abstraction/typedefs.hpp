@@ -110,7 +110,7 @@ typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
 typedef sensor_msgs::msg::NavSatStatus NavSatStatusMsg;
 typedef sensor_msgs::msg::TimeReference TimeReferenceMsg;
 typedef sensor_msgs::msg::Imu ImuMsg;
-typedef nav_msgs::msg::Odometry LocalizationUtmMsg;
+typedef nav_msgs::msg::Odometry LocalizationMsg;
 
 // Septentrio GNSS SBF messages
 typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
@@ -311,7 +311,7 @@ public:
      * @brief Publishing function for tf
      * @param[in] msg ROS localization message to be converted to tf
      */
-    void publishTf(const LocalizationUtmMsg& loc)
+    void publishTf(const LocalizationMsg& loc)
     {
         if (std::isnan(loc.pose.pose.orientation.w))
             return;

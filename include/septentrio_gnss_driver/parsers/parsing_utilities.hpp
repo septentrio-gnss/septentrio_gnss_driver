@@ -315,7 +315,14 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new x-axis [rad]
      * @return ROS message representing a quaternion
      */
-    QuaternionMsg convertEulerToQuaternionMsg(double yaw, double pitch, double roll);
+    QuaternionMsg convertEulerToQuaternionMsg(double roll, double pitch, double yaw);
+
+    /**
+     * @brief Convert Eigen quaternion to a QuaternionMsg
+     * @param[in] q Eigen quaternion
+     * @return ROS message representing a quaternion
+     */
+    QuaternionMsg quaternionToQuaternionMsg(const Eigen::Quaterniond& q);
 
     /**
      * @brief Generates the quaternion to rotate from local ENU to ECEF

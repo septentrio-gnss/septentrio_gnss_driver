@@ -320,11 +320,9 @@ namespace parsing_utilities {
             cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy);
     }
 
-    QuaternionMsg convertEulerToQuaternionMsg(double yaw, double pitch, double roll)
+    QuaternionMsg quaternionToQuaternionMsg(const Eigen::Quaterniond& q)
     {
         QuaternionMsg qm;
-
-        Eigen::Quaterniond q = convertEulerToQuaternion(roll, pitch, yaw);
 
         qm.w = q.w();
         qm.x = q.x();
@@ -332,6 +330,11 @@ namespace parsing_utilities {
         qm.z = q.z();
 
         return qm;
+    }
+
+    QuaternionMsg convertEulerToQuaternionMsg(double roll, double pitch, double yaw)
+    {
+        return quaternionToQuaternionMsg(convertEulerToQuaternion(roll, pitch, yaw));
     }
 
     Eigen::Quaterniond q_enu_ecef(double lat, double lon)

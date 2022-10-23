@@ -1180,7 +1180,7 @@ void io_comm_rx::Comm_IO::defineMessages()
         if (settings_->publish_localization || settings_->publish_tf)
         {
             handlers_.callbackmap_ =
-                handlers_.insert<LocalizationUtmMsg>("Localization");
+                handlers_.insert<LocalizationMsg>("Localization");
         }
     }
     handlers_.callbackmap_ =
