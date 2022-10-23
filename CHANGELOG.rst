@@ -2,6 +2,11 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.4 (upcoming)
+------------------
+* New Features
+   * Output ot localization and tf in ECEF frame
+
 1.2.3 (upcoming)
 ------------------
 * New Features

@@ -221,7 +221,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     exteventinsnavgeod: false
     imu: false
     localization: false
-    tf: false
+    tf: false    
+    localization_ecef: false
+    tf_ecef: false
 
   # INS-Specific Parameters
 
@@ -592,7 +594,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
-    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf.
+    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.   
+    + `publish/localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization` related to ECEF frame.
+    + `publish/tf_ecef`: `true` to broadcast tf of localization  related to ECEF frame. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.
   </details>
 
 ## ROS Topic Publications
@@ -633,6 +637,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/imu`: accepts generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`.
     + The ROS message [`sensor_msgs/Imu.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
   + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
+    + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
+  + `/localization_ecef`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
 </details>
 
