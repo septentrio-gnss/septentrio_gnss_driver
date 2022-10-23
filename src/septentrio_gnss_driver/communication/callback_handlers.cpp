@@ -55,6 +55,8 @@ std::pair<std::string, uint32_t> imu_pairs[] = {std::make_pair("4226", 0),
                                                 std::make_pair("4050", 1)};
 
 std::pair<std::string, uint32_t> localization_pairs[] = {std::make_pair("4226", 0)};
+std::pair<std::string, uint32_t> localization_ecef_pairs[] = {
+    std::make_pair("4225", 0), std::make_pair("4226", 1)};
 
 namespace io_comm_rx {
     boost::mutex CallbackHandlers::callback_mutex_;
@@ -74,6 +76,10 @@ namespace io_comm_rx {
         CallbackHandlers::localization_map(localization_pairs,
                                            localization_pairs + 1);
 
+    CallbackHandlers::LocalizationEcefMap
+        CallbackHandlers::localization_ecef_map(localization_ecef_pairs,
+                                                localization_ecef_pairs + 2);
+
     std::string CallbackHandlers::do_gpsfix_ = "4007";
     std::string CallbackHandlers::do_navsatfix_ = "4007";
     std::string CallbackHandlers::do_pose_ = "4007";
@@ -84,6 +90,7 @@ namespace io_comm_rx {
     std::string CallbackHandlers::do_inspose_ = "4226";
     std::string CallbackHandlers::do_imu_ = "4226";
     std::string CallbackHandlers::do_inslocalization_ = "4226";
+    std::string CallbackHandlers::do_inslocalization_ecef_ = "4226";
 
     //! The for loop forwards to a ROS message specific handle if the latter was
     //! added via callbackmap_.insert at some earlier point.
@@ -316,6 +323,29 @@ namespace io_comm_rx {
                         }
                     }
                     do_inslocalization_ = std::string();
+                }
+            }
+            if (settings_->publish_localization_ecef || settings_->publish_tf_ecef)
+            {
+                CallbackMap::key_type key = "LocalizationEcef";
+                std::string ID_temp = rx_message_.messageID();
+                if (ID_temp == do_inslocalization_ecef_)
+                // The last incoming block INSNavGeod triggers the publishing of
+                // PoseWithCovarianceStamped.
+                {
+                    for (CallbackMap::iterator callback =
+                             callbackmap_.lower_bound(key);
+                         callback != callbackmap_.upper_bound(key); ++callback)
+                    {
+                        try
+                        {
+                            callback->second->handle(rx_message_, callback->first);
+                        } catch (std::runtime_error& e)
+                        {
+                            throw std::runtime_error(e.what());
+                        }
+                    }
+                    do_inslocalization_ecef_ = std::string();
                 }
             }
         }
@@ -579,6 +609,16 @@ namespace io_comm_rx {
                             localization_map[ID_temp]))
                     {
                         do_inslocalization_ = ID_temp;
+                    }
+                }
+                if ((settings_->publish_localization_ecef ||
+                     settings_->publish_tf_ecef) &&
+                    (ID_temp == "4226" || ID_temp == "4225"))
+                {
+                    if (rx_message_.ins_localization_ecef_complete(
+                            localization_ecef_map[ID_temp]))
+                    {
+                        do_inslocalization_ecef_ = ID_temp;
                     }
                 }
             }

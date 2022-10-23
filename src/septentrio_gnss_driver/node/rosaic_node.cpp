@@ -183,8 +183,18 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.extsensormeas", settings_.publish_extsensormeas, false);
     param("publish.imu", settings_.publish_imu, false);
     param("publish.localization", settings_.publish_localization, false);
+    param("publish.localization_ecef", settings_.publish_localization_ecef, false);
     param("publish.twist", settings_.publish_twist, false);
     param("publish.tf", settings_.publish_tf, false);
+    param("publish.tf_ecef", settings_.publish_tf_ecef, false);
+
+    if (settings_.publish_tf && settings_.publish_tf_ecef)
+    {
+        this->log(
+            LogLevel::WARN,
+            "Only one of the tfs may be published at once, just activating tf in ECEF ");
+        settings_.publish_tf = false;
+    }
 
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("Default"));

@@ -627,7 +627,6 @@ io_comm_rx::RxMessage::TwistCallback(bool fromIns /* = false*/)
 LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
 {
     LocalizationMsg msg;
-    msg.header.stamp = last_insnavgeod_.header.stamp;
 
     int zone;
     std::string zonestring;
@@ -793,7 +792,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
 LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
 {
     LocalizationMsg msg;
-    msg.header.stamp = last_insnavcart_.header.stamp;
+
     msg.header.frame_id = "ecef";
     if (settings_->ins_use_poi)
         msg.child_frame_id = settings_->poi_frame_id; // TODO param
@@ -2279,31 +2278,32 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     case evINSNavCart: // Position, velocity and orientation in cartesian coordinate
                        // frame (ENU frame)
     {
-        INSNavCartMsg msg;
         std::vector<uint8_t> dvec(data_,
                                   data_ + parsing_utilities::getLength(data_));
-        if (!INSNavCartParser(node_, dvec.begin(), dvec.end(), msg,
+        if (!INSNavCartParser(node_, dvec.begin(), dvec.end(), last_insnavcart_,
                               settings_->use_ros_axis_orientation))
         {
+            insnavgeod_has_arrived_localization_ecef_ = false;
             node_->log(LogLevel::ERROR,
                        "septentrio_gnss_driver: parse error in INSNavCart");
             break;
         }
         if (settings_->ins_use_poi)
         {
-            msg.header.frame_id = settings_->poi_frame_id;
+            last_insnavcart_.header.frame_id = settings_->poi_frame_id;
         } else
         {
-            msg.header.frame_id = settings_->frame_id;
+            last_insnavcart_.header.frame_id = settings_->frame_id;
         }
         Timestamp time_obj = timestampSBF(data_, settings_->use_gnss_time);
-        msg.header.stamp = timestampToRos(time_obj);
+        last_insnavcart_.header.stamp = timestampToRos(time_obj);
+        insnavgeod_has_arrived_localization_ecef_ = true;
         // Wait as long as necessary (only when reading from SBF/PCAP file)
         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
         {
             wait(time_obj);
         }
-        publish<INSNavCartMsg>("/insnavcart", msg);
+        publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
         break;
     }
     case evINSNavGeod: // Position, velocity and orientation in geodetic coordinate
@@ -2318,6 +2318,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             insnavgeod_has_arrived_navsatfix_ = false;
             insnavgeod_has_arrived_pose_ = false;
             insnavgeod_has_arrived_localization_ = false;
+            insnavgeod_has_arrived_localization_ecef_ = false;
             node_->log(LogLevel::ERROR,
                        "septentrio_gnss_driver: parse error in INSNavGeod");
             break;
@@ -2335,6 +2336,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
         insnavgeod_has_arrived_navsatfix_ = true;
         insnavgeod_has_arrived_pose_ = true;
         insnavgeod_has_arrived_localization_ = true;
+        insnavgeod_has_arrived_localization_ecef_ = true;
         // Wait as long as necessary (only when reading from SBF/PCAP file)
         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
         {
@@ -3054,6 +3056,32 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
             publishTf(msg);
         break;
     }
+    case evLocalizationEcef:
+    {
+        LocalizationMsg msg;
+        try
+        {
+            msg = LocalizationEcefCallback();
+        } catch (std::runtime_error& e)
+        {
+            node_->log(LogLevel::DEBUG, "LocalizationMsg: " + std::string(e.what()));
+            break;
+        }
+        Timestamp time_obj = timestampSBF(data_, settings_->use_gnss_time);
+        msg.header.stamp = timestampToRos(time_obj);
+        insnavgeod_has_arrived_localization_ecef_ = false;
+        insnavgeod_has_arrived_localization_ecef_ = false;
+        // Wait as long as necessary (only when reading from SBF/PCAP file)
+        if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+        {
+            wait(time_obj);
+        }
+        if (settings_->publish_localization_ecef)
+            publish<LocalizationMsg>("/localization_ecef", msg);
+        if (settings_->publish_tf_ecef)
+            publishTf(msg);
+        break;
+    }
     case evReceiverStatus:
     {
         std::vector<uint8_t> dvec(data_,
@@ -3265,6 +3293,13 @@ bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
 bool io_comm_rx::RxMessage::ins_localization_complete(uint32_t id)
 {
     std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_};
+    return allTrue(loc_vec, id);
+}
+
+bool io_comm_rx::RxMessage::ins_localization_ecef_complete(uint32_t id)
+{
+    std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_ecef_,
+                                 insnavcart_has_arrived_localization_ecef_};
     return allTrue(loc_vec, id);
 }
 

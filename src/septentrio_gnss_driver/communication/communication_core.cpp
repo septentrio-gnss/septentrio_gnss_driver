@@ -528,14 +528,16 @@ void io_comm_rx::Comm_IO::configureRx()
         // If INS then...
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (settings_->publish_insnavcart)
+            if (settings_->publish_insnavcart ||
+                settings_->publish_localization_ecef || settings_->publish_tf_ecef)
             {
                 blocks << " +INSNavCart";
             }
             if (settings_->publish_insnavgeod || settings_->publish_navsatfix ||
                 settings_->publish_gpsfix || settings_->publish_pose ||
                 settings_->publish_imu || settings_->publish_localization ||
-                settings_->publish_tf || settings_->publish_twist)
+                settings_->publish_tf || settings_->publish_twist ||
+                settings_->publish_localization_ecef || settings_->publish_tf_ecef)
             {
                 blocks << " +INSNavGeod";
             }
@@ -1181,6 +1183,11 @@ void io_comm_rx::Comm_IO::defineMessages()
         {
             handlers_.callbackmap_ =
                 handlers_.insert<LocalizationMsg>("Localization");
+        }
+        if (settings_->publish_localization_ecef || settings_->publish_tf_ecef)
+        {
+            handlers_.callbackmap_ =
+                handlers_.insert<LocalizationMsg>("LocalizationEcef");
         }
     }
     handlers_.callbackmap_ =
