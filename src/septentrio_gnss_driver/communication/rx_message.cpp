@@ -816,6 +816,16 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
         msg.pose.covariance[7] = -1.0;
         msg.pose.covariance[14] = -1.0;
     }
+    if ((last_insnavcart_.sb_list & 32) != 0)
+    {
+        // Position covariance
+        msg.pose.covariance[1] = last_insnavcart_.xy_cov;
+        msg.pose.covariance[6] = last_insnavcart_.xy_cov;
+        msg.pose.covariance[2] = last_insnavcart_.xz_cov;
+        msg.pose.covariance[8] = last_insnavcart_.yz_cov;
+        msg.pose.covariance[12] = last_insnavcart_.xz_cov;
+        msg.pose.covariance[13] = last_insnavcart_.yz_cov;
+    }
 
     // Euler angles
     double roll = 0.0;
@@ -842,7 +852,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
         Eigen::Quaterniond q_b_local =
             parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
 
-        Eigen::Quaterniond q_b_ecef = q_b_local * q_local_ecef;
+        Eigen::Quaterniond q_b_ecef = q_local_ecef * q_b_local;
 
         msg.pose.pose.orientation =
             parsing_utilities::quaternionToQuaternionMsg(q_b_ecef);
@@ -887,17 +897,6 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
         covAttValid = false;
     }
 
-    if ((last_insnavcart_.sb_list & 32) != 0)
-    {
-        // Position covariance
-        msg.pose.covariance[1] = last_insnavcart_.xy_cov;
-        msg.pose.covariance[6] = last_insnavcart_.xy_cov;
-        msg.pose.covariance[2] = last_insnavcart_.xz_cov;
-        msg.pose.covariance[8] = last_insnavcart_.yz_cov;
-        msg.pose.covariance[12] = last_insnavcart_.xz_cov;
-        msg.pose.covariance[13] = last_insnavcart_.yz_cov;
-    }
-
     if (covAttValid)
     {
         if ((last_insnavcart_.sb_list & 64) != 0)
@@ -906,7 +905,6 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
             covAtt_local(0, 1) = deg2radSq(last_insnavcart_.pitch_roll_cov);
             covAtt_local(0, 2) = deg2radSq(last_insnavcart_.heading_roll_cov);
             covAtt_local(1, 0) = deg2radSq(last_insnavcart_.pitch_roll_cov);
-
             covAtt_local(2, 1) = deg2radSq(last_insnavcart_.heading_pitch_cov);
             covAtt_local(2, 0) = deg2radSq(last_insnavcart_.heading_roll_cov);
             covAtt_local(1, 2) = deg2radSq(last_insnavcart_.heading_pitch_cov);
@@ -930,14 +928,14 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
             R_local_ecef * covAtt_local * R_local_ecef.transpose();
 
         msg.pose.covariance[21] = covAtt_ecef(0, 0);
-        msg.pose.covariance[28] = covAtt_ecef(1, 1);
-        msg.pose.covariance[35] = covAtt_ecef(2, 2);
         msg.pose.covariance[22] = covAtt_ecef(0, 1);
         msg.pose.covariance[23] = covAtt_ecef(0, 2);
         msg.pose.covariance[27] = covAtt_ecef(1, 0);
-        msg.pose.covariance[29] = covAtt_ecef(2, 1);
+        msg.pose.covariance[28] = covAtt_ecef(1, 1);
+        msg.pose.covariance[29] = covAtt_ecef(1, 2);
         msg.pose.covariance[33] = covAtt_ecef(2, 0);
-        msg.pose.covariance[34] = covAtt_ecef(1, 2);
+        msg.pose.covariance[34] = covAtt_ecef(2, 1);
+        msg.pose.covariance[35] = covAtt_ecef(2, 2);
     } else
     {
         msg.pose.covariance[21] = -1.0;
