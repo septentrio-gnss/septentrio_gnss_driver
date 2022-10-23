@@ -379,7 +379,7 @@ namespace io_comm_rx {
          * @brief Publishing function
          * @param[in] msg Localization message
          */
-        void publishTf(const LocalizationUtmMsg& msg);
+        void publishTf(const LocalizationMsg& msg);
 
         /**
          * @brief Performs the CRC check (if SBF) and publishes ROS messages
@@ -495,10 +495,16 @@ namespace io_comm_rx {
         AttCovEulerMsg last_attcoveuler_;
 
         /**
-         * @brief Since NavSatFix, GPSFix, Imu and Pose. need INSNavGeod, incoming
+         * @brief Since NavSatFix, GPSFix, Imu and Pose need INSNavGeod, incoming
          * INSNavGeod blocks need to be stored
          */
         INSNavGeodMsg last_insnavgeod_;
+
+        /**
+         * @brief Since LoclaizationEcef needs INSNavCart, incoming
+         * INSNavCart blocks need to be stored
+         */
+        INSNavCartMsg last_insnavcart_;
 
         /**
          * @brief Since Imu needs ExtSensorMeas, incoming ExtSensorMeas blocks
@@ -694,11 +700,29 @@ namespace io_comm_rx {
 
         /**
          * @brief "Callback" function when constructing
-         * LocalizationUtmMsg messages
+         * LocalizationMsg messages in UTM
          * @return A ROS message
-         * LocalizationUtmMsg just created
+         * LocalizationMsg just created
          */
-        LocalizationUtmMsg LocalizationUtmCallback();
+        LocalizationMsg LocalizationUtmCallback();
+
+        /**
+         * @brief "Callback" function when constructing
+         * LocalizationMsg messages in ECEF
+         * @return A ROS message
+         * LocalizationMsg just created
+         */
+        LocalizationMsg LocalizationEcefCallback();
+
+        /**
+         * @brief function to fill twist part of LocalizationMsg
+         * @param[in] roll roll [rad]
+         * @param[in] pitch pitch [rad]
+         * @param[in] yaw yaw [rad]
+         * @param[inout] msg LocalizationMsg to be filled
+         */
+        void fillLocalizationMsgTwist(double roll, double pitch, double yaw,
+                                      LocalizationMsg& msg);
 
         /**
          * @brief "Callback" function when constructing
