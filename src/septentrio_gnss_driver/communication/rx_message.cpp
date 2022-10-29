@@ -838,17 +838,16 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
     if (validValue(last_insnavcart_.heading))
         yaw = deg2rad(last_insnavcart_.heading);
 
-    double latitude = deg2rad(last_insnavgeod_.latitude);
-    double longitude = deg2rad(last_insnavgeod_.longitude);
-
     if ((last_insnavcart_.sb_list & 2) != 0)
     {
         // Attitude
         Eigen::Quaterniond q_local_ecef;
         if (settings_->use_ros_axis_orientation)
-            q_local_ecef = parsing_utilities::q_enu_ecef(latitude, longitude);
+            q_local_ecef = parsing_utilities::q_enu_ecef(last_insnavgeod_.latitude,
+                                                         last_insnavgeod_.longitude);
         else
-            q_local_ecef = parsing_utilities::q_ned_ecef(latitude, longitude);
+            q_local_ecef = parsing_utilities::q_ned_ecef(last_insnavgeod_.latitude,
+                                                         last_insnavgeod_.longitude);
         Eigen::Quaterniond q_b_local =
             parsing_utilities::convertEulerToQuaternion(roll, pitch, yaw);
 
@@ -920,9 +919,11 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
         }
         Eigen::Matrix3d R_local_ecef;
         if (settings_->use_ros_axis_orientation)
-            R_local_ecef = parsing_utilities::R_enu_ecef(latitude, longitude);
+            R_local_ecef = parsing_utilities::R_enu_ecef(last_insnavgeod_.latitude,
+                                                         last_insnavgeod_.longitude);
         else
-            R_local_ecef = parsing_utilities::R_ned_ecef(latitude, longitude);
+            R_local_ecef = parsing_utilities::R_ned_ecef(last_insnavgeod_.latitude,
+                                                         last_insnavgeod_.longitude);
         // Rotate attitude covariance matrix to ecef coordinates
         Eigen::Matrix3d covAtt_ecef =
             R_local_ecef * covAtt_local * R_local_ecef.transpose();
