@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.2.3 (upcoming)
+1.2.3 (2022-11-09)
 ------------------
 * New Features
    * Twist output option
