@@ -22,6 +22,10 @@ septentrio_gnss_driver:
 
     vehicle_frame_id: base_link
 
+    local_frame_id: odom
+
+    insert_local_frame: false
+
     get_spatial_config_from_tf: false
 
     lock_utm_zone: true
@@ -32,7 +36,7 @@ septentrio_gnss_driver:
 
     multi_antenna: true
 
-    datum: ETRS89
+    datum: Default
 
     poi_to_arp:
       delta_e: 0.0
@@ -43,32 +47,43 @@ septentrio_gnss_driver:
       heading: 0.0
       pitch: 0.0
       
-    ant_type: Unknown
-    ant_serial_nr: Unknown
-    ant_aux1_type: Unknown
-    ant_aux1_serial_nr: Unknown
-
-    leap_seconds: 18
+    ant_type: "Unknown"
+    ant_serial_nr: "Unknown"
+    ant_aux1_type: "Unknown"
+    ant_aux1_serial_nr: "Unknown"
 
     polling_period:
-      pvt: 500
+      pvt: 0
       rest: 500
 
     use_gnss_time: false
 
-    ntrip_settings:
-      mode: "off"
-      caster: ""
-      caster_port: 0
-      username: ""
-      password: ""
-      mountpoint: ""
-      ntrip_version: v2
-      send_gga: auto
-      rx_has_internet: false
-      rtcm_version: RTCMv2
-      rx_input_corrections_tcp: 6666
-      rx_input_corrections_serial: USB2
+    rtk_settings:  
+      ntrip_1:
+        id: ""
+        caster: ""
+        caster_port: 2101
+        username: ""
+        password: ""
+        mountpoint: ""
+        version: "v2"
+        tls: false
+        fingerprint: ""
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
+      ip_server_1:
+        id: ""
+        port: 0
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
+      serial_1:
+        port: ""
+        baud_rate: 115200
+        rtk_standard: "auto"
+        send_gga: "auto"
+        keep_open: true
 
     publish:
       # For both GNSS and INS Rxs
@@ -76,16 +91,19 @@ septentrio_gnss_driver:
       gpsfix: true
       gpgga: false
       gprmc: false
-      gpst : false
+      gpst: false
       measepoch: false
       pvtcartesian: false
       pvtgeodetic: true
+      basevectorcart: false
+      basevectorgeod: false
       poscovcartesian: false
       poscovgeodetic: true
       velcovgeodetic: true
       atteuler: true
       attcoveuler: true
       pose: false
+      twist: false
       diagnostics: false
       # For GNSS Rx only
       gpgsa: false
@@ -117,7 +135,7 @@ septentrio_gnss_driver:
         x: 0.0
         y: 0.0
         z: 0.0
-      vel_sensor_lever_arm:
+      vsm_lever_arm:
         vsm_x: 0.0
         vsm_y: 0.0
         vsm_z: 0.0
@@ -129,6 +147,21 @@ septentrio_gnss_driver:
       pos_std_dev: 10.0
 
     ins_use_poi: false
+
+    ins_vsm:
+      ros:
+        source: ""
+        config: [false, false, false]
+        variances_by_parameter: false
+        variances: [0.0, 0.0, 0.0]
+      ip_server:
+        id: ""
+        port: 0
+        keep_open: true
+      serial:
+        port: ""
+        baud_rate: 115200
+        keep_open: true
 
     # logger
 

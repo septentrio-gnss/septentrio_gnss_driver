@@ -16,6 +16,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(gps_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
@@ -35,6 +36,8 @@ endif ()
 
 ## Declare  messages
 rosidl_generate_interfaces(${PROJECT_NAME}
+   "msg/BaseVectorCart.msg"
+   "msg/BaseVectorGeod.msg"
    "msg/BlockHeader.msg"
    "msg/MeasEpoch.msg"
    "msg/MeasEpochChannelType1.msg"
@@ -43,6 +46,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/PVTGeodetic.msg"
    "msg/PosCovCartesian.msg"
    "msg/PosCovGeodetic.msg"
+   "msg/ReceiverTime.msg"
    "msg/VelCovCartesian.msg"
    "msg/VelCovGeodetic.msg"
    "msg/AttEuler.msg"
@@ -50,6 +54,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/INSNavCart.msg"
    "msg/INSNavGeod.msg"
    "msg/IMUSetup.msg"
+   "msg/VectorInfoCart.msg"
+   "msg/VectorInfoGeod.msg"
    "msg/VelSensorSetup.msg"
    "msg/ExtSensorMeas.msg"
    DEPENDENCIES std_msgs
@@ -68,6 +74,7 @@ set(dependencies
    gps_msgs
    nav_msgs
    tf2
+   tf2_eigen
    tf2_geometry_msgs
    tf2_ros
 )

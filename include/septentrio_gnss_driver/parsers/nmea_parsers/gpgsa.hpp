@@ -95,8 +95,9 @@ public:
      * @param[in] sentence The GSA message to be parsed
      * @return A ROS message pointer of ROS type GpgsaMsg
      */
-    GpgsaMsg
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
+    GpgsaMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
+                        bool use_gnss_time,
+                        Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID

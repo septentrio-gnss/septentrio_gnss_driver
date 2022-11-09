@@ -2,6 +2,23 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.3 (upcoming)
+------------------
+* New Features
+   * Twist output option
+   * Example config files for GNSS and INS
+   * Get leap seconds from receiver
+   * Firmware check
+   * VSM from odometry or twist ROS messages
+   * Add receiver type in case INS is used in GNSS mode
+   * Add publishing of base vector topics
+* Improvements
+   * Rework RTK corrections parameters and improve flexibility
+* Fixes
+   * /tf not being published without /localization
+   * Twist covariance matrix of localization
+   * Support 5 ms period for IMU explicitly
+
 1.2.2 (2022-06-22)
 ------------------
 * Fixes

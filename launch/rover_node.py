@@ -42,8 +42,7 @@ def generate_launch_description():
     default_file_name = 'rover_node.yaml'
     name_arg_file_name = "file_name"
     arg_file_name = DeclareLaunchArgument(name_arg_file_name,
-                                          default_value=TextSubstitution(text=str(default_file_name)),
-                                          description="if true then the joint state gui is displayed (with sliders in order to set the joint positions.)")
+                                          default_value=TextSubstitution(text=str(default_file_name)))
     name_arg_file_path = 'path_to_config'
     arg_file_path = DeclareLaunchArgument(name_arg_file_path,
                                           default_value=[get_package_share_directory('septentrio_gnss_driver'), '/config/', LaunchConfiguration(name_arg_file_name)])
@@ -52,6 +51,8 @@ def generate_launch_description():
             package='septentrio_gnss_driver',
             executable='septentrio_gnss_driver_node',
             name='septentrio_gnss_driver',
+            emulate_tty=True,
+            sigterm_timeout = '20',
             parameters=[LaunchConfiguration(name_arg_file_path)])
 
     return launch.LaunchDescription([arg_file_name, arg_file_path, node, tf_imu, tf_gnss, tf_vsm, tf_aux1])

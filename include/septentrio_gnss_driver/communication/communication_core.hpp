@@ -114,12 +114,7 @@ namespace io_comm_rx {
         /**
          * @brief Default destructor of the class Comm_IO
          */
-        ~Comm_IO()
-        {
-            send("logout \x0D");
-            stopping_ = true;
-            connectionThread_->join();
-        }
+        ~Comm_IO();
 
         /**
          * @brief Initializes the I/O handling
@@ -137,9 +132,21 @@ namespace io_comm_rx {
          * @brief Defines which Rx messages to read and which ROS messages to publish
          * @param[in] settings The device's settings
          * */
-        void defineMessages();        
+        void defineMessages();
+
+        /**
+         * @brief Hands over NMEA velocity message over to the send() method of
+         * manager_
+         * @param cmd The command to hand over
+         */
+        void sendVelocity(const std::string& velNmea);
 
     private:
+        /**
+         * @brief Reset main port so it can receive commands
+         */
+        void resetMainPort();
+
         /**
          * @brief Sets up the stage for SBF file reading
          * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
@@ -192,7 +199,8 @@ namespace io_comm_rx {
         /**
          * @brief Initializes PCAP file reading and reads PCAP file by repeatedly
          * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the PCAP file, e.g. "/tmp/capture.pcap"
+         * @param[in] file_name The name of (or path to) the PCAP file, e.g.
+         * "/tmp/capture.pcap"
          */
         void initializePCAPFileReading(std::string file_name);
 
@@ -203,16 +211,10 @@ namespace io_comm_rx {
         void setManager(const boost::shared_ptr<Manager>& manager);
 
         /**
-         * @brief Reset the Serial I/O port, e.g. after a Rx reset
-         * @param[in] port The device's port address
-         */
-        void resetSerial(std::string port);
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(std::string cmd);
+        void send(const std::string&);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
@@ -244,6 +246,8 @@ namespace io_comm_rx {
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
 
+        bool nmeaActivated_ = false;
+
         //! Connection or reading thread
         std::unique_ptr<boost::thread> connectionThread_;
         //! Indicator for threads to exit
@@ -251,6 +255,9 @@ namespace io_comm_rx {
 
         friend class CallbackHandlers;
         friend class RxMessage;
+
+        //! Communication ports
+        std::string mainPort_;
 
         //! Host currently connected to
         std::string host_;

@@ -32,11 +32,11 @@
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
 // C++ library includes
 #include <cerrno>
+#include <cmath>
 #include <cstdlib>
+#include <iomanip>
 #include <limits>
 #include <sstream>
-#include <iomanip>
-#include <cmath>
 
 /**
  * @file string_utilities.cpp
@@ -183,20 +183,6 @@ namespace string_utilities {
         return true;
     }
 
-    std::string trimString(std::string str)
-    {
-        for (std::string::size_type s = str.length() - 1; s > 0; --s)
-        {
-            if (str[s] == '0' && !isdigit(str[s - 1]))
-                break;
-            else if (str[s] == '0')
-                str.erase(s, 1);
-            else
-                break;
-        }
-        return str;
-    }
-
     std::string trimDecimalPlaces(double num)
     {
         num = std::round(num * 1000);
@@ -206,5 +192,15 @@ namespace string_utilities {
         ss << std::setprecision(3);
         ss << num;
         return ss.str();
+    }
+
+    bool containsSpace(const std::string str)
+    {
+        for (size_t i = 0; i < str.size(); ++i)
+        {
+            if (std::isspace(str[i]))
+                return true;
+        }
+        return false;
     }
 } // namespace string_utilities

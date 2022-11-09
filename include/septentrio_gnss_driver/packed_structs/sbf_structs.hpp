@@ -28,86 +28,35 @@
 //
 // *****************************************************************************
 
-#ifndef SBFStructs_HPP
-#define SBFStructs_HPP
+#pragma once
 
 #include <cstdint>
 
 //! Using maximum value of NR_OF_LOGICALCHANNELS for SBF definitions
-#ifndef NR_OF_LOGICALCHANNELS
-#define NR_OF_LOGICALCHANNELS 80
-#endif
+static const uint8_t NR_OF_LOGICALCHANNELS = 80;
 //! Inmarsat is a British satellite telecommunications company.
-#ifndef MAX_NB_INMARSATCHANNELS
-#define MAX_NB_INMARSATCHANNELS 1
-#endif
+static const uint8_t MAX_NB_INMARSATCHANNELS = 1;
 //! Using maximum value of MAX_NR_OF_SIGNALS_PER_SATELLITE for SBF definitions
-#ifndef MAX_NR_OF_SIGNALS_PER_SATELLITE
-#define MAX_NR_OF_SIGNALS_PER_SATELLITE 7
-#endif
+static const uint8_t MAX_NR_OF_SIGNALS_PER_SATELLITE = 7;
 //! Using maximum value of NR_OF_ANTENNAS for SBF definitions
-#ifndef NR_OF_ANTENNAS
-#define NR_OF_ANTENNAS 3
-#endif
+static const uint8_t NR_OF_ANTENNAS = 3;
 //! Maximum number of antennas that mosaic etc. can handle
-#ifndef MAXSB_NBRANTENNA
-#define MAXSB_NBRANTENNA 4
-#endif
+static const uint8_t MAXSB_NBRANTENNA = 4;
 //! Max number of bytes that ChannelSatInfo sub-block can consist of
-#ifndef MAXSB_CHANNELSATINFO
-#define MAXSB_CHANNELSATINFO (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
-#endif
+static const uint8_t MAXSB_CHANNELSATINFO =
+    (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS);
 //! Max number of bytes that ChannelStateInfo sub-block can consist of
-#ifndef MAXSB_CHANNELSTATEINFO
-#define MAXSB_CHANNELSTATEINFO (MAXSB_CHANNELSATINFO * MAXSB_NBRANTENNA)
-#endif
+static const uint16_t MAXSB_CHANNELSTATEINFO =
+    (MAXSB_CHANNELSATINFO * MAXSB_NBRANTENNA);
 //! Max number of bytes that MeasEpochChannelType1 sub-block can consist of
-#ifndef MAXSB_MEASEPOCH_T1
-#define MAXSB_MEASEPOCH_T1 (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS)
-#endif
+static const uint8_t MAXSB_MEASEPOCH_T1 =
+    (NR_OF_LOGICALCHANNELS + MAX_NB_INMARSATCHANNELS);
 //! Max number of bytes that MeasEpochChannelType2 sub-block can consist of
-#ifndef MAXSB_MEASEPOCH_T2
-#define MAXSB_MEASEPOCH_T2 ((MAXSB_MEASEPOCH_T1) * (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1))
-#endif
-//! Max number of bytes that INSNavGeod sub-block can consist of
-#ifndef SBF_INSNAVGEOD_LENGTH_1 
-#define SBF_INSNAVGEOD_LENGTH_1 16 
-#endif
-//! Max number of bytes that INSNavCart sub-block can consist of
-#ifndef SBF_INSNAVCART_LENGTH_1 
-#define SBF_INSNAVCART_LENGTH_1 16 
-#endif
-//! Max number of bytes that INSNavGeod sub-block can consist of
-#ifndef SBF_EXTEVENTINSNAVGEOD_LENGTH_1 
-#define SBF_EXTEVENTINSNAVGEOD_LENGTH_1 16 
-#endif
-//! Max number of bytes that INSNavCart sub-block can consist of
-#ifndef SBF_EXTEVENTINSNAVCART_LENGTH_1 
-#define SBF_EXTEVENTINSNAVCART_LENGTH_1 16 
-#endif
-//! Max number of bytes that the Data part of the ChannelStatus struct can consist of
-#ifndef SBF_CHANNELSTATUS_DATA_LENGTH
-#define SBF_CHANNELSTATUS_DATA_LENGTH                                               \
-    MAXSB_CHANNELSATINFO * sizeof(ChannelSatInfo) +                                 \
-        MAXSB_CHANNELSTATEINFO * sizeof(ChannelStateInfo)
-#endif
-//! Max number of bytes that the data part of the MeasEpoch struct can consist of
-#ifndef MEASEPOCH_DATA_LENGTH
-#define MEASEPOCH_DATA_LENGTH                                                       \
-    (MAXSB_MEASEPOCH_T1 * sizeof(MeasEpochChannelType1) +                           \
-     MAXSB_MEASEPOCH_T2 * sizeof(MeasEpochChannelType2))
-#endif
-//! Max size for ExtSensorMeasSet_1 sub-block
-#ifndef SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 
-#define SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH 4 
-#endif
-
-// Couple of redefinitions
-#define SBF_INSNAVCART_LENGTH SBF_INSNAVCART_LENGTH_1
-#define SBF_EXTSENSORMEAS_1_EXTSENSORMEAS_LENGTH SBF_EXTSENSORMEAS_1_0_EXTSENSORMEAS_LENGTH
-#define SBF_EXTEVENTINSNAVCART_LENGTH SBF_EXTEVENTINSNAVCART_LENGTH_1
-#define SBF_EXTEVENTINSNAVGEOD_LENGTH SBF_EXTEVENTINSNAVGEOD_LENGTH_1
-#define SBF_INSNAVGEOD_LENGTH SBF_INSNAVGEOD_LENGTH_1
+static const uint16_t MAXSB_MEASEPOCH_T2 =
+    ((MAXSB_MEASEPOCH_T1) *
+     (((MAX_NR_OF_SIGNALS_PER_SATELLITE) * (NR_OF_ANTENNAS)) - 1));
+//! Max number of vector info sub-blocks
+static const uint8_t MAXSB_NBVECTORINFO = 30;
 
 //! 0x24 is ASCII for $ - 1st byte in each message
 static const uint8_t SBF_SYNC_BYTE_1 = 0x24;
@@ -118,7 +67,6 @@ static const uint8_t SBF_SYNC_BYTE_2 = 0x40;
 #include <algorithm>
 // Boost
 #include <boost/spirit/include/qi.hpp>
-
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
@@ -134,16 +82,16 @@ static const uint8_t SBF_SYNC_BYTE_2 = 0x40;
  */
 struct BlockHeader
 {
-    uint8_t  sync_1;   //!< first sync byte is $ or 0x24
-    uint8_t  sync_2;   //!< 2nd sync byte is @ or 0x40
-    uint16_t crc;      //!< The check sum
-    uint16_t id;       //!< This is the block ID
-    uint8_t  revision; //!< This is the block revision
-    uint16_t length;   //!< Length of the entire message including the header. A
-                       //!< multiple of 4 between 8 and 4096
-    uint32_t tow;      //!< This is the time of week in ms
-    uint16_t wnc;      //!< This is the GPS week counter
-} ;
+    uint8_t sync_1;   //!< first sync byte is $ or 0x24
+    uint8_t sync_2;   //!< 2nd sync byte is @ or 0x40
+    uint16_t crc;     //!< The check sum
+    uint16_t id;      //!< This is the block ID
+    uint8_t revision; //!< This is the block revision
+    uint16_t length;  //!< Length of the entire message including the header. A
+                      //!< multiple of 4 between 8 and 4096
+    uint32_t tow;     //!< This is the time of week in ms
+    uint16_t wnc;     //!< This is the GPS week counter
+};
 
 /**
  * @class ChannelStateInfo
@@ -151,7 +99,7 @@ struct BlockHeader
  */
 struct ChannelStateInfo
 {
-    uint8_t  antenna;
+    uint8_t antenna;
     uint16_t tracking_status;
     uint16_t pvt_status;
     uint16_t pvt_info;
@@ -163,13 +111,13 @@ struct ChannelStateInfo
  */
 struct ChannelSatInfo
 {
-    uint8_t  sv_id;
-    uint8_t  freq_nr;
+    uint8_t sv_id;
+    uint8_t freq_nr;
     uint16_t az_rise_set;
     uint16_t health_status;
-    int8_t   elev;
-    uint8_t  n2;
-    uint8_t  rx_channel;
+    int8_t elev;
+    uint8_t n2;
+    uint8_t rx_channel;
 
     std::vector<ChannelStateInfo> stateInfo;
 };
@@ -198,12 +146,12 @@ struct DOP
     BlockHeader block_header;
 
     uint8_t nr_sv;
-    double  pdop;
-    double  tdop;
-    double  hdop;
-    double  vdop;
-    float   hpl;
-    float   vpl;
+    double pdop;
+    double tdop;
+    double hdop;
+    double vdop;
+    float hpl;
+    float vpl;
 };
 
 /**
@@ -223,18 +171,18 @@ struct ReceiverSetup
     std::string rx_version;
     std::string ant_serial_nbr;
     std::string ant_type;
-    float       delta_h; /* [m] */
-    float       delta_e; /* [m] */
-    float       delta_n; /* [m] */
+    float delta_h; /* [m] */
+    float delta_e; /* [m] */
+    float delta_n; /* [m] */
     std::string marker_type;
     std::string gnss_fw_version;
     std::string product_name;
-    double      latitude;
-    double      longitude;
-    float       height;
+    double latitude;
+    double longitude;
+    float height;
     std::string station_code;
-    uint8_t     monument_idx;
-    uint8_t     receiver_idx;
+    uint8_t monument_idx;
+    uint8_t receiver_idx;
     std::string country_code;
 };
 
@@ -257,7 +205,7 @@ struct QualityInd
 struct AgcState
 {
     uint8_t frontend_id;
-    int8_t  gain;
+    int8_t gain;
     uint8_t sample_var;
     uint8_t blanking_stat;
 };
@@ -270,16 +218,16 @@ struct ReceiverStatus
 {
     BlockHeader block_header;
 
-    uint8_t  cpu_load;
-    uint8_t  ext_error;
+    uint8_t cpu_load;
+    uint8_t ext_error;
     uint32_t up_time;
     uint32_t rx_status;
     uint32_t rx_error;
-    uint8_t  n;
-    uint8_t  sb_length;
-    uint8_t  cmd_count;
-    uint8_t  temperature;
-    
+    uint8_t n;
+    uint8_t sb_length;
+    uint8_t cmd_count;
+    uint8_t temperature;
+
     std::vector<AgcState> agc_state;
 };
 
@@ -316,33 +264,29 @@ static const std::array<uint16_t, 256> CRC_LOOK_UP = {
     0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36,
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
-namespace qi  = boost::spirit::qi;
+namespace qi = boost::spirit::qi;
 
 /**
  * validValue
  * @brief Check if value is not set to Do-Not-Use -2e10
  */
-template<typename T>
+template <typename T>
 bool validValue(T s)
 {
     static_assert(std::is_same<uint16_t, T>::value ||
                   std::is_same<uint32_t, T>::value ||
-                  std::is_same<float, T>::value    ||
-                  std::is_same<double, T>::value);
+                  std::is_same<float, T>::value || std::is_same<double, T>::value);
     if (std::is_same<uint16_t, T>::value)
     {
         return (s != static_cast<uint16_t>(65535));
-    }
-    else if (std::is_same<uint32_t, T>::value)
+    } else if (std::is_same<uint32_t, T>::value)
     {
         return (s != 4294967295u);
-    }
-    else if (std::is_same<float, T>::value)
-	{
+    } else if (std::is_same<float, T>::value)
+    {
         return (s != -2e10f);
-    }
-    else if (std::is_same<double, T>::value)
-	{
+    } else if (std::is_same<double, T>::value)
+    {
         return (s != -2e10);
     }
 }
@@ -351,17 +295,15 @@ bool validValue(T s)
  * setDoNotUse
  * @brief Sets scalar to Do-Not-Use value -2e10
  */
-template<typename T>
+template <typename T>
 void setDoNotUse(T& s)
 {
-    static_assert(std::is_same<float, T>::value ||
-                  std::is_same<double, T>::value);
+    static_assert(std::is_same<float, T>::value || std::is_same<double, T>::value);
     if (std::is_same<float, T>::value)
-	{
+    {
         s = -2e10f;
-    }
-    else if (std::is_same<double, T>::value)
-	{
+    } else if (std::is_same<double, T>::value)
+    {
         s = -2e10;
     }
 }
@@ -370,46 +312,39 @@ void setDoNotUse(T& s)
  * qiLittleEndianParser
  * @brief Qi little endian parsers for numeric values
  */
-template<typename It, typename Val>
+template <typename It, typename Val>
 bool qiLittleEndianParser(It& it, Val& val)
 {
-    static_assert(std::is_same<int8_t, Val>::value   ||
-                  std::is_same<uint8_t, Val>::value  ||
-                  std::is_same<int16_t, Val>::value  ||
-                  std::is_same<uint16_t, Val>::value ||
-                  std::is_same<int32_t, Val>::value  ||
-                  std::is_same<uint32_t, Val>::value ||
-                  std::is_same<int64_t, Val>::value  ||
-                  std::is_same<uint64_t, Val>::value ||
-                  std::is_same<float, Val>::value    ||
-                  std::is_same<double, Val>::value);
+    static_assert(
+        std::is_same<int8_t, Val>::value || std::is_same<uint8_t, Val>::value ||
+        std::is_same<int16_t, Val>::value || std::is_same<uint16_t, Val>::value ||
+        std::is_same<int32_t, Val>::value || std::is_same<uint32_t, Val>::value ||
+        std::is_same<int64_t, Val>::value || std::is_same<uint64_t, Val>::value ||
+        std::is_same<float, Val>::value || std::is_same<double, Val>::value);
 
     if (std::is_same<int8_t, Val>::value)
-	{
+    {
         return qi::parse(it, it + 1, qi::char_, val);
-    }
-    else if (std::is_same<uint8_t, Val>::value)
-	{
+    } else if (std::is_same<uint8_t, Val>::value)
+    {
         return qi::parse(it, it + 1, qi::byte_, val);
-    }
-    else if ((std::is_same<int16_t, Val>::value) || (std::is_same<uint16_t, Val>::value))
-	{
+    } else if ((std::is_same<int16_t, Val>::value) ||
+               (std::is_same<uint16_t, Val>::value))
+    {
         return qi::parse(it, it + 2, qi::little_word, val);
-    }
-    else if ((std::is_same<int32_t, Val>::value) || (std::is_same<uint32_t, Val>::value))
-	{
+    } else if ((std::is_same<int32_t, Val>::value) ||
+               (std::is_same<uint32_t, Val>::value))
+    {
         return qi::parse(it, it + 4, qi::little_dword, val);
-    }
-    else if ((std::is_same<int64_t, Val>::value) || (std::is_same<uint64_t, Val>::value))
-	{
+    } else if ((std::is_same<int64_t, Val>::value) ||
+               (std::is_same<uint64_t, Val>::value))
+    {
         return qi::parse(it, it + 8, qi::little_qword, val);
-    }
-    else if (std::is_same<float, Val>::value)
-	{
+    } else if (std::is_same<float, Val>::value)
+    {
         return qi::parse(it, it + 4, qi::little_bin_float, val);
-    }
-    else if (std::is_same<double, Val>::value)
-	{
+    } else if (std::is_same<double, Val>::value)
+    {
         return qi::parse(it, it + 8, qi::little_bin_double, val);
     }
 }
@@ -418,7 +353,7 @@ bool qiLittleEndianParser(It& it, Val& val)
  * qiCharsToStringParser
  * @brief Qi parser for char array to string
  */
-template<typename It>
+template <typename It>
 bool qiCharsToStringParser(It& it, std::string& val, std::size_t num)
 {
     bool success = false;
@@ -431,11 +366,11 @@ bool qiCharsToStringParser(It& it, std::string& val, std::size_t num)
 
 /**
  * BlockHeaderParser
- * @brief Qi based parser for the SBF block "BlockHeader" plus receiver time stamp 
+ * @brief Qi based parser for the SBF block "BlockHeader" plus receiver time stamp
  */
-template<typename It, typename Hdr>
+template <typename It, typename Hdr>
 bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
-{  
+{
     qiLittleEndianParser(it, block_header.sync_1);
     if (block_header.sync_1 != SBF_SYNC_BYTE_1)
     {
@@ -451,8 +386,8 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
     qiLittleEndianParser(it, block_header.crc);
     uint16_t ID;
     qiLittleEndianParser(it, ID);
-    block_header.id       = ID & 8191; // lower 13 bits are id  
-    block_header.revision = ID >> 13;  // upper 3 bits are revision
+    block_header.id = ID & 8191;      // lower 13 bits are id
+    block_header.revision = ID >> 13; // upper 3 bits are revision
     qiLittleEndianParser(it, block_header.length);
     qiLittleEndianParser(it, block_header.tow);
     qiLittleEndianParser(it, block_header.wnc);
@@ -463,7 +398,7 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
  * ChannelStateInfoParser
  * @brief Qi based parser for the SBF sub-block "ChannelStateInfo"
  */
-template<typename It>
+template <typename It>
 void ChannelStateInfoParser(It& it, ChannelStateInfo& msg, uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.antenna);
@@ -478,8 +413,9 @@ void ChannelStateInfoParser(It& it, ChannelStateInfo& msg, uint8_t sb2_length)
  * ChannelSatInfoParser
  * @brief Qi based parser or the SBF sub-block "ChannelSatInfo"
  */
-template<typename It>
-bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uint8_t sb1_length, uint8_t sb2_length)
+template <typename It>
+bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg,
+                          uint8_t sb1_length, uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.sv_id);
     qiLittleEndianParser(it, msg.freq_nr);
@@ -488,19 +424,20 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uin
     qiLittleEndianParser(it, msg.health_status);
     qiLittleEndianParser(it, msg.elev);
     qiLittleEndianParser(it, msg.n2);
-    if (msg.n2 > MAXSB_MEASEPOCH_T2)
+    if (msg.n2 > MAXSB_CHANNELSTATEINFO)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many ChannelStateInfo " + std::to_string(msg.n2));
+        node->log(LogLevel::ERROR, "Parse error: Too many ChannelStateInfo " +
+                                       std::to_string(msg.n2));
         return false;
     }
     qiLittleEndianParser(it, msg.rx_channel);
-    ++it; // reserved
+    ++it;                              // reserved
     std::advance(it, sb1_length - 12); // skip padding
     msg.stateInfo.resize(msg.n2);
     for (auto& stateInfo : msg.stateInfo)
     {
         ChannelStateInfoParser(it, stateInfo, sb2_length);
-    } 
+    }
     return true;
 };
 
@@ -508,20 +445,22 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg, uin
  * ChannelStatusParser
  * @brief Qi based parser for the SBF block "ChannelStatus"
  */
-template<typename It>
+template <typename It>
 bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4013)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_CHANNELSATINFO)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many ChannelSatInfo " + std::to_string(msg.n));
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many ChannelSatInfo " + std::to_string(msg.n));
         return false;
     }
     qiLittleEndianParser(it, msg.sb1_length);
@@ -532,7 +471,7 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
     {
         if (!ChannelSatInfoParser(node, it, satInfo, msg.sb1_length, msg.sb2_length))
             return false;
-    } 
+    }
     if (it > itEnd)
     {
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");
@@ -545,15 +484,16 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
  * DOPParser
  * @brief Qi based parser for the SBF block "DOP"
  */
-template<typename It>
+template <typename It>
 bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, DOP& msg)
 {
-    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4001)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.nr_sv);
@@ -581,8 +521,9 @@ bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, DOP& msg)
  * MeasEpochChannelType2Parser
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType2"
  */
-template<typename It>
-void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg, uint8_t sb2_length)
+template <typename It>
+void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg,
+                                 uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.type);
     qiLittleEndianParser(it, msg.lock_time);
@@ -600,8 +541,10 @@ void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg, uint8_t 
  * @class MeasEpochChannelType1Parser
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType1"
  */
-template<typename It>
-bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelType1Msg& msg, uint8_t sb1_length, uint8_t sb2_length)
+template <typename It>
+bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it,
+                                 MeasEpochChannelType1Msg& msg, uint8_t sb1_length,
+                                 uint8_t sb2_length)
 {
     qiLittleEndianParser(it, msg.rx_channel);
     qiLittleEndianParser(it, msg.type);
@@ -618,14 +561,15 @@ bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelT
     std::advance(it, sb1_length - 20); // skip padding
     if (msg.n2 > MAXSB_MEASEPOCH_T2)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType2 " + std::to_string(msg.n2));
+        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType2 " +
+                                       std::to_string(msg.n2));
         return false;
     }
     msg.type2.resize(msg.n2);
     for (auto& type2 : msg.type2)
     {
         MeasEpochChannelType2Parser(it, type2, sb2_length);
-    } 
+    }
     return true;
 };
 
@@ -633,20 +577,22 @@ bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, MeasEpochChannelT
  * @class MeasEpoch
  * @brief Qi based parser for the SBF block "MeasEpoch"
  */
-template<typename It>
+template <typename It>
 bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4027)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_MEASEPOCH_T1)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType1 " + std::to_string(msg.n));
+        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType1 " +
+                                       std::to_string(msg.n));
         return false;
     }
     qiLittleEndianParser(it, msg.sb1_length);
@@ -658,7 +604,8 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
     msg.type1.resize(msg.n);
     for (auto& type1 : msg.type1)
     {
-        if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length, msg.sb2_length))
+        if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length,
+                                         msg.sb2_length))
             return false;
     }
     if (it > itEnd)
@@ -673,14 +620,15 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
  * ReceiverSetupParser
  * @brief Qi based parser for the SBF block "ReceiverSetup"
  */
-template<typename It>
+template <typename It>
 bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5902)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     std::advance(it, 2); // reserved
@@ -703,7 +651,7 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
     if (msg.block_header.revision > 2)
         qiCharsToStringParser(it, msg.product_name, 40);
     if (msg.block_header.revision > 3)
-    {    
+    {
         qiLittleEndianParser(it, msg.latitude);
         qiLittleEndianParser(it, msg.longitude);
         qiLittleEndianParser(it, msg.height);
@@ -711,8 +659,7 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
         qiLittleEndianParser(it, msg.monument_idx);
         qiLittleEndianParser(it, msg.receiver_idx);
         qiCharsToStringParser(it, msg.country_code, 3);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.latitude);
         setDoNotUse(msg.longitude);
@@ -727,17 +674,49 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
 };
 
 /**
+ * ReceiverTimeParser
+ * @brief Struct for the SBF block "ReceiverTime"
+ */
+template <typename It>
+bool ReceiverTimesParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5914)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.utc_year);
+    qiLittleEndianParser(it, msg.utc_month);
+    qiLittleEndianParser(it, msg.utc_day);
+    qiLittleEndianParser(it, msg.utc_hour);
+    qiLittleEndianParser(it, msg.utc_min);
+    qiLittleEndianParser(it, msg.utc_second);
+    qiLittleEndianParser(it, msg.delta_ls);
+    qiLittleEndianParser(it, msg.sync_level);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
  * PVTCartesianParser
  * @brief Qi based parser for the SBF block "PVTCartesian"
  */
-template<typename It>
+template <typename It>
 bool PVTCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PVTCartesianMsg& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4006)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -784,14 +763,15 @@ bool PVTCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PVTCartesianMsg& 
  * PVTGeodeticParser
  * @brief Qi based parser for the SBF block "PVTGeodetic"
  */
-template<typename It>
+template <typename It>
 bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4007)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -838,14 +818,16 @@ bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& ms
  * AttEulerParser
  * @brief Qi based parser for the SBF block "AttEuler"
  */
-template<typename It>
-bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg,
+                    bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5938)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.nr_sv);
@@ -881,14 +863,16 @@ bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg, boo
  * AttCovEulerParser
  * @brief Qi based parser for the SBF block "AttCovEuler"
  */
-template<typename It>
-bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& msg,
+                       bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5939)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     ++it; // reserved
@@ -896,15 +880,139 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
     qiLittleEndianParser(it, msg.cov_headhead);
     qiLittleEndianParser(it, msg.cov_pitchpitch);
     qiLittleEndianParser(it, msg.cov_rollroll);
-    qiLittleEndianParser(it, msg.cov_headpitch); 
+    qiLittleEndianParser(it, msg.cov_headpitch);
     qiLittleEndianParser(it, msg.cov_headroll);
     qiLittleEndianParser(it, msg.cov_pitchroll);
     if (use_ros_axis_orientation)
-    {        
+    {
         if (validValue(msg.cov_headroll))
-            msg.cov_headroll  = -msg.cov_headroll;
+            msg.cov_headroll = -msg.cov_headroll;
         if (validValue(msg.cov_pitchroll))
             msg.cov_pitchroll = -msg.cov_pitchroll;
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VectorInfoCartParser
+ * @brief Qi based parser for the SBF sub-block "VectorInfoCart"
+ */
+template <typename It>
+void VectorInfoCartParser(It& it, VectorInfoCartMsg& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.nr_sv);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.misc);
+    qiLittleEndianParser(it, msg.delta_x);
+    qiLittleEndianParser(it, msg.delta_y);
+    qiLittleEndianParser(it, msg.delta_z);
+    qiLittleEndianParser(it, msg.delta_vx);
+    qiLittleEndianParser(it, msg.delta_vy);
+    qiLittleEndianParser(it, msg.delta_vz);
+    qiLittleEndianParser(it, msg.azimuth);
+    qiLittleEndianParser(it, msg.elevation);
+    qiLittleEndianParser(it, msg.reference_id);
+    qiLittleEndianParser(it, msg.corr_age);
+    qiLittleEndianParser(it, msg.signal_info);
+    std::advance(it, sb_length - 52); // skip padding
+};
+
+/**
+ * @class BaseVectorCart
+ * @brief Qi based parser for the SBF block "BaseVectorCart"
+ */
+template <typename It>
+bool BaseVectorCartParser(ROSaicNodeBase* node, It it, It itEnd,
+                          BaseVectorCartMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4043)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > MAXSB_NBVECTORINFO)
+    {
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many VectorInfoCart " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb_length);
+    msg.vector_info_cart.resize(msg.n);
+    for (auto& vector_info_cart : msg.vector_info_cart)
+    {
+        VectorInfoCartParser(it, vector_info_cart, msg.sb_length);
+    }
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * VectorInfoGeodParser
+ * @brief Qi based parser for the SBF sub-block "VectorInfoGeod"
+ */
+template <typename It>
+void VectorInfoGeodParser(It& it, VectorInfoGeodMsg& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.nr_sv);
+    qiLittleEndianParser(it, msg.error);
+    qiLittleEndianParser(it, msg.mode);
+    qiLittleEndianParser(it, msg.misc);
+    qiLittleEndianParser(it, msg.delta_east);
+    qiLittleEndianParser(it, msg.delta_north);
+    qiLittleEndianParser(it, msg.delta_up);
+    qiLittleEndianParser(it, msg.delta_ve);
+    qiLittleEndianParser(it, msg.delta_vn);
+    qiLittleEndianParser(it, msg.delta_vu);
+    qiLittleEndianParser(it, msg.azimuth);
+    qiLittleEndianParser(it, msg.elevation);
+    qiLittleEndianParser(it, msg.reference_id);
+    qiLittleEndianParser(it, msg.corr_age);
+    qiLittleEndianParser(it, msg.signal_info);
+    std::advance(it, sb_length - 52); // skip padding
+};
+
+/**
+ * @class BaseVectorGeod
+ * @brief Qi based parser for the SBF block "BaseVectorGeod"
+ */
+template <typename It>
+bool BaseVectorGeodParser(ROSaicNodeBase* node, It it, It itEnd,
+                          BaseVectorGeodMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4028)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    if (msg.n > MAXSB_NBVECTORINFO)
+    {
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many VectorInfoGeod " + std::to_string(msg.n));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.sb_length);
+    msg.vector_info_geod.resize(msg.n);
+    for (auto& vector_info_geod : msg.vector_info_geod)
+    {
+        VectorInfoGeodParser(it, vector_info_geod, msg.sb_length);
     }
     if (it > itEnd)
     {
@@ -918,14 +1026,16 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
  * INSNavCartParser
  * @brief Qi based parser for the SBF block "INSNavCart"
  */
-template<typename It>
-bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
+                      bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if ((msg.block_header.id != 4225) && (msg.block_header.id != 4229))
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.gnss_mode);
@@ -938,21 +1048,20 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     qiLittleEndianParser(it, msg.accuracy);
     qiLittleEndianParser(it, msg.latency);
     qiLittleEndianParser(it, msg.datum);
-    ++it; //reserved
+    ++it; // reserved
     qiLittleEndianParser(it, msg.sb_list);
-    if((msg.sb_list & 1) !=0)
+    if ((msg.sb_list & 1) != 0)
     {
         qiLittleEndianParser(it, msg.x_std_dev);
         qiLittleEndianParser(it, msg.y_std_dev);
         qiLittleEndianParser(it, msg.z_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.x_std_dev);
         setDoNotUse(msg.y_std_dev);
         setDoNotUse(msg.z_std_dev);
     }
-    if((msg.sb_list & 2) !=0)
+    if ((msg.sb_list & 2) != 0)
     {
         qiLittleEndianParser(it, msg.heading);
         qiLittleEndianParser(it, msg.pitch);
@@ -964,87 +1073,80 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
             if (validValue(msg.pitch))
                 msg.pitch = -msg.pitch;
         }
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading);
-        setDoNotUse(msg.pitch );
+        setDoNotUse(msg.pitch);
         setDoNotUse(msg.roll);
     }
-    if((msg.sb_list & 4) !=0)
+    if ((msg.sb_list & 4) != 0)
     {
         qiLittleEndianParser(it, msg.heading_std_dev);
         qiLittleEndianParser(it, msg.pitch_std_dev);
         qiLittleEndianParser(it, msg.roll_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading_std_dev);
-        setDoNotUse(msg.pitch_std_dev );
+        setDoNotUse(msg.pitch_std_dev);
         setDoNotUse(msg.roll_std_dev);
     }
-    if((msg.sb_list & 8) !=0)
+    if ((msg.sb_list & 8) != 0)
     {
         qiLittleEndianParser(it, msg.vx);
         qiLittleEndianParser(it, msg.vy);
         qiLittleEndianParser(it, msg.vz);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.vx);
         setDoNotUse(msg.vy);
         setDoNotUse(msg.vz);
     }
-    if((msg.sb_list & 16) !=0)
+    if ((msg.sb_list & 16) != 0)
     {
         qiLittleEndianParser(it, msg.vx_std_dev);
         qiLittleEndianParser(it, msg.vy_std_dev);
         qiLittleEndianParser(it, msg.vz_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.vx_std_dev);
         setDoNotUse(msg.vy_std_dev);
         setDoNotUse(msg.vz_std_dev);
     }
-    if((msg.sb_list & 32) !=0)
+    if ((msg.sb_list & 32) != 0)
     {
         qiLittleEndianParser(it, msg.xy_cov);
         qiLittleEndianParser(it, msg.xz_cov);
         qiLittleEndianParser(it, msg.yz_cov);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.xy_cov);
         setDoNotUse(msg.xz_cov);
         setDoNotUse(msg.yz_cov);
     }
-    if((msg.sb_list & 64) !=0)
+    if ((msg.sb_list & 64) != 0)
     {
         qiLittleEndianParser(it, msg.heading_pitch_cov);
         qiLittleEndianParser(it, msg.heading_roll_cov);
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
-        {   
+        {
             if (validValue(msg.heading_roll_cov))
                 msg.heading_roll_cov = -msg.heading_roll_cov;
             if (validValue(msg.pitch_roll_cov))
                 msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading_pitch_cov);
         setDoNotUse(msg.heading_roll_cov);
         setDoNotUse(msg.pitch_roll_cov);
     }
-    if((msg.sb_list & 128) !=0)
+    if ((msg.sb_list & 128) != 0)
     {
         qiLittleEndianParser(it, msg.vx_vy_cov);
         qiLittleEndianParser(it, msg.vx_vz_cov);
         qiLittleEndianParser(it, msg.vy_vz_cov);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.vx_vy_cov);
         setDoNotUse(msg.vx_vz_cov);
@@ -1062,28 +1164,30 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
  * PosCovCartesianParser
  * @brief Qi based parser for the SBF block "PosCovCartesian"
  */
-template<typename It>
-bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PosCovCartesianMsg& msg)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
+                           PosCovCartesianMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5905)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
     qiLittleEndianParser(it, msg.error);
     qiLittleEndianParser(it, msg.cov_xx);
-    qiLittleEndianParser(it,msg.cov_yy);
-    qiLittleEndianParser(it,msg.cov_zz);
-    qiLittleEndianParser(it,msg.cov_bb);
-    qiLittleEndianParser(it,msg.cov_xy);
-    qiLittleEndianParser(it,msg.cov_xz);
-    qiLittleEndianParser(it,msg.cov_xb);
-    qiLittleEndianParser(it,msg.cov_yz);
-    qiLittleEndianParser(it,msg.cov_yb);
-    qiLittleEndianParser(it,msg.cov_zb);
+    qiLittleEndianParser(it, msg.cov_yy);
+    qiLittleEndianParser(it, msg.cov_zz);
+    qiLittleEndianParser(it, msg.cov_bb);
+    qiLittleEndianParser(it, msg.cov_xy);
+    qiLittleEndianParser(it, msg.cov_xz);
+    qiLittleEndianParser(it, msg.cov_xb);
+    qiLittleEndianParser(it, msg.cov_yz);
+    qiLittleEndianParser(it, msg.cov_yb);
+    qiLittleEndianParser(it, msg.cov_zb);
     if (it > itEnd)
     {
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");
@@ -1096,14 +1200,16 @@ bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PosCovCartesia
  * PosCovGeodeticParser
  * @brief Qi based parser for the SBF block "PosCovGeodetic"
  */
-template<typename It>
-bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PosCovGeodeticMsg& msg)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
+                          PosCovGeodeticMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5906)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1130,14 +1236,16 @@ bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PosCovGeodeticM
  * VelCovCartesianParser
  * @brief Qi based parser for the SBF block "VelCovCartesian"
  */
-template<typename It>
-bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, VelCovCartesianMsg& msg)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
+                           VelCovCartesianMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5907)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1164,14 +1272,16 @@ bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd, VelCovCartesia
  * VelCovGeodeticParser
  * @brief Qi based parser for the SBF block "VelCovGeodetic"
  */
-template<typename It>
-bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, VelCovGeodeticMsg& msg)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
+                          VelCovGeodeticMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 5908)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1198,20 +1308,22 @@ bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, VelCovGeodeticM
  * QualityIndParser
  * @brief @brief Qi based parser for the SBF block "QualityInd"
  */
-template<typename It>
+template <typename It>
 bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4082)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > 40)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many indicators " + std::to_string(msg.n));
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many indicators " + std::to_string(msg.n));
         return false;
     }
     ++it; // reserved
@@ -1233,7 +1345,7 @@ bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
  * AgcStateParser
  * @brief Struct for the SBF sub-block "AGCState"
  */
-template<typename It>
+template <typename It>
 void AgcStateParser(It it, AgcState& msg, uint8_t sb_length)
 {
     qiLittleEndianParser(it, msg.frontend_id);
@@ -1247,14 +1359,15 @@ void AgcStateParser(It it, AgcState& msg, uint8_t sb_length)
  * ReceiverStatusParser
  * @brief Struct for the SBF block "ReceiverStatus"
  */
-template<typename It>
+template <typename It>
 bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus& msg)
 {
-    if(!BlockHeaderParser(node, it, msg.block_header))
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4014)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.cpu_load);
@@ -1265,7 +1378,8 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
     qiLittleEndianParser(it, msg.n);
     if (msg.n > 18)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many AGCState " + std::to_string(msg.n));
+        node->log(LogLevel::ERROR,
+                  "Parse error: Too many AGCState " + std::to_string(msg.n));
         return false;
     }
     qiLittleEndianParser(it, msg.sb_length);
@@ -1285,17 +1399,50 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
 };
 
 /**
+ * ReceiverTimeParser
+ * @brief Struct for the SBF block "ReceiverTime"
+ */
+template <typename It>
+bool ReceiverTimeParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 5914)
+    {
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.utc_year);
+    qiLittleEndianParser(it, msg.utc_month);
+    qiLittleEndianParser(it, msg.utc_day);
+    qiLittleEndianParser(it, msg.utc_hour);
+    qiLittleEndianParser(it, msg.utc_min);
+    qiLittleEndianParser(it, msg.utc_second);
+    qiLittleEndianParser(it, msg.delta_ls);
+    qiLittleEndianParser(it, msg.sync_level);
+    if (it > itEnd)
+    {
+        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
  * INSNavGeodParser
  * @brief Qi based parser for the SBF block "INSNavGeod"
  */
-template<typename It>
-bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
+                      bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if ((msg.block_header.id != 4226) && (msg.block_header.id != 4230))
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.gnss_mode);
@@ -1309,21 +1456,20 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     qiLittleEndianParser(it, msg.accuracy);
     qiLittleEndianParser(it, msg.latency);
     qiLittleEndianParser(it, msg.datum);
-    ++it; //reserved
+    ++it; // reserved
     qiLittleEndianParser(it, msg.sb_list);
-    if((msg.sb_list & 1) !=0)
+    if ((msg.sb_list & 1) != 0)
     {
         qiLittleEndianParser(it, msg.latitude_std_dev);
         qiLittleEndianParser(it, msg.longitude_std_dev);
         qiLittleEndianParser(it, msg.height_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.latitude_std_dev);
         setDoNotUse(msg.longitude_std_dev);
         setDoNotUse(msg.height_std_dev);
     }
-    if((msg.sb_list & 2) !=0)
+    if ((msg.sb_list & 2) != 0)
     {
         qiLittleEndianParser(it, msg.heading);
         qiLittleEndianParser(it, msg.pitch);
@@ -1335,87 +1481,80 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
             if (validValue(msg.pitch))
                 msg.pitch = -msg.pitch;
         }
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading);
-        setDoNotUse(msg.pitch );
+        setDoNotUse(msg.pitch);
         setDoNotUse(msg.roll);
     }
-    if((msg.sb_list & 4) !=0)
+    if ((msg.sb_list & 4) != 0)
     {
         qiLittleEndianParser(it, msg.heading_std_dev);
         qiLittleEndianParser(it, msg.pitch_std_dev);
         qiLittleEndianParser(it, msg.roll_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading_std_dev);
-        setDoNotUse(msg.pitch_std_dev );
+        setDoNotUse(msg.pitch_std_dev);
         setDoNotUse(msg.roll_std_dev);
     }
-    if((msg.sb_list & 8) !=0)
+    if ((msg.sb_list & 8) != 0)
     {
         qiLittleEndianParser(it, msg.ve);
         qiLittleEndianParser(it, msg.vn);
         qiLittleEndianParser(it, msg.vu);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.ve);
         setDoNotUse(msg.vn);
         setDoNotUse(msg.vu);
     }
-    if((msg.sb_list & 16) !=0)
+    if ((msg.sb_list & 16) != 0)
     {
         qiLittleEndianParser(it, msg.ve_std_dev);
         qiLittleEndianParser(it, msg.vn_std_dev);
         qiLittleEndianParser(it, msg.vu_std_dev);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.ve_std_dev);
         setDoNotUse(msg.vn_std_dev);
         setDoNotUse(msg.vu_std_dev);
     }
-    if((msg.sb_list & 32) !=0)
+    if ((msg.sb_list & 32) != 0)
     {
         qiLittleEndianParser(it, msg.latitude_longitude_cov);
         qiLittleEndianParser(it, msg.latitude_height_cov);
         qiLittleEndianParser(it, msg.longitude_height_cov);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.latitude_longitude_cov);
         setDoNotUse(msg.latitude_height_cov);
-        setDoNotUse(msg.longitude_height_cov );
+        setDoNotUse(msg.longitude_height_cov);
     }
-    if((msg.sb_list & 64) !=0)
+    if ((msg.sb_list & 64) != 0)
     {
         qiLittleEndianParser(it, msg.heading_pitch_cov);
         qiLittleEndianParser(it, msg.heading_roll_cov);
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
         {
-            if (validValue(msg.heading_roll_cov))   
+            if (validValue(msg.heading_roll_cov))
                 msg.heading_roll_cov = -msg.heading_roll_cov;
             if (validValue(msg.pitch_roll_cov))
                 msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
-    }
-    else
+    } else
     {
         setDoNotUse(msg.heading_pitch_cov);
         setDoNotUse(msg.heading_roll_cov);
         setDoNotUse(msg.pitch_roll_cov);
     }
-    if((msg.sb_list & 128) !=0)
+    if ((msg.sb_list & 128) != 0)
     {
         qiLittleEndianParser(it, msg.ve_vn_cov);
         qiLittleEndianParser(it, msg.ve_vu_cov);
         qiLittleEndianParser(it, msg.vn_vu_cov);
-    }
-    else
+    } else
     {
         setDoNotUse(msg.ve_vn_cov);
         setDoNotUse(msg.ve_vu_cov);
@@ -1433,17 +1572,19 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
  * IMUSetupParser
  * @brief Qi based parser for the SBF block "IMUSetup"
  */
-template<typename It>
-bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg,
+                    bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4224)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
-    ++it; //reserved
+    ++it; // reserved
     qiLittleEndianParser(it, msg.serial_port);
     qiLittleEndianParser(it, msg.ant_lever_arm_x);
     qiLittleEndianParser(it, msg.ant_lever_arm_y);
@@ -1469,21 +1610,23 @@ bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg, boo
  * VelSensorSetupParser
  * @brief Qi based parser for the SBF block "VelSensorSetup"
  */
-template<typename It>
-bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd, VelSensorSetupMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd,
+                          VelSensorSetupMsg& msg, bool use_ros_axis_orientation)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4244)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
-    ++it; //reserved
+    ++it; // reserved
     qiLittleEndianParser(it, msg.port);
     qiLittleEndianParser(it, msg.lever_arm_x);
     qiLittleEndianParser(it, msg.lever_arm_y);
-    qiLittleEndianParser(it, msg.lever_arm_z);    
+    qiLittleEndianParser(it, msg.lever_arm_z);
     if (use_ros_axis_orientation)
     {
         msg.lever_arm_y = -msg.lever_arm_y;
@@ -1501,21 +1644,25 @@ bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd, VelSensorSetupM
  * ExtSensorMeasParser
  * @brief Qi based parser for the SBF block "ExtSensorMeas"
  */
-template<typename It>
-bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg, bool use_ros_axis_orientation)
-{    
-    if(!BlockHeaderParser(node, it, msg.block_header))
+template <typename It>
+bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
+                         ExtSensorMeasMsg& msg, bool use_ros_axis_orientation,
+                         bool& hasImuMeas)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
         return false;
     if (msg.block_header.id != 4050)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " + std::to_string(msg.block_header.id));
+        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
+                                       std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     qiLittleEndianParser(it, msg.sb_length);
     if (msg.sb_length != 28)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong sb_length " + std::to_string(msg.sb_length));
+        node->log(LogLevel::ERROR,
+                  "Parse error: Wrong sb_length " + std::to_string(msg.sb_length));
         return false;
     }
 
@@ -1535,13 +1682,16 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
     msg.std_dev_y = std::numeric_limits<double>::quiet_NaN();
     msg.std_dev_z = std::numeric_limits<double>::quiet_NaN();
 
-    msg.sensor_temperature = -32768.0f; //do not use value
+    msg.sensor_temperature = -32768.0f; // do not use value
     msg.zero_velocity_flag = std::numeric_limits<double>::quiet_NaN();
 
     msg.source.resize(msg.n);
     msg.sensor_model.resize(msg.n);
     msg.type.resize(msg.n);
-    msg.obs_info.resize(msg.n); 
+    msg.obs_info.resize(msg.n);
+    bool hasAcc = false;
+    bool hasOmega = false;
+    hasImuMeas = false;
     for (size_t i = 0; i < msg.n; i++)
     {
         qiLittleEndianParser(it, msg.source[i]);
@@ -1563,6 +1713,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
                 if (validValue(msg.acceleration_z))
                     msg.acceleration_z = -msg.acceleration_z;
             }
+            hasAcc = true;
             break;
         }
         case 1:
@@ -1577,6 +1728,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
                 if (validValue(msg.angular_rate_z))
                     msg.angular_rate_z = -msg.angular_rate_z;
             }
+            hasOmega = true;
             break;
         }
         case 3:
@@ -1611,18 +1763,19 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg
         }
         default:
         {
-            node->log(LogLevel::ERROR, "Unknown external sensor measurement type in SBF ExtSensorMeas.");
+            node->log(
+                LogLevel::ERROR,
+                "Unknown external sensor measurement type in SBF ExtSensorMeas.");
             std::advance(it, 24);
             break;
         }
-        } 
+        }
     }
     if (it > itEnd)
     {
         node->log(LogLevel::ERROR, "Parse error: iterator past end.");
         return false;
     }
+    hasImuMeas = hasAcc && hasOmega;
     return true;
 };
-
-#endif // SBFStructs_HPP
