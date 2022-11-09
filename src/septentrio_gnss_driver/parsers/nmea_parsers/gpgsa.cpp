@@ -50,8 +50,9 @@ const std::string GpgsaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[18] if anybody ever needs it.
  */
-GpgsaMsg
-GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, Timestamp /*time_obj*/) noexcept(false)
+GpgsaMsg GpgsaParser::parseASCII(const NMEASentence& sentence,
+                                 const std::string& frame_id, bool /*use_gnss_time*/,
+                                 Timestamp /*time_obj*/) noexcept(false)
 {
 
     // Checking the length first, it should be 19 elements

@@ -1,0 +1,98 @@
+# Configuration Settings for the Rover Rx
+
+# GNSS/INS Parameters
+
+device: tcp://192.168.3.1:28784
+
+serial:
+  baudrate: 921600
+  rx_serial_port: USB1
+  hw_flow_control: "off"
+
+login:
+  user: ""
+  password: ""
+
+frame_id: gnss
+
+aux1_frame_id: aux1
+
+get_spatial_config_from_tf: true
+
+use_ros_axis_orientation: true
+
+receiver_type: gnss
+
+multi_antenna: true
+
+datum: Default
+
+att_offset:
+  heading: 0.0
+  pitch: 0.0
+
+ant_type: "Unknown"
+ant_serial_nr: "Unknown"
+ant_aux1_type: "Unknown"
+ant_aux1_serial_nr: "Unknown"
+
+polling_period:
+  pvt: 0
+  rest: 500
+
+use_gnss_time: false
+
+rtk_settings:  
+  ntrip_1:
+    id: ""
+    caster: ""
+    caster_port: 2101
+    username: ""
+    password: ""
+    mountpoint: ""
+    version: "v2"
+    tls: false
+    fingerprint: ""
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
+  ip_server_1:
+    id: ""
+    port: 0
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
+  serial_1:
+    port: ""
+    baud_rate: 115200
+    rtk_standard: "auto"
+    send_gga: "auto"
+    keep_open: true
+
+publish:
+  # For both GNSS and INS Rxs
+  navsatfix: true
+  gpsfix: true
+  gpgga: true
+  gprmc: true
+  gpst: true
+  measepoch: true
+  pvtcartesian: true
+  pvtgeodetic: true
+  basevectorcart: false
+  basevectorgeod: false
+  poscovcartesian: true
+  poscovgeodetic: true
+  velcovgeodetic: true
+  atteuler: true
+  attcoveuler: true
+  pose: true
+  twist: false
+  diagnostics: true
+  # For GNSS Rx only
+  gpgsa: false
+  gpgsv: false
+
+# logger
+
+activate_debug_log: false

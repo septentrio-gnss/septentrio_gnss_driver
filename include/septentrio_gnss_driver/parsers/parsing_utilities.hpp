@@ -50,14 +50,14 @@
  * @date 17/08/20
  */
 
-namespace parsing_utilities {    
+namespace parsing_utilities {
 
     constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
 
     /***********************************************************************
      * Square value
      **********************************************************************/
-    template<class T>
+    template <class T>
     inline T square(T val)
     {
         return val * val;
@@ -66,7 +66,7 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert degrees to radians
      **********************************************************************/
-    template<class T>
+    template <class T>
     inline T deg2rad(T deg)
     {
         return deg * boost::math::constants::degree<T>();
@@ -75,16 +75,17 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert degrees^2 to radians^2
      **********************************************************************/
-    template<class T>
+    template <class T>
     inline T deg2radSq(T deg)
     {
-        return deg * boost::math::constants::degree<T>() * boost::math::constants::degree<T>();
+        return deg * boost::math::constants::degree<T>() *
+               boost::math::constants::degree<T>();
     }
 
     /***********************************************************************
      * Convert radians to degree
      **********************************************************************/
-    template<class T>
+    template <class T>
     inline T rad2deg(T rad)
     {
         return rad * boost::math::constants::radian<T>();
@@ -96,7 +97,7 @@ namespace parsing_utilities {
     inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
     {
         Eigen::Matrix3d M;
-        double          sa, ca, sb, cb, sc, cc;
+        double sa, ca, sb, cb, sc, cc;
         sa = std::sin(roll);
         ca = std::cos(roll);
         sb = std::sin(pitch);
@@ -104,9 +105,8 @@ namespace parsing_utilities {
         sc = std::sin(yaw);
         cc = std::cos(yaw);
 
-        M << cb * cc, -ca * sc + sa * sb * cc, sc* sa + ca * sb * cc,
-            cb* sc, ca* cc + sa * sb * sc, -sa * cc + ca * sb * sc,
-            -sb,          sa* cb,           ca* cb;
+        M << cb * cc, -ca * sc + sa * sb * cc, sc * sa + ca * sb * cc, cb * sc,
+            ca * cc + sa * sb * sc, -sa * cc + ca * sb * sc, -sb, sa * cb, ca * cb;
         return M;
     }
 
@@ -305,46 +305,45 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new East-axis
      * @return ROS message representing a quaternion
      */
-    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
-                                                       double roll);
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch, double roll);
 
     /**
-     * @brief Transforms the input polling period [milliseconds] into a uint32_t
+     * @brief Transforms the input polling period [milliseconds] into a std::string
      * number that can be appended to either sec or msec for Rx commands
      * @param[in] period_user Polling period in milliseconds as specified by the
      * ROSaic user
-     * @return Number to be appended to either sec or msec when sending commands to
-     * the Rx
+     * @return Number to be appended to either msec, sec or min when sending commands
+     * to the Rx
      */
-    uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
+    std::string convertUserPeriodToRxCommand(uint32_t period_user);
 
     /**
      * @brief Get the CRC of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message CRC 
+     * @return SBF message CRC
      */
     uint16_t getCrc(const uint8_t* buffer);
 
     /**
      * @brief Get the ID of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message ID 
+     * @return SBF message ID
      */
     uint16_t getId(const uint8_t* buffer);
 
     /**
      * @brief Get the length of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message length 
+     * @return SBF message length
      */
     uint16_t getLength(const uint8_t* buffer);
 
     /**
      * @brief Get the time of week in ms of the SBF message
-     * 
+     *
      * @param[in] buffer A pointer to a buffer containing an SBF message
      * @return SBF time of week in ms
      */
@@ -352,9 +351,9 @@ namespace parsing_utilities {
 
     /**
      * @brief Get the GPS week counter of the SBF message
-     *  
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF GPS week counter 
+     * @return SBF GPS week counter
      */
     uint16_t getWnc(const uint8_t* buffer);
 } // namespace parsing_utilities

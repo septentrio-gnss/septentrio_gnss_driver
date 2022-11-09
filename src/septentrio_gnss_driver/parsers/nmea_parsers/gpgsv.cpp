@@ -50,8 +50,9 @@ const std::string GpgsvParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: E.g. for
  * message with 4 Svs it would be sentence.get_body()[20] if anybody ever needs it.
  */
-GpgsvMsg
-GpgsvParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, Timestamp /*time_obj*/) noexcept(false)
+GpgsvMsg GpgsvParser::parseASCII(const NMEASentence& sentence,
+                                 const std::string& frame_id, bool /*use_gnss_time*/,
+                                 Timestamp /*time_obj*/) noexcept(false)
 {
 
     const size_t MIN_LENGTH = 4;

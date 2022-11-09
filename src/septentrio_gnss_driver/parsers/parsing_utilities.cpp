@@ -306,8 +306,7 @@ namespace parsing_utilities {
     //! 3-2-1 sequence: The body first does yaw around the Z=Down-axis, then pitches
     //! around the new Y=East=right-axis and finally rolls around the new
     //! X=North=forward-axis.
-    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
-                                                       double roll)
+    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch, double roll)
     {
         // Abbreviations for the angular functions
         double cy = std::cos(yaw * 0.5);
@@ -326,20 +325,21 @@ namespace parsing_utilities {
         return q;
     }
 
-    uint32_t convertUserPeriodToRxCommand(uint32_t period_user)
+    std::string convertUserPeriodToRxCommand(uint32_t period_user)
     {
-        if (period_user <= 500 && period_user >= 10)
-            return period_user;
+        std::string cmd;
+
+        if (period_user == 0)
+            return "OnChange";
+        else if (period_user < 1000)
+            return "msec" + std::to_string(period_user);
+        else if (period_user <= 60000)
+            return "sec" + std::to_string(period_user / 1000);
         else
-        {
-            return period_user / 1000;
-        }
+            return "min" + std::to_string(period_user / 60000);
     }
 
-    uint16_t getCrc(const uint8_t* buffer)
-    {
-        return parseUInt16(buffer + 2);
-    }
+    uint16_t getCrc(const uint8_t* buffer) { return parseUInt16(buffer + 2); }
 
     uint16_t getId(const uint8_t* buffer)
     {
@@ -348,21 +348,12 @@ namespace parsing_utilities {
         static uint16_t mask = 8191;
         // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
 
-        return parseUInt16(buffer + 4)  & mask;
+        return parseUInt16(buffer + 4) & mask;
     }
 
-    uint16_t getLength(const uint8_t* buffer)
-    {
-        return parseUInt16(buffer + 6);
-    }   
+    uint16_t getLength(const uint8_t* buffer) { return parseUInt16(buffer + 6); }
 
-    uint32_t getTow(const uint8_t* buffer)
-    {
-        return parseUInt32(buffer + 8);
-    }
+    uint32_t getTow(const uint8_t* buffer) { return parseUInt32(buffer + 8); }
 
-    uint16_t getWnc(const uint8_t* buffer)
-    {
-        return parseUInt16(buffer + 12);
-    }
+    uint16_t getWnc(const uint8_t* buffer) { return parseUInt16(buffer + 12); }
 } // namespace parsing_utilities

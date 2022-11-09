@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   gps_common
   message_generation
   tf2
+  tf2_eigen
   tf2_geometry_msgs
   tf2_ros
 )
@@ -71,6 +72,8 @@ endif ()
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
+   BaseVectorCart.msg
+   BaseVectorGeod.msg
    BlockHeader.msg
    MeasEpoch.msg
    MeasEpochChannelType1.msg
@@ -79,6 +82,7 @@ add_message_files(
    PVTGeodetic.msg
    PosCovCartesian.msg
    PosCovGeodetic.msg
+   ReceiverTime.msg
    VelCovCartesian.msg
    VelCovGeodetic.msg
    AttEuler.msg
@@ -86,6 +90,8 @@ add_message_files(
    INSNavCart.msg
    INSNavGeod.msg
    IMUSetup.msg
+   VectorInfoCart.msg
+   VectorInfoGeod.msg
    VelSensorSetup.msg
    ExtSensorMeas.msg
 )

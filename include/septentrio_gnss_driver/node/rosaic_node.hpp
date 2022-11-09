@@ -66,8 +66,8 @@
  */
 
 // ROS includes
-#include <ros/ros.h>
 #include <ros/console.h>
+#include <ros/ros.h>
 // tf2 includes
 #include <tf2_ros/transform_listener.h>
 // ROSaic includes
@@ -89,7 +89,7 @@ namespace rosaic_node {
         //! The constructor initializes and runs the ROSaic node, if everything works
         //! fine. It loads the user-defined ROS parameters, subscribes to Rx
         //! messages, and publishes requested ROS messages...
-        ROSaicNode();        
+        ROSaicNode();
 
     private:
         /**
@@ -100,12 +100,21 @@ namespace rosaic_node {
          */
         bool getROSParams();
         /**
+         * @brief Checks if the period has a valid value
+         * @param[in] period period [ms]
+         * @param[in] isIns wether recevier is an INS
+         * @return wether the period is valid
+         */
+        bool validPeriod(uint32_t period, bool isIns);
+        /**
          * @brief Gets transforms from tf2
          * @param[in] targetFrame traget frame id
          * @param[in] sourceFrame source frame id
          * @param[out] T_s_t transfrom from source to target
          */
-        void getTransform(const std::string& targetFrame, const std::string& sourceFrame, TransformStampedMsg& T_s_t);
+        void getTransform(const std::string& targetFrame,
+                          const std::string& sourceFrame,
+                          TransformStampedMsg& T_s_t);
         /**
          * @brief Gets Euler angles from quaternion message
          * @param[in] qm quaternion message
@@ -113,15 +122,16 @@ namespace rosaic_node {
          * @param[out] pitch pitch angle
          * @param[out] yaw yaw angle
          */
-        void getRPY(const QuaternionMsg& qm, double& roll, double& pitch, double& yaw);
-        
-        //! Settings
-        Settings settings_;
+        void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
+                    double& yaw);
+
+        void sendVelocity(const std::string& velNmea);
+
         //! Handles communication with the Rx
         io_comm_rx::Comm_IO IO_;
         //! tf2 buffer and listener
         tf2_ros::Buffer tfBuffer_;
-	    std::unique_ptr<tf2_ros::TransformListener> tfListener_;
+        std::unique_ptr<tf2_ros::TransformListener> tfListener_;
     };
 } // namespace rosaic_node
 
