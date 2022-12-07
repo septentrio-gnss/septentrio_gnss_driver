@@ -52,6 +52,11 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
   source ~/.bashrc 
   ```
+
+  Run tests
+  ```
+  colcon test --packages-select septentrio_gnss_driver --event-handlers console_direct+
+  ```
 </details>
 
 <details>

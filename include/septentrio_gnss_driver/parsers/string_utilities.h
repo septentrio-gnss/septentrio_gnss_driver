@@ -137,7 +137,7 @@ namespace string_utilities {
     uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 
     /**
-     * @brief Trims decimal places to two
+     * @brief Trims decimal places to three
      * @param[in] num The double who shall be trimmed
      * @return The string
      */

@@ -131,13 +131,9 @@ ament_target_dependencies(${executable_name}
 
 rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
 
-# Enable testing with colcon build --cmake-args -DBUILD_TESTING=ON
-#if(BUILD_TESTING)
-#  find_package(ament_lint_auto REQUIRED)
-#  ament_lint_auto_find_test_dependencies()
-#
-#  add_subdirectory(test)
-#endif()
+# Testing
+find_package(ament_cmake_gtest REQUIRED)
+add_subdirectory(test)
 
 # Export Targets
 ament_export_targets(${library_name} HAS_LIBRARY_TARGET)
