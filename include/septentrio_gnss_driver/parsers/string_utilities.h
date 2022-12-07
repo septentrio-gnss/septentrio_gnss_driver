@@ -42,10 +42,6 @@
  * @date 13/08/20
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @namespace string_utilities
  * This namespace is for the functions that encapsulate basic string manipulation and
@@ -150,9 +146,5 @@ namespace string_utilities {
      */
     bool containsSpace(const std::string str);
 } // namespace string_utilities
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // STRING_UTILITIES_H
