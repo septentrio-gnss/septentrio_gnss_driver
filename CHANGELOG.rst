@@ -5,7 +5,7 @@ Changelog for package septentrio_gnss_driver
 1.2.4 (upcoming)
 ------------------
 * New Features
-   * Output ot localization and tf in ECEF frame
+   * Output of localization and tf in ECEF frame
 
 1.2.3 (2022-11-09)
 ------------------
