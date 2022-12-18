@@ -633,21 +633,22 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
     bool northernHemisphere;
     double easting;
     double northing;
-    double gamma = 0.0;
+    double meridian_convergence = 0.0;
     if (fixedUtmZone_)
     {
         double k;
         GeographicLib::UTMUPS::DecodeZone(*fixedUtmZone_, zone, northernHemisphere);
-        GeographicLib::UTMUPS::Forward(
-            rad2deg(last_insnavgeod_.latitude), rad2deg(last_insnavgeod_.longitude),
-            zone, northernHemisphere, easting, northing, gamma, k, zone);
+        GeographicLib::UTMUPS::Forward(rad2deg(last_insnavgeod_.latitude),
+                                       rad2deg(last_insnavgeod_.longitude), zone,
+                                       northernHemisphere, easting, northing,
+                                       meridian_convergence, k, zone);
         zonestring = *fixedUtmZone_;
     } else
     {
         double k;
         GeographicLib::UTMUPS::Forward(
             rad2deg(last_insnavgeod_.latitude), rad2deg(last_insnavgeod_.longitude),
-            zone, northernHemisphere, easting, northing, gamma, k);
+            zone, northernHemisphere, easting, northing, meridian_convergence, k);
         zonestring = GeographicLib::UTMUPS::EncodeZone(zone, northernHemisphere);
     }
     if (settings_->lock_utm_zone && !fixedUtmZone_)
@@ -695,11 +696,11 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
     double yaw = 0.0;
     if (validValue(last_insnavgeod_.heading))
         yaw = deg2rad(last_insnavgeod_.heading);
-    // gamma for conversion from true north to grid north
+    // meridian_convergence for conversion from true north to grid north
     if (settings_->use_ros_axis_orientation)
-        yaw -= deg2rad(gamma);
+        yaw += deg2rad(meridian_convergence);
     else
-        yaw += deg2rad(gamma);
+        yaw -= deg2rad(meridian_convergence);
 
     if ((last_insnavgeod_.sb_list & 2) != 0)
     {
