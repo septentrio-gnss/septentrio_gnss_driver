@@ -748,7 +748,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
             P_pos(2, 1) = last_insnavgeod_.latitude_height_cov;
         } else
         {
-            // (NED)
+            // (NED): down = -height
             P_pos(0, 2) = -last_insnavgeod_.latitude_height_cov;
             P_pos(1, 2) = -last_insnavgeod_.longitude_height_cov;
             P_pos(2, 0) = -last_insnavgeod_.latitude_height_cov;
@@ -788,15 +788,6 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
         msg.pose.covariance[29] = deg2radSq(last_insnavgeod_.heading_pitch_cov);
         msg.pose.covariance[33] = deg2radSq(last_insnavgeod_.heading_roll_cov);
         msg.pose.covariance[34] = deg2radSq(last_insnavgeod_.heading_pitch_cov);
-
-        if (!settings_->use_ros_axis_orientation)
-        {
-            // (NED)
-            msg.pose.covariance[33] *= -1.0;
-            msg.pose.covariance[23] *= -1.0;
-            msg.pose.covariance[22] *= -1.0;
-            msg.pose.covariance[27] *= -1.0;
-        }
     }
 
     fillLocalizationMsgTwist(roll, pitch, yaw, msg);
@@ -927,16 +918,8 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
             covAtt_local(2, 1) = deg2radSq(last_insnavcart_.heading_pitch_cov);
             covAtt_local(2, 0) = deg2radSq(last_insnavcart_.heading_roll_cov);
             covAtt_local(1, 2) = deg2radSq(last_insnavcart_.heading_pitch_cov);
-
-            if (!settings_->use_ros_axis_orientation)
-            {
-                // (NED)
-                covAtt_local(0, 2) *= -1.0;
-                covAtt_local(2, 0) *= -1.0;
-                covAtt_local(0, 1) *= -1.0;
-                covAtt_local(1, 0) *= -1.0;
-            }
         }
+
         Eigen::Matrix3d R_local_ecef;
         if (settings_->use_ros_axis_orientation)
             R_local_ecef = parsing_utilities::R_enu_ecef(last_insnavgeod_.latitude,
