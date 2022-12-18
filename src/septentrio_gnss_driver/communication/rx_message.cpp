@@ -673,17 +673,13 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
     else
         msg.child_frame_id = settings_->frame_id;
 
+    Eigen::Matrix3d P_pos = -Eigen::Matrix3d::Identity();
     if ((last_insnavgeod_.sb_list & 1) != 0)
     {
         // Position autocovariance
-        msg.pose.covariance[0] = square(last_insnavgeod_.longitude_std_dev);
-        msg.pose.covariance[7] = square(last_insnavgeod_.latitude_std_dev);
-        msg.pose.covariance[14] = square(last_insnavgeod_.height_std_dev);
-    } else
-    {
-        msg.pose.covariance[0] = -1.0;
-        msg.pose.covariance[7] = -1.0;
-        msg.pose.covariance[14] = -1.0;
+        P_pos(0, 0) = square(last_insnavgeod_.longitude_std_dev);
+        P_pos(1, 1) = square(last_insnavgeod_.latitude_std_dev);
+        P_pos(2, 2) = square(last_insnavgeod_.height_std_dev);
     }
 
     // Euler angles
@@ -740,25 +736,48 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
     if ((last_insnavgeod_.sb_list & 32) != 0)
     {
         // Position covariance
-        msg.pose.covariance[1] = last_insnavgeod_.latitude_longitude_cov;
-        msg.pose.covariance[6] = last_insnavgeod_.latitude_longitude_cov;
+        P_pos(0, 1) = last_insnavgeod_.latitude_longitude_cov;
+        P_pos(1, 0) = last_insnavgeod_.latitude_longitude_cov;
 
         if (settings_->use_ros_axis_orientation)
         {
             // (ENU)
-            msg.pose.covariance[2] = last_insnavgeod_.longitude_height_cov;
-            msg.pose.covariance[8] = last_insnavgeod_.latitude_height_cov;
-            msg.pose.covariance[12] = last_insnavgeod_.longitude_height_cov;
-            msg.pose.covariance[13] = last_insnavgeod_.latitude_height_cov;
+            P_pos(0, 2) = last_insnavgeod_.longitude_height_cov;
+            P_pos(1, 2) = last_insnavgeod_.latitude_height_cov;
+            P_pos(2, 0) = last_insnavgeod_.longitude_height_cov;
+            P_pos(2, 1) = last_insnavgeod_.latitude_height_cov;
         } else
         {
             // (NED)
-            msg.pose.covariance[2] = -last_insnavgeod_.latitude_height_cov;
-            msg.pose.covariance[8] = -last_insnavgeod_.longitude_height_cov;
-            msg.pose.covariance[12] = -last_insnavgeod_.latitude_height_cov;
-            msg.pose.covariance[13] = -last_insnavgeod_.longitude_height_cov;
+            P_pos(0, 2) = -last_insnavgeod_.latitude_height_cov;
+            P_pos(1, 2) = -last_insnavgeod_.longitude_height_cov;
+            P_pos(2, 0) = -last_insnavgeod_.latitude_height_cov;
+            P_pos(2, 1) = -last_insnavgeod_.longitude_height_cov;
         }
     }
+
+    if ((meridian_convergence != 0.0) && (last_insnavgeod_.sb_list & 1))
+    {
+        double cg = std::cos(meridian_convergence);
+        double sg = std::sin(meridian_convergence);
+        Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+        R(0, 0) = cg;
+        R(0, 1) = -sg;
+        R(1, 0) = sg;
+        R(1, 1) = cg;
+        P_pos = (R * P_pos * R.transpose()).eval();
+    }
+
+    msg.pose.covariance[0] = P_pos(0, 0);
+    msg.pose.covariance[1] = P_pos(0, 1);
+    msg.pose.covariance[2] = P_pos(0, 2);
+    msg.pose.covariance[6] = P_pos(1, 0);
+    msg.pose.covariance[7] = P_pos(1, 1);
+    msg.pose.covariance[8] = P_pos(1, 2);
+    msg.pose.covariance[12] = P_pos(2, 0);
+    msg.pose.covariance[13] = P_pos(2, 1);
+    msg.pose.covariance[14] = P_pos(2, 2);
+
     if ((last_insnavgeod_.sb_list & 64) != 0)
     {
         // Attitude covariancae
