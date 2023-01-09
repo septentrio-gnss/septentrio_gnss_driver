@@ -249,7 +249,7 @@ namespace io_comm_rx {
         bool nmeaActivated_ = false;
 
         //! Connection or reading thread
-        std::unique_ptr<boost::thread> connectionThread_;
+        boost::thread connectionThread_;
         //! Indicator for threads to exit
         std::atomic<bool> stopping_;
 

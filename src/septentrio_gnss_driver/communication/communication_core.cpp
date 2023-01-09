@@ -185,7 +185,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
     }
 
     stopping_ = true;
-    connectionThread_->join();
+    connectionThread_.join();
 }
 
 void io_comm_rx::Comm_IO::resetMainPort()
@@ -224,16 +224,15 @@ void io_comm_rx::Comm_IO::initializeIO()
         tcp_port_ = match[3];
 
         serial_ = false;
-        connectionThread_.reset(
-            new boost::thread(boost::bind(&Comm_IO::connect, this)));
+        connectionThread_ = boost::thread(boost::bind(&Comm_IO::connect, this));
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
         serial_ = false;
         settings_->read_from_sbf_log = true;
         settings_->use_gnss_time = true;
-        connectionThread_.reset(new boost::thread(
-            boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2])));
+        connectionThread_ = boost::thread(
+            boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2]));
 
     } else if (boost::regex_match(
                    settings_->device, match,
@@ -242,8 +241,8 @@ void io_comm_rx::Comm_IO::initializeIO()
         serial_ = false;
         settings_->read_from_pcap = true;
         settings_->use_gnss_time = true;
-        connectionThread_.reset(new boost::thread(
-            boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2])));
+        connectionThread_ = boost::thread(
+            boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2]));
 
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(serial):(.+)")))
@@ -254,8 +253,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         ss << "Searching for serial port" << proto;
         settings_->device = proto;
         node_->log(LogLevel::DEBUG, ss.str());
-        connectionThread_.reset(
-            new boost::thread(boost::bind(&Comm_IO::connect, this)));
+        connectionThread_ = boost::thread(boost::bind(&Comm_IO::connect, this));
     } else
     {
         std::stringstream ss;

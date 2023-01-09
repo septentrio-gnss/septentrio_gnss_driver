@@ -311,7 +311,7 @@ ImuMsg io_comm_rx::RxMessage::ImuCallback()
                                            last_extsensmeas_.block_header.wnc, true);
             Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
                                            last_insnavgeod_.block_header.wnc,
-                                           true); // Filling in the oreintation data
+                                           true); // Filling in the orientation data
 
             static int64_t maxDt = (settings_->polling_period_pvt == 0)
                                        ? 10000000
