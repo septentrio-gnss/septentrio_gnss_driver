@@ -148,36 +148,6 @@ namespace io {
         void preparePCAPFileReading(std::string file_name);
 
         /**
-         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
-         */
-        void reconnect();
-
-        /**
-         * @brief Calls the reconnect() method
-         */
-        void connect();
-
-        /**
-         * @brief Initializes the serial port
-         * @param[in] port The device's port address
-         * @param[in] baudrate The chosen baud rate of the port
-         * @param[in] flowcontrol Default is "None", set variable (not yet checked)
-         * to "RTS|CTS" to activate hardware flow control (only for serial ports
-         * COM1, COM2 and COM3 (for mosaic))
-         * @return True if connection could be established, false otherwise
-         */
-        bool initializeSerial(std::string port, uint32_t baudrate = 115200,
-                              std::string flowcontrol = "None");
-
-        /**
-         * @brief Initializes the TCP I/O
-         * @param[in] host The TCP host
-         * @param[in] port The TCP port
-         * @return True if connection could be established, false otherwise
-         */
-        bool initializeTCP(std::string host, std::string port);
-
-        /**
          * @brief Initializes SBF file reading and reads SBF file by repeatedly
          * calling read_callback_()
          * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
@@ -193,12 +163,6 @@ namespace io {
         void initializePCAPFileReading(std::string file_name);
 
         /**
-         * @brief Set the I/O manager
-         * @param[in] manager An I/O handler
-         */
-        void setManager(const boost::shared_ptr<AsyncManagerBase>& manager);
-
-        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
@@ -206,10 +170,12 @@ namespace io {
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
-        //! Callback handlers for the inwards streaming messages
-        CallbackHandlers handlers_;
         //! Settings
         Settings* settings_;
+        //! MessageQueue
+        MessageQueue* messageQueue_;
+        //! Message handlers for the inwards streaming messages
+        MessageHandler messageHandler_;
         //! Whether connecting to Rx was successful
         bool connected_ = false;
         //! Since the configureRx() method should only be called once the connection
@@ -236,8 +202,6 @@ namespace io {
 
         bool nmeaActivated_ = false;
 
-        //! Connection or reading thread
-        std::thread connectionThread_;
         //! Indicator for threads to exit
         std::atomic<bool> stopping_;
 

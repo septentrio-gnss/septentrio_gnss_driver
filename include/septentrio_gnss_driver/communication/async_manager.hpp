@@ -67,7 +67,7 @@
 
 // local includes
 #include "io.hpp"
-#include "telegram.hpp"
+#include "message.hpp"
 
 #pragma once
 
@@ -112,9 +112,9 @@ namespace io {
          * @param[in] buffer_size Size of the circular buffer in bytes
          */
         AsyncManager(ROSaicNodeBase* node, std::unique_ptr<StreamT> stream,
-                     TelegramQueue* telegramQueue) :
+                     MessageQueue* messageQueue) :
             node_(node),
-            stream_(std::move(stream)), telegramQueue_(telegramQueue)
+            stream_(std::move(stream)), messageQueue_(messageQueue)
         {
         }
 
@@ -271,7 +271,7 @@ namespace io {
 
         void resync()
         {
-            telegram_.reset(new Telegram);
+            message_.reset(new Message);
             readSync<0>();
         }
 
@@ -281,7 +281,7 @@ namespace io {
             static_assert(index < 3);
 
             boost::asio::async_read(
-                *stream_, boost::asio::buffer(telegram_->data.data() + index, 1),
+                *stream_, boost::asio::buffer(message_->data.data() + index, 1),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     Timestamp stamp = node_->getTime();
 
@@ -293,9 +293,9 @@ namespace io {
                             {
                             case 0:
                             {
-                                if (telegram_->data[index] == SYNC_0)
+                                if (message_->data[index] == SYNC_0)
                                 {
-                                    telegram_->stamp = stamp;
+                                    message_->stamp = stamp;
                                     readSync<1>();
                                 } else
                                     readSync<0>();
@@ -303,29 +303,29 @@ namespace io {
                             }
                             case 1:
                             {
-                                switch (telegram_->data[index])
+                                switch (message_->data[index])
                                 {
                                 case SBF_SYNC_BYTE_1:
                                 {
-                                    telegram_->type = SBF;
+                                    message_->type = SBF;
                                     readSbfHeader();
                                     break;
                                 }
                                 case NMEA_SYNC_BYTE_1:
                                 {
-                                    telegram_->type = NMEA;
+                                    message_->type = NMEA;
                                     readSync<2>();
                                     break;
                                 }
                                 case RESPONSE_SYNC_BYTE_1:
                                 {
-                                    stelegram_->type = RESPONSE;
+                                    smessage_->type = RESPONSE;
                                     readSync<2>();
                                     break;
                                 }
                                 case CONNECTION_DESCRIPTOR_BYTE_1:
                                 {
-                                    telegram_->type = CONNECTION_DESCRIPTOR;
+                                    message_->type = CONNECTION_DESCRIPTOR;
                                     readSync<2>();
                                     break;
                                 }
@@ -342,11 +342,11 @@ namespace io {
                             }
                             case 2:
                             {
-                                switch (telegram_->data[index])
+                                switch (message_->data[index])
                                 {
                                 case NMEA_SYNC_BYTE_2:
                                 {
-                                    if (telegram_->type == NMEA)
+                                    if (message_->type == NMEA)
                                         readString();
                                     else
                                         resync();
@@ -354,7 +354,7 @@ namespace io {
                                 }
                                 case RESPONSE_SYNC_BYTE_1:
                                 {
-                                    if (telegram_->type == RESPONSE)
+                                    if (message_->type == RESPONSE)
                                         readString();
                                     else
                                         resync();
@@ -362,7 +362,7 @@ namespace io {
                                 }
                                 case CONNECTION_DESCRIPTOR_BYTE_1:
                                 {
-                                    if (telegram_->type == CONNECTION_DESCRIPTOR)
+                                    if (message_->type == CONNECTION_DESCRIPTOR)
                                         readString();
                                     else
                                         resync();
@@ -407,18 +407,18 @@ namespace io {
 
         void readSbfHeader()
         {
-            telegram_->data.resize(SBF_HEADER_SIZE);
+            message_->data.resize(SBF_HEADER_SIZE);
 
             boost::asio::async_read(
                 *stream_,
-                boost::asio::buffer(telegram_->data.data() + 2, SBF_HEADER_SIZE - 2),
+                boost::asio::buffer(message_->data.data() + 2, SBF_HEADER_SIZE - 2),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     if (!ec)
                     {
                         if (numBytes == (SBF_HEADER_SIZE - 2))
                         {
                             unit16_t length =
-                                parsing_utilities::getLength(telegram_->data.data());
+                                parsing_utilities::getLength(message_->data.data());
                             if (length > MAX_SBF_SIZE)
                             {
                                 node_->log(
@@ -448,24 +448,23 @@ namespace io {
 
         void readSbf(std::size_t length)
         {
-            telegram_->data.resize(length);
+            message_->data.resize(length);
 
             boost::asio::async_read(
                 *stream_,
-                boost::asio::buffer(telegram_->data.data() + SBF_HEADER_SIZE,
+                boost::asio::buffer(message_->data.data() + SBF_HEADER_SIZE,
                                     length - SBF_HEADER_SIZE),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     if (!ec)
                     {
                         if (numBytes == (length - SBF_HEADER_SIZE))
                         {
-                            if (isValid(
-                                    telegram_->data.data())) // TODO namespace crc
+                            if (isValid(message_->data.data())) // TODO namespace crc
                             {
-                                telegram_->sbfId =
-                                    parsing_utilities::getId(telegram_->data.data());
+                                message_->sbfId =
+                                    parsing_utilities::getId(message_->data.data());
 
-                                telegramQueue_->push(telegram_);
+                                messageQueue_->push(message_);
                             }
                         } else
                         {
@@ -485,7 +484,7 @@ namespace io {
 
         void readString()
         {
-            telegram_->data.resize(3);
+            message_->data.resize(3);
             readStringElements();
         }
 
@@ -504,9 +503,9 @@ namespace io {
                             {
                             case SYNC_0:
                             {
-                                telegram_.reset(new Telegram);
-                                telegram_->data[0] = byte;
-                                telegram_->stamp = node_->getTime();
+                                message_.reset(new Message);
+                                message_->data[0] = byte;
+                                message_->stamp = node_->getTime();
                                 node_->log(
                                     LogLevel::DEBUG,
                                     "AsyncManager string read fault, sync 0 found."));
@@ -515,16 +514,15 @@ namespace io {
                             }
                             case LF:
                             {
-                                telegram_->data.push_back(byte);
-                                if (telegram_->data[telegram_->data.size() - 2] ==
-                                    CR)
-                                    telegramQueue_->push(telegram_);
+                                message_->data.push_back(byte);
+                                if (message_->data[message_->data.size() - 2] == CR)
+                                    messageQueue_->push(message_);
                                 resync();
                                 break;
                             }
                             default:
                             {
-                                telegram_->data.push_back(byte);
+                                message_->data.push_back(byte);
                                 readString();
                                 break;
                             }
@@ -558,9 +556,9 @@ namespace io {
         std::thread watchdogThread_;
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
-        //! Telegram
-        std::shared_ptr<Telegram> telegram_;
-        //! TelegramQueue
-        TelegramQueue* telegramQueue_;
+        //! Message
+        std::shared_ptr<Message> message_;
+        //! MessageQueue
+        MessageQueue* messageQueue_;
     };
 } // namespace io

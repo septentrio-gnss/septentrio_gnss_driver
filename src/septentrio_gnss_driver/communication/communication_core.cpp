@@ -99,13 +99,13 @@
  */
 
 //! Mutex to control changes of global variable "g_response_received"
-boost::mutex g_response_mutex;
+std::mutex g_response_mutex;
 //! Determines whether a command reply was received from the Rx
 bool g_response_received;
 //! Condition variable complementing "g_response_mutex"
 boost::condition_variable g_response_condition;
 //! Mutex to control changes of global variable "g_cd_received"
-boost::mutex g_cd_mutex;
+std::mutex g_cd_mutex;
 //! Determines whether the connection descriptor was received from the Rx
 bool g_cd_received;
 //! Condition variable complementing "g_cd_mutex"
@@ -120,7 +120,7 @@ std::string g_rx_tcp_port;
 uint32_t g_cd_count;
 
 io::CommIo::CommIo(ROSaicNodeBase* node, Settings* settings) :
-    node_(node), handlers_(node, settings), settings_(settings), stopping_(false)
+    node_(node), handlers_(node, settings), settings_(settings), running_(true)
 {
     g_response_received = false;
     g_cd_received = false;
@@ -184,120 +184,11 @@ io::CommIo::~CommIo()
         send("logout \x0D");
     }
 
-    stopping_ = true;
+    running_ = false;
     connectionThread_.join();
 }
 
-void io::CommIo::resetMainPort()
-{
-    // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
-    // modifying the variable and "g_cd_received".
-    boost::mutex::scoped_lock lock_cd(g_cd_mutex);
-    // Escape sequence (escape from correction mode), ensuring that we can send
-    // our real commands afterwards...
-    std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-    manager_.get()->send(cmd);
-    // We wait for the connection descriptor before we send another command,
-    // otherwise the latter would not be processed.
-    g_cd_condition.wait(lock_cd, []() { return g_cd_received; });
-    g_cd_received = false;
-}
-
 void io::CommIo::initializeIo()
-{
-    node_->log(LogLevel::DEBUG, "Called initializeIo() method");
-    boost::smatch match;
-    // In fact: smatch is a typedef of match_results<string::const_iterator>
-    if (boost::regex_match(settings_->device, match,
-                           boost::regex("(tcp)://(.+):(\\d+)")))
-    // C++ needs \\d instead of \d: Both mean decimal.
-    // Note that regex_match can be used with a smatch object to store results, or
-    // without. In any case, true is returned if and only if it matches the
-    // !complete! string.
-    {
-        // The first sub_match (index 0) contained in a match_result always
-        // represents the full match within a target sequence made by a regex, and
-        // subsequent sub_matches represent sub-expression matches corresponding in
-        // sequence to the left parenthesis delimiting the sub-expression in the
-        // regex, i.e. $n Perl is equivalent to m[n] in boost regex.
-        tcp_host_ = match[2];
-        tcp_port_ = match[3];
-
-        serial_ = false;
-        connectionThread_ = boost::thread(boost::bind(&CommIo::connect, this));
-    } else if (boost::regex_match(settings_->device, match,
-                                  boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
-    {
-        serial_ = false;
-        settings_->read_from_sbf_log = true;
-        settings_->use_gnss_time = true;
-        connectionThread_ = boost::thread(
-            boost::bind(&CommIo::prepareSBFFileReading, this, match[2]));
-
-    } else if (boost::regex_match(
-                   settings_->device, match,
-                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
-    {
-        serial_ = false;
-        settings_->read_from_pcap = true;
-        settings_->use_gnss_time = true;
-        connectionThread_ = boost::thread(
-            boost::bind(&CommIo::preparePCAPFileReading, this, match[2]));
-
-    } else if (boost::regex_match(settings_->device, match,
-                                  boost::regex("(serial):(.+)")))
-    {
-        serial_ = true;
-        std::string proto(match[2]);
-        std::stringstream ss;
-        ss << "Searching for serial port" << proto;
-        settings_->device = proto;
-        node_->log(LogLevel::DEBUG, ss.str());
-        connectionThread_ = boost::thread(boost::bind(&CommIo::connect, this));
-    } else
-    {
-        std::stringstream ss;
-        ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-        node_->log(LogLevel::ERROR, ss.str());
-    }
-    node_->log(LogLevel::DEBUG, "Leaving initializeIo() method");
-}
-
-void io::CommIo::prepareSBFFileReading(std::string file_name)
-{
-    try
-    {
-        std::stringstream ss;
-        ss << "Setting up everything needed to read from" << file_name;
-        node_->log(LogLevel::DEBUG, ss.str());
-        initializeSBFFileReading(file_name);
-    } catch (std::runtime_error& e)
-    {
-        std::stringstream ss;
-        ss << "CommIo::initializeSBFFileReading() failed for SBF File" << file_name
-           << " due to: " << e.what();
-        node_->log(LogLevel::ERROR, ss.str());
-    }
-}
-
-void io::CommIo::preparePCAPFileReading(std::string file_name)
-{
-    try
-    {
-        std::stringstream ss;
-        ss << "Setting up everything needed to read from " << file_name;
-        node_->log(LogLevel::DEBUG, ss.str());
-        initializePCAPFileReading(file_name);
-    } catch (std::runtime_error& e)
-    {
-        std::stringstream ss;
-        ss << "CommIO::initializePCAPFileReading() failed for SBF File " << file_name
-           << " due to: " << e.what();
-        node_->log(LogLevel::ERROR, ss.str());
-    }
-}
-
-void io::CommIo::connect()
 {
     node_->log(LogLevel::DEBUG, "Called connect() method");
     node_->log(
@@ -307,10 +198,11 @@ void io::CommIo::connect()
     boost::asio::io_service io;
     boost::posix_time::millisec wait_ms(
         static_cast<uint32_t>(settings_->reconnect_delay_s * 1000));
-    while (!connected_ && !stopping_)
+    while (running_)
     {
         boost::asio::deadline_timer t(io, wait_ms);
-        reconnect();
+        if (manager_->connect())
+            break;
         t.wait();
     }
     node_->log(LogLevel::DEBUG, "Successully connected. Leaving connect() method");
@@ -328,7 +220,7 @@ void io::CommIo::configureRx()
     node_->log(LogLevel::DEBUG, "Called configureRx() method");
     {
         // wait for connection
-        boost::mutex::scoped_lock lock(connection_mutex_);
+        std::mutex::scoped_lock lock(connection_mutex_);
         connection_condition_.wait(lock, [this]() { return connected_; });
     }
 
@@ -916,21 +808,60 @@ void io::CommIo::configureRx()
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 
-void io::CommIo::send(const std::string& cmd)
-{
-    // It is imperative to hold a lock on the mutex "g_response_mutex" while
-    // modifying the variable "g_response_received".
-    boost::mutex::scoped_lock lock(g_response_mutex);
-    // Determine byte size of cmd and hand over to send() method of manager_
-    manager_.get()->send(cmd);
-    g_response_condition.wait(lock, []() { return g_response_received; });
-    g_response_received = false;
-}
-
 void io::CommIo::sendVelocity(const std::string& velNmea)
 {
     if (nmeaActivated_)
         manager_.get()->send(velNmea);
+}
+
+void io::CommIo::resetMainPort()
+{
+    CommSync* cdSync = messageHandler.getCdSync();
+    // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
+    // modifying the variable and "g_cd_received".
+    std::mutex::scoped_lock lock_cd(cdSync.mutex);
+    // Escape sequence (escape from correction mode), ensuring that we can send
+    // our real commands afterwards...
+    std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+    manager_.get()->send(cmd);
+    // We wait for the connection descriptor before we send another command,
+    // otherwise the latter would not be processed.
+    cdSync.condition.wait(lock_cd, [cdSync]() { return cdSync.received; });
+    cdSync.received = false;
+}
+
+void io::CommIo::prepareSBFFileReading(std::string file_name)
+{
+    try
+    {
+        std::stringstream ss;
+        ss << "Setting up everything needed to read from" << file_name;
+        node_->log(LogLevel::DEBUG, ss.str());
+        initializeSBFFileReading(file_name);
+    } catch (std::runtime_error& e)
+    {
+        std::stringstream ss;
+        ss << "CommIo::initializeSBFFileReading() failed for SBF File" << file_name
+           << " due to: " << e.what();
+        node_->log(LogLevel::ERROR, ss.str());
+    }
+}
+
+void io::CommIo::preparePCAPFileReading(std::string file_name)
+{
+    try
+    {
+        std::stringstream ss;
+        ss << "Setting up everything needed to read from " << file_name;
+        node_->log(LogLevel::DEBUG, ss.str());
+        initializePCAPFileReading(file_name);
+    } catch (std::runtime_error& e)
+    {
+        std::stringstream ss;
+        ss << "CommIO::initializePCAPFileReading() failed for SBF File " << file_name
+           << " due to: " << e.what();
+        node_->log(LogLevel::ERROR, ss.str());
+    }
 }
 
 void io::CommIo::initializeSBFFileReading(std::string file_name)
@@ -959,7 +890,7 @@ void io::CommIo::initializeSBFFileReading(std::string file_name)
     ss << "Opened and copied over from " << file_name;
     node_->log(LogLevel::DEBUG, ss.str());
 
-    while (!stopping_) // Loop will stop if we are done reading the SBF file
+    while (running_) // Loop will stop if we are done reading the SBF file
     {
         try
         {
@@ -1009,7 +940,7 @@ void io::CommIo::initializePCAPFileReading(std::string file_name)
     uint8_t* to_be_parsed = new uint8_t[buffer_size];
     to_be_parsed = vec_buf.data();
 
-    while (!stopping_) // Loop will stop if we are done reading the SBF file
+    while (running_) // Loop will stop if we are done reading the SBF file
     {
         try
         {
@@ -1039,4 +970,16 @@ void io::CommIo::initializePCAPFileReading(std::string file_name)
         to_be_parsed = to_be_parsed + buffer_size;
     }
     node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading() method..");
+}
+
+void io::CommIo::send(const std::string& cmd)
+{
+    CommSync* responseSync = messageHandler.getResponseSync();
+    // It is imperative to hold a lock on the mutex "g_response_mutex" while
+    // modifying the variable "g_response_received".
+    std::mutex::scoped_lock lock(responseSync.mutex);
+    // Determine byte size of cmd and hand over to send() method of manager_
+    manager_.get()->send(cmd);
+    responseSync.condition.wait(lock, []() { return responseSync.received; });
+    responseSync.received = false;
 }

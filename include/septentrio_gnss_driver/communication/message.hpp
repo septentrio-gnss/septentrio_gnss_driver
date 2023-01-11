@@ -76,17 +76,17 @@ enum MessageType
     CONNECTION_DESCRIPTOR
 };
 
-struct Telegram
+struct Message
 {
     Timestamp stamp = 0;
     MessageType type = INVALID;
     uint16_t sbfId = 0;
     std::vector<std::byte> data(3);
 
-    Telegram() : stamp(0), type(INVALID), sbfId(0), data(std::vector<std::byte>(3))
+    Message() : stamp(0), type(INVALID), sbfId(0), data(std::vector<std::byte>(3))
     {
         data.reserve(MAX_SBF_SIZE);
     }
 };
 
-typedef tbb::concurrent_bounded_queue<std::shared_ptr<Telegram>> TelegramQueue;
+typedef tbb::concurrent_bounded_queue<std::shared_ptr<Message>> MessageQueue;
