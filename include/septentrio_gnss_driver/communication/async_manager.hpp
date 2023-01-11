@@ -57,20 +57,19 @@
 // *****************************************************************************
 
 // Boost includes
-#include <boost/algorithm/string/join.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/function.hpp>
-#include <boost/system/error_code.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <boost/regex.hpp>
 
 // ROSaic includes
-#include <septentrio_gnss_driver/communication/circular_buffer.hpp>
+#include <septentrio_gnss_driver/crc/crc.h>
+#include <septentrio_gnss_driver/parsers/parsing_utilities.h>
 
-#ifndef ASYNC_MANAGER_HPP
-#define ASYNC_MANAGER_HPP
+// local includes
+#include "io.hpp"
+#include "telegram.hpp"
+
+#pragma once
 
 /**
  * @file async_manager.hpp
@@ -81,28 +80,19 @@
  * commands to serial port or via TCP/IP.
  */
 
-namespace io_comm_rx {
+namespace io {
 
     /**
-     * @class Manager
+     * @class AsyncManagerBase
      * @brief Interface (in C++ terms), that could be used for any I/O manager,
      * synchronous and asynchronous alike
      */
-    class Manager
+    class AsyncManagerBase
     {
     public:
-        typedef boost::function<void(Timestamp, const uint8_t*, std::size_t&)>
-            Callback;
-        virtual ~Manager() {}
-        //! Sets the callback function
-        virtual void setCallback(const Callback& callback) = 0;
+        virtual ~AsyncManagerBase() {}
         //! Sends commands to the receiver
         virtual bool send(const std::string& cmd) = 0;
-        //! Waits count seconds before throwing ROS_INFO message in case no message
-        //! from the receiver arrived
-        virtual void wait(uint16_t* count) = 0;
-        //! Determines whether or not the connection is open
-        virtual bool isOpen() const = 0;
     };
 
     /**
@@ -113,357 +103,464 @@ namespace io_comm_rx {
      * StreamT is either boost::asio::serial_port or boost::asio::tcp::ip
      */
     template <typename StreamT>
-    class AsyncManager : public Manager
+    class AsyncManager : public AsyncManagerBase
     {
     public:
         /**
          * @brief Class constructor
-         * @param stream Whether TCP/IP or serial communication, either
-         * boost::asio::serial_port or boost::asio::tcp::ip
-         * @param io_service The io_context object. The io_context represents your
-         * program's link to the operating system's I/O services
+         * @param stream data stream
          * @param[in] buffer_size Size of the circular buffer in bytes
          */
-        AsyncManager(ROSaicNodeBase* node, boost::shared_ptr<StreamT> stream,
-                     boost::shared_ptr<boost::asio::io_service> io_service,
-                     std::size_t buffer_size = 16384);
-        virtual ~AsyncManager();
-
-        /**
-         * @brief Allows to connect to the CallbackHandlers class
-         * @param callback The function that becomes our callback, typically the
-         * readCallback() method of CallbackHandlers
-         */
-        void setCallback(const Callback& callback) { read_callback_ = callback; }
-
-        void wait(uint16_t* count);
-
-        /**
-         * @brief Sends commands via the I/O stream.
-         * @param cmd The command to be sent
-         */
-        bool send(const std::string& cmd);
-
-        bool isOpen() const { return stream_->is_open(); }
-
-    private:
-        //! Pointer to the node
-        ROSaicNodeBase* node_;
-
-    protected:
-        //! Reads in via async_read_some and hands certain number of bytes
-        //! (bytes_transferred) over to async_read_some_handler
-        void read();
-
-        //!  Handler for async_read_some (Boost library)..
-        void asyncReadSomeHandler(const boost::system::error_code& error,
-                                  std::size_t bytes_transferred);
-
-        //! Sends command "cmd" to the Rx
-        void write(const std::string& cmd);
-
-        //! Closes stream "stream_"
-        void close();
-
-        //! Tries parsing SBF/NMEA whenever the boolean class variable "try_parsing"
-        //! is true
-        void tryParsing();
-
-        //! Mutex to control changes of class variable "try_parsing"
-        boost::mutex parse_mutex_;
-
-        //! Determines when the tryParsing() method will attempt parsing SBF/NMEA
-        bool try_parsing_;
-
-        //! Determines when the asyncReadSomeHandler() method should write SBF/NMEA
-        //! into the circular buffer
-        bool allow_writing_;
-
-        //! Condition variable complementing "parse_mutex"
-        boost::condition_variable parsing_condition_;
-
-        //! Stream, represents either serial or TCP/IP connection
-        boost::shared_ptr<StreamT> stream_;
-
-        //! io_context object
-        boost::shared_ptr<boost::asio::io_service> io_service_;
-
-        //! Buffer for async_read_some() to read continuous SBF/NMEA stream
-        std::vector<uint8_t> in_;
-
-        //! Circular buffer to avoid unsuccessful SBF/NMEA parsing due to incomplete
-        //! messages
-        CircularBuffer circular_buffer_;
-
-        //! New thread for receiving incoming messages
-        boost::shared_ptr<boost::thread> async_background_thread_;
-
-        //! New thread for receiving incoming messages
-        boost::shared_ptr<boost::thread> parsing_thread_;
-
-        //! New thread for receiving incoming messages
-        boost::shared_ptr<boost::thread> waiting_thread_;
-
-        //! Callback to be called once message arrives
-        Callback read_callback_;
-
-        //! Whether or not we want to sever the connection to the Rx
-        bool stopping_;
-
-        /// Size of in_ buffers
-        const std::size_t buffer_size_;
-
-        //! Boost timer for throwing ROS_INFO message once timed out due to lack of
-        //! incoming messages
-        boost::asio::deadline_timer timer_;
-
-        //! Number of seconds before ROS_INFO message is thrown (if no incoming
-        //! message)
-        const uint16_t count_max_;
-
-        //! Handles the ROS_INFO throwing (if no incoming message)
-        void callAsyncWait(uint16_t* count);
-
-        //! Number of times the DoRead() method has been called (only counts
-        //! initially)
-        uint16_t do_read_count_;
-
-        //! Timestamp of receiving buffer
-        Timestamp recvTime_;
-    };
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::tryParsing()
-    {
-        uint8_t* to_be_parsed = new uint8_t[buffer_size_ * 16];
-        uint8_t* to_be_parsed_index = to_be_parsed;
-        bool timed_out = false;
-        std::size_t shift_bytes = 0;
-        std::size_t arg_for_read_callback = 0;
-
-        while (!timed_out &&
-               !stopping_) // Loop will stop if condition variable timed out
+        AsyncManager(ROSaicNodeBase* node, std::unique_ptr<StreamT> stream,
+                     TelegramQueue* telegramQueue) :
+            node_(node),
+            stream_(std::move(stream)), telegramQueue_(telegramQueue)
         {
-            boost::mutex::scoped_lock lock(parse_mutex_);
-            parsing_condition_.wait_for(lock, boost::chrono::seconds(10),
-                                        [this]() { return try_parsing_; });
-            bool timed_out = !try_parsing_;
-            if (timed_out)
-                break;
-            try_parsing_ = false;
-            allow_writing_ = true;
-            std::size_t current_buffer_size = circular_buffer_.size();
-            arg_for_read_callback += current_buffer_size;
-            circular_buffer_.read(to_be_parsed + shift_bytes, current_buffer_size);
-            Timestamp revcTime = recvTime_;
-            lock.unlock();
-            parsing_condition_.notify_one();
-
-            try
-            {
-                node_->log(
-                    LogLevel::DEBUG,
-                    "Calling read_callback_() method, with number of bytes to be parsed being " +
-                        std::to_string(arg_for_read_callback));
-                read_callback_(revcTime, to_be_parsed_index, arg_for_read_callback);
-            } catch (std::size_t& parsing_failed_here)
-            {
-                to_be_parsed_index += parsing_failed_here;
-                arg_for_read_callback -= parsing_failed_here;
-                node_->log(LogLevel::DEBUG, "Current buffer size is " +
-                                                std::to_string(current_buffer_size) +
-                                                " and parsing_failed_here is " +
-                                                std::to_string(parsing_failed_here));
-                if (arg_for_read_callback < 0) // In case some parsing error was not
-                                               // caught, which should never happen..
-                {
-                    to_be_parsed_index = to_be_parsed;
-                    shift_bytes = 0;
-                    arg_for_read_callback = 0;
-                    continue;
-                }
-                shift_bytes += current_buffer_size;
-                continue;
-            }
-            to_be_parsed_index = to_be_parsed;
-            shift_bytes = 0;
-            arg_for_read_callback = 0;
         }
-        node_->log(
-            LogLevel::INFO,
-            "TryParsing() method finished since it did not receive anything to parse for 10 seconds..");
-        delete[] to_be_parsed; // Freeing memory
-    }
 
-    template <typename StreamT>
-    bool AsyncManager<StreamT>::send(const std::string& cmd)
-    {
-        if (cmd.size() == 0)
+        ~AsyncManager()
         {
-            node_->log(LogLevel::ERROR,
-                       "Message size to be sent to the Rx would be 0");
+            running_ = false;
+            flushOutputQueue();
+            close();
+            node_->log(LogLevel::DEBUG, "AsyncManager shutting down threads");
+            ioService_.stop();
+            ioThread_.join();
+            watchdogThread_.join();
+            node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
+        }
+
+        [[nodicard]] bool connect()
+        {
+            if (!ioSocket_)
+            {
+                if (!initIo())
+                    return false;
+            }
+
+            if (ioSocket_->connect())
+            {
+                return false;
+            }
+            receive();
+
+            watchdogThread_ = std::thread(std::bind(&TcpClient::runWatchdog, this));
             return true;
         }
 
-        io_service_->post(boost::bind(&AsyncManager<StreamT>::write, this, cmd));
-        return true;
-    }
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::write(const std::string& cmd)
-    {
-        boost::asio::write(*stream_, boost::asio::buffer(cmd.data(), cmd.size()));
-        // Prints the data that was sent
-        node_->log(LogLevel::DEBUG, "Sent the following " +
-                                        std::to_string(cmd.size()) +
-                                        " bytes to the Rx: \n" + cmd);
-    }
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::callAsyncWait(uint16_t* count)
-    {
-        timer_.async_wait(boost::bind(&AsyncManager::wait, this, count));
-    }
-
-    template <typename StreamT>
-    AsyncManager<StreamT>::AsyncManager(
-        ROSaicNodeBase* node, boost::shared_ptr<StreamT> stream,
-        boost::shared_ptr<boost::asio::io_service> io_service,
-        std::size_t buffer_size) :
-        node_(node),
-        timer_(*(io_service.get()), boost::posix_time::seconds(1)), stopping_(false),
-        try_parsing_(false), allow_writing_(true), do_read_count_(0),
-        buffer_size_(buffer_size), count_max_(6), circular_buffer_(node, buffer_size)
-    // Since buffer_size = 16384 in declaration, no need in definition anymore (even
-    // yields error message, due to "overwrite").
-    {
-        node_->log(
-            LogLevel::DEBUG,
-            "Setting the private stream variable of the AsyncManager instance.");
-        stream_ = stream;
-        io_service_ = io_service;
-        in_.resize(buffer_size_);
-
-        io_service_->post(boost::bind(&AsyncManager<StreamT>::read, this));
-        // This function is used to ask the io_service to execute the given handler,
-        // but without allowing the io_service to call the handler from inside this
-        // function. The function signature of the handler must be: void handler();
-        // The io_service guarantees that the handler (given as parameter) will only
-        // be called in a thread in which the run(), run_one(), poll() or poll_one()
-        // member functions is currently being invoked. So the fundamental difference
-        // is that dispatch will execute the work right away if it can and queue it
-        // otherwise while post queues the work no matter what.
-        async_background_thread_.reset(new boost::thread(
-            boost::bind(&boost::asio::io_service::run, io_service_)));
-        // Note that io_service_ is already pointer, hence need dereferencing
-        // operator & (ampersand). If the value of the pointer for the current thread
-        // is changed using reset(), then the previous value is destroyed by calling
-        // the cleanup routine. Alternatively, the stored value can be reset to NULL
-        // and the prior value returned by calling the release() member function,
-        // allowing the application to take back responsibility for destroying the
-        // object.
-        uint16_t count = 0;
-        waiting_thread_.reset(new boost::thread(
-            boost::bind(&AsyncManager::callAsyncWait, this, &count)));
-
-        node_->log(LogLevel::DEBUG, "Launching tryParsing() thread..");
-        parsing_thread_.reset(
-            new boost::thread(boost::bind(&AsyncManager::tryParsing, this)));
-    } // Calls std::terminate() on thread just created
-
-    template <typename StreamT>
-    AsyncManager<StreamT>::~AsyncManager()
-    {
-        close();
-        io_service_->stop();
-        try_parsing_ = true;
-        parsing_condition_.notify_one();
-        parsing_thread_->join();
-        waiting_thread_->join();
-        async_background_thread_->join();
-    }
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::read()
-    {
-        stream_->async_read_some(
-            boost::asio::buffer(in_.data(), in_.size()),
-            boost::bind(&AsyncManager<StreamT>::asyncReadSomeHandler, this,
-                        boost::asio::placeholders::error,
-                        boost::asio::placeholders::bytes_transferred));
-        // The handler is async_read_some_handler, whose call is postponed to
-        // when async_read_some completes.
-        if (do_read_count_ < 5)
-            ++do_read_count_;
-    }
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::asyncReadSomeHandler(
-        const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
-        if (error)
+        void send(const std::string& cmd)
         {
-            node_->log(LogLevel::ERROR,
-                       "Rx ASIO input buffer read error: " + error.message() + ", " +
-                           std::to_string(bytes_transferred));
-        } else if (bytes_transferred > 0)
-        {
-            Timestamp inTime = node_->getTime();
-            if (read_callback_ &&
-                !stopping_) // Will be false in InitializeSerial (first call)
-                            // since read_callback_ not added yet..
+            if (cmd.size() == 0)
             {
-                boost::mutex::scoped_lock lock(parse_mutex_);
-                parsing_condition_.wait(lock, [this]() { return allow_writing_; });
-                circular_buffer_.write(in_.data(), bytes_transferred);
-                allow_writing_ = false;
-                try_parsing_ = true;
-                recvTime_ = inTime;
-                lock.unlock();
-                parsing_condition_.notify_one();
+                node_->log(
+                    LogLevel::ERROR,
+                    "AsyncManager message size to be sent to the Rx would be 0");
+            }
+
+            ioService_.post(boost::bind(&AsyncManager<StreamT>::write, this, cmd));
+        }
+
+    private:
+        [[nodiscard]] initIo()
+        {
+            node_->log(LogLevel::DEBUG, "Called initializeIo() method");
+            boost::smatch match;
+            // In fact: smatch is a typedef of match_results<string::const_iterator>
+            if (boost::regex_match(node_->settings_.device, match,
+                                   boost::regex("(tcp)://(.+):(\\d+)")))
+            // C++ needs \\d instead of \d: Both mean decimal.
+            // Note that regex_match can be used with a smatch object to store
+            // results, or without. In any case, true is returned if and only if it
+            // matches the !complete! string.
+            {
+                // The first sub_match (index 0) contained in a match_result always
+                // represents the full match within a target sequence made by a
+                // regex, and subsequent sub_matches represent sub-expression matches
+                // corresponding in sequence to the left parenthesis delimiting the
+                // sub-expression in the regex, i.e. $n Perl is equivalent to m[n] in
+                // boost regex.
+
+                ioSocket.reset(new TcpIo(node_, &ioService_, match[2], match[3]))
+            } else if (boost::regex_match(
+                           node_->settings_.device, match,
+                           boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
+            {
+                node_->settings_.read_from_sbf_log = true;
+                node_->settings_.use_gnss_time = true;
+                // connectionThread_ = boost::thread(
+                //     boost::bind(&CommIo::prepareSBFFileReading, this, match[2]));
+
+            } else if (boost::regex_match(
+                           node_->settings_.device, match,
+                           boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+            {
+                node_->settings_.read_from_pcap = true;
+                node_->settings_.use_gnss_time = true;
+                // connectionThread_ = boost::thread(
+                //   boost::bind(&CommIo::preparePCAPFileReading, this, match[2]));
+
+            } else if (boost::regex_match(node_->settings_.device, match,
+                                          boost::regex("(serial):(.+)")))
+            {
+                std::string proto(match[2]);
+                std::stringstream ss;
+                ss << "Searching for serial port" << proto;
+                node_->log(LogLevel::DEBUG, ss.str());
+                node_->settings_.device = proto;
+                ioSocket.reset(new SerialIo(node_, &ioService_, settings_->device,
+                                            settings_->baudrate,
+                                            settings_->hw_flow_control))
+            } else
+            {
+                std::stringstream ss;
+                ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
+                node_->log(LogLevel::ERROR, ss.str());
+            }
+            node_->log(LogLevel::DEBUG, "Leaving initializeIo() method");
+        }
+
+        void receive()
+        {
+            resync();
+            ioThread_ = std::thread(
+                std::thread(std::bind(&AsyncManager::runIoService, this)));
+        }
+
+        void flushOutputQueue()
+        {
+            ioService_.post([this]() { write(); });
+        }
+
+        void close()
+        {
+            ioService_.post([this]() { socket_->close(); });
+        }
+
+        void runIoService()
+        {
+            ioService_.run();
+            node_->log(LogLevel::DEBUG, "AsyncManager ioService terminated.");
+        }
+
+        void runWatchdog()
+        {
+            while (running_)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+
+                if (running_ && ioService_.stopped())
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "AsyncManager connection lost. Trying to reconnect.");
+                    ioService_.reset();
+                    ioThread_->join();
+                    receive();
+                }
             }
         }
 
-        if (!stopping_)
-            io_service_->post(boost::bind(&AsyncManager<StreamT>::read, this));
-    }
-
-    template <typename StreamT>
-    void AsyncManager<StreamT>::close()
-    {
-        stopping_ = true;
-        boost::system::error_code error;
-        stream_->close(error);
-        if (error)
+        void write(const std::string& cmd)
         {
-            node_->log(LogLevel::ERROR,
-                       "Error while closing the AsyncManager: " + error.message());
+            boost::asio::write(*stream_,
+                               boost::asio::buffer(cmd.data(), cmd.size()));
+            // Prints the data that was sent
+            node_->log(LogLevel::DEBUG, "AsyncManager sent the following " +
+                                            std::to_string(cmd.size()) +
+                                            " bytes to the Rx: " + cmd);
         }
-    }
 
-    template <typename StreamT>
-    void AsyncManager<StreamT>::wait(uint16_t* count)
-    {
-        if (*count < count_max_)
+        void resync()
         {
-            ++(*count);
-            timer_.expires_at(timer_.expires_at() + boost::posix_time::seconds(1));
-            if (!(*count == count_max_))
-            {
-                timer_.async_wait(boost::bind(&AsyncManager::wait, this, count));
-            }
+            telegram_.reset(new Telegram);
+            readSync<0>();
         }
-        if ((*count == count_max_) && (do_read_count_ < 3))
-        // Why 3? Even if there are no incoming messages, read() is called once.
-        // It will be called a second time in TCP/IP mode since (just example)
-        // "IP10<" is transmitted.
-        {
-            node_->log(
-                LogLevel::INFO,
-                "No incoming messages, driver stopped, ros::spin() will spin forever unless you hit Ctrl+C.");
-            async_background_thread_->interrupt();
-        }
-    }
-} // namespace io_comm_rx
 
-#endif // for ASYNC_MANAGER_HPP
+        template <uint8_t index>
+        void readSync()
+        {
+            static_assert(index < 3);
+
+            boost::asio::async_read(
+                *stream_, boost::asio::buffer(telegram_->data.data() + index, 1),
+                [this](boost::system::error_code ec, std::size_t numBytes) {
+                    Timestamp stamp = node_->getTime();
+
+                    if (!ec)
+                    {
+                        if (numBytes == 1)
+                        {
+                            switch (index)
+                            {
+                            case 0:
+                            {
+                                if (telegram_->data[index] == SYNC_0)
+                                {
+                                    telegram_->stamp = stamp;
+                                    readSync<1>();
+                                } else
+                                    readSync<0>();
+                                break;
+                            }
+                            case 1:
+                            {
+                                switch (telegram_->data[index])
+                                {
+                                case SBF_SYNC_BYTE_1:
+                                {
+                                    telegram_->type = SBF;
+                                    readSbfHeader();
+                                    break;
+                                }
+                                case NMEA_SYNC_BYTE_1:
+                                {
+                                    telegram_->type = NMEA;
+                                    readSync<2>();
+                                    break;
+                                }
+                                case RESPONSE_SYNC_BYTE_1:
+                                {
+                                    stelegram_->type = RESPONSE;
+                                    readSync<2>();
+                                    break;
+                                }
+                                case CONNECTION_DESCRIPTOR_BYTE_1:
+                                {
+                                    telegram_->type = CONNECTION_DESCRIPTOR;
+                                    readSync<2>();
+                                    break;
+                                }
+                                default:
+                                {
+                                    node_->log(
+                                        LogLevel::DEBUG,
+                                        "AsyncManager sync 1 read fault, should never come here.");
+                                    resync();
+                                    break;
+                                }
+                                }
+                                break;
+                            }
+                            case 2:
+                            {
+                                switch (telegram_->data[index])
+                                {
+                                case NMEA_SYNC_BYTE_2:
+                                {
+                                    if (telegram_->type == NMEA)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                case RESPONSE_SYNC_BYTE_1:
+                                {
+                                    if (telegram_->type == RESPONSE)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                case CONNECTION_DESCRIPTOR_BYTE_1:
+                                {
+                                    if (telegram_->type == CONNECTION_DESCRIPTOR)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                default:
+                                {
+                                    node_->log(
+                                        LogLevel::DEBUG,
+                                        "AsyncManager sync 2 read fault, should never come here.");
+                                    resync();
+                                    break;
+                                }
+                                }
+                                break;
+                            }
+                            default:
+                            {
+                                node_->log(
+                                    LogLevel::DEBUG,
+                                    "AsyncManager sync read fault, should never come here.");
+                                resync();
+                                break;
+                            }
+                            }
+                        } else
+                        {
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager sync read fault, wrong number of bytes read: " +
+                                    std::to_string(numBytes));
+                            resync();
+                        }
+                    } else
+                    {
+                        node_->log(LogLevel::DEBUG,
+                                   "AsyncManager sync read error: " + ec.message());
+                        resync();
+                    }
+                });
+        }
+
+        void readSbfHeader()
+        {
+            telegram_->data.resize(SBF_HEADER_SIZE);
+
+            boost::asio::async_read(
+                *stream_,
+                boost::asio::buffer(telegram_->data.data() + 2, SBF_HEADER_SIZE - 2),
+                [this](boost::system::error_code ec, std::size_t numBytes) {
+                    if (!ec)
+                    {
+                        if (numBytes == (SBF_HEADER_SIZE - 2))
+                        {
+                            unit16_t length =
+                                parsing_utilities::getLength(telegram_->data.data());
+                            if (length > MAX_SBF_SIZE)
+                            {
+                                node_->log(
+                                    LogLevel::DEBUG,
+                                    "AsyncManager SBF header read fault, length of block exceeds " +
+                                        std::to_string(MAX_SBF_SIZE) + ": " +
+                                        std::to_string(length));
+                            } else
+                                readSbf(length);
+                        } else
+                        {
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager SBF header read fault, wrong number of bytes read: " +
+                                    std::to_string(numBytes));
+                            resync();
+                        }
+                    } else
+                    {
+                        node_->log(LogLevel::DEBUG,
+                                   "AsyncManager SBF header read error: " +
+                                       ec.message());
+                        resync();
+                    }
+                });
+        }
+
+        void readSbf(std::size_t length)
+        {
+            telegram_->data.resize(length);
+
+            boost::asio::async_read(
+                *stream_,
+                boost::asio::buffer(telegram_->data.data() + SBF_HEADER_SIZE,
+                                    length - SBF_HEADER_SIZE),
+                [this](boost::system::error_code ec, std::size_t numBytes) {
+                    if (!ec)
+                    {
+                        if (numBytes == (length - SBF_HEADER_SIZE))
+                        {
+                            if (isValid(
+                                    telegram_->data.data())) // TODO namespace crc
+                            {
+                                telegram_->sbfId =
+                                    parsing_utilities::getId(telegram_->data.data());
+
+                                telegramQueue_->push(telegram_);
+                            }
+                        } else
+                        {
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager SBF read fault, wrong number of bytes read: " +
+                                    std::to_string(numBytes));
+                        }
+                    } else
+                    {
+                        node_->log(LogLevel::DEBUG,
+                                   "AsyncManager SBF read error: " + ec.message());
+                    }
+                    resync();
+                });
+        }
+
+        void readString()
+        {
+            telegram_->data.resize(3);
+            readStringElements();
+        }
+
+        void readStringElements()
+        {
+            std::byte byte;
+
+            boost::asio::async_read(
+                *stream_, boost::asio::buffer(byte, 1),
+                [this](boost::system::error_code ec, std::size_t numBytes) {
+                    if (!ec)
+                    {
+                        if (numBytes == 1)
+                        {
+                            switch (byte)
+                            {
+                            case SYNC_0:
+                            {
+                                telegram_.reset(new Telegram);
+                                telegram_->data[0] = byte;
+                                telegram_->stamp = node_->getTime();
+                                node_->log(
+                                    LogLevel::DEBUG,
+                                    "AsyncManager string read fault, sync 0 found."));
+                                readSync<1>();
+                                break;
+                            }
+                            case LF:
+                            {
+                                telegram_->data.push_back(byte);
+                                if (telegram_->data[telegram_->data.size() - 2] ==
+                                    CR)
+                                    telegramQueue_->push(telegram_);
+                                resync();
+                                break;
+                            }
+                            default:
+                            {
+                                telegram_->data.push_back(byte);
+                                readString();
+                                break;
+                            }
+                            }
+                        } else
+                        {
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager string read fault, wrong number of bytes read: " +
+                                    std::to_string(numBytes));
+                            resync();
+                        }
+                    } else
+                    {
+                        node_->log(LogLevel::DEBUG,
+                                   "AsyncManager string read error: " +
+                                       ec.message());
+                        resync();
+                    }
+                });
+        }
+
+        //! Stream, represents either interface connection or file
+        std::unique_ptr<StreamT> stream_;
+        //! Pointer to the node
+        ROSaicNodeBase* node_;
+        std::unique_ptr<IoBase> ioSocket_;
+        std::atomic<bool> running_;
+        boost::asio::io_service ioService_;
+        std::thread ioThread_;
+        std::thread watchdogThread_;
+        //! Timestamp of receiving buffer
+        Timestamp recvStamp_;
+        //! Telegram
+        std::shared_ptr<Telegram> telegram_;
+        //! TelegramQueue
+        TelegramQueue* telegramQueue_;
+    };
+} // namespace io

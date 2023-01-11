@@ -119,7 +119,7 @@ std::string g_rx_tcp_port;
 //! to count the connection descriptors
 uint32_t g_cd_count;
 
-io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, Settings* settings) :
+io::CommIo::CommIo(ROSaicNodeBase* node, Settings* settings) :
     node_(node), handlers_(node, settings), settings_(settings), stopping_(false)
 {
     g_response_received = false;
@@ -128,7 +128,7 @@ io_comm_rx::Comm_IO::Comm_IO(ROSaicNodeBase* node, Settings* settings) :
     g_cd_count = 0;
 }
 
-io_comm_rx::Comm_IO::~Comm_IO()
+io::CommIo::~CommIo()
 {
     if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
     {
@@ -188,7 +188,7 @@ io_comm_rx::Comm_IO::~Comm_IO()
     connectionThread_.join();
 }
 
-void io_comm_rx::Comm_IO::resetMainPort()
+void io::CommIo::resetMainPort()
 {
     // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
     // modifying the variable and "g_cd_received".
@@ -203,9 +203,9 @@ void io_comm_rx::Comm_IO::resetMainPort()
     g_cd_received = false;
 }
 
-void io_comm_rx::Comm_IO::initializeIO()
+void io::CommIo::initializeIo()
 {
-    node_->log(LogLevel::DEBUG, "Called initializeIO() method");
+    node_->log(LogLevel::DEBUG, "Called initializeIo() method");
     boost::smatch match;
     // In fact: smatch is a typedef of match_results<string::const_iterator>
     if (boost::regex_match(settings_->device, match,
@@ -224,7 +224,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         tcp_port_ = match[3];
 
         serial_ = false;
-        connectionThread_ = boost::thread(boost::bind(&Comm_IO::connect, this));
+        connectionThread_ = boost::thread(boost::bind(&CommIo::connect, this));
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
     {
@@ -232,7 +232,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         settings_->read_from_sbf_log = true;
         settings_->use_gnss_time = true;
         connectionThread_ = boost::thread(
-            boost::bind(&Comm_IO::prepareSBFFileReading, this, match[2]));
+            boost::bind(&CommIo::prepareSBFFileReading, this, match[2]));
 
     } else if (boost::regex_match(
                    settings_->device, match,
@@ -242,7 +242,7 @@ void io_comm_rx::Comm_IO::initializeIO()
         settings_->read_from_pcap = true;
         settings_->use_gnss_time = true;
         connectionThread_ = boost::thread(
-            boost::bind(&Comm_IO::preparePCAPFileReading, this, match[2]));
+            boost::bind(&CommIo::preparePCAPFileReading, this, match[2]));
 
     } else if (boost::regex_match(settings_->device, match,
                                   boost::regex("(serial):(.+)")))
@@ -253,17 +253,17 @@ void io_comm_rx::Comm_IO::initializeIO()
         ss << "Searching for serial port" << proto;
         settings_->device = proto;
         node_->log(LogLevel::DEBUG, ss.str());
-        connectionThread_ = boost::thread(boost::bind(&Comm_IO::connect, this));
+        connectionThread_ = boost::thread(boost::bind(&CommIo::connect, this));
     } else
     {
         std::stringstream ss;
         ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
         node_->log(LogLevel::ERROR, ss.str());
     }
-    node_->log(LogLevel::DEBUG, "Leaving initializeIO() method");
+    node_->log(LogLevel::DEBUG, "Leaving initializeIo() method");
 }
 
-void io_comm_rx::Comm_IO::prepareSBFFileReading(std::string file_name)
+void io::CommIo::prepareSBFFileReading(std::string file_name)
 {
     try
     {
@@ -274,13 +274,13 @@ void io_comm_rx::Comm_IO::prepareSBFFileReading(std::string file_name)
     } catch (std::runtime_error& e)
     {
         std::stringstream ss;
-        ss << "Comm_IO::initializeSBFFileReading() failed for SBF File" << file_name
+        ss << "CommIo::initializeSBFFileReading() failed for SBF File" << file_name
            << " due to: " << e.what();
         node_->log(LogLevel::ERROR, ss.str());
     }
 }
 
-void io_comm_rx::Comm_IO::preparePCAPFileReading(std::string file_name)
+void io::CommIo::preparePCAPFileReading(std::string file_name)
 {
     try
     {
@@ -297,7 +297,7 @@ void io_comm_rx::Comm_IO::preparePCAPFileReading(std::string file_name)
     }
 }
 
-void io_comm_rx::Comm_IO::connect()
+void io::CommIo::connect()
 {
     node_->log(LogLevel::DEBUG, "Called connect() method");
     node_->log(
@@ -316,67 +316,6 @@ void io_comm_rx::Comm_IO::connect()
     node_->log(LogLevel::DEBUG, "Successully connected. Leaving connect() method");
 }
 
-//! In serial mode (not USB, since the Rx port is then called USB1 or USB2), please
-//! ensure that you are connected to the Rx's COM1, COM2 or COM3 port, !if! you
-//! employ UART hardware flow control.
-void io_comm_rx::Comm_IO::reconnect()
-{
-    node_->log(LogLevel::DEBUG, "Called reconnect() method");
-    if (serial_)
-    {
-        bool initialize_serial_return = false;
-        try
-        {
-            node_->log(
-                LogLevel::INFO,
-                "Connecting serially to device" + settings_->device +
-                    ", targeted baudrate: " + std::to_string(settings_->baudrate));
-            initialize_serial_return = initializeSerial(
-                settings_->device, settings_->baudrate, settings_->hw_flow_control);
-        } catch (std::runtime_error& e)
-        {
-            {
-                std::stringstream ss;
-                ss << "initializeSerial() failed for device " << settings_->device
-                   << " due to: " << e.what();
-                node_->log(LogLevel::ERROR, ss.str());
-            }
-        }
-        if (initialize_serial_return)
-        {
-            boost::mutex::scoped_lock lock(connection_mutex_);
-            connected_ = true;
-            lock.unlock();
-            connection_condition_.notify_one();
-        }
-    } else
-    {
-        bool initialize_tcp_return = false;
-        try
-        {
-            node_->log(LogLevel::INFO,
-                       "Connecting to tcp://" + tcp_host_ + ":" + tcp_port_ + "...");
-            initialize_tcp_return = initializeTCP(tcp_host_, tcp_port_);
-        } catch (std::runtime_error& e)
-        {
-            {
-                std::stringstream ss;
-                ss << "initializeTCP() failed for host " << tcp_host_ << " on port "
-                   << tcp_port_ << " due to: " << e.what();
-                node_->log(LogLevel::ERROR, ss.str());
-            }
-        }
-        if (initialize_tcp_return)
-        {
-            boost::mutex::scoped_lock lock(connection_mutex_);
-            connected_ = true;
-            lock.unlock();
-            connection_condition_.notify_one();
-        }
-    }
-    node_->log(LogLevel::DEBUG, "Leaving reconnect() method");
-}
-
 //! The send() method of AsyncManager class is paramount for this purpose.
 //! Note that std::to_string() is from C++11 onwards only.
 //! Since ROSaic can be launched before booting the Rx, we have to watch out for
@@ -384,7 +323,7 @@ void io_comm_rx::Comm_IO::reconnect()
 //! Those characters would then be mingled with the first command we send to it in
 //! this method and could result in an invalid command. Hence we first enter command
 //! mode via "SSSSSSSSSS".
-void io_comm_rx::Comm_IO::configureRx()
+void io::CommIo::configureRx()
 {
     node_->log(LogLevel::DEBUG, "Called configureRx() method");
     {
@@ -977,224 +916,7 @@ void io_comm_rx::Comm_IO::configureRx()
     node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
 }
 
-//! initializeSerial is not self-contained: The for loop in Callbackhandlers' handle
-//! method would never open a specific handler unless the handler is added
-//! (=inserted) to the C++ map via this function. This way, the specific handler can
-//! be called, in which in turn RxMessage's read() method is called, which publishes
-//! the ROS message.
-void io_comm_rx::Comm_IO::defineMessages()
-{
-    node_->log(LogLevel::DEBUG, "Called defineMessages() method");
-
-    if (settings_->use_gnss_time || settings_->publish_gpst)
-    {
-        handlers_.callbackmap_ = handlers_.insert<ReceiverTimeMsg>("5914");
-    }
-    if (settings_->publish_gpgga)
-    {
-        handlers_.callbackmap_ = handlers_.insert<GpggaMsg>("$GPGGA");
-    }
-    if (settings_->publish_gprmc)
-    {
-        handlers_.callbackmap_ = handlers_.insert<GprmcMsg>("$GPRMC");
-    }
-    if (settings_->publish_gpgsa)
-    {
-        handlers_.callbackmap_ = handlers_.insert<GpgsaMsg>("$GPGSA");
-    }
-    if (settings_->publish_gpgsv)
-    {
-        handlers_.callbackmap_ = handlers_.insert<GpgsvMsg>("$GPGSV");
-        handlers_.callbackmap_ = handlers_.insert<GpgsvMsg>("$GLGSV");
-        handlers_.callbackmap_ = handlers_.insert<GpgsvMsg>("$GAGSV");
-        handlers_.callbackmap_ = handlers_.insert<GpgsvMsg>("$GBGSV");
-    }
-    if (settings_->publish_pvtcartesian)
-    {
-        handlers_.callbackmap_ = handlers_.insert<PVTCartesianMsg>("4006");
-    }
-    if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
-        (settings_->publish_navsatfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<PVTGeodeticMsg>("4007");
-    }
-    if (settings_->publish_basevectorcart)
-    {
-        handlers_.callbackmap_ = handlers_.insert<BaseVectorCartMsg>("4043");
-    }
-    if (settings_->publish_basevectorgeod)
-    {
-        handlers_.callbackmap_ = handlers_.insert<BaseVectorGeodMsg>("4028");
-    }
-    if (settings_->publish_poscovcartesian)
-    {
-        handlers_.callbackmap_ = handlers_.insert<PosCovCartesianMsg>("5905");
-    }
-    if (settings_->publish_poscovgeodetic ||
-        (settings_->publish_navsatfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<PosCovGeodeticMsg>("5906");
-    }
-    if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "gnss")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<VelCovGeodeticMsg>("5908");
-    }
-    if (settings_->publish_atteuler ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<AttEulerMsg>("5938");
-    }
-    if (settings_->publish_attcoveuler ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "gnss")) ||
-        (settings_->publish_pose && (settings_->septentrio_receiver_type == "gnss")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<AttCovEulerMsg>("5939");
-    }
-    if (settings_->publish_measepoch || settings_->publish_gpsfix)
-    {
-        handlers_.callbackmap_ =
-            handlers_.insert<int32_t>("4027"); // MeasEpoch block
-    }
-
-    // INS-related SBF blocks
-    if (settings_->publish_insnavcart)
-    {
-        handlers_.callbackmap_ = handlers_.insert<INSNavCartMsg>("4225");
-    }
-    if (settings_->publish_insnavgeod ||
-        (settings_->publish_navsatfix &&
-         (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_gpsfix &&
-         (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_pose &&
-         (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_imu && (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_localization &&
-         (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_twist &&
-         (settings_->septentrio_receiver_type == "ins")) ||
-        (settings_->publish_tf && (settings_->septentrio_receiver_type == "ins")))
-    {
-        handlers_.callbackmap_ = handlers_.insert<INSNavGeodMsg>("4226");
-    }
-    if (settings_->publish_imusetup)
-    {
-        handlers_.callbackmap_ = handlers_.insert<IMUSetupMsg>("4224");
-    }
-    if (settings_->publish_extsensormeas || settings_->publish_imu)
-    {
-        handlers_.callbackmap_ = handlers_.insert<ExtSensorMeasMsg>("4050");
-    }
-    if (settings_->publish_exteventinsnavgeod)
-    {
-        handlers_.callbackmap_ = handlers_.insert<INSNavGeodMsg>("4230");
-    }
-    if (settings_->publish_velsensorsetup)
-    {
-        handlers_.callbackmap_ = handlers_.insert<VelSensorSetupMsg>("4244");
-    }
-    if (settings_->publish_exteventinsnavcart)
-    {
-        handlers_.callbackmap_ = handlers_.insert<INSNavCartMsg>("4229");
-    }
-    if (settings_->publish_gpst)
-    {
-        handlers_.callbackmap_ = handlers_.insert<int32_t>("GPST");
-    }
-    if (settings_->septentrio_receiver_type == "gnss")
-    {
-        if (settings_->publish_navsatfix)
-        {
-            handlers_.callbackmap_ = handlers_.insert<NavSatFixMsg>("NavSatFix");
-        }
-    }
-    if (settings_->septentrio_receiver_type == "ins")
-    {
-        if (settings_->publish_navsatfix)
-        {
-            handlers_.callbackmap_ = handlers_.insert<NavSatFixMsg>("INSNavSatFix");
-        }
-    }
-    if (settings_->septentrio_receiver_type == "gnss")
-    {
-        if (settings_->publish_gpsfix)
-        {
-            handlers_.callbackmap_ = handlers_.insert<GPSFixMsg>("GPSFix");
-            // The following blocks are never published, yet are needed for the
-            // construction of the GPSFix message, hence we have empty callbacks.
-            handlers_.callbackmap_ =
-                handlers_.insert<int32_t>("4013"); // ChannelStatus block
-            handlers_.callbackmap_ = handlers_.insert<int32_t>("4001"); // DOP block
-        }
-    }
-    if (settings_->septentrio_receiver_type == "ins")
-    {
-        if (settings_->publish_gpsfix)
-        {
-            handlers_.callbackmap_ = handlers_.insert<GPSFixMsg>("INSGPSFix");
-            handlers_.callbackmap_ =
-                handlers_.insert<int32_t>("4013"); // ChannelStatus block
-            handlers_.callbackmap_ = handlers_.insert<int32_t>("4001"); // DOP block
-        }
-    }
-    if (settings_->septentrio_receiver_type == "gnss")
-    {
-        if (settings_->publish_pose)
-        {
-            handlers_.callbackmap_ = handlers_.insert<PoseWithCovarianceStampedMsg>(
-                "PoseWithCovarianceStamped");
-        }
-    }
-    if (settings_->septentrio_receiver_type == "ins")
-    {
-        if (settings_->publish_pose)
-        {
-            handlers_.callbackmap_ = handlers_.insert<PoseWithCovarianceStampedMsg>(
-                "INSPoseWithCovarianceStamped");
-        }
-    }
-    if (settings_->publish_diagnostics)
-    {
-        handlers_.callbackmap_ =
-            handlers_.insert<DiagnosticArrayMsg>("DiagnosticArray");
-        handlers_.callbackmap_ =
-            handlers_.insert<int32_t>("4014"); // ReceiverStatus block
-        handlers_.callbackmap_ =
-            handlers_.insert<int32_t>("4082"); // QualityInd block
-    }
-    if (settings_->septentrio_receiver_type == "ins")
-    {
-        if (settings_->publish_localization || settings_->publish_tf)
-        {
-            handlers_.callbackmap_ =
-                handlers_.insert<LocalizationMsg>("Localization");
-        }
-        if (settings_->publish_localization_ecef || settings_->publish_tf_ecef)
-        {
-            handlers_.callbackmap_ =
-                handlers_.insert<LocalizationMsg>("LocalizationEcef");
-        }
-    }
-    handlers_.callbackmap_ =
-        handlers_.insert<int32_t>("5902"); // ReceiverSetup block
-                                           // so on and so forth...
-    node_->log(LogLevel::DEBUG, "Leaving defineMessages() method");
-}
-
-void io_comm_rx::Comm_IO::send(const std::string& cmd)
+void io::CommIo::send(const std::string& cmd)
 {
     // It is imperative to hold a lock on the mutex "g_response_mutex" while
     // modifying the variable "g_response_received".
@@ -1205,76 +927,13 @@ void io_comm_rx::Comm_IO::send(const std::string& cmd)
     g_response_received = false;
 }
 
-void io_comm_rx::Comm_IO::sendVelocity(const std::string& velNmea)
+void io::CommIo::sendVelocity(const std::string& velNmea)
 {
     if (nmeaActivated_)
         manager_.get()->send(velNmea);
 }
 
-bool io_comm_rx::Comm_IO::initializeTCP(std::string host, std::string port)
-{
-    node_->log(LogLevel::DEBUG, "Calling initializeTCP() method..");
-    host_ = host;
-    port_ = port;
-    // The io_context, of which io_service is a typedef of; it represents your
-    // program's link to the operating system's I/O services.
-    boost::shared_ptr<boost::asio::io_service> io_service(
-        new boost::asio::io_service);
-    boost::asio::ip::tcp::resolver::iterator endpoint;
-
-    try
-    {
-        boost::asio::ip::tcp::resolver resolver(*io_service);
-        // Note that tcp::resolver::query takes the host to resolve or the IP as the
-        // first parameter and the name of the service (as defined e.g. in
-        // /etc/services on Unix hosts) as second parameter. For the latter, one can
-        // also use a numeric service identifier (aka port number). In any case, it
-        // returns a list of possible endpoints, as there might be several entries
-        // for a single host.
-        endpoint = resolver.resolve(boost::asio::ip::tcp::resolver::query(
-            host, port)); // Resolves query object..
-    } catch (std::runtime_error& e)
-    {
-        throw std::runtime_error("Could not resolve " + host + " on port " + port +
-                                 ": " + e.what());
-        return false;
-    }
-
-    boost::shared_ptr<boost::asio::ip::tcp::socket> socket(
-        new boost::asio::ip::tcp::socket(*io_service));
-
-    try
-    {
-        // The list of endpoints obtained above may contain both IPv4 and IPv6
-        // endpoints, so we need to try each of them until we find one that works.
-        // This keeps the client program independent of a specific IP version. The
-        // boost::asio::connect() function does this for us automatically.
-        socket->connect(*endpoint);
-        socket->set_option(boost::asio::ip::tcp::no_delay(true));
-    } catch (std::runtime_error& e)
-    {
-        throw std::runtime_error("Could not connect to " + endpoint->host_name() +
-                                 ": " + endpoint->service_name() + ": " + e.what());
-        return false;
-    }
-
-    node_->log(LogLevel::INFO, "Connected to " + endpoint->host_name() + ":" +
-                                   endpoint->service_name() + ".");
-
-    if (manager_)
-    {
-        node_->log(
-            LogLevel::ERROR,
-            "You have called the InitializeTCP() method though an AsyncManager object is already available! Start all anew..");
-        return false;
-    }
-    setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::ip::tcp::socket>(node_, socket, io_service)));
-    node_->log(LogLevel::DEBUG, "Leaving initializeTCP() method..");
-    return true;
-}
-
-void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
+void io::CommIo::initializeSBFFileReading(std::string file_name)
 {
     node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
     std::size_t buffer_size = 8192;
@@ -1329,7 +988,7 @@ void io_comm_rx::Comm_IO::initializeSBFFileReading(std::string file_name)
     node_->log(LogLevel::DEBUG, "Leaving initializeSBFFileReading() method..");
 }
 
-void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
+void io::CommIo::initializePCAPFileReading(std::string file_name)
 {
     node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading() method..");
     pcapReader::buffer_t vec_buf;
@@ -1380,187 +1039,4 @@ void io_comm_rx::Comm_IO::initializePCAPFileReading(std::string file_name)
         to_be_parsed = to_be_parsed + buffer_size;
     }
     node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading() method..");
-}
-
-bool io_comm_rx::Comm_IO::initializeSerial(std::string port, uint32_t baudrate,
-                                           std::string flowcontrol)
-{
-    node_->log(LogLevel::DEBUG, "Calling initializeSerial() method..");
-    serial_port_ = port;
-    baudrate_ = baudrate;
-    // The io_context, of which io_service is a typedef of; it represents your
-    // program's link to the operating system's I/O services.
-    boost::shared_ptr<boost::asio::io_service> io_service(
-        new boost::asio::io_service);
-    // To perform I/O operations the program needs an I/O object, here "serial".
-    boost::shared_ptr<boost::asio::serial_port> serial(
-        new boost::asio::serial_port(*io_service));
-
-    // We attempt the opening of the serial port..
-    try
-    {
-        serial->open(serial_port_);
-    } catch (std::runtime_error& e)
-    {
-        // and return an error message in case it fails.
-        throw std::runtime_error("Could not open serial port : " + serial_port_ +
-                                 ": " + e.what());
-        return false;
-    }
-
-    node_->log(LogLevel::INFO, "Opened serial port " + serial_port_);
-    node_->log(LogLevel::DEBUG,
-               "Our boost version is " + std::to_string(BOOST_VERSION) + ".");
-    if (BOOST_VERSION < 106600) // E.g. for ROS melodic (i.e. Ubuntu 18.04), the
-                                // version is 106501, standing for 1.65.1.
-    {
-        // Workaround to set some options for the port manually,
-        // cf. https://github.com/mavlink/mavros/pull/971/files
-        // This function native_handle() may be used to obtain
-        // the underlying representation of the serial port.
-        // Conversion from type native_handle_type to int is done implicitly.
-        int fd = serial->native_handle();
-        termios tio;
-        // Get terminal attribute, follows the syntax
-        // int tcgetattr(int fd, struct termios *termios_p);
-        tcgetattr(fd, &tio);
-
-        // Hardware flow control settings_->.
-        if (flowcontrol == "RTS|CTS")
-        {
-            tio.c_iflag &= ~(IXOFF | IXON);
-            tio.c_cflag |= CRTSCTS;
-        } else
-        {
-            tio.c_iflag &= ~(IXOFF | IXON);
-            tio.c_cflag &= ~CRTSCTS;
-        }
-        // Setting serial port to "raw" mode to prevent EOF exit..
-        cfmakeraw(&tio);
-
-        // Commit settings, syntax is
-        // int tcsetattr(int fd, int optional_actions, const struct termios
-        // *termios_p);
-        tcsetattr(fd, TCSANOW, &tio);
-
-        // Set low latency
-        struct serial_struct serialInfo;
-
-        ioctl(fd, TIOCGSERIAL, &serialInfo);
-        serialInfo.flags |= ASYNC_LOW_LATENCY;
-        ioctl(fd, TIOCSSERIAL, &serialInfo);
-    }
-
-    // Set the I/O manager
-    if (manager_)
-    {
-        node_->log(
-            LogLevel::ERROR,
-            "You have called the initializeSerial() method though an AsyncManager object is already available! Start all anew..");
-        return false;
-    }
-    node_->log(LogLevel::DEBUG, "Creating new Async-Manager object..");
-    setManager(boost::shared_ptr<Manager>(
-        new AsyncManager<boost::asio::serial_port>(node_, serial, io_service)));
-
-    // Setting the baudrate, incrementally..
-    node_->log(LogLevel::DEBUG,
-               "Gradually increasing the baudrate to the desired value...");
-    boost::asio::serial_port_base::baud_rate current_baudrate;
-    node_->log(LogLevel::DEBUG, "Initiated current_baudrate object...");
-    try
-    {
-        serial->get_option(
-            current_baudrate); // Note that this sets current_baudrate.value() often
-                               // to 115200, since by default, all Rx COM ports,
-        // at least for mosaic Rxs, are set to a baudrate of 115200 baud, using 8
-        // data-bits, no parity and 1 stop-bit.
-    } catch (boost::system::system_error& e)
-    {
-
-        node_->log(LogLevel::ERROR,
-                   "get_option failed due to " + std::string(e.what()));
-        node_->log(LogLevel::INFO, "Additional info about error is " +
-                                       boost::diagnostic_information(e));
-        /*
-        boost::system::error_code e_loop;
-        do // Caution: Might cause infinite loop..
-        {
-            serial->get_option(current_baudrate, e_loop);
-        } while(e_loop);
-        */
-        return false;
-    }
-    // Gradually increase the baudrate to the desired value
-    // The desired baudrate can be lower or larger than the
-    // current baudrate; the for loop takes care of both scenarios.
-    node_->log(LogLevel::DEBUG,
-               "Current baudrate is " + std::to_string(current_baudrate.value()));
-    for (uint8_t i = 0; i < sizeof(BAUDRATES) / sizeof(BAUDRATES[0]); i++)
-    {
-        if (current_baudrate.value() == baudrate_)
-        {
-            break; // Break if the desired baudrate has been reached.
-        }
-        if (current_baudrate.value() >= BAUDRATES[i] && baudrate_ > BAUDRATES[i])
-        {
-            continue;
-        }
-        // Increment until Baudrate[i] matches current_baudrate.
-        try
-        {
-            serial->set_option(
-                boost::asio::serial_port_base::baud_rate(BAUDRATES[i]));
-        } catch (boost::system::system_error& e)
-        {
-
-            node_->log(LogLevel::ERROR,
-                       "set_option failed due to " + std::string(e.what()));
-            node_->log(LogLevel::INFO, "Additional info about error is " +
-                                           boost::diagnostic_information(e));
-            return false;
-        }
-        usleep(SET_BAUDRATE_SLEEP_);
-        // boost::this_thread::sleep(boost::posix_time::milliseconds(SET_BAUDRATE_SLEEP_*1000));
-        // Boost's sleep would yield an error message with exit code -7 the second
-        // time it is called, hence we use sleep() or usleep().
-        try
-        {
-            serial->get_option(current_baudrate);
-        } catch (boost::system::system_error& e)
-        {
-
-            node_->log(LogLevel::ERROR,
-                       "get_option failed due to " + std::string(e.what()));
-            node_->log(LogLevel::INFO, "Additional info about error is " +
-                                           boost::diagnostic_information(e));
-            /*
-            boost::system::error_code e_loop;
-            do // Caution: Might cause infinite loop..
-            {
-                serial->get_option(current_baudrate, e_loop);
-            } while(e_loop);
-            */
-            return false;
-        }
-        node_->log(LogLevel::DEBUG, "Set ASIO baudrate to " +
-                                        std::to_string(current_baudrate.value()));
-    }
-    node_->log(LogLevel::INFO, "Set ASIO baudrate to " +
-                                   std::to_string(current_baudrate.value()) +
-                                   ", leaving InitializeSerial() method");
-    return true;
-}
-
-void io_comm_rx::Comm_IO::setManager(const boost::shared_ptr<Manager>& manager)
-{
-    namespace bp = boost::placeholders;
-
-    node_->log(LogLevel::DEBUG, "Called setManager() method");
-    if (manager_)
-        return;
-    manager_ = manager;
-    manager_->setCallback(boost::bind(&CallbackHandlers::readCallback, &handlers_,
-                                      bp::_1, bp::_2, bp::_3));
-    node_->log(LogLevel::DEBUG, "Leaving setManager() method");
 }

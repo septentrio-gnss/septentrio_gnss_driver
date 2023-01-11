@@ -667,7 +667,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
       - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `septentrio_gnss_driver/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
       - SBF: Extend the `NMEA_ID_Enum` enumeration in the `rx_message.hpp` file with a new entry.
       - SBF: Extend the initialization of the `RxIDMap` map in the `rx_message.cpp` file with a new pair.
-      - SBF: Add a new callback function declaration, a new method, to the `io_comm_rx::RxMessage class` in the `rx_message.hpp` file.
+      - SBF: Add a new callback function declaration, a new method, to the `io::RxMessage class` in the `rx_message.hpp` file.
       - SBF: Add the latter's definition to the `rx_message.cpp` file.
       - SBF: Add a new C++ "case" (part of the C++ switch-case structure) in the `rx_message.hpp` file. It should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
       - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `septentrio_gnss_driver/include/septentrio_gnss_driver/parsers/nmea_parsers` folder.

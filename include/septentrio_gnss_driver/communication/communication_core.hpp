@@ -56,12 +56,7 @@
 //
 // *****************************************************************************
 
-#ifndef COMMUNICATION_CORE_HPP // This block is called a conditional group. The
-                               // controlled text will get included in the
-                               // preprocessor output iff the macroname is not
-                               // defined.
-#define COMMUNICATION_CORE_HPP // Include guards help to avoid the double inclusion
-                               // of header files, by defining a token = macro.
+#pragma once
 
 // Boost includes
 #include <boost/asio.hpp>
@@ -77,7 +72,6 @@
 #include <unistd.h> // for usleep()
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
-#include <septentrio_gnss_driver/communication/callback_handlers.hpp>
 
 /**
  * @file communication_core.hpp
@@ -86,11 +80,11 @@
  */
 
 /**
- * @namespace io_comm_rx
+ * @namespace io
  * This namespace is for the communication interface, handling all aspects related to
  * serial and TCP/IP communication..
  */
-namespace io_comm_rx {
+namespace io {
 
     //! Possible baudrates for the Rx
     const static uint32_t BAUDRATES[] = {
@@ -99,27 +93,27 @@ namespace io_comm_rx {
         1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
 
     /**
-     * @class Comm_IO
+     * @class CommIo
      * @brief Handles communication with and configuration of the mosaic (and beyond)
      * receiver(s)
      */
-    class Comm_IO
+    class CommIo
     {
     public:
         /**
-         * @brief Constructor of the class Comm_IO
+         * @brief Constructor of the class CommIo
          * @param[in] node Pointer to node
          */
-        Comm_IO(ROSaicNodeBase* node, Settings* settings);
+        CommIo(ROSaicNodeBase* node, Settings* settings);
         /**
-         * @brief Default destructor of the class Comm_IO
+         * @brief Default destructor of the class CommIo
          */
-        ~Comm_IO();
+        ~CommIo();
 
         /**
          * @brief Initializes the I/O handling
          */
-        void initializeIO();
+        void initializeIo();
 
         /**
          * @brief Configures Rx: Which SBF/NMEA messages it should output and later
@@ -127,12 +121,6 @@ namespace io_comm_rx {
          * @param[in] settings The device's settings
          * */
         void configureRx();
-
-        /**
-         * @brief Defines which Rx messages to read and which ROS messages to publish
-         * @param[in] settings The device's settings
-         * */
-        void defineMessages();
 
         /**
          * @brief Hands over NMEA velocity message over to the send() method of
@@ -208,7 +196,7 @@ namespace io_comm_rx {
          * @brief Set the I/O manager
          * @param[in] manager An I/O handler
          */
-        void setManager(const boost::shared_ptr<Manager>& manager);
+        void setManager(const boost::shared_ptr<AsyncManagerBase>& manager);
 
         /**
          * @brief Hands over to the send() method of manager_
@@ -227,11 +215,11 @@ namespace io_comm_rx {
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated mutex..
-        boost::mutex connection_mutex_;
+        std::mutex connection_mutex_;
         //! Since the configureRx() method should only be called once the connection
         //! was established, we need the threads to communicate this to each other.
         //! Associated condition variable..
-        boost::condition_variable connection_condition_;
+        std::condition_variable connection_condition_;
         //! Host name of TCP server
         std::string tcp_host_;
         //! TCP port number
@@ -242,14 +230,14 @@ namespace io_comm_rx {
         std::string serial_port_;
         //! Processes I/O stream data
         //! This declaration is deliberately stream-independent (Serial or TCP).
-        boost::shared_ptr<Manager> manager_;
+        std::unique_ptr<AsyncManagerBase> manager_;
         //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
         uint32_t baudrate_;
 
         bool nmeaActivated_ = false;
 
         //! Connection or reading thread
-        boost::thread connectionThread_;
+        std::thread connectionThread_;
         //! Indicator for threads to exit
         std::atomic<bool> stopping_;
 
@@ -268,6 +256,4 @@ namespace io_comm_rx {
         //! increments)
         const static unsigned int SET_BAUDRATE_SLEEP_ = 500000;
     };
-} // namespace io_comm_rx
-
-#endif // for COMMUNICATION_CORE_HPP
+} // namespace io

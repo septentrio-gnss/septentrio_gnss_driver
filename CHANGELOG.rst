@@ -303,8 +303,8 @@ Changelog for package septentrio_gnss_driver
     * Move more global settings to settings struct
     * Move more global settings to settings struct
     * Move global settings to settings struct
-    * Move more functions to Comm_IO
-    * Move settings to struct and configuration to Comm_IO
+    * Move more functions to CommIo
+    * Move settings to struct and configuration to CommIo
     * Merge branch 'dev/change_utc_calculation' into dev/refactor
     * Remove obsolete global variables
     * Move g_unix_time to class

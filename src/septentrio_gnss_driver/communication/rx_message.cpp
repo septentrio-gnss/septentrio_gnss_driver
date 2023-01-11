@@ -54,7 +54,7 @@ using parsing_utilities::rad2deg;
 using parsing_utilities::square;
 
 PoseWithCovarianceStampedMsg
-io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
+io::RxMessage::PoseWithCovarianceStampedCallback()
 {
     PoseWithCovarianceStampedMsg msg;
     if (settings_->septentrio_receiver_type == "gnss")
@@ -183,7 +183,7 @@ io_comm_rx::RxMessage::PoseWithCovarianceStampedCallback()
     return msg;
 };
 
-DiagnosticArrayMsg io_comm_rx::RxMessage::DiagnosticArrayCallback()
+DiagnosticArrayMsg io::RxMessage::DiagnosticArrayCallback()
 {
     DiagnosticArrayMsg msg;
     std::string serialnumber(last_receiversetup_.rx_serial_number);
@@ -290,7 +290,7 @@ DiagnosticArrayMsg io_comm_rx::RxMessage::DiagnosticArrayCallback()
     return msg;
 };
 
-ImuMsg io_comm_rx::RxMessage::ImuCallback()
+ImuMsg io::RxMessage::ImuCallback()
 {
     ImuMsg msg;
 
@@ -403,7 +403,7 @@ ImuMsg io_comm_rx::RxMessage::ImuCallback()
 };
 
 TwistWithCovarianceStampedMsg
-io_comm_rx::RxMessage::TwistCallback(bool fromIns /* = false*/)
+io::RxMessage::TwistCallback(bool fromIns /* = false*/)
 {
     TwistWithCovarianceStampedMsg msg;
 
@@ -624,7 +624,7 @@ io_comm_rx::RxMessage::TwistCallback(bool fromIns /* = false*/)
  * north. Linear velocity of twist in body frame as per msg definition. Angular
  * velocity not available, thus according autocovariances are set to -1.0.
  */
-LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
+LocalizationMsg io::RxMessage::LocalizationUtmCallback()
 {
     LocalizationMsg msg;
 
@@ -800,7 +800,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationUtmCallback()
  * Linear velocity of twist in body frame as per msg definition. Angular
  * velocity not available, thus according autocovariances are set to -1.0.
  */
-LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
+LocalizationMsg io::RxMessage::LocalizationEcefCallback()
 {
     LocalizationMsg msg;
 
@@ -952,7 +952,7 @@ LocalizationMsg io_comm_rx::RxMessage::LocalizationEcefCallback()
     return msg;
 };
 
-void io_comm_rx::RxMessage::fillLocalizationMsgTwist(double roll, double pitch,
+void io::RxMessage::fillLocalizationMsgTwist(double roll, double pitch,
                                                      double yaw,
                                                      LocalizationMsg& msg)
 {
@@ -1073,7 +1073,7 @@ void io_comm_rx::RxMessage::fillLocalizationMsgTwist(double roll, double pitch,
  * of the PVTGeodetic block does not disclose it. For that, one would need to go to
  * the ObsInfo field of the MeasEpochChannelType1 sub-block.
  */
-NavSatFixMsg io_comm_rx::RxMessage::NavSatFixCallback()
+NavSatFixMsg io::RxMessage::NavSatFixCallback()
 {
     NavSatFixMsg msg;
     uint16_t mask = 15; // We extract the first four bits using this mask.
@@ -1265,7 +1265,7 @@ NavSatFixMsg io_comm_rx::RxMessage::NavSatFixCallback()
  * values appear unphysical, please consult the firmware, since those most likely
  * refer to Do-Not-Use values.
  */
-GPSFixMsg io_comm_rx::RxMessage::GPSFixCallback()
+GPSFixMsg io::RxMessage::GPSFixCallback()
 {
     GPSFixMsg msg;
     msg.status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
@@ -1682,7 +1682,7 @@ GPSFixMsg io_comm_rx::RxMessage::GPSFixCallback()
     return msg;
 };
 
-Timestamp io_comm_rx::RxMessage::timestampSBF(const uint8_t* data,
+Timestamp io::RxMessage::timestampSBF(const uint8_t* data,
                                               bool use_gnss_time)
 {
     uint32_t tow = parsing_utilities::getTow(data);
@@ -1696,7 +1696,7 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(const uint8_t* data,
 /// the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the
 /// settings_->leap_seconds ROSaic parameter accordingly as soon as the next leap
 /// second is inserted into the UTC time.
-Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc,
+Timestamp io::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc,
                                               bool use_gnss_time)
 {
     Timestamp time_obj;
@@ -1723,7 +1723,7 @@ Timestamp io_comm_rx::RxMessage::timestampSBF(uint32_t tow, uint16_t wnc,
     return time_obj;
 }
 
-bool io_comm_rx::RxMessage::found()
+bool io::RxMessage::found()
 {
     if (found_)
         return true;
@@ -1739,7 +1739,7 @@ bool io_comm_rx::RxMessage::found()
     return true;
 }
 
-const uint8_t* io_comm_rx::RxMessage::search()
+const uint8_t* io::RxMessage::search()
 {
     if (found_)
     {
@@ -1758,7 +1758,7 @@ const uint8_t* io_comm_rx::RxMessage::search()
     return data_;
 }
 
-std::size_t io_comm_rx::RxMessage::messageSize()
+std::size_t io::RxMessage::messageSize()
 {
     uint16_t pos = 0;
     message_size_ = 0;
@@ -1797,7 +1797,7 @@ std::size_t io_comm_rx::RxMessage::messageSize()
     return message_size_;
 }
 
-bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
+bool io::RxMessage::isMessage(const uint16_t id)
 {
     if (this->isSBF())
     {
@@ -1808,7 +1808,7 @@ bool io_comm_rx::RxMessage::isMessage(const uint16_t id)
     }
 }
 
-bool io_comm_rx::RxMessage::isMessage(std::string id)
+bool io::RxMessage::isMessage(std::string id)
 {
     if (this->isNMEA())
     {
@@ -1830,7 +1830,7 @@ bool io_comm_rx::RxMessage::isMessage(std::string id)
     }
 }
 
-bool io_comm_rx::RxMessage::isSBF()
+bool io::RxMessage::isSBF()
 {
     if (count_ >= 2)
     {
@@ -1847,7 +1847,7 @@ bool io_comm_rx::RxMessage::isSBF()
     }
 }
 
-bool io_comm_rx::RxMessage::isNMEA()
+bool io::RxMessage::isNMEA()
 {
     if (count_ >= 2)
     {
@@ -1865,7 +1865,7 @@ bool io_comm_rx::RxMessage::isNMEA()
     }
 }
 
-bool io_comm_rx::RxMessage::isResponse()
+bool io::RxMessage::isResponse()
 {
     if (count_ >= 2)
     {
@@ -1882,7 +1882,7 @@ bool io_comm_rx::RxMessage::isResponse()
     }
 }
 
-bool io_comm_rx::RxMessage::isConnectionDescriptor()
+bool io::RxMessage::isConnectionDescriptor()
 {
     if (count_ >= 2)
     {
@@ -1900,7 +1900,7 @@ bool io_comm_rx::RxMessage::isConnectionDescriptor()
     }
 }
 
-bool io_comm_rx::RxMessage::isErrorMessage()
+bool io::RxMessage::isErrorMessage()
 {
     if (count_ >= 3)
     {
@@ -1918,7 +1918,7 @@ bool io_comm_rx::RxMessage::isErrorMessage()
     }
 }
 
-std::string io_comm_rx::RxMessage::messageID()
+std::string io::RxMessage::messageID()
 {
     if (this->isSBF())
     {
@@ -1938,11 +1938,11 @@ std::string io_comm_rx::RxMessage::messageID()
     return std::string(); // less CPU work than return "";
 }
 
-const uint8_t* io_comm_rx::RxMessage::getPosBuffer() { return data_; }
+const uint8_t* io::RxMessage::getPosBuffer() { return data_; }
 
-const uint8_t* io_comm_rx::RxMessage::getEndBuffer() { return data_ + count_; }
+const uint8_t* io::RxMessage::getEndBuffer() { return data_ + count_; }
 
-uint16_t io_comm_rx::RxMessage::getBlockLength()
+uint16_t io::RxMessage::getBlockLength()
 {
     if (this->isSBF())
     {
@@ -1962,7 +1962,7 @@ uint16_t io_comm_rx::RxMessage::getBlockLength()
  * NMEA message or a command reply. In that case, search() will check the bytes one
  * by one for the new message's sync bytes ($P, $G or $R).
  */
-void io_comm_rx::RxMessage::next()
+void io::RxMessage::next()
 {
     std::size_t jump_size;
     if (found())
@@ -2005,7 +2005,7 @@ void io_comm_rx::RxMessage::next()
  * If GNSS time is used, Publishing is only done with valid leap seconds
  */
 template <typename M>
-void io_comm_rx::RxMessage::publish(const std::string& topic, const M& msg)
+void io::RxMessage::publish(const std::string& topic, const M& msg)
 {
     // TODO: maybe publish only if wnc and tow is valid?
     if (!settings_->use_gnss_time ||
@@ -2027,7 +2027,7 @@ void io_comm_rx::RxMessage::publish(const std::string& topic, const M& msg)
 /**
  * If GNSS time is used, Publishing is only done with valid leap seconds
  */
-void io_comm_rx::RxMessage::publishTf(const LocalizationMsg& msg)
+void io::RxMessage::publishTf(const LocalizationMsg& msg)
 {
     // TODO: maybe publish only if wnc and tow is valid?
     if (!settings_->use_gnss_time ||
@@ -2058,7 +2058,7 @@ void io_comm_rx::RxMessage::publishTf(const LocalizationMsg& msg)
  * seems to be 89 on a mosaic-x5. Luckily, when parsing we do not care since we just
  * search for \<LF\>\<CR\>.
  */
-bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
+bool io::RxMessage::read(std::string message_key, bool search)
 {
     if (search)
         this->search();
@@ -3213,7 +3213,7 @@ bool io_comm_rx::RxMessage::read(std::string message_key, bool search)
     return true;
 }
 
-void io_comm_rx::RxMessage::wait(Timestamp time_obj)
+void io::RxMessage::wait(Timestamp time_obj)
 {
     Timestamp unix_old = unix_time_;
     unix_time_ = time_obj;
@@ -3237,7 +3237,7 @@ void io_comm_rx::RxMessage::wait(Timestamp time_obj)
         current_leap_seconds_ = settings_->leap_seconds;
 }
 
-bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)
+bool io::RxMessage::gnss_gpsfix_complete(uint32_t id)
 {
     std::vector<bool> gpsfix_vec = {channelstatus_has_arrived_gpsfix_,
                                     measepoch_has_arrived_gpsfix_,
@@ -3250,7 +3250,7 @@ bool io_comm_rx::RxMessage::gnss_gpsfix_complete(uint32_t id)
     return allTrue(gpsfix_vec, id);
 }
 
-bool io_comm_rx::RxMessage::ins_gpsfix_complete(uint32_t id)
+bool io::RxMessage::ins_gpsfix_complete(uint32_t id)
 {
     std::vector<bool> gpsfix_vec = {
         channelstatus_has_arrived_gpsfix_, measepoch_has_arrived_gpsfix_,
@@ -3258,20 +3258,20 @@ bool io_comm_rx::RxMessage::ins_gpsfix_complete(uint32_t id)
     return allTrue(gpsfix_vec, id);
 }
 
-bool io_comm_rx::RxMessage::gnss_navsatfix_complete(uint32_t id)
+bool io::RxMessage::gnss_navsatfix_complete(uint32_t id)
 {
     std::vector<bool> navsatfix_vec = {pvtgeodetic_has_arrived_navsatfix_,
                                        poscovgeodetic_has_arrived_navsatfix_};
     return allTrue(navsatfix_vec, id);
 }
 
-bool io_comm_rx::RxMessage::ins_navsatfix_complete(uint32_t id)
+bool io::RxMessage::ins_navsatfix_complete(uint32_t id)
 {
     std::vector<bool> navsatfix_vec = {insnavgeod_has_arrived_navsatfix_};
     return allTrue(navsatfix_vec, id);
 }
 
-bool io_comm_rx::RxMessage::gnss_pose_complete(uint32_t id)
+bool io::RxMessage::gnss_pose_complete(uint32_t id)
 {
     std::vector<bool> pose_vec = {
         pvtgeodetic_has_arrived_pose_, poscovgeodetic_has_arrived_pose_,
@@ -3279,33 +3279,33 @@ bool io_comm_rx::RxMessage::gnss_pose_complete(uint32_t id)
     return allTrue(pose_vec, id);
 }
 
-bool io_comm_rx::RxMessage::ins_pose_complete(uint32_t id)
+bool io::RxMessage::ins_pose_complete(uint32_t id)
 {
     std::vector<bool> pose_vec = {insnavgeod_has_arrived_pose_};
     return allTrue(pose_vec, id);
 }
 
-bool io_comm_rx::RxMessage::diagnostics_complete(uint32_t id)
+bool io::RxMessage::diagnostics_complete(uint32_t id)
 {
     std::vector<bool> diagnostics_vec = {receiverstatus_has_arrived_diagnostics_,
                                          qualityind_has_arrived_diagnostics_};
     return allTrue(diagnostics_vec, id);
 }
 
-bool io_comm_rx::RxMessage::ins_localization_complete(uint32_t id)
+bool io::RxMessage::ins_localization_complete(uint32_t id)
 {
     std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_};
     return allTrue(loc_vec, id);
 }
 
-bool io_comm_rx::RxMessage::ins_localization_ecef_complete(uint32_t id)
+bool io::RxMessage::ins_localization_ecef_complete(uint32_t id)
 {
     std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_ecef_,
                                  insnavcart_has_arrived_localization_ecef_};
     return allTrue(loc_vec, id);
 }
 
-bool io_comm_rx::RxMessage::allTrue(std::vector<bool>& vec, uint32_t id)
+bool io::RxMessage::allTrue(std::vector<bool>& vec, uint32_t id)
 {
     vec.erase(vec.begin() + id);
     // Checks whether all entries in vec are true

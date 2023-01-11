@@ -193,7 +193,7 @@ enum RxID_Enum
     evReceiverSetup
 };
 
-namespace io_comm_rx {
+namespace io {
 
     /**
      * @class RxMessage
@@ -789,5 +789,5 @@ namespace io_comm_rx {
          */
         Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);
     };
-} // namespace io_comm_rx
+} // namespace io
 #endif // for RX_MESSAGE_HPP

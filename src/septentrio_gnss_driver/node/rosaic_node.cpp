@@ -59,7 +59,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this, &settings_)
         return;
 
     // Initializes Connection
-    IO_.initializeIO();
+    IO_.initializeIo();
 
     // Subscribes to all requested Rx messages by adding entries to the C++ multimap
     // storing the callback handlers and publishes ROS messages

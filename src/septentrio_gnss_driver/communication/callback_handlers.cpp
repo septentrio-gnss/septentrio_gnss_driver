@@ -58,7 +58,7 @@ std::pair<std::string, uint32_t> localization_pairs[] = {std::make_pair("4226", 
 std::pair<std::string, uint32_t> localization_ecef_pairs[] = {
     std::make_pair("4225", 0), std::make_pair("4226", 1)};
 
-namespace io_comm_rx {
+namespace io {
     boost::mutex CallbackHandlers::callback_mutex_;
 
     CallbackHandlers::GPSFixMap CallbackHandlers::gpsfix_map(gpsfix_pairs,
@@ -698,4 +698,4 @@ namespace io_comm_rx {
             }
         }
     }
-} // namespace io_comm_rx
+} // namespace io

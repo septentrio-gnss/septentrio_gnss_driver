@@ -111,7 +111,7 @@ extern boost::condition_variable g_cd_condition;
 extern uint32_t g_cd_count;
 extern std::string g_rx_tcp_port;
 
-namespace io_comm_rx {
+namespace io {
     /**
      * @class CallbackHandler
      * @brief Abstract class representing a generic callback handler, includes
@@ -257,7 +257,7 @@ namespace io_comm_rx {
         //! mutex by making it available throughout the code unit. The mutex
         //! constructor list contains "mutex (const mutex&) = delete", hence
         //! construct-by-copying a mutex is explicitly prohibited. The get_handlers()
-        //! method of the Comm_IO class hence forces us to make this mutex static.
+        //! method of the CommIo class hence forces us to make this mutex static.
         static boost::mutex callback_mutex_;
 
         //! Determines which of the SBF blocks necessary for the gps_common::GPSFix
@@ -366,6 +366,6 @@ namespace io_comm_rx {
         static LocalizationMap localization_ecef_map;
     };
 
-} // namespace io_comm_rx
+} // namespace io
 
 #endif
