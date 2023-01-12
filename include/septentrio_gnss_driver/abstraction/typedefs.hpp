@@ -178,6 +178,8 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
+    Settings* getSettings(){return &settings_};
+
     void registerSubscriber()
     {
         ros::NodeHandle nh;

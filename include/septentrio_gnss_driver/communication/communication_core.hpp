@@ -104,7 +104,7 @@ namespace io {
          * @brief Constructor of the class CommIo
          * @param[in] node Pointer to node
          */
-        CommIo(ROSaicNodeBase* node, Settings* settings);
+        CommIo(ROSaicNodeBase* node);
         /**
          * @brief Default destructor of the class CommIo
          */
@@ -172,9 +172,9 @@ namespace io {
         ROSaicNodeBase* node_;
         //! Settings
         Settings* settings_;
-        //! MessageQueue
-        MessageQueue* messageQueue_;
-        //! Message handlers for the inwards streaming messages
+        //! TelegramQueue
+        TelegramQueue* telegramQueue_;
+        //! Telegram handlers for the inwards streaming messages
         MessageHandler messageHandler_;
         //! Whether connecting to Rx was successful
         bool connected_ = false;

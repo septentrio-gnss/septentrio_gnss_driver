@@ -112,9 +112,9 @@ namespace io {
          * @param[in] buffer_size Size of the circular buffer in bytes
          */
         AsyncManager(ROSaicNodeBase* node, std::unique_ptr<StreamT> stream,
-                     MessageQueue* messageQueue) :
+                     TelegramQueue* telegramQueue) :
             node_(node),
-            stream_(std::move(stream)), messageQueue_(messageQueue)
+            stream_(std::move(stream)), telegramQueue_(telegramQueue)
         {
         }
 
@@ -271,7 +271,7 @@ namespace io {
 
         void resync()
         {
-            message_.reset(new Message);
+            message_.reset(new Telegram);
             readSync<0>();
         }
 
@@ -289,104 +289,114 @@ namespace io {
                     {
                         if (numBytes == 1)
                         {
-                            switch (index)
+                            if (message_->data[index] == SYNC_0)
                             {
-                            case 0:
+                                message_->stamp = stamp;
+                                readSync<1>();
+                            } else
                             {
-                                if (message_->data[index] == SYNC_0)
+                                switch (index)
                                 {
-                                    message_->stamp = stamp;
-                                    readSync<1>();
-                                } else
+                                case 0:
+                                {
                                     readSync<0>();
-                                break;
-                            }
-                            case 1:
-                            {
-                                switch (message_->data[index])
-                                {
-                                case SBF_SYNC_BYTE_1:
-                                {
-                                    message_->type = SBF;
-                                    readSbfHeader();
                                     break;
                                 }
-                                case NMEA_SYNC_BYTE_1:
+                                case 1:
                                 {
-                                    message_->type = NMEA;
-                                    readSync<2>();
+                                    switch (message_->data[index])
+                                    {
+                                    case SBF_SYNC_BYTE_1:
+                                    {
+                                        message_->type = SBF;
+                                        readSbfHeader();
+                                        break;
+                                    }
+                                    case NMEA_SYNC_BYTE_1:
+                                    {
+                                        message_->type = NMEA;
+                                        readSync<2>();
+                                        break;
+                                    }
+                                    case RESPONSE_SYNC_BYTE_1:
+                                    {
+                                        message_->type = RESPONSE;
+                                        readSync<2>();
+                                        break;
+                                    }
+                                    case CONNECTION_DESCRIPTOR_BYTE_1:
+                                    {
+                                        message_->type = CONNECTION_DESCRIPTOR;
+                                        readSync<2>();
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        node_->log(
+                                            LogLevel::DEBUG,
+                                            "AsyncManager sync 1 read fault, should never come here.");
+                                        resync();
+                                        break;
+                                    }
+                                    }
                                     break;
                                 }
-                                case RESPONSE_SYNC_BYTE_1:
+                                case 2:
                                 {
-                                    smessage_->type = RESPONSE;
-                                    readSync<2>();
-                                    break;
-                                }
-                                case CONNECTION_DESCRIPTOR_BYTE_1:
-                                {
-                                    message_->type = CONNECTION_DESCRIPTOR;
-                                    readSync<2>();
+                                    switch (message_->data[index])
+                                    {
+                                    case NMEA_SYNC_BYTE_2:
+                                    {
+                                        if (message_->type == NMEA)
+                                            readString();
+                                        else
+                                            resync();
+                                        break;
+                                    }
+                                    case ERROR_SYNC_BYTE_2:
+                                    {
+                                        if (message_->type == ERROR)
+                                            readString();
+                                        else
+                                            resync();
+                                        break;
+                                    }
+                                    case RESPONSE_SYNC_BYTE_2:
+                                    {
+                                        if (message_->type == RESPONSE)
+                                            readString();
+                                        else
+                                            resync();
+                                        break;
+                                    }
+                                    case CONNECTION_DESCRIPTOR_BYTE_2:
+                                    {
+                                        if (message_->type == CONNECTION_DESCRIPTOR)
+                                            readString();
+                                        else
+                                            resync();
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        node_->log(
+                                            LogLevel::DEBUG,
+                                            "AsyncManager sync 2 read fault, should never come here.");
+                                        resync();
+                                        break;
+                                    }
+                                    }
                                     break;
                                 }
                                 default:
                                 {
                                     node_->log(
                                         LogLevel::DEBUG,
-                                        "AsyncManager sync 1 read fault, should never come here.");
+                                        "AsyncManager sync read fault, should never come here.");
                                     resync();
                                     break;
                                 }
                                 }
-                                break;
-                            }
-                            case 2:
-                            {
-                                switch (message_->data[index])
-                                {
-                                case NMEA_SYNC_BYTE_2:
-                                {
-                                    if (message_->type == NMEA)
-                                        readString();
-                                    else
-                                        resync();
-                                    break;
-                                }
-                                case RESPONSE_SYNC_BYTE_1:
-                                {
-                                    if (message_->type == RESPONSE)
-                                        readString();
-                                    else
-                                        resync();
-                                    break;
-                                }
-                                case CONNECTION_DESCRIPTOR_BYTE_1:
-                                {
-                                    if (message_->type == CONNECTION_DESCRIPTOR)
-                                        readString();
-                                    else
-                                        resync();
-                                    break;
-                                }
-                                default:
-                                {
-                                    node_->log(
-                                        LogLevel::DEBUG,
-                                        "AsyncManager sync 2 read fault, should never come here.");
-                                    resync();
-                                    break;
-                                }
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                node_->log(
-                                    LogLevel::DEBUG,
-                                    "AsyncManager sync read fault, should never come here.");
-                                resync();
-                                break;
-                            }
                             }
                         } else
                         {
@@ -464,7 +474,7 @@ namespace io {
                                 message_->sbfId =
                                     parsing_utilities::getId(message_->data.data());
 
-                                messageQueue_->push(message_);
+                                telegramQueue_->push(message_);
                             }
                         } else
                         {
@@ -503,7 +513,7 @@ namespace io {
                             {
                             case SYNC_0:
                             {
-                                message_.reset(new Message);
+                                message_.reset(new Telegram);
                                 message_->data[0] = byte;
                                 message_->stamp = node_->getTime();
                                 node_->log(
@@ -516,7 +526,7 @@ namespace io {
                             {
                                 message_->data.push_back(byte);
                                 if (message_->data[message_->data.size() - 2] == CR)
-                                    messageQueue_->push(message_);
+                                    telegramQueue_->push(message_);
                                 resync();
                                 break;
                             }
@@ -556,9 +566,9 @@ namespace io {
         std::thread watchdogThread_;
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
-        //! Message
-        std::shared_ptr<Message> message_;
-        //! MessageQueue
-        MessageQueue* messageQueue_;
+        //! Telegram
+        std::shared_ptr<Telegram> message_;
+        //! TelegramQueue
+        TelegramQueue* telegramQueue_;
     };
 } // namespace io

@@ -28,21 +28,21 @@
 //
 // *****************************************************************************
 
-#include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/communication/telegram_handler.hpp>
 
 /**
- * @file message_handler.cpp
+ * @file telegram_handler.cpp
  * @date 22/08/20
  * @brief Handles callbacks when reading NMEA/SBF messages
  */
 
 namespace io {
 
-    void MessageHandler::handle() {}
+    void TelegramHandler::handle() {}
 
-    void MessageHandler::handleSbf(const Message& message) {}
+    void TelegramHandler::handleSbf(const std::shared_ptr<Telegram>& telegram) {}
 
-    void MessageHandler::handleNmea(const Message& message)
+    void TelegramHandler::handleNmea(const std::shared_ptr<Telegram>& telegram)
     {
         boost::char_separator<char> sep("\r"); // Carriage Return (CR)
         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
@@ -58,7 +58,7 @@ namespace io {
                 " bytes and is ready to be parsed. It reads: " + *tokens.begin());
     }
 
-    void MessageHandler::handleResponse(const Message& message)
+    void TelegramHandler::handleResponse(const std::shared_ptr<Telegram>& telegram)
     {
         std::size_t response_size = rx_message_.messageSize();
         std::string block_in_string(
@@ -73,7 +73,7 @@ namespace io {
             lock.unlock();
             response_sync.condition.notify_one();
         }
-        if (rx_message_.isErrorMessage())
+        if (rx_message_.isErrorTelegram())
         {
             node_->log(
                 LogLevel::ERROR,
@@ -83,7 +83,7 @@ namespace io {
         }
     }
 
-    void MessageHandler::handleCd(const Message& message)
+    void TelegramHandler::handleCd(const std::shared_ptr<Telegram>& telegram)
     {
         std::string cd(reinterpret_cast<const char*>(rx_message_.getPosBuffer()), 4);
         rx_tcp_port = cd;

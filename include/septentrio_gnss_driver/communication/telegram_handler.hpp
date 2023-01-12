@@ -93,12 +93,12 @@
 
 // ROSaic and C++ includes
 #include <algorithm>
-#include <septentrio_gnss_driver/communication/rx_message.hpp>
+#include <septentrio_gnss_driver/communication/message_parser.hpp>
 
 /**
- * @file message_handler.hpp
- * @date 22/08/20
- * @brief Handles messages when reading NMEA/SBF/response messages
+ * @file telegram_handler.hpp
+ * @brief Handles messages when reading NMEA/SBF/response/error/connection descriptor
+ * messages
  */
 
 struct CommSync
@@ -110,23 +110,20 @@ struct CommSync
 
 namespace io {
     /**
-     * @class MessageHandler
+     * @class TelegramHandler
      * @brief Represents ensemble of (to be constructed) ROS messages, to be handled
      * at once by this class
      */
-    class MessageHandler
+    class TelegramHandler
     {
 
     public:
-        MessageHandler(ROSaicNodeBase* node, Settings* settings) :
-            node_(node), rx_message_(node, settings), settings_(settings)
-        {
-        }
+        TelegramHandler(ROSaicNodeBase* node) : node_(node), message_parser(node) {}
 
         /**
-         * @brief Called every time a message is received
+         * @brief Called every time a telegram is received
          */
-        void handleMessage(const Message& message);
+        void handleTelegram(const std::shared_ptr<Telegram>& telegram);
 
         CommSync* getResponseSync() { return &response_sync; }
 
@@ -137,15 +134,16 @@ namespace io {
         std::string getRxTcpPort() { return rx_tcp_port; }
 
     private:
-        void handleSbf(const Message& message);
-        void handleNmea(const Message& message);
-        void handleResponse(const Message& message);
-        void handleCd(const Message& message);
+        void handleSbf(const std::shared_ptr<Telegram>& telegram);
+        void handleNmea(const std::shared_ptr<Telegram>& telegram);
+        void handleResponse(const std::shared_ptr<Telegram>& telegram);
+        void handleError(const std::shared_ptr<Telegram>& telegram);
+        void handleCd(const std::shared_ptr<Telegram>& telegram);
         //! Pointer to Node
         ROSaicNodeBase* node_;
 
-        //! RxMessage parser
-        RxMessage rx_message_;
+        //! MessageParser parser
+        MessageParser message_parser_;
 
         CommSync response_sync;
         CommSync cd_sync;

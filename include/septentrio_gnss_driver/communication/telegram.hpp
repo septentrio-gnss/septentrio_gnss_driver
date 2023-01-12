@@ -50,9 +50,11 @@ static const std::byte NMEA_SYNC_BYTE_1 0x47;
 static const std::byte NMEA_SYNC_BYTE_2 0x50;
 //! 0x52 is ASCII for R (for "Response") - 2nd byte in each response from the Rx
 static const std::byte RESPONSE_SYNC_BYTE_1 0x52;
-//! 0x3F is ASCII for ? - 3rd byte in the response message from the Rx in case the
+//! 0x3A is ASCII for ? - 3rd byte in the response message from the Rx
+static const std::byte RESPONSE_SYNC_BYTE_2 0x3A;
+//! 0x3F is ASCII for : - 3rd byte in the response message from the Rx in case the
 //! command was invalid
-static const std::byte RESPONSE_SYNC_BYTE_2 0x3F;
+static const std::byte ERROR_SYNC_BYTE_2 0x3F;
 //! 0x0D is ASCII for "Carriage Return", i.e. "Enter"
 static const std::byte CR 0x0D;
 //! 0x0A is ASCII for "Line Feed", i.e. "New Line"
@@ -67,26 +69,27 @@ static const std::byte CONNECTION_DESCRIPTOR_BYTE_2 0x50;
 static const uint16_t SBF_HEADER_SIZE = 8;
 static const uint16_t MAX_SBF_SIZE 65535;
 
-enum MessageType
+enum TelegramType
 {
-    INVALID,
+    EMPTY,
     SBF,
     NMEA,
     RESPONSE,
+    ERROR,
     CONNECTION_DESCRIPTOR
 };
 
-struct Message
+struct Telegram
 {
     Timestamp stamp = 0;
-    MessageType type = INVALID;
+    TelegramType type = EMPTY;
     uint16_t sbfId = 0;
     std::vector<std::byte> data(3);
 
-    Message() : stamp(0), type(INVALID), sbfId(0), data(std::vector<std::byte>(3))
+    Telegram() : stamp(0), type(INVALID), sbfId(0), data(std::vector<std::byte>(3))
     {
         data.reserve(MAX_SBF_SIZE);
     }
 };
 
-typedef tbb::concurrent_bounded_queue<std::shared_ptr<Message>> MessageQueue;
+typedef tbb::concurrent_bounded_queue<std::shared_ptr<Telegram>> TelegramQueue;

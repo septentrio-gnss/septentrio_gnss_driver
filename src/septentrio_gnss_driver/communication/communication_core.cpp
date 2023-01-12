@@ -36,61 +36,20 @@
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
 #include <septentrio_gnss_driver/communication/pcap_reader.hpp>
 
-#ifndef ANGLE_MAX
-#define ANGLE_MAX 180
-#endif
-
-#ifndef ANGLE_MIN
-#define ANGLE_MIN -180
-#endif
-
-#ifndef THETA_Y_MAX
-#define THETA_Y_MAX 90
-#endif
-
-#ifndef THETA_Y_MIN
-#define THETA_Y_MIN -90
-#endif
-
-#ifndef LEVER_ARM_MAX
-#define LEVER_ARM_MAX 100
-#endif
-
-#ifndef LEVER_ARM_MIN
-#define LEVER_ARM_MIN -100
-#endif
-
-#ifndef HEADING_MAX
-#define HEADING_MAX 360
-#endif
-
-#ifndef HEADING_MIN
-#define HEADING_MIN -360
-#endif
-
-#ifndef PITCH_MAX
-#define PITCH_MAX 90
-#endif
-
-#ifndef PITCH_MIN
-#define PITCH_MIN -90
-#endif
-
-#ifndef ATTSTD_DEV_MIN
-#define ATTSTD_DEV_MIN 0
-#endif
-
-#ifndef ATTSTD_DEV_MAX
-#define ATTSTD_DEV_MAX 5
-#endif
-
-#ifndef POSSTD_DEV_MIN
-#define POSSTD_DEV_MIN 0
-#endif
-
-#ifndef POSSTD_DEV_MAX
-#define POSSTD_DEV_MAX 100
-#endif
+static const int16_t ANGLE_MAX = 180;
+static const int16_t ANGLE_MIN = -180;
+static const int8_t THETA_Y_MAX = 90;
+static const int8_t THETA_Y_MIN = -90;
+static const int8_t LEVER_ARM_MAX = 100;
+static const int8_t LEVER_ARM_MIN = -100;
+static const int16_t HEADING_MAX = 360;
+static const int16_t HEADING_MIN = -360;
+static const int8_t PITCH_MAX = 90;
+static const int8_t PITCH_MIN = -90;
+static const int8_t ATTSTD_DEV_MIN = 0;
+static const int8_t ATTSTD_DEV_MAX = 5;
+static const int8_t POSSTD_DEV_MIN = 0;
+static const int8_t POSSTD_DEV_MAX = 100;
 
 /**
  * @file communication_core.cpp
@@ -98,29 +57,8 @@
  * @brief Highest-Level view on communication services
  */
 
-//! Mutex to control changes of global variable "g_response_received"
-std::mutex g_response_mutex;
-//! Determines whether a command reply was received from the Rx
-bool g_response_received;
-//! Condition variable complementing "g_response_mutex"
-boost::condition_variable g_response_condition;
-//! Mutex to control changes of global variable "g_cd_received"
-std::mutex g_cd_mutex;
-//! Determines whether the connection descriptor was received from the Rx
-bool g_cd_received;
-//! Condition variable complementing "g_cd_mutex"
-boost::condition_variable g_cd_condition;
-//! Whether or not we still want to read the connection descriptor, which we only
-//! want in the very beginning to know whether it is IP10, IP11 etc.
-bool g_read_cd;
-//! Rx TCP port, e.g. IP10 or IP11, to which ROSaic is connected to
-std::string g_rx_tcp_port;
-//! Since after SSSSSSSSSSS we need to wait for second connection descriptor, we have
-//! to count the connection descriptors
-uint32_t g_cd_count;
-
-io::CommIo::CommIo(ROSaicNodeBase* node, Settings* settings) :
-    node_(node), handlers_(node, settings), settings_(settings), running_(true)
+io::CommIo::CommIo(ROSaicNodeBase* node) :
+    node_(node), settings_(node->getSettings()), running_(true)
 {
     g_response_received = false;
     g_cd_received = false;

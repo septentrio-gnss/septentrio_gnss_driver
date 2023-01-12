@@ -56,50 +56,6 @@
 //
 // *****************************************************************************
 
-//! 0x24 is ASCII for $ - 1st byte in each message
-#ifndef NMEA_SYNC_BYTE_1
-#define NMEA_SYNC_BYTE_1 0x24
-#endif
-//! 0x47 is ASCII for G - 2nd byte to indicate NMEA-type ASCII message
-#ifndef NMEA_SYNC_BYTE_2_1
-#define NMEA_SYNC_BYTE_2_1 0x47
-#endif
-//! 0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message
-#ifndef NMEA_SYNC_BYTE_2_2
-#define NMEA_SYNC_BYTE_2_2 0x50
-#endif
-//! 0x24 is ASCII for $ - 1st byte in each response from the Rx
-#ifndef RESPONSE_SYNC_BYTE_1
-#define RESPONSE_SYNC_BYTE_1 0x24
-#endif
-//! 0x52 is ASCII for R (for "Response") - 2nd byte in each response from the Rx
-#ifndef RESPONSE_SYNC_BYTE_2
-#define RESPONSE_SYNC_BYTE_2 0x52
-#endif
-//! 0x0D is ASCII for "Carriage Return", i.e. "Enter"
-#ifndef CARRIAGE_RETURN
-#define CARRIAGE_RETURN 0x0D
-#endif
-//! 0x0A is ASCII for "Line Feed", i.e. "New Line"
-#ifndef LINE_FEED
-#define LINE_FEED 0x0A
-#endif
-//! 0x3F is ASCII for ? - 3rd byte in the response message from the Rx in case the
-//! command was invalid
-#ifndef RESPONSE_SYNC_BYTE_3
-#define RESPONSE_SYNC_BYTE_3 0x3F
-#endif
-//! 0x49 is ASCII for I - 1st character of connection descriptor sent by the Rx after
-//! initiating TCP connection
-#ifndef CONNECTION_DESCRIPTOR_BYTE_1
-#define CONNECTION_DESCRIPTOR_BYTE_1 0x49
-#endif
-//! 0x50 is ASCII for P - 2nd character of connection descriptor sent by the Rx after
-//! initiating TCP connection
-#ifndef CONNECTION_DESCRIPTOR_BYTE_2
-#define CONNECTION_DESCRIPTOR_BYTE_2 0x50
-#endif
-
 // C++ libraries
 #include <cassert> // for assert
 #include <cstddef>
@@ -124,7 +80,6 @@
 
 /**
  * @file rx_message.hpp
- * @date 20/08/20
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
 
@@ -147,227 +102,68 @@ enum TypeOfPVT_Enum
     evPPP
 };
 
-//! Since switch only works with int (yet NMEA message IDs are strings), we need
-//! enum. Note drawbacks: No variable can have a name which is already in some
-//! enumeration, enums are not type safe etc..
-enum RxID_Enum
+enum SbfId
 {
-    evNavSatFix,
-    evINSNavSatFix,
-    evGPSFix,
-    evINSGPSFix,
-    evPoseWithCovarianceStamped,
-    evINSPoseWithCovarianceStamped,
-    evGPGGA,
-    evGPRMC,
-    evGPGSA,
-    evGPGSV,
-    evGLGSV,
-    evGAGSV,
-    evPVTCartesian,
-    evPVTGeodetic,
-    evBaseVectorCart,
-    evBaseVectorGeod,
-    evPosCovCartesian,
-    evPosCovGeodetic,
-    evAttEuler,
-    evAttCovEuler,
-    evINSNavCart,
-    evINSNavGeod,
-    evIMUSetup,
-    evVelSensorSetup,
-    evExtEventINSNavGeod,
-    evExtEventINSNavCart,
-    evExtSensorMeas,
-    evGPST,
-    evChannelStatus,
-    evMeasEpoch,
-    evDOP,
-    evVelCovGeodetic,
-    evDiagnosticArray,
-    evLocalization,
-    evLocalizationEcef,
-    evReceiverStatus,
-    evQualityInd,
-    evReceiverTime,
-    evReceiverSetup
+    PVT_CARTESIAN = 4006,
+    PVT_GEODETIC = 4007,
+    BASE_VECTOR_CART = 4043,
+    BASE_VECTOR_GEOD = 4028,
+    POS_COV_CARTESIAN = 5905,
+    POS_COV_GEODETIC = 5906,
+    ATT_EULER = 5938,
+    ATT_COV_EULER = 5939,
+    CHANNEL_STATUS = 4013,
+    MEAS_EPOCH = 4027,
+    DOP = 4001,
+    VEL_COV_GEODETIC = 5908,
+    RECEIVER_STATUS = 4014,
+    QUALITY_IND = 4082,
+    RECEIVER_SETUP = 5902,
+    INS_NAV_CART = 4225,
+    INS_NAV_GEOD = 4226,
+    EXT_EVENT_INS_NAV_GEOD = 4230,
+    EXT_EVENT_INS_NAV_CART = 4229,
+    IMU_SETUP = 4224,
+    VEL_SENSOR_SETUP = 4244,
+    EXT_SENSOR_MEAS = 4050,
+    RECEIVER_TIME = 5914
 };
 
 namespace io {
 
     /**
-     * @class RxMessage
+     * @class MessageParser
      * @brief Can search buffer for messages, read/parse them, and so on
      */
-    class RxMessage
+    class MessageParser
     {
     public:
         /**
-         * @brief Constructor of the RxMessage class
+         * @brief Constructor of the MessageParser class
          *
          * One can always provide a non-const value where a const one was expected.
          * The const-ness of the argument just means the function promises not to
          * change it.. Recall: static_cast by the way can remove or add const-ness,
          * no other C++ cast is capable of removing it (not even reinterpret_cast)
-         * @param[in] data Pointer to the buffer that is about to be analyzed
-         * @param[in] size Size of the buffer (as handed over by async_read_some)
+         * @param[in] node Pointer to the node)
          */
-        RxMessage(ROSaicNodeBase* node, Settings* settings) :
-            node_(node), settings_(settings), unix_time_(0)
+        MessageParser(ROSaicNodeBase* node) :
+            node_(node), settings_(node->getSettings()), unix_time_(0)
         {
-            found_ = false;
-            crc_check_ = false;
-            message_size_ = 0;
-
-            //! Pair of iterators to facilitate initialization of the map
-            std::pair<uint16_t, TypeOfPVT_Enum> type_of_pvt_pairs[] = {
-                std::make_pair(static_cast<uint16_t>(0), evNoPVT),
-                std::make_pair(static_cast<uint16_t>(1), evStandAlone),
-                std::make_pair(static_cast<uint16_t>(2), evDGPS),
-                std::make_pair(static_cast<uint16_t>(3), evFixed),
-                std::make_pair(static_cast<uint16_t>(4), evRTKFixed),
-                std::make_pair(static_cast<uint16_t>(5), evRTKFloat),
-                std::make_pair(static_cast<uint16_t>(6), evSBAS),
-                std::make_pair(static_cast<uint16_t>(7), evMovingBaseRTKFixed),
-                std::make_pair(static_cast<uint16_t>(8), evMovingBaseRTKFloat),
-                std::make_pair(static_cast<uint16_t>(10), evPPP)};
-
-            type_of_pvt_map =
-                TypeOfPVTMap(type_of_pvt_pairs, type_of_pvt_pairs + evPPP + 1);
-
-            //! Pair of iterators to facilitate initialization of the map
-            std::pair<std::string, RxID_Enum> rx_id_pairs[] = {
-                std::make_pair("NavSatFix", evNavSatFix),
-                std::make_pair("INSNavSatFix", evINSNavSatFix),
-                std::make_pair("GPSFix", evGPSFix),
-                std::make_pair("INSGPSFix", evINSGPSFix),
-                std::make_pair("PoseWithCovarianceStamped",
-                               evPoseWithCovarianceStamped),
-                std::make_pair("INSPoseWithCovarianceStamped",
-                               evINSPoseWithCovarianceStamped),
-                std::make_pair("$GPGGA", evGPGGA),
-                std::make_pair("$GPRMC", evGPRMC),
-                std::make_pair("$GPGSA", evGPGSA),
-                std::make_pair("$GPGSV", evGPGSV),
-                std::make_pair("$GLGSV", evGLGSV),
-                std::make_pair("$GAGSV", evGAGSV),
-                std::make_pair("4006", evPVTCartesian),
-                std::make_pair("4007", evPVTGeodetic),
-                std::make_pair("4043", evBaseVectorCart),
-                std::make_pair("4028", evBaseVectorGeod),
-                std::make_pair("5905", evPosCovCartesian),
-                std::make_pair("5906", evPosCovGeodetic),
-                std::make_pair("5938", evAttEuler),
-                std::make_pair("5939", evAttCovEuler),
-                std::make_pair("GPST", evGPST),
-                std::make_pair("4013", evChannelStatus),
-                std::make_pair("4027", evMeasEpoch),
-                std::make_pair("4001", evDOP),
-                std::make_pair("5908", evVelCovGeodetic),
-                std::make_pair("DiagnosticArray", evDiagnosticArray),
-                std::make_pair("Localization", evLocalization),
-                std::make_pair("LocalizationEcef", evLocalizationEcef),
-                std::make_pair("4014", evReceiverStatus),
-                std::make_pair("4082", evQualityInd),
-                std::make_pair("5902", evReceiverSetup),
-                std::make_pair("4225", evINSNavCart),
-                std::make_pair("4226", evINSNavGeod),
-                std::make_pair("4230", evExtEventINSNavGeod),
-                std::make_pair("4229", evExtEventINSNavCart),
-                std::make_pair("4224", evIMUSetup),
-                std::make_pair("4244", evVelSensorSetup),
-                std::make_pair("4050", evExtSensorMeas),
-                std::make_pair("5914", evReceiverTime)};
-
-            rx_id_map = RxIDMap(rx_id_pairs, rx_id_pairs + evReceiverSetup + 1);
         }
 
         /**
          * @brief Put new data
-         * @param[in] recvTimestamp Timestamp of receiving buffer
-         * @param[in] data Pointer to the buffer that is about to be analyzed
-         * @param[in] size Size of the buffer (as handed over by async_read_some)
+         * @param[in] telegram Telegram to be parsed
          */
-        void newData(Timestamp recvTimestamp, const uint8_t* data, std::size_t& size)
-        {
-            recvTimestamp_ = recvTimestamp;
-            data_ = data;
-            count_ = size;
-            found_ = false;
-            crc_check_ = false;
-            message_size_ = 0;
-        }
-
-        //! Determines whether data_ points to the SBF block with ID "ID", e.g. 5003
-        bool isMessage(const uint16_t ID);
+        void newData(const Telegram& telegram) {}
         //! Determines whether data_ points to the NMEA message with ID "ID", e.g.
         //! "$GPGGA"
         bool isMessage(std::string ID);
-        //! Determines whether data_ currently points to an SBF block
-        bool isSBF();
-        //! Determines whether data_ currently points to an NMEA message
-        bool isNMEA();
-        //! Determines whether data_ currently points to an NMEA message
-        bool isResponse();
-        //! Determines whether data_ currently points to a connection descriptor
-        //! (right after initiating a TCP connection)
-        bool isConnectionDescriptor();
-        //! Determines whether data_ currently points to an error message reply from
-        //! the Rx
-        bool isErrorMessage();
-        //! Determines size of the message (also command reply) that data_ is
-        //! currently pointing at
-        std::size_t messageSize();
+
         //! Returns the message ID of the message where data_ is pointing at at the
         //! moment, SBF identifiers embellished with inverted commas, e.g. "5003"
         std::string messageID();
-
-        /**
-         * @brief Returns the count_ variable
-         * @return The variable count_
-         */
-        std::size_t getCount() { return count_; };
-        /**
-         * @brief Searches the buffer for the beginning of the next message (NMEA or
-         * SBF)
-         * @return A pointer to the start of the next message.
-         */
-        const uint8_t* search();
-
-        /**
-         * @brief Gets the length of the SBF block
-         *
-         * It determines the length from the header of the SBF block. The block
-         * length thus includes the header length.
-         * @return The length of the SBF block
-         */
-        uint16_t getBlockLength();
-
-        /**
-         * @brief Gets the current position in the read buffer
-         * @return The current position of the read buffer
-         */
-        const uint8_t* getPosBuffer();
-
-        /**
-         * @brief Gets the end position in the read buffer
-         * @return A pointer pointing to just after the read buffer (matches
-         * search()'s final pointer in case no valid message is found)
-         */
-        const uint8_t* getEndBuffer();
-
-        /**
-         * @brief Has an NMEA message, SBF block or command reply been found in the
-         * buffer?
-         * @returns True if a message with the correct header & length has been found
-         */
-        bool found();
-
-        /**
-         * @brief Goes to the start of the next message based on the calculated
-         * length of current message
-         */
-        void next();
 
         /**
          * @brief Publishing function
@@ -383,62 +179,6 @@ namespace io {
          */
         void publishTf(const LocalizationMsg& msg);
 
-        /**
-         * @brief Performs the CRC check (if SBF) and publishes ROS messages
-         * @return True if read was successful, false otherwise
-         */
-        bool read(std::string message_key, bool search = false);
-
-        /**
-         * @brief Whether or not a message has been found
-         */
-        bool found_;
-
-        /**
-         * @brief Wether all blocks from GNSS have arrived for GpsFix Message
-         */
-        bool gnss_gpsfix_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks from INS have arrived for GpsFix Message
-         */
-        bool ins_gpsfix_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks from GNSS have arrived for NavSatFix Message
-         */
-        bool gnss_navsatfix_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks from INS have arrived for NavSatFix Message
-         */
-        bool ins_navsatfix_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks from GNSS have arrived for Pose Message
-         */
-        bool gnss_pose_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks from INS have arrived for Pose Message
-         */
-        bool ins_pose_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks have arrived for Diagnostics Message
-         */
-        bool diagnostics_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks have arrived for Localization Message
-         */
-        bool ins_localization_complete(uint32_t id);
-
-        /**
-         * @brief Wether all blocks have arrived for Localization Message
-         */
-        bool ins_localization_ecef_complete(uint32_t id);
-
     private:
         /**
          * @brief Pointer to the node
@@ -446,36 +186,14 @@ namespace io {
         ROSaicNodeBase* node_;
 
         /**
+         * @brief Pointe to settings struct
+         */
+        Settings* settings_;
+
+        /**
          * @brief Timestamp of receiving buffer
          */
         Timestamp recvTimestamp_;
-
-        /**
-         * @brief Pointer to the buffer of messages
-         */
-        const uint8_t* data_;
-
-        /**
-         * @brief Number of unread bytes in the buffer
-         */
-        std::size_t count_;
-
-        /**
-         * @brief Whether the CRC check as evaluated in the read() method was
-         * successful or not is stored here
-         */
-        bool crc_check_;
-
-        /**
-         * @brief Helps to determine size of response message / NMEA message / SBF
-         * block
-         */
-        std::size_t message_size_;
-
-        /**
-         * @brief Number of times the GPSFixMsg message has been published
-         */
-        uint32_t count_gpsfix_ = 0;
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
@@ -560,116 +278,12 @@ namespace io {
          */
         ReceiverSetup last_receiversetup_;
 
-        //! Shorthand for the map responsible for matching PVTGeodetic's Mode field
-        //! to an enum value
-        typedef std::unordered_map<uint16_t, TypeOfPVT_Enum> TypeOfPVTMap;
-
-        /**
-         * @brief All instances of the RxMessage class shall have access to the map
-         * without reinitializing it, hence static
-         */
-        TypeOfPVTMap type_of_pvt_map;
-
-        //! Shorthand for the map responsible for matching ROS message identifiers to
-        //! an enum value
-        typedef std::unordered_map<std::string, RxID_Enum> RxIDMap;
-
-        /**
-         * @brief All instances of the RxMessage class shall have access to the map
-         * without reinitializing it, hence static
-         *
-         * This map is for mapping ROS message, SBF and NMEA identifiers to an
-         * enumeration and makes the switch-case formalism in rx_message.hpp more
-         * explicit.
-         */
-        RxIDMap rx_id_map;
-
         //! When reading from an SBF file, the ROS publishing frequency is governed
         //! by the time stamps found in the SBF blocks therein.
         Timestamp unix_time_;
 
         //! Current leap seconds as received, do not use value is -128
         int8_t current_leap_seconds_ = -128;
-
-        //! For GPSFix: Whether the ChannelStatus block of the current epoch has
-        //! arrived or not
-        bool channelstatus_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the MeasEpoch block of the current epoch has arrived
-        //! or not
-        bool measepoch_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the DOP block of the current epoch has arrived or not
-        bool dop_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the PVTGeodetic block of the current epoch has
-        //! arrived or not
-        bool pvtgeodetic_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the PosCovGeodetic block of the current epoch has
-        //! arrived or not
-        bool poscovgeodetic_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the VelCovGeodetic block of the current epoch has
-        //! arrived or not
-        bool velcovgeodetic_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the AttEuler block of the current epoch has arrived
-        //! or not
-        bool atteuler_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the AttCovEuler block of the current epoch has
-        //! arrived or not
-        bool attcoveuler_has_arrived_gpsfix_ = false;
-
-        //! For GPSFix: Whether the INSNavGeod block of the current epoch has arrived
-        //! or not
-        bool insnavgeod_has_arrived_gpsfix_ = false;
-
-        //! For NavSatFix: Whether the PVTGeodetic block of the current epoch has
-        //! arrived or not
-        bool pvtgeodetic_has_arrived_navsatfix_ = false;
-
-        //! For NavSatFix: Whether the PosCovGeodetic block of the current epoch has
-        //! arrived or not
-        bool poscovgeodetic_has_arrived_navsatfix_ = false;
-
-        //! For NavSatFix: Whether the INSNavGeod block of the current epoch has
-        //! arrived or not
-        bool insnavgeod_has_arrived_navsatfix_ = false;
-        //! For PoseWithCovarianceStamped: Whether the PVTGeodetic block of the
-        //! current epoch has arrived or not
-        bool pvtgeodetic_has_arrived_pose_ = false;
-
-        //! For PoseWithCovarianceStamped: Whether the PosCovGeodetic block of the
-        //! current epoch has arrived or not
-        bool poscovgeodetic_has_arrived_pose_ = false;
-
-        //! For PoseWithCovarianceStamped: Whether the AttEuler block of the current
-        //! epoch has arrived or not
-        bool atteuler_has_arrived_pose_ = false;
-
-        //! For PoseWithCovarianceStamped: Whether the AttCovEuler block of the
-        //! current epoch has arrived or not
-        bool attcoveuler_has_arrived_pose_ = false;
-
-        //! For PoseWithCovarianceStamped: Whether the INSNavGeod block of the
-        //! current epoch has arrived or not
-        bool insnavgeod_has_arrived_pose_ = false;
-
-        //! For DiagnosticArray: Whether the ReceiverStatus block of the current
-        //! epoch has arrived or not
-        bool receiverstatus_has_arrived_diagnostics_ = false;
-
-        //! For DiagnosticArray: Whether the QualityInd block of the current epoch
-        //! has arrived or not
-        bool qualityind_has_arrived_diagnostics_ = false;
-
-        //! For Localization: Whether the INSNavGeod and INSNavCart blocks of the
-        //! current epoch have arrived or not
-        bool insnavgeod_has_arrived_localization_ = false;
-        bool insnavgeod_has_arrived_localization_ecef_ = false;
-        bool insnavcart_has_arrived_localization_ecef_ = false;
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
@@ -748,16 +362,6 @@ namespace io {
         void wait(Timestamp time_obj);
 
         /**
-         * @brief Wether all elements are true
-         */
-        bool allTrue(std::vector<bool>& vec, uint32_t id);
-
-        /**
-         * @brief Settings struct
-         */
-        Settings* settings_;
-
-        /**
          * @brief Fixed UTM zone
          */
         std::shared_ptr<std::string> fixedUtmZone_;
@@ -767,8 +371,8 @@ namespace io {
          * This is either done using the TOW as transmitted with the SBF block (if
          * "use_gnss" is true), or using the current time.
          * @param[in] data Pointer to the buffer
-         * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
-         * used, otherwise the current time
+         * @param[in] use_gnss_time If true, the TOW as transmitted with the SBF
+         * block is used, otherwise the current time
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
