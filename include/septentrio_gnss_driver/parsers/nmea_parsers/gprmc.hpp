@@ -56,9 +56,6 @@
 //
 // *****************************************************************************
 
-#ifndef GPRMC_HPP
-#define GPRMC_HPP
-
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
@@ -124,5 +121,3 @@ private:
      */
     bool was_last_gprmc_valid_;
 };
-
-#endif // GPRMC_HPP

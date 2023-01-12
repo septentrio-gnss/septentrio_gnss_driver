@@ -56,8 +56,7 @@
 //
 // *****************************************************************************
 
-#ifndef GPGGA_HPP
-#define GPGGA_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
@@ -117,5 +116,3 @@ private:
      */
     bool was_last_gpgga_valid_;
 };
-
-#endif // GPGGA_HPP

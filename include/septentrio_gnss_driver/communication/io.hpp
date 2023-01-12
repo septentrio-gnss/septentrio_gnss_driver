@@ -49,45 +49,56 @@ const static std::array<uint32_t, 21> baudrates = {
     1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
 
 namespace io {
-    class IoBase
+
+    class TcpIo
     {
     public:
-        IoBase(ROSaicNodeBase* node) : node_(node) {}
-
-        virtual ~IoBase();
-
-        virtual [[nodiscard]] bool connect() = 0;
-
-    private:
-        ROSaicNodeBase* node_;
-    };
-
-    class TcpIo : public IoBase
-    {
-    public:
-        TcpIo(ROSaicNodeBase* node, boost::asio::io_service* ioService,
-              const std::string& ip, const std::string& port) :
-            IoBase(node),
-            ioService_(ioService), socket_(*ioService_)
+        TcpIo(ROSaicNodeBase* node, boost::asio::io_service* ioService) :
+            node_(node), ioService_(ioService), socket_(*ioService_)
         {
-            boost::asio::ip::tcp::resolver resolver(*ioService_);
-            boost::asio::ip::tcp::resolver::query query(ip, port);
-            endpointIterator_ = resolver.resolve(query);
         }
 
         ~TcpIo() { socket_.close(); }
 
+        const boost::asio::ip::tcp::socket& stream() { return socket_; }
+
         [[nodiscard]] bool connect()
         {
+            boost::asio::ip::tcp::resolver::iterator endpointIterator;
+            try
+            {
+                boost::asio::ip::tcp::resolver resolver(*ioService_);
+                boost::asio::ip::tcp::resolver::query query(
+                    node_->getSettings()->tcp_ip, node->getSettings()->tcp_port);
+                endpointIterator = resolver.resolve(query);
+            } catch (std::runtime_error& e)
+            {
+                node_->log(LogLevel::ERROR, "Could not resolve " + host +
+                                                " on port " + port + ": " +
+                                                e.what());
+                return false;
+            }
+
             socket_.reset(new boost::asio::ip::tcp::socket(*ioService_));
 
-            socket_.connect(*endpointIterator_);
+            try
+            {
+                socket_.connect(*endpointIterator);
 
-            socket_.set_option(boost::asio::ip::tcp::no_delay(true));
+                socket_.set_option(boost::asio::ip::tcp::no_delay(true));
+            } catch (std::runtime_error& e)
+            {
+                node_->log(LogLevel::ERROR,
+                           "Could not connect to " + endpointIterator->host_name() +
+                               ": " + endpointIterator->service_name() + ": " +
+                               e.what());
+                return false;
+            }
+            return true;
         }
 
     private:
-        boost::asio::ip::tcp::resolver::iterator endpointIterator_;
+        ROSaicNodeBase* node_;
         boost::asio::io_service* ioService_;
         boost::asio::ip::tcp::socket socket_;
     };
@@ -97,12 +108,15 @@ namespace io {
     public:
         SerialIo(ROSaicNodeBase* node, boost::asio::io_service* ioService,
                  std::string serialPort, uint32_t baudrate, bool flowcontrol) :
-            IoBase(node),
-            flowcontrol_(flowcontrol), baudrate_(baudrate), serialPort_(ioService_)
+            node_(node),
+            flowcontrol_(node->getSettings()->flowcontrol),
+            baudrate_(node->getSettings()->baudrate), serialPort_(ioService_)
         {
         }
 
         ~SerialIo() { serialPort_.close(); }
+
+        const boost::asio::serial_port& stream() { return socket_; }
 
         [[nodiscard]] bool connect()
         {
@@ -149,7 +163,7 @@ namespace io {
             tcgetattr(fd, &tio);
 
             // Hardware flow control settings_->.
-            if (flowcontrol_)
+            if (flowcontrol_ == "RTS|CTS")
             {
                 tio.c_iflag &= ~(IXOFF | IXON);
                 tio.c_cflag |= CRTSCTS;
@@ -186,8 +200,9 @@ namespace io {
             {
                 serialPort_.get_option(
                     current_baudrate); // Note that this sets
-                                       // current_baudrate.value() often to 115200,
-                                       // since by default, all Rx COM ports,
+                                       // current_baudrate.value() often to
+                                       // 115200, since by default, all Rx COM
+                                       // ports,
                 // at least for mosaic Rxs, are set to a baudrate of 115200 baud,
                 // using 8 data-bits, no parity and 1 stop-bit.
             } catch (boost::system::system_error& e)
@@ -269,6 +284,7 @@ namespace io {
         }
 
     private:
+        ROSaicNodeBase* node_;
         bool flowcontrol_;
         std::string port_;
         uint32_t baudrate_;

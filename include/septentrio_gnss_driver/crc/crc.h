@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef CRC_H
-#define CRC_H
+#pragma once
 
 // ROSaic includes
 // The following imports structs into which SBF blocks can be unpacked then shipped
@@ -40,27 +39,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/**
- * @file crc.h
- * @brief Declares the functions to compute and validate the CRC of a buffer
- * @date 17/08/20
- */
+namespace crc {
+    /**
+     * @file crc.h
+     * @brief Declares the functions to compute and validate the CRC of a buffer
+     * @date 17/08/20
+     */
 
-/**
- * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
- * buffer "buf" of "buf_length" bytes
- * @param[in] buf The buffer at hand
- * @param[in] buf_length Number of bytes in "buf"
- * @return The calculated CRC
- */
-uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
+    /**
+     * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
+     * buffer "buf" of "buf_length" bytes
+     * @param[in] buf The buffer at hand
+     * @param[in] buf_length Number of bytes in "buf"
+     * @return The calculated CRC
+     */
+    uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
 
-/**
- * @brief Validates whether the calculated CRC of the SBF block at hand matches the
- * CRC field of the streamed SBF block
- * @param block The SBF block that we are interested in
- * @return True if the CRC check of the SBFBlock has passed, false otherwise
- */
-bool isValid(const uint8_t* block);
+    /**
+     * @brief Validates whether the calculated CRC of the SBF block at hand matches
+     * the CRC field of the streamed SBF block
+     * @param block The SBF block that we are interested in
+     * @return True if the CRC check of the SBFBlock has passed, false otherwise
+     */
+    bool isValid(const uint8_t* block);
 
-#endif // CRC_H
+} // namespace crc

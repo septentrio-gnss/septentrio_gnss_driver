@@ -56,8 +56,7 @@
 //
 // *****************************************************************************
 
-#ifndef ROSAIC_NODE_HPP
-#define ROSAIC_NODE_HPP
+#pragma once
 
 /**
  * @file rosaic_node.hpp
@@ -134,5 +133,3 @@ namespace rosaic_node {
         std::unique_ptr<tf2_ros::TransformListener> tfListener_;
     };
 } // namespace rosaic_node
-
-#endif // for ROSAIC_NODE_HPP

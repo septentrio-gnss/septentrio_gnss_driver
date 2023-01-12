@@ -188,8 +188,8 @@ add_executable(${PROJECT_NAME}_node
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
     src/septentrio_gnss_driver/crc/crc.cpp
     src/septentrio_gnss_driver/communication/communication_core.cpp 
-    src/septentrio_gnss_driver/communication/rx_message.cpp 
-    src/septentrio_gnss_driver/communication/callback_handlers.cpp
+    src/septentrio_gnss_driver/communication/message_parser.cpp 
+    src/septentrio_gnss_driver/communication/telegram_handler.cpp
     src/septentrio_gnss_driver/communication/pcap_reader.cpp
 )
 

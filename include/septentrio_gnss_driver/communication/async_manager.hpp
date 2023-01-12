@@ -56,6 +56,8 @@
 //
 // *****************************************************************************
 
+#pragma once
+
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -66,10 +68,8 @@
 #include <septentrio_gnss_driver/parsers/parsing_utilities.h>
 
 // local includes
-#include "io.hpp"
-#include "message.hpp"
-
-#pragma once
+#include <septentrio_gnss_driver/communication/io.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
 
 /**
  * @file async_manager.hpp
@@ -93,6 +93,8 @@ namespace io {
         virtual ~AsyncManagerBase() {}
         //! Sends commands to the receiver
         virtual bool send(const std::string& cmd) = 0;
+        //! Connects the stream
+        [[nodiscard]] virtual bool connect() = 0;
     };
 
     /**
@@ -100,21 +102,19 @@ namespace io {
      * @brief This is the central interface between ROSaic and the Rx(s), managing
      * I/O operations such as reading messages and sending commands..
      *
-     * StreamT is either boost::asio::serial_port or boost::asio::tcp::ip
+     * SocketT is either boost::asio::serial_port or boost::asio::tcp::ip
      */
-    template <typename StreamT>
+    template <typename SocketT>
     class AsyncManager : public AsyncManagerBase
     {
     public:
         /**
          * @brief Class constructor
-         * @param stream data stream
-         * @param[in] buffer_size Size of the circular buffer in bytes
+         * @param[in] node Pointer to node
+         * @param[in] telegramQueue Telegram queue
          */
-        AsyncManager(ROSaicNodeBase* node, std::unique_ptr<StreamT> stream,
-                     TelegramQueue* telegramQueue) :
-            node_(node),
-            stream_(std::move(stream)), telegramQueue_(telegramQueue)
+        AsyncManager(ROSaicNodeBase* node, TelegramQueue* telegramQueue) :
+            node_(node), ioSocket_(node, &ioService_), telegramQueue_(telegramQueue)
         {
         }
 
@@ -130,15 +130,9 @@ namespace io {
             node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
         }
 
-        [[nodicard]] bool connect()
+        [[nodiscard]] bool connect()
         {
-            if (!ioSocket_)
-            {
-                if (!initIo())
-                    return false;
-            }
-
-            if (ioSocket_->connect())
+            if (ioSocket_.connect())
             {
                 return false;
             }
@@ -157,68 +151,10 @@ namespace io {
                     "AsyncManager message size to be sent to the Rx would be 0");
             }
 
-            ioService_.post(boost::bind(&AsyncManager<StreamT>::write, this, cmd));
+            ioService_.post(boost::bind(&AsyncManager<SocketT>::write, this, cmd));
         }
 
     private:
-        [[nodiscard]] initIo()
-        {
-            node_->log(LogLevel::DEBUG, "Called initializeIo() method");
-            boost::smatch match;
-            // In fact: smatch is a typedef of match_results<string::const_iterator>
-            if (boost::regex_match(node_->settings_.device, match,
-                                   boost::regex("(tcp)://(.+):(\\d+)")))
-            // C++ needs \\d instead of \d: Both mean decimal.
-            // Note that regex_match can be used with a smatch object to store
-            // results, or without. In any case, true is returned if and only if it
-            // matches the !complete! string.
-            {
-                // The first sub_match (index 0) contained in a match_result always
-                // represents the full match within a target sequence made by a
-                // regex, and subsequent sub_matches represent sub-expression matches
-                // corresponding in sequence to the left parenthesis delimiting the
-                // sub-expression in the regex, i.e. $n Perl is equivalent to m[n] in
-                // boost regex.
-
-                ioSocket.reset(new TcpIo(node_, &ioService_, match[2], match[3]))
-            } else if (boost::regex_match(
-                           node_->settings_.device, match,
-                           boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
-            {
-                node_->settings_.read_from_sbf_log = true;
-                node_->settings_.use_gnss_time = true;
-                // connectionThread_ = boost::thread(
-                //     boost::bind(&CommIo::prepareSBFFileReading, this, match[2]));
-
-            } else if (boost::regex_match(
-                           node_->settings_.device, match,
-                           boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
-            {
-                node_->settings_.read_from_pcap = true;
-                node_->settings_.use_gnss_time = true;
-                // connectionThread_ = boost::thread(
-                //   boost::bind(&CommIo::preparePCAPFileReading, this, match[2]));
-
-            } else if (boost::regex_match(node_->settings_.device, match,
-                                          boost::regex("(serial):(.+)")))
-            {
-                std::string proto(match[2]);
-                std::stringstream ss;
-                ss << "Searching for serial port" << proto;
-                node_->log(LogLevel::DEBUG, ss.str());
-                node_->settings_.device = proto;
-                ioSocket.reset(new SerialIo(node_, &ioService_, settings_->device,
-                                            settings_->baudrate,
-                                            settings_->hw_flow_control))
-            } else
-            {
-                std::stringstream ss;
-                ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-                node_->log(LogLevel::ERROR, ss.str());
-            }
-            node_->log(LogLevel::DEBUG, "Leaving initializeIo() method");
-        }
-
         void receive()
         {
             resync();
@@ -261,7 +197,7 @@ namespace io {
 
         void write(const std::string& cmd)
         {
-            boost::asio::write(*stream_,
+            boost::asio::write(ioSocket_.stream(),
                                boost::asio::buffer(cmd.data(), cmd.size()));
             // Prints the data that was sent
             node_->log(LogLevel::DEBUG, "AsyncManager sent the following " +
@@ -281,7 +217,8 @@ namespace io {
             static_assert(index < 3);
 
             boost::asio::async_read(
-                *stream_, boost::asio::buffer(message_->data.data() + index, 1),
+                ioSocket_.stream(),
+                boost::asio::buffer(message_->data.data() + index, 1),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     Timestamp stamp = node_->getTime();
 
@@ -289,7 +226,9 @@ namespace io {
                     {
                         if (numBytes == 1)
                         {
-                            if (message_->data[index] == SYNC_0)
+                            std::byte& currByte = message_->data[index];
+
+                            if (currByte == SYNC_0)
                             {
                                 message_->stamp = stamp;
                                 readSync<1>();
@@ -299,12 +238,21 @@ namespace io {
                                 {
                                 case 0:
                                 {
-                                    readSync<0>();
+                                    if ((currByte == CONNECTION_DESCRIPTOR_BYTE_I) ||
+                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_C) ||
+                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_U) ||
+                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_N) ||
+                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_D))
+                                    {
+                                        message_->type = CONNECTION_DESCRIPTOR;
+                                        readCd();
+                                    } else
+                                        readSync<0>();
                                     break;
                                 }
                                 case 1:
                                 {
-                                    switch (message_->data[index])
+                                    switch (currByte)
                                     {
                                     case SBF_SYNC_BYTE_1:
                                     {
@@ -324,12 +272,6 @@ namespace io {
                                         readSync<2>();
                                         break;
                                     }
-                                    case CONNECTION_DESCRIPTOR_BYTE_1:
-                                    {
-                                        message_->type = CONNECTION_DESCRIPTOR;
-                                        readSync<2>();
-                                        break;
-                                    }
                                     default:
                                     {
                                         node_->log(
@@ -343,7 +285,7 @@ namespace io {
                                 }
                                 case 2:
                                 {
-                                    switch (message_->data[index])
+                                    switch (currByte)
                                     {
                                     case NMEA_SYNC_BYTE_2:
                                     {
@@ -364,14 +306,6 @@ namespace io {
                                     case RESPONSE_SYNC_BYTE_2:
                                     {
                                         if (message_->type == RESPONSE)
-                                            readString();
-                                        else
-                                            resync();
-                                        break;
-                                    }
-                                    case CONNECTION_DESCRIPTOR_BYTE_2:
-                                    {
-                                        if (message_->type == CONNECTION_DESCRIPTOR)
                                             readString();
                                         else
                                             resync();
@@ -420,7 +354,7 @@ namespace io {
             message_->data.resize(SBF_HEADER_SIZE);
 
             boost::asio::async_read(
-                *stream_,
+                ioSocket_.stream(),
                 boost::asio::buffer(message_->data.data() + 2, SBF_HEADER_SIZE - 2),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     if (!ec)
@@ -461,7 +395,7 @@ namespace io {
             message_->data.resize(length);
 
             boost::asio::async_read(
-                *stream_,
+                ioSocket_.stream(),
                 boost::asio::buffer(message_->data.data() + SBF_HEADER_SIZE,
                                     length - SBF_HEADER_SIZE),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
@@ -469,7 +403,7 @@ namespace io {
                     {
                         if (numBytes == (length - SBF_HEADER_SIZE))
                         {
-                            if (isValid(message_->data.data())) // TODO namespace crc
+                            if (crc::isValid(message_->data.data()))
                             {
                                 message_->sbfId =
                                     parsing_utilities::getId(message_->data.data());
@@ -492,6 +426,12 @@ namespace io {
                 });
         }
 
+        void readCd()
+        {
+            message_->data.resize(1);
+            readStringElements();
+        }
+
         void readString()
         {
             message_->data.resize(3);
@@ -500,21 +440,22 @@ namespace io {
 
         void readStringElements()
         {
-            std::byte byte;
+            std::array<std::byte, 1> buf;
 
             boost::asio::async_read(
-                *stream_, boost::asio::buffer(byte, 1),
+                ioSocket_.stream(), boost::asio::buffer(buf.data(), 1),
                 [this](boost::system::error_code ec, std::size_t numBytes) {
                     if (!ec)
                     {
                         if (numBytes == 1)
                         {
-                            switch (byte)
+                            message_->data.push_back(buf[0]);
+                            switch (buf[0])
                             {
                             case SYNC_0:
                             {
                                 message_.reset(new Telegram);
-                                message_->data[0] = byte;
+                                message_->data[0] = buf[0];
                                 message_->stamp = node_->getTime();
                                 node_->log(
                                     LogLevel::DEBUG,
@@ -524,15 +465,20 @@ namespace io {
                             }
                             case LF:
                             {
-                                message_->data.push_back(byte);
                                 if (message_->data[message_->data.size() - 2] == CR)
+                                    telegramQueue_->push(message_);
+                                resync();
+                                break;
+                            }
+                            case CONNECTION_DESCRIPTOR_FOOTER:
+                            {
+                                if (message_->type == CONNECTION_DESCRIPTOR)
                                     telegramQueue_->push(message_);
                                 resync();
                                 break;
                             }
                             default:
                             {
-                                message_->data.push_back(byte);
                                 readString();
                                 break;
                             }
@@ -555,11 +501,9 @@ namespace io {
                 });
         }
 
-        //! Stream, represents either interface connection or file
-        std::unique_ptr<StreamT> stream_;
         //! Pointer to the node
         ROSaicNodeBase* node_;
-        std::unique_ptr<IoBase> ioSocket_;
+        SocketT ioSocket_;
         std::atomic<bool> running_;
         boost::asio::io_service ioService_;
         std::thread ioThread_;

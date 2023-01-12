@@ -173,7 +173,7 @@ namespace io {
         //! Settings
         Settings* settings_;
         //! TelegramQueue
-        TelegramQueue* telegramQueue_;
+        TelegramQueue telegramQueue_;
         //! Telegram handlers for the inwards streaming messages
         MessageHandler messageHandler_;
         //! Whether connecting to Rx was successful
@@ -202,11 +202,8 @@ namespace io {
 
         bool nmeaActivated_ = false;
 
-        //! Indicator for threads to exit
-        std::atomic<bool> stopping_;
-
-        friend class CallbackHandlers;
-        friend class RxMessage;
+        //! Indicator for threads to run
+        std::atomic<bool> running_;
 
         //! Communication ports
         std::string mainPort_;

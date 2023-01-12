@@ -56,8 +56,7 @@
 //
 // *****************************************************************************
 
-#ifndef GPGSA_HPP
-#define GPGSA_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
@@ -104,5 +103,3 @@ public:
      */
     static const std::string MESSAGE_ID;
 };
-
-#endif // GPGSA_HPP

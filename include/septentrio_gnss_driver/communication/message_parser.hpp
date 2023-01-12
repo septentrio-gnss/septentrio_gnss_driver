@@ -56,6 +56,8 @@
 //
 // *****************************************************************************
 
+#pragma once
+
 // C++ libraries
 #include <cassert> // for assert
 #include <cstddef>
@@ -74,9 +76,6 @@
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gprmc.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.h>
-
-#ifndef RX_MESSAGE_HPP
-#define RX_MESSAGE_HPP
 
 /**
  * @file rx_message.hpp
@@ -394,4 +393,3 @@ namespace io {
         Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);
     };
 } // namespace io
-#endif // for RX_MESSAGE_HPP

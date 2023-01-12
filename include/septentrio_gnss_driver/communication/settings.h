@@ -106,6 +106,10 @@ struct Settings
     bool activate_debug_log;
     //! Device port
     std::string device;
+    //! TCP IP
+    std::string tcp_ip;
+    //! TCP port
+    std::string tcp_port;
     //! Username for login
     std::string login_user;
     //! Password for login

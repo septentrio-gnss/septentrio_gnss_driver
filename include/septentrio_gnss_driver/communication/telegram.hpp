@@ -45,26 +45,41 @@ static const std::byte SYNC_0 = 0x24;
 //! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
 static const std::byte SBF_SYNC_BYTE_1 = 0x40;
 //! 0x47 is ASCII for G - 2nd byte to indicate NMEA-type ASCII message
-static const std::byte NMEA_SYNC_BYTE_1 0x47;
-//! 0x50 is ASCII for P - 2nd byte to indicate proprietary ASCII message
-static const std::byte NMEA_SYNC_BYTE_2 0x50;
+static const std::byte NMEA_SYNC_BYTE_1 = 0x47;
+//! 0x50 is ASCII for P - 3rd byte to indicate NMEA-type ASCII message
+static const std::byte NMEA_SYNC_BYTE_2 = 0x50;
+//! 0x49 is ASCII for I - 2nd byte to indicate INS NMEA-type ASCII message
+static const std::byte NMEA_INS_SYNC_BYTE_1 = 0x49;
+//! 0x4E is ASCII for N - 3rd byte to indicate NMEA-type ASCII message
+static const std::byte NMEA_INS_SYNC_BYTE_2 = 0x4E;
 //! 0x52 is ASCII for R (for "Response") - 2nd byte in each response from the Rx
-static const std::byte RESPONSE_SYNC_BYTE_1 0x52;
-//! 0x3A is ASCII for ? - 3rd byte in the response message from the Rx
-static const std::byte RESPONSE_SYNC_BYTE_2 0x3A;
-//! 0x3F is ASCII for : - 3rd byte in the response message from the Rx in case the
+static const std::byte RESPONSE_SYNC_BYTE_1 = 0x52;
+//! 0x3A is ASCII for : - 3rd byte in the response message from the Rx
+static const std::byte RESPONSE_SYNC_BYTE_2 = 0x3A;
+//! 0x3F is ASCII for ? - 3rd byte in the response message from the Rx in case the
 //! command was invalid
-static const std::byte ERROR_SYNC_BYTE_2 0x3F;
+static const std::byte ERROR_SYNC_BYTE_2 = 0x3F;
 //! 0x0D is ASCII for "Carriage Return", i.e. "Enter"
-static const std::byte CR 0x0D;
+static const std::byte CR = 0x0D;
 //! 0x0A is ASCII for "Line Feed", i.e. "New Line"
-static const std::byte LF 0x0A;
+static const std::byte LF = 0x0A;
 //! 0x49 is ASCII for I - 1st character of connection descriptor sent by the Rx after
-//! initiating TCP connection
-static const std::byte CONNECTION_DESCRIPTOR_BYTE_1 0x49;
-//! 0x50 is ASCII for P - 2nd character of connection descriptor sent by the Rx after
-//! initiating TCP connection
-static const std::byte CONNECTION_DESCRIPTOR_BYTE_2 0x50;
+//! initiating IP connection
+static const std::byte CONNECTION_DESCRIPTOR_BYTE_I = 0x49;
+//! 0x43 is ASCII for C - 1st character of connection descriptor sent by the Rx after
+//! initiating COM connection
+static const std::byte CONNECTION_DESCRIPTOR_BYTE_C = 0x43;
+//! 0x55 is ASCII for U - 1st character of connection descriptor sent by the Rx after
+//! initiating USB connection
+static const std::byte CONNECTION_DESCRIPTOR_BYTE_U = 0x55;
+//! 0x4E is ASCII for N - 1st character of connection descriptor sent by the Rx after
+//! initiating NTRIP connection
+static const std::byte CONNECTION_DESCRIPTOR_BYTE_N = 0x4E;
+//! 0x44 is ASCII for D - 1st character of connection descriptor sent by the Rx after
+//! initiating DSK connection
+static const std::byte CONNECTION_DESCRIPTOR_BYTE_D = 0x44;
+//! 0x3E is ASCII for > - end character of connection descriptor
+static const std::byte CONNECTION_DESCRIPTOR_FOOTER = 0x3E;
 
 static const uint16_t SBF_HEADER_SIZE = 8;
 static const uint16_t MAX_SBF_SIZE 65535;

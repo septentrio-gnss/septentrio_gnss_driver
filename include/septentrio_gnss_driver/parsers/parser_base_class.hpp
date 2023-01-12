@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef PARSER_BASE_CLASS_HPP
-#define PARSER_BASE_CLASS_HPP
+#pragma once
 
 // ROSaic includes
 #include "nmea_sentence.hpp"
@@ -129,5 +128,3 @@ public:
         throw ParseException("ParseASCII not implemented.");
     };
 };
-
-#endif // PARSER_BASE_CLASS_HPP

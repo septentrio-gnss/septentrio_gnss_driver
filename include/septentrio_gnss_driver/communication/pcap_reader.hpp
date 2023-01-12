@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef PCAP_READER_H
-#define PCAP_READER_H
+#pragma once
 
 #include <cstdint>
 #include <pcap/pcap.h>
@@ -117,5 +116,3 @@ namespace pcapReader {
         buffer_t m_lastPkt;
     };
 } // namespace pcapReader
-
-#endif // PCAP_READER_H

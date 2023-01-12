@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef STRING_UTILITIES_H
-#define STRING_UTILITIES_H
+#pragma once
 
 // C and C++ library includes
 #include <cstdint>
@@ -146,5 +145,3 @@ namespace string_utilities {
      */
     bool containsSpace(const std::string str);
 } // namespace string_utilities
-
-#endif // STRING_UTILITIES_H

@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef PARSING_UTILITIES_HPP
-#define PARSING_UTILITIES_HPP
+#pragma once
 
 // C++ library includes
 #include <cmath>   // C++ header, corresponds to <math.h> in C
@@ -406,5 +405,3 @@ namespace parsing_utilities {
      */
     uint16_t getWnc(const uint8_t* buffer);
 } // namespace parsing_utilities
-
-#endif // PARSING_UTILITIES_HPP
