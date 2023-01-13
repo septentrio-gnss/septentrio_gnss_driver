@@ -59,22 +59,22 @@ static const int8_t POSSTD_DEV_MAX = 100;
 
 namespace io {
 
-    CommIo::CommIo(ROSaicNodeBase* node) :
-        node_(node), settings_(node->getSettings()), running_(true)
+    CommunicationCore::CommunicationCore(ROSaicNodeBase* node) :
+        node_(node), settings_(node->getSettings()), telegramHandler_(node),
+        running_(true)
     {
-        g_response_received = false;
-        g_cd_received = false;
-        g_read_cd = true;
-        g_cd_count = 0;
+        running_ = true;
+
+        processingThread_ =
+            std::thread(std::bind(&CommunicationCore::processTelegrams, this));
     }
 
-    CommIo::~CommIo()
+    CommunicationCore::~CommunicationCore()
     {
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
-            std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
-            manager_.get()->send(cmd);
-            send("sdio, " + mainPort_ + ", auto, none\x0D");
+            resetMainConnection();
+            send("sdio, " + mainConnectionDescriptor_ + ", auto, none\x0D");
             for (auto ntrip : settings_->rtk_settings.ntrip)
             {
                 if (!ntrip.id.empty() && !ntrip.keep_open)
@@ -125,15 +125,17 @@ namespace io {
         }
 
         running_ = false;
-        connectionThread_.join();
+        std::shared_ptr<Telegram> telegram(new Telegram);
+        telegramQueue_.push(telegram);
+        processingThread_.join();
     }
 
-    void CommIo::initializeIo()
+    void CommunicationCore::connect()
     {
         node_->log(LogLevel::DEBUG, "Called connect() method");
         node_->log(
             LogLevel::DEBUG,
-            "Started timer for calling reconnect() method until connection succeeds");
+            "Started timer for calling connect() method until connection succeeds");
 
         boost::asio::io_service io;
         boost::posix_time::millisec wait_ms(
@@ -141,21 +143,36 @@ namespace io {
         while (running_)
         {
             boost::asio::deadline_timer t(io, wait_ms);
-            initIo();
-            if (manager_->connect())
-                break;
+            if (initializeIo())
+            {
+                if (manager_->connect())
+                {
+                    initializedIo_ = true;
+                    break;
+                }
+            }
             t.wait();
         }
+
+        // Sends commands to the Rx regarding which SBF/NMEA messages it should
+        // output
+        // and sets all its necessary corrections-related parameters
+        if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
+        {
+            node_->log(LogLevel::DEBUG, "Configure Rx.");
+            configureRx();
+        }
+
         node_->log(LogLevel::DEBUG,
                    "Successully connected. Leaving connect() method");
     }
 
-    void CommIo::initIo()
+    [[nodiscard]] bool CommunicationCore::initializeIo()
     {
         node_->log(LogLevel::DEBUG, "Called initializeIo() method");
         boost::smatch match;
         // In fact: smatch is a typedef of match_results<string::const_iterator>
-        if (boost::regex_match(node_->settings_.device, match,
+        if (boost::regex_match(settings_->device, match,
                                boost::regex("(tcp)://(.+):(\\d+)")))
         // C++ needs \\d instead of \d: Both mean decimal.
         // Note that regex_match can be used with a smatch object to store
@@ -170,34 +187,36 @@ namespace io {
             // boost regex.
             settings_->tcp_ip = match[2];
             settings_->tcp_port = match[3];
-            manager_->reset(new AsyncManager<TcpIp>(node_, &telegramQueue_));
+            manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
         } else if (boost::regex_match(
-                       node_->settings_.device, match,
+                       settings_->device, match,
                        boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
         {
-            node_->settings_.read_from_sbf_log = true;
-            node_->settings_.use_gnss_time = true;
+            settings_->read_from_sbf_log = true;
+            settings_->use_gnss_time = true;
             // connectionThread_ = boost::thread(
-            //     boost::bind(&CommIo::prepareSBFFileReading, this, match[2]));
+            //     boost::bind(&CommunicationCore::prepareSBFFileReading, this,
+            //     match[2]));
 
         } else if (boost::regex_match(
-                       node_->settings_.device, match,
+                       settings_->device, match,
                        boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
         {
-            node_->settings_.read_from_pcap = true;
-            node_->settings_.use_gnss_time = true;
+            settings_->read_from_pcap = true;
+            settings_->use_gnss_time = true;
             // connectionThread_ = boost::thread(
-            //   boost::bind(&CommIo::preparePCAPFileReading, this, match[2]));
+            //   boost::bind(&CommunicationCore::preparePCAPFileReading, this,
+            //   match[2]));
 
-        } else if (boost::regex_match(node_->settings_.device, match,
+        } else if (boost::regex_match(settings_->device, match,
                                       boost::regex("(serial):(.+)")))
         {
             std::string proto(match[2]);
             std::stringstream ss;
             ss << "Searching for serial port" << proto;
             node_->log(LogLevel::DEBUG, ss.str());
-            node_->settings_.device = proto;
-            manager_->reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
+            settings_->device = proto;
+            manager_.reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
         } else
         {
             std::stringstream ss;
@@ -216,13 +235,15 @@ namespace io {
     //! mode. Those characters would then be mingled with the first command we send
     //! to it in this method and could result in an invalid command. Hence we first
     //! enter command mode via "SSSSSSSSSS".
-    void CommIo::configureRx()
+    void CommunicationCore::configureRx()
     {
         node_->log(LogLevel::DEBUG, "Called configureRx() method");
+
+        if (!initializedIo_)
         {
-            // wait for connection
-            std::mutex::scoped_lock lock(connection_mutex_);
-            connection_condition_.wait(lock, [this]() { return connected_; });
+            node_->log(LogLevel::DEBUG,
+                       "Called configureRx() method but IO is not initialized.");
+            return;
         }
 
         // Determining communication mode: TCP vs USB/Serial
@@ -231,13 +252,14 @@ namespace io {
         boost::regex_match(settings_->device, match,
                            boost::regex("(tcp)://(.+):(\\d+)"));
         std::string proto(match[1]);
-        resetMainPort();
+        mainConnectionDescriptor_ = resetMainConnection();
         if (proto == "tcp")
         {
-            mainPort_ = g_rx_tcp_port;
+            // mainConnectionDescriptor_ = manager_->getConnectionDescriptor();
         } else
         {
-            mainPort_ = settings_->rx_serial_port;
+            // TODO check if rx_serial_portcan be removed
+            mainConnectionDescriptor_ = settings_->rx_serial_port;
             // After booting, the Rx sends the characters "x?" to all ports, which
             // could potentially mingle with our first command. Hence send a
             // safeguard command "lif", whose potentially false processing is
@@ -388,8 +410,9 @@ namespace io {
                 }
             }
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
-               << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -415,8 +438,9 @@ namespace io {
             blocks << " +ReceiverSetup";
 
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
-               << blocks.str() << ", " << rest_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << rest_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -444,8 +468,9 @@ namespace io {
             }
 
             std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", " << mainPort_ << ","
-               << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sno, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -814,7 +839,7 @@ namespace io {
                 (settings_->ins_vsm_ros_source == "twist"))
             {
                 std::string s;
-                s = "sdio, " + mainPort_ + ", NMEA, +NMEA +SBF\x0D";
+                s = "sdio, " + mainConnectionDescriptor_ + ", NMEA, +NMEA +SBF\x0D";
                 send(s);
                 nmeaActivated_ = true;
             }
@@ -822,29 +847,23 @@ namespace io {
         node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
     }
 
-    void CommIo::sendVelocity(const std::string& velNmea)
+    void CommunicationCore::sendVelocity(const std::string& velNmea)
     {
         if (nmeaActivated_)
             manager_.get()->send(velNmea);
     }
 
-    void CommIo::resetMainPort()
+    std::string CommunicationCore::resetMainConnection()
     {
-        CommSync* cdSync = messageHandler.getCdSync();
-        // It is imperative to hold a lock on the mutex  "g_cd_mutex" while
-        // modifying the variable and "g_cd_received".
-        std::mutex::scoped_lock lock_cd(cdSync.mutex);
         // Escape sequence (escape from correction mode), ensuring that we can send
         // our real commands afterwards...
         std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+        telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);
-        // We wait for the connection descriptor before we send another command,
-        // otherwise the latter would not be processed.
-        cdSync.condition.wait(lock_cd, [cdSync]() { return cdSync.received; });
-        cdSync.received = false;
+        return telegramHandler_.getMainCd();
     }
 
-    void CommIo::prepareSBFFileReading(std::string file_name)
+    void CommunicationCore::prepareSBFFileReading(std::string file_name)
     {
         try
         {
@@ -855,13 +874,13 @@ namespace io {
         } catch (std::runtime_error& e)
         {
             std::stringstream ss;
-            ss << "CommIo::initializeSBFFileReading() failed for SBF File"
+            ss << "CommunicationCore::initializeSBFFileReading() failed for SBF File"
                << file_name << " due to: " << e.what();
             node_->log(LogLevel::ERROR, ss.str());
         }
     }
 
-    void CommIo::preparePCAPFileReading(std::string file_name)
+    void CommunicationCore::preparePCAPFileReading(std::string file_name)
     {
         try
         {
@@ -872,15 +891,15 @@ namespace io {
         } catch (std::runtime_error& e)
         {
             std::stringstream ss;
-            ss << "CommIO::initializePCAPFileReading() failed for SBF File "
+            ss << "CommunicationCore::initializePCAPFileReading() failed for SBF File "
                << file_name << " due to: " << e.what();
             node_->log(LogLevel::ERROR, ss.str());
         }
     }
 
-    void CommIo::initializeSBFFileReading(std::string file_name)
+    void CommunicationCore::initializeSBFFileReading(std::string file_name)
     {
-        node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
+        /*node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
         std::size_t buffer_size = 8192;
         uint8_t* to_be_parsed;
         to_be_parsed = new uint8_t[buffer_size];
@@ -890,56 +909,54 @@ namespace io {
         {
             /* Reads binary data using streambuffer iterators.
             Copies all SBF file content into bin_data. */
-            std::vector<uint8_t> v_buf((std::istreambuf_iterator<char>(bin_file)),
-                                       (std::istreambuf_iterator<char>()));
-            vec_buf = v_buf;
-            bin_file.close();
-        } else
-        {
-            throw std::runtime_error(
-                "I could not find your file. Or it is corrupted.");
-        }
-        // The spec now guarantees that vectors store their elements contiguously.
-        to_be_parsed = vec_buf.data();
-        std::stringstream ss;
-        ss << "Opened and copied over from " << file_name;
-        node_->log(LogLevel::DEBUG, ss.str());
+        /*std::vector<uint8_t> v_buf((std::istreambuf_iterator<char>(bin_file)),
+                                   (std::istreambuf_iterator<char>()));
+        vec_buf = v_buf;
+        bin_file.close();
+    }
+    else
+    {
+        throw std::runtime_error("I could not find your file. Or it is corrupted.");
+    }
+    // The spec now guarantees that vectors store their elements contiguously.
+    to_be_parsed = vec_buf.data();
+    std::stringstream ss;
+    ss << "Opened and copied over from " << file_name;
+    node_->log(LogLevel::DEBUG, ss.str());
 
-        while (running_) // Loop will stop if we are done reading the SBF file
+    while (running_) // Loop will stop if we are done reading the SBF file
+    {
+        try
         {
-            try
-            {
-                node_->log(
-                    LogLevel::DEBUG,
-                    "Calling read_callback_() method, with number of bytes to be parsed being " +
-                        buffer_size);
-                handlers_.readCallback(node_->getTime(), to_be_parsed, buffer_size);
-            } catch (std::size_t& parsing_failed_here)
-            {
-                if (to_be_parsed - vec_buf.data() >=
-                    vec_buf.size() * sizeof(uint8_t))
-                {
-                    break;
-                }
-                to_be_parsed = to_be_parsed + parsing_failed_here;
-                node_->log(LogLevel::DEBUG,
-                           "Parsing_failed_here is " + parsing_failed_here);
-                continue;
-            }
+            node_->log(
+                LogLevel::DEBUG,
+                "Calling read_callback_() method, with number of bytes to be parsed
+    being " + buffer_size); handlers_.readCallback(node_->getTime(), to_be_parsed,
+    buffer_size); } catch (std::size_t& parsing_failed_here)
+        {
             if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
             {
                 break;
             }
-            to_be_parsed = to_be_parsed + buffer_size;
+            to_be_parsed = to_be_parsed + parsing_failed_here;
+            node_->log(LogLevel::DEBUG,
+                       "Parsing_failed_here is " + parsing_failed_here);
+            continue;
         }
-        node_->log(LogLevel::DEBUG, "Leaving initializeSBFFileReading() method..");
+        if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
+        {
+            break;
+        }
+        to_be_parsed = to_be_parsed + buffer_size;
+    }
+    node_->log(LogLevel::DEBUG, "Leaving initializeSBFFileReading() method..");*/
     }
 
-    void CommIo::initializePCAPFileReading(std::string file_name)
+    void CommunicationCore::initializePCAPFileReading(std::string file_name)
     {
-        node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading() method..");
-        pcapReader::buffer_t vec_buf;
-        pcapReader::PcapDevice device(node_, vec_buf);
+        /*node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading()
+        method.."); pcapReader::buffer_t vec_buf; pcapReader::PcapDevice
+        device(node_, vec_buf);
 
         if (!device.connect(file_name.c_str()))
         {
@@ -963,10 +980,9 @@ namespace io {
             {
                 node_->log(
                     LogLevel::DEBUG,
-                    "Calling read_callback_() method, with number of bytes to be parsed being " +
-                        buffer_size);
-                handlers_.readCallback(node_->getTime(), to_be_parsed, buffer_size);
-            } catch (std::size_t& parsing_failed_here)
+                    "Calling read_callback_() method, with number of bytes to be
+        parsed being " + buffer_size); handlers_.readCallback(node_->getTime(),
+        to_be_parsed, buffer_size); } catch (std::size_t& parsing_failed_here)
             {
                 if (to_be_parsed - vec_buf.data() >=
                     vec_buf.size() * sizeof(uint8_t))
@@ -987,19 +1003,26 @@ namespace io {
             }
             to_be_parsed = to_be_parsed + buffer_size;
         }
-        node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading() method..");
+        node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading()
+        method..");*/
     }
 
-    void CommIo::send(const std::string& cmd)
+    void CommunicationCore::processTelegrams()
     {
-        CommSync* responseSync = messageHandler.getResponseSync();
-        // It is imperative to hold a lock on the mutex "g_response_mutex" while
-        // modifying the variable "g_response_received".
-        std::mutex::scoped_lock lock(responseSync.mutex);
-        // Determine byte size of cmd and hand over to send() method of manager_
+        while (running_)
+        {
+            std::shared_ptr<Telegram> telegram;
+            telegramQueue_.pop(telegram);
+            if (telegram->type != message_type::EMPTY)
+                telegramHandler_.handleTelegram(telegram);
+        }
+    }
+
+    void CommunicationCore::send(const std::string& cmd)
+    {
+        telegramHandler_.resetWaitForResponse();
         manager_.get()->send(cmd);
-        responseSync.condition.wait(lock, []() { return responseSync.received; });
-        responseSync.received = false;
+        telegramHandler_.waitForResponse();
     }
 
 } // namespace io

@@ -38,7 +38,7 @@
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
-rosaic_node::ROSaicNode::ROSaicNode() : IO_(this, &settings_)
+rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
 {
     param("activate_debug_log", settings_.activate_debug_log, false);
     if (settings_.activate_debug_log)
@@ -59,18 +59,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this, &settings_)
         return;
 
     // Initializes Connection
-    IO_.initializeIo();
-
-    // Subscribes to all requested Rx messages by adding entries to the C++ multimap
-    // storing the callback handlers and publishes ROS messages
-    IO_.defineMessages();
-
-    // Sends commands to the Rx regarding which SBF/NMEA messages it should output
-    // and sets all its necessary corrections-related parameters
-    if (!settings_.read_from_sbf_log && !settings_.read_from_pcap)
-    {
-        IO_.configureRx();
-    }
+    IO_.connect();
 
     this->log(LogLevel::DEBUG, "Leaving ROSaicNode() constructor..");
 }

@@ -29,6 +29,8 @@ Compatiblity with PCAP captures are incorporated through [pcap libraries](https:
 `sudo apt install libpcap-dev`.<br><br>
 Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
 `sudo apt install libgeographic-dev`
+Internal data pipelining is realized with TBB. Install the necessary library via<br><br>
+`sudo apt install libtbb-dev`<br><br>
 
 ## Usage
 <details>

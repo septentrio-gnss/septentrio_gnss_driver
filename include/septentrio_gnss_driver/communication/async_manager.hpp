@@ -65,7 +65,7 @@
 
 // ROSaic includes
 #include <septentrio_gnss_driver/crc/crc.h>
-#include <septentrio_gnss_driver/parsers/parsing_utilities.h>
+#include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
 // local includes
 #include <septentrio_gnss_driver/communication/io.hpp>
@@ -91,10 +91,10 @@ namespace io {
     {
     public:
         virtual ~AsyncManagerBase() {}
-        //! Sends commands to the receiver
-        virtual bool send(const std::string& cmd) = 0;
         //! Connects the stream
         [[nodiscard]] virtual bool connect() = 0;
+        //! Sends commands to the receiver
+        virtual void send(const std::string& cmd) = 0;
     };
 
     /**
@@ -102,9 +102,9 @@ namespace io {
      * @brief This is the central interface between ROSaic and the Rx(s), managing
      * I/O operations such as reading messages and sending commands..
      *
-     * SocketT is either boost::asio::serial_port or boost::asio::tcp::ip
+     * IoType is either boost::asio::serial_port or boost::asio::tcp::ip
      */
-    template <typename SocketT>
+    template <typename IoType>
     class AsyncManager : public AsyncManagerBase
     {
     public:
@@ -113,406 +113,472 @@ namespace io {
          * @param[in] node Pointer to node
          * @param[in] telegramQueue Telegram queue
          */
-        AsyncManager(ROSaicNodeBase* node, TelegramQueue* telegramQueue) :
-            node_(node), ioSocket_(node, &ioService_), telegramQueue_(telegramQueue)
-        {
-        }
+        AsyncManager(ROSaicNodeBase* node, TelegramQueue* telegramQueue);
 
-        ~AsyncManager()
-        {
-            running_ = false;
-            flushOutputQueue();
-            close();
-            node_->log(LogLevel::DEBUG, "AsyncManager shutting down threads");
-            ioService_.stop();
-            ioThread_.join();
-            watchdogThread_.join();
-            node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
-        }
+        ~AsyncManager();
 
-        [[nodiscard]] bool connect()
-        {
-            if (ioSocket_.connect())
-            {
-                return false;
-            }
-            receive();
+        [[nodiscard]] bool connect();
 
-            watchdogThread_ = std::thread(std::bind(&TcpClient::runWatchdog, this));
-            return true;
-        }
-
-        void send(const std::string& cmd)
-        {
-            if (cmd.size() == 0)
-            {
-                node_->log(
-                    LogLevel::ERROR,
-                    "AsyncManager message size to be sent to the Rx would be 0");
-            }
-
-            ioService_.post(boost::bind(&AsyncManager<SocketT>::write, this, cmd));
-        }
+        void send(const std::string& cmd);
 
     private:
-        void receive()
+        void receive();
+        void close();
+        void runIoService();
+        void runWatchdog();
+        void write(const std::string& cmd);
+        void resync();
+        template <uint8_t index>
+        void readSync();
+        void readSbfHeader();
+        void readSbf(std::size_t length);
+        void readCd();
+        void readString();
+        void readStringElements();
+
+        //! Pointer to the node
+        ROSaicNodeBase* node_;
+        IoType ioInterface_;
+        boost::asio::io_service ioService_;
+        std::atomic<bool> running_;
+        std::thread ioThread_;
+        std::thread watchdogThread_;
+        //! Timestamp of receiving buffer
+        Timestamp recvStamp_;
+        //! Telegram
+        std::shared_ptr<Telegram> telegram_;
+        //! TelegramQueue
+        TelegramQueue* telegramQueue_;
+    };
+
+    template <typename IoType>
+    AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
+                                       TelegramQueue* telegramQueue) :
+        node_(node),
+        ioInterface_(node, &ioService_), telegramQueue_(telegramQueue)
+    {
+    }
+
+    template <typename IoType>
+    AsyncManager<IoType>::~AsyncManager()
+    {
+        running_ = false;
+        close();
+        node_->log(LogLevel::DEBUG, "AsyncManager shutting down threads");
+        ioService_.stop();
+        ioThread_.join();
+        watchdogThread_.join();
+        node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
+    }
+
+    template <typename IoType>
+    [[nodiscard]] bool AsyncManager<IoType>::connect()
+    {
+        running_ = true;
+
+        if (ioInterface_.connect())
         {
-            resync();
-            ioThread_ = std::thread(
-                std::thread(std::bind(&AsyncManager::runIoService, this)));
+            return false;
+        }
+        receive();
+
+        watchdogThread_ = std::thread(std::bind(&AsyncManager::runWatchdog, this));
+        return true;
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::send(const std::string& cmd)
+    {
+        if (cmd.size() == 0)
+        {
+            node_->log(LogLevel::ERROR,
+                       "AsyncManager message size to be sent to the Rx would be 0");
+            return;
         }
 
-        void flushOutputQueue()
-        {
-            ioService_.post([this]() { write(); });
-        }
+        ioService_.post(boost::bind(&AsyncManager<IoType>::write, this, cmd));
+    }
 
-        void close()
-        {
-            ioService_.post([this]() { socket_->close(); });
-        }
+    template <typename IoType>
+    void AsyncManager<IoType>::receive()
+    {
+        resync();
+        ioThread_ = std::thread(
+            std::thread(std::bind(&AsyncManager<IoType>::runIoService, this)));
+    }
 
-        void runIoService()
-        {
-            ioService_.run();
-            node_->log(LogLevel::DEBUG, "AsyncManager ioService terminated.");
-        }
+    template <typename IoType>
+    void AsyncManager<IoType>::close()
+    {
+        ioService_.post([this]() { ioInterface_.close(); });
+    }
 
-        void runWatchdog()
+    template <typename IoType>
+    void AsyncManager<IoType>::runIoService()
+    {
+        ioService_.run();
+        node_->log(LogLevel::DEBUG, "AsyncManager ioService terminated.");
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::runWatchdog()
+    {
+        while (running_)
         {
-            while (running_)
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+
+            if (running_ && ioService_.stopped())
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-
-                if (running_ && ioService_.stopped())
-                {
-                    node_->log(LogLevel::DEBUG,
-                               "AsyncManager connection lost. Trying to reconnect.");
-                    ioService_.reset();
-                    ioThread_->join();
-                    receive();
-                }
+                node_->log(LogLevel::DEBUG,
+                           "AsyncManager connection lost. Trying to reconnect.");
+                ioService_.reset();
+                ioThread_.join();
+                while (!ioInterface_.connect())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                receive();
             }
         }
+    }
 
-        void write(const std::string& cmd)
-        {
-            boost::asio::write(ioSocket_.stream(),
-                               boost::asio::buffer(cmd.data(), cmd.size()));
-            // Prints the data that was sent
-            node_->log(LogLevel::DEBUG, "AsyncManager sent the following " +
-                                            std::to_string(cmd.size()) +
-                                            " bytes to the Rx: " + cmd);
-        }
+    template <typename IoType>
+    void AsyncManager<IoType>::write(const std::string& cmd)
+    {
+        boost::asio::async_write(
+            ioInterface_.stream_, boost::asio::buffer(cmd.data(), cmd.size()),
+            [this, cmd](boost::system::error_code ec, std::size_t /*length*/) {
+                if (!ec)
+                {
+                    // Prints the data that was sent
+                    node_->log(LogLevel::DEBUG, "AsyncManager sent the following " +
+                                                    std::to_string(cmd.size()) +
+                                                    " bytes to the Rx: " + cmd);
+                } else
+                {
+                    node_->log(LogLevel::ERROR,
+                               "AsyncManager was unable to send the following " +
+                                   std::to_string(cmd.size()) +
+                                   " bytes to the Rx: " + cmd);
+                }
+            });
+    }
 
-        void resync()
-        {
-            message_.reset(new Telegram);
-            readSync<0>();
-        }
+    template <typename IoType>
+    void AsyncManager<IoType>::resync()
+    {
+        telegram_.reset(new Telegram);
+        readSync<0>();
+    }
 
-        template <uint8_t index>
-        void readSync()
-        {
-            static_assert(index < 3);
+    template <typename IoType>
+    template <uint8_t index>
+    void AsyncManager<IoType>::readSync()
+    {
+        static_assert(index < 3);
 
-            boost::asio::async_read(
-                ioSocket_.stream(),
-                boost::asio::buffer(message_->data.data() + index, 1),
-                [this](boost::system::error_code ec, std::size_t numBytes) {
-                    Timestamp stamp = node_->getTime();
+        boost::asio::async_read(
+            ioInterface_.stream_,
+            boost::asio::buffer(telegram_->message.data() + index, 1),
+            [this](boost::system::error_code ec, std::size_t numBytes) {
+                Timestamp stamp = node_->getTime();
 
-                    if (!ec)
+                if (!ec)
+                {
+                    if (numBytes == 1)
                     {
-                        if (numBytes == 1)
-                        {
-                            std::byte& currByte = message_->data[index];
+                        uint8_t& currByte = telegram_->message[index];
 
-                            if (currByte == SYNC_0)
+                        if (currByte == SYNC_BYTE_1)
+                        {
+                            telegram_->stamp = stamp;
+                            readSync<1>();
+                        } else
+                        {
+                            switch (index)
                             {
-                                message_->stamp = stamp;
-                                readSync<1>();
-                            } else
+                            case 0:
                             {
-                                switch (index)
+                                if ((currByte == CONNECTION_DESCRIPTOR_BYTE_I) ||
+                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_C) ||
+                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_U) ||
+                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_N) ||
+                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_D))
                                 {
-                                case 0:
+                                    telegram_->type =
+                                        message_type::CONNECTION_DESCRIPTOR;
+                                    readCd();
+                                } else
+                                    readSync<0>();
+                                break;
+                            }
+                            case 1:
+                            {
+                                switch (currByte)
                                 {
-                                    if ((currByte == CONNECTION_DESCRIPTOR_BYTE_I) ||
-                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_C) ||
-                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_U) ||
-                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_N) ||
-                                        (currByte == CONNECTION_DESCRIPTOR_BYTE_D))
-                                    {
-                                        message_->type = CONNECTION_DESCRIPTOR;
-                                        readCd();
-                                    } else
-                                        readSync<0>();
+                                case SBF_SYNC_BYTE_2:
+                                {
+                                    telegram_->type = message_type::SBF;
+                                    readSbfHeader();
                                     break;
                                 }
-                                case 1:
+                                case NMEA_SYNC_BYTE_2:
                                 {
-                                    switch (currByte)
-                                    {
-                                    case SBF_SYNC_BYTE_1:
-                                    {
-                                        message_->type = SBF;
-                                        readSbfHeader();
-                                        break;
-                                    }
-                                    case NMEA_SYNC_BYTE_1:
-                                    {
-                                        message_->type = NMEA;
-                                        readSync<2>();
-                                        break;
-                                    }
-                                    case RESPONSE_SYNC_BYTE_1:
-                                    {
-                                        message_->type = RESPONSE;
-                                        readSync<2>();
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        node_->log(
-                                            LogLevel::DEBUG,
-                                            "AsyncManager sync 1 read fault, should never come here.");
-                                        resync();
-                                        break;
-                                    }
-                                    }
+                                    telegram_->type = message_type::NMEA;
+                                    readSync<2>();
                                     break;
                                 }
-                                case 2:
+                                case NMEA_INS_SYNC_BYTE_2:
                                 {
-                                    switch (currByte)
-                                    {
-                                    case NMEA_SYNC_BYTE_2:
-                                    {
-                                        if (message_->type == NMEA)
-                                            readString();
-                                        else
-                                            resync();
-                                        break;
-                                    }
-                                    case ERROR_SYNC_BYTE_2:
-                                    {
-                                        if (message_->type == ERROR)
-                                            readString();
-                                        else
-                                            resync();
-                                        break;
-                                    }
-                                    case RESPONSE_SYNC_BYTE_2:
-                                    {
-                                        if (message_->type == RESPONSE)
-                                            readString();
-                                        else
-                                            resync();
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        node_->log(
-                                            LogLevel::DEBUG,
-                                            "AsyncManager sync 2 read fault, should never come here.");
-                                        resync();
-                                        break;
-                                    }
-                                    }
+                                    telegram_->type = message_type::NMEA_INS;
+                                    readSync<2>();
+                                    break;
+                                }
+                                case RESPONSE_SYNC_BYTE_2:
+                                {
+                                    telegram_->type = message_type::RESPONSE;
+                                    readSync<2>();
                                     break;
                                 }
                                 default:
                                 {
                                     node_->log(
                                         LogLevel::DEBUG,
-                                        "AsyncManager sync read fault, should never come here.");
+                                        "AsyncManager sync 1 read fault, should never come here.");
                                     resync();
                                     break;
                                 }
                                 }
-                            }
-                        } else
-                        {
-                            node_->log(
-                                LogLevel::DEBUG,
-                                "AsyncManager sync read fault, wrong number of bytes read: " +
-                                    std::to_string(numBytes));
-                            resync();
-                        }
-                    } else
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "AsyncManager sync read error: " + ec.message());
-                        resync();
-                    }
-                });
-        }
-
-        void readSbfHeader()
-        {
-            message_->data.resize(SBF_HEADER_SIZE);
-
-            boost::asio::async_read(
-                ioSocket_.stream(),
-                boost::asio::buffer(message_->data.data() + 2, SBF_HEADER_SIZE - 2),
-                [this](boost::system::error_code ec, std::size_t numBytes) {
-                    if (!ec)
-                    {
-                        if (numBytes == (SBF_HEADER_SIZE - 2))
-                        {
-                            unit16_t length =
-                                parsing_utilities::getLength(message_->data.data());
-                            if (length > MAX_SBF_SIZE)
-                            {
-                                node_->log(
-                                    LogLevel::DEBUG,
-                                    "AsyncManager SBF header read fault, length of block exceeds " +
-                                        std::to_string(MAX_SBF_SIZE) + ": " +
-                                        std::to_string(length));
-                            } else
-                                readSbf(length);
-                        } else
-                        {
-                            node_->log(
-                                LogLevel::DEBUG,
-                                "AsyncManager SBF header read fault, wrong number of bytes read: " +
-                                    std::to_string(numBytes));
-                            resync();
-                        }
-                    } else
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "AsyncManager SBF header read error: " +
-                                       ec.message());
-                        resync();
-                    }
-                });
-        }
-
-        void readSbf(std::size_t length)
-        {
-            message_->data.resize(length);
-
-            boost::asio::async_read(
-                ioSocket_.stream(),
-                boost::asio::buffer(message_->data.data() + SBF_HEADER_SIZE,
-                                    length - SBF_HEADER_SIZE),
-                [this](boost::system::error_code ec, std::size_t numBytes) {
-                    if (!ec)
-                    {
-                        if (numBytes == (length - SBF_HEADER_SIZE))
-                        {
-                            if (crc::isValid(message_->data.data()))
-                            {
-                                message_->sbfId =
-                                    parsing_utilities::getId(message_->data.data());
-
-                                telegramQueue_->push(message_);
-                            }
-                        } else
-                        {
-                            node_->log(
-                                LogLevel::DEBUG,
-                                "AsyncManager SBF read fault, wrong number of bytes read: " +
-                                    std::to_string(numBytes));
-                        }
-                    } else
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "AsyncManager SBF read error: " + ec.message());
-                    }
-                    resync();
-                });
-        }
-
-        void readCd()
-        {
-            message_->data.resize(1);
-            readStringElements();
-        }
-
-        void readString()
-        {
-            message_->data.resize(3);
-            readStringElements();
-        }
-
-        void readStringElements()
-        {
-            std::array<std::byte, 1> buf;
-
-            boost::asio::async_read(
-                ioSocket_.stream(), boost::asio::buffer(buf.data(), 1),
-                [this](boost::system::error_code ec, std::size_t numBytes) {
-                    if (!ec)
-                    {
-                        if (numBytes == 1)
-                        {
-                            message_->data.push_back(buf[0]);
-                            switch (buf[0])
-                            {
-                            case SYNC_0:
-                            {
-                                message_.reset(new Telegram);
-                                message_->data[0] = buf[0];
-                                message_->stamp = node_->getTime();
-                                node_->log(
-                                    LogLevel::DEBUG,
-                                    "AsyncManager string read fault, sync 0 found."));
-                                readSync<1>();
                                 break;
                             }
-                            case LF:
+                            case 2:
                             {
-                                if (message_->data[message_->data.size() - 2] == CR)
-                                    telegramQueue_->push(message_);
-                                resync();
-                                break;
-                            }
-                            case CONNECTION_DESCRIPTOR_FOOTER:
-                            {
-                                if (message_->type == CONNECTION_DESCRIPTOR)
-                                    telegramQueue_->push(message_);
-                                resync();
+                                switch (currByte)
+                                {
+                                case NMEA_SYNC_BYTE_3:
+                                {
+                                    if (telegram_->type == message_type::NMEA)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                case NMEA_INS_SYNC_BYTE_3:
+                                {
+                                    if (telegram_->type == message_type::NMEA)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                case ERROR_SYNC_BYTE_3:
+                                {
+                                    if (telegram_->type ==
+                                        message_type::ERROR_RESPONSE)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                case RESPONSE_SYNC_BYTE_3:
+                                {
+                                    if (telegram_->type == message_type::RESPONSE)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
+                                default:
+                                {
+                                    node_->log(
+                                        LogLevel::DEBUG,
+                                        "AsyncManager sync 2 read fault, should never come here.");
+                                    resync();
+                                    break;
+                                }
+                                }
                                 break;
                             }
                             default:
                             {
-                                readString();
+                                node_->log(
+                                    LogLevel::DEBUG,
+                                    "AsyncManager sync read fault, should never come here.");
+                                resync();
                                 break;
                             }
                             }
-                        } else
-                        {
-                            node_->log(
-                                LogLevel::DEBUG,
-                                "AsyncManager string read fault, wrong number of bytes read: " +
-                                    std::to_string(numBytes));
-                            resync();
                         }
                     } else
                     {
-                        node_->log(LogLevel::DEBUG,
-                                   "AsyncManager string read error: " +
-                                       ec.message());
+                        node_->log(
+                            LogLevel::DEBUG,
+                            "AsyncManager sync read fault, wrong number of bytes read: " +
+                                std::to_string(numBytes));
                         resync();
                     }
-                });
-        }
+                } else
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "AsyncManager sync read error: " + ec.message());
+                    resync();
+                }
+            });
+    }
 
-        //! Pointer to the node
-        ROSaicNodeBase* node_;
-        SocketT ioSocket_;
-        std::atomic<bool> running_;
-        boost::asio::io_service ioService_;
-        std::thread ioThread_;
-        std::thread watchdogThread_;
-        //! Timestamp of receiving buffer
-        Timestamp recvStamp_;
-        //! Telegram
-        std::shared_ptr<Telegram> message_;
-        //! TelegramQueue
-        TelegramQueue* telegramQueue_;
-    };
+    template <typename IoType>
+    void AsyncManager<IoType>::readSbfHeader()
+    {
+        telegram_->message.resize(SBF_HEADER_SIZE);
+
+        boost::asio::async_read(
+            ioInterface_.stream_,
+            boost::asio::buffer(telegram_->message.data() + 2, SBF_HEADER_SIZE - 2),
+            [this](boost::system::error_code ec, std::size_t numBytes) {
+                if (!ec)
+                {
+                    if (numBytes == (SBF_HEADER_SIZE - 2))
+                    {
+                        uint16_t length =
+                            parsing_utilities::getLength(telegram_->message.data());
+                        if (length > MAX_SBF_SIZE)
+                        {
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager SBF header read fault, length of block exceeds " +
+                                    std::to_string(MAX_SBF_SIZE) + ": " +
+                                    std::to_string(length));
+                        } else
+                            readSbf(length);
+                    } else
+                    {
+                        node_->log(
+                            LogLevel::DEBUG,
+                            "AsyncManager SBF header read fault, wrong number of bytes read: " +
+                                std::to_string(numBytes));
+                        resync();
+                    }
+                } else
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "AsyncManager SBF header read error: " +
+                                   ec.message());
+                    resync();
+                }
+            });
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::readSbf(std::size_t length)
+    {
+        telegram_->message.resize(length);
+
+        boost::asio::async_read(
+            ioInterface_.stream_,
+            boost::asio::buffer(telegram_->message.data() + SBF_HEADER_SIZE,
+                                length - SBF_HEADER_SIZE),
+            [this, length](boost::system::error_code ec, std::size_t numBytes) {
+                if (!ec)
+                {
+                    if (numBytes == (length - SBF_HEADER_SIZE))
+                    {
+                        if (crc::isValid(telegram_->message.data()))
+                        {
+                            telegram_->sbfId =
+                                parsing_utilities::getId(telegram_->message.data());
+
+                            telegramQueue_->push(telegram_);
+                        }
+                    } else
+                    {
+                        node_->log(
+                            LogLevel::DEBUG,
+                            "AsyncManager SBF read fault, wrong number of bytes read: " +
+                                std::to_string(numBytes));
+                    }
+                } else
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "AsyncManager SBF read error: " + ec.message());
+                }
+                resync();
+            });
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::readCd()
+    {
+        telegram_->message.resize(1);
+        readStringElements();
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::readString()
+    {
+        telegram_->message.resize(3);
+        readStringElements();
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::readStringElements()
+    {
+        std::array<uint8_t, 1> buf;
+
+        boost::asio::async_read(
+            ioInterface_.stream_, boost::asio::buffer(buf.data(), 1),
+            [this, buf](boost::system::error_code ec, std::size_t numBytes) {
+                if (!ec)
+                {
+                    if (numBytes == 1)
+                    {
+                        telegram_->message.push_back(buf[0]);
+                        switch (buf[0])
+                        {
+                        case SYNC_BYTE_1:
+                        {
+                            telegram_.reset(new Telegram);
+                            telegram_->message[0] = buf[0];
+                            telegram_->stamp = node_->getTime();
+                            node_->log(
+                                LogLevel::DEBUG,
+                                "AsyncManager string read fault, sync 0 found.");
+                            readSync<1>();
+                            break;
+                        }
+                        case LF:
+                        {
+                            if (telegram_->message[telegram_->message.size() - 2] ==
+                                CR)
+                                telegramQueue_->push(telegram_);
+                            resync();
+                            break;
+                        }
+                        case CONNECTION_DESCRIPTOR_FOOTER:
+                        {
+                            if (telegram_->type ==
+                                message_type::CONNECTION_DESCRIPTOR)
+                                telegramQueue_->push(telegram_);
+                            resync();
+                            break;
+                        }
+                        default:
+                        {
+                            readString();
+                            break;
+                        }
+                        }
+                    } else
+                    {
+                        node_->log(
+                            LogLevel::DEBUG,
+                            "AsyncManager string read fault, wrong number of bytes read: " +
+                                std::to_string(numBytes));
+                        resync();
+                    }
+                } else
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "AsyncManager string read error: " + ec.message());
+                    resync();
+                }
+            });
+    }
 } // namespace io

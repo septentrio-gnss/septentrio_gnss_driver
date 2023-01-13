@@ -72,6 +72,7 @@
 #include <unistd.h> // for usleep()
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
+#include <septentrio_gnss_driver/communication/telegram_handler.hpp>
 
 /**
  * @file communication_core.hpp
@@ -93,32 +94,31 @@ namespace io {
         1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
 
     /**
-     * @class CommIo
+     * @class CommunicationCore
      * @brief Handles communication with and configuration of the mosaic (and beyond)
      * receiver(s)
      */
-    class CommIo
+    class CommunicationCore
     {
     public:
         /**
-         * @brief Constructor of the class CommIo
+         * @brief Constructor of the class CommunicationCore
          * @param[in] node Pointer to node
          */
-        CommIo(ROSaicNodeBase* node);
+        CommunicationCore(ROSaicNodeBase* node);
         /**
-         * @brief Default destructor of the class CommIo
+         * @brief Default destructor of the class CommunicationCore
          */
-        ~CommIo();
+        ~CommunicationCore();
 
         /**
-         * @brief Initializes the I/O handling
+         * @brief Connects the data stream
          */
-        void initializeIo();
+        void connect();
 
         /**
          * @brief Configures Rx: Which SBF/NMEA messages it should output and later
          * correction settings
-         * @param[in] settings The device's settings
          * */
         void configureRx();
 
@@ -131,9 +131,16 @@ namespace io {
 
     private:
         /**
-         * @brief Reset main port so it can receive commands
+         * @brief Initializes the I/O handling
+         * * @return Wether connection was successful
          */
-        void resetMainPort();
+        bool initializeIo();
+
+        /**
+         * @brief Reset main connection so it can receive commands
+         * @return Main connection descriptor
+         */
+        std::string resetMainConnection();
 
         /**
          * @brief Sets up the stage for SBF file reading
@@ -162,6 +169,8 @@ namespace io {
          */
         void initializePCAPFileReading(std::string file_name);
 
+        void processTelegrams();
+
         /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
@@ -174,47 +183,22 @@ namespace io {
         Settings* settings_;
         //! TelegramQueue
         TelegramQueue telegramQueue_;
-        //! Telegram handlers for the inwards streaming messages
-        MessageHandler messageHandler_;
-        //! Whether connecting to Rx was successful
-        bool connected_ = false;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated mutex..
-        std::mutex connection_mutex_;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated condition variable..
-        std::condition_variable connection_condition_;
-        //! Host name of TCP server
-        std::string tcp_host_;
-        //! TCP port number
-        std::string tcp_port_;
-        //! Whether yet-to-be-established connection to Rx will be serial or TCP
-        bool serial_;
-        //! Saves the port description
-        std::string serial_port_;
+        //! TelegramHandler
+        TelegramHandler telegramHandler_;
+        //! Processing thread
+        std::thread processingThread_;
+        //! Whether connecting was successful
+        bool initializedIo_ = false;
         //! Processes I/O stream data
         //! This declaration is deliberately stream-independent (Serial or TCP).
         std::unique_ptr<AsyncManagerBase> manager_;
-        //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
-        uint32_t baudrate_;
 
         bool nmeaActivated_ = false;
 
         //! Indicator for threads to run
         std::atomic<bool> running_;
 
-        //! Communication ports
-        std::string mainPort_;
-
-        //! Host currently connected to
-        std::string host_;
-        //! Port over which TCP/IP connection is currently established
-        std::string port_;
-        //! Sleep time in microseconds (there is no Unix command for milliseconds)
-        //! after setting the baudrate to certain value (important between
-        //! increments)
-        const static unsigned int SET_BAUDRATE_SLEEP_ = 500000;
+        //! Main communication port
+        std::string mainConnectionDescriptor_;
     };
 } // namespace io

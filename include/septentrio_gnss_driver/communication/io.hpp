@@ -54,38 +54,42 @@ namespace io {
     {
     public:
         TcpIo(ROSaicNodeBase* node, boost::asio::io_service* ioService) :
-            node_(node), ioService_(ioService), socket_(*ioService_)
+            node_(node), ioService_(ioService), stream_(*ioService_)
         {
         }
 
-        ~TcpIo() { socket_.close(); }
+        ~TcpIo() { stream_.close(); }
 
-        const boost::asio::ip::tcp::socket& stream() { return socket_; }
+        void close() { stream_.close(); }
 
         [[nodiscard]] bool connect()
         {
+            if (stream_.is_open())
+            {
+                stream_.close();
+            }
+
             boost::asio::ip::tcp::resolver::iterator endpointIterator;
             try
             {
                 boost::asio::ip::tcp::resolver resolver(*ioService_);
                 boost::asio::ip::tcp::resolver::query query(
-                    node_->getSettings()->tcp_ip, node->getSettings()->tcp_port);
+                    node_->getSettings()->tcp_ip, node_->getSettings()->tcp_port);
                 endpointIterator = resolver.resolve(query);
             } catch (std::runtime_error& e)
             {
-                node_->log(LogLevel::ERROR, "Could not resolve " + host +
-                                                " on port " + port + ": " +
-                                                e.what());
+                node_->log(LogLevel::ERROR,
+                           "Could not resolve " + node_->getSettings()->tcp_ip +
+                               " on port " + node_->getSettings()->tcp_port + ": " +
+                               e.what());
                 return false;
             }
 
-            socket_.reset(new boost::asio::ip::tcp::socket(*ioService_));
-
             try
             {
-                socket_.connect(*endpointIterator);
+                stream_.connect(*endpointIterator);
 
-                socket_.set_option(boost::asio::ip::tcp::no_delay(true));
+                stream_.set_option(boost::asio::ip::tcp::no_delay(true));
             } catch (std::runtime_error& e)
             {
                 node_->log(LogLevel::ERROR,
@@ -100,29 +104,31 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         boost::asio::io_service* ioService_;
-        boost::asio::ip::tcp::socket socket_;
+
+    public:
+        boost::asio::ip::tcp::socket stream_;
     };
 
-    class SerialIo : public IoBase
+    class SerialIo
     {
     public:
-        SerialIo(ROSaicNodeBase* node, boost::asio::io_service* ioService,
-                 std::string serialPort, uint32_t baudrate, bool flowcontrol) :
-            node_(node),
-            flowcontrol_(node->getSettings()->flowcontrol),
-            baudrate_(node->getSettings()->baudrate), serialPort_(ioService_)
+        SerialIo(ROSaicNodeBase* node, boost::asio::io_service* ioService) :
+            node_(node), flowcontrol_(node->getSettings()->hw_flow_control),
+            baudrate_(node->getSettings()->baudrate), stream_(*ioService_)
         {
         }
 
-        ~SerialIo() { serialPort_.close(); }
+        ~SerialIo() { stream_.close(); }
 
-        const boost::asio::serial_port& stream() { return socket_; }
+        void close() { stream_.close(); }
+
+        const boost::asio::serial_port& stream() { return stream_; }
 
         [[nodiscard]] bool connect()
         {
-            if (serialPort_.is_open())
+            if (stream_.is_open())
             {
-                serialPort_.close();
+                stream_.close();
             }
 
             bool opened = false;
@@ -131,13 +137,13 @@ namespace io {
             {
                 try
                 {
-                    serialPort_.open(port_);
+                    stream_.open(port_);
                     opened = true;
                 } catch (const boost::system::system_error& err)
                 {
                     node_->log(LogLevel::ERROR,
-                               "SerialCoket: Could not open serial port " +
-                                   std::to_string(port_) + ". Error: " + err.what() +
+                               "SerialCoket: Could not open serial port " + port_ +
+                                   ". Error: " + err.what() +
                                    ". Will retry every second.");
 
                     using namespace std::chrono_literals;
@@ -146,23 +152,22 @@ namespace io {
             }
 
             // No Parity, 8bits data, 1 stop Bit
-            serialPort_.set_option(
-                boost::asio::serial_port_base::baud_rate(baudrate_));
-            serialPort_.set_option(boost::asio::serial_port_base::parity(
+            stream_.set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
+            stream_.set_option(boost::asio::serial_port_base::parity(
                 boost::asio::serial_port_base::parity::none));
-            serialPort_.set_option(boost::asio::serial_port_base::character_size(8));
-            serialPort_.set_option(boost::asio::serial_port_base::stop_bits(
+            stream_.set_option(boost::asio::serial_port_base::character_size(8));
+            stream_.set_option(boost::asio::serial_port_base::stop_bits(
                 boost::asio::serial_port_base::stop_bits::one));
-            serialPort_.set_option(boost::asio::serial_port_base::flow_control(
+            stream_.set_option(boost::asio::serial_port_base::flow_control(
                 boost::asio::serial_port_base::flow_control::none));
 
-            int fd = serialPort_.native_handle();
+            int fd = stream_.native_handle();
             termios tio;
             // Get terminal attribute, follows the syntax
             // int tcgetattr(int fd, struct termios *termios_p);
             tcgetattr(fd, &tio);
 
-            // Hardware flow control settings_->.
+            // Hardware flow control settings
             if (flowcontrol_ == "RTS|CTS")
             {
                 tio.c_iflag &= ~(IXOFF | IXON);
@@ -189,7 +194,7 @@ namespace io {
             return setBaudrate();
         }
 
-        [[nodiscard]] bool setBaurate()
+        [[nodiscard]] bool setBaudrate()
         {
             // Setting the baudrate, incrementally..
             node_->log(LogLevel::DEBUG,
@@ -198,11 +203,10 @@ namespace io {
             node_->log(LogLevel::DEBUG, "Initiated current_baudrate object...");
             try
             {
-                serialPort_.get_option(
-                    current_baudrate); // Note that this sets
-                                       // current_baudrate.value() often to
-                                       // 115200, since by default, all Rx COM
-                                       // ports,
+                stream_.get_option(current_baudrate); // Note that this sets
+                                                      // current_baudrate.value()
+                                                      // often to 115200, since by
+                                                      // default, all Rx COM ports,
                 // at least for mosaic Rxs, are set to a baudrate of 115200 baud,
                 // using 8 data-bits, no parity and 1 stop-bit.
             } catch (boost::system::system_error& e)
@@ -216,7 +220,7 @@ namespace io {
                 boost::system::error_code e_loop;
                 do // Caution: Might cause infinite loop..
                 {
-                    serialPort_.get_option(current_baudrate, e_loop);
+                    stream_.get_option(current_baudrate, e_loop);
                 } while(e_loop);
                 */
                 return false;
@@ -241,7 +245,7 @@ namespace io {
                 // Increment until Baudrate[i] matches current_baudrate.
                 try
                 {
-                    serialPort_.set_option(
+                    stream_.set_option(
                         boost::asio::serial_port_base::baud_rate(baudrates[i]));
                 } catch (boost::system::system_error& e)
                 {
@@ -257,7 +261,7 @@ namespace io {
 
                 try
                 {
-                    serialPort_.get_option(current_baudrate);
+                    stream_.get_option(current_baudrate);
                 } catch (boost::system::system_error& e)
                 {
 
@@ -269,7 +273,7 @@ namespace io {
                     boost::system::error_code e_loop;
                     do // Caution: Might cause infinite loop..
                     {
-                        serialPort_.get_option(current_baudrate, e_loop);
+                        stream_.get_option(current_baudrate, e_loop);
                     } while(e_loop);
                     */
                     return false;
@@ -281,14 +285,17 @@ namespace io {
             node_->log(LogLevel::INFO, "Set ASIO baudrate to " +
                                            std::to_string(current_baudrate.value()) +
                                            ", leaving InitializeSerial() method");
+            return true;
         }
 
     private:
         ROSaicNodeBase* node_;
-        bool flowcontrol_;
+        std::string flowcontrol_;
         std::string port_;
         uint32_t baudrate_;
         boost::asio::io_service* ioService_;
-        boost::asio::serial_port serialPort_;
+
+    public:
+        boost::asio::serial_port stream_;
     };
 } // namespace io

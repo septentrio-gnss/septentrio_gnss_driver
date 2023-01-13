@@ -31,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED) # bug with 1.71: spirit is not found ... COMPONENTS system thread regex spirit)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
+find_package(TBB REQUIRED)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -166,6 +167,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${GeographicLib_INCLUDE_DIRS}
+  ${TBB_INCLUDE_DIRS}
 )
 
 ## Add cmake target dependencies of the library
@@ -179,7 +181,6 @@ include_directories(
 add_executable(${PROJECT_NAME}_node 
     src/septentrio_gnss_driver/node/main.cpp
     src/septentrio_gnss_driver/node/rosaic_node.cpp
-    src/septentrio_gnss_driver/communication/circular_buffer.cpp 
     src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
@@ -188,7 +189,7 @@ add_executable(${PROJECT_NAME}_node
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
     src/septentrio_gnss_driver/crc/crc.cpp
     src/septentrio_gnss_driver/communication/communication_core.cpp 
-    src/septentrio_gnss_driver/communication/message_parser.cpp 
+    #src/septentrio_gnss_driver/communication/message_parser.cpp 
     src/septentrio_gnss_driver/communication/telegram_handler.cpp
     src/septentrio_gnss_driver/communication/pcap_reader.cpp
 )
@@ -209,6 +210,7 @@ target_link_libraries(${PROJECT_NAME}_node
    ${Boost_LIBRARIES} 
    ${libpcap_LIBRARIES}
    ${GeographicLib_LIBRARIES}
+   tbb
 )
 
 #############

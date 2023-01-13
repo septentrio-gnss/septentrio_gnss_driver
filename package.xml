@@ -63,6 +63,7 @@
   <depend>tf2_eigen</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
+  <depend>tbb</depend>
 
   <build_depend>cpp_common</build_depend>
   <build_depend>rosconsole</build_depend>

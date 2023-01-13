@@ -59,14 +59,15 @@ static const uint16_t MAXSB_MEASEPOCH_T2 =
 static const uint8_t MAXSB_NBVECTORINFO = 30;
 
 //! 0x24 is ASCII for $ - 1st byte in each message
-static const uint8_t SBF_SYNC_BYTE_1 = 0x24;
+static const uint8_t SBF_SYNC_1 = 0x24;
 //! 0x40 is ASCII for @ - 2nd byte to indicate SBF block
-static const uint8_t SBF_SYNC_BYTE_2 = 0x40;
+static const uint8_t SBF_SYNC_2 = 0x40;
 
 // C++
 #include <algorithm>
 // Boost
 #include <boost/spirit/include/qi.hpp>
+// ROSaic
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
@@ -372,13 +373,13 @@ template <typename It, typename Hdr>
 bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
 {
     qiLittleEndianParser(it, block_header.sync_1);
-    if (block_header.sync_1 != SBF_SYNC_BYTE_1)
+    if (block_header.sync_1 != SBF_SYNC_1)
     {
         node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 1.");
         return false;
     }
     qiLittleEndianParser(it, block_header.sync_2);
-    if (block_header.sync_2 != SBF_SYNC_BYTE_2)
+    if (block_header.sync_2 != SBF_SYNC_2)
     {
         node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 2.");
         return false;

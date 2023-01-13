@@ -58,6 +58,10 @@
 
 #pragma once
 
+// C++ includes
+#include <algorithm>
+#include <future>
+
 // Boost includes
 #include <boost/foreach.hpp>
 // In C++, writing a loop that iterates over a sequence is tedious -->
@@ -91,22 +95,16 @@
 #include <boost/format.hpp>
 #include <boost/thread/mutex.hpp>
 
-// ROSaic and C++ includes
-#include <algorithm>
-#include <septentrio_gnss_driver/communication/message_parser.hpp>
+// ROSaic includes
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
+// #include <septentrio_gnss_driver/communication/message_parser.hpp>
 
 /**
  * @file telegram_handler.hpp
  * @brief Handles messages when reading NMEA/SBF/response/error/connection descriptor
  * messages
  */
-
-struct CommSync
-{
-    bool received = false;
-    std::mutex mutex;
-    std::condition_variable condition;
-};
 
 namespace io {
     /**
@@ -118,20 +116,44 @@ namespace io {
     {
 
     public:
-        TelegramHandler(ROSaicNodeBase* node) : node_(node), message_parser(node) {}
+        TelegramHandler(ROSaicNodeBase* node) :
+            node_(node),
+            /*message_parser(node),*/ cdReceived_(cdPromise_.get_future()),
+            responseReceived_(responsePromise_.get_future())
+        {
+        }
 
         /**
          * @brief Called every time a telegram is received
          */
         void handleTelegram(const std::shared_ptr<Telegram>& telegram);
 
-        CommSync* getResponseSync() { return &response_sync; }
+        //! Returns the connection descriptor
+        void resetWaitforMainCd()
+        {
+            mainConnectionDescriptor_ = std::string();
+            // reset promise
+            cdPromise_ = std::promise<void>();
+            cdReceived_ = cdPromise_.get_future();
+        }
 
-        CommSync* getCdSync() { return &cd_sync; }
+        //! Returns the connection descriptor
+        std::string getMainCd()
+        {
+            cdReceived_.wait();
+            return mainConnectionDescriptor_;
+        }
 
-        uint8_t getCdCount() { return cd_count; }
+        //! Resets wait for response
+        void resetWaitForResponse()
+        {
+            // reset promise
+            responsePromise_ = std::promise<void>();
+            responseReceived_ = responsePromise_.get_future();
+        }
 
-        std::string getRxTcpPort() { return rx_tcp_port; }
+        //! Waits for response
+        void waitForResponse() { responseReceived_.wait(); }
 
     private:
         void handleSbf(const std::shared_ptr<Telegram>& telegram);
@@ -143,12 +165,13 @@ namespace io {
         ROSaicNodeBase* node_;
 
         //! MessageParser parser
-        MessageParser message_parser_;
+        // MessageParser messageParser_; //TODO
 
-        CommSync response_sync;
-        CommSync cd_sync;
-        uint8_t cd_count;
-        std::string rx_tcp_port;
+        std::promise<void> cdPromise_;
+        std::future<void> cdReceived_;
+        std::promise<void> responsePromise_;
+        std::future<void> responseReceived_;
+        std::string mainConnectionDescriptor_ = std::string();
     };
 
 } // namespace io
