@@ -139,10 +139,11 @@ namespace io {
         //! Pointer to the node
         ROSaicNodeBase* node_;
         IoType ioInterface_;
-        boost::asio::io_service ioService_;
         std::atomic<bool> running_;
         std::thread ioThread_;
         std::thread watchdogThread_;
+
+        std::array<uint8_t, 1> buf_;
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
         //! Telegram
@@ -155,8 +156,9 @@ namespace io {
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
         node_(node),
-        ioInterface_(node, &ioService_), telegramQueue_(telegramQueue)
+        ioInterface_(node), telegramQueue_(telegramQueue)
     {
+        node_->log(LogLevel::DEBUG, "AsyncManager created.");
     }
 
     template <typename IoType>
@@ -165,7 +167,7 @@ namespace io {
         running_ = false;
         close();
         node_->log(LogLevel::DEBUG, "AsyncManager shutting down threads");
-        ioService_.stop();
+        ioInterface_.ioService_.stop();
         ioThread_.join();
         watchdogThread_.join();
         node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
@@ -176,7 +178,7 @@ namespace io {
     {
         running_ = true;
 
-        if (ioInterface_.connect())
+        if (!ioInterface_.connect())
         {
             return false;
         }
@@ -196,7 +198,8 @@ namespace io {
             return;
         }
 
-        ioService_.post(boost::bind(&AsyncManager<IoType>::write, this, cmd));
+        ioInterface_.ioService_.post(
+            boost::bind(&AsyncManager<IoType>::write, this, cmd));
     }
 
     template <typename IoType>
@@ -210,13 +213,13 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::close()
     {
-        ioService_.post([this]() { ioInterface_.close(); });
+        ioInterface_.ioService_.post([this]() { ioInterface_.close(); });
     }
 
     template <typename IoType>
     void AsyncManager<IoType>::runIoService()
     {
-        ioService_.run();
+        ioInterface_.ioService_.run();
         node_->log(LogLevel::DEBUG, "AsyncManager ioService terminated.");
     }
 
@@ -227,11 +230,11 @@ namespace io {
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
-            if (running_ && ioService_.stopped())
+            if (running_ && ioInterface_.ioService_.stopped())
             {
                 node_->log(LogLevel::DEBUG,
                            "AsyncManager connection lost. Trying to reconnect.");
-                ioService_.reset();
+                ioInterface_.ioService_.reset();
                 ioThread_.join();
                 while (!ioInterface_.connect())
                     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -244,7 +247,7 @@ namespace io {
     void AsyncManager<IoType>::write(const std::string& cmd)
     {
         boost::asio::async_write(
-            ioInterface_.stream_, boost::asio::buffer(cmd.data(), cmd.size()),
+            *(ioInterface_.stream_), boost::asio::buffer(cmd.data(), cmd.size()),
             [this, cmd](boost::system::error_code ec, std::size_t /*length*/) {
                 if (!ec)
                 {
@@ -276,7 +279,7 @@ namespace io {
         static_assert(index < 3);
 
         boost::asio::async_read(
-            ioInterface_.stream_,
+            *(ioInterface_.stream_),
             boost::asio::buffer(telegram_->message.data() + index, 1),
             [this](boost::system::error_code ec, std::size_t numBytes) {
                 Timestamp stamp = node_->getTime();
@@ -430,7 +433,7 @@ namespace io {
         telegram_->message.resize(SBF_HEADER_SIZE);
 
         boost::asio::async_read(
-            ioInterface_.stream_,
+            *(ioInterface_.stream_),
             boost::asio::buffer(telegram_->message.data() + 2, SBF_HEADER_SIZE - 2),
             [this](boost::system::error_code ec, std::size_t numBytes) {
                 if (!ec)
@@ -472,7 +475,7 @@ namespace io {
         telegram_->message.resize(length);
 
         boost::asio::async_read(
-            ioInterface_.stream_,
+            *(ioInterface_.stream_),
             boost::asio::buffer(telegram_->message.data() + SBF_HEADER_SIZE,
                                 length - SBF_HEADER_SIZE),
             [this, length](boost::system::error_code ec, std::size_t numBytes) {
@@ -520,22 +523,21 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::readStringElements()
     {
-        std::array<uint8_t, 1> buf;
-
         boost::asio::async_read(
-            ioInterface_.stream_, boost::asio::buffer(buf.data(), 1),
-            [this, buf](boost::system::error_code ec, std::size_t numBytes) {
+            *(ioInterface_.stream_), boost::asio::buffer(buf_.data(), 1),
+            [this](boost::system::error_code ec, std::size_t numBytes) {
                 if (!ec)
                 {
                     if (numBytes == 1)
                     {
-                        telegram_->message.push_back(buf[0]);
-                        switch (buf[0])
+                        telegram_->message.push_back(buf_[0]);
+
+                        switch (buf_[0])
                         {
                         case SYNC_BYTE_1:
                         {
                             telegram_.reset(new Telegram);
-                            telegram_->message[0] = buf[0];
+                            telegram_->message[0] = buf_[0];
                             telegram_->stamp = node_->getTime();
                             node_->log(
                                 LogLevel::DEBUG,
@@ -561,7 +563,7 @@ namespace io {
                         }
                         default:
                         {
-                            readString();
+                            readStringElements();
                             break;
                         }
                         }

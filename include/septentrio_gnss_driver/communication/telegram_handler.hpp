@@ -131,6 +131,7 @@ namespace io {
         //! Returns the connection descriptor
         void resetWaitforMainCd()
         {
+            cdCtr_ = 0;
             mainConnectionDescriptor_ = std::string();
             // reset promise
             cdPromise_ = std::promise<void>();
@@ -167,6 +168,7 @@ namespace io {
         //! MessageParser parser
         // MessageParser messageParser_; //TODO
 
+        uint8_t cdCtr_ = 0;
         std::promise<void> cdPromise_;
         std::future<void> cdReceived_;
         std::promise<void> responsePromise_;

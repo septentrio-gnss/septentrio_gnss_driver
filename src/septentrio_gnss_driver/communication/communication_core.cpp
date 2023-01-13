@@ -140,18 +140,20 @@ namespace io {
         boost::asio::io_service io;
         boost::posix_time::millisec wait_ms(
             static_cast<uint32_t>(settings_->reconnect_delay_s * 1000));
-        while (running_)
+        if (initializeIo())
         {
-            boost::asio::deadline_timer t(io, wait_ms);
-            if (initializeIo())
+            while (running_)
             {
+                boost::asio::deadline_timer t(io, wait_ms);
+
                 if (manager_->connect())
                 {
                     initializedIo_ = true;
                     break;
                 }
+
+                t.wait();
             }
-            t.wait();
         }
 
         // Sends commands to the Rx regarding which SBF/NMEA messages it should
@@ -253,6 +255,7 @@ namespace io {
                            boost::regex("(tcp)://(.+):(\\d+)"));
         std::string proto(match[1]);
         mainConnectionDescriptor_ = resetMainConnection();
+        node_->log(LogLevel::DEBUG, "Cd: " + mainConnectionDescriptor_);
         if (proto == "tcp")
         {
             // mainConnectionDescriptor_ = manager_->getConnectionDescriptor();

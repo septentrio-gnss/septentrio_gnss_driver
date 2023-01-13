@@ -53,26 +53,19 @@ namespace io {
     class TcpIo
     {
     public:
-        TcpIo(ROSaicNodeBase* node, boost::asio::io_service* ioService) :
-            node_(node), ioService_(ioService), stream_(*ioService_)
-        {
-        }
+        TcpIo(ROSaicNodeBase* node) : node_(node) {}
 
-        ~TcpIo() { stream_.close(); }
+        ~TcpIo() { stream_->close(); }
 
-        void close() { stream_.close(); }
+        void close() { stream_->close(); }
 
         [[nodiscard]] bool connect()
         {
-            if (stream_.is_open())
-            {
-                stream_.close();
-            }
-
             boost::asio::ip::tcp::resolver::iterator endpointIterator;
+
             try
             {
-                boost::asio::ip::tcp::resolver resolver(*ioService_);
+                boost::asio::ip::tcp::resolver resolver(ioService_);
                 boost::asio::ip::tcp::resolver::query query(
                     node_->getSettings()->tcp_ip, node_->getSettings()->tcp_port);
                 endpointIterator = resolver.resolve(query);
@@ -85,11 +78,13 @@ namespace io {
                 return false;
             }
 
+            stream_.reset(new boost::asio::ip::tcp::socket(ioService_));
+
             try
             {
-                stream_.connect(*endpointIterator);
+                stream_->connect(*endpointIterator);
 
-                stream_.set_option(boost::asio::ip::tcp::no_delay(true));
+                stream_->set_option(boost::asio::ip::tcp::no_delay(true));
             } catch (std::runtime_error& e)
             {
                 node_->log(LogLevel::ERROR,
@@ -103,32 +98,30 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-        boost::asio::io_service* ioService_;
 
     public:
-        boost::asio::ip::tcp::socket stream_;
+        boost::asio::io_service ioService_;
+        std::unique_ptr<boost::asio::ip::tcp::socket> stream_;
     };
 
-    class SerialIo
+    struct SerialIo
     {
-    public:
-        SerialIo(ROSaicNodeBase* node, boost::asio::io_service* ioService) :
+        SerialIo(ROSaicNodeBase* node) :
             node_(node), flowcontrol_(node->getSettings()->hw_flow_control),
-            baudrate_(node->getSettings()->baudrate), stream_(*ioService_)
+            baudrate_(node->getSettings()->baudrate)
         {
+            stream_.reset(new boost::asio::serial_port(ioService_));
         }
 
-        ~SerialIo() { stream_.close(); }
+        ~SerialIo() { stream_->close(); }
 
-        void close() { stream_.close(); }
-
-        const boost::asio::serial_port& stream() { return stream_; }
+        void close() { stream_->close(); }
 
         [[nodiscard]] bool connect()
         {
-            if (stream_.is_open())
+            if (stream_->is_open())
             {
-                stream_.close();
+                stream_->close();
             }
 
             bool opened = false;
@@ -137,7 +130,7 @@ namespace io {
             {
                 try
                 {
-                    stream_.open(port_);
+                    stream_->open(port_);
                     opened = true;
                 } catch (const boost::system::system_error& err)
                 {
@@ -152,16 +145,16 @@ namespace io {
             }
 
             // No Parity, 8bits data, 1 stop Bit
-            stream_.set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
-            stream_.set_option(boost::asio::serial_port_base::parity(
+            stream_->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));
+            stream_->set_option(boost::asio::serial_port_base::parity(
                 boost::asio::serial_port_base::parity::none));
-            stream_.set_option(boost::asio::serial_port_base::character_size(8));
-            stream_.set_option(boost::asio::serial_port_base::stop_bits(
+            stream_->set_option(boost::asio::serial_port_base::character_size(8));
+            stream_->set_option(boost::asio::serial_port_base::stop_bits(
                 boost::asio::serial_port_base::stop_bits::one));
-            stream_.set_option(boost::asio::serial_port_base::flow_control(
+            stream_->set_option(boost::asio::serial_port_base::flow_control(
                 boost::asio::serial_port_base::flow_control::none));
 
-            int fd = stream_.native_handle();
+            int fd = stream_->native_handle();
             termios tio;
             // Get terminal attribute, follows the syntax
             // int tcgetattr(int fd, struct termios *termios_p);
@@ -203,10 +196,10 @@ namespace io {
             node_->log(LogLevel::DEBUG, "Initiated current_baudrate object...");
             try
             {
-                stream_.get_option(current_baudrate); // Note that this sets
-                                                      // current_baudrate.value()
-                                                      // often to 115200, since by
-                                                      // default, all Rx COM ports,
+                stream_->get_option(current_baudrate); // Note that this sets
+                                                       // current_baudrate.value()
+                                                       // often to 115200, since by
+                                                       // default, all Rx COM ports,
                 // at least for mosaic Rxs, are set to a baudrate of 115200 baud,
                 // using 8 data-bits, no parity and 1 stop-bit.
             } catch (boost::system::system_error& e)
@@ -220,7 +213,7 @@ namespace io {
                 boost::system::error_code e_loop;
                 do // Caution: Might cause infinite loop..
                 {
-                    stream_.get_option(current_baudrate, e_loop);
+                    stream_->get_option(current_baudrate, e_loop);
                 } while(e_loop);
                 */
                 return false;
@@ -245,7 +238,7 @@ namespace io {
                 // Increment until Baudrate[i] matches current_baudrate.
                 try
                 {
-                    stream_.set_option(
+                    stream_->set_option(
                         boost::asio::serial_port_base::baud_rate(baudrates[i]));
                 } catch (boost::system::system_error& e)
                 {
@@ -261,7 +254,7 @@ namespace io {
 
                 try
                 {
-                    stream_.get_option(current_baudrate);
+                    stream_->get_option(current_baudrate);
                 } catch (boost::system::system_error& e)
                 {
 
@@ -273,7 +266,7 @@ namespace io {
                     boost::system::error_code e_loop;
                     do // Caution: Might cause infinite loop..
                     {
-                        stream_.get_option(current_baudrate, e_loop);
+                        stream_->get_option(current_baudrate, e_loop);
                     } while(e_loop);
                     */
                     return false;
@@ -293,9 +286,9 @@ namespace io {
         std::string flowcontrol_;
         std::string port_;
         uint32_t baudrate_;
-        boost::asio::io_service* ioService_;
 
     public:
-        boost::asio::serial_port stream_;
+        boost::asio::io_service ioService_;
+        std::unique_ptr<boost::asio::serial_port> stream_;
     };
 } // namespace io
