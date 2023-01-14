@@ -255,7 +255,6 @@ namespace io {
                            boost::regex("(tcp)://(.+):(\\d+)"));
         std::string proto(match[1]);
         mainConnectionDescriptor_ = resetMainConnection();
-        node_->log(LogLevel::DEBUG, "Cd: " + mainConnectionDescriptor_);
         if (proto == "tcp")
         {
             // mainConnectionDescriptor_ = manager_->getConnectionDescriptor();
@@ -1023,7 +1022,6 @@ namespace io {
 
     void CommunicationCore::send(const std::string& cmd)
     {
-        telegramHandler_.resetWaitForResponse();
         manager_.get()->send(cmd);
         telegramHandler_.waitForResponse();
     }

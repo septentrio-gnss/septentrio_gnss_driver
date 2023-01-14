@@ -107,6 +107,34 @@
  */
 
 namespace io {
+    class Semaphore
+    {
+    public:
+        Semaphore() : block_(true) {}
+
+        void notify()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            block_ = false;
+            cv_.notify_one();
+        }
+
+        void wait()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            while (block_)
+            {
+                cv_.wait(lock);
+            }
+            block_ = true;
+        }
+
+    private:
+        std::mutex mtx_;
+        std::condition_variable cv_;
+        bool block_;
+    };
+
     /**
      * @class TelegramHandler
      * @brief Represents ensemble of (to be constructed) ROS messages, to be handled
@@ -116,11 +144,7 @@ namespace io {
     {
 
     public:
-        TelegramHandler(ROSaicNodeBase* node) :
-            node_(node), messageParser_(node), cdReceived_(cdPromise_.get_future()),
-            responseReceived_(responsePromise_.get_future())
-        {
-        }
+        TelegramHandler(ROSaicNodeBase* node) : node_(node), messageParser_(node) {}
 
         /**
          * @brief Called every time a telegram is received
@@ -132,28 +156,17 @@ namespace io {
         {
             cdCtr_ = 0;
             mainConnectionDescriptor_ = std::string();
-            // reset promise
-            cdPromise_ = std::promise<void>();
-            cdReceived_ = cdPromise_.get_future();
         }
 
         //! Returns the connection descriptor
         std::string getMainCd()
         {
-            cdReceived_.wait();
+            cdSemaphore_.wait();
             return mainConnectionDescriptor_;
         }
 
-        //! Resets wait for response
-        void resetWaitForResponse()
-        {
-            // reset promise
-            responsePromise_ = std::promise<void>();
-            responseReceived_ = responsePromise_.get_future();
-        }
-
         //! Waits for response
-        void waitForResponse() { responseReceived_.wait(); }
+        void waitForResponse() { responseSemaphore_.wait(); }
 
     private:
         void handleSbf(const std::shared_ptr<Telegram>& telegram);
@@ -168,10 +181,8 @@ namespace io {
         MessageParser messageParser_;
 
         uint8_t cdCtr_ = 0;
-        std::promise<void> cdPromise_;
-        std::future<void> cdReceived_;
-        std::promise<void> responsePromise_;
-        std::future<void> responseReceived_;
+        Semaphore cdSemaphore_;
+        Semaphore responseSemaphore_;
         std::string mainConnectionDescriptor_ = std::string();
     };
 

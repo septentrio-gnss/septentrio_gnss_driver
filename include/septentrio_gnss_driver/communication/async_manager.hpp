@@ -343,9 +343,12 @@ namespace io {
                                 }
                                 default:
                                 {
+                                    std::stringstream ss;
+                                    ss << std::hex << currByte;
                                     node_->log(
                                         LogLevel::DEBUG,
-                                        "AsyncManager sync 1 read fault, should never come here.");
+                                        "AsyncManager sync byte 2 read fault, should never come here.. Received byte was " +
+                                            ss.str());
                                     resync();
                                     break;
                                 }
@@ -389,11 +392,22 @@ namespace io {
                                         resync();
                                     break;
                                 }
+                                case RESPONSE_SYNC_BYTE_3a:
+                                {
+                                    if (telegram_->type == message_type::RESPONSE)
+                                        readString();
+                                    else
+                                        resync();
+                                    break;
+                                }
                                 default:
                                 {
+                                    std::stringstream ss;
+                                    ss << std::hex << currByte;
                                     node_->log(
                                         LogLevel::DEBUG,
-                                        "AsyncManager sync 2 read fault, should never come here.");
+                                        "AsyncManager sync byte 3 read fault, should never come here. Received byte was " +
+                                            ss.str());
                                     resync();
                                     break;
                                 }
@@ -531,6 +545,10 @@ namespace io {
                     if (numBytes == 1)
                     {
                         telegram_->message.push_back(buf_[0]);
+                        /*node_->log(LogLevel::DEBUG,
+                                   "Buffer: " +
+                                       std::string(telegram_->message.begin(),
+                                                   telegram_->message.end()));*/
 
                         switch (buf_[0])
                         {

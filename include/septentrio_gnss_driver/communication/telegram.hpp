@@ -56,6 +56,8 @@ static const uint8_t NMEA_INS_SYNC_BYTE_3 = 0x4E;
 static const uint8_t RESPONSE_SYNC_BYTE_2 = 0x52;
 //! 0x3A is ASCII for : - 3rd byte in the response message from the Rx
 static const uint8_t RESPONSE_SYNC_BYTE_3 = 0x3A;
+//! 0x21 is ASCII for ! 3rd byte in the response message from the Rx
+static const uint8_t RESPONSE_SYNC_BYTE_3a = 0x21;
 //! 0x3F is ASCII for ? - 3rd byte in the response message from the Rx in case the
 //! command was invalid
 static const uint8_t ERROR_SYNC_BYTE_3 = 0x3F;

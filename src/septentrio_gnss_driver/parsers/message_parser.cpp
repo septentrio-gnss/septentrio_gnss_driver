@@ -1778,9 +1778,10 @@ namespace io {
             node_->publishMessage<M>(topic, msg);
         } else
         {
-            node_->log(
+            /*node_->log(
                 LogLevel::DEBUG,
-                "Not publishing message with GNSS time because no leap seconds are available yet.");
+                "Not publishing message with GNSS time because no leap seconds are
+               available yet.");*/
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
                 node_->log(
                     LogLevel::WARN,

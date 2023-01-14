@@ -67,6 +67,11 @@ namespace io {
             handleResponse(telegram);
             break;
         }
+        case message_type::CONNECTION_DESCRIPTOR:
+        {
+            handleCd(telegram);
+            break;
+        }
         default:
         {
             node_->log(LogLevel::DEBUG,
@@ -90,19 +95,16 @@ namespace io {
         std::string block_in_string(telegram->message.begin(),
                                     telegram->message.end());
         tokenizer tokens(block_in_string, sep);
-        node_->log(
+        /*node_->log(
             LogLevel::DEBUG,
             "The NMEA message contains " + std::to_string(block_in_string.size()) +
-                " bytes and is ready to be parsed. It reads: " + *tokens.begin());
+                " bytes and is ready to be parsed. It reads: " + *tokens.begin());*/
     }
 
     void TelegramHandler::handleResponse(const std::shared_ptr<Telegram>& telegram)
     {
         std::string block_in_string(telegram->message.begin(),
                                     telegram->message.end());
-        node_->log(LogLevel::DEBUG, "The Rx's response contains " +
-                                        std::to_string(block_in_string.size()) +
-                                        " bytes and reads:\n " + block_in_string);
 
         if (telegram->type == message_type::ERROR_RESPONSE)
         {
@@ -111,8 +113,20 @@ namespace io {
                 "Invalid command just sent to the Rx! The Rx's response contains " +
                     std::to_string(block_in_string.size()) + " bytes and reads:\n " +
                     block_in_string);
+        } else
+        {
+            node_->log(LogLevel::DEBUG, "The Rx's response contains " +
+                                            std::to_string(block_in_string.size()) +
+                                            " bytes and reads:\n " +
+                                            block_in_string);
         }
-        responsePromise_.set_value();
+        try
+        {
+            responseSemaphore_.notify();
+        } catch (std::exception& e)
+        {
+            node_->log(LogLevel::DEBUG, "handleResponse " + std::string(e.what()));
+        }
     }
 
     void TelegramHandler::handleCd(const std::shared_ptr<Telegram>& telegram)
@@ -120,12 +134,22 @@ namespace io {
         if (cdCtr_ < 2)
         {
             mainConnectionDescriptor_ =
-                std::string(telegram->message.begin(), telegram->message.end());
-            node_->log(LogLevel::INFO,
-                       "The connection descriptor is " + mainConnectionDescriptor_);
+                std::string(telegram->message.begin(), telegram->message.end() - 1);
+
             ++cdCtr_;
             if (cdCtr_ == 2)
-                cdPromise_.set_value();
+            {
+                node_->log(LogLevel::INFO, "The connection descriptor is " +
+                                               mainConnectionDescriptor_);
+                try
+                {
+                    cdSemaphore_.notify();
+                } catch (std::exception& e)
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "handleCd cd " + std::string(e.what()));
+                }
+            }
         }
     }
 } // namespace io

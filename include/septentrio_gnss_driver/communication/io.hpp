@@ -80,11 +80,19 @@ namespace io {
 
             stream_.reset(new boost::asio::ip::tcp::socket(ioService_));
 
+            node_->log(LogLevel::INFO, "Connecting to tcp://" +
+                                           node_->getSettings()->tcp_ip + ":" +
+                                           node_->getSettings()->tcp_port + "...");
+
             try
             {
                 stream_->connect(*endpointIterator);
 
                 stream_->set_option(boost::asio::ip::tcp::no_delay(true));
+
+                node_->log(LogLevel::INFO,
+                           "Connected to " + endpointIterator->host_name() + ":" +
+                               endpointIterator->service_name() + ".");
             } catch (std::runtime_error& e)
             {
                 node_->log(LogLevel::ERROR,
@@ -130,6 +138,11 @@ namespace io {
             {
                 try
                 {
+                    node_->log(LogLevel::INFO,
+                               "Connecting serially to device" +
+                                   node_->getSettings()->device +
+                                   ", targeted baudrate: " +
+                                   std::to_string(node_->getSettings()->baudrate));
                     stream_->open(port_);
                     opened = true;
                 } catch (const boost::system::system_error& err)
