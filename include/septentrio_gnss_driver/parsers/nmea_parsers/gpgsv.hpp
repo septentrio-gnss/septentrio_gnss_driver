@@ -60,7 +60,7 @@
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // Boost and ROS includes
 #include <boost/make_shared.hpp>
 

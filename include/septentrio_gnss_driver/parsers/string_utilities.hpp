@@ -36,7 +36,7 @@
 #include <string>
 
 /**
- * @file string_utilities.h
+ * @file string_utilities.hpp
  * @brief Declares lower-level string utility functions used when parsing messages
  * @date 13/08/20
  */

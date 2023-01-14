@@ -33,7 +33,7 @@
 // ROSaic includes
 // The following imports structs into which SBF blocks can be unpacked then shipped
 // to handler functions
-#include <septentrio_gnss_driver/packed_structs/sbf_structs.hpp>
+#include <septentrio_gnss_driver/parsers/sbf_blocks.hpp>
 // C++ libary includes
 #include <cstdint>
 #include <stdbool.h>
@@ -41,7 +41,7 @@
 
 namespace crc {
     /**
-     * @file crc.h
+     * @file crc.hpp
      * @brief Declares the functions to compute and validate the CRC of a buffer
      * @date 17/08/20
      */

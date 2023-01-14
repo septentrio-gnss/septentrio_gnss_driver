@@ -98,7 +98,7 @@
 // ROSaic includes
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
 #include <septentrio_gnss_driver/communication/telegram.hpp>
-// #include <septentrio_gnss_driver/communication/message_parser.hpp>
+#include <septentrio_gnss_driver/parsers/message_parser.hpp>
 
 /**
  * @file telegram_handler.hpp
@@ -117,8 +117,7 @@ namespace io {
 
     public:
         TelegramHandler(ROSaicNodeBase* node) :
-            node_(node),
-            /*message_parser(node),*/ cdReceived_(cdPromise_.get_future()),
+            node_(node), messageParser_(node), cdReceived_(cdPromise_.get_future()),
             responseReceived_(responsePromise_.get_future())
         {
         }
@@ -166,7 +165,7 @@ namespace io {
         ROSaicNodeBase* node_;
 
         //! MessageParser parser
-        // MessageParser messageParser_; //TODO
+        MessageParser messageParser_;
 
         uint8_t cdCtr_ = 0;
         std::promise<void> cdPromise_;

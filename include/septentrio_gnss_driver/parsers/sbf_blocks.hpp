@@ -142,7 +142,7 @@ struct ChannelStatus
  * @class DOP
  * @brief Struct for the SBF block "DOP"
  */
-struct DOP
+struct Dop
 {
     BlockHeader block_header;
 
@@ -486,7 +486,7 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
  * @brief Qi based parser for the SBF block "DOP"
  */
 template <typename It>
-bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, DOP& msg)
+bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, Dop& msg)
 {
 
     if (!BlockHeaderParser(node, it, msg.block_header))

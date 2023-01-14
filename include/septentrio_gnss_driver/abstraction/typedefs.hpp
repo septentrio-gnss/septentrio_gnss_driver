@@ -81,8 +81,8 @@
 #include <septentrio_gnss_driver/INSNavGeod.h>
 #include <septentrio_gnss_driver/VelSensorSetup.h>
 // Rosaic includes
-#include <septentrio_gnss_driver/communication/settings.h>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/communication/settings.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;

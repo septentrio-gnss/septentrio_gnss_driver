@@ -40,9 +40,46 @@ namespace io {
 
     void TelegramHandler::handleTelegram(const std::shared_ptr<Telegram>& telegram)
     {
+        switch (telegram->type)
+        {
+        case message_type::SBF:
+        {
+            handleSbf(telegram);
+            break;
+        }
+        case message_type::NMEA:
+        {
+            handleNmea(telegram);
+            break;
+        }
+        case message_type::NMEA_INS:
+        {
+            handleNmea(telegram);
+            break;
+        }
+        case message_type::RESPONSE:
+        {
+            handleResponse(telegram);
+            break;
+        }
+        case message_type::ERROR_RESPONSE:
+        {
+            handleResponse(telegram);
+            break;
+        }
+        default:
+        {
+            node_->log(LogLevel::DEBUG,
+                       "TelegramHandler received an unknown message to handle");
+            break;
+        }
+        }
     }
 
-    void TelegramHandler::handleSbf(const std::shared_ptr<Telegram>& telegram) {}
+    void TelegramHandler::handleSbf(const std::shared_ptr<Telegram>& telegram)
+    {
+        messageParser_.parseSbf(telegram);
+    }
 
     void TelegramHandler::handleNmea(const std::shared_ptr<Telegram>& telegram)
     {

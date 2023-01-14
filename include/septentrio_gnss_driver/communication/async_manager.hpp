@@ -64,7 +64,7 @@
 #include <boost/regex.hpp>
 
 // ROSaic includes
-#include <septentrio_gnss_driver/crc/crc.h>
+#include <septentrio_gnss_driver/crc/crc.hpp>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
 // local includes

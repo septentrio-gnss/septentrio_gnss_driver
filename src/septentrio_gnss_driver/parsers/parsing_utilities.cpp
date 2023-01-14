@@ -30,7 +30,7 @@
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // C++ library includes
 #include <limits>
 // Boost

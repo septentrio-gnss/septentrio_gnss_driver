@@ -70,20 +70,18 @@
 #include <boost/tokenizer.hpp>
 // ROSaic includes
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
-#include <septentrio_gnss_driver/crc/crc.h>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
+#include <septentrio_gnss_driver/crc/crc.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gprmc.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 /**
- * @file rx_message.hpp
+ * @file message_parser.hpp
  * @brief Defines a class that reads messages handed over from the circular buffer
  */
-
-extern bool g_read_cd;
-extern uint32_t g_cd_count;
 
 //! Enum for NavSatFix's status.status field, which is obtained from PVTGeodetic's
 //! Mode field
@@ -152,18 +150,12 @@ namespace io {
         }
 
         /**
-         * @brief Put new data
+         * @brief Parse SBF block
          * @param[in] telegram Telegram to be parsed
          */
-        void newData(const Telegram& telegram) {}
-        //! Determines whether data_ points to the NMEA message with ID "ID", e.g.
-        //! "$GPGGA"
-        bool isMessage(std::string ID);
+        void parseSbf(const std::shared_ptr<Telegram>& telegram);
 
-        //! Returns the message ID of the message where data_ is pointing at at the
-        //! moment, SBF identifiers embellished with inverted commas, e.g. "5003"
-        std::string messageID();
-
+    private:
         /**
          * @brief Publishing function
          * @param[in] topic String of topic
@@ -178,7 +170,6 @@ namespace io {
          */
         void publishTf(const LocalizationMsg& msg);
 
-    private:
         /**
          * @brief Pointer to the node
          */
@@ -251,7 +242,7 @@ namespace io {
         /**
          * @brief Since GPSFix needs DOP, incoming DOP blocks need to be stored
          */
-        DOP last_dop_;
+        Dop last_dop_;
 
         /**
          * @brief Since GPSFix needs VelCovGeodetic, incoming VelCovGeodetic blocks
@@ -375,7 +366,7 @@ namespace io {
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(const uint8_t* data, bool use_gnss_time);
+        Timestamp timestampSBF(const std::vector<uint8_t>& data, bool use_gnss_time);
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format

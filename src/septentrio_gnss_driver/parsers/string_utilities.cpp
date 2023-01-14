@@ -29,7 +29,7 @@
 // *****************************************************************************
 
 // ROSaic includes
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // C++ library includes
 #include <cerrno>
 #include <cmath>
