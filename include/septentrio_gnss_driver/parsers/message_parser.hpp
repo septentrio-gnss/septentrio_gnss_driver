@@ -155,6 +155,12 @@ namespace io {
          */
         void parseSbf(const std::shared_ptr<Telegram>& telegram);
 
+        /**
+         * @brief Parse NMEA block
+         * @param[in] telegram Telegram to be parsed
+         */
+        void parseNmea(const std::shared_ptr<Telegram>& telegram);
+
     private:
         /**
          * @brief Publishing function
@@ -184,6 +190,11 @@ namespace io {
          * @brief Timestamp of receiving buffer
          */
         Timestamp recvTimestamp_;
+
+        std::unordered_map<std::string, uint8_t> nmeaMap_{
+            {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPST", 1},  {"$INST", 1},
+            {"$GPRMC", 2}, {"$INRMC", 2}, {"$GPGSA", 3}, {"$INGSA", 3},
+            {"$GAGSV", 4}, {"$INGSV", 4}};
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks

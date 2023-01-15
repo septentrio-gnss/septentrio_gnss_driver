@@ -2751,301 +2751,192 @@ namespace io {
             current_leap_seconds_ = settings_->leap_seconds;
     }
 
-    void parseNMEA()
-    { /*
-     case evGPST:
-     {
-         TimeReferenceMsg msg;
-         Timestamp time_obj =
-             timestampSBF(telegram->message, true); // We need the GPS time, hence
-     true msg.time_ref = timestampToRos(time_obj); msg.source = "GPST";
-         // Wait as long as necessary (only when reading from SBF/PCAP file)
-         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-         {
-             wait(time_obj);
-         }
-         publish<TimeReferenceMsg>("/gpst", msg);
-         break;
-     }
-     case evGPGGA:
-     {
-         boost::char_separator<char> sep("\r");
-         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-         std::size_t nmea_size = this->messageSize();
-         std::string block_in_string(reinterpret_cast<const
-     char*>(telegram->message), nmea_size); tokenizer tokens(block_in_string, sep);
+    void MessageParser::parseNmea(const std::shared_ptr<Telegram>& telegram)
+    {
+        std::string message(telegram->message.begin(), telegram->message.end());
+        boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
+        boost::tokenizer<boost::char_separator<char>> tokens(message, sep_2);
+        std::vector<std::string> body;
+        body.reserve(20);
+        for (boost::tokenizer<boost::char_separator<char>>::iterator tok_iter =
+                 tokens.begin();
+             tok_iter != tokens.end(); ++tok_iter)
+        {
+            body.push_back(*tok_iter);
+        }
 
-         std::string id = this->messageID();
-         std::string one_message = *tokens.begin();
-         // No kept delimiters, hence "". Also, we specify that empty tokens
-         // should show up in the output when two delimiters are next to each
-         // other. Hence we also append the checksum part of the GGA message to
-         // "body" below, though it is not parsed.
-         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
-         tokenizer tokens_2(one_message, sep_2);
-         std::vector<std::string> body;
-         for (tokenizer::iterator tok_iter = tokens_2.begin();
-              tok_iter != tokens_2.end(); ++tok_iter)
-         {
-             body.push_back(*tok_iter);
-         }
-         // Create NmeaSentence struct to pass to GpggaParser::parseASCII
-         NMEASentence gga_message(id, body);
-         GpggaMsg msg;
-         Timestamp time_obj = node_->getTime();
-         GpggaParser parser_obj;
-         try
-         {
-             msg = parser_obj.parseASCII(gga_message, settings_->frame_id,
-                                         settings_->use_gnss_time, time_obj);
-         } catch (ParseException& e)
-         {
-             node_->log(LogLevel::DEBUG, "GpggaMsg: " + std::string(e.what()));
-             break;
-         }
-         // Wait as long as necessary (only when reading from SBF/PCAP file)
-         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-         {
-             Timestamp time_obj = timestampFromRos(msg.header.stamp);
-             wait(time_obj);
-         }
-         publish<GpggaMsg>("/gpgga", msg);
-         break;
-     }
-     case evGPRMC:
-     {
-         Timestamp time_obj = node_->getTime();
+        std::string id(body[0].begin() + 1, body[0].end());
 
-         boost::char_separator<char> sep("\r");
-         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-         std::size_t nmea_size = this->messageSize();
-         std::string block_in_string(reinterpret_cast<const
-     char*>(telegram->message), nmea_size); tokenizer tokens(block_in_string, sep);
+        auto it = nmeaMap_.find(body[0]);
+        if (it != nmeaMap_.end())
+        {
+            switch (it->second)
+            {
+            case 0:
+            {
+                // Create NmeaSentence struct to pass to GpggaParser::parseASCII
+                NMEASentence gga_message(id, body);
+                GpggaMsg msg;
+                GpggaParser parser_obj;
+                try
+                {
+                    msg = parser_obj.parseASCII(gga_message, settings_->frame_id,
+                                                settings_->use_gnss_time,
+                                                telegram->stamp);
+                } catch (ParseException& e)
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "GpggaMsg: " + std::string(e.what()));
+                    break;
+                }
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                    wait(time_obj);
+                }
+                publish<GpggaMsg>("/gpgga", msg);
+                break;
+            }
+            case 1:
+            {
+                TimeReferenceMsg msg;
+                Timestamp time_obj = timestampSBF(
+                    telegram->message, true); // We need the GPS time, hence
+                msg.time_ref = timestampToRos(time_obj);
+                msg.source = "GPST";
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    wait(time_obj);
+                }
+                publish<TimeReferenceMsg>("/gpst", msg);
+                break;
+            }
+            case 2:
+            {
+                // Create NmeaSentence struct to pass to GprmcParser::parseASCII
+                NMEASentence rmc_message(id, body);
+                GprmcMsg msg;
+                GprmcParser parser_obj;
+                try
+                {
+                    msg = parser_obj.parseASCII(rmc_message, settings_->frame_id,
+                                                settings_->use_gnss_time,
+                                                telegram->stamp);
+                } catch (ParseException& e)
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "GprmcMsg: " + std::string(e.what()));
+                    break;
+                }
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                    wait(time_obj);
+                }
+                publish<GprmcMsg>("/gprmc", msg);
+                break;
+            }
+            case 3:
+            {
+                // Create NmeaSentence struct to pass to GpgsaParser::parseASCII
+                NMEASentence gsa_message(id, body);
+                GpgsaMsg msg;
+                GpgsaParser parser_obj;
+                try
+                {
+                    msg = parser_obj.parseASCII(gsa_message, settings_->frame_id,
+                                                settings_->use_gnss_time,
+                                                node_->getTime());
+                } catch (ParseException& e)
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "GpgsaMsg: " + std::string(e.what()));
+                    break;
+                }
+                if (settings_->use_gnss_time)
+                {
+                    if (settings_->septentrio_receiver_type == "gnss")
+                    {
+                        Timestamp time_obj;
+                        time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
+                                                last_pvtgeodetic_.block_header.wnc,
+                                                settings_->use_gnss_time);
+                        msg.header.stamp = timestampToRos(time_obj);
+                    }
+                    if (settings_->septentrio_receiver_type == "ins")
+                    {
+                        Timestamp time_obj;
+                        time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
+                                                last_insnavgeod_.block_header.wnc,
+                                                settings_->use_gnss_time);
+                        msg.header.stamp = timestampToRos(time_obj);
+                    }
+                } else
+                    msg.header.stamp = timestampToRos(telegram->stamp);
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                    wait(time_obj);
+                }
+                publish<GpgsaMsg>("/gpgsa", msg);
+                break;
+            }
+            case 4:
+            {
+                // Create NmeaSentence struct to pass to GpgsvParser::parseASCII
+                NMEASentence gsv_message(id, body);
+                GpgsvMsg msg;
+                GpgsvParser parser_obj;
+                try
+                {
+                    msg = parser_obj.parseASCII(gsv_message, settings_->frame_id,
+                                                settings_->use_gnss_time,
+                                                node_->getTime());
+                } catch (ParseException& e)
+                {
+                    node_->log(LogLevel::DEBUG,
+                               "GpgsvMsg: " + std::string(e.what()));
+                    break;
+                }
+                if (settings_->use_gnss_time)
+                {
 
-         std::string id = this->messageID();
-         std::string one_message = *tokens.begin();
-         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
-         tokenizer tokens_2(one_message, sep_2);
-         std::vector<std::string> body;
-         for (tokenizer::iterator tok_iter = tokens_2.begin();
-              tok_iter != tokens_2.end(); ++tok_iter)
-         {
-             body.push_back(*tok_iter);
-         }
-         // Create NmeaSentence struct to pass to GprmcParser::parseASCII
-         NMEASentence rmc_message(id, body);
-         GprmcMsg msg;
-         GprmcParser parser_obj;
-         try
-         {
-             msg = parser_obj.parseASCII(rmc_message, settings_->frame_id,
-                                         settings_->use_gnss_time, time_obj);
-         } catch (ParseException& e)
-         {
-             node_->log(LogLevel::DEBUG, "GprmcMsg: " + std::string(e.what()));
-             break;
-         }
-         // Wait as long as necessary (only when reading from SBF/PCAP file)
-         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-         {
-             Timestamp time_obj = timestampFromRos(msg.header.stamp);
-             wait(time_obj);
-         }
-         publish<GprmcMsg>("/gprmc", msg);
-         break;
-     }
-     case evGPGSA:
-     {
-         boost::char_separator<char> sep("\r");
-         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-         std::size_t nmea_size = this->messageSize();
-         std::string block_in_string(reinterpret_cast<const
-     char*>(telegram->message), nmea_size); tokenizer tokens(block_in_string, sep);
-
-         std::string id = this->messageID();
-         std::string one_message = *tokens.begin();
-         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
-         tokenizer tokens_2(one_message, sep_2);
-         std::vector<std::string> body;
-         for (tokenizer::iterator tok_iter = tokens_2.begin();
-              tok_iter != tokens_2.end(); ++tok_iter)
-         {
-             body.push_back(*tok_iter);
-         }
-         // Create NmeaSentence struct to pass to GpgsaParser::parseASCII
-         NMEASentence gsa_message(id, body);
-         GpgsaMsg msg;
-         GpgsaParser parser_obj;
-         try
-         {
-             msg = parser_obj.parseASCII(gsa_message, settings_->frame_id,
-                                         settings_->use_gnss_time, node_->getTime());
-         } catch (ParseException& e)
-         {
-             node_->log(LogLevel::DEBUG, "GpgsaMsg: " + std::string(e.what()));
-             break;
-         }
-         if (settings_->septentrio_receiver_type == "gnss")
-         {
-             Timestamp time_obj;
-             time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                     last_pvtgeodetic_.block_header.wnc,
-                                     settings_->use_gnss_time);
-             msg.header.stamp = timestampToRos(time_obj);
-         }
-         if (settings_->septentrio_receiver_type == "ins")
-         {
-             Timestamp time_obj;
-             time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                     last_insnavgeod_.block_header.wnc,
-                                     settings_->use_gnss_time);
-             msg.header.stamp = timestampToRos(time_obj);
-         }
-         // Wait as long as necessary (only when reading from SBF/PCAP file)
-         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-         {
-             Timestamp time_obj = timestampFromRos(msg.header.stamp);
-             wait(time_obj);
-         }
-         publish<GpgsaMsg>("/gpgsa", msg);
-         break;
-     }
-     case evGPGSV:
-     case evGLGSV:
-     case evGAGSV:
-     {
-         boost::char_separator<char> sep("\r");
-         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-         std::size_t nmea_size = this->messageSize();
-         std::string block_in_string(reinterpret_cast<const
-     char*>(telegram->message), nmea_size); tokenizer tokens(block_in_string, sep);
-
-         std::string id = this->messageID();
-         std::string one_message = *tokens.begin();
-         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
-         tokenizer tokens_2(one_message, sep_2);
-         std::vector<std::string> body;
-         for (tokenizer::iterator tok_iter = tokens_2.begin();
-              tok_iter != tokens_2.end(); ++tok_iter)
-         {
-             body.push_back(*tok_iter);
-         }
-         // Create NmeaSentence struct to pass to GpgsvParser::parseASCII
-         NMEASentence gsv_message(id, body);
-         GpgsvMsg msg;
-         GpgsvParser parser_obj;
-         try
-         {
-             msg = parser_obj.parseASCII(gsv_message, settings_->frame_id,
-                                         settings_->use_gnss_time, node_->getTime());
-         } catch (ParseException& e)
-         {
-             node_->log(LogLevel::DEBUG, "GpgsvMsg: " + std::string(e.what()));
-             break;
-         }
-         if (settings_->septentrio_receiver_type == "gnss")
-         {
-             Timestamp time_obj;
-             time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                     last_pvtgeodetic_.block_header.wnc,
-                                     settings_->use_gnss_time);
-             msg.header.stamp = timestampToRos(time_obj);
-         }
-         if (settings_->septentrio_receiver_type == "ins")
-         {
-             Timestamp time_obj;
-             time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                     last_insnavgeod_.block_header.wnc,
-                                     settings_->use_gnss_time);
-             msg.header.stamp = timestampToRos(time_obj);
-         }
-         // Wait as long as necessary (only when reading from SBF/PCAP file)
-         if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-         {
-             Timestamp time_obj = timestampFromRos(msg.header.stamp);
-             wait(time_obj);
-         }
-         publish<GpgsvMsg>("/gpgsv", msg);
-         break;
-     }
-
-         bool MessageParser::gnss_gpsfix_complete(uint32_t id)
-         {
-             std::vector<bool> gpsfix_vec = {channelstatus_has_arrived_gpsfix_,
-                                             measepoch_has_arrived_gpsfix_,
-                                             dop_has_arrived_gpsfix_,
-                                             pvtgeodetic_has_arrived_gpsfix_,
-                                             poscovgeodetic_has_arrived_gpsfix_,
-                                             velcovgeodetic_has_arrived_gpsfix_,
-                                             atteuler_has_arrived_gpsfix_,
-                                             attcoveuler_has_arrived_gpsfix_};
-             return allTrue(gpsfix_vec, id);
-         }
-
-         bool MessageParser::ins_gpsfix_complete(uint32_t id)
-         {
-             std::vector<bool> gpsfix_vec = {
-                 channelstatus_has_arrived_gpsfix_, measepoch_has_arrived_gpsfix_,
-                 dop_has_arrived_gpsfix_, insnavgeod_has_arrived_gpsfix_};
-             return allTrue(gpsfix_vec, id);
-         }
-
-         bool MessageParser::gnss_navsatfix_complete(uint32_t id)
-         {
-             std::vector<bool> navsatfix_vec = {
-                 pvtgeodetic_has_arrived_navsatfix_,
-                 poscovgeodetic_has_arrived_navsatfix_};
-             return allTrue(navsatfix_vec, id);
-         }
-
-         bool MessageParser::ins_navsatfix_complete(uint32_t id)
-         {
-             std::vector<bool> navsatfix_vec = {insnavgeod_has_arrived_navsatfix_};
-             return allTrue(navsatfix_vec, id);
-         }
-
-         bool MessageParser::gnss_pose_complete(uint32_t id)
-         {
-             std::vector<bool> pose_vec = {
-                 pvtgeodetic_has_arrived_pose_, poscovgeodetic_has_arrived_pose_,
-                 atteuler_has_arrived_pose_, attcoveuler_has_arrived_pose_};
-             return allTrue(pose_vec, id);
-         }
-
-         bool MessageParser::ins_pose_complete(uint32_t id)
-         {
-             std::vector<bool> pose_vec = {insnavgeod_has_arrived_pose_};
-             return allTrue(pose_vec, id);
-         }
-
-         bool MessageParser::diagnostics_complete(uint32_t id)
-         {
-             std::vector<bool> diagnostics_vec = {
-                 receiverstatus_has_arrived_diagnostics_,
-                 qualityind_has_arrived_diagnostics_};
-             return allTrue(diagnostics_vec, id);
-         }
-
-         bool MessageParser::ins_localization_complete(uint32_t id)
-         {
-             std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_};
-             return allTrue(loc_vec, id);
-         }
-
-         bool MessageParser::ins_localization_ecef_complete(uint32_t id)
-         {
-             std::vector<bool> loc_vec = {insnavgeod_has_arrived_localization_ecef_,
-                                          insnavcart_has_arrived_localization_ecef_};
-             return allTrue(loc_vec, id);
-         }
-
-         bool MessageParser::allTrue(std::vector<bool> & vec, uint32_t id)
-         {
-             vec.erase(vec.begin() + id);
-             // Checks whether all entries in vec are true
-             return (std::all_of(vec.begin(), vec.end(), [](bool v) { return v; }) ==
-                     true);
-         }*/
+                    if (settings_->septentrio_receiver_type == "gnss")
+                    {
+                        Timestamp time_obj;
+                        time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
+                                                last_pvtgeodetic_.block_header.wnc,
+                                                settings_->use_gnss_time);
+                        msg.header.stamp = timestampToRos(time_obj);
+                    }
+                    if (settings_->septentrio_receiver_type == "ins")
+                    {
+                        Timestamp time_obj;
+                        time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
+                                                last_insnavgeod_.block_header.wnc,
+                                                settings_->use_gnss_time);
+                        msg.header.stamp = timestampToRos(time_obj);
+                    }
+                } else
+                    msg.header.stamp = timestampToRos(telegram->stamp);
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                    wait(time_obj);
+                }
+                publish<GpgsvMsg>("/gpgsv", msg);
+                break;
+            }
+            }
+        } else
+        {
+            node_->log(LogLevel::DEBUG, "Unknown NMEA message: " + body[0]);
+        }
     }
 
 } // namespace io

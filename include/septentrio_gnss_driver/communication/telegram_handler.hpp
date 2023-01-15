@@ -184,6 +184,11 @@ namespace io {
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;
         std::string mainConnectionDescriptor_ = std::string();
+
+        std::unordered_map<std::string, uint8_t> nmeaMap_{
+            {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPST", 1},  {"$INST", 1},
+            {"$GPRMC", 2}, {"$INRMC", 2}, {"$GPGSA", 3}, {"$INGSA", 3},
+            {"$GAGSV", 4}, {"$INGSV", 4}};
     };
 
 } // namespace io

@@ -88,17 +88,11 @@ namespace io {
 
     void TelegramHandler::handleNmea(const std::shared_ptr<Telegram>& telegram)
     {
-        boost::char_separator<char> sep("\r"); // Carriage Return (CR)
-        typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-        // Syntax: new_string_name (const char* s, size_t n); size_t is
-        // either 2 or 8 bytes, depending on your system
-        std::string block_in_string(telegram->message.begin(),
-                                    telegram->message.end());
-        tokenizer tokens(block_in_string, sep);
         /*node_->log(
             LogLevel::DEBUG,
             "The NMEA message contains " + std::to_string(block_in_string.size()) +
                 " bytes and is ready to be parsed. It reads: " + *tokens.begin());*/
+        messageParser_.parseNmea(telegram);
     }
 
     void TelegramHandler::handleResponse(const std::shared_ptr<Telegram>& telegram)
