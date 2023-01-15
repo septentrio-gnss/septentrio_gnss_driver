@@ -366,15 +366,6 @@ namespace io {
                                         resync();
                                     break;
                                 }
-                                case ERROR_SYNC_BYTE_3:
-                                {
-                                    if (telegram_->type ==
-                                        message_type::ERROR_RESPONSE)
-                                        readString();
-                                    else
-                                        resync();
-                                    break;
-                                }
                                 case RESPONSE_SYNC_BYTE_3:
                                 {
                                     if (telegram_->type == message_type::RESPONSE)
@@ -388,6 +379,17 @@ namespace io {
                                     if (telegram_->type == message_type::RESPONSE)
                                         readString();
                                     else
+                                        resync();
+                                    break;
+                                }
+                                case ERROR_SYNC_BYTE_3:
+                                {
+                                    if (telegram_->type == message_type::RESPONSE)
+                                    {
+                                        telegram_->type =
+                                            message_type::ERROR_RESPONSE;
+                                        readString();
+                                    } else
                                         resync();
                                     break;
                                 }

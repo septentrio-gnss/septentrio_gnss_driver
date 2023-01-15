@@ -74,7 +74,7 @@ namespace io {
         }
         case message_type::UNKNOWN:
         {
-            node_->log(LogLevel::DEBUG, "Unhandeled message received " +
+            node_->log(LogLevel::DEBUG, "Unhandeled message received: " +
                                             std::string(telegram->message.begin(),
                                                         telegram->message.end()));
             break;
@@ -95,10 +95,6 @@ namespace io {
 
     void TelegramHandler::handleNmea(const std::shared_ptr<Telegram>& telegram)
     {
-        /*node_->log(
-            LogLevel::DEBUG,
-            "The NMEA message contains " + std::to_string(block_in_string.size()) +
-                " bytes and is ready to be parsed. It reads: " + *tokens.begin());*/
         messageParser_.parseNmea(telegram);
     }
 

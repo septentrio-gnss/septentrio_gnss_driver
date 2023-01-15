@@ -2197,7 +2197,6 @@ namespace io {
 
         case EXT_SENSOR_MEAS:
         {
-
             bool hasImuMeas = false;
             if (!ExtSensorMeasParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_extsensmeas_,
