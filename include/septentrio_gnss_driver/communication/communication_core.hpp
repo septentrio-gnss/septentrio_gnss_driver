@@ -61,15 +61,10 @@
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
-#include <boost/bind.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/exception/diagnostic_information.hpp> // dealing with bad file descriptor error
-#include <boost/function.hpp>
 // C++ library includes
 #include <fstream>
 #include <memory>
 #include <sstream>
-#include <unistd.h> // for usleep()
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
 #include <septentrio_gnss_driver/communication/telegram_handler.hpp>

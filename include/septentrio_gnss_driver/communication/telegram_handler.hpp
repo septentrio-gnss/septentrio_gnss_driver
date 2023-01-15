@@ -59,41 +59,7 @@
 #pragma once
 
 // C++ includes
-#include <algorithm>
-#include <future>
-
-// Boost includes
-#include <boost/foreach.hpp>
-// In C++, writing a loop that iterates over a sequence is tedious -->
-// BOOST_FOREACH(char ch, "Hello World")
-#include <boost/function.hpp>
-// E.g. boost::function<int(const char*)> f = std::atoi;defines a pointer f that can
-// point to functions that expect a parameter of type const char* and return a value
-// of type int Generally, any place in which a function pointer would be used to
-// defer a call or make a callback, Boost.Function can be used instead to allow the
-// user greater flexibility in the implementation of the target.
-#include <boost/thread.hpp>
-// Boost's thread enables the use of multiple threads of execution with shared data
-// in portable C++ code. It provides classes and functions for managing the threads
-// themselves, along with others for synchronizing data between the threads or
-// providing separate copies of data specific to individual threads.
-#include <boost/thread/condition.hpp>
-#include <boost/tokenizer.hpp>
-// The tokenizer class provides a container view of a series of tokens contained in a
-// sequence, e.g. if you are not interested in non-words...
-#include <boost/algorithm/string/join.hpp>
-// Join algorithm is a counterpart to split algorithms. It joins strings from a
-// 'list' by adding user defined separator.
-#include <boost/date_time/posix_time/posix_time.hpp>
-// The class boost::posix_time::ptime that we will use defines a location-independent
-// time. It uses the type boost::gregorian::date, yet also stores a time.
-#include <boost/asio.hpp>
-// Boost.Asio may be used to perform both synchronous and asynchronous operations on
-// I/O objects such as sockets.
-#include <boost/asio/serial_port.hpp>
-#include <boost/bind.hpp>
-#include <boost/format.hpp>
-#include <boost/thread/mutex.hpp>
+#include <condition_variable>
 
 // ROSaic includes
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
@@ -184,11 +150,6 @@ namespace io {
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;
         std::string mainConnectionDescriptor_ = std::string();
-
-        std::unordered_map<std::string, uint8_t> nmeaMap_{
-            {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPST", 1},  {"$INST", 1},
-            {"$GPRMC", 2}, {"$INRMC", 2}, {"$GPGSA", 3}, {"$INGSA", 3},
-            {"$GAGSV", 4}, {"$INGSV", 4}};
     };
 
 } // namespace io
