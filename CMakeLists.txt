@@ -31,7 +31,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED) # bug with 1.71: spirit is not found ... COMPONENTS system thread regex spirit)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
-find_package(TBB REQUIRED)
 
 ## For PCAP file handling
 find_library(libpcap_LIBRARIES pcap)
@@ -167,7 +166,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${GeographicLib_INCLUDE_DIRS}
-  ${TBB_INCLUDE_DIRS}
 )
 
 ## Add cmake target dependencies of the library
@@ -210,7 +208,6 @@ target_link_libraries(${PROJECT_NAME}_node
    ${Boost_LIBRARIES} 
    ${libpcap_LIBRARIES}
    ${GeographicLib_LIBRARIES}
-   tbb
 )
 
 #############

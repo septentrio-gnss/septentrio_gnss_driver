@@ -31,11 +31,11 @@
 #pragma once
 
 // C++
+#include <condition_variable>
 #include <cstdint>
+#include <mutex>
+#include <queue>
 #include <vector>
-
-// TBB
-#include <tbb/concurrent_queue.h>
 
 // ROSaic
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
@@ -114,4 +114,52 @@ struct Telegram
     }
 };
 
-typedef tbb::concurrent_bounded_queue<std::shared_ptr<Telegram>> TelegramQueue;
+template <typename T>
+class ConcurrentQueue
+{
+public:
+    [[nodiscard]] bool empty() const noexcept;
+    [[nodiscard]] size_t size() const noexcept;
+    void push(const T& input) noexcept;
+    void pop(T& output) noexcept;
+
+private:
+    std::queue<T> queue_;
+    std::condition_variable cond_;
+    std::mutex mtx_;
+};
+
+template <typename T>
+[[nodiscard]] bool ConcurrentQueue<T>::empty() const noexcept
+{
+    std::lock_guard<std::mutex> lck(mtx_);
+    return queue_.empty();
+}
+
+template <typename T>
+[[nodiscard]] size_t ConcurrentQueue<T>::size() const noexcept
+{
+    std::lock_guard<std::mutex> lck(mtx_);
+    return queue_.size();
+}
+
+template <typename T>
+void ConcurrentQueue<T>::push(const T& input) noexcept
+{
+    {
+        std::lock_guard<std::mutex> lck(mtx_);
+        queue_.push(input);
+    }
+    cond_.notify_one();
+}
+
+template <typename T>
+void ConcurrentQueue<T>::pop(T& output) noexcept
+{
+    std::unique_lock<std::mutex> lck(mtx_);
+    cond_.wait(lck, [this] { return !queue_.empty(); });
+    output = queue_.front();
+    queue_.pop();
+}
+
+typedef ConcurrentQueue<std::shared_ptr<Telegram>> TelegramQueue;
