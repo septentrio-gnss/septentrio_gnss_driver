@@ -132,7 +132,7 @@ namespace io {
         void readSync();
         void readSbfHeader();
         void readSbf(std::size_t length);
-        void readCd();
+        void readUnknown();
         void readString();
         void readStringElements();
 
@@ -300,17 +300,8 @@ namespace io {
                             {
                             case 0:
                             {
-                                if ((currByte == CONNECTION_DESCRIPTOR_BYTE_I) ||
-                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_C) ||
-                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_U) ||
-                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_N) ||
-                                    (currByte == CONNECTION_DESCRIPTOR_BYTE_D))
-                                {
-                                    telegram_->type =
-                                        message_type::CONNECTION_DESCRIPTOR;
-                                    readCd();
-                                } else
-                                    readSync<0>();
+                                telegram_->type = message_type::UNKNOWN;
+                                readUnknown();
                                 break;
                             }
                             case 1:
@@ -503,7 +494,10 @@ namespace io {
                                 parsing_utilities::getId(telegram_->message.data());
 
                             telegramQueue_->push(telegram_);
-                        }
+                        } else
+                            node_->log(LogLevel::DEBUG,
+                                       "AsyncManager crc failed for SBF  " +
+                                           std::to_string(telegram_->sbfId) + ".");
                     } else
                     {
                         node_->log(
@@ -521,7 +515,7 @@ namespace io {
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::readCd()
+    void AsyncManager<IoType>::readUnknown()
     {
         telegram_->message.resize(1);
         readStringElements();
@@ -559,7 +553,7 @@ namespace io {
                             telegram_->stamp = node_->getTime();
                             node_->log(
                                 LogLevel::DEBUG,
-                                "AsyncManager string read fault, sync 0 found.");
+                                "AsyncManager string read fault, sync 1 found.");
                             readSync<1>();
                             break;
                         }
@@ -568,14 +562,19 @@ namespace io {
                             if (telegram_->message[telegram_->message.size() - 2] ==
                                 CR)
                                 telegramQueue_->push(telegram_);
+                            else
+                                node_->log(
+                                    LogLevel::DEBUG,
+                                    "LF wo CR: " +
+                                        std::string(telegram_->message.begin(),
+                                                    telegram_->message.end()));
                             resync();
                             break;
                         }
                         case CONNECTION_DESCRIPTOR_FOOTER:
                         {
-                            if (telegram_->type ==
-                                message_type::CONNECTION_DESCRIPTOR)
-                                telegramQueue_->push(telegram_);
+                            telegram_->type = message_type::CONNECTION_DESCRIPTOR;
+                            telegramQueue_->push(telegram_);
                             resync();
                             break;
                         }

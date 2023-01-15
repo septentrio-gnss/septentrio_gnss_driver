@@ -95,7 +95,8 @@ namespace message_type {
         NMEA_INS,
         RESPONSE,
         ERROR_RESPONSE,
-        CONNECTION_DESCRIPTOR
+        CONNECTION_DESCRIPTOR,
+        UNKNOWN
     };
 }
 

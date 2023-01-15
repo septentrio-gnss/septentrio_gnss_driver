@@ -2754,6 +2754,10 @@ namespace io {
     void MessageParser::parseNmea(const std::shared_ptr<Telegram>& telegram)
     {
         std::string message(telegram->message.begin(), telegram->message.end());
+        /*node_->log(
+          LogLevel::DEBUG,
+          "The NMEA message contains " + std::to_string(message.size()) +
+              " bytes and is ready to be parsed. It reads: " + message);*/
         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
         boost::tokenizer<boost::char_separator<char>> tokens(message, sep_2);
         std::vector<std::string> body;

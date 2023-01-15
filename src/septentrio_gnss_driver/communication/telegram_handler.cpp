@@ -72,10 +72,17 @@ namespace io {
             handleCd(telegram);
             break;
         }
+        case message_type::UNKNOWN:
+        {
+            node_->log(LogLevel::DEBUG, "Unhandeled message received " +
+                                            std::string(telegram->message.begin(),
+                                                        telegram->message.end()));
+            break;
+        }
         default:
         {
             node_->log(LogLevel::DEBUG,
-                       "TelegramHandler received an unknown message to handle");
+                       "TelegramHandler received an invalid message to handle");
             break;
         }
         }
