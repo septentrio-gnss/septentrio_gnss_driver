@@ -117,13 +117,7 @@ namespace io {
                                             " bytes and reads:\n " +
                                             block_in_string);
         }
-        try
-        {
-            responseSemaphore_.notify();
-        } catch (std::exception& e)
-        {
-            node_->log(LogLevel::DEBUG, "handleResponse " + std::string(e.what()));
-        }
+        responseSemaphore_.notify();
     }
 
     void TelegramHandler::handleCd(const std::shared_ptr<Telegram>& telegram)
@@ -138,14 +132,8 @@ namespace io {
             {
                 node_->log(LogLevel::INFO, "The connection descriptor is " +
                                                mainConnectionDescriptor_);
-                try
-                {
-                    cdSemaphore_.notify();
-                } catch (std::exception& e)
-                {
-                    node_->log(LogLevel::DEBUG,
-                               "handleCd cd " + std::string(e.what()));
-                }
+
+                cdSemaphore_.notify();
             }
         }
     }

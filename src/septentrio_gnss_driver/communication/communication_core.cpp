@@ -269,6 +269,8 @@ namespace io {
             send("lif, Identification \x0D");
         }
 
+        node_->log(LogLevel::INFO, "Setting up Rx.");
+
         std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
             settings_->polling_period_pvt);
 
@@ -846,7 +848,9 @@ namespace io {
                 nmeaActivated_ = true;
             }
         }
+
         node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
+        node_->log(LogLevel::INFO, "Setup complete.");
     }
 
     void CommunicationCore::sendVelocity(const std::string& velNmea)

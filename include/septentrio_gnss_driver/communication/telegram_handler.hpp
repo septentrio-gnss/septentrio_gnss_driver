@@ -120,7 +120,7 @@ namespace io {
         //! Returns the connection descriptor
         void resetWaitforMainCd()
         {
-            cdCtr_ = 0;
+            cdCtr_ = 1; // Cd is sent twice only after startup
             mainConnectionDescriptor_ = std::string();
         }
 
