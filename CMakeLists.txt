@@ -4,6 +4,15 @@ project(septentrio_gnss_driver)
 ## Compile as C++14, supported in ROS Melodic and newer
 add_compile_options(-std=c++14)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+message(STATUS "Setting build type to Release as none was specified.")
+set(CMAKE_BUILD_TYPE "Release" CACHE
+    STRING "Choose the type of build." FORCE)
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages

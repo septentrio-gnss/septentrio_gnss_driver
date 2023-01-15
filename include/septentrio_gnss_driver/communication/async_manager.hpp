@@ -360,7 +360,7 @@ namespace io {
                                 }
                                 case NMEA_INS_SYNC_BYTE_3:
                                 {
-                                    if (telegram_->type == message_type::NMEA)
+                                    if (telegram_->type == message_type::NMEA_INS)
                                         readString();
                                     else
                                         resync();

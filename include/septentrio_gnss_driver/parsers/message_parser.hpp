@@ -192,9 +192,8 @@ namespace io {
         Timestamp recvTimestamp_;
 
         std::unordered_map<std::string, uint8_t> nmeaMap_{
-            {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPST", 1},  {"$INST", 1},
-            {"$GPRMC", 2}, {"$INRMC", 2}, {"$GPGSA", 3}, {"$INGSA", 3},
-            {"$GAGSV", 4}, {"$INGSV", 4}};
+            {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPRMC", 1}, {"$INRMC", 1},
+            {"$GPGSA", 2}, {"$INGSA", 2}, {"$GAGSV", 3}, {"$INGSV", 3}};
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks

@@ -449,7 +449,7 @@ namespace io {
 
         // Setting up NMEA streams
         {
-            send("snti, GP\x0D");
+            // send("snti, GP\x0D");
 
             std::stringstream blocks;
             if (settings_->publish_gpgga)

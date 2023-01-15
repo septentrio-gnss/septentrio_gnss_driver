@@ -1834,8 +1834,7 @@ namespace io {
             if (!PVTCartesianParser(node_, telegram->message.begin(),
                                     telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in PVTCartesian");
+                node_->log(LogLevel::ERROR, "parse error in PVTCartesian");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1856,8 +1855,7 @@ namespace io {
             if (!PVTGeodeticParser(node_, telegram->message.begin(),
                                    telegram->message.end(), last_pvtgeodetic_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in PVTGeodetic");
+                node_->log(LogLevel::ERROR, "parse error in PVTGeodetic");
                 break;
             }
             last_pvtgeodetic_.header.frame_id = settings_->frame_id;
@@ -1880,8 +1878,7 @@ namespace io {
             if (!BaseVectorCartParser(node_, telegram->message.begin(),
                                       telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in BaseVectorCart");
+                node_->log(LogLevel::ERROR, "parse error in BaseVectorCart");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1903,8 +1900,7 @@ namespace io {
             if (!BaseVectorGeodParser(node_, telegram->message.begin(),
                                       telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in BaseVectorGeod");
+                node_->log(LogLevel::ERROR, "parse error in BaseVectorGeod");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1926,8 +1922,7 @@ namespace io {
             if (!PosCovCartesianParser(node_, telegram->message.begin(),
                                        telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in PosCovCartesian");
+                node_->log(LogLevel::ERROR, "parse error in PosCovCartesian");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1948,8 +1943,7 @@ namespace io {
             if (!PosCovGeodeticParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_poscovgeodetic_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in PosCovGeodetic");
+                node_->log(LogLevel::ERROR, "parse error in PosCovGeodetic");
                 break;
             }
             last_poscovgeodetic_.header.frame_id = settings_->frame_id;
@@ -1972,8 +1966,7 @@ namespace io {
                                 telegram->message.end(), last_atteuler_,
                                 settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in AttEuler");
+                node_->log(LogLevel::ERROR, "parse error in AttEuler");
                 break;
             }
             last_atteuler_.header.frame_id = settings_->frame_id;
@@ -1996,8 +1989,7 @@ namespace io {
                                    telegram->message.end(), last_attcoveuler_,
                                    settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in AttCovEuler");
+                node_->log(LogLevel::ERROR, "parse error in AttCovEuler");
                 break;
             }
             last_attcoveuler_.header.frame_id = settings_->frame_id;
@@ -2021,8 +2013,7 @@ namespace io {
                                   telegram->message.end(), last_insnavcart_,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in INSNavCart");
+                node_->log(LogLevel::ERROR, "parse error in INSNavCart");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2051,8 +2042,7 @@ namespace io {
                                   telegram->message.end(), last_insnavgeod_,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in INSNavGeod");
+                node_->log(LogLevel::ERROR, "parse error in INSNavGeod");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2088,8 +2078,7 @@ namespace io {
                                 telegram->message.end(), msg,
                                 settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in IMUSetup");
+                node_->log(LogLevel::ERROR, "parse error in IMUSetup");
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
@@ -2113,8 +2102,7 @@ namespace io {
                                       telegram->message.end(), msg,
                                       settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in VelSensorSetup");
+                node_->log(LogLevel::ERROR, "parse error in VelSensorSetup");
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
@@ -2139,9 +2127,7 @@ namespace io {
                                   telegram->message.end(), msg,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(
-                    LogLevel::ERROR,
-                    "septentrio_gnss_driver: parse error in ExtEventINSNavCart");
+                node_->log(LogLevel::ERROR, "parse error in ExtEventINSNavCart");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2171,9 +2157,7 @@ namespace io {
                                   telegram->message.end(), msg,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(
-                    LogLevel::ERROR,
-                    "septentrio_gnss_driver: parse error in ExtEventINSNavGeod");
+                node_->log(LogLevel::ERROR, "parse error in ExtEventINSNavGeod");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2203,8 +2187,7 @@ namespace io {
                                      settings_->use_ros_axis_orientation,
                                      hasImuMeas))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in ExtSensorMeas");
+                node_->log(LogLevel::ERROR, "parse error in ExtSensorMeas");
                 break;
             }
             last_extsensmeas_.header.frame_id = settings_->imu_frame_id;
@@ -2241,8 +2224,7 @@ namespace io {
             if (!ChannelStatusParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_channelstatus_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in ChannelStatus");
+                node_->log(LogLevel::ERROR, "parse error in ChannelStatus");
                 break;
             }
             break;
@@ -2253,8 +2235,7 @@ namespace io {
             if (!MeasEpochParser(node_, telegram->message.begin(),
                                  telegram->message.end(), last_measepoch_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in MeasEpoch");
+                node_->log(LogLevel::ERROR, "parse error in MeasEpoch");
                 break;
             }
             last_measepoch_.header.frame_id = settings_->frame_id;
@@ -2271,8 +2252,7 @@ namespace io {
             if (!DOPParser(node_, telegram->message.begin(), telegram->message.end(),
                            last_dop_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in DOP");
+                node_->log(LogLevel::ERROR, "parse error in DOP");
                 break;
             }
             break;
@@ -2283,8 +2263,7 @@ namespace io {
             if (!VelCovGeodeticParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_velcovgeodetic_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in VelCovGeodetic");
+                node_->log(LogLevel::ERROR, "parse error in VelCovGeodetic");
                 break;
             }
             last_velcovgeodetic_.header.frame_id = settings_->frame_id;
@@ -2311,8 +2290,7 @@ namespace io {
             if (!ReceiverStatusParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_receiverstatus_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in ReceiverStatus");
+                node_->log(LogLevel::ERROR, "parse error in ReceiverStatus");
                 break;
             }
             break;
@@ -2323,8 +2301,7 @@ namespace io {
             if (!QualityIndParser(node_, telegram->message.begin(),
                                   telegram->message.end(), last_qualityind_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in QualityInd");
+                node_->log(LogLevel::ERROR, "parse error in QualityInd");
                 break;
             }
             break;
@@ -2334,10 +2311,12 @@ namespace io {
             if (!ReceiverSetupParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_receiversetup_))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in ReceiverSetup");
+                node_->log(LogLevel::ERROR, "parse error in ReceiverSetup");
                 break;
             }
+            node_->log(LogLevel::DEBUG,
+                       "receiver setup firmware: " + last_receiversetup_.rx_version);
+
             static int32_t ins_major = 1;
             static int32_t ins_minor = 3;
             static int32_t ins_patch = 2;
@@ -2356,9 +2335,7 @@ namespace io {
             }
             if (major_minor_patch.size() < 3)
             {
-                node_->log(
-                    LogLevel::ERROR,
-                    "septentrio_gnss_driver: parse error of firmware version.");
+                node_->log(LogLevel::ERROR, "parse error of firmware version.");
             } else
             {
                 if ((settings_->septentrio_receiver_type == "ins") ||
@@ -2416,8 +2393,7 @@ namespace io {
             if (!ReceiverTimeParser(node_, telegram->message.begin(),
                                     telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR,
-                           "septentrio_gnss_driver: parse error in ReceiverTime");
+                node_->log(LogLevel::ERROR, "parse error in ReceiverTime");
                 break;
             }
             current_leap_seconds_ = msg.delta_ls;
@@ -2435,6 +2411,22 @@ namespace io {
     void processjointMessages()
     {
         /*
+
+            case 1:
+            {
+                TimeReferenceMsg msg;
+                Timestamp time_obj = timestampSBF(
+                    telegram->message, true); // We need the GPS time, hence
+                msg.time_ref = timestampToRos(time_obj);
+                msg.source = "GPST";
+                // Wait as long as necessary (only when reading from SBF/PCAP file)
+                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+                {
+                    wait(time_obj);
+                }
+                publish<TimeReferenceMsg>("/gpst", msg);
+                break;
+            }
             case evDiagnosticArray:
             {
                 DiagnosticArrayMsg msg;
@@ -2803,21 +2795,6 @@ namespace io {
             }
             case 1:
             {
-                TimeReferenceMsg msg;
-                Timestamp time_obj = timestampSBF(
-                    telegram->message, true); // We need the GPS time, hence
-                msg.time_ref = timestampToRos(time_obj);
-                msg.source = "GPST";
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    wait(time_obj);
-                }
-                publish<TimeReferenceMsg>("/gpst", msg);
-                break;
-            }
-            case 2:
-            {
                 // Create NmeaSentence struct to pass to GprmcParser::parseASCII
                 NMEASentence rmc_message(id, body);
                 GprmcMsg msg;
@@ -2842,7 +2819,7 @@ namespace io {
                 publish<GprmcMsg>("/gprmc", msg);
                 break;
             }
-            case 3:
+            case 2:
             {
                 // Create NmeaSentence struct to pass to GpgsaParser::parseASCII
                 NMEASentence gsa_message(id, body);
