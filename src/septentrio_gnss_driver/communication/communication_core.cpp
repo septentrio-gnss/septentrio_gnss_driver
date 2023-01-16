@@ -34,7 +34,6 @@
 // Boost includes
 #include <boost/regex.hpp>
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
-#include <septentrio_gnss_driver/communication/pcap_reader.hpp>
 
 static const int16_t ANGLE_MAX = 180;
 static const int16_t ANGLE_MIN = -180;
@@ -60,7 +59,7 @@ static const int8_t POSSTD_DEV_MAX = 100;
 namespace io {
 
     CommunicationCore::CommunicationCore(ROSaicNodeBase* node) :
-        node_(node), settings_(node->getSettings()), telegramHandler_(node),
+        node_(node), settings_(node->settings()), telegramHandler_(node),
         running_(true)
     {
         running_ = true;
@@ -196,9 +195,8 @@ namespace io {
         {
             settings_->read_from_sbf_log = true;
             settings_->use_gnss_time = true;
-            // connectionThread_ = boost::thread(
-            //     boost::bind(&CommunicationCore::prepareSBFFileReading, this,
-            //     match[2]));
+            settings_->device = match[2];
+            manager_.reset(new AsyncManager<SbfFileIo>(node_, &telegramQueue_));
 
         } else if (boost::regex_match(
                        settings_->device, match,
@@ -206,10 +204,8 @@ namespace io {
         {
             settings_->read_from_pcap = true;
             settings_->use_gnss_time = true;
-            // connectionThread_ = boost::thread(
-            //   boost::bind(&CommunicationCore::preparePCAPFileReading, this,
-            //   match[2]));
-
+            settings_->device = match[2];
+            manager_.reset(new AsyncManager<PcapFileIo>(node_, &telegramQueue_));
         } else if (boost::regex_match(settings_->device, match,
                                       boost::regex("(serial):(.+)")))
         {
@@ -306,177 +302,6 @@ namespace io {
                 settings_->datum = "WGS84";
             ss << "sgd, " << settings_->datum << "\x0D";
             send(ss.str());
-        }
-
-        // Setting up SBF blocks with rx_period_pvt
-        {
-            std::stringstream blocks;
-            if (settings_->use_gnss_time)
-            {
-                blocks << " +ReceiverTime";
-            }
-            if (settings_->publish_pvtcartesian)
-            {
-                blocks << " +PVTCartesian";
-            }
-            if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
-                (settings_->publish_navsatfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +PVTGeodetic";
-            }
-            if (settings_->publish_basevectorcart)
-            {
-                blocks << " +BaseVectorCart";
-            }
-            if (settings_->publish_basevectorgeod)
-            {
-                blocks << " +BaseVectorGeod";
-            }
-            if (settings_->publish_poscovcartesian)
-            {
-                blocks << " +PosCovCartesian";
-            }
-            if (settings_->publish_poscovgeodetic ||
-                (settings_->publish_navsatfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +PosCovGeodetic";
-            }
-            if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +VelCovGeodetic";
-            }
-            if (settings_->publish_atteuler ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +AttEuler";
-            }
-            if (settings_->publish_attcoveuler ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +AttCovEuler";
-            }
-            if (settings_->publish_measepoch || settings_->publish_gpsfix)
-            {
-                blocks << " +MeasEpoch";
-            }
-            if (settings_->publish_gpsfix)
-            {
-                blocks << " +ChannelStatus +DOP";
-            }
-            // Setting SBF output of Rx depending on the receiver type
-            // If INS then...
-            if (settings_->septentrio_receiver_type == "ins")
-            {
-                if (settings_->publish_insnavcart ||
-                    settings_->publish_localization_ecef ||
-                    settings_->publish_tf_ecef)
-                {
-                    blocks << " +INSNavCart";
-                }
-                if (settings_->publish_insnavgeod || settings_->publish_navsatfix ||
-                    settings_->publish_gpsfix || settings_->publish_pose ||
-                    settings_->publish_imu || settings_->publish_localization ||
-                    settings_->publish_tf || settings_->publish_twist ||
-                    settings_->publish_localization_ecef ||
-                    settings_->publish_tf_ecef)
-                {
-                    blocks << " +INSNavGeod";
-                }
-                if (settings_->publish_exteventinsnavgeod)
-                {
-                    blocks << " +ExtEventINSNavGeod";
-                }
-                if (settings_->publish_exteventinsnavcart)
-                {
-                    blocks << " +ExtEventINSNavCart";
-                }
-                if (settings_->publish_extsensormeas || settings_->publish_imu)
-                {
-                    blocks << " +ExtSensorMeas";
-                }
-            }
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << pvt_interval << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-        // Setting up SBF blocks with rx_period_rest
-        {
-            std::stringstream blocks;
-            if (settings_->septentrio_receiver_type == "ins")
-            {
-                if (settings_->publish_imusetup)
-                {
-                    blocks << " +IMUSetup";
-                }
-                if (settings_->publish_velsensorsetup)
-                {
-                    blocks << " +VelSensorSetup";
-                }
-            }
-            if (settings_->publish_diagnostics)
-            {
-                blocks << " +ReceiverStatus +QualityInd";
-            }
-
-            blocks << " +ReceiverSetup";
-
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << rest_interval << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-
-        // Setting up NMEA streams
-        {
-            // send("snti, GP\x0D");
-
-            std::stringstream blocks;
-            if (settings_->publish_gpgga)
-            {
-                blocks << " +GGA";
-            }
-            if (settings_->publish_gprmc)
-            {
-                blocks << " +RMC";
-            }
-            if (settings_->publish_gpgsa)
-            {
-                blocks << " +GSA";
-            }
-            if (settings_->publish_gpgsv)
-            {
-                blocks << " +GSV";
-            }
-
-            std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << pvt_interval << "\x0D";
-            send(ss.str());
-            ++stream;
         }
 
         if ((settings_->septentrio_receiver_type == "ins") ||
@@ -822,6 +647,178 @@ namespace io {
             }
         }
 
+        // Setting up SBF blocks with rx_period_rest
+        {
+            std::stringstream blocks;
+            if (settings_->septentrio_receiver_type == "ins")
+            {
+                if (settings_->publish_imusetup)
+                {
+                    blocks << " +IMUSetup";
+                }
+                if (settings_->publish_velsensorsetup)
+                {
+                    blocks << " +VelSensorSetup";
+                }
+            }
+            if (settings_->publish_diagnostics)
+            {
+                blocks << " +ReceiverStatus +QualityInd";
+            }
+
+            blocks << " +ReceiverSetup";
+
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << rest_interval << "\x0D";
+            send(ss.str());
+            ++stream;
+        }
+
+        // Setting up NMEA streams
+        {
+            // send("snti, GP\x0D");
+
+            std::stringstream blocks;
+            if (settings_->publish_gpgga)
+            {
+                blocks << " +GGA";
+            }
+            if (settings_->publish_gprmc)
+            {
+                blocks << " +RMC";
+            }
+            if (settings_->publish_gpgsa)
+            {
+                blocks << " +GSA";
+            }
+            if (settings_->publish_gpgsv)
+            {
+                blocks << " +GSV";
+            }
+
+            std::stringstream ss;
+            ss << "sno, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << pvt_interval << "\x0D";
+            send(ss.str());
+            ++stream;
+        }
+
+        // Setting up SBF blocks with rx_period_pvt
+        {
+            std::stringstream blocks;
+            if (settings_->use_gnss_time)
+            {
+                blocks << " +ReceiverTime";
+            }
+            if (settings_->publish_pvtcartesian)
+            {
+                blocks << " +PVTCartesian";
+            }
+            if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
+                (settings_->publish_navsatfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_gpsfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_pose &&
+                 (settings_->septentrio_receiver_type == "gnss")))
+            {
+                blocks << " +PVTGeodetic";
+            }
+            if (settings_->publish_basevectorcart)
+            {
+                blocks << " +BaseVectorCart";
+            }
+            if (settings_->publish_basevectorgeod)
+            {
+                blocks << " +BaseVectorGeod";
+            }
+            if (settings_->publish_poscovcartesian)
+            {
+                blocks << " +PosCovCartesian";
+            }
+            if (settings_->publish_poscovgeodetic ||
+                (settings_->publish_navsatfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_gpsfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_pose &&
+                 (settings_->septentrio_receiver_type == "gnss")))
+            {
+                blocks << " +PosCovGeodetic";
+            }
+            if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
+                (settings_->publish_gpsfix &&
+                 (settings_->septentrio_receiver_type == "gnss")))
+            {
+                blocks << " +VelCovGeodetic";
+            }
+            if (settings_->publish_atteuler ||
+                (settings_->publish_gpsfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_pose &&
+                 (settings_->septentrio_receiver_type == "gnss")))
+            {
+                blocks << " +AttEuler";
+            }
+            if (settings_->publish_attcoveuler ||
+                (settings_->publish_gpsfix &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                (settings_->publish_pose &&
+                 (settings_->septentrio_receiver_type == "gnss")))
+            {
+                blocks << " +AttCovEuler";
+            }
+            if (settings_->publish_measepoch || settings_->publish_gpsfix)
+            {
+                blocks << " +MeasEpoch";
+            }
+            if (settings_->publish_gpsfix)
+            {
+                blocks << " +ChannelStatus +DOP";
+            }
+            // Setting SBF output of Rx depending on the receiver type
+            // If INS then...
+            if (settings_->septentrio_receiver_type == "ins")
+            {
+                if (settings_->publish_insnavcart ||
+                    settings_->publish_localization_ecef ||
+                    settings_->publish_tf_ecef)
+                {
+                    blocks << " +INSNavCart";
+                }
+                if (settings_->publish_insnavgeod || settings_->publish_navsatfix ||
+                    settings_->publish_gpsfix || settings_->publish_pose ||
+                    settings_->publish_imu || settings_->publish_localization ||
+                    settings_->publish_tf || settings_->publish_twist ||
+                    settings_->publish_localization_ecef ||
+                    settings_->publish_tf_ecef)
+                {
+                    blocks << " +INSNavGeod";
+                }
+                if (settings_->publish_exteventinsnavgeod)
+                {
+                    blocks << " +ExtEventINSNavGeod";
+                }
+                if (settings_->publish_exteventinsnavcart)
+                {
+                    blocks << " +ExtEventINSNavCart";
+                }
+                if (settings_->publish_extsensormeas || settings_->publish_imu)
+                {
+                    blocks << " +ExtSensorMeas";
+                }
+            }
+            std::stringstream ss;
+            ss << "sso, Stream" << std::to_string(stream) << ", "
+               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
+               << pvt_interval << "\x0D";
+            send(ss.str());
+            ++stream;
+        }
+
         if (settings_->septentrio_receiver_type == "ins")
         {
             if (!settings_->ins_vsm_ip_server_id.empty())
@@ -867,150 +864,6 @@ namespace io {
         telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);
         return telegramHandler_.getMainCd();
-    }
-
-    void CommunicationCore::prepareSBFFileReading(std::string file_name)
-    {
-        try
-        {
-            std::stringstream ss;
-            ss << "Setting up everything needed to read from" << file_name;
-            node_->log(LogLevel::DEBUG, ss.str());
-            initializeSBFFileReading(file_name);
-        } catch (std::runtime_error& e)
-        {
-            std::stringstream ss;
-            ss << "CommunicationCore::initializeSBFFileReading() failed for SBF File"
-               << file_name << " due to: " << e.what();
-            node_->log(LogLevel::ERROR, ss.str());
-        }
-    }
-
-    void CommunicationCore::preparePCAPFileReading(std::string file_name)
-    {
-        try
-        {
-            std::stringstream ss;
-            ss << "Setting up everything needed to read from " << file_name;
-            node_->log(LogLevel::DEBUG, ss.str());
-            initializePCAPFileReading(file_name);
-        } catch (std::runtime_error& e)
-        {
-            std::stringstream ss;
-            ss << "CommunicationCore::initializePCAPFileReading() failed for SBF File "
-               << file_name << " due to: " << e.what();
-            node_->log(LogLevel::ERROR, ss.str());
-        }
-    }
-
-    void CommunicationCore::initializeSBFFileReading(std::string file_name)
-    {
-        /*node_->log(LogLevel::DEBUG, "Calling initializeSBFFileReading() method..");
-        std::size_t buffer_size = 8192;
-        uint8_t* to_be_parsed;
-        to_be_parsed = new uint8_t[buffer_size];
-        std::ifstream bin_file(file_name, std::ios::binary);
-        std::vector<uint8_t> vec_buf;
-        if (bin_file.good())
-        {
-            /* Reads binary data using streambuffer iterators.
-            Copies all SBF file content into bin_data. */
-        /*std::vector<uint8_t> v_buf((std::istreambuf_iterator<char>(bin_file)),
-                                   (std::istreambuf_iterator<char>()));
-        vec_buf = v_buf;
-        bin_file.close();
-    }
-    else
-    {
-        throw std::runtime_error("I could not find your file. Or it is corrupted.");
-    }
-    // The spec now guarantees that vectors store their elements contiguously.
-    to_be_parsed = vec_buf.data();
-    std::stringstream ss;
-    ss << "Opened and copied over from " << file_name;
-    node_->log(LogLevel::DEBUG, ss.str());
-
-    while (running_) // Loop will stop if we are done reading the SBF file
-    {
-        try
-        {
-            node_->log(
-                LogLevel::DEBUG,
-                "Calling read_callback_() method, with number of bytes to be parsed
-    being " + buffer_size); handlers_.readCallback(node_->getTime(), to_be_parsed,
-    buffer_size); } catch (std::size_t& parsing_failed_here)
-        {
-            if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
-            {
-                break;
-            }
-            to_be_parsed = to_be_parsed + parsing_failed_here;
-            node_->log(LogLevel::DEBUG,
-                       "Parsing_failed_here is " + parsing_failed_here);
-            continue;
-        }
-        if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
-        {
-            break;
-        }
-        to_be_parsed = to_be_parsed + buffer_size;
-    }
-    node_->log(LogLevel::DEBUG, "Leaving initializeSBFFileReading() method..");*/
-    }
-
-    void CommunicationCore::initializePCAPFileReading(std::string file_name)
-    {
-        /*node_->log(LogLevel::DEBUG, "Calling initializePCAPFileReading()
-        method.."); pcapReader::buffer_t vec_buf; pcapReader::PcapDevice
-        device(node_, vec_buf);
-
-        if (!device.connect(file_name.c_str()))
-        {
-            node_->log(LogLevel::ERROR,
-                       "Unable to find file or either it is corrupted");
-            return;
-        }
-
-        node_->log(LogLevel::INFO, "Reading ...");
-        while (device.isConnected() && device.read() == pcapReader::READ_SUCCESS)
-            ;
-        device.disconnect();
-
-        std::size_t buffer_size = pcapReader::PcapDevice::BUFFSIZE;
-        uint8_t* to_be_parsed = new uint8_t[buffer_size];
-        to_be_parsed = vec_buf.data();
-
-        while (running_) // Loop will stop if we are done reading the SBF file
-        {
-            try
-            {
-                node_->log(
-                    LogLevel::DEBUG,
-                    "Calling read_callback_() method, with number of bytes to be
-        parsed being " + buffer_size); handlers_.readCallback(node_->getTime(),
-        to_be_parsed, buffer_size); } catch (std::size_t& parsing_failed_here)
-            {
-                if (to_be_parsed - vec_buf.data() >=
-                    vec_buf.size() * sizeof(uint8_t))
-                {
-                    break;
-                }
-                if (!parsing_failed_here)
-                    parsing_failed_here = 1;
-
-                to_be_parsed = to_be_parsed + parsing_failed_here;
-                node_->log(LogLevel::DEBUG,
-                           "Parsing_failed_here is " + parsing_failed_here);
-                continue;
-            }
-            if (to_be_parsed - vec_buf.data() >= vec_buf.size() * sizeof(uint8_t))
-            {
-                break;
-            }
-            to_be_parsed = to_be_parsed + buffer_size;
-        }
-        node_->log(LogLevel::DEBUG, "Leaving initializePCAPFileReading()
-        method..");*/
     }
 
     void CommunicationCore::processTelegrams()

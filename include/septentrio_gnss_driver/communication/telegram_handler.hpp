@@ -120,7 +120,13 @@ namespace io {
         //! Returns the connection descriptor
         void resetWaitforMainCd()
         {
-            cdCtr_ = 1; // Cd is sent twice only after startup
+            // Cd is sent twice only after startup
+            if (init_ == false)
+            {
+                cdCtr_ = 0;
+                init_ = true;
+            } else
+                cdCtr_ = 1;
             mainConnectionDescriptor_ = std::string();
         }
 
@@ -146,6 +152,7 @@ namespace io {
         //! MessageParser parser
         MessageParser messageParser_;
 
+        bool init_ = false;
         uint8_t cdCtr_ = 0;
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;

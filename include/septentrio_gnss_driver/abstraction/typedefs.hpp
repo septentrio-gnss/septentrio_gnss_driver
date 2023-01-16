@@ -178,7 +178,7 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
-    Settings* getSettings() { return &settings_; }
+    Settings* settings() { return &settings_; }
 
     void registerSubscriber()
     {

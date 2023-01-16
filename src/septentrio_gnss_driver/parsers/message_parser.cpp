@@ -54,7 +54,7 @@ using parsing_utilities::rad2deg;
 using parsing_utilities::square;
 
 namespace io {
-    PoseWithCovarianceStampedMsg MessageParser::PoseWithCovarianceStampedCallback()
+    PoseWithCovarianceStampedMsg MessageParser::assemblePoseWithCovarianceStamped()
     {
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "gnss")
@@ -191,7 +191,7 @@ namespace io {
         return msg;
     };
 
-    DiagnosticArrayMsg MessageParser::DiagnosticArrayCallback()
+    DiagnosticArrayMsg MessageParser::assembleDiagnosticArray()
     {
         DiagnosticArrayMsg msg;
         std::string serialnumber(last_receiversetup_.rx_serial_number);
@@ -300,7 +300,7 @@ namespace io {
         return msg;
     };
 
-    ImuMsg MessageParser::ImuCallback()
+    ImuMsg MessageParser::assmembleImu()
     {
         ImuMsg msg;
 
@@ -415,7 +415,7 @@ namespace io {
     };
 
     TwistWithCovarianceStampedMsg
-    MessageParser::TwistCallback(bool fromIns /* = false*/)
+    MessageParser::assembleTwist(bool fromIns /* = false*/)
     {
         TwistWithCovarianceStampedMsg msg;
 
@@ -638,7 +638,7 @@ namespace io {
      * Angular velocity not available, thus according autocovariances are set to
      * -1.0.
      */
-    LocalizationMsg MessageParser::LocalizationUtmCallback()
+    LocalizationMsg MessageParser::assembleLocalizationUtm()
     {
         LocalizationMsg msg;
 
@@ -808,7 +808,7 @@ namespace io {
             msg.pose.covariance[34] = deg2radSq(last_insnavgeod_.heading_pitch_cov);
         }
 
-        fillLocalizationMsgTwist(roll, pitch, yaw, msg);
+        assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
         return msg;
     };
@@ -818,7 +818,7 @@ namespace io {
      * Linear velocity of twist in body frame as per msg definition. Angular
      * velocity not available, thus according autocovariances are set to -1.0.
      */
-    LocalizationMsg MessageParser::LocalizationEcefCallback()
+    LocalizationMsg MessageParser::assembleLocalizationEcef()
     {
         LocalizationMsg msg;
 
@@ -966,13 +966,14 @@ namespace io {
             msg.pose.covariance[35] = -1.0;
         }
 
-        fillLocalizationMsgTwist(roll, pitch, yaw, msg);
+        assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
         return msg;
     };
 
-    void MessageParser::fillLocalizationMsgTwist(double roll, double pitch,
-                                                 double yaw, LocalizationMsg& msg)
+    void MessageParser::assembleLocalizationMsgTwist(double roll, double pitch,
+                                                     double yaw,
+                                                     LocalizationMsg& msg)
     {
         Eigen::Matrix3d R_local_body =
             parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
@@ -1093,7 +1094,7 @@ namespace io {
      * SignalInfo field of the PVTGeodetic block does not disclose it. For that, one
      * would need to go to the ObsInfo field of the MeasEpochChannelType1 sub-block.
      */
-    NavSatFixMsg MessageParser::NavSatFixCallback()
+    NavSatFixMsg MessageParser::assembleNavSatFix()
     {
         NavSatFixMsg msg;
         uint16_t mask = 15; // We extract the first four bits using this mask.
@@ -1288,7 +1289,7 @@ namespace io {
      * includes those "in search". In case certain values appear unphysical, please
      * consult the firmware, since those most likely refer to Do-Not-Use values.
      */
-    GPSFixMsg MessageParser::GPSFixCallback()
+    GPSFixMsg MessageParser::assembleGPSFix()
     {
         GPSFixMsg msg;
         msg.status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
@@ -1825,10 +1826,10 @@ namespace io {
      */
     void MessageParser::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
-        /*node_->log(LogLevel::DEBUG,
+        node_->log(LogLevel::DEBUG,
                    "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
                        " made up of " + std::to_string(telegram->message.size()) +
-                       " bytes...");*/
+                       " bytes...");
 
         switch (telegram->sbfId)
         {
@@ -2069,7 +2070,7 @@ namespace io {
                 publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
             if (settings_->publish_twist)
             {
-                TwistWithCovarianceStampedMsg twist = TwistCallback(true);
+                TwistWithCovarianceStampedMsg twist = assembleTwist(true);
                 publish<TwistWithCovarianceStampedMsg>("/twist_ins", twist);
             }
             break;
@@ -2211,7 +2212,7 @@ namespace io {
                 ImuMsg msg;
                 try
                 {
-                    msg = ImuCallback();
+                    msg = assmembleImu();
                 } catch (std::runtime_error& e)
                 {
                     node_->log(LogLevel::DEBUG, "ImuMsg: " + std::string(e.what()));
@@ -2284,7 +2285,7 @@ namespace io {
                 publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
             if (settings_->publish_twist)
             {
-                TwistWithCovarianceStampedMsg twist = TwistCallback();
+                TwistWithCovarianceStampedMsg twist = assembleTwist();
                 publish<TwistWithCovarianceStampedMsg>("/twist", twist);
             }
             break;
@@ -2437,7 +2438,7 @@ namespace io {
                 DiagnosticArrayMsg msg;
                 try
                 {
-                    msg = DiagnosticArrayCallback();
+                    msg = assembleDiagnosticArray();
                 } catch (std::runtime_error& e)
                 {
                     node_->log(LogLevel::DEBUG,
@@ -2475,7 +2476,7 @@ namespace io {
                 LocalizationMsg msg;
                 try
                 {
-                    msg = LocalizationUtmCallback();
+                    msg = assembleLocalizationUtm();
                 } catch (std::runtime_error& e)
                 {
                     node_->log(LogLevel::DEBUG, "LocalizationMsg: " +
@@ -2500,7 +2501,7 @@ namespace io {
                 LocalizationMsg msg;
                 try
                 {
-                    msg = LocalizationEcefCallback();
+                    msg = assembleLocalizationEcef();
                 } catch (std::runtime_error& e)
                 {
                     node_->log(LogLevel::DEBUG, "LocalizationMsg: " +
@@ -2529,7 +2530,7 @@ namespace io {
                     NavSatFixMsg msg;
                     try
                     {
-                        msg = NavSatFixCallback();
+                        msg = assembleNavSatFix();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG,
@@ -2557,7 +2558,7 @@ namespace io {
                     NavSatFixMsg msg;
                     try
                     {
-                        msg = NavSatFixCallback();
+                        msg = assembleNavSatFix();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG,
@@ -2591,7 +2592,7 @@ namespace io {
                     GPSFixMsg msg;
                     try
                     {
-                        msg = GPSFixCallback();
+                        msg = assembleGPSFix();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG, "GPSFixMsg: " +
@@ -2627,7 +2628,7 @@ namespace io {
                     GPSFixMsg msg;
                     try
                     {
-                        msg = GPSFixCallback();
+                        msg = assembleGPSFix();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG, "GPSFixMsg: " +
@@ -2665,7 +2666,7 @@ namespace io {
                     PoseWithCovarianceStampedMsg msg;
                     try
                     {
-                        msg = PoseWithCovarianceStampedCallback();
+                        msg = assemblePoseWithCovarianceStamped();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG,
@@ -2695,7 +2696,7 @@ namespace io {
                     PoseWithCovarianceStampedMsg msg;
                     try
                     {
-                        msg = PoseWithCovarianceStampedCallback();
+                        msg = assemblePoseWithCovarianceStamped();
                     } catch (std::runtime_error& e)
                     {
                         node_->log(LogLevel::DEBUG,

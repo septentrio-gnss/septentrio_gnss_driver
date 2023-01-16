@@ -49,6 +49,8 @@ else ()
     set(libpcap_FOUND TRUE)
 endif ()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
@@ -187,7 +189,6 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node
   src/septentrio_gnss_driver/communication/communication_core.cpp
-  src/septentrio_gnss_driver/communication/pcap_reader.cpp 
   src/septentrio_gnss_driver/communication/telegram_handler.cpp
   src/septentrio_gnss_driver/crc/crc.cpp
   src/septentrio_gnss_driver/node/main.cpp

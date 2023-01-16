@@ -137,33 +137,6 @@ namespace io {
          */
         std::string resetMainConnection();
 
-        /**
-         * @brief Sets up the stage for SBF file reading
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
-         */
-        void prepareSBFFileReading(std::string file_name);
-
-        /**
-         * @brief Sets up the stage for PCAP file reading
-         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
-         */
-        void preparePCAPFileReading(std::string file_name);
-
-        /**
-         * @brief Initializes SBF file reading and reads SBF file by repeatedly
-         * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
-         */
-        void initializeSBFFileReading(std::string file_name);
-
-        /**
-         * @brief Initializes PCAP file reading and reads PCAP file by repeatedly
-         * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the PCAP file, e.g.
-         * "/tmp/capture.pcap"
-         */
-        void initializePCAPFileReading(std::string file_name);
-
         void processTelegrams();
 
         /**

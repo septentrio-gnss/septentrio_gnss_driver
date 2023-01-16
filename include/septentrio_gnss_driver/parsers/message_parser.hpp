@@ -145,7 +145,7 @@ namespace io {
          * @param[in] node Pointer to the node)
          */
         MessageParser(ROSaicNodeBase* node) :
-            node_(node), settings_(node->getSettings()), unix_time_(0)
+            node_(node), settings_(node->settings()), unix_time_(0)
         {
         }
 
@@ -289,13 +289,13 @@ namespace io {
          * @brief "Callback" function when constructing NavSatFix messages
          * @return A smart pointer to the ROS message NavSatFix just created
          */
-        NavSatFixMsg NavSatFixCallback();
+        NavSatFixMsg assembleNavSatFix();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
          * @return A smart pointer to the ROS message GPSFix just created
          */
-        GPSFixMsg GPSFixCallback();
+        GPSFixMsg assembleGPSFix();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
@@ -303,7 +303,7 @@ namespace io {
          * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
          * created
          */
-        PoseWithCovarianceStampedMsg PoseWithCovarianceStampedCallback();
+        PoseWithCovarianceStampedMsg assemblePoseWithCovarianceStamped();
 
         /**
          * @brief "Callback" function when constructing
@@ -311,7 +311,7 @@ namespace io {
          * @return A ROS message
          * DiagnosticArrayMsg just created
          */
-        DiagnosticArrayMsg DiagnosticArrayCallback();
+        DiagnosticArrayMsg assembleDiagnosticArray();
 
         /**
          * @brief "Callback" function when constructing
@@ -319,7 +319,7 @@ namespace io {
          * @return A ROS message
          * ImuMsg just created
          */
-        ImuMsg ImuCallback();
+        ImuMsg assmembleImu();
 
         /**
          * @brief "Callback" function when constructing
@@ -327,7 +327,7 @@ namespace io {
          * @return A ROS message
          * LocalizationMsg just created
          */
-        LocalizationMsg LocalizationUtmCallback();
+        LocalizationMsg assembleLocalizationUtm();
 
         /**
          * @brief "Callback" function when constructing
@@ -335,7 +335,7 @@ namespace io {
          * @return A ROS message
          * LocalizationMsg just created
          */
-        LocalizationMsg LocalizationEcefCallback();
+        LocalizationMsg assembleLocalizationEcef();
 
         /**
          * @brief function to fill twist part of LocalizationMsg
@@ -344,8 +344,8 @@ namespace io {
          * @param[in] yaw yaw [rad]
          * @param[inout] msg LocalizationMsg to be filled
          */
-        void fillLocalizationMsgTwist(double roll, double pitch, double yaw,
-                                      LocalizationMsg& msg);
+        void assembleLocalizationMsgTwist(double roll, double pitch, double yaw,
+                                          LocalizationMsg& msg);
 
         /**
          * @brief "Callback" function when constructing
@@ -354,7 +354,7 @@ namespace io {
          * @return A ROS message
          * TwistWithCovarianceStampedMsg just created
          */
-        TwistWithCovarianceStampedMsg TwistCallback(bool fromIns = false);
+        TwistWithCovarianceStampedMsg assembleTwist(bool fromIns = false);
 
         /**
          * @brief Waits according to time when reading from file

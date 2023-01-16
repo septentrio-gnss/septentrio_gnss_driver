@@ -34,10 +34,14 @@
 #include <thread>
 
 // Linux
+#include <linux/input.h>
 #include <linux/serial.h>
 
 // Boost
 #include <boost/asio.hpp>
+
+// pcap
+#include <pcap.h>
 
 // ROSaic
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
@@ -67,13 +71,13 @@ namespace io {
             {
                 boost::asio::ip::tcp::resolver resolver(ioService_);
                 boost::asio::ip::tcp::resolver::query query(
-                    node_->getSettings()->tcp_ip, node_->getSettings()->tcp_port);
+                    node_->settings()->tcp_ip, node_->settings()->tcp_port);
                 endpointIterator = resolver.resolve(query);
             } catch (std::runtime_error& e)
             {
                 node_->log(LogLevel::ERROR,
-                           "Could not resolve " + node_->getSettings()->tcp_ip +
-                               " on port " + node_->getSettings()->tcp_port + ": " +
+                           "Could not resolve " + node_->settings()->tcp_ip +
+                               " on port " + node_->settings()->tcp_port + ": " +
                                e.what());
                 return false;
             }
@@ -81,8 +85,8 @@ namespace io {
             stream_.reset(new boost::asio::ip::tcp::socket(ioService_));
 
             node_->log(LogLevel::INFO, "Connecting to tcp://" +
-                                           node_->getSettings()->tcp_ip + ":" +
-                                           node_->getSettings()->tcp_port + "...");
+                                           node_->settings()->tcp_ip + ":" +
+                                           node_->settings()->tcp_port + "...");
 
             try
             {
@@ -115,8 +119,8 @@ namespace io {
     struct SerialIo
     {
         SerialIo(ROSaicNodeBase* node) :
-            node_(node), flowcontrol_(node->getSettings()->hw_flow_control),
-            baudrate_(node->getSettings()->baudrate)
+            node_(node), flowcontrol_(node->settings()->hw_flow_control),
+            baudrate_(node->settings()->baudrate)
         {
             stream_.reset(new boost::asio::serial_port(ioService_));
         }
@@ -140,9 +144,9 @@ namespace io {
                 {
                     node_->log(LogLevel::INFO,
                                "Connecting serially to device" +
-                                   node_->getSettings()->device +
+                                   node_->settings()->device +
                                    ", targeted baudrate: " +
-                                   std::to_string(node_->getSettings()->baudrate));
+                                   std::to_string(node_->settings()->baudrate));
                     stream_->open(port_);
                     opened = true;
                 } catch (const boost::system::system_error& err)
@@ -303,5 +307,98 @@ namespace io {
     public:
         boost::asio::io_service ioService_;
         std::unique_ptr<boost::asio::serial_port> stream_;
+    };
+
+    class SbfFileIo
+    {
+    public:
+        SbfFileIo(ROSaicNodeBase* node) : node_(node) {}
+
+        ~SbfFileIo() { stream_->close(); }
+
+        void close() { stream_->close(); }
+
+        [[nodiscard]] bool connect()
+        {
+            node_->log(LogLevel::INFO, "Opening SBF file stream" +
+                                           node_->settings()->device + "...");
+
+            int fd = open(node_->settings()->device.c_str(), O_RDONLY);
+            if (fd == -1)
+            {
+                node_->log(LogLevel::ERROR, "open SBF file failed.");
+                return false;
+            }
+            stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
+
+            try
+            {
+                stream_->assign(fd);
+
+            } catch (std::runtime_error& e)
+            {
+                node_->log(LogLevel::ERROR, "assigning SBF file failed due to " +
+                                                std::string(e.what()));
+                return false;
+            }
+            return true;
+        }
+
+    private:
+        ROSaicNodeBase* node_;
+        std::array<char, 100> errBuff_;
+        pcap_t* pcap_;
+
+    public:
+        boost::asio::io_service ioService_;
+        std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
+    };
+
+    class PcapFileIo
+    {
+    public:
+        PcapFileIo(ROSaicNodeBase* node) : node_(node) {}
+
+        ~PcapFileIo()
+        {
+            pcap_close(pcap_);
+            stream_->close();
+        }
+
+        void close()
+        {
+            pcap_close(pcap_);
+            stream_->close();
+        }
+
+        [[nodiscard]] bool connect()
+        {
+            node_->log(LogLevel::INFO, "Opening pcap file stream" +
+                                           node_->settings()->device + "...");
+
+            stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
+
+            pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
+                                      errBuff_.data());
+            stream_->assign(pcap_get_selectable_fd(pcap_));
+
+            try
+            {
+
+            } catch (std::runtime_error& e)
+            {
+                return false;
+            }
+            return true;
+        }
+
+    private:
+        ROSaicNodeBase* node_;
+        std::array<char, 100> errBuff_;
+        pcap_t* pcap_;
+
+    public:
+        boost::asio::io_service ioService_;
+        std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
     };
 } // namespace io
