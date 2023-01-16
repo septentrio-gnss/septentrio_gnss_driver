@@ -346,8 +346,6 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-        std::array<char, 100> errBuff_;
-        pcap_t* pcap_;
 
     public:
         boost::asio::io_service ioService_;
