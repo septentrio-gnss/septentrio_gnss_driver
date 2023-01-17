@@ -158,14 +158,16 @@ inline Timestamp timestampFromRos(const TimestampRos& tsr) { return tsr.toNSec()
 /**
  * @brief Log level for ROS logging
  */
-enum LogLevel
-{
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
-};
+namespace log_level {
+    enum LogLevel
+    {
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        FATAL
+    };
+}
 
 /**
  * @class ROSaicNodeBase
@@ -233,23 +235,23 @@ public:
      * @param[in] logLevel Log level
      * @param[in] s String to log
      */
-    void log(LogLevel logLevel, const std::string& s)
+    void log(log_level::LogLevel logLevel, const std::string& s)
     {
         switch (logLevel)
         {
-        case LogLevel::DEBUG:
+        case log_level::DEBUG:
             ROS_DEBUG_STREAM(ros::this_node::getName() << ": " << s);
             break;
-        case LogLevel::INFO:
+        case log_level::INFO:
             ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
             break;
-        case LogLevel::WARN:
+        case log_level::WARN:
             ROS_WARN_STREAM(ros::this_node::getName() << ": " << s);
             break;
-        case LogLevel::ERROR:
+        case log_level::ERROR:
             ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
             break;
-        case LogLevel::FATAL:
+        case log_level::FATAL:
             ROS_FATAL_STREAM(ros::this_node::getName() << ": " << s);
             break;
         default:

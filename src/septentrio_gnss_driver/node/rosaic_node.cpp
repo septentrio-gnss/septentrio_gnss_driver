@@ -50,7 +50,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             ros::console::notifyLoggerLevelsChanged();
     }
 
-    this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
+    this->log(log_level::DEBUG, "Called ROSaicNode() constructor..");
 
     tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
@@ -61,7 +61,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     // Initializes Connection
     IO_.connect();
 
-    this->log(LogLevel::DEBUG, "Leaving ROSaicNode() constructor..");
+    this->log(log_level::DEBUG, "Leaving ROSaicNode() constructor..");
 }
 
 bool rosaic_node::ROSaicNode::getROSParams()
@@ -92,7 +92,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
           (settings_.septentrio_receiver_type == "ins") ||
           (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))
     {
-        this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " +
+        this->log(log_level::FATAL, "Unkown septentrio_receiver_type " +
                                        settings_.septentrio_receiver_type +
                                        " use either gnss or ins.");
         return false;
@@ -111,7 +111,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                       settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
-            LogLevel::FATAL,
+            log_level::FATAL,
             "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages.");
         return false;
     }
@@ -121,7 +121,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                       settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
-            LogLevel::FATAL,
+            log_level::FATAL,
             "Please specify a valid polling period for PVT-unrelated SBF blocks and NMEA messages.");
         return false;
     }
@@ -174,7 +174,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (settings_.publish_tf && settings_.publish_tf_ecef)
     {
         this->log(
-            LogLevel::WARN,
+            log_level::WARN,
             "Only one of the tfs may be published at once, just activating tf in ECEF ");
         settings_.publish_tf = false;
     }
@@ -330,28 +330,28 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (settings_.publish_atteuler)
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Pitch angle output by topic /atteuler is a tilt angle rotated by " +
                     std::to_string(settings_.heading_offset) + ".");
         }
         if (settings_.publish_pose && (settings_.septentrio_receiver_type == "gnss"))
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Pitch angle output by topic /pose is a tilt angle rotated by " +
                     std::to_string(settings_.heading_offset) + ".");
         }
     }
 
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU roll offset: " + std::to_string(settings_.theta_x));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU pitch offset: " + std::to_string(settings_.theta_y));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU yaw offset: " + std::to_string(settings_.theta_z));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "Ant heading offset: " + std::to_string(settings_.heading_offset));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "Ant pitch offset: " + std::to_string(settings_.pitch_offset));
 
     // ins_initial_heading param
@@ -367,7 +367,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (settings_.publish_tf && !settings_.ins_use_poi)
     {
         this->log(
-            LogLevel::ERROR,
+            log_level::ERROR,
             "If tf shall be published, ins_use_poi has to be set to true! It is set automatically to true.");
         settings_.ins_use_poi = true;
     }
@@ -470,28 +470,28 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ntrip_settings/mode", tempString, std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings/mode has been removed, see README under section rtk_settings.");
         param("ntrip_settings/caster", tempString, std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings/caster has been removed, see README under section rtk_settings.");
         param("ntrip_settings/rx_has_internet", tempBool, false);
         if (tempBool)
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings/rx_has_internet has been removed, see README under section rtk_settings.");
         param("ntrip_settings/rx_input_corrections_tcp", tempInt, 0);
         if (tempInt != 0)
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings/rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
         param("ntrip_settings/rx_input_corrections_serial", tempString,
               std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings/rx_input_corrections_serial has been removed, see README under section rtk_settings.");
     }
 
@@ -500,7 +500,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (!settings_.multi_antenna)
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
             settings_.multi_antenna = true;
         }
@@ -515,7 +515,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         ins_use_vsm = ((settings_.ins_vsm_ros_source == "odometry") ||
                        (settings_.ins_vsm_ros_source == "twist"));
         if (!settings_.ins_vsm_ros_source.empty() && !ins_use_vsm)
-            this->log(LogLevel::ERROR, "unknown ins_vsm/ros/source " +
+            this->log(log_level::ERROR, "unknown ins_vsm/ros/source " +
                                            settings_.ins_vsm_ros_source +
                                            " -> VSM input will not be used!");
         param("ins_vsm/ip_server/id", settings_.ins_vsm_ip_server_id,
@@ -528,7 +528,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             param("ins_vsm/ip_server/keep_open",
                   settings_.ins_vsm_ip_server_keep_open, true);
             this->log(
-                LogLevel::INFO,
+                log_level::INFO,
                 "external velocity sensor measurements via ip_server are used.");
         }
 
@@ -540,7 +540,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                            static_cast<uint32_t>(115200));
             param("ins_vsm/serial/keep_open", settings_.ins_vsm_serial_keep_open,
                   true);
-            this->log(LogLevel::INFO,
+            this->log(log_level::INFO,
                       "external velocity sensor measurements via serial are used.");
         }
 
@@ -554,7 +554,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             {
                 ins_use_vsm = false;
                 this->log(
-                    LogLevel::ERROR,
+                    log_level::ERROR,
                     "all elements of ins_vsm/ros/config have been set to false -> VSM input will not be used!");
             } else
             {
@@ -567,7 +567,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                     if (settings_.ins_vsm_ros_variances.size() != 3)
                     {
                         this->log(
-                            LogLevel::ERROR,
+                            log_level::ERROR,
                             "ins_vsm/ros/variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
                         ins_use_vsm = false;
                         settings_.ins_vsm_ros_source = "";
@@ -580,7 +580,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                                 (settings_.ins_vsm_ros_variances[i] <= 0.0))
                             {
                                 this->log(
-                                    LogLevel::ERROR,
+                                    log_level::ERROR,
                                     "ins_vsm/ros/config of element " +
                                         std::to_string(i) +
                                         " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
@@ -595,7 +595,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                         ins_use_vsm = false;
                         settings_.ins_vsm_ros_source = "";
                         this->log(
-                            LogLevel::ERROR,
+                            log_level::ERROR,
                             "all elements of ins_vsm/ros/config have been set to false due to invalid covariances -> VSM input will not be used!");
                     }
                 }
@@ -604,12 +604,12 @@ bool rosaic_node::ROSaicNode::getROSParams()
         {
             settings_.ins_vsm_ros_source = "";
             this->log(
-                LogLevel::ERROR,
+                log_level::ERROR,
                 "ins_vsm/ros/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
         }
         if (ins_use_vsm)
         {
-            this->log(LogLevel::INFO, "ins_vsm/ros/source " +
+            this->log(log_level::INFO, "ins_vsm/ros/source " +
                                           settings_.ins_vsm_ros_source +
                                           " will be used.");
             registerSubscriber();
@@ -617,7 +617,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
-    this->log(LogLevel::DEBUG, "Finished getROSParams() method");
+    this->log(log_level::DEBUG, "Finished getROSParams() method");
     return true;
 }
 
@@ -647,7 +647,7 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
             found = true;
         } catch (const tf2::TransformException& ex)
         {
-            this->log(LogLevel::WARN, "Waiting for transform from " + sourceFrame +
+            this->log(log_level::WARN, "Waiting for transform from " + sourceFrame +
                                           " to " + targetFrame + ": " + ex.what() +
                                           ".");
             found = false;

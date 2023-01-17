@@ -1176,7 +1176,7 @@ namespace io {
             default:
             {
                 node_->log(
-                    LogLevel::DEBUG,
+                    log_level::DEBUG,
                     "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
                 break;
             }
@@ -1258,7 +1258,7 @@ namespace io {
             default:
             {
                 node_->log(
-                    LogLevel::DEBUG,
+                    log_level::DEBUG,
                     "INSNavGeod's Mode field contains an invalid type of PVT solution.");
                 break;
             }
@@ -1529,7 +1529,7 @@ namespace io {
             default:
             {
                 node_->log(
-                    LogLevel::DEBUG,
+                    log_level::DEBUG,
                     "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
                 break;
             }
@@ -1664,7 +1664,7 @@ namespace io {
             default:
             {
                 node_->log(
-                    LogLevel::DEBUG,
+                    log_level::DEBUG,
                     "INSNavGeod's Mode field contains an invalid type of PVT solution.");
                 break;
             }
@@ -1853,7 +1853,7 @@ namespace io {
                available yet.");*/
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
                 node_->log(
-                    LogLevel::WARN,
+                    log_level::WARN,
                     "No leap seconds were set and none were received from log yet.");
         }
     }
@@ -1877,11 +1877,11 @@ namespace io {
         } else
         {
             node_->log(
-                LogLevel::DEBUG,
+                log_level::DEBUG,
                 "Not publishing tf with GNSS time because no leap seconds are available yet.");
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
                 node_->log(
-                    LogLevel::WARN,
+                    log_level::WARN,
                     "No leap seconds were set and none were received from log yet.");
         }
     }
@@ -1899,7 +1899,7 @@ namespace io {
      */
     void MessageParser::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
-        node_->log(LogLevel::DEBUG,
+        node_->log(log_level::DEBUG,
                    "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
                        " made up of " + std::to_string(telegram->message.size()) +
                        " bytes...");
@@ -1913,7 +1913,7 @@ namespace io {
             if (!PVTCartesianParser(node_, telegram->message.begin(),
                                     telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR, "parse error in PVTCartesian");
+                node_->log(log_level::ERROR, "parse error in PVTCartesian");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1931,7 +1931,7 @@ namespace io {
             if (!PVTGeodeticParser(node_, telegram->message.begin(),
                                    telegram->message.end(), last_pvtgeodetic_))
             {
-                node_->log(LogLevel::ERROR, "parse error in PVTGeodetic");
+                node_->log(log_level::ERROR, "parse error in PVTGeodetic");
                 break;
             }
             last_pvtgeodetic_.header.frame_id = settings_->frame_id;
@@ -1953,7 +1953,7 @@ namespace io {
             if (!BaseVectorCartParser(node_, telegram->message.begin(),
                                       telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR, "parse error in BaseVectorCart");
+                node_->log(log_level::ERROR, "parse error in BaseVectorCart");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1971,7 +1971,7 @@ namespace io {
             if (!BaseVectorGeodParser(node_, telegram->message.begin(),
                                       telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR, "parse error in BaseVectorGeod");
+                node_->log(log_level::ERROR, "parse error in BaseVectorGeod");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -1989,7 +1989,7 @@ namespace io {
             if (!PosCovCartesianParser(node_, telegram->message.begin(),
                                        telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR, "parse error in PosCovCartesian");
+                node_->log(log_level::ERROR, "parse error in PosCovCartesian");
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
@@ -2006,7 +2006,7 @@ namespace io {
             if (!PosCovGeodeticParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_poscovgeodetic_))
             {
-                node_->log(LogLevel::ERROR, "parse error in PosCovGeodetic");
+                node_->log(log_level::ERROR, "parse error in PosCovGeodetic");
                 break;
             }
             last_poscovgeodetic_.header.frame_id = settings_->frame_id;
@@ -2029,7 +2029,7 @@ namespace io {
                                 telegram->message.end(), last_atteuler_,
                                 settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in AttEuler");
+                node_->log(log_level::ERROR, "parse error in AttEuler");
                 break;
             }
             last_atteuler_.header.frame_id = settings_->frame_id;
@@ -2049,7 +2049,7 @@ namespace io {
                                    telegram->message.end(), last_attcoveuler_,
                                    settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in AttCovEuler");
+                node_->log(log_level::ERROR, "parse error in AttCovEuler");
                 break;
             }
             last_attcoveuler_.header.frame_id = settings_->frame_id;
@@ -2070,7 +2070,7 @@ namespace io {
                                   telegram->message.end(), last_insnavcart_,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in INSNavCart");
+                node_->log(log_level::ERROR, "parse error in INSNavCart");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2096,7 +2096,7 @@ namespace io {
                                   telegram->message.end(), last_insnavgeod_,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in INSNavGeod");
+                node_->log(log_level::ERROR, "parse error in INSNavGeod");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2127,7 +2127,7 @@ namespace io {
                                 telegram->message.end(), msg,
                                 settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in IMUSetup");
+                node_->log(log_level::ERROR, "parse error in IMUSetup");
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
@@ -2147,7 +2147,7 @@ namespace io {
                                       telegram->message.end(), msg,
                                       settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in VelSensorSetup");
+                node_->log(log_level::ERROR, "parse error in VelSensorSetup");
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
@@ -2168,7 +2168,7 @@ namespace io {
                                   telegram->message.end(), msg,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in ExtEventINSNavCart");
+                node_->log(log_level::ERROR, "parse error in ExtEventINSNavCart");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2194,7 +2194,7 @@ namespace io {
                                   telegram->message.end(), msg,
                                   settings_->use_ros_axis_orientation))
             {
-                node_->log(LogLevel::ERROR, "parse error in ExtEventINSNavGeod");
+                node_->log(log_level::ERROR, "parse error in ExtEventINSNavGeod");
                 break;
             }
             if (settings_->ins_use_poi)
@@ -2220,7 +2220,7 @@ namespace io {
                                      settings_->use_ros_axis_orientation,
                                      hasImuMeas))
             {
-                node_->log(LogLevel::ERROR, "parse error in ExtSensorMeas");
+                node_->log(log_level::ERROR, "parse error in ExtSensorMeas");
                 break;
             }
             last_extsensmeas_.header.frame_id = settings_->imu_frame_id;
@@ -2239,7 +2239,7 @@ namespace io {
                     msg = assmembleImu();
                 } catch (std::runtime_error& e)
                 {
-                    node_->log(LogLevel::DEBUG, "ImuMsg: " + std::string(e.what()));
+                    node_->log(log_level::DEBUG, "ImuMsg: " + std::string(e.what()));
                     break;
                 }
                 msg.header.frame_id = settings_->imu_frame_id;
@@ -2254,7 +2254,7 @@ namespace io {
             if (!ChannelStatusParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_channelstatus_))
             {
-                node_->log(LogLevel::ERROR, "parse error in ChannelStatus");
+                node_->log(log_level::ERROR, "parse error in ChannelStatus");
                 break;
             }
             break;
@@ -2265,7 +2265,7 @@ namespace io {
             if (!MeasEpochParser(node_, telegram->message.begin(),
                                  telegram->message.end(), last_measepoch_))
             {
-                node_->log(LogLevel::ERROR, "parse error in MeasEpoch");
+                node_->log(log_level::ERROR, "parse error in MeasEpoch");
                 break;
             }
             last_measepoch_.header.frame_id = settings_->frame_id;
@@ -2284,7 +2284,7 @@ namespace io {
             if (!DOPParser(node_, telegram->message.begin(), telegram->message.end(),
                            last_dop_))
             {
-                node_->log(LogLevel::ERROR, "parse error in DOP");
+                node_->log(log_level::ERROR, "parse error in DOP");
                 break;
             }
             break;
@@ -2295,7 +2295,7 @@ namespace io {
             if (!VelCovGeodeticParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_velcovgeodetic_))
             {
-                node_->log(LogLevel::ERROR, "parse error in VelCovGeodetic");
+                node_->log(log_level::ERROR, "parse error in VelCovGeodetic");
                 break;
             }
             last_velcovgeodetic_.header.frame_id = settings_->frame_id;
@@ -2315,7 +2315,7 @@ namespace io {
             if (!ReceiverStatusParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_receiverstatus_))
             {
-                node_->log(LogLevel::ERROR, "parse error in ReceiverStatus");
+                node_->log(log_level::ERROR, "parse error in ReceiverStatus");
                 break;
             }
             break;
@@ -2326,7 +2326,7 @@ namespace io {
             if (!QualityIndParser(node_, telegram->message.begin(),
                                   telegram->message.end(), last_qualityind_))
             {
-                node_->log(LogLevel::ERROR, "parse error in QualityInd");
+                node_->log(log_level::ERROR, "parse error in QualityInd");
                 break;
             }
             break;
@@ -2336,10 +2336,10 @@ namespace io {
             if (!ReceiverSetupParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_receiversetup_))
             {
-                node_->log(LogLevel::ERROR, "parse error in ReceiverSetup");
+                node_->log(log_level::ERROR, "parse error in ReceiverSetup");
                 break;
             }
-            node_->log(LogLevel::DEBUG,
+            node_->log(log_level::DEBUG,
                        "receiver setup firmware: " + last_receiversetup_.rx_version);
 
             static int32_t ins_major = 1;
@@ -2360,7 +2360,7 @@ namespace io {
             }
             if (major_minor_patch.size() < 3)
             {
-                node_->log(LogLevel::ERROR, "parse error of firmware version.");
+                node_->log(log_level::ERROR, "parse error of firmware version.");
             } else
             {
                 if ((settings_->septentrio_receiver_type == "ins") ||
@@ -2374,7 +2374,7 @@ namespace io {
                          (major_minor_patch[2] < ins_patch)))
                     {
                         node_->log(
-                            LogLevel::WARN,
+                            log_level::WARN,
                             "INS receiver has firmware version: " +
                                 last_receiversetup_.rx_version +
                                 ", which does not support all features. Please update to at least " +
@@ -2387,7 +2387,7 @@ namespace io {
                     if (major_minor_patch[0] < 3)
                     {
                         node_->log(
-                            LogLevel::WARN,
+                            log_level::WARN,
                             "INS receiver seems to be used as GNSS. Some settings may trigger warnings or errors. Consider using 'ins_in_gnss_mode' as receiver type.");
                     } else if ((major_minor_patch[0] < gnss_major) ||
                                ((major_minor_patch[0] == gnss_major) &&
@@ -2397,7 +2397,7 @@ namespace io {
                                 (major_minor_patch[2] < gnss_patch)))
                     {
                         node_->log(
-                            LogLevel::WARN,
+                            log_level::WARN,
                             "GNSS receiver has firmware version: " +
                                 last_receiversetup_.rx_version +
                                 ", which may not support all features. Please update to at least " +
@@ -2405,7 +2405,7 @@ namespace io {
                                 std::to_string(gnss_minor) + "." +
                                 std::to_string(gnss_patch) + " or consult README.");
                     } else
-                        node_->log(LogLevel::ERROR, "gnss");
+                        node_->log(log_level::ERROR, "gnss");
                 }
             }
 
@@ -2418,7 +2418,7 @@ namespace io {
             if (!ReceiverTimeParser(node_, telegram->message.begin(),
                                     telegram->message.end(), msg))
             {
-                node_->log(LogLevel::ERROR, "parse error in ReceiverTime");
+                node_->log(log_level::ERROR, "parse error in ReceiverTime");
                 break;
             }
             current_leap_seconds_ = msg.delta_ls;
@@ -2426,7 +2426,7 @@ namespace io {
         }
         default:
         {
-            node_->log(LogLevel::DEBUG, "unknown SBF block received.");
+            node_->log(log_level::DEBUG, "unknown SBF block received.");
             break;
         }
             // Many more to be implemented...
@@ -2755,7 +2755,7 @@ namespace io {
 
                 std::stringstream ss;
                 ss << "Waiting for " << sleep_nsec / 1000000 << " milliseconds...";
-                node_->log(LogLevel::DEBUG, ss.str());
+                node_->log(log_level::DEBUG, ss.str());
 
                 std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
             }
@@ -2805,7 +2805,7 @@ namespace io {
                                                 telegram->stamp);
                 } catch (ParseException& e)
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "GpggaMsg: " + std::string(e.what()));
                     break;
                 }
@@ -2826,7 +2826,7 @@ namespace io {
                                                 telegram->stamp);
                 } catch (ParseException& e)
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "GprmcMsg: " + std::string(e.what()));
                     break;
                 }
@@ -2847,7 +2847,7 @@ namespace io {
                                                 node_->getTime());
                 } catch (ParseException& e)
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "GpgsaMsg: " + std::string(e.what()));
                     break;
                 }
@@ -2884,7 +2884,7 @@ namespace io {
                                                 node_->getTime());
                 } catch (ParseException& e)
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "GpgsvMsg: " + std::string(e.what()));
                     break;
                 }
@@ -2912,7 +2912,7 @@ namespace io {
             }
         } else
         {
-            node_->log(LogLevel::DEBUG, "Unknown NMEA message: " + body[0]);
+            node_->log(log_level::DEBUG, "Unknown NMEA message: " + body[0]);
         }
     }
 

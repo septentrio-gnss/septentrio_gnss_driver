@@ -75,7 +75,7 @@ namespace io {
                 endpointIterator = resolver.resolve(query);
             } catch (std::runtime_error& e)
             {
-                node_->log(LogLevel::ERROR,
+                node_->log(log_level::ERROR,
                            "Could not resolve " + node_->settings()->tcp_ip +
                                " on port " + node_->settings()->tcp_port + ": " +
                                e.what());
@@ -84,9 +84,9 @@ namespace io {
 
             stream_.reset(new boost::asio::ip::tcp::socket(ioService_));
 
-            node_->log(LogLevel::INFO, "Connecting to tcp://" +
-                                           node_->settings()->tcp_ip + ":" +
-                                           node_->settings()->tcp_port + "...");
+            node_->log(log_level::INFO, "Connecting to tcp://" +
+                                            node_->settings()->tcp_ip + ":" +
+                                            node_->settings()->tcp_port + "...");
 
             try
             {
@@ -94,12 +94,12 @@ namespace io {
 
                 stream_->set_option(boost::asio::ip::tcp::no_delay(true));
 
-                node_->log(LogLevel::INFO,
+                node_->log(log_level::INFO,
                            "Connected to " + endpointIterator->host_name() + ":" +
                                endpointIterator->service_name() + ".");
             } catch (std::runtime_error& e)
             {
-                node_->log(LogLevel::ERROR,
+                node_->log(log_level::ERROR,
                            "Could not connect to " + endpointIterator->host_name() +
                                ": " + endpointIterator->service_name() + ": " +
                                e.what());
@@ -143,7 +143,7 @@ namespace io {
             {
                 try
                 {
-                    node_->log(LogLevel::INFO,
+                    node_->log(log_level::INFO,
                                "Connecting serially to device" +
                                    node_->settings()->device +
                                    ", targeted baudrate: " +
@@ -152,7 +152,7 @@ namespace io {
                     opened = true;
                 } catch (const boost::system::system_error& err)
                 {
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "SerialCoket: Could not open serial port " + port_ +
                                    ". Error: " + err.what() +
                                    ". Will retry every second.");
@@ -208,10 +208,10 @@ namespace io {
         [[nodiscard]] bool setBaudrate()
         {
             // Setting the baudrate, incrementally..
-            node_->log(LogLevel::DEBUG,
+            node_->log(log_level::DEBUG,
                        "Gradually increasing the baudrate to the desired value...");
             boost::asio::serial_port_base::baud_rate current_baudrate;
-            node_->log(LogLevel::DEBUG, "Initiated current_baudrate object...");
+            node_->log(log_level::DEBUG, "Initiated current_baudrate object...");
             try
             {
                 stream_->get_option(current_baudrate); // Note that this sets
@@ -223,10 +223,10 @@ namespace io {
             } catch (boost::system::system_error& e)
             {
 
-                node_->log(LogLevel::ERROR,
+                node_->log(log_level::ERROR,
                            "get_option failed due to " + std::string(e.what()));
-                node_->log(LogLevel::INFO, "Additional info about error is " +
-                                               boost::diagnostic_information(e));
+                node_->log(log_level::INFO, "Additional info about error is " +
+                                                boost::diagnostic_information(e));
                 /*
                 boost::system::error_code e_loop;
                 do // Caution: Might cause infinite loop..
@@ -239,7 +239,7 @@ namespace io {
             // Gradually increase the baudrate to the desired value
             // The desired baudrate can be lower or larger than the
             // current baudrate; the for loop takes care of both scenarios.
-            node_->log(LogLevel::DEBUG,
+            node_->log(log_level::DEBUG,
                        "Current baudrate is " +
                            std::to_string(current_baudrate.value()));
             for (uint8_t i = 0; i < baudrates.size(); i++)
@@ -261,10 +261,11 @@ namespace io {
                 } catch (boost::system::system_error& e)
                 {
 
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "set_option failed due to " + std::string(e.what()));
-                    node_->log(LogLevel::INFO, "Additional info about error is " +
-                                                   boost::diagnostic_information(e));
+                    node_->log(log_level::INFO,
+                               "Additional info about error is " +
+                                   boost::diagnostic_information(e));
                     return false;
                 }
                 using namespace std::chrono_literals;
@@ -276,10 +277,11 @@ namespace io {
                 } catch (boost::system::system_error& e)
                 {
 
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "get_option failed due to " + std::string(e.what()));
-                    node_->log(LogLevel::INFO, "Additional info about error is " +
-                                                   boost::diagnostic_information(e));
+                    node_->log(log_level::INFO,
+                               "Additional info about error is " +
+                                   boost::diagnostic_information(e));
                     /*
                     boost::system::error_code e_loop;
                     do // Caution: Might cause infinite loop..
@@ -289,13 +291,14 @@ namespace io {
                     */
                     return false;
                 }
-                node_->log(LogLevel::DEBUG,
+                node_->log(log_level::DEBUG,
                            "Set ASIO baudrate to " +
                                std::to_string(current_baudrate.value()));
             }
-            node_->log(LogLevel::INFO, "Set ASIO baudrate to " +
-                                           std::to_string(current_baudrate.value()) +
-                                           ", leaving InitializeSerial() method");
+            node_->log(log_level::INFO,
+                       "Set ASIO baudrate to " +
+                           std::to_string(current_baudrate.value()) +
+                           ", leaving InitializeSerial() method");
             return true;
         }
 
@@ -321,13 +324,13 @@ namespace io {
 
         [[nodiscard]] bool connect()
         {
-            node_->log(LogLevel::INFO, "Opening SBF file stream" +
-                                           node_->settings()->device + "...");
+            node_->log(log_level::INFO, "Opening SBF file stream" +
+                                            node_->settings()->device + "...");
 
             int fd = open(node_->settings()->device.c_str(), O_RDONLY);
             if (fd == -1)
             {
-                node_->log(LogLevel::ERROR, "open SBF file failed.");
+                node_->log(log_level::ERROR, "open SBF file failed.");
                 return false;
             }
             stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
@@ -338,8 +341,8 @@ namespace io {
 
             } catch (std::runtime_error& e)
             {
-                node_->log(LogLevel::ERROR, "assigning SBF file failed due to " +
-                                                std::string(e.what()));
+                node_->log(log_level::ERROR, "assigning SBF file failed due to " +
+                                                 std::string(e.what()));
                 return false;
             }
             return true;
@@ -372,8 +375,8 @@ namespace io {
 
         [[nodiscard]] bool connect()
         {
-            node_->log(LogLevel::INFO, "Opening pcap file stream" +
-                                           node_->settings()->device + "...");
+            node_->log(log_level::INFO, "Opening pcap file stream" +
+                                            node_->settings()->device + "...");
 
             stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
 

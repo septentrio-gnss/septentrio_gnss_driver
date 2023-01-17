@@ -131,9 +131,9 @@ namespace io {
 
     void CommunicationCore::connect()
     {
-        node_->log(LogLevel::DEBUG, "Called connect() method");
+        node_->log(log_level::DEBUG, "Called connect() method");
         node_->log(
-            LogLevel::DEBUG,
+            log_level::DEBUG,
             "Started timer for calling connect() method until connection succeeds");
 
         boost::asio::io_service io;
@@ -160,17 +160,17 @@ namespace io {
         // and sets all its necessary corrections-related parameters
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
-            node_->log(LogLevel::DEBUG, "Configure Rx.");
+            node_->log(log_level::DEBUG, "Configure Rx.");
             configureRx();
         }
 
-        node_->log(LogLevel::DEBUG,
+        node_->log(log_level::DEBUG,
                    "Successully connected. Leaving connect() method");
     }
 
     [[nodiscard]] bool CommunicationCore::initializeIo()
     {
-        node_->log(LogLevel::DEBUG, "Called initializeIo() method");
+        node_->log(log_level::DEBUG, "Called initializeIo() method");
         boost::smatch match;
         // In fact: smatch is a typedef of match_results<string::const_iterator>
         if (boost::regex_match(settings_->device, match,
@@ -212,17 +212,17 @@ namespace io {
             std::string proto(match[2]);
             std::stringstream ss;
             ss << "Searching for serial port" << proto;
-            node_->log(LogLevel::DEBUG, ss.str());
+            node_->log(log_level::DEBUG, ss.str());
             settings_->device = proto;
             manager_.reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
         } else
         {
             std::stringstream ss;
             ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-            node_->log(LogLevel::ERROR, ss.str());
+            node_->log(log_level::ERROR, ss.str());
             return false;
         }
-        node_->log(LogLevel::DEBUG, "Leaving initializeIo() method");
+        node_->log(log_level::DEBUG, "Leaving initializeIo() method");
         return true;
     }
 
@@ -235,11 +235,11 @@ namespace io {
     //! enter command mode via "SSSSSSSSSS".
     void CommunicationCore::configureRx()
     {
-        node_->log(LogLevel::DEBUG, "Called configureRx() method");
+        node_->log(log_level::DEBUG, "Called configureRx() method");
 
         if (!initializedIo_)
         {
-            node_->log(LogLevel::DEBUG,
+            node_->log(log_level::DEBUG,
                        "Called configureRx() method but IO is not initialized.");
             return;
         }
@@ -265,7 +265,7 @@ namespace io {
             send("lif, Identification \x0D");
         }
 
-        node_->log(LogLevel::INFO, "Setting up Rx.");
+        node_->log(log_level::INFO, "Setting up Rx.");
 
         std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
             settings_->polling_period_pvt);
@@ -467,7 +467,7 @@ namespace io {
                 send(ss.str());
             } else
             {
-                node_->log(LogLevel::ERROR,
+                node_->log(log_level::ERROR,
                            "Please specify a valid parameter for heading and pitch");
             }
         }
@@ -498,7 +498,7 @@ namespace io {
                 } else
                 {
                     node_->log(
-                        LogLevel::ERROR,
+                        log_level::ERROR,
                         "Please specify a correct value for IMU orientation angles");
                 }
             }
@@ -524,7 +524,7 @@ namespace io {
                 } else
                 {
                     node_->log(
-                        LogLevel::ERROR,
+                        log_level::ERROR,
                         "Please specify a correct value for x, y and z in the config file under ant_lever_arm");
                 }
             }
@@ -550,7 +550,7 @@ namespace io {
                 } else
                 {
                     node_->log(
-                        LogLevel::ERROR,
+                        log_level::ERROR,
                         "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_lever_arm");
                 }
             }
@@ -576,7 +576,7 @@ namespace io {
                 } else
                 {
                     node_->log(
-                        LogLevel::ERROR,
+                        log_level::ERROR,
                         "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vsm_lever_arm");
                 }
             }
@@ -620,7 +620,7 @@ namespace io {
                     send(ss.str());
                 } else
                 {
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "Invalid mode specified for ins_initial_heading.");
                 }
             }
@@ -641,7 +641,7 @@ namespace io {
                     send(ss.str());
                 } else
                 {
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "Please specify a valid AttStsDev and PosStdDev");
                 }
             }
@@ -846,8 +846,8 @@ namespace io {
             }
         }
 
-        node_->log(LogLevel::DEBUG, "Leaving configureRx() method");
-        node_->log(LogLevel::INFO, "Setup complete.");
+        node_->log(log_level::DEBUG, "Leaving configureRx() method");
+        node_->log(log_level::INFO, "Setup complete.");
     }
 
     void CommunicationCore::sendVelocity(const std::string& velNmea)
@@ -872,7 +872,7 @@ namespace io {
         {
             std::shared_ptr<Telegram> telegram;
             telegramQueue_.pop(telegram);
-            if (telegram->type != message_type::EMPTY)
+            if (telegram->type != telegram_type::EMPTY)
                 telegramHandler_.handleTelegram(telegram);
         }
     }

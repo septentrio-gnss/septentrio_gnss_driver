@@ -386,13 +386,13 @@ bool BlockHeaderParser(ROSaicNodeBase* node, It& it, Hdr& block_header)
     qiLittleEndianParser(it, block_header.sync_1);
     if (block_header.sync_1 != SBF_SYNC_1)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 1.");
+        node->log(log_level::ERROR, "Parse error: Wrong sync byte 1.");
         return false;
     }
     qiLittleEndianParser(it, block_header.sync_2);
     if (block_header.sync_2 != SBF_SYNC_2)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong sync byte 2.");
+        node->log(log_level::ERROR, "Parse error: Wrong sync byte 2.");
         return false;
     }
     qiLittleEndianParser(it, block_header.crc);
@@ -438,8 +438,8 @@ bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, ChannelSatInfo& msg,
     qiLittleEndianParser(it, msg.n2);
     if (msg.n2 > MAXSB_CHANNELSTATEINFO)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many ChannelStateInfo " +
-                                       std::to_string(msg.n2));
+        node->log(log_level::ERROR, "Parse error: Too many ChannelStateInfo " +
+                                        std::to_string(msg.n2));
         return false;
     }
     qiLittleEndianParser(it, msg.rx_channel);
@@ -464,14 +464,14 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
         return false;
     if (msg.block_header.id != 4013)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_CHANNELSATINFO)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Too many ChannelSatInfo " + std::to_string(msg.n));
         return false;
     }
@@ -486,7 +486,7 @@ bool ChannelStatusParser(ROSaicNodeBase* node, It it, It itEnd, ChannelStatus& m
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -504,8 +504,8 @@ bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, Dop& msg)
         return false;
     if (msg.block_header.id != 4001)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.nr_sv);
@@ -523,7 +523,7 @@ bool DOPParser(ROSaicNodeBase* node, It it, It itEnd, Dop& msg)
     qiLittleEndianParser(it, msg.vpl);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -573,8 +573,8 @@ bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it,
     std::advance(it, sb1_length - 20); // skip padding
     if (msg.n2 > MAXSB_MEASEPOCH_T2)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType2 " +
-                                       std::to_string(msg.n2));
+        node->log(log_level::ERROR, "Parse error: Too many MeasEpochChannelType2 " +
+                                        std::to_string(msg.n2));
         return false;
     }
     msg.type2.resize(msg.n2);
@@ -596,15 +596,15 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
         return false;
     if (msg.block_header.id != 4027)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_MEASEPOCH_T1)
     {
-        node->log(LogLevel::ERROR, "Parse error: Too many MeasEpochChannelType1 " +
-                                       std::to_string(msg.n));
+        node->log(log_level::ERROR, "Parse error: Too many MeasEpochChannelType1 " +
+                                        std::to_string(msg.n));
         return false;
     }
     qiLittleEndianParser(it, msg.sb1_length);
@@ -622,7 +622,7 @@ bool MeasEpochParser(ROSaicNodeBase* node, It it, It itEnd, MeasEpochMsg& msg)
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -639,8 +639,8 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
         return false;
     if (msg.block_header.id != 5902)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     std::advance(it, 2); // reserved
@@ -679,7 +679,7 @@ bool ReceiverSetupParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverSetup& m
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -696,8 +696,8 @@ bool ReceiverTimesParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg&
         return false;
     if (msg.block_header.id != 5914)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.utc_year);
@@ -710,7 +710,7 @@ bool ReceiverTimesParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg&
     qiLittleEndianParser(it, msg.sync_level);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -727,8 +727,8 @@ bool PVTCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PVTCartesianMsg& 
         return false;
     if (msg.block_header.id != 4006)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -765,7 +765,7 @@ bool PVTCartesianParser(ROSaicNodeBase* node, It it, It itEnd, PVTCartesianMsg& 
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -782,8 +782,8 @@ bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& ms
         return false;
     if (msg.block_header.id != 4007)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -820,7 +820,7 @@ bool PVTGeodeticParser(ROSaicNodeBase* node, It it, It itEnd, PVTGeodeticMsg& ms
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -838,8 +838,8 @@ bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg,
         return false;
     if (msg.block_header.id != 5938)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.nr_sv);
@@ -865,7 +865,7 @@ bool AttEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttEulerMsg& msg,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -883,8 +883,8 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
         return false;
     if (msg.block_header.id != 5939)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     ++it; // reserved
@@ -904,7 +904,7 @@ bool AttCovEulerParser(ROSaicNodeBase* node, It it, It itEnd, AttCovEulerMsg& ms
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -947,14 +947,14 @@ bool BaseVectorCartParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 4043)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_NBVECTORINFO)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Too many VectorInfoCart " + std::to_string(msg.n));
         return false;
     }
@@ -966,7 +966,7 @@ bool BaseVectorCartParser(ROSaicNodeBase* node, It it, It itEnd,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1009,14 +1009,14 @@ bool BaseVectorGeodParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 4028)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > MAXSB_NBVECTORINFO)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Too many VectorInfoGeod " + std::to_string(msg.n));
         return false;
     }
@@ -1028,7 +1028,7 @@ bool BaseVectorGeodParser(ROSaicNodeBase* node, It it, It itEnd,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1046,8 +1046,8 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
         return false;
     if ((msg.block_header.id != 4225) && (msg.block_header.id != 4229))
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.gnss_mode);
@@ -1166,7 +1166,7 @@ bool INSNavCartParser(ROSaicNodeBase* node, It it, It itEnd, INSNavCartMsg& msg,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1184,8 +1184,8 @@ bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 5905)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1202,7 +1202,7 @@ bool PosCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
     qiLittleEndianParser(it, msg.cov_zb);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1220,8 +1220,8 @@ bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 5906)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1238,7 +1238,7 @@ bool PosCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
     qiLittleEndianParser(it, msg.cov_hb);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1256,8 +1256,8 @@ bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 5907)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1274,7 +1274,7 @@ bool VelCovCartesianParser(ROSaicNodeBase* node, It it, It itEnd,
     qiLittleEndianParser(it, msg.cov_vzdt);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1292,8 +1292,8 @@ bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 5908)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.mode);
@@ -1310,7 +1310,7 @@ bool VelCovGeodeticParser(ROSaicNodeBase* node, It it, It itEnd,
     qiLittleEndianParser(it, msg.cov_vudt);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1327,14 +1327,14 @@ bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
         return false;
     if (msg.block_header.id != 4082)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     if (msg.n > 40)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Too many indicators " + std::to_string(msg.n));
         return false;
     }
@@ -1347,7 +1347,7 @@ bool QualityIndParser(ROSaicNodeBase* node, It it, It itEnd, QualityInd& msg)
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1378,8 +1378,8 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
         return false;
     if (msg.block_header.id != 4014)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.cpu_load);
@@ -1390,7 +1390,7 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
     qiLittleEndianParser(it, msg.n);
     if (msg.n > 18)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Too many AGCState " + std::to_string(msg.n));
         return false;
     }
@@ -1404,7 +1404,7 @@ bool ReceiverStatusParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverStatus&
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1421,8 +1421,8 @@ bool ReceiverTimeParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg& 
         return false;
     if (msg.block_header.id != 5914)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.utc_year);
@@ -1435,7 +1435,7 @@ bool ReceiverTimeParser(ROSaicNodeBase* node, It it, It itEnd, ReceiverTimeMsg& 
     qiLittleEndianParser(it, msg.sync_level);
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1453,8 +1453,8 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
         return false;
     if ((msg.block_header.id != 4226) && (msg.block_header.id != 4230))
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.gnss_mode);
@@ -1574,7 +1574,7 @@ bool INSNavGeodParser(ROSaicNodeBase* node, It it, It itEnd, INSNavGeodMsg& msg,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1592,8 +1592,8 @@ bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg,
         return false;
     if (msg.block_header.id != 4224)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     ++it; // reserved
@@ -1612,7 +1612,7 @@ bool IMUSetupParser(ROSaicNodeBase* node, It it, It itEnd, IMUSetupMsg& msg,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1630,8 +1630,8 @@ bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 4244)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     ++it; // reserved
@@ -1646,7 +1646,7 @@ bool VelSensorSetupParser(ROSaicNodeBase* node, It it, It itEnd,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     return true;
@@ -1665,15 +1665,15 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
         return false;
     if (msg.block_header.id != 4050)
     {
-        node->log(LogLevel::ERROR, "Parse error: Wrong header ID " +
-                                       std::to_string(msg.block_header.id));
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
         return false;
     }
     qiLittleEndianParser(it, msg.n);
     qiLittleEndianParser(it, msg.sb_length);
     if (msg.sb_length != 28)
     {
-        node->log(LogLevel::ERROR,
+        node->log(log_level::ERROR,
                   "Parse error: Wrong sb_length " + std::to_string(msg.sb_length));
         return false;
     }
@@ -1776,7 +1776,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
         default:
         {
             node->log(
-                LogLevel::ERROR,
+                log_level::ERROR,
                 "Unknown external sensor measurement type in SBF ExtSensorMeas.");
             std::advance(it, 24);
             break;
@@ -1785,7 +1785,7 @@ bool ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd,
     }
     if (it > itEnd)
     {
-        node->log(LogLevel::ERROR, "Parse error: iterator past end.");
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
         return false;
     }
     hasImuMeas = hasAcc && hasOmega;

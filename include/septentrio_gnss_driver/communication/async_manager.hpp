@@ -158,7 +158,7 @@ namespace io {
         node_(node),
         ioInterface_(node), telegramQueue_(telegramQueue)
     {
-        node_->log(LogLevel::DEBUG, "AsyncManager created.");
+        node_->log(log_level::DEBUG, "AsyncManager created.");
     }
 
     template <typename IoType>
@@ -166,11 +166,11 @@ namespace io {
     {
         running_ = false;
         close();
-        node_->log(LogLevel::DEBUG, "AsyncManager shutting down threads");
+        node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
         ioInterface_.ioService_.stop();
         ioThread_.join();
         watchdogThread_.join();
-        node_->log(LogLevel::DEBUG, "AsyncManager threads stopped");
+        node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
 
     template <typename IoType>
@@ -193,7 +193,7 @@ namespace io {
     {
         if (cmd.size() == 0)
         {
-            node_->log(LogLevel::ERROR,
+            node_->log(log_level::ERROR,
                        "AsyncManager message size to be sent to the Rx would be 0");
             return;
         }
@@ -220,7 +220,7 @@ namespace io {
     void AsyncManager<IoType>::runIoService()
     {
         ioInterface_.ioService_.run();
-        node_->log(LogLevel::DEBUG, "AsyncManager ioService terminated.");
+        node_->log(log_level::DEBUG, "AsyncManager ioService terminated.");
     }
 
     template <typename IoType>
@@ -232,7 +232,7 @@ namespace io {
 
             if (running_ && ioInterface_.ioService_.stopped())
             {
-                node_->log(LogLevel::DEBUG,
+                node_->log(log_level::DEBUG,
                            "AsyncManager connection lost. Trying to reconnect.");
                 ioInterface_.ioService_.reset();
                 ioThread_.join();
@@ -252,12 +252,12 @@ namespace io {
                 if (!ec)
                 {
                     // Prints the data that was sent
-                    node_->log(LogLevel::DEBUG, "AsyncManager sent the following " +
-                                                    std::to_string(cmd.size()) +
-                                                    " bytes to the Rx: " + cmd);
+                    node_->log(log_level::DEBUG, "AsyncManager sent the following " +
+                                                     std::to_string(cmd.size()) +
+                                                     " bytes to the Rx: " + cmd);
                 } else
                 {
-                    node_->log(LogLevel::ERROR,
+                    node_->log(log_level::ERROR,
                                "AsyncManager was unable to send the following " +
                                    std::to_string(cmd.size()) +
                                    " bytes to the Rx: " + cmd);
@@ -300,7 +300,7 @@ namespace io {
                             {
                             case 0:
                             {
-                                telegram_->type = message_type::UNKNOWN;
+                                telegram_->type = telegram_type::UNKNOWN;
                                 readUnknown();
                                 break;
                             }
@@ -310,25 +310,25 @@ namespace io {
                                 {
                                 case SBF_SYNC_BYTE_2:
                                 {
-                                    telegram_->type = message_type::SBF;
+                                    telegram_->type = telegram_type::SBF;
                                     readSbfHeader();
                                     break;
                                 }
                                 case NMEA_SYNC_BYTE_2:
                                 {
-                                    telegram_->type = message_type::NMEA;
+                                    telegram_->type = telegram_type::NMEA;
                                     readSync<2>();
                                     break;
                                 }
                                 case NMEA_INS_SYNC_BYTE_2:
                                 {
-                                    telegram_->type = message_type::NMEA_INS;
+                                    telegram_->type = telegram_type::NMEA_INS;
                                     readSync<2>();
                                     break;
                                 }
                                 case RESPONSE_SYNC_BYTE_2:
                                 {
-                                    telegram_->type = message_type::RESPONSE;
+                                    telegram_->type = telegram_type::RESPONSE;
                                     readSync<2>();
                                     break;
                                 }
@@ -337,7 +337,7 @@ namespace io {
                                     std::stringstream ss;
                                     ss << std::hex << currByte;
                                     node_->log(
-                                        LogLevel::DEBUG,
+                                        log_level::DEBUG,
                                         "AsyncManager sync byte 2 read fault, should never come here.. Received byte was " +
                                             ss.str());
                                     resync();
@@ -352,7 +352,7 @@ namespace io {
                                 {
                                 case NMEA_SYNC_BYTE_3:
                                 {
-                                    if (telegram_->type == message_type::NMEA)
+                                    if (telegram_->type == telegram_type::NMEA)
                                         readString();
                                     else
                                         resync();
@@ -360,7 +360,7 @@ namespace io {
                                 }
                                 case NMEA_INS_SYNC_BYTE_3:
                                 {
-                                    if (telegram_->type == message_type::NMEA_INS)
+                                    if (telegram_->type == telegram_type::NMEA_INS)
                                         readString();
                                     else
                                         resync();
@@ -368,7 +368,7 @@ namespace io {
                                 }
                                 case RESPONSE_SYNC_BYTE_3:
                                 {
-                                    if (telegram_->type == message_type::RESPONSE)
+                                    if (telegram_->type == telegram_type::RESPONSE)
                                         readString();
                                     else
                                         resync();
@@ -376,7 +376,7 @@ namespace io {
                                 }
                                 case RESPONSE_SYNC_BYTE_3a:
                                 {
-                                    if (telegram_->type == message_type::RESPONSE)
+                                    if (telegram_->type == telegram_type::RESPONSE)
                                         readString();
                                     else
                                         resync();
@@ -384,10 +384,10 @@ namespace io {
                                 }
                                 case ERROR_SYNC_BYTE_3:
                                 {
-                                    if (telegram_->type == message_type::RESPONSE)
+                                    if (telegram_->type == telegram_type::RESPONSE)
                                     {
                                         telegram_->type =
-                                            message_type::ERROR_RESPONSE;
+                                            telegram_type::ERROR_RESPONSE;
                                         readString();
                                     } else
                                         resync();
@@ -398,7 +398,7 @@ namespace io {
                                     std::stringstream ss;
                                     ss << std::hex << currByte;
                                     node_->log(
-                                        LogLevel::DEBUG,
+                                        log_level::DEBUG,
                                         "AsyncManager sync byte 3 read fault, should never come here. Received byte was " +
                                             ss.str());
                                     resync();
@@ -410,7 +410,7 @@ namespace io {
                             default:
                             {
                                 node_->log(
-                                    LogLevel::DEBUG,
+                                    log_level::DEBUG,
                                     "AsyncManager sync read fault, should never come here.");
                                 resync();
                                 break;
@@ -420,14 +420,14 @@ namespace io {
                     } else
                     {
                         node_->log(
-                            LogLevel::DEBUG,
+                            log_level::DEBUG,
                             "AsyncManager sync read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
                         resync();
                     }
                 } else
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "AsyncManager sync read error: " + ec.message());
                     resync();
                 }
@@ -452,7 +452,7 @@ namespace io {
                         if (length > MAX_SBF_SIZE)
                         {
                             node_->log(
-                                LogLevel::DEBUG,
+                                log_level::DEBUG,
                                 "AsyncManager SBF header read fault, length of block exceeds " +
                                     std::to_string(MAX_SBF_SIZE) + ": " +
                                     std::to_string(length));
@@ -461,14 +461,14 @@ namespace io {
                     } else
                     {
                         node_->log(
-                            LogLevel::DEBUG,
+                            log_level::DEBUG,
                             "AsyncManager SBF header read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
                         resync();
                     }
                 } else
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
                     resync();
@@ -497,19 +497,19 @@ namespace io {
 
                             telegramQueue_->push(telegram_);
                         } else
-                            node_->log(LogLevel::DEBUG,
+                            node_->log(log_level::DEBUG,
                                        "AsyncManager crc failed for SBF  " +
                                            std::to_string(telegram_->sbfId) + ".");
                     } else
                     {
                         node_->log(
-                            LogLevel::DEBUG,
+                            log_level::DEBUG,
                             "AsyncManager SBF read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
                     }
                 } else
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
                 }
                 resync();
@@ -541,7 +541,7 @@ namespace io {
                     if (numBytes == 1)
                     {
                         telegram_->message.push_back(buf_[0]);
-                        /*node_->log(LogLevel::DEBUG,
+                        /*node_->log(log_level::DEBUG,
                                    "Buffer: " +
                                        std::string(telegram_->message.begin(),
                                                    telegram_->message.end()));*/
@@ -554,7 +554,7 @@ namespace io {
                             telegram_->message[0] = buf_[0];
                             telegram_->stamp = node_->getTime();
                             node_->log(
-                                LogLevel::DEBUG,
+                                log_level::DEBUG,
                                 "AsyncManager string read fault, sync 1 found.");
                             readSync<1>();
                             break;
@@ -566,7 +566,7 @@ namespace io {
                                 telegramQueue_->push(telegram_);
                             else
                                 node_->log(
-                                    LogLevel::DEBUG,
+                                    log_level::DEBUG,
                                     "LF wo CR: " +
                                         std::string(telegram_->message.begin(),
                                                     telegram_->message.end()));
@@ -575,7 +575,7 @@ namespace io {
                         }
                         case CONNECTION_DESCRIPTOR_FOOTER:
                         {
-                            telegram_->type = message_type::CONNECTION_DESCRIPTOR;
+                            telegram_->type = telegram_type::CONNECTION_DESCRIPTOR;
                             telegramQueue_->push(telegram_);
                             resync();
                             break;
@@ -589,14 +589,14 @@ namespace io {
                     } else
                     {
                         node_->log(
-                            LogLevel::DEBUG,
+                            log_level::DEBUG,
                             "AsyncManager string read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
                         resync();
                     }
                 } else
                 {
-                    node_->log(LogLevel::DEBUG,
+                    node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
                     resync();
                 }

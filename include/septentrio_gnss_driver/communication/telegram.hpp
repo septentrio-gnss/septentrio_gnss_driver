@@ -86,7 +86,7 @@ static const uint8_t CONNECTION_DESCRIPTOR_FOOTER = 0x3E;
 static const uint16_t SBF_HEADER_SIZE = 8;
 static const uint16_t MAX_SBF_SIZE = 65535;
 
-namespace message_type {
+namespace telegram_type {
     enum TelegramType
     {
         EMPTY,
@@ -103,12 +103,12 @@ namespace message_type {
 struct Telegram
 {
     Timestamp stamp;
-    message_type::TelegramType type;
+    telegram_type::TelegramType type;
     uint16_t sbfId;
     std::vector<uint8_t> message;
 
     Telegram() :
-        stamp(0), type(message_type::EMPTY), sbfId(0),
+        stamp(0), type(telegram_type::EMPTY), sbfId(0),
         message(std::vector<uint8_t>(3))
     {
         message.reserve(MAX_SBF_SIZE);

@@ -42,46 +42,46 @@ namespace io {
     {
         switch (telegram->type)
         {
-        case message_type::SBF:
+        case telegram_type::SBF:
         {
             handleSbf(telegram);
             break;
         }
-        case message_type::NMEA:
+        case telegram_type::NMEA:
         {
             handleNmea(telegram);
             break;
         }
-        case message_type::NMEA_INS:
+        case telegram_type::NMEA_INS:
         {
             handleNmea(telegram);
             break;
         }
-        case message_type::RESPONSE:
+        case telegram_type::RESPONSE:
         {
             handleResponse(telegram);
             break;
         }
-        case message_type::ERROR_RESPONSE:
+        case telegram_type::ERROR_RESPONSE:
         {
             handleResponse(telegram);
             break;
         }
-        case message_type::CONNECTION_DESCRIPTOR:
+        case telegram_type::CONNECTION_DESCRIPTOR:
         {
             handleCd(telegram);
             break;
         }
-        case message_type::UNKNOWN:
+        case telegram_type::UNKNOWN:
         {
-            node_->log(LogLevel::DEBUG, "Unhandeled message received: " +
+            node_->log(log_level::DEBUG, "Unhandeled message received: " +
                                             std::string(telegram->message.begin(),
                                                         telegram->message.end()));
             break;
         }
         default:
         {
-            node_->log(LogLevel::DEBUG,
+            node_->log(log_level::DEBUG,
                        "TelegramHandler received an invalid message to handle");
             break;
         }
@@ -103,16 +103,16 @@ namespace io {
         std::string block_in_string(telegram->message.begin(),
                                     telegram->message.end());
 
-        if (telegram->type == message_type::ERROR_RESPONSE)
+        if (telegram->type == telegram_type::ERROR_RESPONSE)
         {
             node_->log(
-                LogLevel::ERROR,
+                log_level::ERROR,
                 "Invalid command just sent to the Rx! The Rx's response contains " +
                     std::to_string(block_in_string.size()) + " bytes and reads:\n " +
                     block_in_string);
         } else
         {
-            node_->log(LogLevel::DEBUG, "The Rx's response contains " +
+            node_->log(log_level::DEBUG, "The Rx's response contains " +
                                             std::to_string(block_in_string.size()) +
                                             " bytes and reads:\n " +
                                             block_in_string);
@@ -130,7 +130,7 @@ namespace io {
             ++cdCtr_;
             if (cdCtr_ == 2)
             {
-                node_->log(LogLevel::INFO, "The connection descriptor is " +
+                node_->log(log_level::INFO, "The connection descriptor is " +
                                                mainConnectionDescriptor_);
 
                 cdSemaphore_.notify();
