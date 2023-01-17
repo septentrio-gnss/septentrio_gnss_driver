@@ -6,9 +6,9 @@ std_msgs/Header header
 BlockHeader  block_header   
 
 uint8        error   
-float32      cov_headhead
-float32      cov_pitchpitch
-float32      cov_rollroll
-float32      cov_headpitch
-float32      cov_headroll
-float32      cov_pitchroll
+float32      cov_headhead   # deg^2
+float32      cov_pitchpitch # deg^2
+float32      cov_rollroll   # deg^2 
+float32      cov_headpitch  # deg^2
+float32      cov_headroll   # deg^2
+float32      cov_pitchroll  # deg^2

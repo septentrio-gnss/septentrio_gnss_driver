@@ -16,22 +16,22 @@ uint8[]   type
 uint8[]   obs_info
 
 #ExtSensorMeasAcceleration
-float64 acceleration_x
-float64 acceleration_y
-float64 acceleration_z
+float64 acceleration_x # m/s^2
+float64 acceleration_y # m/s^2
+float64 acceleration_z # m/s^2
 
 #ExtSensorMeasAngularRate
-float64 angular_rate_x
-float64 angular_rate_y
-float64 angular_rate_z
+float64 angular_rate_x # deg/s
+float64 angular_rate_y # deg/s
+float64 angular_rate_z # deg/s
 
 #ExtSensorMeasVelocity
-float32 velocity_x
-float32 velocity_y
-float32 velocity_z
-float32 std_dev_x
-float32 std_dev_y
-float32 std_dev_z
+float32 velocity_x # m/s
+float32 velocity_y # m/s
+float32 velocity_z # m/s
+float32 std_dev_x # m/s
+float32 std_dev_y # m/s
+float32 std_dev_z # m/s
 
 #ExtSensorMeasInfo
 float32 sensor_temperature # deg C
