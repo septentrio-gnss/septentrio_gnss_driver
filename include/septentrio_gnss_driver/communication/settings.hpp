@@ -239,7 +239,7 @@ struct Settings
     bool publish_gpst;
     //! Whether or not to publish the NavSatFixMsg message
     bool publish_navsatfix;
-    //! Whether or not to publish the GPSFixMsg message
+    //! Whether or not to publish the GpsFixMsg message
     bool publish_gpsfix;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;

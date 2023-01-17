@@ -337,11 +337,12 @@ namespace io {
         msg.angular_velocity.y = last_extsensmeas_.angular_rate_y;
         msg.angular_velocity.z = last_extsensmeas_.angular_rate_z;
 
-        bool valid_orientation = true;
+        bool valid_orientation = false;
         if (settings_->septentrio_receiver_type == "ins")
         {
             if (validValue(last_insnavgeod_.block_header.tow))
             {
+                // INS tow and extsens meas tow have the same time scale
                 Timestamp tsImu =
                     timestampSBF(last_extsensmeas_.block_header.tow,
                                  last_extsensmeas_.block_header.wnc, true);
@@ -420,9 +421,6 @@ namespace io {
             {
                 valid_orientation = false;
             }
-        } else
-        {
-            valid_orientation = false;
         }
 
         if (!valid_orientation)
@@ -439,9 +437,11 @@ namespace io {
         return msg;
     };
 
-    TwistWithCovarianceStampedMsg
-    MessageParser::assembleTwist(bool fromIns /* = false*/)
+    void MessageParser::assembleTwist(const Timestamp& time_obj,
+                                      bool fromIns /* = false*/)
     {
+        if (!settings_->publish_twist)
+            return;
         TwistWithCovarianceStampedMsg msg;
 
         if (fromIns)
@@ -557,6 +557,10 @@ namespace io {
 
         } else
         {
+            if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
+                (last_pvtgeodetic_.block_header.tow !=
+                 last_velcovgeodetic_.block_header.tow))
+                return;
             msg.header = last_pvtgeodetic_.header;
 
             if (last_pvtgeodetic_.error == 0)
@@ -654,7 +658,7 @@ namespace io {
 
         msg.header.frame_id = "navigation";
 
-        return msg;
+        publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg, time_obj);
     };
 
     /**
@@ -663,8 +667,11 @@ namespace io {
      * Angular velocity not available, thus according autocovariances are set to
      * -1.0.
      */
-    LocalizationMsg MessageParser::assembleLocalizationUtm()
+    void MessageParser::assembleLocalizationUtm(const Timestamp& time_obj)
     {
+        if (!settings_->publish_localization)
+            return;
+
         LocalizationMsg msg;
 
         int zone;
@@ -835,7 +842,7 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        return msg;
+        publish<LocalizationMsg>("/localization", msg, time_obj);
     };
 
     /**
@@ -843,8 +850,15 @@ namespace io {
      * Linear velocity of twist in body frame as per msg definition. Angular
      * velocity not available, thus according autocovariances are set to -1.0.
      */
-    LocalizationMsg MessageParser::assembleLocalizationEcef()
+    void MessageParser::assembleLocalizationEcef(const Timestamp& time_obj)
     {
+        if (!settings_->publish_localization_ecef)
+            return;
+
+        if ((!validValue(last_insnavcart_.block_header.tow)) ||
+            (last_insnavcart_.block_header.tow != last_insnavgeod_.block_header.tow))
+            return;
+
         LocalizationMsg msg;
 
         msg.header.frame_id = "ecef";
@@ -993,7 +1007,7 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        return msg;
+        publish<LocalizationMsg>("/localization_ecef", msg, time_obj);
     };
 
     void MessageParser::assembleLocalizationMsgTwist(double roll, double pitch,
@@ -1119,12 +1133,20 @@ namespace io {
      * SignalInfo field of the PVTGeodetic block does not disclose it. For that, one
      * would need to go to the ObsInfo field of the MeasEpochChannelType1 sub-block.
      */
-    NavSatFixMsg MessageParser::assembleNavSatFix()
+    void MessageParser::assembleNavSatFix(const Timestamp& time_obj)
     {
+        if (!settings_->publish_navsatfix)
+            return;
+
         NavSatFixMsg msg;
         uint16_t mask = 15; // We extract the first four bits using this mask.
         if (settings_->septentrio_receiver_type == "gnss")
         {
+            if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
+                (last_pvtgeodetic_.block_header.tow !=
+                 last_poscovgeodetic_.block_header.tow))
+                return;
+
             uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
             switch (type_of_pvt)
             {
@@ -1199,11 +1221,13 @@ namespace io {
             msg.position_covariance[7] = last_poscovgeodetic_.cov_lathgt;
             msg.position_covariance[8] = last_poscovgeodetic_.cov_hgthgt;
             msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
-            return msg;
-        }
-
-        if (settings_->septentrio_receiver_type == "ins")
+        } else if (settings_->septentrio_receiver_type == "ins")
         {
+            if ((!validValue(last_insnavgeod_.block_header.tow)) ||
+                (last_insnavgeod_.block_header.tow !=
+                 last_pvtgeodetic_.block_header.tow))
+                return;
+
             NavSatFixMsg msg;
             uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
             switch (type_of_pvt)
@@ -1290,7 +1314,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        return msg;
+        publish<NavSatFixMsg>("/navsatfix", msg, time_obj);
     };
 
     /**
@@ -1314,9 +1338,34 @@ namespace io {
      * includes those "in search". In case certain values appear unphysical, please
      * consult the firmware, since those most likely refer to Do-Not-Use values.
      */
-    GPSFixMsg MessageParser::assembleGPSFix()
+    void MessageParser::assembleGpsFix(const Timestamp& time_obj)
     {
-        GPSFixMsg msg;
+        if (!settings_->publish_gpsfix)
+            return;
+
+        if (settings_->septentrio_receiver_type == "gnss")
+        {
+            if (!validValue(last_measepoch_.block_header.tow) ||
+                !validValue(last_channelstatus_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_pvtgeodetic_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_poscovgeodetic_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_atteuler_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_attcoveuler_.block_header.tow))
+                return;
+        } else if (settings_->septentrio_receiver_type == "ins")
+        {
+            if (!validValue(last_measepoch_.block_header.tow) ||
+                !validValue(last_channelstatus_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_insnavgeod_.block_header.tow))
+                return;
+        }
+
+        GpsFixMsg msg;
         msg.status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
 
         // MeasEpoch Processing
@@ -1447,13 +1496,13 @@ namespace io {
             {
             case evNoPVT:
             {
-                msg.status.status = GPSStatusMsg::STATUS_NO_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
                 break;
             }
             case evStandAlone:
             case evFixed:
             {
-                msg.status.status = GPSStatusMsg::STATUS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
@@ -1463,7 +1512,7 @@ namespace io {
             case evMovingBaseRTKFloat:
             case evPPP:
             {
-                msg.status.status = GPSStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_GBAS_FIX;
                 break;
             }
             case evSBAS:
@@ -1473,10 +1522,10 @@ namespace io {
                 if (reference_id == 131 || reference_id == 133 ||
                     reference_id == 135 || reference_id == 135)
                 {
-                    msg.status.status = GPSStatusMsg::STATUS_WAAS_FIX;
+                    msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
                 } else
                 {
-                    msg.status.status = GPSStatusMsg::STATUS_SBAS_FIX;
+                    msg.status.status = GpsStatusMsg::STATUS_SBAS_FIX;
                 }
                 break;
             }
@@ -1490,11 +1539,11 @@ namespace io {
             }
             // Doppler is not used when calculating the velocities of, say,
             // mosaic-x5, hence:
-            msg.status.motion_source = GPSStatusMsg::SOURCE_POINTS;
+            msg.status.motion_source = GpsStatusMsg::SOURCE_POINTS;
             // Doppler is not used when calculating the orientation of, say,
             // mosaic-x5, hence:
-            msg.status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
-            msg.status.position_source = GPSStatusMsg::SOURCE_GPS;
+            msg.status.orientation_source = GpsStatusMsg::SOURCE_POINTS;
+            msg.status.position_source = GpsStatusMsg::SOURCE_GPS;
             msg.latitude = rad2deg(last_pvtgeodetic_.latitude);
             msg.longitude = rad2deg(last_pvtgeodetic_.longitude);
             msg.altitude = last_pvtgeodetic_.height;
@@ -1584,9 +1633,7 @@ namespace io {
             msg.position_covariance[7] = last_poscovgeodetic_.cov_lathgt;
             msg.position_covariance[8] = last_poscovgeodetic_.cov_hgthgt;
             msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
-        }
-
-        if (settings_->septentrio_receiver_type == "ins")
+        } else if (settings_->septentrio_receiver_type == "ins")
         {
             // PVT Status Analysis
             uint16_t status_mask =
@@ -1597,13 +1644,13 @@ namespace io {
             {
             case evNoPVT:
             {
-                msg.status.status = GPSStatusMsg::STATUS_NO_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
                 break;
             }
             case evStandAlone:
             case evFixed:
             {
-                msg.status.status = GPSStatusMsg::STATUS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
@@ -1613,7 +1660,7 @@ namespace io {
             case evMovingBaseRTKFloat:
             case evPPP:
             {
-                msg.status.status = GPSStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_GBAS_FIX;
                 break;
             }
             case evSBAS:
@@ -1627,11 +1674,11 @@ namespace io {
             }
             // Doppler is not used when calculating the velocities of, say,
             // mosaic-x5, hence:
-            msg.status.motion_source = GPSStatusMsg::SOURCE_POINTS;
+            msg.status.motion_source = GpsStatusMsg::SOURCE_POINTS;
             // Doppler is not used when calculating the orientation of, say,
             // mosaic-x5, hence:
-            msg.status.orientation_source = GPSStatusMsg::SOURCE_POINTS;
-            msg.status.position_source = GPSStatusMsg::SOURCE_GPS;
+            msg.status.orientation_source = GpsStatusMsg::SOURCE_POINTS;
+            msg.status.position_source = GpsStatusMsg::SOURCE_GPS;
             msg.latitude = rad2deg(last_insnavgeod_.latitude);
             msg.longitude = rad2deg(last_insnavgeod_.longitude);
             msg.altitude = last_insnavgeod_.height;
@@ -1747,7 +1794,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        return msg;
+        publish<GpsFixMsg>("/gpsfix", msg, time_obj);
     };
 
     Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& data,
@@ -1901,6 +1948,9 @@ namespace io {
             last_pvtgeodetic_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_pvtgeodetic)
                 publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_, time_obj);
+            assembleTwist(time_obj);
+            assembleNavSatFix(time_obj);
+            assembleGpsFix(time_obj);
             break;
         }
         case BASE_VECTOR_CART:
@@ -1970,6 +2020,9 @@ namespace io {
             if (settings_->publish_poscovgeodetic)
                 publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_,
                                            time_obj);
+            assembleNavSatFix(time_obj);
+            assembleGpsFix(time_obj);
+            assembleGpsFix(time_obj);
             break;
         }
         case ATT_EULER:
@@ -1988,6 +2041,7 @@ namespace io {
             last_atteuler_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("/atteuler", last_atteuler_, time_obj);
+            assembleGpsFix(time_obj);
             break;
         }
         case ATT_COV_EULER:
@@ -2006,6 +2060,7 @@ namespace io {
             last_attcoveuler_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_, time_obj);
+            assembleGpsFix(time_obj);
             break;
         }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
@@ -2030,6 +2085,7 @@ namespace io {
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_insnavcart_.header.stamp = timestampToRos(time_obj);
             publish<INSNavCartMsg>("/insnavcart", last_insnavcart_, time_obj);
+            assembleLocalizationEcef(time_obj);
             break;
         }
         case INS_NAV_GEOD: // Position, velocity and orientation in geodetic
@@ -2055,12 +2111,10 @@ namespace io {
             last_insnavgeod_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_insnavgeod)
                 publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_, time_obj);
-            if (settings_->publish_twist)
-            {
-                TwistWithCovarianceStampedMsg twist = assembleTwist(true);
-                publish<TwistWithCovarianceStampedMsg>("/twist_ins", twist,
-                                                       time_obj);
-            }
+            assembleLocalizationUtm(time_obj);
+            assembleLocalizationEcef(time_obj);
+            assembleTwist(time_obj, true);
+            assembleGpsFix(time_obj);
             break;
         }
 
@@ -2214,6 +2268,7 @@ namespace io {
             last_measepoch_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_measepoch)
                 publish<MeasEpochMsg>("/measepoch", last_measepoch_, time_obj);
+            assembleGpsFix(time_obj);
             break;
         }
         case DOP:
@@ -2243,11 +2298,7 @@ namespace io {
             if (settings_->publish_velcovgeodetic)
                 publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_,
                                            time_obj);
-            if (settings_->publish_twist)
-            {
-                TwistWithCovarianceStampedMsg twist = assembleTwist();
-                publish<TwistWithCovarianceStampedMsg>("/twist", twist, time_obj);
-            }
+            assembleTwist(time_obj);
             break;
         }
         case RECEIVER_STATUS:
@@ -2549,13 +2600,13 @@ namespace io {
                 {
                 case evGPSFix:
                 {
-                    GPSFixMsg msg;
+                    GpsFixMsg msg;
                     try
                     {
-                        msg = assembleGPSFix();
+                        msg = assembleGpsFix();
                     } catch (std::runtime_error& e)
                     {
-                        node_->log(LogLevel::DEBUG, "GPSFixMsg: " +
+                        node_->log(LogLevel::DEBUG, "GpsFixMsg: " +
            std::string(e.what())); break;
                     }
                     msg.header.frame_id = settings_->frame_id;
@@ -2577,7 +2628,7 @@ namespace io {
                     {
                         wait(time_obj);
                     }
-                    publish<GPSFixMsg>("/gpsfix", msg);
+                    publish<GpsFixMsg>("/gpsfix", msg);
                     break;
                 }
                 }
@@ -2585,13 +2636,13 @@ namespace io {
                 {
                 case evINSGPSFix:
                 {
-                    GPSFixMsg msg;
+                    GpsFixMsg msg;
                     try
                     {
-                        msg = assembleGPSFix();
+                        msg = assembleGpsFix();
                     } catch (std::runtime_error& e)
                     {
-                        node_->log(LogLevel::DEBUG, "GPSFixMsg: " +
+                        node_->log(LogLevel::DEBUG, "GpsFixMsg: " +
            std::string(e.what())); break;
                     }
                     if (settings_->ins_use_poi)
@@ -2615,7 +2666,7 @@ namespace io {
                     {
                         wait(time_obj);
                     }
-                    publish<GPSFixMsg>("/gpsfix", msg);
+                    publish<GpsFixMsg>("/gpsfix", msg);
                     break;
                 }
                 }

@@ -291,25 +291,27 @@ namespace io {
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
-         * @return A smart pointer to the ROS message NavSatFix just created
+         * @param[in] time_obj time of message
          */
-        NavSatFixMsg assembleNavSatFix();
+        void assembleNavSatFix(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
-         * @return A smart pointer to the ROS message GPSFix just created
+         * @param[in] time_obj time of message
          */
-        GPSFixMsg assembleGPSFix();
+        void assembleGpsFix(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
          * messages
+         * @param[in] time_obj time of message
          */
         void assemblePoseWithCovarianceStamped(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing
          * DiagnosticArrayMsg messages
+         * @param[in] time_obj time of message
          */
         void assembleDiagnosticArray(const Timestamp& time_obj);
 
@@ -324,18 +326,16 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * LocalizationMsg messages in UTM
-         * @return A ROS message
-         * LocalizationMsg just created
+         * @param[in] time_obj time of message
          */
-        LocalizationMsg assembleLocalizationUtm();
+        void assembleLocalizationUtm(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing
          * LocalizationMsg messages in ECEF
-         * @return A ROS message
-         * LocalizationMsg just created
+         * @param[in] time_obj time of message
          */
-        LocalizationMsg assembleLocalizationEcef();
+        void assembleLocalizationEcef(const Timestamp& time_obj);
 
         /**
          * @brief function to fill twist part of LocalizationMsg
@@ -350,14 +350,14 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * TwistWithCovarianceStampedMsg messages
+         * @param[in] time_obj time of message
          * @param[in] fromIns Wether to contruct message from INS data
-         * @return A ROS message
-         * TwistWithCovarianceStampedMsg just created
          */
-        TwistWithCovarianceStampedMsg assembleTwist(bool fromIns = false);
+        void assembleTwist(const Timestamp& time_obj, bool fromIns = false);
 
         /**
          * @brief Waits according to time when reading from file
+         * @param[in] time_obj wait until time
          */
         void wait(Timestamp time_obj);
 

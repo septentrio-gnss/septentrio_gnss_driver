@@ -269,7 +269,7 @@ namespace qi = boost::spirit::qi;
 
 /**
  * validValue
- * @brief Check if value is not set to Do-Not-Use -2e10
+ * @brief Check if value is not set to Do-Not-Use
  */
 template <typename T>
 bool validValue(T s)
@@ -294,19 +294,30 @@ bool validValue(T s)
 
 /**
  * setDoNotUse
- * @brief Sets scalar to Do-Not-Use value -2e10
+ * @brief Sets scalar to Do-Not-Use value
  */
-template <typename T>
-void setDoNotUse(T& s)
+template <typename Val>
+void setDoNotUse(Val& s)
 {
-    static_assert(std::is_same<float, T>::value || std::is_same<double, T>::value);
-    if (std::is_same<float, T>::value)
+    static_assert(
+        std::is_same<uint16_t, Val>::value || std::is_same<uint32_t, Val>::value ||
+        std::is_same<uint64_t, Val>::value || std::is_same<float, Val>::value ||
+        std::is_same<double, Val>::value);
+
+    if (std::is_same<uint16_t, Val>::value)
+    {
+        s = 65535;
+    } else if (std::is_same<uint32_t, Val>::value)
+    {
+        s = 4294967295ul;
+    } else if (std::is_same<float, Val>::value)
     {
         s = -2e10f;
-    } else if (std::is_same<double, T>::value)
+    } else if (std::is_same<double, Val>::value)
     {
         s = -2e10;
     }
+    // TODO add more
 }
 
 /**
