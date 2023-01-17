@@ -54,48 +54,16 @@ using parsing_utilities::rad2deg;
 using parsing_utilities::square;
 
 namespace io {
-    PoseWithCovarianceStampedMsg MessageParser::assemblePoseWithCovarianceStamped()
+    void MessageParser::assemblePoseWithCovarianceStamped(const Timestamp& time_obj)
     {
         PoseWithCovarianceStampedMsg msg;
-        if (settings_->septentrio_receiver_type == "gnss")
-        {
-            // Filling in the pose data
-            double yaw = 0.0;
-            if (validValue(last_atteuler_.heading))
-                yaw = last_atteuler_.heading;
-            double pitch = 0.0;
-            if (validValue(last_atteuler_.pitch))
-                pitch = last_atteuler_.pitch;
-            double roll = 0.0;
-            if (validValue(last_atteuler_.roll))
-                roll = last_atteuler_.roll;
-            msg.pose.pose.orientation = convertEulerToQuaternionMsg(
-                deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
-            msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
-            msg.pose.pose.position.y = rad2deg(last_pvtgeodetic_.latitude);
-            msg.pose.pose.position.z = last_pvtgeodetic_.height;
-            // Filling in the covariance data in row-major order
-            msg.pose.covariance[0] = last_poscovgeodetic_.cov_lonlon;
-            msg.pose.covariance[1] = last_poscovgeodetic_.cov_latlon;
-            msg.pose.covariance[2] = last_poscovgeodetic_.cov_lonhgt;
-            msg.pose.covariance[6] = last_poscovgeodetic_.cov_latlon;
-            msg.pose.covariance[7] = last_poscovgeodetic_.cov_latlat;
-            msg.pose.covariance[8] = last_poscovgeodetic_.cov_lathgt;
-            msg.pose.covariance[12] = last_poscovgeodetic_.cov_lonhgt;
-            msg.pose.covariance[13] = last_poscovgeodetic_.cov_lathgt;
-            msg.pose.covariance[14] = last_poscovgeodetic_.cov_hgthgt;
-            msg.pose.covariance[21] = deg2radSq(last_attcoveuler_.cov_rollroll);
-            msg.pose.covariance[22] = deg2radSq(last_attcoveuler_.cov_pitchroll);
-            msg.pose.covariance[23] = deg2radSq(last_attcoveuler_.cov_headroll);
-            msg.pose.covariance[27] = deg2radSq(last_attcoveuler_.cov_pitchroll);
-            msg.pose.covariance[28] = deg2radSq(last_attcoveuler_.cov_pitchpitch);
-            msg.pose.covariance[29] = deg2radSq(last_attcoveuler_.cov_headpitch);
-            msg.pose.covariance[33] = deg2radSq(last_attcoveuler_.cov_headroll);
-            msg.pose.covariance[34] = deg2radSq(last_attcoveuler_.cov_headpitch);
-            msg.pose.covariance[35] = deg2radSq(last_attcoveuler_.cov_headhead);
-        }
         if (settings_->septentrio_receiver_type == "ins")
         {
+            if (!validValue(last_insnavgeod_.block_header.tow))
+                return;
+
+            msg.header = last_insnavgeod_.header;
+
             msg.pose.pose.position.x = rad2deg(last_insnavgeod_.longitude);
             msg.pose.pose.position.y = rad2deg(last_insnavgeod_.latitude);
             msg.pose.pose.position.z = last_insnavgeod_.height;
@@ -187,14 +155,71 @@ namespace io {
                 msg.pose.covariance[34] =
                     deg2radSq(last_insnavgeod_.heading_pitch_cov);
             }
+        } else
+        {
+            if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
+                (last_pvtgeodetic_.block_header.tow !=
+                 last_atteuler_.block_header.tow) ||
+                (last_pvtgeodetic_.block_header.tow !=
+                 last_poscovgeodetic_.block_header.tow) ||
+                (last_pvtgeodetic_.block_header.tow !=
+                 last_attcoveuler_.block_header.tow))
+                return;
+
+            msg.header = last_pvtgeodetic_.header;
+
+            // Filling in the pose data
+            double yaw = 0.0;
+            if (validValue(last_atteuler_.heading))
+                yaw = last_atteuler_.heading;
+            double pitch = 0.0;
+            if (validValue(last_atteuler_.pitch))
+                pitch = last_atteuler_.pitch;
+            double roll = 0.0;
+            if (validValue(last_atteuler_.roll))
+                roll = last_atteuler_.roll;
+            msg.pose.pose.orientation = convertEulerToQuaternionMsg(
+                deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
+            msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
+            msg.pose.pose.position.y = rad2deg(last_pvtgeodetic_.latitude);
+            msg.pose.pose.position.z = last_pvtgeodetic_.height;
+            // Filling in the covariance data in row-major order
+            msg.pose.covariance[0] = last_poscovgeodetic_.cov_lonlon;
+            msg.pose.covariance[1] = last_poscovgeodetic_.cov_latlon;
+            msg.pose.covariance[2] = last_poscovgeodetic_.cov_lonhgt;
+            msg.pose.covariance[6] = last_poscovgeodetic_.cov_latlon;
+            msg.pose.covariance[7] = last_poscovgeodetic_.cov_latlat;
+            msg.pose.covariance[8] = last_poscovgeodetic_.cov_lathgt;
+            msg.pose.covariance[12] = last_poscovgeodetic_.cov_lonhgt;
+            msg.pose.covariance[13] = last_poscovgeodetic_.cov_lathgt;
+            msg.pose.covariance[14] = last_poscovgeodetic_.cov_hgthgt;
+            msg.pose.covariance[21] = deg2radSq(last_attcoveuler_.cov_rollroll);
+            msg.pose.covariance[22] = deg2radSq(last_attcoveuler_.cov_pitchroll);
+            msg.pose.covariance[23] = deg2radSq(last_attcoveuler_.cov_headroll);
+            msg.pose.covariance[27] = deg2radSq(last_attcoveuler_.cov_pitchroll);
+            msg.pose.covariance[28] = deg2radSq(last_attcoveuler_.cov_pitchpitch);
+            msg.pose.covariance[29] = deg2radSq(last_attcoveuler_.cov_headpitch);
+            msg.pose.covariance[33] = deg2radSq(last_attcoveuler_.cov_headroll);
+            msg.pose.covariance[34] = deg2radSq(last_attcoveuler_.cov_headpitch);
+            msg.pose.covariance[35] = deg2radSq(last_attcoveuler_.cov_headhead);
         }
-        return msg;
+        publish<PoseWithCovarianceStampedMsg>("/pose", msg, time_obj);
     };
 
-    DiagnosticArrayMsg MessageParser::assembleDiagnosticArray()
+    void MessageParser::assembleDiagnosticArray(const Timestamp& time_obj)
     {
         DiagnosticArrayMsg msg;
-        std::string serialnumber(last_receiversetup_.rx_serial_number);
+        if (!validValue(last_receiverstatus_.block_header.tow) ||
+            (last_receiverstatus_.block_header.tow !=
+             last_qualityind_.block_header.tow))
+            return;
+        msg.header.stamp = timestampToRos(time_obj);
+        // TODO frame_id
+        std::string serialnumber;
+        if (validValue(last_receiversetup_.block_header.tow))
+            serialnumber = last_receiversetup_.rx_serial_number;
+        else
+            serialnumber = "invalid";
         DiagnosticStatusMsg gnss_status;
         // Constructing the "level of operation" field
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
@@ -297,7 +322,7 @@ namespace io {
         gnss_status.message =
             "Quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
-        return msg;
+        publish<DiagnosticArrayMsg>("/diagnostics", msg, time_obj);
     };
 
     ImuMsg MessageParser::assmembleImu()
@@ -1761,7 +1786,7 @@ namespace io {
                 time_obj -= current_leap_seconds_ * secToNSec;
         } else
         {
-            time_obj = recvTimestamp_;
+            time_obj = recvTimestamp_; // TODO use timestamp from telegram !!!
         }
         return time_obj;
     }
@@ -1770,12 +1795,17 @@ namespace io {
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
     template <typename M>
-    void MessageParser::publish(const std::string& topic, const M& msg)
+    void MessageParser::publish(const std::string& topic, const M& msg,
+                                const Timestamp& time_obj)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
             (settings_->use_gnss_time && (current_leap_seconds_ != -128)))
         {
+            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+            {
+                wait(time_obj);
+            }
             node_->publishMessage<M>(topic, msg);
         } else
         {
@@ -1793,13 +1823,18 @@ namespace io {
     /**
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
-    void MessageParser::publishTf(const LocalizationMsg& msg)
+    void MessageParser::publishTf(const LocalizationMsg& msg,
+                                  const Timestamp& time_obj)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
             (settings_->use_gnss_time && (current_leap_seconds_ != -128) &&
              (current_leap_seconds_ != 0)))
         {
+            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+            {
+                wait(time_obj);
+            }
             node_->publishTf(msg);
         } else
         {
@@ -1826,6 +1861,11 @@ namespace io {
      */
     void MessageParser::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
+        node_->log(LogLevel::ERROR,
+                   "init tow " + std::to_string(last_pvtgeodetic_.block_header.tow) +
+                       " wnc " + std::to_string(last_pvtgeodetic_.block_header.wnc) +
+                       " .");
+
         node_->log(LogLevel::DEBUG,
                    "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
                        " made up of " + std::to_string(telegram->message.size()) +
@@ -1847,12 +1887,8 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<PVTCartesianMsg>("/pvtcartesian", msg);
+
+            publish<PVTCartesianMsg>("/pvtcartesian", msg, time_obj);
             break;
         }
         case PVT_GEODETIC: // Position and velocity in geodetic coordinate frame
@@ -1868,13 +1904,8 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_pvtgeodetic_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_pvtgeodetic)
-                publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);
+                publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_, time_obj);
             break;
         }
         case BASE_VECTOR_CART:
@@ -1891,12 +1922,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<BaseVectorCartMsg>("/basevectorcart", msg);
+            publish<BaseVectorCartMsg>("/basevectorcart", msg, time_obj);
             break;
         }
         case BASE_VECTOR_GEOD:
@@ -1913,12 +1939,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
+            publish<BaseVectorGeodMsg>("/basevectorgeod", msg, time_obj);
             break;
         }
         case POS_COV_CARTESIAN:
@@ -1935,12 +1956,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<PosCovCartesianMsg>("/poscovcartesian", msg);
+            publish<PosCovCartesianMsg>("/poscovcartesian", msg, time_obj);
             break;
         }
         case POS_COV_GEODETIC:
@@ -1956,13 +1972,9 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_poscovgeodetic_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_poscovgeodetic)
-                publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
+                publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_,
+                                           time_obj);
             break;
         }
         case ATT_EULER:
@@ -1979,13 +1991,8 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_atteuler_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_atteuler)
-                publish<AttEulerMsg>("/atteuler", last_atteuler_);
+                publish<AttEulerMsg>("/atteuler", last_atteuler_, time_obj);
             break;
         }
         case ATT_COV_EULER:
@@ -2002,13 +2009,8 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_attcoveuler_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_attcoveuler)
-                publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+                publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_, time_obj);
             break;
         }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
@@ -2032,12 +2034,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_insnavcart_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
+            publish<INSNavCartMsg>("/insnavcart", last_insnavcart_, time_obj);
             break;
         }
         case INS_NAV_GEOD: // Position, velocity and orientation in geodetic
@@ -2061,17 +2058,13 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_insnavgeod_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_insnavgeod)
-                publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+                publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_, time_obj);
             if (settings_->publish_twist)
             {
                 TwistWithCovarianceStampedMsg twist = assembleTwist(true);
-                publish<TwistWithCovarianceStampedMsg>("/twist_ins", twist);
+                publish<TwistWithCovarianceStampedMsg>("/twist_ins", twist,
+                                                       time_obj);
             }
             break;
         }
@@ -2091,12 +2084,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<IMUSetupMsg>("/imusetup", msg);
+            publish<IMUSetupMsg>("/imusetup", msg, time_obj);
             break;
         }
 
@@ -2115,12 +2103,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<VelSensorSetupMsg>("/velsensorsetup", msg);
+            publish<VelSensorSetupMsg>("/velsensorsetup", msg, time_obj);
             break;
         }
 
@@ -2146,12 +2129,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<INSNavCartMsg>("/exteventinsnavcart", msg);
+            publish<INSNavCartMsg>("/exteventinsnavcart", msg, time_obj);
             break;
         }
 
@@ -2176,12 +2154,7 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             msg.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
-            publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
+            publish<INSNavGeodMsg>("/exteventinsnavgeod", msg, time_obj);
             break;
         }
 
@@ -2200,13 +2173,9 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_extsensmeas_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_extsensormeas)
-                publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
+                publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_,
+                                          time_obj);
             if (settings_->publish_imu && hasImuMeas)
             {
                 ImuMsg msg;
@@ -2220,7 +2189,7 @@ namespace io {
                 }
                 msg.header.frame_id = settings_->imu_frame_id;
                 msg.header.stamp = last_extsensmeas_.header.stamp;
-                publish<ImuMsg>("/imu", msg);
+                publish<ImuMsg>("/imu", msg, time_obj);
             }
             break;
         }
@@ -2249,7 +2218,7 @@ namespace io {
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_measepoch_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_measepoch)
-                publish<MeasEpochMsg>("/measepoch", last_measepoch_);
+                publish<MeasEpochMsg>("/measepoch", last_measepoch_, time_obj);
             break;
         }
         case DOP:
@@ -2276,17 +2245,13 @@ namespace io {
             Timestamp time_obj =
                 timestampSBF(telegram->message, settings_->use_gnss_time);
             last_velcovgeodetic_.header.stamp = timestampToRos(time_obj);
-            // Wait as long as necessary (only when reading from SBF/PCAP file)
-            if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-            {
-                wait(time_obj);
-            }
             if (settings_->publish_velcovgeodetic)
-                publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+                publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_,
+                                           time_obj);
             if (settings_->publish_twist)
             {
                 TwistWithCovarianceStampedMsg twist = assembleTwist();
-                publish<TwistWithCovarianceStampedMsg>("/twist", twist);
+                publish<TwistWithCovarianceStampedMsg>("/twist", twist, time_obj);
             }
             break;
         }
@@ -2790,13 +2755,8 @@ namespace io {
                                "GpggaMsg: " + std::string(e.what()));
                     break;
                 }
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                    wait(time_obj);
-                }
-                publish<GpggaMsg>("/gpgga", msg);
+                Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                publish<GpggaMsg>("/gpgga", msg, time_obj);
                 break;
             }
             case 1:
@@ -2816,13 +2776,8 @@ namespace io {
                                "GprmcMsg: " + std::string(e.what()));
                     break;
                 }
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                    wait(time_obj);
-                }
-                publish<GprmcMsg>("/gprmc", msg);
+                Timestamp time_obj = timestampFromRos(msg.header.stamp);
+                publish<GprmcMsg>("/gprmc", msg, time_obj);
                 break;
             }
             case 2:
@@ -2842,11 +2797,12 @@ namespace io {
                                "GpgsaMsg: " + std::string(e.what()));
                     break;
                 }
+                Timestamp time_obj;
                 if (settings_->use_gnss_time)
                 {
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj;
+
                         time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
                                                 last_pvtgeodetic_.block_header.wnc,
                                                 settings_->use_gnss_time);
@@ -2854,7 +2810,6 @@ namespace io {
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj;
                         time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
                                                 last_insnavgeod_.block_header.wnc,
                                                 settings_->use_gnss_time);
@@ -2862,13 +2817,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                    wait(time_obj);
-                }
-                publish<GpgsaMsg>("/gpgsa", msg);
+                publish<GpgsaMsg>("/gpgsa", msg, time_obj);
                 break;
             }
             case 4:
@@ -2888,12 +2837,12 @@ namespace io {
                                "GpgsvMsg: " + std::string(e.what()));
                     break;
                 }
+                Timestamp time_obj;
                 if (settings_->use_gnss_time)
                 {
 
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj;
                         time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
                                                 last_pvtgeodetic_.block_header.wnc,
                                                 settings_->use_gnss_time);
@@ -2901,7 +2850,6 @@ namespace io {
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj;
                         time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
                                                 last_insnavgeod_.block_header.wnc,
                                                 settings_->use_gnss_time);
@@ -2909,13 +2857,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                    wait(time_obj);
-                }
-                publish<GpgsvMsg>("/gpgsv", msg);
+                publish<GpgsvMsg>("/gpgsv", msg, time_obj);
                 break;
             }
             }

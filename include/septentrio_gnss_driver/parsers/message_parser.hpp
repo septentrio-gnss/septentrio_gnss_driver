@@ -166,15 +166,19 @@ namespace io {
          * @brief Publishing function
          * @param[in] topic String of topic
          * @param[in] msg ROS message to be published
+         * @param[in] time_obj message time to wait if reading from file
          */
         template <typename M>
-        void publish(const std::string& topic, const M& msg);
+        void publish(const std::string& topic, const M& msg,
+                     const Timestamp& time_obj);
 
         /**
          * @brief Publishing function
          * @param[in] msg Localization message
+         * @param[in] time_obj message time to wait if reading from file
          */
-        void publishTf(const LocalizationMsg& msg);
+
+        void publishTf(const LocalizationMsg& msg, const Timestamp& time_obj);
 
         /**
          * @brief Pointer to the node
@@ -300,18 +304,14 @@ namespace io {
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
          * messages
-         * @return A smart pointer to the ROS message PoseWithCovarianceStamped just
-         * created
          */
-        PoseWithCovarianceStampedMsg assemblePoseWithCovarianceStamped();
+        void assemblePoseWithCovarianceStamped(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing
          * DiagnosticArrayMsg messages
-         * @return A ROS message
-         * DiagnosticArrayMsg just created
          */
-        DiagnosticArrayMsg assembleDiagnosticArray();
+        void assembleDiagnosticArray(const Timestamp& time_obj);
 
         /**
          * @brief "Callback" function when constructing
