@@ -1861,11 +1861,6 @@ namespace io {
      */
     void MessageParser::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
-        node_->log(LogLevel::ERROR,
-                   "init tow " + std::to_string(last_pvtgeodetic_.block_header.tow) +
-                       " wnc " + std::to_string(last_pvtgeodetic_.block_header.wnc) +
-                       " .");
-
         node_->log(LogLevel::DEBUG,
                    "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
                        " made up of " + std::to_string(telegram->message.size()) +
