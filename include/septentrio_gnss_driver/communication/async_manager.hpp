@@ -107,11 +107,6 @@ namespace io {
     template <typename IoType>
     class AsyncManager : public AsyncManagerBase
     {
-        friend class TcpIo;
-        friend class SerialIo;
-        friend class SbfFileIo;
-        friend class PcapFileIo;
-
     public:
         /**
          * @brief Class constructor

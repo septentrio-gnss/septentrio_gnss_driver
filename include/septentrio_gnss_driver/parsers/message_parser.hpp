@@ -186,15 +186,13 @@ namespace io {
         ROSaicNodeBase* node_;
 
         /**
-         * @brief Pointe to settings struct
+         * @brief Pointer to settings struct
          */
         Settings* settings_;
 
         /**
-         * @brief Timestamp of receiving buffer
+         * @brief Map of NMEA messgae IDs and uint8_t
          */
-        Timestamp recvTimestamp_;
-
         std::unordered_map<std::string, uint8_t> nmeaMap_{
             {"$GPGGA", 0}, {"$INGGA", 0}, {"$GPRMC", 1}, {"$INRMC", 1},
             {"$GPGSA", 2}, {"$INGSA", 2}, {"$GAGSV", 3}, {"$INGSV", 3}};
@@ -371,12 +369,10 @@ namespace io {
          * This is either done using the TOW as transmitted with the SBF block (if
          * "use_gnss" is true), or using the current time.
          * @param[in] data Pointer to the buffer
-         * @param[in] use_gnss_time If true, the TOW as transmitted with the SBF
-         * block is used, otherwise the current time
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(const std::vector<uint8_t>& data, bool use_gnss_time);
+        Timestamp timestampSBF(const std::vector<uint8_t>& data);
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format
@@ -386,11 +382,9 @@ namespace io {
          * the beginning of the current GPS week as transmitted by the SBF block
          * @param[in] wnc (Week Number Counter) counts the number of complete weeks
          * elapsed since January 6, 1980
-         * @param[in] use_gnss If true, the TOW as transmitted with the SBF block is
-         * used, otherwise the current time
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(uint32_t tow, uint16_t wnc, bool use_gnss_time);
+        Timestamp timestampSBF(uint32_t tow, uint16_t wnc);
     };
 } // namespace io

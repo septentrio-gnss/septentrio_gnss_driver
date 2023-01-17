@@ -343,13 +343,10 @@ namespace io {
             if (validValue(last_insnavgeod_.block_header.tow))
             {
                 // INS tow and extsens meas tow have the same time scale
-                Timestamp tsImu =
-                    timestampSBF(last_extsensmeas_.block_header.tow,
-                                 last_extsensmeas_.block_header.wnc, true);
-                Timestamp tsIns =
-                    timestampSBF(last_insnavgeod_.block_header.tow,
-                                 last_insnavgeod_.block_header.wnc,
-                                 true); // Filling in the orientation data
+                Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
+                                               last_extsensmeas_.block_header.wnc);
+                Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
+                                               last_insnavgeod_.block_header.wnc);
 
                 static int64_t maxDt = (settings_->polling_period_pvt == 0)
                                            ? 10000000
@@ -1797,13 +1794,12 @@ namespace io {
         publish<GpsFixMsg>("/gpsfix", msg, time_obj);
     };
 
-    Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& data,
-                                          bool use_gnss_time)
+    Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& data)
     {
         uint32_t tow = parsing_utilities::getTow(data.data());
         uint16_t wnc = parsing_utilities::getWnc(data.data());
 
-        return timestampSBF(tow, wnc, use_gnss_time);
+        return timestampSBF(tow, wnc);
     }
 
     /// If the current time shall be employed, it is calculated via the time(NULL)
@@ -1811,30 +1807,25 @@ namespace io {
     /// (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the
     /// settings_->leap_seconds ROSaic parameter accordingly as soon as the
     /// next leap second is inserted into the UTC time.
-    Timestamp MessageParser::timestampSBF(uint32_t tow, uint16_t wnc,
-                                          bool use_gnss_time)
+    Timestamp MessageParser::timestampSBF(uint32_t tow, uint16_t wnc)
     {
         Timestamp time_obj;
-        if (use_gnss_time)
-        {
-            // conversion from GPS time of week and week number to UTC taking leap
-            // seconds into account
-            static uint64_t secToNSec = 1000000000;
-            static uint64_t mSec2NSec = 1000000;
-            static uint64_t nsOfGpsStart =
-                315964800 *
-                secToNSec; // GPS week counter starts at 1980-01-06 which is
-                           // 315964800 seconds since Unix epoch (1970-01-01 UTC)
-            static uint64_t nsecPerWeek = 7 * 24 * 60 * 60 * secToNSec;
 
-            time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek;
+        // conversion from GPS time of week and week number to UTC taking leap
+        // seconds into account
+        static uint64_t secToNSec = 1000000000;
+        static uint64_t mSec2NSec = 1000000;
+        static uint64_t nsOfGpsStart =
+            315964800 *
+            secToNSec; // GPS week counter starts at 1980-01-06 which is
+                       // 315964800 seconds since Unix epoch (1970-01-01 UTC)
+        static uint64_t nsecPerWeek = 7 * 24 * 60 * 60 * secToNSec;
 
-            if (current_leap_seconds_ != -128)
-                time_obj -= current_leap_seconds_ * secToNSec;
-        } else
-        {
-            time_obj = recvTimestamp_; // TODO use timestamp from telegram !!!
-        }
+        time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek;
+
+        if (current_leap_seconds_ != -128)
+            time_obj -= current_leap_seconds_ * secToNSec;
+
         return time_obj;
     }
 
@@ -1926,8 +1917,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
 
             publish<PVTCartesianMsg>("/pvtcartesian", msg, time_obj);
@@ -1943,8 +1935,9 @@ namespace io {
                 break;
             }
             last_pvtgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_pvtgeodetic_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_pvtgeodetic)
                 publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_, time_obj);
@@ -1964,8 +1957,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<BaseVectorCartMsg>("/basevectorcart", msg, time_obj);
             break;
@@ -1981,8 +1975,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<BaseVectorGeodMsg>("/basevectorgeod", msg, time_obj);
             break;
@@ -1998,8 +1993,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<PosCovCartesianMsg>("/poscovcartesian", msg, time_obj);
             break;
@@ -2014,8 +2010,9 @@ namespace io {
                 break;
             }
             last_poscovgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_poscovgeodetic_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_poscovgeodetic)
                 publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_,
@@ -2036,8 +2033,9 @@ namespace io {
                 break;
             }
             last_atteuler_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_atteuler_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("/atteuler", last_atteuler_, time_obj);
@@ -2055,8 +2053,9 @@ namespace io {
                 break;
             }
             last_attcoveuler_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_attcoveuler_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_, time_obj);
@@ -2081,8 +2080,9 @@ namespace io {
             {
                 last_insnavcart_.header.frame_id = settings_->frame_id;
             }
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_insnavcart_.header.stamp = timestampToRos(time_obj);
             publish<INSNavCartMsg>("/insnavcart", last_insnavcart_, time_obj);
             assembleLocalizationEcef(time_obj);
@@ -2106,8 +2106,9 @@ namespace io {
             {
                 last_insnavgeod_.header.frame_id = settings_->frame_id;
             }
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_insnavgeod_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_insnavgeod)
                 publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_, time_obj);
@@ -2130,8 +2131,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<IMUSetupMsg>("/imusetup", msg, time_obj);
             break;
@@ -2149,8 +2151,9 @@ namespace io {
                 break;
             }
             msg.header.frame_id = settings_->vehicle_frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<VelSensorSetupMsg>("/velsensorsetup", msg, time_obj);
             break;
@@ -2175,8 +2178,9 @@ namespace io {
             {
                 msg.header.frame_id = settings_->frame_id;
             }
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<INSNavCartMsg>("/exteventinsnavcart", msg, time_obj);
             break;
@@ -2200,8 +2204,9 @@ namespace io {
             {
                 msg.header.frame_id = settings_->frame_id;
             }
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             msg.header.stamp = timestampToRos(time_obj);
             publish<INSNavGeodMsg>("/exteventinsnavgeod", msg, time_obj);
             break;
@@ -2219,8 +2224,9 @@ namespace io {
                 break;
             }
             last_extsensmeas_.header.frame_id = settings_->imu_frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_extsensmeas_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_extsensormeas)
                 publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_,
@@ -2263,8 +2269,9 @@ namespace io {
                 break;
             }
             last_measepoch_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_measepoch_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_measepoch)
                 publish<MeasEpochMsg>("/measepoch", last_measepoch_, time_obj);
@@ -2292,8 +2299,9 @@ namespace io {
                 break;
             }
             last_velcovgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj =
-                timestampSBF(telegram->message, settings_->use_gnss_time);
+            Timestamp time_obj = settings_->use_gnss_time
+                                     ? timestampSBF(telegram->message)
+                                     : telegram->stamp;
             last_velcovgeodetic_.header.stamp = timestampToRos(time_obj);
             if (settings_->publish_velcovgeodetic)
                 publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_,
@@ -2848,17 +2856,14 @@ namespace io {
                 {
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-
                         time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                                last_pvtgeodetic_.block_header.wnc,
-                                                settings_->use_gnss_time);
+                                                last_pvtgeodetic_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
                         time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                                last_insnavgeod_.block_header.wnc,
-                                                settings_->use_gnss_time);
+                                                last_insnavgeod_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                 } else
@@ -2890,15 +2895,13 @@ namespace io {
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
                         time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                                last_pvtgeodetic_.block_header.wnc,
-                                                settings_->use_gnss_time);
+                                                last_pvtgeodetic_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
                         time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                                last_insnavgeod_.block_header.wnc,
-                                                settings_->use_gnss_time);
+                                                last_insnavgeod_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                 } else

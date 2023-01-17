@@ -116,8 +116,9 @@ namespace io {
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;
     };
 
-    struct SerialIo
+    class SerialIo
     {
+    public:
         SerialIo(ROSaicNodeBase* node) :
             node_(node), flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
