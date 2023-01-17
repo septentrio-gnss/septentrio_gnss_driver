@@ -371,7 +371,7 @@ namespace parsing_utilities {
      * @param buffer A pointer to a buffer containing an SBF message
      * @return SBF message CRC
      */
-    uint16_t getCrc(const uint8_t* buffer);
+    uint16_t getCrc(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the ID of the SBF message
@@ -379,7 +379,7 @@ namespace parsing_utilities {
      * @param buffer A pointer to a buffer containing an SBF message
      * @return SBF message ID
      */
-    uint16_t getId(const uint8_t* buffer);
+    uint16_t getId(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the length of the SBF message
@@ -387,7 +387,7 @@ namespace parsing_utilities {
      * @param buffer A pointer to a buffer containing an SBF message
      * @return SBF message length
      */
-    uint16_t getLength(const uint8_t* buffer);
+    uint16_t getLength(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the time of week in ms of the SBF message
@@ -395,7 +395,7 @@ namespace parsing_utilities {
      * @param[in] buffer A pointer to a buffer containing an SBF message
      * @return SBF time of week in ms
      */
-    uint32_t getTow(const uint8_t* buffer);
+    uint32_t getTow(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the GPS week counter of the SBF message
@@ -403,5 +403,5 @@ namespace parsing_utilities {
      * @param buffer A pointer to a buffer containing an SBF message
      * @return SBF GPS week counter
      */
-    uint16_t getWnc(const uint8_t* buffer);
+    uint16_t getWnc(const std::vector<uint8_t>& message);
 } // namespace parsing_utilities

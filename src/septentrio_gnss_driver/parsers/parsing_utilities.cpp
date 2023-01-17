@@ -417,22 +417,34 @@ namespace parsing_utilities {
             return "min" + std::to_string(period_user / 60000);
     }
 
-    uint16_t getCrc(const uint8_t* buffer) { return parseUInt16(buffer + 2); }
+    uint16_t getCrc(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 2);
+    }
 
-    uint16_t getId(const uint8_t* buffer)
+    uint16_t getId(const std::vector<uint8_t>& message)
     {
         // Defines bit mask..
         // Highest three bits are for revision and rest for block number
         static uint16_t mask = 8191;
         // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
 
-        return parseUInt16(buffer + 4) & mask;
+        return parseUInt16(message.data() + 4) & mask;
     }
 
-    uint16_t getLength(const uint8_t* buffer) { return parseUInt16(buffer + 6); }
+    uint16_t getLength(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 6);
+    }
 
-    uint32_t getTow(const uint8_t* buffer) { return parseUInt32(buffer + 8); }
+    uint32_t getTow(const std::vector<uint8_t>& message)
+    {
+        return parseUInt32(message.data() + 8);
+    }
 
-    uint16_t getWnc(const uint8_t* buffer) { return parseUInt16(buffer + 12); }
+    uint16_t getWnc(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 12);
+    }
 
 } // namespace parsing_utilities

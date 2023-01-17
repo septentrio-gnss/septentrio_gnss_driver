@@ -372,7 +372,7 @@ namespace io {
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(const std::vector<uint8_t>& data);
+        Timestamp timestampSBF(const std::vector<uint8_t>& message);
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format

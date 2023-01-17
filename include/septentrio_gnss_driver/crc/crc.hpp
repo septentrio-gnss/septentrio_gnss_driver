@@ -61,6 +61,6 @@ namespace crc {
      * @param block The SBF block that we are interested in
      * @return True if the CRC check of the SBFBlock has passed, false otherwise
      */
-    bool isValid(const uint8_t* block);
+    bool isValid(const std::vector<uint8_t>& message);
 
 } // namespace crc

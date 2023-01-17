@@ -448,7 +448,7 @@ namespace io {
                     if (numBytes == (SBF_HEADER_SIZE - 2))
                     {
                         uint16_t length =
-                            parsing_utilities::getLength(telegram_->message.data());
+                            parsing_utilities::getLength(telegram_->message);
                         if (length > MAX_SBF_SIZE)
                         {
                             node_->log(
@@ -490,10 +490,10 @@ namespace io {
                 {
                     if (numBytes == (length - SBF_HEADER_SIZE))
                     {
-                        if (crc::isValid(telegram_->message.data()))
+                        if (crc::isValid(telegram_->message))
                         {
                             telegram_->sbfId =
-                                parsing_utilities::getId(telegram_->message.data());
+                                parsing_utilities::getId(telegram_->message);
 
                             telegramQueue_->push(telegram_);
                         } else

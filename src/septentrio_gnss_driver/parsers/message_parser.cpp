@@ -1794,10 +1794,10 @@ namespace io {
         publish<GpsFixMsg>("/gpsfix", msg, time_obj);
     };
 
-    Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& data)
+    Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& message)
     {
-        uint32_t tow = parsing_utilities::getTow(data.data());
-        uint16_t wnc = parsing_utilities::getWnc(data.data());
+        uint32_t tow = parsing_utilities::getTow(message);
+        uint16_t wnc = parsing_utilities::getWnc(message);
 
         return timestampSBF(tow, wnc);
     }
