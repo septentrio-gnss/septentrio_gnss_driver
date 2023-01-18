@@ -90,12 +90,12 @@ namespace io {
 
     void TelegramHandler::handleSbf(const std::shared_ptr<Telegram>& telegram)
     {
-        messageParser_.parseSbf(telegram);
+        messageHandler_.parseSbf(telegram);
     }
 
     void TelegramHandler::handleNmea(const std::shared_ptr<Telegram>& telegram)
     {
-        messageParser_.parseNmea(telegram);
+        messageHandler_.parseNmea(telegram);
     }
 
     void TelegramHandler::handleResponse(const std::shared_ptr<Telegram>& telegram)

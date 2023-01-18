@@ -30,7 +30,7 @@
 
 #include <GeographicLib/UTMUPS.hpp>
 #include <boost/tokenizer.hpp>
-#include <septentrio_gnss_driver/parsers/message_parser.hpp>
+#include <septentrio_gnss_driver/communication/message_handler.hpp>
 #include <thread>
 
 /**
@@ -54,7 +54,7 @@ using parsing_utilities::rad2deg;
 using parsing_utilities::square;
 
 namespace io {
-    void MessageParser::assemblePoseWithCovarianceStamped(const Timestamp& time_obj)
+    void MessageHandler::assemblePoseWithCovarianceStamped(const Timestamp& time_obj)
     {
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
@@ -206,7 +206,7 @@ namespace io {
         publish<PoseWithCovarianceStampedMsg>("/pose", msg, time_obj);
     };
 
-    void MessageParser::assembleDiagnosticArray(const Timestamp& time_obj)
+    void MessageHandler::assembleDiagnosticArray(const Timestamp& time_obj)
     {
         DiagnosticArrayMsg msg;
         if (!validValue(last_receiverstatus_.block_header.tow) ||
@@ -325,7 +325,7 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg, time_obj);
     };
 
-    ImuMsg MessageParser::assmembleImu()
+    ImuMsg MessageHandler::assmembleImu()
     {
         ImuMsg msg;
 
@@ -434,8 +434,8 @@ namespace io {
         return msg;
     };
 
-    void MessageParser::assembleTwist(const Timestamp& time_obj,
-                                      bool fromIns /* = false*/)
+    void MessageHandler::assembleTwist(const Timestamp& time_obj,
+                                       bool fromIns /* = false*/)
     {
         if (!settings_->publish_twist)
             return;
@@ -664,7 +664,7 @@ namespace io {
      * Angular velocity not available, thus according autocovariances are set to
      * -1.0.
      */
-    void MessageParser::assembleLocalizationUtm(const Timestamp& time_obj)
+    void MessageHandler::assembleLocalizationUtm(const Timestamp& time_obj)
     {
         if (!settings_->publish_localization)
             return;
@@ -847,7 +847,7 @@ namespace io {
      * Linear velocity of twist in body frame as per msg definition. Angular
      * velocity not available, thus according autocovariances are set to -1.0.
      */
-    void MessageParser::assembleLocalizationEcef(const Timestamp& time_obj)
+    void MessageHandler::assembleLocalizationEcef(const Timestamp& time_obj)
     {
         if (!settings_->publish_localization_ecef)
             return;
@@ -1007,9 +1007,9 @@ namespace io {
         publish<LocalizationMsg>("/localization_ecef", msg, time_obj);
     };
 
-    void MessageParser::assembleLocalizationMsgTwist(double roll, double pitch,
-                                                     double yaw,
-                                                     LocalizationMsg& msg)
+    void MessageHandler::assembleLocalizationMsgTwist(double roll, double pitch,
+                                                      double yaw,
+                                                      LocalizationMsg& msg)
     {
         Eigen::Matrix3d R_local_body =
             parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
@@ -1130,7 +1130,7 @@ namespace io {
      * SignalInfo field of the PVTGeodetic block does not disclose it. For that, one
      * would need to go to the ObsInfo field of the MeasEpochChannelType1 sub-block.
      */
-    void MessageParser::assembleNavSatFix(const Timestamp& time_obj)
+    void MessageHandler::assembleNavSatFix(const Timestamp& time_obj)
     {
         if (!settings_->publish_navsatfix)
             return;
@@ -1335,7 +1335,7 @@ namespace io {
      * includes those "in search". In case certain values appear unphysical, please
      * consult the firmware, since those most likely refer to Do-Not-Use values.
      */
-    void MessageParser::assembleGpsFix(const Timestamp& time_obj)
+    void MessageHandler::assembleGpsFix(const Timestamp& time_obj)
     {
         if (!settings_->publish_gpsfix)
             return;
@@ -1794,7 +1794,7 @@ namespace io {
         publish<GpsFixMsg>("/gpsfix", msg, time_obj);
     };
 
-    Timestamp MessageParser::timestampSBF(const std::vector<uint8_t>& message)
+    Timestamp MessageHandler::timestampSBF(const std::vector<uint8_t>& message)
     {
         uint32_t tow = parsing_utilities::getTow(message);
         uint16_t wnc = parsing_utilities::getWnc(message);
@@ -1807,7 +1807,7 @@ namespace io {
     /// (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the
     /// settings_->leap_seconds ROSaic parameter accordingly as soon as the
     /// next leap second is inserted into the UTC time.
-    Timestamp MessageParser::timestampSBF(uint32_t tow, uint16_t wnc)
+    Timestamp MessageHandler::timestampSBF(uint32_t tow, uint16_t wnc)
     {
         Timestamp time_obj;
 
@@ -1833,8 +1833,8 @@ namespace io {
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
     template <typename M>
-    void MessageParser::publish(const std::string& topic, const M& msg,
-                                const Timestamp& time_obj)
+    void MessageHandler::publish(const std::string& topic, const M& msg,
+                                 const Timestamp& time_obj)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
@@ -1861,8 +1861,8 @@ namespace io {
     /**
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
-    void MessageParser::publishTf(const LocalizationMsg& msg,
-                                  const Timestamp& time_obj)
+    void MessageHandler::publishTf(const LocalizationMsg& msg,
+                                   const Timestamp& time_obj)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
@@ -1897,7 +1897,7 @@ namespace io {
      * allowed e.g. for GGA seems to be 89 on a mosaic-x5. Luckily, when parsing we
      * do not care since we just search for \<LF\>\<CR\>.
      */
-    void MessageParser::parseSbf(const std::shared_ptr<Telegram>& telegram)
+    void MessageHandler::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
         node_->log(log_level::DEBUG,
                    "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
@@ -2743,7 +2743,7 @@ namespace io {
                 }*/
     }
 
-    void MessageParser::wait(Timestamp time_obj)
+    void MessageHandler::wait(Timestamp time_obj)
     {
         Timestamp unix_old = unix_time_;
         unix_time_ = time_obj;
@@ -2767,7 +2767,7 @@ namespace io {
             current_leap_seconds_ = settings_->leap_seconds;
     }
 
-    void MessageParser::parseNmea(const std::shared_ptr<Telegram>& telegram)
+    void MessageHandler::parseNmea(const std::shared_ptr<Telegram>& telegram)
     {
         std::string message(telegram->message.begin(), telegram->message.end());
         /*node_->log(

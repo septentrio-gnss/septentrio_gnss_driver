@@ -189,11 +189,11 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node
   src/septentrio_gnss_driver/communication/communication_core.cpp
+  src/septentrio_gnss_driver/communication/message_handler.cpp 
   src/septentrio_gnss_driver/communication/telegram_handler.cpp
   src/septentrio_gnss_driver/crc/crc.cpp
   src/septentrio_gnss_driver/node/main.cpp
   src/septentrio_gnss_driver/node/rosaic_node.cpp
-  src/septentrio_gnss_driver/parsers/message_parser.cpp 
   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
   src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 

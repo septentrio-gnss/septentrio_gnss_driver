@@ -129,14 +129,14 @@ enum SbfId
 namespace io {
 
     /**
-     * @class MessageParser
+     * @class MessageHandler
      * @brief Can search buffer for messages, read/parse them, and so on
      */
-    class MessageParser
+    class MessageHandler
     {
     public:
         /**
-         * @brief Constructor of the MessageParser class
+         * @brief Constructor of the MessageHandler class
          *
          * One can always provide a non-const value where a const one was expected.
          * The const-ness of the argument just means the function promises not to
@@ -144,7 +144,7 @@ namespace io {
          * no other C++ cast is capable of removing it (not even reinterpret_cast)
          * @param[in] node Pointer to the node)
          */
-        MessageParser(ROSaicNodeBase* node) :
+        MessageHandler(ROSaicNodeBase* node) :
             node_(node), settings_(node->settings()), unix_time_(0)
         {
         }
