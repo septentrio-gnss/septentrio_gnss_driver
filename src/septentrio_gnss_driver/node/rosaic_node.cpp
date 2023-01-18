@@ -64,7 +64,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     this->log(log_level::DEBUG, "Leaving ROSaicNode() constructor..");
 }
 
-bool rosaic_node::ROSaicNode::getROSParams()
+[[nodiscard]] bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
     param("frame_id", settings_.frame_id, (std::string) "gnss");
@@ -660,7 +660,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
     return true;
 }
 
-bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns) const
+[[nodiscard]] bool rosaic_node::ROSaicNode::validPeriod(uint32_t period,
+                                                        bool isIns) const
 {
     return ((period == 0) || ((period == 5 && isIns)) || (period == 10) ||
             (period == 20) || (period == 40) || (period == 50) || (period == 100) ||

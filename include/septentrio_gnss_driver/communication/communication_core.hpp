@@ -129,7 +129,7 @@ namespace io {
          * @brief Initializes the I/O handling
          * * @return Wether connection was successful
          */
-        bool initializeIo();
+        [[nodiscard]] bool initializeIo();
 
         /**
          * @brief Reset main connection so it can receive commands

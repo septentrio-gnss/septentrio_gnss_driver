@@ -131,7 +131,7 @@ namespace io {
         }
 
         //! Returns the connection descriptor
-        std::string getMainCd()
+        [[nodiscard]] std::string getMainCd()
         {
             cdSemaphore_.wait();
             return mainConnectionDescriptor_;
