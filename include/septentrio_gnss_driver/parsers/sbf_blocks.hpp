@@ -1707,7 +1707,7 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
     msg.std_dev_y = std::numeric_limits<double>::quiet_NaN();
     msg.std_dev_z = std::numeric_limits<double>::quiet_NaN();
 
-    msg.sensor_temperature = -32768.0f; // do not use value
+    msg.sensor_temperature = std::numeric_limits<float>::quiet_NaN();
     msg.zero_velocity_flag = std::numeric_limits<double>::quiet_NaN();
 
     msg.source.resize(msg.n);
