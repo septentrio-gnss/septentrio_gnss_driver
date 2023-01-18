@@ -333,10 +333,10 @@ namespace io {
                 node_->log(log_level::ERROR, "open SBF file failed.");
                 return false;
             }
-            stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
 
             try
             {
+                stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
                 stream_->assign(fd);
 
             } catch (std::runtime_error& e)
@@ -375,20 +375,21 @@ namespace io {
 
         [[nodiscard]] bool connect()
         {
-            node_->log(log_level::INFO, "Opening pcap file stream" +
-                                            node_->settings()->device + "...");
-
-            stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
-
-            pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
-                                      errBuff_.data());
-            stream_->assign(pcap_get_selectable_fd(pcap_));
-
             try
             {
+                node_->log(log_level::INFO, "Opening pcap file stream" +
+                                                node_->settings()->device + "...");
+
+                stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
+
+                pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
+                                          errBuff_.data());
+                stream_->assign(pcap_get_selectable_fd(pcap_));
 
             } catch (std::runtime_error& e)
             {
+                node_->log(log_level::ERROR, "assigning PCAP file failed due to " +
+                                                 std::string(e.what()));
                 return false;
             }
             return true;

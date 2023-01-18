@@ -180,17 +180,24 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
-    const Settings* settings() { return &settings_; }
+    const Settings* settings() const { return &settings_; }
 
     void registerSubscriber()
     {
-        ros::NodeHandle nh;
-        if (settings_.ins_vsm_ros_source == "odometry")
-            odometrySubscriber_ = nh.subscribe<nav_msgs::Odometry>(
-                "odometry_vsm", 10, &ROSaicNodeBase::callbackOdometry, this);
-        else if (settings_.ins_vsm_ros_source == "twist")
-            twistSubscriber_ = nh.subscribe<TwistWithCovarianceStampedMsg>(
-                "twist_vsm", 10, &ROSaicNodeBase::callbackTwist, this);
+        try
+        {
+            ros::NodeHandle nh;
+            if (settings_.ins_vsm_ros_source == "odometry")
+                odometrySubscriber_ = nh.subscribe<nav_msgs::Odometry>(
+                    "odometry_vsm", 10, &ROSaicNodeBase::callbackOdometry, this);
+            else if (settings_.ins_vsm_ros_source == "twist")
+                twistSubscriber_ = nh.subscribe<TwistWithCovarianceStampedMsg>(
+                    "twist_vsm", 10, &ROSaicNodeBase::callbackTwist, this);
+        } catch (const std::runtime_error& ex)
+        {
+            this->log(log_level::ERROR, "Subscriber initalization failed due to: " +
+                                            std::string(ex.what()) + ".");
+        }
     }
 
     /**
@@ -203,7 +210,8 @@ public:
      * @param[in] defaultVal Value to use if the server doesn't contain
      * this parameter
      */
-    bool getUint32Param(const std::string& name, uint32_t& val, uint32_t defaultVal)
+    bool getUint32Param(const std::string& name, uint32_t& val,
+                        uint32_t defaultVal) const
     {
         int32_t tempVal;
         if ((!pNh_->getParam(name, tempVal)) || (tempVal < 0))
@@ -225,7 +233,7 @@ public:
      * @return True if it could be retrieved, false if not
      */
     template <typename T>
-    bool param(const std::string& name, T& val, const T& defaultVal)
+    bool param(const std::string& name, T& val, const T& defaultVal) const
     {
         return pNh_->param(name, val, defaultVal);
     };
@@ -235,7 +243,7 @@ public:
      * @param[in] logLevel Log level
      * @param[in] s String to log
      */
-    void log(log_level::LogLevel logLevel, const std::string& s)
+    void log(log_level::LogLevel logLevel, const std::string& s) const
     {
         switch (logLevel)
         {
@@ -263,7 +271,7 @@ public:
      * @brief Gets current timestamp
      * @return Timestamp
      */
-    Timestamp getTime() { return ros::Time::now().toNSec(); }
+    Timestamp getTime() const { return ros::Time::now().toNSec(); }
 
     /**
      * @brief Publishing function

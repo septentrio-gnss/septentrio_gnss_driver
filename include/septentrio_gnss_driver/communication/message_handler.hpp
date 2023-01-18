@@ -170,7 +170,7 @@ namespace io {
          */
         template <typename T>
         void assembleHeader(const std::string& frameId,
-                            const std::shared_ptr<Telegram>& telegram, T& msg);
+                            const std::shared_ptr<Telegram>& telegram, T& msg) const;
         /**
          * @brief Publishing function
          * @param[in] topic String of topic
@@ -322,7 +322,7 @@ namespace io {
          * @return A ROS message
          * ImuMsg just created
          */
-        ImuMsg assmembleImu();
+        ImuMsg assmembleImu() const;
 
         /**
          * @brief "Callback" function when constructing
@@ -344,7 +344,7 @@ namespace io {
          * @param[inout] msg LocalizationMsg to be filled
          */
         void assembleLocalizationMsgTwist(double roll, double pitch, double yaw,
-                                          LocalizationMsg& msg);
+                                          LocalizationMsg& msg) const;
 
         /**
          * @brief "Callback" function when constructing
@@ -372,7 +372,7 @@ namespace io {
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(const std::vector<uint8_t>& message);
+        Timestamp timestampSBF(const std::vector<uint8_t>& message) const;
 
         /**
          * @brief Calculates the timestamp, in the Unix Epoch time format
@@ -385,6 +385,6 @@ namespace io {
          * @return Timestamp object containing seconds and nanoseconds since last
          * epoch
          */
-        Timestamp timestampSBF(uint32_t tow, uint16_t wnc);
+        Timestamp timestampSBF(uint32_t tow, uint16_t wnc) const;
     };
 } // namespace io

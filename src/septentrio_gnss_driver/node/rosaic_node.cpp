@@ -660,7 +660,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     return true;
 }
 
-bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns)
+bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns) const
 {
     return ((period == 0) || ((period == 5 && isIns)) || (period == 10) ||
             (period == 20) || (period == 40) || (period == 50) || (period == 100) ||
@@ -673,7 +673,7 @@ bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns)
 
 void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
                                            const std::string& sourceFrame,
-                                           TransformStampedMsg& T_s_t)
+                                           TransformStampedMsg& T_s_t) const
 {
     bool found = false;
     while (!found)
@@ -695,7 +695,7 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
 }
 
 void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
-                                     double& pitch, double& yaw)
+                                     double& pitch, double& yaw) const
 {
     Eigen::Quaterniond q(qm.w, qm.x, qm.y, qm.z);
     Eigen::Quaterniond::RotationMatrixType C = q.matrix();

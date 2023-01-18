@@ -104,7 +104,7 @@ namespace rosaic_node {
          * @param[in] isIns wether recevier is an INS
          * @return wether the period is valid
          */
-        bool validPeriod(uint32_t period, bool isIns);
+        bool validPeriod(uint32_t period, bool isIns) const;
         /**
          * @brief Gets transforms from tf2
          * @param[in] targetFrame traget frame id
@@ -113,7 +113,7 @@ namespace rosaic_node {
          */
         void getTransform(const std::string& targetFrame,
                           const std::string& sourceFrame,
-                          TransformStampedMsg& T_s_t);
+                          TransformStampedMsg& T_s_t) const;
         /**
          * @brief Gets Euler angles from quaternion message
          * @param[in] qm quaternion message
@@ -122,7 +122,7 @@ namespace rosaic_node {
          * @param[out] yaw yaw angle
          */
         void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
-                    double& yaw);
+                    double& yaw) const;
 
         void sendVelocity(const std::string& velNmea);
 

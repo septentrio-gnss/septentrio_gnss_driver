@@ -75,8 +75,8 @@ namespace io {
         case telegram_type::UNKNOWN:
         {
             node_->log(log_level::DEBUG, "Unhandeled message received: " +
-                                            std::string(telegram->message.begin(),
-                                                        telegram->message.end()));
+                                             std::string(telegram->message.begin(),
+                                                         telegram->message.end()));
             break;
         }
         default:
@@ -113,9 +113,9 @@ namespace io {
         } else
         {
             node_->log(log_level::DEBUG, "The Rx's response contains " +
-                                            std::to_string(block_in_string.size()) +
-                                            " bytes and reads:\n " +
-                                            block_in_string);
+                                             std::to_string(block_in_string.size()) +
+                                             " bytes and reads:\n " +
+                                             block_in_string);
         }
         responseSemaphore_.notify();
     }
@@ -131,7 +131,7 @@ namespace io {
             if (cdCtr_ == 2)
             {
                 node_->log(log_level::INFO, "The connection descriptor is " +
-                                               mainConnectionDescriptor_);
+                                                mainConnectionDescriptor_);
 
                 cdSemaphore_.notify();
             }

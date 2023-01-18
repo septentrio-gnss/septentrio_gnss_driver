@@ -106,10 +106,43 @@ struct Telegram
     telegram_type::TelegramType type;
     std::vector<uint8_t> message;
 
-    Telegram() :
+    Telegram() noexcept :
         stamp(0), type(telegram_type::EMPTY), message(std::vector<uint8_t>(3))
     {
-        message.reserve(MAX_SBF_SIZE);
+    }
+
+    ~Telegram() {}
+
+    Telegram(const Telegram& other) noexcept :
+        stamp(other.stamp), type(other.type), message(other.message)
+    {
+    }
+
+    Telegram(Telegram&& other) noexcept :
+        stamp(other.stamp), type(other.type), message(other.message)
+    {
+    }
+
+    Telegram& operator=(const Telegram& other) noexcept
+    {
+        if (this != &other)
+        {
+            this->stamp = other.stamp;
+            this->type = other.type;
+            this->message = other.message;
+        }
+        return *this;
+    }
+
+    Telegram& operator=(Telegram&& other) noexcept
+    {
+        if (this != &other)
+        {
+            this->stamp = other.stamp;
+            this->type = other.type;
+            this->message = other.message;
+        }
+        return *this;
     }
 };
 

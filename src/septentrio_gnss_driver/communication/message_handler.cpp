@@ -325,7 +325,7 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
 
-    ImuMsg MessageHandler::assmembleImu()
+    ImuMsg MessageHandler::assmembleImu() const
     {
         ImuMsg msg;
 
@@ -1008,7 +1008,7 @@ namespace io {
 
     void MessageHandler::assembleLocalizationMsgTwist(double roll, double pitch,
                                                       double yaw,
-                                                      LocalizationMsg& msg)
+                                                      LocalizationMsg& msg) const
     {
         Eigen::Matrix3d R_local_body =
             parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
@@ -1796,7 +1796,7 @@ namespace io {
     template <typename T>
     void MessageHandler::assembleHeader(const std::string& frameId,
                                         const std::shared_ptr<Telegram>& telegram,
-                                        T& msg)
+                                        T& msg) const
     {
         Timestamp time_obj = settings_->use_gnss_time
                                  ? timestampSBF(telegram->message)
@@ -1806,7 +1806,7 @@ namespace io {
         msg.header.stamp = timestampToRos(time_obj);
     }
 
-    Timestamp MessageHandler::timestampSBF(const std::vector<uint8_t>& message)
+    Timestamp MessageHandler::timestampSBF(const std::vector<uint8_t>& message) const
     {
         uint32_t tow = parsing_utilities::getTow(message);
         uint16_t wnc = parsing_utilities::getWnc(message);
@@ -1819,7 +1819,7 @@ namespace io {
     /// (2020), the GPS time was ahead of UTC time by 18 (leap) seconds. Adapt the
     /// settings_->leap_seconds ROSaic parameter accordingly as soon as the
     /// next leap second is inserted into the UTC time.
-    Timestamp MessageHandler::timestampSBF(uint32_t tow, uint16_t wnc)
+    Timestamp MessageHandler::timestampSBF(uint32_t tow, uint16_t wnc) const
     {
         Timestamp time_obj;
 

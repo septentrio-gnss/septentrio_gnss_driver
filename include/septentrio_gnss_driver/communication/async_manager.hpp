@@ -519,6 +519,7 @@ namespace io {
     void AsyncManager<IoType>::readUnknown()
     {
         telegram_->message.resize(1);
+        telegram_->message.reserve(256);
         readStringElements();
     }
 
@@ -526,6 +527,7 @@ namespace io {
     void AsyncManager<IoType>::readString()
     {
         telegram_->message.resize(3);
+        telegram_->message.reserve(256);
         readStringElements();
     }
 

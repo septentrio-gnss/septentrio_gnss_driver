@@ -221,8 +221,8 @@ namespace io {
             return;
         }
 
+        uint8_t stream = 1;
         // Determining communication mode: TCP vs USB/Serial
-        unsigned stream = 1;
         boost::smatch match;
         boost::regex_match(settings_->device, match,
                            boost::regex("(tcp)://(.+):(\\d+)"));

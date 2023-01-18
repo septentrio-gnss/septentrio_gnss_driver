@@ -46,8 +46,7 @@
  * @brief Base class for parsing NMEA messages and SBF blocks
  *
  * Subclasses that parse NMEA messages should implement
- * ParseASCII(const NMEASentence&); subclasses that parse SBF blocks
- * should implement ParseBinary(const SBFBlock&). The base class is implemented
+ * ParseASCII(const NMEASentence&); The base class is implemented
  * as a template, which is a simple and yet very powerful tool in C++. The
  * simple idea is to pass data type as a parameter so that we don’t need to
  * write the same code for different data types. Like function templates, class
@@ -95,22 +94,6 @@ public:
      * @return The ASCII message name.
      */
     virtual const std::string getMessageID() const = 0;
-
-    /**
-     * @brief Converts bin_msg into a ROS message pointer (e.g. nmea_msgs::GpggaPtr)
-     * and returns it
-     *
-     * The returned value should not be NULL. ParseException will be thrown
-     * if there are any issues parsing the block.
-     *
-     * @param[in] bin_msg The message to convert, of type const SBFStructT
-     * @return A valid ROS message pointer
-     */
-    template <typename SBFStructT>
-    T parseBinary(const SBFStructT& bin_msg) noexcept(false)
-    {
-        throw ParseException("ParseBinary not implemented.");
-    };
 
     /**
      * @brief Converts an NMEA sentence - both standardized and proprietary ones -
