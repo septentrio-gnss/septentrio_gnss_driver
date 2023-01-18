@@ -113,6 +113,9 @@ namespace io {
                 if (bytes_recvd > 2)
                 {
                     telegram->message.resize(bytes_recvd);
+                    node_->log(log_level::INFO,
+                               "Buffer: " + std::string(telegram->message.begin(),
+                                                        telegram->message.end()));
                     if (telegram->message[0] == SYNC_BYTE_1)
                     {
                         if (telegram->message[1] == SBF_SYNC_BYTE_2)

@@ -176,6 +176,7 @@ namespace io {
         case device_type::TCP:
         {
             manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
+            udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_));
             break;
         }
         case device_type::SERIAL:
@@ -621,6 +622,8 @@ namespace io {
             }
         }
 
+        // TODO UDP
+        send("siss, IPS1, 28785, UDP, 172.18.10.219\x0D");
         // Setting up SBF blocks with rx_period_rest
         {
             std::stringstream blocks;
@@ -644,8 +647,8 @@ namespace io {
 
             std::stringstream ss;
             ss << "sso, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << rest_interval << "\x0D";
+               << "IPS1"
+               << "," << blocks.str() << ", " << rest_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -674,8 +677,8 @@ namespace io {
 
             std::stringstream ss;
             ss << "sno, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << pvt_interval << "\x0D";
+               << "IPS1"
+               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -787,8 +790,8 @@ namespace io {
             }
             std::stringstream ss;
             ss << "sso, Stream" << std::to_string(stream) << ", "
-               << mainConnectionDescriptor_ << "," << blocks.str() << ", "
-               << pvt_interval << "\x0D";
+               << "IPS1"
+               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
