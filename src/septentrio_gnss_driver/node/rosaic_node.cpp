@@ -93,8 +93,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
           (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))
     {
         this->log(log_level::FATAL, "Unkown septentrio_receiver_type " +
-                                       settings_.septentrio_receiver_type +
-                                       " use either gnss or ins.");
+                                        settings_.septentrio_receiver_type +
+                                        " use either gnss or ins.");
         return false;
     }
 
@@ -181,6 +181,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
 
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("Default"));
+    // WGS84 is equivalent to Default and kept for backwards compatibility
+    if (settings_.datum == "Default")
+        settings_.datum = "WGS84";
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
     param("ant_serial_nr", settings_.ant_serial_nr, std::string());
@@ -516,8 +519,8 @@ bool rosaic_node::ROSaicNode::getROSParams()
                        (settings_.ins_vsm_ros_source == "twist"));
         if (!settings_.ins_vsm_ros_source.empty() && !ins_use_vsm)
             this->log(log_level::ERROR, "unknown ins_vsm/ros/source " +
-                                           settings_.ins_vsm_ros_source +
-                                           " -> VSM input will not be used!");
+                                            settings_.ins_vsm_ros_source +
+                                            " -> VSM input will not be used!");
         param("ins_vsm/ip_server/id", settings_.ins_vsm_ip_server_id,
               std::string(""));
         if (!settings_.ins_vsm_ip_server_id.empty())
@@ -610,10 +613,46 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (ins_use_vsm)
         {
             this->log(log_level::INFO, "ins_vsm/ros/source " +
-                                          settings_.ins_vsm_ros_source +
-                                          " will be used.");
+                                           settings_.ins_vsm_ros_source +
+                                           " will be used.");
             registerSubscriber();
         }
+    }
+
+    boost::smatch match;
+    if (boost::regex_match(settings_.device, match,
+                           boost::regex("(tcp)://(.+):(\\d+)")))
+    {
+        settings_.tcp_ip = match[2];
+        settings_.tcp_port = match[3];
+        settings_.device_type = device_type::TCP;
+    } else if (boost::regex_match(settings_.device, match,
+                                  boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
+    {
+        settings_.read_from_sbf_log = true;
+        settings_.use_gnss_time = true;
+        settings_.device = match[2];
+        settings_.device_type = device_type::SBF_FILE;
+    } else if (boost::regex_match(
+                   settings_.device, match,
+                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+    {
+        settings_.read_from_pcap = true;
+        settings_.use_gnss_time = true;
+        settings_.device = match[2];
+        settings_.device_type = device_type::PCAP_FILE;
+    } else if (boost::regex_match(settings_.device, match,
+                                  boost::regex("(serial):(.+)")))
+    {
+        std::string proto(match[2]);
+        settings_.device_type = device_type::SERIAL;
+        settings_.device = proto;
+    } else
+    {
+        std::stringstream ss;
+        ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
+        this->log(log_level::ERROR, ss.str());
+        return false;
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
@@ -648,8 +687,8 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
         } catch (const tf2::TransformException& ex)
         {
             this->log(log_level::WARN, "Waiting for transform from " + sourceFrame +
-                                          " to " + targetFrame + ": " + ex.what() +
-                                          ".");
+                                           " to " + targetFrame + ": " + ex.what() +
+                                           ".");
             found = false;
         }
     }

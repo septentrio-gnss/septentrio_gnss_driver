@@ -171,58 +171,35 @@ namespace io {
     [[nodiscard]] bool CommunicationCore::initializeIo()
     {
         node_->log(log_level::DEBUG, "Called initializeIo() method");
-        boost::smatch match;
-        // In fact: smatch is a typedef of match_results<string::const_iterator>
-        if (boost::regex_match(settings_->device, match,
-                               boost::regex("(tcp)://(.+):(\\d+)")))
-        // C++ needs \\d instead of \d: Both mean decimal.
-        // Note that regex_match can be used with a smatch object to store
-        // results, or without. In any case, true is returned if and only if it
-        // matches the !complete! string.
+        switch (settings_->device_type)
         {
-            // The first sub_match (index 0) contained in a match_result always
-            // represents the full match within a target sequence made by a
-            // regex, and subsequent sub_matches represent sub-expression matches
-            // corresponding in sequence to the left parenthesis delimiting the
-            // sub-expression in the regex, i.e. $n Perl is equivalent to m[n] in
-            // boost regex.
-            settings_->tcp_ip = match[2];
-            settings_->tcp_port = match[3];
+        case device_type::TCP:
+        {
             manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
-        } else if (boost::regex_match(
-                       settings_->device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
-        {
-            settings_->read_from_sbf_log = true;
-            settings_->use_gnss_time = true;
-            settings_->device = match[2];
-            manager_.reset(new AsyncManager<SbfFileIo>(node_, &telegramQueue_));
-
-        } else if (boost::regex_match(
-                       settings_->device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
-        {
-            settings_->read_from_pcap = true;
-            settings_->use_gnss_time = true;
-            settings_->device = match[2];
-            manager_.reset(new AsyncManager<PcapFileIo>(node_, &telegramQueue_));
-        } else if (boost::regex_match(settings_->device, match,
-                                      boost::regex("(serial):(.+)")))
-        {
-            std::string proto(match[2]);
-            std::stringstream ss;
-            ss << "Searching for serial port" << proto;
-            node_->log(log_level::DEBUG, ss.str());
-            settings_->device = proto;
-            manager_.reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
-        } else
-        {
-            std::stringstream ss;
-            ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-            node_->log(log_level::ERROR, ss.str());
-            return false;
+            break;
         }
-        node_->log(log_level::DEBUG, "Leaving initializeIo() method");
+        case device_type::SERIAL:
+        {
+            manager_.reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
+            break;
+        }
+        case device_type::SBF_FILE:
+        {
+            manager_.reset(new AsyncManager<SbfFileIo>(node_, &telegramQueue_));
+            break;
+        }
+        case device_type::PCAP_FILE:
+        {
+            manager_.reset(new AsyncManager<PcapFileIo>(node_, &telegramQueue_));
+            break;
+        }
+        default:
+        {
+            node_->log(log_level::DEBUG, "Unsupported device.");
+            return false;
+            break;
+        }
+        }
         return true;
     }
 
@@ -297,9 +274,6 @@ namespace io {
         // not ellipsoidal height)
         {
             std::stringstream ss;
-            // WGS84 is equivalent to Default and kept for backwards compatibility
-            if (settings_->datum == "Default")
-                settings_->datum = "WGS84";
             ss << "sgd, " << settings_->datum << "\x0D";
             send(ss.str());
         }
@@ -389,8 +363,8 @@ namespace io {
             {
                 {
                     std::stringstream ss;
-                    // In case this IP server was used before, old configuration is
-                    // lost of course.
+                    // In case this IP server was used before, old
+                    // configuration is lost of course.
                     ss << "siss, " << ip_server.id << ", "
                        << std::to_string(ip_server.port) << ", TCP2Way \x0D";
                     send(ss.str());
@@ -858,8 +832,8 @@ namespace io {
 
     std::string CommunicationCore::resetMainConnection()
     {
-        // Escape sequence (escape from correction mode), ensuring that we can send
-        // our real commands afterwards...
+        // Escape sequence (escape from correction mode), ensuring that we
+        // can send our real commands afterwards...
         std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
         telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);

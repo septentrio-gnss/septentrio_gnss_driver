@@ -180,7 +180,7 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
-    Settings* settings() { return &settings_; }
+    const Settings* settings() { return &settings_; }
 
     void registerSubscriber()
     {

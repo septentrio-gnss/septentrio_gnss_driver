@@ -194,7 +194,7 @@ namespace io {
         /**
          * @brief Pointer to settings struct
          */
-        Settings* settings_;
+        const Settings* settings_;
 
         /**
          * @brief Map of NMEA messgae IDs and uint8_t

@@ -99,17 +99,31 @@ struct RtkSettings
     std::vector<RtkSerial> serial;
 };
 
+namespace device_type {
+    enum DeviceType
+    {
+        TCP,
+        SERIAL,
+        SBF_FILE,
+        PCAP_FILE
+    };
+} // namespace device_type
+
 //! Settings struct
 struct Settings
 {
     //! Set logger level to DEBUG
     bool activate_debug_log;
-    //! Device port
+    //! Device
     std::string device;
+    //! Device type
+    device_type::DeviceType device_type;
     //! TCP IP
     std::string tcp_ip;
     //! TCP port
     std::string tcp_port;
+    //! Filename
+    std::string file_name;
     //! Username for login
     std::string login_user;
     //! Password for login

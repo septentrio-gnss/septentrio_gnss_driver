@@ -148,7 +148,7 @@ namespace io {
         //! Pointer to Node
         ROSaicNodeBase* node_;
         //! Settings
-        Settings* settings_;
+        const Settings* settings_;
         //! TelegramQueue
         TelegramQueue telegramQueue_;
         //! TelegramHandler
