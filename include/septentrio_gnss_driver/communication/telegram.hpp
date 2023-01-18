@@ -106,8 +106,9 @@ struct Telegram
     telegram_type::TelegramType type;
     std::vector<uint8_t> message;
 
-    Telegram() noexcept :
-        stamp(0), type(telegram_type::EMPTY), message(std::vector<uint8_t>(3))
+    Telegram(size_t preallocate = 3) noexcept :
+        stamp(0), type(telegram_type::EMPTY),
+        message(std::vector<uint8_t>(preallocate))
     {
     }
 

@@ -45,6 +45,7 @@
 
 // ROSaic
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
 
 //! Possible baudrates for the Rx
 const static std::array<uint32_t, 21> baudrates = {
@@ -53,6 +54,163 @@ const static std::array<uint32_t, 21> baudrates = {
     1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
 
 namespace io {
+
+    class UdpClient
+    {
+    public:
+        UdpClient(ROSaicNodeBase* node, int16_t port, TelegramQueue* telegramQueue) :
+            node_(node), running_(true), port_(port), telegramQueue_(telegramQueue)
+        {
+            connect();
+            watchdogThread_ =
+                std::thread(boost::bind(&UdpClient::runWatchdog, this));
+        }
+
+        ~UdpClient()
+        {
+            running_ = false;
+
+            node_->log(log_level::INFO, "UDP client shutting down threads");
+            ioService_.stop();
+            ioThread_.join();
+            watchdogThread_.join();
+            node_->log(log_level::INFO, " UDP client threads stopped");
+        }
+
+    private:
+        void connect()
+        {
+            socket_.reset(new boost::asio::ip::udp::socket(
+                ioService_,
+                boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_)));
+
+            asyncReceive();
+
+            ioThread_ = std::thread(boost::bind(&UdpClient::runIoService, this));
+
+            node_->log(log_level::INFO,
+                       "Listening on UDP port " + std::to_string(port_));
+        }
+
+        void asyncReceive()
+        {
+            std::shared_ptr<Telegram> telegram(new Telegram(MAX_SBF_SIZE));
+
+            socket_->async_receive_from(
+                boost::asio::buffer(telegram->message, MAX_SBF_SIZE), eP_,
+                boost::bind(&UdpClient::handleReceive, this,
+                            boost::asio::placeholders::error,
+                            boost::asio::placeholders::bytes_transferred, telegram));
+        }
+
+        void handleReceive(const boost::system::error_code& error,
+                           size_t bytes_recvd, std::shared_ptr<Telegram> telegram)
+        {
+            telegram->stamp = node_->getTime();
+
+            if (!error && (bytes_recvd > 0))
+            {
+                if (bytes_recvd > 2)
+                {
+                    telegram->message.resize(bytes_recvd);
+                    if (telegram->message[0] == SYNC_BYTE_1)
+                    {
+                        if (telegram->message[1] == SBF_SYNC_BYTE_2)
+                        {
+                            if (crc::isValid(telegram->message))
+                            {
+                                telegram->type == telegram_type::SBF;
+                                telegramQueue_->push(telegram);
+                            } else
+                                node_->log(
+                                    log_level::DEBUG,
+                                    "AsyncManager crc failed for SBF  " +
+                                        std::to_string(parsing_utilities::getId(
+                                            telegram->message)) +
+                                        ".");
+                        }
+                    } else if ((telegram->message[1] == NMEA_SYNC_BYTE_2) &&
+                               (telegram->message[2] == NMEA_SYNC_BYTE_3))
+                    {
+                        // TODO check \r\n
+                        telegram->type = telegram_type::NMEA;
+                        telegramQueue_->push(telegram);
+
+                    } else if ((telegram->message[1] == NMEA_INS_SYNC_BYTE_2) &&
+                               (telegram->message[2] == NMEA_INS_SYNC_BYTE_3))
+                    {
+                        // TODO check \r\n
+                        telegram->type = telegram_type::NMEA_INS;
+                        telegramQueue_->push(telegram);
+                    } else if (telegram->message[1] == RESPONSE_SYNC_BYTE_2)
+                    {
+                        // TODO determine if response is sent via UDP
+                        if ((telegram->message[2] == RESPONSE_SYNC_BYTE_3) ||
+                            (telegram->message[2] == RESPONSE_SYNC_BYTE_3a))
+                        {
+                            // TODO check \r\n
+                            telegram->type = telegram_type::RESPONSE;
+                            telegramQueue_->push(telegram);
+                        } else if (telegram->message[2] == ERROR_SYNC_BYTE_3)
+                        {
+                            // TODO check \r\n
+                            telegram->type = telegram_type::ERROR_RESPONSE;
+                            telegramQueue_->push(telegram);
+                        } else
+                        {
+                            // TODO fault
+                        }
+                    } else
+                    {
+                        // TODO generic string or cd? determine if these are sent via
+                        // UDP
+                    }
+                }
+
+            } else
+            {
+                node_->log(log_level::ERROR,
+                           "UDP client receive error: " + error.message());
+            }
+
+            asyncReceive();
+        }
+
+        void runIoService()
+        {
+            ioService_.run();
+            node_->log(log_level::INFO, "UDP client ioService terminated.");
+        }
+
+        void runWatchdog()
+        {
+            while (running_)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+                if (running_ && ioService_.stopped())
+                {
+                    node_->log(log_level::ERROR,
+                               "UDP client connection lost. Trying to reconnect.");
+                    ioService_.reset();
+                    ioThread_.join();
+                    connect();
+                }
+            }
+        }
+
+    private:
+        //! Pointer to the node
+        ROSaicNodeBase* node_;
+        std::atomic<bool> running_;
+        int16_t port_;
+        boost::asio::io_service ioService_;
+        std::thread ioThread_;
+        std::thread watchdogThread_;
+        boost::asio::ip::udp::endpoint eP_;
+        std::unique_ptr<boost::asio::ip::udp::socket> socket_;
+        TelegramQueue* telegramQueue_;
+    };
 
     class TcpIo
     {
