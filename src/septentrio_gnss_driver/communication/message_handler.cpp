@@ -1803,6 +1803,17 @@ namespace io {
                                  : telegram->stamp;
         msg.header.frame_id = frameId;
 
+        if constexpr (std::is_same<PVTCartesianMsg, T>::value ||
+                      std::is_same<PVTGeodeticMsg, T>::value ||
+                      std::is_same<INSNavCartMsg, T>::value ||
+                      std::is_same<INSNavGeodMsg, T>::value)
+        {
+            if (!settings_->use_gnss_time)
+            {
+                time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
+            }
+        }
+
         msg.header.stamp = timestampToRos(time_obj);
     }
 
