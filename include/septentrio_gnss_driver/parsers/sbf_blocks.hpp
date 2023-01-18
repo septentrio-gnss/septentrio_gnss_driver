@@ -1758,7 +1758,7 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
         }
         case 3:
         {
-            qi::parse(it, it + 2, qi::little_word, msg.sensor_temperature);
+            qiLittleEndianParser(it, msg.sensor_temperature);
             msg.sensor_temperature /= 100.0f;
             std::advance(it, 22); // reserved
             break;

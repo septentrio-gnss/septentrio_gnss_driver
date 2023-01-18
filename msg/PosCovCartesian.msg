@@ -7,13 +7,13 @@ BlockHeader  block_header
 
 uint8        mode
 uint8        error        
-float32      cov_xx
-float32      cov_yy
-float32      cov_zz
-float32      cov_bb
-float32      cov_xy
-float32      cov_xz
-float32      cov_xb
-float32      cov_yz
-float32      cov_yb
-float32      cov_zb
+float32      cov_xx # m^2
+float32      cov_yy # m^2
+float32      cov_zz # m^2
+float32      cov_bb # m^2
+float32      cov_xy # m^2
+float32      cov_xz # m^2
+float32      cov_xb # m^2
+float32      cov_yz # m^2
+float32      cov_yb # m^2
+float32      cov_zb # m^2
