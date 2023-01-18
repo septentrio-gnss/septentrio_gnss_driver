@@ -1896,25 +1896,17 @@ namespace io {
         }
     }
 
-    /**
-     * Note that putting the default in the definition's argument list instead of the
-     * declaration's is an added extra that is not available for function templates,
-     * hence no search = false here. Also note that the SBF block header part of the
-     * SBF-echoing ROS messages have ID fields that only show the block number as
-     * found in the firmware (e.g. 4007 for PVTGeodetic), without the revision
-     * number. NMEA 0183 messages are at most 82 characters long in principle, but
-     * most Septentrio Rxs by default increase precision on lat/lon s.t. the maximum
-     * allowed e.g. for GGA seems to be 89 on a mosaic-x5. Luckily, when parsing we
-     * do not care since we just search for \<LF\>\<CR\>.
-     */
     void MessageHandler::parseSbf(const std::shared_ptr<Telegram>& telegram)
     {
-        node_->log(log_level::DEBUG,
-                   "ROSaic reading SBF block " + std::to_string(telegram->sbfId) +
-                       " made up of " + std::to_string(telegram->message.size()) +
-                       " bytes...");
 
-        switch (telegram->sbfId)
+        uint16_t sbfId = parsing_utilities::getId(telegram->message);
+
+        node_->log(log_level::DEBUG, "ROSaic reading SBF block " +
+                                         std::to_string(sbfId) + " made up of " +
+                                         std::to_string(telegram->message.size()) +
+                                         " bytes...");
+
+        switch (sbfId)
         {
         case PVT_CARTESIAN: // Position and velocity in XYZ
         {

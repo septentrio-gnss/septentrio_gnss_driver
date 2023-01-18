@@ -104,12 +104,10 @@ struct Telegram
 {
     Timestamp stamp;
     telegram_type::TelegramType type;
-    uint16_t sbfId;
     std::vector<uint8_t> message;
 
     Telegram() :
-        stamp(0), type(telegram_type::EMPTY), sbfId(0),
-        message(std::vector<uint8_t>(3))
+        stamp(0), type(telegram_type::EMPTY), message(std::vector<uint8_t>(3))
     {
         message.reserve(MAX_SBF_SIZE);
     }

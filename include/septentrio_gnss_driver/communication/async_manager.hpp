@@ -492,14 +492,13 @@ namespace io {
                     {
                         if (crc::isValid(telegram_->message))
                         {
-                            telegram_->sbfId =
-                                parsing_utilities::getId(telegram_->message);
-
                             telegramQueue_->push(telegram_);
                         } else
                             node_->log(log_level::DEBUG,
                                        "AsyncManager crc failed for SBF  " +
-                                           std::to_string(telegram_->sbfId) + ".");
+                                           std::to_string(parsing_utilities::getId(
+                                               telegram_->message)) +
+                                           ".");
                     } else
                     {
                         node_->log(
