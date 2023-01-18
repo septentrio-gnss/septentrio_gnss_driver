@@ -163,22 +163,28 @@ namespace io {
 
     private:
         /**
+         * @brief Header assembling
+         * @param[in] frameId String of frame ID
+         * @param[in] telegram telegram from which the msg was assembled
+         * @param[in] msg ROS msg for which the header is assembled
+         */
+        template <typename T>
+        void assembleHeader(const std::string& frameId,
+                            const std::shared_ptr<Telegram>& telegram, T& msg);
+        /**
          * @brief Publishing function
          * @param[in] topic String of topic
          * @param[in] msg ROS message to be published
-         * @param[in] time_obj message time to wait if reading from file
          */
         template <typename M>
-        void publish(const std::string& topic, const M& msg,
-                     const Timestamp& time_obj);
+        void publish(const std::string& topic, const M& msg);
 
         /**
          * @brief Publishing function
          * @param[in] msg Localization message
-         * @param[in] time_obj message time to wait if reading from file
          */
 
-        void publishTf(const LocalizationMsg& msg, const Timestamp& time_obj);
+        void publishTf(const LocalizationMsg& msg);
 
         /**
          * @brief Pointer to the node
@@ -289,22 +295,19 @@ namespace io {
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
-         * @param[in] time_obj time of message
          */
-        void assembleNavSatFix(const Timestamp& time_obj);
+        void assembleNavSatFix();
 
         /**
          * @brief "Callback" function when constructing GPSFix messages
-         * @param[in] time_obj time of message
          */
-        void assembleGpsFix(const Timestamp& time_obj);
+        void assembleGpsFix();
 
         /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
          * messages
-         * @param[in] time_obj time of message
          */
-        void assemblePoseWithCovarianceStamped(const Timestamp& time_obj);
+        void assemblePoseWithCovarianceStamped();
 
         /**
          * @brief "Callback" function when constructing
@@ -324,16 +327,14 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * LocalizationMsg messages in UTM
-         * @param[in] time_obj time of message
          */
-        void assembleLocalizationUtm(const Timestamp& time_obj);
+        void assembleLocalizationUtm();
 
         /**
          * @brief "Callback" function when constructing
          * LocalizationMsg messages in ECEF
-         * @param[in] time_obj time of message
          */
-        void assembleLocalizationEcef(const Timestamp& time_obj);
+        void assembleLocalizationEcef();
 
         /**
          * @brief function to fill twist part of LocalizationMsg
@@ -348,10 +349,9 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * TwistWithCovarianceStampedMsg messages
-         * @param[in] time_obj time of message
          * @param[in] fromIns Wether to contruct message from INS data
          */
-        void assembleTwist(const Timestamp& time_obj, bool fromIns = false);
+        void assembleTwist(bool fromIns = false);
 
         /**
          * @brief Waits according to time when reading from file

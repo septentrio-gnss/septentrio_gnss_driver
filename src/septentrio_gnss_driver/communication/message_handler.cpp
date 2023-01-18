@@ -54,7 +54,7 @@ using parsing_utilities::rad2deg;
 using parsing_utilities::square;
 
 namespace io {
-    void MessageHandler::assemblePoseWithCovarianceStamped(const Timestamp& time_obj)
+    void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
@@ -203,7 +203,7 @@ namespace io {
             msg.pose.covariance[34] = deg2radSq(last_attcoveuler_.cov_headpitch);
             msg.pose.covariance[35] = deg2radSq(last_attcoveuler_.cov_headhead);
         }
-        publish<PoseWithCovarianceStampedMsg>("/pose", msg, time_obj);
+        publish<PoseWithCovarianceStampedMsg>("/pose", msg);
     };
 
     void MessageHandler::assembleDiagnosticArray(const Timestamp& time_obj)
@@ -322,7 +322,7 @@ namespace io {
         gnss_status.message =
             "Quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
-        publish<DiagnosticArrayMsg>("/diagnostics", msg, time_obj);
+        publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
 
     ImuMsg MessageHandler::assmembleImu()
@@ -434,8 +434,7 @@ namespace io {
         return msg;
     };
 
-    void MessageHandler::assembleTwist(const Timestamp& time_obj,
-                                       bool fromIns /* = false*/)
+    void MessageHandler::assembleTwist(bool fromIns /* = false*/)
     {
         if (!settings_->publish_twist)
             return;
@@ -655,7 +654,7 @@ namespace io {
 
         msg.header.frame_id = "navigation";
 
-        publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg, time_obj);
+        publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg);
     };
 
     /**
@@ -664,7 +663,7 @@ namespace io {
      * Angular velocity not available, thus according autocovariances are set to
      * -1.0.
      */
-    void MessageHandler::assembleLocalizationUtm(const Timestamp& time_obj)
+    void MessageHandler::assembleLocalizationUtm()
     {
         if (!settings_->publish_localization)
             return;
@@ -839,7 +838,7 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        publish<LocalizationMsg>("/localization", msg, time_obj);
+        publish<LocalizationMsg>("/localization", msg);
     };
 
     /**
@@ -847,7 +846,7 @@ namespace io {
      * Linear velocity of twist in body frame as per msg definition. Angular
      * velocity not available, thus according autocovariances are set to -1.0.
      */
-    void MessageHandler::assembleLocalizationEcef(const Timestamp& time_obj)
+    void MessageHandler::assembleLocalizationEcef()
     {
         if (!settings_->publish_localization_ecef)
             return;
@@ -1004,7 +1003,7 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        publish<LocalizationMsg>("/localization_ecef", msg, time_obj);
+        publish<LocalizationMsg>("/localization_ecef", msg);
     };
 
     void MessageHandler::assembleLocalizationMsgTwist(double roll, double pitch,
@@ -1130,7 +1129,7 @@ namespace io {
      * SignalInfo field of the PVTGeodetic block does not disclose it. For that, one
      * would need to go to the ObsInfo field of the MeasEpochChannelType1 sub-block.
      */
-    void MessageHandler::assembleNavSatFix(const Timestamp& time_obj)
+    void MessageHandler::assembleNavSatFix()
     {
         if (!settings_->publish_navsatfix)
             return;
@@ -1311,7 +1310,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        publish<NavSatFixMsg>("/navsatfix", msg, time_obj);
+        publish<NavSatFixMsg>("/navsatfix", msg);
     };
 
     /**
@@ -1335,7 +1334,7 @@ namespace io {
      * includes those "in search". In case certain values appear unphysical, please
      * consult the firmware, since those most likely refer to Do-Not-Use values.
      */
-    void MessageHandler::assembleGpsFix(const Timestamp& time_obj)
+    void MessageHandler::assembleGpsFix()
     {
         if (!settings_->publish_gpsfix)
             return;
@@ -1791,8 +1790,21 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        publish<GpsFixMsg>("/gpsfix", msg, time_obj);
+        publish<GpsFixMsg>("/gpsfix", msg);
     };
+
+    template <typename T>
+    void MessageHandler::assembleHeader(const std::string& frameId,
+                                        const std::shared_ptr<Telegram>& telegram,
+                                        T& msg)
+    {
+        Timestamp time_obj = settings_->use_gnss_time
+                                 ? timestampSBF(telegram->message)
+                                 : telegram->stamp;
+        msg.header.frame_id = frameId;
+
+        msg.header.stamp = timestampToRos(time_obj);
+    }
 
     Timestamp MessageHandler::timestampSBF(const std::vector<uint8_t>& message)
     {
@@ -1833,8 +1845,7 @@ namespace io {
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
     template <typename M>
-    void MessageHandler::publish(const std::string& topic, const M& msg,
-                                 const Timestamp& time_obj)
+    void MessageHandler::publish(const std::string& topic, const M& msg)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
@@ -1842,7 +1853,7 @@ namespace io {
         {
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
             {
-                wait(time_obj);
+                wait(timestampFromRos(msg.header.stamp));
             }
             node_->publishMessage<M>(topic, msg);
         } else
@@ -1861,8 +1872,7 @@ namespace io {
     /**
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
-    void MessageHandler::publishTf(const LocalizationMsg& msg,
-                                   const Timestamp& time_obj)
+    void MessageHandler::publishTf(const LocalizationMsg& msg)
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
@@ -1871,7 +1881,7 @@ namespace io {
         {
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
             {
-                wait(time_obj);
+                wait(timestampFromRos(msg.header.stamp));
             }
             node_->publishTf(msg);
         } else
@@ -1916,13 +1926,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in PVTCartesian");
                 break;
             }
-            msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-
-            publish<PVTCartesianMsg>("/pvtcartesian", msg, time_obj);
+            assembleHeader(settings_->frame_id, telegram, msg);
+            publish<PVTCartesianMsg>("/pvtcartesian", msg);
             break;
         }
         case PVT_GEODETIC: // Position and velocity in geodetic coordinate frame
@@ -1934,16 +1939,12 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in PVTGeodetic");
                 break;
             }
-            last_pvtgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_pvtgeodetic_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_pvtgeodetic_);
             if (settings_->publish_pvtgeodetic)
-                publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_, time_obj);
-            assembleTwist(time_obj);
-            assembleNavSatFix(time_obj);
-            assembleGpsFix(time_obj);
+                publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);
+            assembleTwist();
+            assembleNavSatFix();
+            assembleGpsFix();
             break;
         }
         case BASE_VECTOR_CART:
@@ -1956,12 +1957,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in BaseVectorCart");
                 break;
             }
-            msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<BaseVectorCartMsg>("/basevectorcart", msg, time_obj);
+            assembleHeader(settings_->frame_id, telegram, msg);
+            publish<BaseVectorCartMsg>("/basevectorcart", msg);
             break;
         }
         case BASE_VECTOR_GEOD:
@@ -1974,12 +1971,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in BaseVectorGeod");
                 break;
             }
-            msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<BaseVectorGeodMsg>("/basevectorgeod", msg, time_obj);
+            assembleHeader(settings_->frame_id, telegram, msg);
+            publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
             break;
         }
         case POS_COV_CARTESIAN:
@@ -1992,12 +1985,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in PosCovCartesian");
                 break;
             }
-            msg.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<PosCovCartesianMsg>("/poscovcartesian", msg, time_obj);
+            assembleHeader(settings_->frame_id, telegram, msg);
+            publish<PosCovCartesianMsg>("/poscovcartesian", msg);
             break;
         }
         case POS_COV_GEODETIC:
@@ -2009,17 +1998,12 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in PosCovGeodetic");
                 break;
             }
-            last_poscovgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_poscovgeodetic_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_poscovgeodetic_);
             if (settings_->publish_poscovgeodetic)
-                publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_,
-                                           time_obj);
-            assembleNavSatFix(time_obj);
-            assembleGpsFix(time_obj);
-            assembleGpsFix(time_obj);
+                publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
+            assembleNavSatFix();
+            assembleGpsFix();
+            assembleGpsFix();
             break;
         }
         case ATT_EULER:
@@ -2032,14 +2016,10 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in AttEuler");
                 break;
             }
-            last_atteuler_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_atteuler_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_atteuler_);
             if (settings_->publish_atteuler)
-                publish<AttEulerMsg>("/atteuler", last_atteuler_, time_obj);
-            assembleGpsFix(time_obj);
+                publish<AttEulerMsg>("/atteuler", last_atteuler_);
+            assembleGpsFix();
             break;
         }
         case ATT_COV_EULER:
@@ -2052,14 +2032,10 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in AttCovEuler");
                 break;
             }
-            last_attcoveuler_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_attcoveuler_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_attcoveuler_);
             if (settings_->publish_attcoveuler)
-                publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_, time_obj);
-            assembleGpsFix(time_obj);
+                publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+            assembleGpsFix();
             break;
         }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
@@ -2073,19 +2049,17 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in INSNavCart");
                 break;
             }
+            std::string frame_id;
             if (settings_->ins_use_poi)
             {
-                last_insnavcart_.header.frame_id = settings_->poi_frame_id;
+                frame_id = settings_->poi_frame_id;
             } else
             {
-                last_insnavcart_.header.frame_id = settings_->frame_id;
+                frame_id = settings_->frame_id;
             }
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_insnavcart_.header.stamp = timestampToRos(time_obj);
-            publish<INSNavCartMsg>("/insnavcart", last_insnavcart_, time_obj);
-            assembleLocalizationEcef(time_obj);
+            assembleHeader(frame_id, telegram, last_insnavcart_);
+            publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
+            assembleLocalizationEcef();
             break;
         }
         case INS_NAV_GEOD: // Position, velocity and orientation in geodetic
@@ -2099,23 +2073,21 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in INSNavGeod");
                 break;
             }
+            std::string frame_id;
             if (settings_->ins_use_poi)
             {
-                last_insnavgeod_.header.frame_id = settings_->poi_frame_id;
+                frame_id = settings_->poi_frame_id;
             } else
             {
-                last_insnavgeod_.header.frame_id = settings_->frame_id;
+                frame_id = settings_->frame_id;
             }
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_insnavgeod_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(frame_id, telegram, last_insnavgeod_);
             if (settings_->publish_insnavgeod)
-                publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_, time_obj);
-            assembleLocalizationUtm(time_obj);
-            assembleLocalizationEcef(time_obj);
-            assembleTwist(time_obj, true);
-            assembleGpsFix(time_obj);
+                publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+            assembleLocalizationUtm();
+            assembleLocalizationEcef();
+            assembleTwist(true);
+            assembleGpsFix();
             break;
         }
 
@@ -2130,12 +2102,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in IMUSetup");
                 break;
             }
-            msg.header.frame_id = settings_->vehicle_frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<IMUSetupMsg>("/imusetup", msg, time_obj);
+            assembleHeader(settings_->vehicle_frame_id, telegram, msg);
+            publish<IMUSetupMsg>("/imusetup", msg);
             break;
         }
 
@@ -2150,12 +2118,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in VelSensorSetup");
                 break;
             }
-            msg.header.frame_id = settings_->vehicle_frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<VelSensorSetupMsg>("/velsensorsetup", msg, time_obj);
+            assembleHeader(settings_->vehicle_frame_id, telegram, msg);
+            publish<VelSensorSetupMsg>("/velsensorsetup", msg);
             break;
         }
 
@@ -2171,18 +2135,16 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ExtEventINSNavCart");
                 break;
             }
+            std::string frame_id;
             if (settings_->ins_use_poi)
             {
-                msg.header.frame_id = settings_->poi_frame_id;
+                frame_id = settings_->poi_frame_id;
             } else
             {
-                msg.header.frame_id = settings_->frame_id;
+                frame_id = settings_->frame_id;
             }
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<INSNavCartMsg>("/exteventinsnavcart", msg, time_obj);
+            assembleHeader(frame_id, telegram, msg);
+            publish<INSNavCartMsg>("/exteventinsnavcart", msg);
             break;
         }
 
@@ -2197,18 +2159,16 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ExtEventINSNavGeod");
                 break;
             }
+            std::string frame_id;
             if (settings_->ins_use_poi)
             {
-                msg.header.frame_id = settings_->poi_frame_id;
+                frame_id = settings_->poi_frame_id;
             } else
             {
-                msg.header.frame_id = settings_->frame_id;
+                frame_id = settings_->frame_id;
             }
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            msg.header.stamp = timestampToRos(time_obj);
-            publish<INSNavGeodMsg>("/exteventinsnavgeod", msg, time_obj);
+            assembleHeader(frame_id, telegram, msg);
+            publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
             break;
         }
 
@@ -2223,14 +2183,9 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ExtSensorMeas");
                 break;
             }
-            last_extsensmeas_.header.frame_id = settings_->imu_frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_extsensmeas_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->imu_frame_id, telegram, last_extsensmeas_);
             if (settings_->publish_extsensormeas)
-                publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_,
-                                          time_obj);
+                publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
             if (settings_->publish_imu && hasImuMeas)
             {
                 ImuMsg msg;
@@ -2242,15 +2197,13 @@ namespace io {
                     node_->log(log_level::DEBUG, "ImuMsg: " + std::string(e.what()));
                     break;
                 }
-                msg.header.frame_id = settings_->imu_frame_id;
-                msg.header.stamp = last_extsensmeas_.header.stamp;
-                publish<ImuMsg>("/imu", msg, time_obj);
+                assembleHeader(settings_->imu_frame_id, telegram, msg);
+                publish<ImuMsg>("/imu", msg);
             }
             break;
         }
         case CHANNEL_STATUS:
         {
-
             if (!ChannelStatusParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_channelstatus_))
             {
@@ -2268,14 +2221,10 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in MeasEpoch");
                 break;
             }
-            last_measepoch_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_measepoch_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_measepoch_);
             if (settings_->publish_measepoch)
-                publish<MeasEpochMsg>("/measepoch", last_measepoch_, time_obj);
-            assembleGpsFix(time_obj);
+                publish<MeasEpochMsg>("/measepoch", last_measepoch_);
+            assembleGpsFix();
             break;
         }
         case DOP:
@@ -2298,20 +2247,14 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in VelCovGeodetic");
                 break;
             }
-            last_velcovgeodetic_.header.frame_id = settings_->frame_id;
-            Timestamp time_obj = settings_->use_gnss_time
-                                     ? timestampSBF(telegram->message)
-                                     : telegram->stamp;
-            last_velcovgeodetic_.header.stamp = timestampToRos(time_obj);
+            assembleHeader(settings_->frame_id, telegram, last_velcovgeodetic_);
             if (settings_->publish_velcovgeodetic)
-                publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_,
-                                           time_obj);
-            assembleTwist(time_obj);
+                publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+            assembleTwist();
             break;
         }
         case RECEIVER_STATUS:
         {
-
             if (!ReceiverStatusParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_receiverstatus_))
             {
@@ -2809,8 +2752,7 @@ namespace io {
                                "GpggaMsg: " + std::string(e.what()));
                     break;
                 }
-                Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                publish<GpggaMsg>("/gpgga", msg, time_obj);
+                publish<GpggaMsg>("/gpgga", msg);
                 break;
             }
             case 1:
@@ -2830,8 +2772,7 @@ namespace io {
                                "GprmcMsg: " + std::string(e.what()));
                     break;
                 }
-                Timestamp time_obj = timestampFromRos(msg.header.stamp);
-                publish<GprmcMsg>("/gprmc", msg, time_obj);
+                publish<GprmcMsg>("/gprmc", msg);
                 break;
             }
             case 2:
@@ -2851,24 +2792,25 @@ namespace io {
                                "GpgsaMsg: " + std::string(e.what()));
                     break;
                 }
-                Timestamp time_obj;
                 if (settings_->use_gnss_time)
                 {
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                                last_pvtgeodetic_.block_header.wnc);
+                        Timestamp time_obj =
+                            timestampSBF(last_pvtgeodetic_.block_header.tow,
+                                         last_pvtgeodetic_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
-                        time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                                last_insnavgeod_.block_header.wnc);
+                        Timestamp time_obj =
+                            timestampSBF(last_insnavgeod_.block_header.tow,
+                                         last_insnavgeod_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                publish<GpgsaMsg>("/gpgsa", msg, time_obj);
+                publish<GpgsaMsg>("/gpgsa", msg);
                 break;
             }
             case 4:
@@ -2888,25 +2830,26 @@ namespace io {
                                "GpgsvMsg: " + std::string(e.what()));
                     break;
                 }
-                Timestamp time_obj;
                 if (settings_->use_gnss_time)
                 {
 
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        time_obj = timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                                last_pvtgeodetic_.block_header.wnc);
+                        Timestamp time_obj =
+                            timestampSBF(last_pvtgeodetic_.block_header.tow,
+                                         last_pvtgeodetic_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                     if (settings_->septentrio_receiver_type == "ins")
                     {
-                        time_obj = timestampSBF(last_insnavgeod_.block_header.tow,
-                                                last_insnavgeod_.block_header.wnc);
+                        Timestamp time_obj =
+                            timestampSBF(last_insnavgeod_.block_header.tow,
+                                         last_insnavgeod_.block_header.wnc);
                         msg.header.stamp = timestampToRos(time_obj);
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                publish<GpgsvMsg>("/gpgsv", msg, time_obj);
+                publish<GpgsvMsg>("/gpgsv", msg);
                 break;
             }
             }
