@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(septentrio_gnss_driver)
 
 ## Compile as C++14, supported in ROS Melodic and newer
-add_compile_options(-std=c++14)
+add_compile_options(-std=c++17)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 message(STATUS "Setting build type to Release as none was specified.")
