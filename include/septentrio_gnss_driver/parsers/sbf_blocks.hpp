@@ -1758,8 +1758,12 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
         }
         case 3:
         {
-            qiLittleEndianParser(it, msg.sensor_temperature);
-            msg.sensor_temperature /= 100.0f;
+            int16_t temp;
+            qiLittleEndianParser(it, temp);
+            if (temp != -32768)
+                msg.sensor_temperature = temp / 100.0f;
+            else
+                msg.sensor_temperature = std::numeric_limits<float>::quiet_NaN();
             std::advance(it, 22); // reserved
             break;
         }
@@ -1789,8 +1793,9 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
         default:
         {
             node->log(
-                log_level::ERROR,
-                "Unknown external sensor measurement type in SBF ExtSensorMeas.");
+                log_level::DEBUG,
+                "Unknown external sensor measurement type in SBF ExtSensorMeas: " +
+                    std::to_string(msg.type[i]));
             std::advance(it, 24);
             break;
         }
