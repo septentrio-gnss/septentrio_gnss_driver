@@ -623,8 +623,10 @@ namespace io {
         }
 
         // TODO UDP
-        send("siss, IPS1, 28785, UDP, 172.18.10.219\x0D");
-        // Setting up SBF blocks with rx_period_rest
+        send("siss, IPS1, 28785, UDP, 10.255.255.200\x0D");
+        std::string port = "IPS1";
+        port = mainConnectionDescriptor_;
+        //  Setting up SBF blocks with rx_period_rest
         {
             std::stringstream blocks;
             if (settings_->septentrio_receiver_type == "ins")
@@ -646,9 +648,8 @@ namespace io {
             blocks << " +ReceiverSetup";
 
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", "
-               << "IPS1"
-               << "," << blocks.str() << ", " << rest_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", " << port << ","
+               << blocks.str() << ", " << rest_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -676,9 +677,8 @@ namespace io {
             }
 
             std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", "
-               << "IPS1"
-               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sno, Stream" << std::to_string(stream) << ", " << port << ","
+               << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -789,9 +789,8 @@ namespace io {
                 }
             }
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", "
-               << "IPS1"
-               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", " << port << ","
+               << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }

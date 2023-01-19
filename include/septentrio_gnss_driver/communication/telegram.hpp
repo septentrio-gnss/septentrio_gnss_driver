@@ -159,7 +159,7 @@ public:
 private:
     std::queue<T> queue_;
     std::condition_variable cond_;
-    std::mutex mtx_;
+    mutable std::mutex mtx_;
 };
 
 template <typename T>

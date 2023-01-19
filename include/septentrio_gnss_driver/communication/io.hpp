@@ -113,16 +113,16 @@ namespace io {
                 if (bytes_recvd > 2)
                 {
                     telegram->message.resize(bytes_recvd);
-                    node_->log(log_level::INFO,
+                    /*node_->log(log_level::DEBUG,
                                "Buffer: " + std::string(telegram->message.begin(),
-                                                        telegram->message.end()));
+                                                        telegram->message.end()));*/
                     if (telegram->message[0] == SYNC_BYTE_1)
                     {
                         if (telegram->message[1] == SBF_SYNC_BYTE_2)
                         {
                             if (crc::isValid(telegram->message))
                             {
-                                telegram->type == telegram_type::SBF;
+                                telegram->type = telegram_type::SBF;
                                 telegramQueue_->push(telegram);
                             } else
                                 node_->log(
@@ -131,42 +131,39 @@ namespace io {
                                         std::to_string(parsing_utilities::getId(
                                             telegram->message)) +
                                         ".");
-                        }
-                    } else if ((telegram->message[1] == NMEA_SYNC_BYTE_2) &&
-                               (telegram->message[2] == NMEA_SYNC_BYTE_3))
-                    {
-                        // TODO check \r\n
-                        telegram->type = telegram_type::NMEA;
-                        telegramQueue_->push(telegram);
-
-                    } else if ((telegram->message[1] == NMEA_INS_SYNC_BYTE_2) &&
-                               (telegram->message[2] == NMEA_INS_SYNC_BYTE_3))
-                    {
-                        // TODO check \r\n
-                        telegram->type = telegram_type::NMEA_INS;
-                        telegramQueue_->push(telegram);
-                    } else if (telegram->message[1] == RESPONSE_SYNC_BYTE_2)
-                    {
-                        // TODO determine if response is sent via UDP
-                        if ((telegram->message[2] == RESPONSE_SYNC_BYTE_3) ||
-                            (telegram->message[2] == RESPONSE_SYNC_BYTE_3a))
+                        } else if ((telegram->message[1] == NMEA_SYNC_BYTE_2) &&
+                                   (telegram->message[2] == NMEA_SYNC_BYTE_3) &&
+                                   (telegram->message[telegram->message.size() -
+                                                      2] == CR) &&
+                                   (telegram->message[telegram->message.size() -
+                                                      1] == LF))
                         {
-                            // TODO check \r\n
-                            telegram->type = telegram_type::RESPONSE;
+                            telegram->type = telegram_type::NMEA;
                             telegramQueue_->push(telegram);
-                        } else if (telegram->message[2] == ERROR_SYNC_BYTE_3)
+
+                        } else if ((telegram->message[1] == NMEA_INS_SYNC_BYTE_2) &&
+                                   (telegram->message[2] == NMEA_INS_SYNC_BYTE_3) &&
+                                   (telegram->message[telegram->message.size() -
+                                                      2] == CR) &&
+                                   (telegram->message[telegram->message.size() -
+                                                      1] == LF))
                         {
-                            // TODO check \r\n
-                            telegram->type = telegram_type::ERROR_RESPONSE;
+                            telegram->type = telegram_type::NMEA_INS;
                             telegramQueue_->push(telegram);
                         } else
                         {
-                            // TODO fault
+                            node_->log(log_level::DEBUG,
+                                       "head: " +
+                                           std::string(std::string(
+                                               telegram->message.begin(),
+                                               telegram->message.begin() + 2)));
                         }
                     } else
                     {
-                        // TODO generic string or cd? determine if these are sent via
-                        // UDP
+                        node_->log(log_level::DEBUG,
+                                   "head: " + std::string(std::string(
+                                                  telegram->message.begin(),
+                                                  telegram->message.begin() + 2)));
                     }
                 }
 

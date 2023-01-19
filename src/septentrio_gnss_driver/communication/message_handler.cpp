@@ -1912,10 +1912,10 @@ namespace io {
 
         uint16_t sbfId = parsing_utilities::getId(telegram->message);
 
-        node_->log(log_level::DEBUG, "ROSaic reading SBF block " +
-                                         std::to_string(sbfId) + " made up of " +
-                                         std::to_string(telegram->message.size()) +
-                                         " bytes...");
+        /*node_->log(log_level::DEBUG, "ROSaic reading SBF block " +
+                                        std::to_string(sbfId) + " made up of " +
+                                        std::to_string(telegram->message.size()) +
+                                        " bytes...");*/
 
         switch (sbfId)
         {
