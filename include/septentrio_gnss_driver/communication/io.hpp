@@ -302,16 +302,16 @@ namespace io {
                 try
                 {
                     node_->log(log_level::INFO,
-                               "Connecting serially to device" +
+                               "Connecting serially to device " +
                                    node_->settings()->device +
                                    ", targeted baudrate: " +
                                    std::to_string(node_->settings()->baudrate));
-                    stream_->open(port_);
+                    stream_->open(node_->settings()->device);
                     opened = true;
                 } catch (const boost::system::system_error& err)
                 {
                     node_->log(log_level::ERROR,
-                               "SerialCoket: Could not open serial port " + port_ +
+                               "Could not open serial port " + node_->settings()->device +
                                    ". Error: " + err.what() +
                                    ". Will retry every second.");
 
@@ -463,7 +463,6 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::string flowcontrol_;
-        std::string port_;
         uint32_t baudrate_;
 
     public:
