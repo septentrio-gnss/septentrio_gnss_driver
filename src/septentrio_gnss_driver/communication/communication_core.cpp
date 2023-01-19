@@ -657,7 +657,10 @@ namespace io {
 
         // Setting up NMEA streams
         {
-            // send("snti, GP\x0D");
+            if (settings_->septentrio_receiver_type == "ins")
+                send("snti, IN\x0D");
+            else
+                send("snti, GP\x0D");
 
             std::stringstream blocks;
             if (settings_->publish_gpgga)
