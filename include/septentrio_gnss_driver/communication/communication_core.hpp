@@ -169,6 +169,8 @@ namespace io {
         std::atomic<bool> running_;
 
         //! Main communication port
-        std::string mainConnectionDescriptor_;
+        std::string mainConnectionPort_;
+        // Port for receiving data streams
+        std::string streamPort_;
     };
 } // namespace io

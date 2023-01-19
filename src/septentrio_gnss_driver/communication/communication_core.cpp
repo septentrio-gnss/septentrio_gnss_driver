@@ -73,7 +73,7 @@ namespace io {
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
             resetMainConnection();
-            send("sdio, " + mainConnectionDescriptor_ + ", auto, none\x0D");
+            send("sdio, " + streamPort_ + ", auto, none\x0D");
             for (auto ntrip : settings_->rtk_settings.ntrip)
             {
                 if (!ntrip.id.empty() && !ntrip.keep_open)
@@ -176,7 +176,8 @@ namespace io {
         case device_type::TCP:
         {
             manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
-            udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_));
+            // udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_)); //TODO
+            // UDP
             break;
         }
         case device_type::SERIAL:
@@ -228,14 +229,16 @@ namespace io {
         boost::regex_match(settings_->device, match,
                            boost::regex("(tcp)://(.+):(\\d+)"));
         std::string proto(match[1]);
-        mainConnectionDescriptor_ = resetMainConnection();
+        mainConnectionPort_ = resetMainConnection();
+        // streamPort_ = "IPS1"; // TODO UDP
+        streamPort_ = mainConnectionPort_;
         if (proto == "tcp")
         {
-            // mainConnectionDescriptor_ = manager_->getConnectionDescriptor();
+            // mainConnectionPort_ = manager_->getConnectionDescriptor();
         } else
         {
             // TODO check if rx_serial_portcan be removed
-            mainConnectionDescriptor_ = settings_->rx_serial_port;
+            mainConnectionPort_ = settings_->rx_serial_port;
             // After booting, the Rx sends the characters "x?" to all ports, which
             // could potentially mingle with our first command. Hence send a
             // safeguard command "lif", whose potentially false processing is
@@ -623,9 +626,7 @@ namespace io {
         }
 
         // TODO UDP
-        send("siss, IPS1, 28785, UDP, 10.255.255.200\x0D");
-        std::string port = "IPS1";
-        port = mainConnectionDescriptor_;
+        // send("siss, IPS1, 28785, UDP, 10.255.255.200\x0D");
         //  Setting up SBF blocks with rx_period_rest
         {
             std::stringstream blocks;
@@ -648,8 +649,8 @@ namespace io {
             blocks << " +ReceiverSetup";
 
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << port << ","
-               << blocks.str() << ", " << rest_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
+               << "," << blocks.str() << ", " << rest_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -677,8 +678,8 @@ namespace io {
             }
 
             std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", " << port << ","
-               << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
+               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -789,8 +790,8 @@ namespace io {
                 }
             }
             std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << port << ","
-               << blocks.str() << ", " << pvt_interval << "\x0D";
+            ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
+               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
             send(ss.str());
             ++stream;
         }
@@ -816,7 +817,7 @@ namespace io {
                 (settings_->ins_vsm_ros_source == "twist"))
             {
                 std::string s;
-                s = "sdio, " + mainConnectionDescriptor_ + ", NMEA, +NMEA +SBF\x0D";
+                s = "sdio, " + mainConnectionPort_ + ", NMEA, +NMEA +SBF\x0D";
                 send(s);
                 nmeaActivated_ = true;
             }
