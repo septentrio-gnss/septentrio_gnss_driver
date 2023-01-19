@@ -658,7 +658,7 @@ namespace io {
         // Setting up NMEA streams
         {
             if (settings_->septentrio_receiver_type == "ins")
-                send("snti, IN\x0D");
+                send("snti, auto\x0D");
             else
                 send("snti, GP\x0D");
 
