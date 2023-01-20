@@ -122,19 +122,15 @@ namespace io {
 
     void TelegramHandler::handleCd(const std::shared_ptr<Telegram>& telegram)
     {
-        if (cdCtr_ < 2)
+        node_->log(log_level::DEBUG,
+                   "handleCd: " + std::string(telegram->message.begin(),
+                                              telegram->message.end()));
+        if (telegram->message.back() == CONNECTION_DESCRIPTOR_FOOTER)
         {
             mainConnectionDescriptor_ =
                 std::string(telegram->message.begin(), telegram->message.end() - 1);
 
-            ++cdCtr_;
-            if (cdCtr_ == 2)
-            {
-                node_->log(log_level::INFO, "The connection descriptor is " +
-                                                mainConnectionDescriptor_);
-
-                cdSemaphore_.notify();
-            }
+            cdSemaphore_.notify();
         }
     }
 } // namespace io

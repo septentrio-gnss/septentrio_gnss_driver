@@ -118,17 +118,7 @@ namespace io {
         void handleTelegram(const std::shared_ptr<Telegram>& telegram);
 
         //! Returns the connection descriptor
-        void resetWaitforMainCd()
-        {
-            // Cd is sent twice only after startup
-            if (init_ == false)
-            {
-                cdCtr_ = 0;
-                init_ = true;
-            } else
-                cdCtr_ = 1;
-            mainConnectionDescriptor_ = std::string();
-        }
+        void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
 
         //! Returns the connection descriptor
         [[nodiscard]] std::string getMainCd()
@@ -152,8 +142,6 @@ namespace io {
         //! MessageHandler parser
         MessageHandler messageHandler_;
 
-        bool init_ = false;
-        uint8_t cdCtr_ = 0;
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;
         std::string mainConnectionDescriptor_ = std::string();

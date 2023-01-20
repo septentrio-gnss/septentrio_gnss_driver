@@ -230,6 +230,8 @@ namespace io {
                            boost::regex("(tcp)://(.+):(\\d+)"));
         std::string proto(match[1]);
         mainConnectionPort_ = resetMainConnection();
+        node_->log(log_level::INFO,
+                   "The connection descriptor is " + mainConnectionPort_);
         // streamPort_ = "IPS1"; // TODO UDP
         streamPort_ = mainConnectionPort_;
         if (proto == "tcp")
@@ -840,7 +842,7 @@ namespace io {
     {
         // Escape sequence (escape from correction mode), ensuring that we
         // can send our real commands afterwards...
-        std::string cmd("\x0DSSSSSSSSSSSSSSSSSSS\x0D\x0D");
+        std::string cmd("\x0DSSSSSSSSSS\x0D\x0D");
         telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);
         return telegramHandler_.getMainCd();
