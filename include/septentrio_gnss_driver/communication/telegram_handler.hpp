@@ -112,6 +112,12 @@ namespace io {
     public:
         TelegramHandler(ROSaicNodeBase* node) : node_(node), messageHandler_(node) {}
 
+        ~TelegramHandler() 
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
         /**
          * @brief Called every time a telegram is received
          */
