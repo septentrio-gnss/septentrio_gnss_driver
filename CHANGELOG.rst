@@ -4,6 +4,8 @@ Changelog for package septentrio_gnss_driver
 
 1.2.4 (upcoming)
 ------------------
+* New Features
+   * Reconnect after connection interruption
 * Improvements
    * Rework IO core and message handling -> reduce system load
 * Preliminary Features

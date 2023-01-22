@@ -185,7 +185,6 @@ namespace io {
         }
         receive();
 
-        watchdogThread_ = std::thread(std::bind(&AsyncManager::runWatchdog, this));
         return true;
     }
 
@@ -207,8 +206,11 @@ namespace io {
     void AsyncManager<IoType>::receive()
     {
         resync();
-        ioThread_ = std::thread(
-            std::thread(std::bind(&AsyncManager<IoType>::runIoService, this)));
+        ioThread_ =
+            std::thread(std::bind(&AsyncManager<IoType>::runIoService, this));
+        if (!watchdogThread_.joinable())
+            watchdogThread_ =
+                std::thread(std::bind(&AsyncManager::runWatchdog, this));
     }
 
     template <typename IoType>
@@ -229,11 +231,10 @@ namespace io {
     {
         while (running_)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (running_ && ioService_->stopped())
             {
-                node_->log(log_level::DEBUG,
+                node_->log(log_level::ERROR,
                            "AsyncManager connection lost. Trying to reconnect.");
                 ioService_->reset();
                 ioThread_.join();
@@ -430,7 +431,6 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager sync read error: " + ec.message());
-                    resync();
                 }
             });
     }
@@ -472,7 +472,6 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
-                    resync();
                 }
             });
     }
@@ -507,12 +506,13 @@ namespace io {
                             "AsyncManager SBF read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
                     }
+                    resync();
                 } else
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
                 }
-                resync();
+                
             });
     }
 
@@ -600,7 +600,6 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
-                    resync();
                 }
             });
     }
