@@ -2350,8 +2350,7 @@ namespace io {
                                 std::to_string(gnss_major) + "." +
                                 std::to_string(gnss_minor) + "." +
                                 std::to_string(gnss_patch) + " or consult README.");
-                    } else
-                        node_->log(log_level::ERROR, "gnss");
+                    }
                 }
             }
 

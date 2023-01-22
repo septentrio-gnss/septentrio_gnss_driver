@@ -70,6 +70,7 @@ namespace io {
 
     CommunicationCore::~CommunicationCore()
     {
+        telegramHandler_.clearSemaphores();
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
             resetMainConnection();
@@ -245,7 +246,7 @@ namespace io {
             // could potentially mingle with our first command. Hence send a
             // safeguard command "lif", whose potentially false processing is
             // harmless.
-            send("lif, Identification \x0D");
+            //send("lif, Identification \x0D");
         }
 
         node_->log(log_level::INFO, "Setting up Rx.");

@@ -327,35 +327,21 @@ namespace io {
             stream_->set_option(boost::asio::serial_port_base::character_size(8));
             stream_->set_option(boost::asio::serial_port_base::stop_bits(
                 boost::asio::serial_port_base::stop_bits::one));
-            /*stream_->set_option(boost::asio::serial_port_base::flow_control(
-                boost::asio::serial_port_base::flow_control::none));*/
-
-            int fd = stream_->native_handle();
-            termios tio;
-            // Get terminal attribute, follows the syntax
-            // int tcgetattr(int fd, struct termios *termios_p);
-            tcgetattr(fd, &tio);
 
             // Hardware flow control settings
             if (flowcontrol_ == "RTS|CTS")
             {
-                tio.c_iflag &= ~(IXOFF | IXON);
-                tio.c_cflag |= CRTSCTS;
+                stream_->set_option(boost::asio::serial_port_base::flow_control(
+                boost::asio::serial_port_base::flow_control::hardware));
             } else
             {
-                tio.c_iflag &= ~(IXOFF | IXON);
-                tio.c_cflag &= ~CRTSCTS;
+                stream_->set_option(boost::asio::serial_port_base::flow_control(
+                boost::asio::serial_port_base::flow_control::none));
             }
-            // Setting serial port to "raw" mode to prevent EOF exit..
-            cfmakeraw(&tio);
-
-            // Commit settings, syntax is
-            // int tcsetattr(int fd, int optional_actions, const struct termios
-            // *termios_p);
-            tcsetattr(fd, TCSANOW, &tio);
+           
             // Set low latency
+            int fd = stream_->native_handle();
             struct serial_struct serialInfo;
-
             ioctl(fd, TIOCGSERIAL, &serialInfo);
             serialInfo.flags |= ASYNC_LOW_LATENCY;
             ioctl(fd, TIOCSSERIAL, &serialInfo);
@@ -457,6 +443,10 @@ namespace io {
                        "Set ASIO baudrate to " +
                            std::to_string(current_baudrate.value()) +
                            ", leaving InitializeSerial() method");
+
+            // clear io
+            ::tcflush(stream_->native_handle(), TCIOFLUSH);
+
             return true;
         }
 

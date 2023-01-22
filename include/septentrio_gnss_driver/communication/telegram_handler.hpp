@@ -118,6 +118,12 @@ namespace io {
             responseSemaphore_.notify();
         }
 
+        void clearSemaphores()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
         /**
          * @brief Called every time a telegram is received
          */
