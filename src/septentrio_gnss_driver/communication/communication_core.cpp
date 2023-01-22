@@ -239,7 +239,7 @@ namespace io {
             // mainConnectionPort_ = manager_->getConnectionDescriptor();
         } else
         {
-            // TODO check if rx_serial_portcan be removed
+            // TODO check if rx_serial_port can be removed
             mainConnectionPort_ = settings_->rx_serial_port;
             // After booting, the Rx sends the characters "x?" to all ports, which
             // could potentially mingle with our first command. Hence send a

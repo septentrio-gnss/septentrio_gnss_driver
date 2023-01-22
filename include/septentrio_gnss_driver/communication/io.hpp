@@ -215,7 +215,7 @@ namespace io {
     class TcpIo
     {
     public:
-        TcpIo(ROSaicNodeBase* node) : node_(node) {}
+        TcpIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
 
         ~TcpIo() { stream_->close(); }
 
@@ -227,7 +227,7 @@ namespace io {
 
             try
             {
-                boost::asio::ip::tcp::resolver resolver(ioService_);
+                boost::asio::ip::tcp::resolver resolver(*ioService_);
                 boost::asio::ip::tcp::resolver::query query(
                     node_->settings()->tcp_ip, node_->settings()->tcp_port);
                 endpointIterator = resolver.resolve(query);
@@ -240,7 +240,7 @@ namespace io {
                 return false;
             }
 
-            stream_.reset(new boost::asio::ip::tcp::socket(ioService_));
+            stream_.reset(new boost::asio::ip::tcp::socket(*ioService_));
 
             node_->log(log_level::INFO, "Connecting to tcp://" +
                                             node_->settings()->tcp_ip + ":" +
@@ -268,20 +268,20 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-
+        std::shared_ptr<boost::asio::io_service> ioService_;
+        
     public:
-        boost::asio::io_service ioService_;
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;
     };
 
     class SerialIo
     {
     public:
-        SerialIo(ROSaicNodeBase* node) :
-            node_(node), flowcontrol_(node->settings()->hw_flow_control),
+        SerialIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) :
+            node_(node), ioService_(ioService), flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
         {
-            stream_.reset(new boost::asio::serial_port(ioService_));
+            stream_.reset(new boost::asio::serial_port(*ioService_));
         }
 
         ~SerialIo() { stream_->close(); }
@@ -327,8 +327,8 @@ namespace io {
             stream_->set_option(boost::asio::serial_port_base::character_size(8));
             stream_->set_option(boost::asio::serial_port_base::stop_bits(
                 boost::asio::serial_port_base::stop_bits::one));
-            stream_->set_option(boost::asio::serial_port_base::flow_control(
-                boost::asio::serial_port_base::flow_control::none));
+            /*stream_->set_option(boost::asio::serial_port_base::flow_control(
+                boost::asio::serial_port_base::flow_control::none));*/
 
             int fd = stream_->native_handle();
             termios tio;
@@ -462,18 +462,18 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
+        std::shared_ptr<boost::asio::io_service> ioService_;
         std::string flowcontrol_;
         uint32_t baudrate_;
 
     public:
-        boost::asio::io_service ioService_;
         std::unique_ptr<boost::asio::serial_port> stream_;
     };
 
     class SbfFileIo
     {
     public:
-        SbfFileIo(ROSaicNodeBase* node) : node_(node) {}
+        SbfFileIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
 
         ~SbfFileIo() { stream_->close(); }
 
@@ -493,7 +493,7 @@ namespace io {
 
             try
             {
-                stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
+                stream_.reset(new boost::asio::posix::stream_descriptor(*ioService_));
                 stream_->assign(fd);
 
             } catch (std::runtime_error& e)
@@ -507,16 +507,16 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-
+        std::shared_ptr<boost::asio::io_service> ioService_;
+        
     public:
-        boost::asio::io_service ioService_;
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
     };
 
     class PcapFileIo
     {
     public:
-        PcapFileIo(ROSaicNodeBase* node) : node_(node) {}
+        PcapFileIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
 
         ~PcapFileIo()
         {
@@ -537,7 +537,7 @@ namespace io {
                 node_->log(log_level::INFO, "Opening pcap file stream" +
                                                 node_->settings()->device + "...");
 
-                stream_.reset(new boost::asio::posix::stream_descriptor(ioService_));
+                stream_.reset(new boost::asio::posix::stream_descriptor(*ioService_));
 
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());
@@ -554,11 +554,11 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
+        std::shared_ptr<boost::asio::io_service> ioService_;
         std::array<char, 100> errBuff_;
         pcap_t* pcap_;
 
     public:
-        boost::asio::io_service ioService_;
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
     };
 } // namespace io

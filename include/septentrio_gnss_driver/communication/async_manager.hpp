@@ -138,6 +138,7 @@ namespace io {
 
         //! Pointer to the node
         ROSaicNodeBase* node_;
+        std::shared_ptr<boost::asio::io_service> ioService_;
         IoType ioInterface_;
         std::atomic<bool> running_;
         std::thread ioThread_;
@@ -155,8 +156,8 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node),
-        ioInterface_(node), telegramQueue_(telegramQueue)
+        node_(node), ioService_(new boost::asio::io_service),        
+        ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -167,7 +168,7 @@ namespace io {
         running_ = false;
         close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
-        ioInterface_.ioService_.stop();
+        ioService_->stop();
         ioThread_.join();
         watchdogThread_.join();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
@@ -198,7 +199,7 @@ namespace io {
             return;
         }
 
-        ioInterface_.ioService_.post(
+        ioService_->post(
             boost::bind(&AsyncManager<IoType>::write, this, cmd));
     }
 
@@ -213,13 +214,13 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::close()
     {
-        ioInterface_.ioService_.post([this]() { ioInterface_.close(); });
+        ioService_->post([this]() { ioInterface_.close(); });
     }
 
     template <typename IoType>
     void AsyncManager<IoType>::runIoService()
     {
-        ioInterface_.ioService_.run();
+        ioService_->run();
         node_->log(log_level::DEBUG, "AsyncManager ioService terminated.");
     }
 
@@ -230,11 +231,11 @@ namespace io {
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
-            if (running_ && ioInterface_.ioService_.stopped())
+            if (running_ && ioService_->stopped())
             {
                 node_->log(log_level::DEBUG,
                            "AsyncManager connection lost. Trying to reconnect.");
-                ioInterface_.ioService_.reset();
+                ioService_->reset();
                 ioThread_.join();
                 while (!ioInterface_.connect())
                     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
