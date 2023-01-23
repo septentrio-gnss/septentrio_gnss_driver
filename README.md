@@ -322,7 +322,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Connectivity Specs</summary>
 
   + `device`: location of device connection
-    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
+    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
     + `file_name:path/to/file.sbf` format for publishing from an SBF log
     + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
