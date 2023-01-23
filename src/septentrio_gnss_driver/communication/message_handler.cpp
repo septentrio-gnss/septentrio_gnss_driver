@@ -1822,6 +1822,9 @@ namespace io {
         uint32_t tow = parsing_utilities::getTow(message);
         uint16_t wnc = parsing_utilities::getWnc(message);
 
+        if (!validValue(tow) || !validValue(wnc))
+            return 0;
+
         return timestampSBF(tow, wnc);
     }
 
@@ -2702,19 +2705,9 @@ namespace io {
         {
             auto sleep_nsec = unix_time_ - unix_old;
 
-            if (sleep_nsec < 10000000000)
-            {
-                std::stringstream ss;
-                ss << "Waiting for " << sleep_nsec / 1000000 << " milliseconds...";
-                node_->log(log_level::DEBUG, ss.str());
-            } else
-            {
-                std::stringstream ss;
-                ss << "Delta t too large for watiting: " << sleep_nsec / 1000000
-                   << " milliseconds... reducing it to 5 ms.";
-                node_->log(log_level::WARN, ss.str());
-                sleep_nsec = 5000000;
-            }
+            std::stringstream ss;
+            ss << "Waiting for " << sleep_nsec / 1000000 << " milliseconds...";
+            node_->log(log_level::DEBUG, ss.str());
 
             std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
         }

@@ -156,8 +156,9 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node), ioService_(new boost::asio::io_service),        
-        ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
+        node_(node),
+        ioService_(new boost::asio::io_service), ioInterface_(node, ioService_),
+        telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -198,8 +199,7 @@ namespace io {
             return;
         }
 
-        ioService_->post(
-            boost::bind(&AsyncManager<IoType>::write, this, cmd));
+        ioService_->post(boost::bind(&AsyncManager<IoType>::write, this, cmd));
     }
 
     template <typename IoType>
@@ -234,13 +234,23 @@ namespace io {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (running_ && ioService_->stopped())
             {
-                node_->log(log_level::ERROR,
-                           "AsyncManager connection lost. Trying to reconnect.");
-                ioService_->reset();
-                ioThread_.join();
-                while (!ioInterface_.connect())
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                receive();
+                if (node_->settings()->read_from_sbf_log ||
+                    node_->settings()->read_from_pcap)
+                {
+                    node_->log(
+                        log_level::INFO,
+                        "AsyncManager finished reading file. Node will continue to publish queued messages.");
+                    break;
+                } else
+                {
+                    node_->log(log_level::ERROR,
+                               "AsyncManager connection lost. Trying to reconnect.");
+                    ioService_->reset();
+                    ioThread_.join();
+                    while (!ioInterface_.connect())
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    receive();
+                }
             }
         }
     }
@@ -512,7 +522,6 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
                 }
-                
             });
     }
 
