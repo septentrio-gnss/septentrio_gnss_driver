@@ -7,9 +7,12 @@ Changelog for package septentrio_gnss_driver
 * New Features
    * Recovery from connection interruption
 * Improvements
-   * Rework IO core and message handling -> reduce system load
+   * Rework IO core and message handling
+     * Unified stream processing 
+     * Internal data queue
+     * Prevent message loss in file reading     
 * Preliminary Features
-   * Output of localization and tf in ECEF frame, feedback welcome
+   * Output of localization and tf in ECEF frame, testing and feedback welcome
 
 1.2.3 (2022-11-09)
 ------------------
