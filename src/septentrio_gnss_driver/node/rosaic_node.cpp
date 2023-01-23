@@ -83,7 +83,6 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     getUint32Param("serial/baudrate", settings_.baudrate,
                    static_cast<uint32_t>(921600));
     param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
-    param("serial/rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
     param("login/user", settings_.login_user, std::string(""));
     param("login/password", settings_.login_password, std::string(""));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.

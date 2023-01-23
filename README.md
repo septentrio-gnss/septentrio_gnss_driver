@@ -84,7 +84,6 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   serial:
     baudrate: 921600
-    rx_serial_port: USB1
     hw_flow_control: off
   
   login:
@@ -332,7 +331,6 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `tcp://192.168.3.1:28784 `
   + `serial`: specifications for serial communication
     + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
-    + `rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
       + `off` to disable UART HW flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`

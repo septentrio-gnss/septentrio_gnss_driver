@@ -135,9 +135,6 @@ struct Settings
     uint32_t baudrate;
     //! HW flow control
     std::string hw_flow_control;
-    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
-    //! serial port connected to, e.g. USB1 or COM1
-    std::string rx_serial_port;
     //! Datum to be used
     std::string datum;
     //! Polling period for PVT-related SBF blocks
