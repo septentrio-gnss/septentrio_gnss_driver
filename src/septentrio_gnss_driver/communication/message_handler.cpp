@@ -206,15 +206,14 @@ namespace io {
         publish<PoseWithCovarianceStampedMsg>("/pose", msg);
     };
 
-    void MessageHandler::assembleDiagnosticArray(const Timestamp& time_obj)
+    void MessageHandler::assembleDiagnosticArray(
+        const std::shared_ptr<Telegram>& telegram)
     {
         DiagnosticArrayMsg msg;
         if (!validValue(last_receiverstatus_.block_header.tow) ||
             (last_receiverstatus_.block_header.tow !=
              last_qualityind_.block_header.tow))
             return;
-        msg.header.stamp = timestampToRos(time_obj);
-        // TODO frame_id
         std::string serialnumber;
         if (validValue(last_receiversetup_.block_header.tow))
             serialnumber = last_receiversetup_.rx_serial_number;
@@ -322,12 +321,30 @@ namespace io {
         gnss_status.message =
             "Quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+        std::string frame_id;
+        if (settings_->septentrio_receiver_type == "gnss")
+        {
+            frame_id = settings_->frame_id;
+        }
+        if (settings_->septentrio_receiver_type == "ins")
+        {
+            if (settings_->ins_use_poi)
+            {
+                frame_id = settings_->poi_frame_id;
+            } else
+            {
+                frame_id = settings_->frame_id;
+            }
+        }
+        assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
 
-    ImuMsg MessageHandler::assmembleImu() const
+    void MessageHandler::assembleImu()
     {
         ImuMsg msg;
+
+        msg.header = last_extsensmeas_.header;
 
         msg.linear_acceleration.x = last_extsensmeas_.acceleration_x;
         msg.linear_acceleration.y = last_extsensmeas_.acceleration_y;
@@ -431,7 +448,7 @@ namespace io {
             msg.orientation_covariance[8] = -1.0;
         }
 
-        return msg;
+        publish<ImuMsg>("/imu", msg);
     };
 
     void MessageHandler::assembleTwist(bool fromIns /* = false*/)
@@ -1791,7 +1808,18 @@ namespace io {
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
         publish<GpsFixMsg>("/gpsfix", msg);
-    };
+    }
+
+    void
+    MessageHandler::assembleTimeReference(const std::shared_ptr<Telegram>& telegram)
+    {
+        TimeReferenceMsg msg;
+        Timestamp time_obj = timestampSBF(telegram->message);
+        msg.time_ref = timestampToRos(time_obj);
+        msg.source = "GPST";
+        assembleHeader(settings_->frame_id, telegram, msg);
+        publish<TimeReferenceMsg>("/gpst", msg);
+    }
 
     template <typename T>
     void MessageHandler::assembleHeader(const std::string& frameId,
@@ -1955,7 +1983,10 @@ namespace io {
                 publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);
             assembleTwist();
             assembleNavSatFix();
+            assemblePoseWithCovarianceStamped();
             assembleGpsFix();
+            if (settings_->publish_gpst)
+                assembleTimeReference(telegram);
             break;
         }
         case BASE_VECTOR_CART:
@@ -2013,7 +2044,7 @@ namespace io {
             if (settings_->publish_poscovgeodetic)
                 publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
             assembleNavSatFix();
-            assembleGpsFix();
+            assemblePoseWithCovarianceStamped();
             assembleGpsFix();
             break;
         }
@@ -2030,6 +2061,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_atteuler_);
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("/atteuler", last_atteuler_);
+            assemblePoseWithCovarianceStamped();
             assembleGpsFix();
             break;
         }
@@ -2046,6 +2078,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_attcoveuler_);
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+            assemblePoseWithCovarianceStamped();
             assembleGpsFix();
             break;
         }
@@ -2098,6 +2131,8 @@ namespace io {
             assembleLocalizationUtm();
             assembleLocalizationEcef();
             assembleTwist(true);
+            assemblePoseWithCovarianceStamped();
+            assembleNavSatFix();
             assembleGpsFix();
             break;
         }
@@ -2199,17 +2234,7 @@ namespace io {
                 publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
             if (settings_->publish_imu && hasImuMeas)
             {
-                ImuMsg msg;
-                try
-                {
-                    msg = assmembleImu();
-                } catch (std::runtime_error& e)
-                {
-                    node_->log(log_level::DEBUG, "ImuMsg: " + std::string(e.what()));
-                    break;
-                }
-                assembleHeader(settings_->imu_frame_id, telegram, msg);
-                publish<ImuMsg>("/imu", msg);
+                assembleImu();
             }
             break;
         }
@@ -2221,6 +2246,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ChannelStatus");
                 break;
             }
+            assembleGpsFix();
             break;
         }
         case MEAS_EPOCH:
@@ -2247,6 +2273,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in DOP");
                 break;
             }
+            assembleGpsFix();
             break;
         }
         case VEL_COV_GEODETIC:
@@ -2262,6 +2289,7 @@ namespace io {
             if (settings_->publish_velcovgeodetic)
                 publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
             assembleTwist();
+            assembleGpsFix();
             break;
         }
         case RECEIVER_STATUS:
@@ -2272,6 +2300,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ReceiverStatus");
                 break;
             }
+            assembleDiagnosticArray(telegram);
             break;
         }
         case QUALITY_IND:
@@ -2283,6 +2312,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in QualityInd");
                 break;
             }
+            assembleDiagnosticArray(telegram);
             break;
         }
         case RECEIVER_SETUP:
@@ -2385,316 +2415,6 @@ namespace io {
         }
             // Many more to be implemented...
         }
-    }
-
-    void processjointMessages()
-    {
-        /*
-
-            case 1:
-            {
-                TimeReferenceMsg msg;
-                Timestamp time_obj = timestampSBF(
-                    telegram->message, true); // We need the GPS time, hence
-                msg.time_ref = timestampToRos(time_obj);
-                msg.source = "GPST";
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    wait(time_obj);
-                }
-                publish<TimeReferenceMsg>("/gpst", msg);
-                break;
-            }
-            case evDiagnosticArray:
-            {
-                DiagnosticArrayMsg msg;
-                try
-                {
-                    msg = assembleDiagnosticArray();
-                } catch (std::runtime_error& e)
-                {
-                    node_->log(LogLevel::DEBUG,
-                               "DiagnosticArrayMsg: " + std::string(e.what()));
-                    break;
-                }
-                if (settings_->septentrio_receiver_type == "gnss")
-                {
-                    msg.header.frame_id = settings_->frame_id;
-                }
-                if (settings_->septentrio_receiver_type == "ins")
-                {
-                    if (settings_->ins_use_poi)
-                    {
-                        msg.header.frame_id = settings_->poi_frame_id;
-                    } else
-                    {
-                        msg.header.frame_id = settings_->frame_id;
-                    }
-                }
-                Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                receiverstatus_has_arrived_diagnostics_ = false;
-                qualityind_has_arrived_diagnostics_ = false;
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    wait(time_obj);
-                }
-                publish<DiagnosticArrayMsg>("/diagnostics", msg);
-                break;
-            }
-            case evLocalization:
-            {
-                LocalizationMsg msg;
-                try
-                {
-                    msg = assembleLocalizationUtm();
-                } catch (std::runtime_error& e)
-                {
-                    node_->log(LogLevel::DEBUG, "LocalizationMsg: " +
-           std::string(e.what())); break;
-                }
-                Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                insnavgeod_has_arrived_localization_ = false;
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    wait(time_obj);
-                }
-                if (settings_->publish_localization)
-                    publish<LocalizationMsg>("/localization", msg);
-                if (settings_->publish_tf)
-                    publishTf(msg);
-                break;
-            }
-            case evLocalizationEcef:
-            {
-                LocalizationMsg msg;
-                try
-                {
-                    msg = assembleLocalizationEcef();
-                } catch (std::runtime_error& e)
-                {
-                    node_->log(LogLevel::DEBUG, "LocalizationMsg: " +
-           std::string(e.what())); break;
-                }
-                Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                insnavgeod_has_arrived_localization_ecef_ = false;
-                insnavgeod_has_arrived_localization_ecef_ = false;
-                // Wait as long as necessary (only when reading from SBF/PCAP file)
-                if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                {
-                    wait(time_obj);
-                }
-                if (settings_->publish_localization_ecef)
-                    publish<LocalizationMsg>("/localization_ecef", msg);
-                if (settings_->publish_tf_ecef)
-                    publishTf(msg);
-                break;
-            }
-
-                if (settings_->septentrio_receiver_type == "gnss")
-                {
-                case evNavSatFix:
-                {
-                    NavSatFixMsg msg;
-                    try
-                    {
-                        msg = assembleNavSatFix();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "NavSatFixMsg: " + std::string(e.what()));
-                        break;
-                    }
-                    msg.header.frame_id = settings_->frame_id;
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    pvtgeodetic_has_arrived_navsatfix_ = false;
-                    poscovgeodetic_has_arrived_navsatfix_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<NavSatFixMsg>("/navsatfix", msg);
-                    break;
-                }
-                }
-                if (settings_->septentrio_receiver_type == "ins")
-                {
-                case evINSNavSatFix:
-                {
-                    NavSatFixMsg msg;
-                    try
-                    {
-                        msg = assembleNavSatFix();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "NavSatFixMsg: " + std::string(e.what()));
-                        break;
-                    }
-                    if (settings_->ins_use_poi)
-                    {
-                        msg.header.frame_id = settings_->poi_frame_id;
-                    } else
-                    {
-                        msg.header.frame_id = settings_->frame_id;
-                    }
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    insnavgeod_has_arrived_navsatfix_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<NavSatFixMsg>("/navsatfix", msg);
-                    break;
-                }
-                }
-
-                if (settings_->septentrio_receiver_type == "gnss")
-                {
-                case evGPSFix:
-                {
-                    GpsFixMsg msg;
-                    try
-                    {
-                        msg = assembleGpsFix();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG, "GpsFixMsg: " +
-           std::string(e.what())); break;
-                    }
-                    msg.header.frame_id = settings_->frame_id;
-                    msg.status.header.frame_id = settings_->frame_id;
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    msg.status.header.stamp = timestampToRos(time_obj);
-                    ++count_gpsfix_;
-                    channelstatus_has_arrived_gpsfix_ = false;
-                    measepoch_has_arrived_gpsfix_ = false;
-                    dop_has_arrived_gpsfix_ = false;
-                    pvtgeodetic_has_arrived_gpsfix_ = false;
-                    poscovgeodetic_has_arrived_gpsfix_ = false;
-                    velcovgeodetic_has_arrived_gpsfix_ = false;
-                    atteuler_has_arrived_gpsfix_ = false;
-                    attcoveuler_has_arrived_gpsfix_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<GpsFixMsg>("/gpsfix", msg);
-                    break;
-                }
-                }
-                if (settings_->septentrio_receiver_type == "ins")
-                {
-                case evINSGPSFix:
-                {
-                    GpsFixMsg msg;
-                    try
-                    {
-                        msg = assembleGpsFix();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG, "GpsFixMsg: " +
-           std::string(e.what())); break;
-                    }
-                    if (settings_->ins_use_poi)
-                    {
-                        msg.header.frame_id = settings_->poi_frame_id;
-                    } else
-                    {
-                        msg.header.frame_id = settings_->frame_id;
-                    }
-                    msg.status.header.frame_id = msg.header.frame_id;
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    msg.status.header.stamp = timestampToRos(time_obj);
-                    ++count_gpsfix_;
-                    channelstatus_has_arrived_gpsfix_ = false;
-                    measepoch_has_arrived_gpsfix_ = false;
-                    dop_has_arrived_gpsfix_ = false;
-                    insnavgeod_has_arrived_gpsfix_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<GpsFixMsg>("/gpsfix", msg);
-                    break;
-                }
-                }
-                if (settings_->septentrio_receiver_type == "gnss")
-                {
-                case evPoseWithCovarianceStamped:
-                {
-                    PoseWithCovarianceStampedMsg msg;
-                    try
-                    {
-                        msg = assemblePoseWithCovarianceStamped();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "PoseWithCovarianceStampedMsg: " +
-           std::string(e.what())); break;
-                    }
-                    msg.header.frame_id = settings_->frame_id;
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    pvtgeodetic_has_arrived_pose_ = false;
-                    poscovgeodetic_has_arrived_pose_ = false;
-                    atteuler_has_arrived_pose_ = false;
-                    attcoveuler_has_arrived_pose_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<PoseWithCovarianceStampedMsg>("/pose", msg);
-                    break;
-                }
-                }
-                if (settings_->septentrio_receiver_type == "ins")
-                {
-                case evINSPoseWithCovarianceStamped:
-                {
-                    PoseWithCovarianceStampedMsg msg;
-                    try
-                    {
-                        msg = assemblePoseWithCovarianceStamped();
-                    } catch (std::runtime_error& e)
-                    {
-                        node_->log(LogLevel::DEBUG,
-                                   "PoseWithCovarianceStampedMsg: " +
-           std::string(e.what())); break;
-                    }
-                    if (settings_->ins_use_poi)
-                    {
-                        msg.header.frame_id = settings_->poi_frame_id;
-                    } else
-                    {
-                        msg.header.frame_id = settings_->frame_id;
-                    }
-                    Timestamp time_obj = timestampSBF(telegram->message,
-           settings_->use_gnss_time); msg.header.stamp = timestampToRos(time_obj);
-                    insnavgeod_has_arrived_pose_ = false;
-                    // Wait as long as necessary (only when reading from SBF/PCAP
-           file) if (settings_->read_from_sbf_log || settings_->read_from_pcap)
-                    {
-                        wait(time_obj);
-                    }
-                    publish<PoseWithCovarianceStampedMsg>("/pose", msg);
-                    break;
-                }
-                }*/
     }
 
     void MessageHandler::wait(Timestamp time_obj)

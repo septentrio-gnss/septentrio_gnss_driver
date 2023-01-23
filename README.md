@@ -668,5 +668,5 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
       - SBF: Extend the SBF switch-case in `message_handler.cpp` file with a new case.
       - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
       - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
-  5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable in the `publish` struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
+  5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
 </details>

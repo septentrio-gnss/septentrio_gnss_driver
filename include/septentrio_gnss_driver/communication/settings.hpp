@@ -296,7 +296,7 @@ struct Settings
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
-    int32_t leap_seconds;
+    int32_t leap_seconds = -128;
     //! Whether or not we are reading from an SBF file
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file

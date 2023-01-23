@@ -680,7 +680,7 @@ namespace io {
         // Setting up SBF blocks with rx_period_pvt
         {
             std::stringstream blocks;
-            if (settings_->use_gnss_time)
+            if (settings_->use_gnss_time || settings_->publish_gpst)
             {
                 blocks << " +ReceiverTime";
             }
@@ -689,6 +689,7 @@ namespace io {
                 blocks << " +PVTCartesian";
             }
             if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
+                settings_->publish_gpst ||
                 (settings_->publish_navsatfix &&
                  (settings_->septentrio_receiver_type == "gnss")) ||
                 (settings_->publish_gpsfix &&

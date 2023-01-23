@@ -142,8 +142,6 @@ namespace io {
         MessageHandler(ROSaicNodeBase* node) :
             node_(node), settings_(node->settings()), unix_time_(0)
         {
-            if (settings_->leap_seconds != -128)
-                current_leap_seconds_ = settings_->leap_seconds;
         }
 
         void setLeapSeconds()
@@ -295,7 +293,7 @@ namespace io {
         Timestamp unix_time_;
 
         //! Current leap seconds as received, do not use value is -128
-        int8_t current_leap_seconds_ = -128;
+        int32_t current_leap_seconds_ = -128;
 
         /**
          * @brief "Callback" function when constructing NavSatFix messages
@@ -316,17 +314,15 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * DiagnosticArrayMsg messages
-         * @param[in] time_obj time of message
+         * @param[in] telegram telegram from which the msg was assembled
          */
-        void assembleDiagnosticArray(const Timestamp& time_obj);
+        void assembleDiagnosticArray(const std::shared_ptr<Telegram>& telegram);
 
         /**
          * @brief "Callback" function when constructing
          * ImuMsg messages
-         * @return A ROS message
-         * ImuMsg just created
          */
-        ImuMsg assmembleImu() const;
+        void assembleImu();
 
         /**
          * @brief "Callback" function when constructing
@@ -356,6 +352,13 @@ namespace io {
          * @param[in] fromIns Wether to contruct message from INS data
          */
         void assembleTwist(bool fromIns = false);
+
+        /**
+         * @brief  function when constructing
+         * TimeReferenceMsg messages
+         * @param[in] telegram telegram from which the msg was assembled
+         */
+        void assembleTimeReference(const std::shared_ptr<Telegram>& telegram);
 
         /**
          * @brief Waits according to time when reading from file
