@@ -76,7 +76,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
     param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
-    param("leap_seconds", settings_.leap_seconds, -128);
+    param("leap_seconds", settings_.leap_seconds, 27);
 
     // Communication parameters
     param("device", settings_.device, std::string("/dev/ttyACM0"));

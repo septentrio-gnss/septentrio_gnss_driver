@@ -1848,6 +1848,7 @@ namespace io {
 
         if (current_leap_seconds_ != -128)
             time_obj -= current_leap_seconds_ * secToNSec;
+        // else: warn?
 
         return time_obj;
     }
@@ -1869,14 +1870,16 @@ namespace io {
             node_->publishMessage<M>(topic, msg);
         } else
         {
-            /*node_->log(
-                LogLevel::DEBUG,
-                "Not publishing message with GNSS time because no leap seconds are
-               available yet.");*/
+            node_->log(
+                log_level::DEBUG,
+                "Not publishing message with GNSS time because no leap seconds are available yet.");
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+            {
                 node_->log(
                     log_level::WARN,
                     "No leap seconds were set and none were received from log yet.");
+                setLeapSeconds();
+            }
         }
     }
 
@@ -1887,8 +1890,7 @@ namespace io {
     {
         // TODO: maybe publish only if wnc and tow is valid?
         if (!settings_->use_gnss_time ||
-            (settings_->use_gnss_time && (current_leap_seconds_ != -128) &&
-             (current_leap_seconds_ != 0)))
+            (settings_->use_gnss_time && (current_leap_seconds_ != -128)))
         {
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
             {
@@ -1901,9 +1903,12 @@ namespace io {
                 log_level::DEBUG,
                 "Not publishing tf with GNSS time because no leap seconds are available yet.");
             if (settings_->read_from_sbf_log || settings_->read_from_pcap)
+            {
                 node_->log(
                     log_level::WARN,
-                    "No leap seconds were set and none were received from log yet.");
+                    "No leap seconds were set and none were received from log yet. ");
+                setLeapSeconds();
+            };
         }
     }
 
@@ -2371,7 +2376,8 @@ namespace io {
         }
         default:
         {
-            node_->log(log_level::DEBUG, "unknown SBF block received.");
+            node_->log(log_level::DEBUG, "unhandled SBF block " +
+                                             std::to_string(sbfId) + " received.");
             break;
         }
             // Many more to be implemented...
@@ -2692,24 +2698,26 @@ namespace io {
     {
         Timestamp unix_old = unix_time_;
         unix_time_ = time_obj;
-        if ((unix_old != 0) && (unix_time_ != unix_old))
+        if ((unix_old != 0) && (unix_time_ > unix_old))
         {
-            if (unix_time_ > unix_old)
-            {
-                auto sleep_nsec = unix_time_ - unix_old;
+            auto sleep_nsec = unix_time_ - unix_old;
 
+            if (sleep_nsec < 10000000000)
+            {
                 std::stringstream ss;
                 ss << "Waiting for " << sleep_nsec / 1000000 << " milliseconds...";
                 node_->log(log_level::DEBUG, ss.str());
-
-                std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
+            } else
+            {
+                std::stringstream ss;
+                ss << "Delta t too large for watiting: " << sleep_nsec / 1000000
+                   << " milliseconds... reducing it to 5 ms.";
+                node_->log(log_level::WARN, ss.str());
+                sleep_nsec = 5000000;
             }
-        }
 
-        // set leap seconds to paramter only if it was not set otherwise (by
-        // ReceiverTime)
-        if (current_leap_seconds_ == -128)
-            current_leap_seconds_ = settings_->leap_seconds;
+            std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_nsec));
+        }
     }
 
     void MessageHandler::parseNmea(const std::shared_ptr<Telegram>& telegram)
