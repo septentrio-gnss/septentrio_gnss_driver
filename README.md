@@ -659,16 +659,14 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 
   Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
   1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
-  2. Add a new `.msg` file to the `septentrio_gnss_driver/msg` folder.
-  3. SBF: Add the new struct definition to the `sbf_structs.hpp` file.
-  4. Parsing/Processing the message/block:
-      - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `septentrio_gnss_driver/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
-      - SBF: Extend the `NMEA_ID_Enum` enumeration in the `rx_message.hpp` file with a new entry.
-      - SBF: Extend the initialization of the `RxIDMap` map in the `rx_message.cpp` file with a new pair.
-      - SBF: Add a new callback function declaration, a new method, to the `io::RxMessage class` in the `rx_message.hpp` file.
-      - SBF: Add the latter's definition to the `rx_message.cpp` file.
-      - SBF: Add a new C++ "case" (part of the C++ switch-case structure) in the `rx_message.hpp` file. It should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
-      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `septentrio_gnss_driver/include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
-  5. Create a new `publish/..` ROSaic parameter in the `septentrio_gnss_driver/config/rover.yaml` file, create a global boolean variable `publish_...` in the `septentrio_gnss_driver/src/septentrio_gnss_driver/node/rosaic_node.cpp` file, insert the publishing callback function to the C++ "multimap" `IO.handlers_.callbackmap_` - which is already storing all the others - in the `rosaic_node::ROSaicNode::defineMessages()` method in the same file and add an `extern bool publish_...;` line to the `septentrio_gnss_driver/include/septentrio_gnss_driver/node/rosaic_node.hpp` file.
-  6. Modify the `septentrio_gnss_driver/CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  2. SBF: Add a new `.msg` file to the `../msg` folder. And modify the `../CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  3. Parsers:
+      - SBF: Add a parser to the `sbf_blocks.hpp` file.
+      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `../src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `../include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
+  4. Processing the message/block:
+      - SBF: Extend the `SbfId` enumeration in the `message_handler.hpp` file with a new entry.
+      - SBF: Extend the SBF switch-case in `message_handler.cpp` file with a new case.
+      - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
+      - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
+  5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable in the `publish` struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
 </details>
