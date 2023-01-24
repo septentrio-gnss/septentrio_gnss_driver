@@ -167,7 +167,7 @@ namespace log_level {
         ERROR,
         FATAL
     };
-}
+} // namespace log_level
 
 /**
  * @class ROSaicNodeBase
@@ -195,7 +195,7 @@ public:
                     "twist_vsm", 10, &ROSaicNodeBase::callbackTwist, this);
         } catch (const std::runtime_error& ex)
         {
-            this->log(log_level::ERROR, "Subscriber initalization failed due to: " +
+            this->log(log_level::ERROR, "Subscriber initialization failed due to: " +
                                             std::string(ex.what()) + ".");
         }
     }

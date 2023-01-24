@@ -6,7 +6,6 @@ device: tcp://192.168.3.1:28784
 
 serial:
   baudrate: 921600
-  rx_serial_port: USB1
   hw_flow_control: off
 
 configure_rx: true
