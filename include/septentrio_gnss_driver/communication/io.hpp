@@ -215,7 +215,12 @@ namespace io {
     class TcpIo
     {
     public:
-        TcpIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
+        TcpIo(ROSaicNodeBase* node,
+              std::shared_ptr<boost::asio::io_service> ioService) :
+            node_(node),
+            ioService_(ioService)
+        {
+        }
 
         ~TcpIo() { stream_->close(); }
 
@@ -269,7 +274,7 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_service> ioService_;
-        
+
     public:
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;
     };
@@ -277,8 +282,10 @@ namespace io {
     class SerialIo
     {
     public:
-        SerialIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node), ioService_(ioService), flowcontrol_(node->settings()->hw_flow_control),
+        SerialIo(ROSaicNodeBase* node,
+                 std::shared_ptr<boost::asio::io_service> ioService) :
+            node_(node),
+            ioService_(ioService), flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
         {
             stream_.reset(new boost::asio::serial_port(*ioService_));
@@ -310,10 +317,10 @@ namespace io {
                     opened = true;
                 } catch (const boost::system::system_error& err)
                 {
-                    node_->log(log_level::ERROR,
-                               "Could not open serial port " + node_->settings()->device +
-                                   ". Error: " + err.what() +
-                                   ". Will retry every second.");
+                    node_->log(log_level::ERROR, "Could not open serial port " +
+                                                     node_->settings()->device +
+                                                     ". Error: " + err.what() +
+                                                     ". Will retry every second.");
 
                     using namespace std::chrono_literals;
                     std::this_thread::sleep_for(1s);
@@ -332,13 +339,13 @@ namespace io {
             if (flowcontrol_ == "RTS|CTS")
             {
                 stream_->set_option(boost::asio::serial_port_base::flow_control(
-                boost::asio::serial_port_base::flow_control::hardware));
+                    boost::asio::serial_port_base::flow_control::hardware));
             } else
             {
                 stream_->set_option(boost::asio::serial_port_base::flow_control(
-                boost::asio::serial_port_base::flow_control::none));
+                    boost::asio::serial_port_base::flow_control::none));
             }
-           
+
             // Set low latency
             int fd = stream_->native_handle();
             struct serial_struct serialInfo;
@@ -367,10 +374,10 @@ namespace io {
             } catch (boost::system::system_error& e)
             {
 
-                node_->log(log_level::ERROR,
-                           "get_option failed due to " + std::string(e.what()));
+                node_->log(log_level::ERROR, "get_option failed due to " +
+                                                 static_cast<std::string>(e.what()));
                 node_->log(log_level::INFO, "Additional info about error is " +
-                                                boost::diagnostic_information(e));
+                                                static_cast<std::string>(e.what()));
                 /*
                 boost::system::error_code e_loop;
                 do // Caution: Might cause infinite loop..
@@ -406,10 +413,11 @@ namespace io {
                 {
 
                     node_->log(log_level::ERROR,
-                               "set_option failed due to " + std::string(e.what()));
+                               "set_option failed due to " +
+                                   static_cast<std::string>(e.what()));
                     node_->log(log_level::INFO,
                                "Additional info about error is " +
-                                   boost::diagnostic_information(e));
+                                   static_cast<std::string>(e.what()));
                     return false;
                 }
                 using namespace std::chrono_literals;
@@ -422,10 +430,11 @@ namespace io {
                 {
 
                     node_->log(log_level::ERROR,
-                               "get_option failed due to " + std::string(e.what()));
+                               "get_option failed due to " +
+                                   static_cast<std::string>(e.what()));
                     node_->log(log_level::INFO,
                                "Additional info about error is " +
-                                   boost::diagnostic_information(e));
+                                   static_cast<std::string>(e.what()));
                     /*
                     boost::system::error_code e_loop;
                     do // Caution: Might cause infinite loop..
@@ -463,7 +472,12 @@ namespace io {
     class SbfFileIo
     {
     public:
-        SbfFileIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
+        SbfFileIo(ROSaicNodeBase* node,
+                  std::shared_ptr<boost::asio::io_service> ioService) :
+            node_(node),
+            ioService_(ioService)
+        {
+        }
 
         ~SbfFileIo() { stream_->close(); }
 
@@ -483,13 +497,14 @@ namespace io {
 
             try
             {
-                stream_.reset(new boost::asio::posix::stream_descriptor(*ioService_));
+                stream_.reset(
+                    new boost::asio::posix::stream_descriptor(*ioService_));
                 stream_->assign(fd);
 
             } catch (std::runtime_error& e)
             {
                 node_->log(log_level::ERROR, "assigning SBF file failed due to " +
-                                                 std::string(e.what()));
+                                                 static_cast<std::string>(e.what()));
                 return false;
             }
             return true;
@@ -498,7 +513,7 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_service> ioService_;
-        
+
     public:
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
     };
@@ -506,7 +521,12 @@ namespace io {
     class PcapFileIo
     {
     public:
-        PcapFileIo(ROSaicNodeBase* node, std::shared_ptr<boost::asio::io_service> ioService) : node_(node), ioService_(ioService) {}
+        PcapFileIo(ROSaicNodeBase* node,
+                   std::shared_ptr<boost::asio::io_service> ioService) :
+            node_(node),
+            ioService_(ioService)
+        {
+        }
 
         ~PcapFileIo()
         {
@@ -527,7 +547,8 @@ namespace io {
                 node_->log(log_level::INFO, "Opening pcap file stream" +
                                                 node_->settings()->device + "...");
 
-                stream_.reset(new boost::asio::posix::stream_descriptor(*ioService_));
+                stream_.reset(
+                    new boost::asio::posix::stream_descriptor(*ioService_));
 
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());
@@ -536,7 +557,7 @@ namespace io {
             } catch (std::runtime_error& e)
             {
                 node_->log(log_level::ERROR, "assigning PCAP file failed due to " +
-                                                 std::string(e.what()));
+                                                 static_cast<std::string>(e.what()));
                 return false;
             }
             return true;
