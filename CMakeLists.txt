@@ -4,6 +4,15 @@ project(septentrio_gnss_driver)
 ## Compile as C++17
 add_compile_options(-std=c++17)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+message(STATUS "Setting build type to Release as none was specified.")
+set(CMAKE_BUILD_TYPE "Release" CACHE
+    STRING "Choose the type of build." FORCE)
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 ## ROS dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -81,19 +90,18 @@ set(dependencies
 
 ## shared library
 add_library(${library_name} SHARED
-   src/septentrio_gnss_driver/node/rosaic_node.cpp
-   src/septentrio_gnss_driver/communication/circular_buffer.cpp 
-   src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
-   src/septentrio_gnss_driver/parsers/string_utilities.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-   src/septentrio_gnss_driver/crc/crc.cpp
-   src/septentrio_gnss_driver/communication/communication_core.cpp 
-   src/septentrio_gnss_driver/communication/rx_message.cpp 
-   src/septentrio_gnss_driver/communication/callback_handlers.cpp
-   src/septentrio_gnss_driver/communication/pcap_reader.cpp
+  src/septentrio_gnss_driver/communication/communication_core.cpp
+  src/septentrio_gnss_driver/communication/message_handler.cpp 
+  src/septentrio_gnss_driver/communication/telegram_handler.cpp
+  src/septentrio_gnss_driver/crc/crc.cpp
+  src/septentrio_gnss_driver/node/main.cpp
+  src/septentrio_gnss_driver/node/rosaic_node.cpp
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp
+  src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
+  src/septentrio_gnss_driver/parsers/string_utilities.cpp 
 )
 target_include_directories(${library_name} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  

@@ -99,13 +99,31 @@ struct RtkSettings
     std::vector<RtkSerial> serial;
 };
 
+namespace device_type {
+    enum DeviceType
+    {
+        TCP,
+        SERIAL,
+        SBF_FILE,
+        PCAP_FILE
+    };
+} // namespace device_type
+
 //! Settings struct
 struct Settings
 {
     //! Set logger level to DEBUG
     bool activate_debug_log;
-    //! Device port
+    //! Device
     std::string device;
+    //! Device type
+    device_type::DeviceType device_type;
+    //! TCP IP
+    std::string tcp_ip;
+    //! TCP port
+    std::string tcp_port;
+    //! Filename
+    std::string file_name;
     //! Username for login
     std::string login_user;
     //! Password for login
@@ -117,9 +135,8 @@ struct Settings
     uint32_t baudrate;
     //! HW flow control
     std::string hw_flow_control;
-    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
-    //! serial port connected to, e.g. USB1 or COM1
-    std::string rx_serial_port;
+    // Wether to configure Rx
+    bool configure_rx;
     //! Datum to be used
     std::string datum;
     //! Polling period for PVT-related SBF blocks
@@ -235,7 +252,7 @@ struct Settings
     bool publish_gpst;
     //! Whether or not to publish the NavSatFixMsg message
     bool publish_navsatfix;
-    //! Whether or not to publish the GPSFixMsg message
+    //! Whether or not to publish the GpsFixMsg message
     bool publish_gpsfix;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;
@@ -281,7 +298,7 @@ struct Settings
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
-    int32_t leap_seconds;
+    int32_t leap_seconds = -128;
     //! Whether or not we are reading from an SBF file
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file

@@ -8,9 +8,9 @@ BlockHeader  block_header
 uint8        nr_sv
 uint8        error        
 uint16       mode
-float32      heading
-float32      pitch
-float32      roll
-float32      pitch_dot
-float32      roll_dot
-float32      heading_dot
+float32      heading     # deg
+float32      pitch       # deg
+float32      roll        # deg
+float32      pitch_dot   # deg/s
+float32      roll_dot    # deg/s
+float32      heading_dot # deg/s

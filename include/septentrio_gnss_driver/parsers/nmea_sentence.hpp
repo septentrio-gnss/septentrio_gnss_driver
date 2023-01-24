@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef NMEA_SENTENCE_HPP
-#define NMEA_SENTENCE_HPP
+#pragma once
 
 // C++ library includes
 #include <string>
@@ -66,5 +65,3 @@ protected:
     std::string id_;
     std::vector<std::string> body_;
 };
-
-#endif // NMEA_SENTENCE_HPP

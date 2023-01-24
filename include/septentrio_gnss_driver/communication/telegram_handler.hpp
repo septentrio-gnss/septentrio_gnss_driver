@@ -58,46 +58,105 @@
 
 #pragma once
 
+// C++ includes
+#include <condition_variable>
+
 // ROSaic includes
-#include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
 
 /**
- * @file gpgsv.hpp
- * @brief Derived class for parsing GSV messages
- * @date 29/09/20
+ * @file telegram_handler.hpp
+ * @brief Handles messages when reading NMEA/SBF/response/error/connection descriptor
+ * messages
  */
 
-/**
- * @class GpgsvParser
- * @brief Derived class for parsing GSV messages
- * @date 29/09/20
- */
-class GpgsvParser : public BaseParser<GpgsvMsg>
-{
-public:
-    /**
-     * @brief Constructor of the class GpgsvParser
-     */
-    GpgsvParser() : BaseParser<GpgsvMsg>() {}
+namespace io {
+    class Semaphore
+    {
+    public:
+        Semaphore() : block_(true) {}
+
+        void notify()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            block_ = false;
+            cv_.notify_one();
+        }
+
+        void wait()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            while (block_)
+            {
+                cv_.wait(lock);
+            }
+            block_ = true;
+        }
+
+    private:
+        std::mutex mtx_;
+        std::condition_variable cv_;
+        bool block_;
+    };
 
     /**
-     * @brief Returns the ASCII message ID, here "$GPGSV"
-     * @return The message ID
+     * @class TelegramHandler
+     * @brief Represents ensemble of (to be constructed) ROS messages, to be handled
+     * at once by this class
      */
-    const std::string getMessageID() const override;
+    class TelegramHandler
+    {
 
-    /**
-     * @brief Parses one GSV message
-     * @param[in] sentence The GSV message to be parsed
-     * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
-     */
-    GpgsvMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
-                        bool use_gnss_time,
-                        Timestamp time_obj) noexcept(false) override;
+    public:
+        TelegramHandler(ROSaicNodeBase* node) : node_(node), messageHandler_(node) {}
 
-    /**
-     * @brief Declares the string MESSAGE_ID
-     */
-    static const std::string MESSAGE_ID;
-};
+        ~TelegramHandler() 
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
+        void clearSemaphores()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
+        /**
+         * @brief Called every time a telegram is received
+         */
+        void handleTelegram(const std::shared_ptr<Telegram>& telegram);
+
+        //! Returns the connection descriptor
+        void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
+
+        //! Returns the connection descriptor
+        [[nodiscard]] std::string getMainCd()
+        {
+            cdSemaphore_.wait();
+            return mainConnectionDescriptor_;
+        }
+
+        //! Waits for response
+        void waitForResponse() { responseSemaphore_.wait(); }
+
+    private:
+        void handleSbf(const std::shared_ptr<Telegram>& telegram);
+        void handleNmea(const std::shared_ptr<Telegram>& telegram);
+        void handleResponse(const std::shared_ptr<Telegram>& telegram);
+        void handleError(const std::shared_ptr<Telegram>& telegram);
+        void handleCd(const std::shared_ptr<Telegram>& telegram);
+        //! Pointer to Node
+        ROSaicNodeBase* node_;
+
+        //! MessageHandler parser
+        MessageHandler messageHandler_;
+
+        Semaphore cdSemaphore_;
+        Semaphore responseSemaphore_;
+        std::string mainConnectionDescriptor_ = std::string();
+    };
+
+} // namespace io

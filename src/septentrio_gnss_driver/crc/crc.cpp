@@ -28,55 +28,58 @@
 //
 // *****************************************************************************
 
-#include <septentrio_gnss_driver/crc/crc.h>
+#include <septentrio_gnss_driver/crc/crc.hpp>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
-/**
- * @file crc.cpp
- * @brief Defines the CRC table and the functions to compute and validate the CRC of
- * an SBF block
- * @date 17/08/20
- */
+namespace crc {
+    /**
+     * @file crc.cpp
+     * @brief Defines the CRC table and the functions to compute and validate the CRC
+     * of an SBF block
+     * @date 17/08/20
+     */
 
-uint16_t compute16CCITT(
-    const uint8_t* buf,
-    size_t buf_length) // The CRC we choose is 2 bytes, remember, hence uint16_t..
-{
-    uint16_t crc = 0; // Seed is 0, as suggested by the firmware, will compute CRC in
-                      // the forward direction..
-
-    for (size_t i = 0; i < buf_length; i++)
+    uint16_t compute16CCITT(const uint8_t* buf,
+                            size_t buf_length) // The CRC we choose is 2 bytes,
+                                               // remember, hence uint16_t..
     {
-        crc = (crc << 8) ^ CRC_LOOK_UP[uint8_t((crc >> 8) ^ buf[i])];
-        // The ^ (bitwise XOR) in C or C++ takes two numbers as operands and does XOR
-        // on every bit of two numbers. The result of XOR is 1 if the two bits are
-        // different. The << (left shift) in C or C++ takes two numbers, left shifts
-        // the bits of the first operand, the second operand decides the number of
-        // places to shift. The >> (right shift) in C or C++ takes two numbers, right
-        // shifts the bits of the first operand, the second operand decides the
-        // number of places to shift; you can just loose the smallest values if
-        // big-endian. The left shift and right shift operators should not be used
-        // for negative numbers. The left-shift and right-shift operators are
-        // equivalent to multiplication and division by 2 respectively, hence only
-        // rightshift is non-exact (remainder is not retained). CRC_LOOK_UP is
-        // constructed from truncated polynomial (divisor). The above implements a
-        // kind of CRC 32 algorithm: efficient, fast.
+        uint16_t crc = 0; // Seed is 0, as suggested by the firmware, will compute
+                          // CRC in the forward direction..
+
+        for (size_t i = 0; i < buf_length; i++)
+        {
+            crc = (crc << 8) ^ CRC_LOOK_UP[uint8_t((crc >> 8) ^ buf[i])];
+            // The ^ (bitwise XOR) in C or C++ takes two numbers as operands and does
+            // XOR on every bit of two numbers. The result of XOR is 1 if the two
+            // bits are different. The << (left shift) in C or C++ takes two numbers,
+            // left shifts the bits of the first operand, the second operand decides
+            // the number of places to shift. The >> (right shift) in C or C++ takes
+            // two numbers, right shifts the bits of the first operand, the second
+            // operand decides the number of places to shift; you can just loose the
+            // smallest values if big-endian. The left shift and right shift
+            // operators should not be used for negative numbers. The left-shift and
+            // right-shift operators are equivalent to multiplication and division by
+            // 2 respectively, hence only rightshift is non-exact (remainder is not
+            // retained). CRC_LOOK_UP is constructed from truncated polynomial
+            // (divisor). The above implements a kind of CRC 32 algorithm: efficient,
+            // fast.
+        }
+
+        return crc;
     }
 
-    return crc;
-}
-
-bool isValid(const uint8_t* block)
-{
-    // We need all of the message except for the first 4 bytes (Sync and CRC), i.e.
-    // we start at the address of ID.
-    uint16_t length = parsing_utilities::getLength(block);
-    if (length > 4)
+    bool isValid(const std::vector<uint8_t>& message)
     {
-        uint16_t crc = compute16CCITT(block + 4, length - 4);
-        return (crc == parsing_utilities::getCrc(block));
-    } else
-    {
-        return false;
+        // We need all of the message except for the first 4 bytes (Sync and CRC),
+        // i.e. we start at the address of ID.
+        uint16_t length = parsing_utilities::getLength(message);
+        if (length > 4)
+        {
+            uint16_t crc = compute16CCITT(message.data() + 4, length - 4);
+            return (crc == parsing_utilities::getCrc(message));
+        } else
+        {
+            return false;
+        }
     }
-}
+} // namespace crc

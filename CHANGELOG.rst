@@ -5,8 +5,16 @@ Changelog for package septentrio_gnss_driver
 1.2.4 (upcoming)
 ------------------
 * New Features
-   * Output of localization and tf in ECEF frame
+   * Recovery from connection interruption
+   * Add option to bypass configuration of Rx
    * Add tests
+* Improvements
+   * Rework IO core and message handling
+     * Unified stream processing 
+     * Internal data queue
+     * Prevent message loss in file reading     
+* Preliminary Features
+   * Output of localization and tf in ECEF frame, testing and feedback welcome
 
 1.2.3 (2022-11-09)
 ------------------

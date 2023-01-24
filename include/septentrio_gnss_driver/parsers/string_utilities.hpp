@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef STRING_UTILITIES_H
-#define STRING_UTILITIES_H
+#pragma once
 
 // C and C++ library includes
 #include <cstdint>
@@ -37,7 +36,7 @@
 #include <string>
 
 /**
- * @file string_utilities.h
+ * @file string_utilities.hpp
  * @brief Declares lower-level string utility functions used when parsing messages
  * @date 13/08/20
  */
@@ -58,7 +57,7 @@ namespace string_utilities {
      * floating point number found in "string"
      * @return True if all went fine, false if not
      */
-    bool toDouble(const std::string& string, double& value);
+    [[nodiscard]] bool toDouble(const std::string& string, double& value);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of type
@@ -72,7 +71,7 @@ namespace string_utilities {
      * floating point number found in "string"
      * @return True if all went fine, false if not
      */
-    bool toFloat(const std::string& string, float& value);
+    [[nodiscard]] bool toFloat(const std::string& string, float& value);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of
@@ -87,7 +86,7 @@ namespace string_utilities {
      * @param[in] base The conversion assumes this base, here: decimal
      * @return True if all went fine, false if not
      */
-    bool toInt32(const std::string& string, int32_t& value, int32_t base = 10);
+    [[nodiscard]] bool toInt32(const std::string& string, int32_t& value, int32_t base = 10);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of
@@ -102,7 +101,7 @@ namespace string_utilities {
      * @param[in] base The conversion assumes this base, here: decimal
      * @return True if all went fine, false if not
      */
-    bool toUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
+    [[nodiscard]] bool toUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of
@@ -116,7 +115,7 @@ namespace string_utilities {
      * @param[in] base The conversion assumes this base, here: decimal
      * @return The value found in "string"
      */
-    int8_t toInt8(const std::string& string, int8_t& value, int32_t base = 10);
+    [[nodiscard]] int8_t toInt8(const std::string& string, int8_t& value, int32_t base = 10);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of
@@ -130,21 +129,19 @@ namespace string_utilities {
      * @param[in] base The conversion assumes this base, here: decimal
      * @return The value found in "string"
      */
-    uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+    [[nodiscard]] uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 
     /**
      * @brief Trims decimal places to three
      * @param[in] num The double who shall be trimmed
      * @return The string
      */
-    std::string trimDecimalPlaces(double num);
+    [[nodiscard]] std::string trimDecimalPlaces(double num);
 
     /**
      * @brief Checks if a string contains spaces
      * @param[in] str the string to be analyzed
      * @return true if string contains space
      */
-    bool containsSpace(const std::string str);
+    [[nodiscard]] bool containsSpace(const std::string str);
 } // namespace string_utilities
-
-#endif // STRING_UTILITIES_H

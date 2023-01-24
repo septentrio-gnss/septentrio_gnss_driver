@@ -86,8 +86,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   serial:
     baudrate: 921600
-    rx_serial_port: USB1
     hw_flow_control: "off"
+
+  configure_rx: true
   
   login:
     user: ""
@@ -323,7 +324,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Connectivity Specs</summary>
 
   + `device`: location of device connection
-    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
+    + `serial:xxx` format for serial connections,where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
     + `file_name:path/to/file.sbf` format for publishing from an SBF log
     + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
@@ -334,12 +335,19 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `serial`: specifications for serial communication
     + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
     + `rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
-    + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
-      + `off` to disable UART HW flow control, `RTS|CTS` to enable it
+    + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
+      + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
+  </details>
+  
+  <details>
+  <summary>Receiver Configuration</summary>
+
+    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated. The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
+      + default: true
   </details>
   
   <details>
@@ -355,7 +363,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
   
   <details>
-  <summary>Frame ID</summary>
+  <summary>Frame IDs</summary>
   
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages. It corresponds to the frame of the main antenna.
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
@@ -651,7 +659,6 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 <details>
   <summary>Some Ideas</summary>
 
-  + Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
   + Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 </details>
 
@@ -661,16 +668,14 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 
   Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
   1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
-  2. Add a new `.msg` file to the `septentrio_gnss_driver/msg` folder.
-  3. SBF: Add the new struct definition to the `sbf_structs.hpp` file.
-  4. Parsing/Processing the message/block:
-      - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `septentrio_gnss_driver/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
-      - SBF: Extend the `NMEA_ID_Enum` enumeration in the `rx_message.hpp` file with a new entry.
-      - SBF: Extend the initialization of the `RxIDMap` map in the `rx_message.cpp` file with a new pair.
-      - SBF: Add a new callback function declaration, a new method, to the `io_comm_rx::RxMessage class` in the `rx_message.hpp` file.
-      - SBF: Add the latter's definition to the `rx_message.cpp` file.
-      - SBF: Add a new C++ "case" (part of the C++ switch-case structure) in the `rx_message.hpp` file. It should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
-      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `septentrio_gnss_driver/include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
-  5. Create a new `publish/..` ROSaic parameter in the `septentrio_gnss_driver/config/rover.yaml` file, create a global boolean variable `publish_...` in the `septentrio_gnss_driver/src/septentrio_gnss_driver/node/rosaic_node.cpp` file, insert the publishing callback function to the C++ "multimap" `IO.handlers_.callbackmap_` - which is already storing all the others - in the `rosaic_node::ROSaicNode::defineMessages()` method in the same file and add an `extern bool publish_...;` line to the `septentrio_gnss_driver/include/septentrio_gnss_driver/node/rosaic_node.hpp` file.
-  6. Modify the `septentrio_gnss_driver/CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  2. SBF: Add a new `.msg` file to the `../msg` folder. And modify the `../CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  3. Parsers:
+      - SBF: Add a parser to the `sbf_blocks.hpp` file.
+      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `../src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `../include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
+  4. Processing the message/block:
+      - SBF: Extend the `SbfId` enumeration in the `message_handler.hpp` file with a new entry.
+      - SBF: Extend the SBF switch-case in `message_handler.cpp` file with a new case.
+      - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
+      - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
+  5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
 </details>

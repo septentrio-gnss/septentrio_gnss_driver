@@ -30,7 +30,7 @@
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // C++ library includes
 #include <limits>
 // Boost
@@ -46,7 +46,7 @@ namespace parsing_utilities {
 
     namespace qi = boost::spirit::qi;
 
-    double wrapAngle180to180(double angle)
+    [[nodiscard]] double wrapAngle180to180(double angle)
     {
         while (angle > 180.0)
         {
@@ -59,7 +59,7 @@ namespace parsing_utilities {
         return angle;
     }
 
-    double parseDouble(const uint8_t* buffer)
+    [[nodiscard]] double parseDouble(const uint8_t* buffer)
     {
         double val;
         qi::parse(buffer, buffer + 8, qi::little_bin_double, val);
@@ -71,12 +71,12 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseDouble(const std::string& string, double& value)
+    [[nodiscard]] bool parseDouble(const std::string& string, double& value)
     {
         return string_utilities::toDouble(string, value) || string.empty();
     }
 
-    float parseFloat(const uint8_t* buffer)
+    [[nodiscard]] float parseFloat(const uint8_t* buffer)
     {
         float val;
         qi::parse(buffer, buffer + 4, qi::little_bin_float, val);
@@ -88,7 +88,7 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseFloat(const std::string& string, float& value)
+    [[nodiscard]] bool parseFloat(const std::string& string, float& value)
     {
         return string_utilities::toFloat(string, value) || string.empty();
     }
@@ -100,7 +100,7 @@ namespace parsing_utilities {
      * reinterpret_cast<uint8_t*>(&x). Recall: data_type *var_name = reinterpret_cast
      * <data_type *>(pointer_variable) converts the pointer type, no return type
      */
-    int16_t parseInt16(const uint8_t* buffer)
+    [[nodiscard]] int16_t parseInt16(const uint8_t* buffer)
     {
         int16_t val;
         qi::parse(buffer, buffer + 2, qi::little_word, val);
@@ -112,7 +112,8 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseInt16(const std::string& string, int16_t& value, int32_t base)
+    [[nodiscard]] bool parseInt16(const std::string& string, int16_t& value,
+                                  int32_t base)
     {
         value = 0;
         if (string.empty())
@@ -132,7 +133,7 @@ namespace parsing_utilities {
         return false;
     }
 
-    int32_t parseInt32(const uint8_t* buffer)
+    [[nodiscard]] int32_t parseInt32(const uint8_t* buffer)
     {
         int32_t val;
         qi::parse(buffer, buffer + 4, qi::little_dword, val);
@@ -144,7 +145,8 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseInt32(const std::string& string, int32_t& value, int32_t base)
+    [[nodiscard]] bool parseInt32(const std::string& string, int32_t& value,
+                                  int32_t base)
     {
         return string_utilities::toInt32(string, value, base) || string.empty();
     }
@@ -154,7 +156,8 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseUInt8(const std::string& string, uint8_t& value, int32_t base)
+    [[nodiscard]] bool parseUInt8(const std::string& string, uint8_t& value,
+                                  int32_t base)
     {
         value = 0;
         if (string.empty())
@@ -173,7 +176,7 @@ namespace parsing_utilities {
         return false;
     }
 
-    uint16_t parseUInt16(const uint8_t* buffer)
+    [[nodiscard]] uint16_t parseUInt16(const uint8_t* buffer)
     {
         uint16_t val;
         qi::parse(buffer, buffer + 2, qi::little_word, val);
@@ -185,7 +188,8 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseUInt16(const std::string& string, uint16_t& value, int32_t base)
+    [[nodiscard]] bool parseUInt16(const std::string& string, uint16_t& value,
+                                   int32_t base)
     {
         value = 0;
         if (string.empty())
@@ -204,7 +208,7 @@ namespace parsing_utilities {
         return false;
     }
 
-    uint32_t parseUInt32(const uint8_t* buffer)
+    [[nodiscard]] uint32_t parseUInt32(const uint8_t* buffer)
     {
         uint32_t val;
         qi::parse(buffer, buffer + 4, qi::little_dword, val);
@@ -216,7 +220,8 @@ namespace parsing_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * or when the string is empty, false otherwise.
      */
-    bool parseUInt32(const std::string& string, uint32_t& value, int32_t base)
+    [[nodiscard]] bool parseUInt32(const std::string& string, uint32_t& value,
+                                   int32_t base)
     {
         return string_utilities::toUInt32(string, value, base) || string.empty();
     }
@@ -226,14 +231,13 @@ namespace parsing_utilities {
      * in both the without-colon-delimiter and the number-of-seconds-since-midnight
      * formats.
      */
-    double convertUTCDoubleToSeconds(double utc_double)
+    [[nodiscard]] double convertUTCDoubleToSeconds(double utc_double)
     {
         uint32_t hours = static_cast<uint32_t>(utc_double) / 10000;
         uint32_t minutes = (static_cast<uint32_t>(utc_double) - hours * 10000) / 100;
-        double seconds =
-            utc_double - static_cast<double>(hours * 10000 + minutes * 100);
-        seconds += static_cast<double>(hours * 3600 + minutes * 60);
-        return seconds;
+
+        return utc_double - static_cast<double>(hours * 10000 + minutes * 100) +
+               static_cast<double>(hours * 3600 + minutes * 60);
     }
 
     /**
@@ -241,12 +245,11 @@ namespace parsing_utilities {
      * into 60 seconds (of arc). Use of the degrees-minutes-seconds system is also
      * called DMS notation.
      */
-    double convertDMSToDegrees(double dms)
+    [[nodiscard]] double convertDMSToDegrees(double dms)
     {
         uint32_t whole_degrees = static_cast<uint32_t>(dms) / 100;
         double minutes = dms - static_cast<double>(whole_degrees * 100);
-        double degrees = static_cast<double>(whole_degrees) + minutes / 60.0;
-        return degrees;
+        return static_cast<double>(whole_degrees) + minutes / 60.0;
     }
 
     /**
@@ -265,7 +268,7 @@ namespace parsing_utilities {
      * "header.stamp.sec" field of ROS messages, while "header.stamp.nsec" is taken
      * care of separately.
      */
-    time_t convertUTCtoUnix(double utc_double)
+    [[nodiscard]] time_t convertUTCtoUnix(double utc_double)
     {
         time_t time_now = time(0);
         struct tm* timeinfo;
@@ -295,18 +298,15 @@ namespace parsing_utilities {
         */
 
         // Inverse of gmtime, the latter converts time_t (Unix time) to tm (UTC time)
-        time_t date = timegm(timeinfo);
-
-        // ROS_DEBUG("Since 1970/01/01 %jd seconds have passed.\n", (intmax_t) date);
-        return date;
+        return timegm(timeinfo);
     }
 
     //! The rotational sequence convention we adopt here (and Septentrio receivers'
     //! pitch, roll, yaw definition too) is the yaw-pitch-roll sequence, i.e. the
     //! 3-2-1 sequence: The body first does yaw around the z-axis, then pitches
     //! around the new y-axis and finally rolls around the new x-axis.
-    Eigen::Quaterniond convertEulerToQuaternion(double roll, double pitch,
-                                                double yaw)
+    [[nodiscard]] Eigen::Quaterniond
+    convertEulerToQuaternion(double roll, double pitch, double yaw)
     {
         double cy = std::cos(yaw * 0.5);
         double sy = std::sin(yaw * 0.5);
@@ -320,7 +320,8 @@ namespace parsing_utilities {
             cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy);
     }
 
-    QuaternionMsg quaternionToQuaternionMsg(const Eigen::Quaterniond& q)
+    [[nodiscard]] QuaternionMsg
+    quaternionToQuaternionMsg(const Eigen::Quaterniond& q)
     {
         QuaternionMsg qm;
 
@@ -332,12 +333,13 @@ namespace parsing_utilities {
         return qm;
     }
 
-    QuaternionMsg convertEulerToQuaternionMsg(double roll, double pitch, double yaw)
+    [[nodiscard]] QuaternionMsg convertEulerToQuaternionMsg(double roll,
+                                                            double pitch, double yaw)
     {
         return quaternionToQuaternionMsg(convertEulerToQuaternion(roll, pitch, yaw));
     }
 
-    Eigen::Quaterniond q_enu_ecef(double lat, double lon)
+    [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon)
     {
         static double pihalf = boost::math::constants::pi<double>() / 2.0;
         double sr = sin((pihalf - lat) / 2.0);
@@ -348,7 +350,7 @@ namespace parsing_utilities {
         return Eigen::Quaterniond(cr * cy, sr * cy, sr * sy, cr * sy);
     }
 
-    Eigen::Quaterniond q_ned_ecef(double lat, double lon)
+    [[nodiscard]] Eigen::Quaterniond q_ned_ecef(double lat, double lon)
     {
         static double pihalf = boost::math::constants::pi<double>() / 2.0;
         double sp = sin((-lat - pihalf) / 2.0);
@@ -359,7 +361,7 @@ namespace parsing_utilities {
         return Eigen::Quaterniond(cp * cy, -sp * sy, sp * cy, cp * sy);
     }
 
-    Eigen::Matrix3d R_enu_ecef(double lat, double lon)
+    [[nodiscard]] Eigen::Matrix3d R_enu_ecef(double lat, double lon)
     {
         Eigen::Matrix3d R;
 
@@ -381,7 +383,7 @@ namespace parsing_utilities {
         return R;
     }
 
-    Eigen::Matrix3d R_ned_ecef(double lat, double lon)
+    [[nodiscard]] Eigen::Matrix3d R_ned_ecef(double lat, double lon)
     {
         Eigen::Matrix3d R;
 
@@ -403,7 +405,7 @@ namespace parsing_utilities {
         return R;
     }
 
-    std::string convertUserPeriodToRxCommand(uint32_t period_user)
+    [[nodiscard]] std::string convertUserPeriodToRxCommand(uint32_t period_user)
     {
         std::string cmd;
 
@@ -417,22 +419,34 @@ namespace parsing_utilities {
             return "min" + std::to_string(period_user / 60000);
     }
 
-    uint16_t getCrc(const uint8_t* buffer) { return parseUInt16(buffer + 2); }
+    [[nodiscard]] uint16_t getCrc(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 2);
+    }
 
-    uint16_t getId(const uint8_t* buffer)
+    [[nodiscard]] uint16_t getId(const std::vector<uint8_t>& message)
     {
         // Defines bit mask..
         // Highest three bits are for revision and rest for block number
         static uint16_t mask = 8191;
         // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
 
-        return parseUInt16(buffer + 4) & mask;
+        return parseUInt16(message.data() + 4) & mask;
     }
 
-    uint16_t getLength(const uint8_t* buffer) { return parseUInt16(buffer + 6); }
+    [[nodiscard]] uint16_t getLength(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 6);
+    }
 
-    uint32_t getTow(const uint8_t* buffer) { return parseUInt32(buffer + 8); }
+    [[nodiscard]] uint32_t getTow(const std::vector<uint8_t>& message)
+    {
+        return parseUInt32(message.data() + 8);
+    }
 
-    uint16_t getWnc(const uint8_t* buffer) { return parseUInt16(buffer + 12); }
+    [[nodiscard]] uint16_t getWnc(const std::vector<uint8_t>& message)
+    {
+        return parseUInt16(message.data() + 12);
+    }
 
 } // namespace parsing_utilities

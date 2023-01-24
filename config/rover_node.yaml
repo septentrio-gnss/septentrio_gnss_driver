@@ -7,8 +7,9 @@ septentrio_gnss_driver:
 
     serial:
       baudrate: 921600
-      rx_serial_port: USB1
       hw_flow_control: "off"
+
+    configure_rx: true
 
     frame_id: gnss
 

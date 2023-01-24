@@ -89,8 +89,8 @@
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
 // Rosaic includes
-#include <septentrio_gnss_driver/communication/settings.h>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/communication/settings.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;
@@ -104,8 +104,8 @@ typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
-typedef gps_msgs::msg::GPSFix GPSFixMsg;
-typedef gps_msgs::msg::GPSStatus GPSStatusMsg;
+typedef gps_msgs::msg::GPSFix GpsFixMsg;
+typedef gps_msgs::msg::GPSStatus GpsStatusMsg;
 typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
 typedef sensor_msgs::msg::NavSatStatus NavSatStatusMsg;
 typedef sensor_msgs::msg::TimeReference TimeReferenceMsg;
@@ -165,14 +165,16 @@ inline Timestamp timestampFromRos(const TimestampRos& tsr)
 /**
  * @brief Log level for ROS logging
  */
-enum LogLevel
-{
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
-};
+namespace log_level {
+    enum LogLevel
+    {
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        FATAL
+    };
+} // namespace log_level
 
 /**
  * @class ROSaicNodeBase
@@ -189,19 +191,29 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
+    const Settings* settings() const { return &settings_; }
+
     void registerSubscriber()
     {
-        if (settings_.ins_vsm_ros_source == "odometry")
-            odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
-                "odometry_vsm", 10,
-                std::bind(&ROSaicNodeBase::callbackOdometry, this,
-                          std::placeholders::_1));
-        else if (settings_.ins_vsm_ros_source == "twist")
-            twistSubscriber_ =
-                this->create_subscription<TwistWithCovarianceStampedMsg>(
-                    "twist_vsm", 10,
-                    std::bind(&ROSaicNodeBase::callbackTwist, this,
-                              std::placeholders::_1));
+        try
+        {
+            if (settings_.ins_vsm_ros_source == "odometry")
+                odometrySubscriber_ =
+                    this->create_subscription<nav_msgs::msg::Odometry>(
+                        "odometry_vsm", 10,
+                        std::bind(&ROSaicNodeBase::callbackOdometry, this,
+                                  std::placeholders::_1));
+            else if (settings_.ins_vsm_ros_source == "twist")
+                twistSubscriber_ =
+                    this->create_subscription<TwistWithCovarianceStampedMsg>(
+                        "twist_vsm", 10,
+                        std::bind(&ROSaicNodeBase::callbackTwist, this,
+                                  std::placeholders::_1));
+        } catch (const std::runtime_error& ex)
+        {
+            this->log(log_level::ERROR, "Subscriber initialization failed due to: " +
+                                            std::string(ex.what()) + ".");
+        }
     }
 
     /**
@@ -254,23 +266,23 @@ public:
      * @param[in] logLevel Log level
      * @param[in] s String to log
      */
-    void log(LogLevel logLevel, const std::string& s)
+    void log(log_level::LogLevel logLevel, const std::string& s) const
     {
         switch (logLevel)
         {
-        case LogLevel::DEBUG:
+        case log_level::DEBUG:
             RCLCPP_DEBUG_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::INFO:
+        case log_level::INFO:
             RCLCPP_INFO_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::WARN:
+        case log_level::WARN:
             RCLCPP_WARN_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::ERROR:
+        case log_level::ERROR:
             RCLCPP_ERROR_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::FATAL:
+        case log_level::FATAL:
             RCLCPP_FATAL_STREAM(this->get_logger(), s);
             break;
         default:
@@ -282,7 +294,7 @@ public:
      * @brief Gets current timestamp
      * @return Timestamp
      */
-    Timestamp getTime() { return this->now().nanoseconds(); }
+    Timestamp getTime() const { return this->now().nanoseconds(); }
 
     /**
      * @brief Publishing function
