@@ -67,26 +67,33 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
 [[nodiscard]] bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
-    param("frame_id", settings_.frame_id, (std::string) "gnss");
-    param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
-    param("poi_frame_id", settings_.poi_frame_id, (std::string) "base_link");
-    param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
-    param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
+    param("frame_id", settings_.frame_id, static_cast<std::string>("gnss"));
+    param("imu_frame_id", settings_.imu_frame_id, static_cast<std::string>("imu"));
+    param("poi_frame_id", settings_.poi_frame_id,
+          static_cast<std::string>("base_link"));
+    param("vsm_frame_id", settings_.vsm_frame_id, static_cast<std::string>("vsm"));
+    param("aux1_frame_id", settings_.aux1_frame_id,
+          static_cast<std::string>("aux1"));
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
-    param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
+    param("local_frame_id", settings_.local_frame_id,
+          static_cast<std::string>("odom"));
     param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
 
+    param("configure_rx", settings_.configure_rx, true);
+
     // Communication parameters
-    param("device", settings_.device, std::string("/dev/ttyACM0"));
+    param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
     getUint32Param("serial/baudrate", settings_.baudrate,
                    static_cast<uint32_t>(921600));
-    param("serial/hw_flow_control", settings_.hw_flow_control, std::string("off"));
-    param("login/user", settings_.login_user, std::string(""));
-    param("login/password", settings_.login_password, std::string(""));
+    param("serial/hw_flow_control", settings_.hw_flow_control,
+          static_cast<std::string>("off"));
+    param("login/user", settings_.login_user, static_cast<std::string>(""));
+    param("login/password", settings_.login_password, static_cast<std::string>(""));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
-    param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
+    param("receiver_type", settings_.septentrio_receiver_type,
+          static_cast<std::string>("gnss"));
     if (!((settings_.septentrio_receiver_type == "gnss") ||
           (settings_.septentrio_receiver_type == "ins") ||
           (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))

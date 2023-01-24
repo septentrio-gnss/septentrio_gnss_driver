@@ -85,6 +85,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   serial:
     baudrate: 921600
     hw_flow_control: off
+
+configure_rx: true
   
   login:
     user: ""
@@ -328,7 +330,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
       + An RNDIS IP interface is provided via USB, assigning the address `192.168.3.1` to the receiver. This should work on most modern Linux distributions. To verify successful connection, open a web browser to access the web interface of the receiver using the IP address `192.168.3.1`.
-    + default: `tcp://192.168.3.1:28784 `
+    + default: `tcp://192.168.3.1:28784`
   + `serial`: specifications for serial communication
     + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
@@ -338,6 +340,15 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `user`: user name
     + `password`: password
   </details>
+
+  <details>
+  <summary>Receiver Configuration</summary>
+
+    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated. The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
+      + default: true
+  </details>
+
+
   
   <details>
   <summary>Receiver Type</summary>
@@ -352,7 +363,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
   
   <details>
-  <summary>Frame ID</summary>
+  <summary>Frame IDs</summary>
   
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages. It corresponds to the frame of the main antenna.
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.

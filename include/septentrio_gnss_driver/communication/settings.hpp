@@ -135,6 +135,8 @@ struct Settings
     uint32_t baudrate;
     //! HW flow control
     std::string hw_flow_control;
+    // Wether to configure Rx
+    bool configure_rx;
     //! Datum to be used
     std::string datum;
     //! Polling period for PVT-related SBF blocks

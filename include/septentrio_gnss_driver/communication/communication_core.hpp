@@ -126,6 +126,11 @@ namespace io {
 
     private:
         /**
+         * @brief Resets Rx settings
+         */
+        void resetSettings();
+
+        /**
          * @brief Initializes the I/O handling
          * * @return Wether connection was successful
          */

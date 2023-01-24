@@ -9,6 +9,8 @@ serial:
   rx_serial_port: USB1
   hw_flow_control: "off"
 
+configure_rx: true
+
 login:
   user: ""
   password: ""
