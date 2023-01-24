@@ -71,7 +71,19 @@ namespace io {
     CommunicationCore::~CommunicationCore()
     {
         telegramHandler_.clearSemaphores();
-        if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
+
+        resetSettings();
+
+        running_ = false;
+        std::shared_ptr<Telegram> telegram(new Telegram);
+        telegramQueue_.push(telegram);
+        processingThread_.join();
+    }
+
+    void CommunicationCore::resetSettings()
+    {
+        if (settings_->configure_rx && !settings_->read_from_sbf_log &&
+            !settings_->read_from_pcap)
         {
             resetMainConnection();
             send("sdio, " + streamPort_ + ", auto, none\x0D");
@@ -121,13 +133,9 @@ namespace io {
                 }
             }
 
-            send("logout \x0D");
+            if (!settings_->login_user.empty() && !settings_->login_password.empty())
+                send("logout \x0D");
         }
-
-        running_ = false;
-        std::shared_ptr<Telegram> telegram(new Telegram);
-        telegramQueue_.push(telegram);
-        processingThread_.join();
     }
 
     void CommunicationCore::connect()
@@ -162,8 +170,11 @@ namespace io {
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
             node_->log(log_level::DEBUG, "Configure Rx.");
-            configureRx();
+            if (settings_->configure_rx)
+                configureRx();
         }
+
+        node_->log(log_level::INFO, "Setup complete.");
 
         node_->log(log_level::DEBUG,
                    "Successully connected. Leaving connect() method");
@@ -818,7 +829,6 @@ namespace io {
         }
 
         node_->log(log_level::DEBUG, "Leaving configureRx() method");
-        node_->log(log_level::INFO, "Setup complete.");
     }
 
     void CommunicationCore::sendVelocity(const std::string& velNmea)

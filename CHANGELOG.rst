@@ -6,6 +6,7 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * New Features
    * Recovery from connection interruption
+   * Add option to bypass configuration of Rx
 * Improvements
    * Rework IO core and message handling
      * Unified stream processing 
