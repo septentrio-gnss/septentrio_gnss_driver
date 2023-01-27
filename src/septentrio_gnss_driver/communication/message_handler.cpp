@@ -2326,12 +2326,12 @@ namespace io {
             node_->log(log_level::DEBUG,
                        "receiver setup firmware: " + last_receiversetup_.rx_version);
 
-            static int32_t ins_major = 1;
-            static int32_t ins_minor = 3;
-            static int32_t ins_patch = 2;
-            static int32_t gnss_major = 4;
-            static int32_t gnss_minor = 10;
-            static int32_t gnss_patch = 0;
+            static const int32_t ins_major = 1;
+            static const int32_t ins_minor = 3;
+            static const int32_t ins_patch = 2;
+            static const int32_t gnss_major = 4;
+            static const int32_t gnss_minor = 10;
+            static const int32_t gnss_patch = 0;
             boost::tokenizer<> tok(last_receiversetup_.rx_version);
             boost::tokenizer<>::iterator it = tok.begin();
             std::vector<int32_t> major_minor_patch;
