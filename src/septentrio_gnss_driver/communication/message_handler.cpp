@@ -56,11 +56,15 @@ using parsing_utilities::square;
 namespace io {
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
+        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
+
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
         {
-            if (!validValue(last_insnavgeod_.block_header.tow))
+            if (!validValue(last_insnavgeod_.block_header.tow) ||
+                (last_insnavgeod_.block_header.tow == last_ins_tow))
                 return;
+            last_ins_tow = last_insnavgeod_.block_header.tow;
 
             msg.header = last_insnavgeod_.header;
 
