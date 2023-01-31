@@ -110,6 +110,15 @@ namespace io {
                 "Invalid command just sent to the Rx! The Rx's response contains " +
                     std::to_string(block_in_string.size()) + " bytes and reads:\n " +
                     block_in_string);
+
+            if (block_in_string ==
+                std::string(
+                    "$R? setGNSSAttitude: Argument 'Source' is invalid!\r\n"))
+            {
+                node_->log(
+                    log_level::WARN,
+                    "Rx does not support dual antenna mode, set parameter multi_antenna to false and/or disable publishing of atteuler.");
+            }
         } else
         {
             node_->log(log_level::DEBUG, "The Rx's response contains " +
