@@ -1148,6 +1148,8 @@ namespace io {
      */
     void MessageHandler::assembleNavSatFix()
     {
+        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
+
         if (!settings_->publish_navsatfix)
             return;
 
@@ -1237,9 +1239,11 @@ namespace io {
         } else if (settings_->septentrio_receiver_type == "ins")
         {
             if ((!validValue(last_insnavgeod_.block_header.tow)) ||
-                (last_insnavgeod_.block_header.tow !=
-                 last_pvtgeodetic_.block_header.tow))
+                (last_insnavgeod_.block_header.tow == last_ins_tow))
+            {
                 return;
+            }
+            last_ins_tow = last_insnavgeod_.block_header.tow;
 
             NavSatFixMsg msg;
             uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
