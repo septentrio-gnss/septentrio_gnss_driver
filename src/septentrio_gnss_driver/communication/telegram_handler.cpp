@@ -119,6 +119,12 @@ namespace io {
                     log_level::WARN,
                     "Rx does not support dual antenna mode, set parameter multi_antenna to false and/or disable publishing of atteuler.");
             }
+            if (block_in_string.substr(0, 8) == "$R? sao,")
+            {
+                node_->log(
+                    log_level::WARN,
+                    "Rx does understand sao command, maybe an INS is used as GNSS. In this case set parameter receiver_type to ins_in_gnss_mode.");
+            }
         } else
         {
             node_->log(log_level::DEBUG, "The Rx's response contains " +
