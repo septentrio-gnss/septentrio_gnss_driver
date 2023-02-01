@@ -344,7 +344,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Receiver Configuration</summary>
 
-    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated. The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
+    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
       + default: true
   </details>
 
@@ -549,7 +549,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
           + default: ""
         + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z may be sent.
           + default: []
-        + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm/ros/variances` or the values inside the messaged are used.
+        + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm/ros/variances` or the values from inside the ROS messages are used.
           + default: false
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm/ros/variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used. 
           + default: []
@@ -617,7 +617,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
 <details>
   <summary>Available ROS Topics</summary>
-  
+
   + `/gpgga`: publishes [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA.
   + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC.
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
@@ -632,7 +632,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
   + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`.
   + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`.
-  + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its header, or - if `use_gnss_time` is set to `false` - from the systems's wall-clock time.
+  + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its block header.
   + `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
   + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/tree/dashing-devel), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case).
@@ -652,7 +652,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + The ROS message [`sensor_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
   + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
-  + `/localization_ecef`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
+  + `/localization_ecef`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF blocks `INSNavCart` and `INSNavGeod`.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
 </details>
 
@@ -679,4 +679,5 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
       - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
       - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
   5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
+  6. Add SBF block or NMEA to data stream setup in `communication_core.cpp` (function `configureRx()`).
 </details>

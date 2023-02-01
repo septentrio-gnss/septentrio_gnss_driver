@@ -700,7 +700,8 @@ namespace io {
                 blocks << " +PVTCartesian";
             }
             if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
-                settings_->publish_gpst ||
+                (settings_->publish_gpst &&
+                 (settings_->septentrio_receiver_type == "gnss")) ||
                 (settings_->publish_navsatfix &&
                  (settings_->septentrio_receiver_type == "gnss")) ||
                 (settings_->publish_gpsfix &&
@@ -777,7 +778,7 @@ namespace io {
                     settings_->publish_imu || settings_->publish_localization ||
                     settings_->publish_tf || settings_->publish_twist ||
                     settings_->publish_localization_ecef ||
-                    settings_->publish_tf_ecef)
+                    settings_->publish_tf_ecef || settings_->publish_gpst)
                 {
                     blocks << " +INSNavGeod";
                 }
