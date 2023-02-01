@@ -11,7 +11,8 @@ Changelog for package septentrio_gnss_driver
    * Rework IO core and message handling
      * Unified stream processing 
      * Internal data queue
-     * Prevent message loss in file reading     
+     * Prevent message loss in file reading
+   * Add some explanatory warnings for parameter mismatches 
 * Preliminary Features
    * Output of localization and tf in ECEF frame, testing and feedback welcome
 
