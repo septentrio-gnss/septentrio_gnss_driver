@@ -1993,7 +1993,8 @@ namespace io {
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
             assembleGpsFix();
-            if (settings_->publish_gpst)
+            if (settings_->publish_gpst &&
+                (settings_->septentrio_receiver_type == "gnss"))
                 assembleTimeReference(telegram);
             break;
         }
@@ -2142,6 +2143,8 @@ namespace io {
             assemblePoseWithCovarianceStamped();
             assembleNavSatFix();
             assembleGpsFix();
+            if (settings_->publish_gpst)
+                assembleTimeReference(telegram);
             break;
         }
 
