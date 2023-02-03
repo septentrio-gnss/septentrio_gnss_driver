@@ -84,6 +84,7 @@ add_message_files(
    BaseVectorCart.msg
    BaseVectorGeod.msg
    BlockHeader.msg
+   GALAuthStatus.msg
    MeasEpoch.msg
    MeasEpochChannelType1.msg
    MeasEpochChannelType2.msg

@@ -2091,6 +2091,21 @@ namespace io {
             assembleGpsFix();
             break;
         }
+        case GAL_AUTH_STATUS:
+        {
+            GalAuthStatusMsg msg;
+
+            if (!GalAuthStatusParser(node_, telegram->message.begin(),
+                                     telegram->message.end(), msg))
+            {
+                node_->log(log_level::ERROR, "parse error in GalAuthStatus");
+                break;
+            }
+            assembleHeader(settings_->frame_id, telegram, msg);
+            publish<GalAuthStatusMsg>("/galauthstatus", msg);
+            // TODO assemble diagnostics
+            break;
+        }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
                            // coordinate frame (ENU frame)
         {
@@ -2338,11 +2353,11 @@ namespace io {
                        "receiver setup firmware: " + last_receiversetup_.rx_version);
 
             static const int32_t ins_major = 1;
-            static const int32_t ins_minor = 3;
-            static const int32_t ins_patch = 2;
+            static const int32_t ins_minor = 4;
+            static const int32_t ins_patch = 0;
             static const int32_t gnss_major = 4;
-            static const int32_t gnss_minor = 10;
-            static const int32_t gnss_patch = 0;
+            static const int32_t gnss_minor = 12;
+            static const int32_t gnss_patch = 1;
             boost::tokenizer<> tok(last_receiversetup_.rx_version);
             boost::tokenizer<>::iterator it = tok.begin();
             std::vector<int32_t> major_minor_patch;

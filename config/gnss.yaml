@@ -14,6 +14,10 @@ login:
   user: ""
   password: ""
 
+osnma:
+  mode: off
+  ntp_server: ""
+
 frame_id: gnss
 
 aux1_frame_id: aux1

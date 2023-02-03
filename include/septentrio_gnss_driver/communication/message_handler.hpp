@@ -123,7 +123,8 @@ enum SbfId
     IMU_SETUP = 4224,
     VEL_SENSOR_SETUP = 4244,
     EXT_SENSOR_MEAS = 4050,
-    RECEIVER_TIME = 5914
+    RECEIVER_TIME = 5914,
+    GAL_AUTH_STATUS = 4245
 };
 
 namespace io {

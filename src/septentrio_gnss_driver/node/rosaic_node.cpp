@@ -132,6 +132,10 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         return false;
     }
 
+    // OSNMA parameters
+    param("osnma/mode", settings_.osnma.mode, std::string("off"));
+    param("osnma/ntp_server", settings_.osnma.ntp_server, std::string(""));
+
     // multi_antenna param
     param("multi_antenna", settings_.multi_antenna, false);
 
@@ -422,7 +426,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             ntripSettings.send_gga = "off";
         param("rtk_settings/" + ntrip + "/keep_open", ntripSettings.keep_open, true);
 
-        settings_.rtk_settings.ntrip.push_back(ntripSettings);
+        settings_.rtk.ntrip.push_back(ntripSettings);
     }
     // IP server
     for (uint8_t i = 1; i < 6; ++i)
@@ -444,7 +448,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             ipSettings.send_gga = "off";
         param("rtk_settings/" + ips + "/keep_open", ipSettings.keep_open, true);
 
-        settings_.rtk_settings.ip_server.push_back(ipSettings);
+        settings_.rtk.ip_server.push_back(ipSettings);
     }
     // Serial
     for (uint8_t i = 1; i < 6; ++i)
@@ -468,7 +472,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         param("rtk_settings/" + serial + "/keep_open", serialSettings.keep_open,
               true);
 
-        settings_.rtk_settings.serial.push_back(serialSettings);
+        settings_.rtk.serial.push_back(serialSettings);
     }
 
     {

@@ -69,7 +69,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
   + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.
+    * GNSS with firmware < 4.12.1 does not support OSNMA.
     * INS with firmware < 1.3.2 does not support NTP.
+    * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware 1.2.0 does not support velocity aiding.
     * INS with firmware 1.2.0 does not support setting of initial heading.
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI.
@@ -91,6 +93,10 @@ configure_rx: true
   login:
     user: ""
     password: ""
+
+  osnma:
+    mode: off
+    ntp_server: ""
 
   frame_id: gnss
 
@@ -342,13 +348,21 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   </details>
 
   <details>
+  <summary>OSNMA</summary>
+
+  + `osnma`: Configuration of the Open Service Navigation Message Authentication (OSNMA) feature.
+    + `mode`: Three operating modes are supported: `off` where OSNMA authentication is disabled, `loose` where satellites are included in the PVT if they are successfully authenticated or if their authentication status is unknown, and `strict` where only successfully-authenticated satellites are included in the PVT. In case of `strict` synchronization via NTP is mandatory.
+      + default: off
+    + `ntp_server`: In `strict` mode, OSNMA authentication requires the availability of external time information. In `loose` mode, this is optional but recommended for enhanced security. The receiver can connect to an NTP time server for this purpose. Options are `default` to let the receiver choose an NTP server or specify one like `pool.ntp.org` for example.
+      + default: ""
+  </details>
+
+  <details>
   <summary>Receiver Configuration</summary>
 
     + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
       + default: true
   </details>
-
-
   
   <details>
   <summary>Receiver Type</summary>
@@ -623,6 +637,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.
+  + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
   + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.
@@ -670,14 +685,15 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
   1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
   2. SBF: Add a new `.msg` file to the `../msg` folder. And modify the `../CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
-  3. Parsers:
+  3. Add msg header and typedef to `typedefs.hpp`.
+  4. Parsers:
       - SBF: Add a parser to the `sbf_blocks.hpp` file.
       - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `../src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `../include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
-  4. Processing the message/block:
+  5. Processing the message/block:
       - SBF: Extend the `SbfId` enumeration in the `message_handler.hpp` file with a new entry.
       - SBF: Extend the SBF switch-case in `message_handler.cpp` file with a new case.
       - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
       - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
-  5. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
-  6. Add SBF block or NMEA to data stream setup in `communication_core.cpp` (function `configureRx()`).
+  6. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
+  7. Add SBF block or NMEA to data stream setup in `communication_core.cpp` (function `configureRx()`).
 </details>

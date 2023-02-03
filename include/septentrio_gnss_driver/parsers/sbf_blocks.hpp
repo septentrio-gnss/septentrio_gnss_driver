@@ -631,6 +631,36 @@ template <typename It>
 };
 
 /**
+ * @class GALAuthStatus
+ * @brief Qi based parser for the SBF block "GALAuthStatus"
+ */
+template <typename It>
+[[nodiscard]] bool GalAuthStatusParser(ROSaicNodeBase* node, It it, It itEnd,
+                                       GalAuthStatusMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4245)
+    {
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.osnma_status);
+    qiLittleEndianParser(it, msg.trusted_time_delta);
+    qiLittleEndianParser(it, msg.gal_active_mask);
+    qiLittleEndianParser(it, msg.gal_authentic_mask);
+    qiLittleEndianParser(it, msg.gps_active_mask);
+    qiLittleEndianParser(it, msg.gps_authentic_mask);
+    if (it > itEnd)
+    {
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
  * ReceiverSetupParser
  * @brief Qi based parser for the SBF block "ReceiverSetup"
  */
