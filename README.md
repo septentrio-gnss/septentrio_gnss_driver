@@ -355,6 +355,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + default: off
     + `ntp_server`: In `strict` mode, OSNMA authentication requires the availability of external time information. In `loose` mode, this is optional but recommended for enhanced security. The receiver can connect to an NTP time server for this purpose. Options are `default` to let the receiver choose an NTP server or specify one like `pool.ntp.org` for example.
       + default: ""
+    + `keep_open`: Wether OSNMA shall be kept active on driver shutdown.
+      + default: true
   </details>
 
   <details>

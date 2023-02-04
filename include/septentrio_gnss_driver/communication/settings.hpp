@@ -40,6 +40,8 @@ struct Osnma
     std::string mode;
     //! Server for NTP synchronization
     std::string ntp_server;
+    //! Wether OSNMA shall be kept open on shutdown
+    bool keep_open;
 };
 
 struct RtkNtrip

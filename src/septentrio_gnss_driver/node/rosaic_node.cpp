@@ -135,6 +135,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     // OSNMA parameters
     param("osnma/mode", settings_.osnma.mode, std::string("off"));
     param("osnma/ntp_server", settings_.osnma.ntp_server, std::string(""));
+    param("osnma/keep_open", settings_.osnma.keep_open, true);
 
     // multi_antenna param
     param("multi_antenna", settings_.multi_antenna, false);

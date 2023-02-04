@@ -14,6 +14,11 @@ login:
   user: ""
   password: ""
 
+osnma:
+  mode: off
+  ntp_server: ""
+  keep_open: true
+
 frame_id: gnss
 
 imu_frame_id: imu

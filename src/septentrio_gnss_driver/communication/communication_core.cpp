@@ -132,8 +132,8 @@ namespace io {
                          ",  auto, none\x0D");
                 }
             }
-            if (settings_->osnma.mode == "loose" ||
-                settings_->osnma.mode == "strict")
+            if (!settings_->osnma.keep_open && (settings_->osnma.mode == "loose" ||
+                                                settings_->osnma.mode == "strict"))
             {
                 std::stringstream ss;
                 ss << "sou, off \x0D";
