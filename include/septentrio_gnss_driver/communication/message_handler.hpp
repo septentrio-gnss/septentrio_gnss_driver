@@ -321,6 +321,13 @@ namespace io {
 
         /**
          * @brief "Callback" function when constructing
+         * OSNMA DiagnosticArrayMsg messages
+         * @param[in] status GalAuthStatusMsg from which the msg was assembled
+         */
+        void assembleOsnmaDiagnosticArray(const GalAuthStatusMsg& status);
+
+        /**
+         * @brief "Callback" function when constructing
          * ImuMsg messages
          */
         void assembleImu();

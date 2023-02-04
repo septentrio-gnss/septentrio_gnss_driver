@@ -222,7 +222,7 @@ namespace io {
         if (validValue(last_receiversetup_.block_header.tow))
             serialnumber = last_receiversetup_.rx_serial_number;
         else
-            serialnumber = "invalid";
+            serialnumber = "unknown";
         DiagnosticStatusMsg gnss_status;
         // Constructing the "level of operation" field
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
@@ -320,10 +320,10 @@ namespace io {
                     (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
             }
         }
-        gnss_status.hardware_id = serialnumber;
-        gnss_status.name = "gnss";
+        gnss_status.hardware_id = "Septentrio";
+        gnss_status.name = "serial number " + serialnumber;
         gnss_status.message =
-            "Quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
+            "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
         std::string frame_id;
         if (settings_->septentrio_receiver_type == "gnss")
@@ -343,6 +343,96 @@ namespace io {
         assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
+
+    void MessageHandler::assembleOsnmaDiagnosticArray(const GalAuthStatusMsg& status)
+    {
+        DiagnosticArrayMsg msg;
+        DiagnosticStatusMsg diag;
+
+        diag.hardware_id = "Septentrio";
+        diag.name = "OSNMA";
+        diag.message = "Current status of the OSNMA authentication";
+
+        diag.values.resize(6);
+        diag.values[0].key = "status";
+        switch (status.osnma_status & 7)
+        {
+        case 0:
+        {
+            diag.values[0].value = "Disabled";
+            break;
+        }
+        case 1:
+        {
+            uint16_t percent = (status.osnma_status >> 3) & 127;
+            diag.values[0].value = "Initializing " + std::to_string(percent) + " %";
+            break;
+        }
+        case 2:
+        {
+            diag.values[0].value = "Waiting on NTP";
+            break;
+        }
+        case 3:
+        {
+            diag.values[0].value = "Init failed - inconsistent time";
+            break;
+        }
+        case 4:
+        {
+            diag.values[0].value = "Init failed - KROOT signature invalid";
+            break;
+        }
+        case 5:
+        {
+            diag.values[0].value = "Init failed - invalid param received";
+            break;
+        }
+        case 6:
+        {
+            diag.values[0].value = "Authenticating";
+            break;
+        }
+
+        default:
+            break;
+        }
+
+        diag.values[1].key = "trusted_time_delta";
+        if (validValue(status.trusted_time_delta))
+            diag.values[1].value = std::to_string(status.trusted_time_delta);
+        else
+            diag.values[1].value = "N/A";
+
+        std::bitset<64> gal_active = status.gal_active_mask;
+        std::bitset<64> gal_auth = status.gal_authentic_mask;
+        uint8_t gal_authentic = (gal_auth & gal_active).count();
+        uint8_t gal_spoofed = (~gal_auth & gal_active).count();
+        diag.values[2].key = "Galileo authentic";
+        diag.values[2].value = std::to_string(gal_authentic);
+        diag.values[3].key = "Galileo spoofed";
+        diag.values[3].value = std::to_string(gal_spoofed);
+
+        std::bitset<64> gps_active = status.gps_active_mask;
+        std::bitset<64> gps_auth = status.gps_authentic_mask;
+        uint8_t gps_authentic = (gps_auth & gps_active).count();
+        uint8_t gps_spoofed = (~gps_auth & gps_active).count();
+        diag.values[4].key = "GPS authentic";
+        diag.values[4].value = std::to_string(gps_authentic);
+        diag.values[5].key = "GPS spoofed";
+        diag.values[5].value = std::to_string(gps_spoofed);
+
+        if ((gal_spoofed + gps_spoofed) == 0)
+            diag.level = DiagnosticStatusMsg::OK;
+        else if ((gal_authentic + gps_authentic) > 0)
+            diag.level = DiagnosticStatusMsg::WARN;
+        else
+            diag.level = DiagnosticStatusMsg::ERROR;
+
+        msg.status.push_back(diag);
+        msg.header = status.header;
+        publish<DiagnosticArrayMsg>("/diagnostics", msg);
+    }
 
     void MessageHandler::assembleImu()
     {
@@ -2103,7 +2193,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, msg);
             publish<GalAuthStatusMsg>("/galauthstatus", msg);
-            // TODO assemble diagnostics
+            assembleOsnmaDiagnosticArray(msg);
             break;
         }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
