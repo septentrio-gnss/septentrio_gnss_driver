@@ -97,6 +97,7 @@ configure_rx: true
   osnma:
     mode: off
     ntp_server: ""
+    keep_open: true
 
   frame_id: gnss
 
