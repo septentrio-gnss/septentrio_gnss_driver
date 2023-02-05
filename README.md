@@ -97,7 +97,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     password: ""
 
   osnma:
-    mode: off
+    mode: "off"
     ntp_server: ""
     keep_open: true
 

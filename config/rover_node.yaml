@@ -12,7 +12,7 @@ septentrio_gnss_driver:
     configure_rx: true    
 
     osnma:
-      mode: off
+      mode: "off"
       ntp_server: ""
       keep_open: true
 
