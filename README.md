@@ -95,7 +95,7 @@ configure_rx: true
     password: ""
 
   osnma:
-    mode: off
+    mode: "off"
     ntp_server: ""
     keep_open: true
 
