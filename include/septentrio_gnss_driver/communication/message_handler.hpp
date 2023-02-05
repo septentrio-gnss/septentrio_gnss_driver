@@ -123,7 +123,8 @@ enum SbfId
     IMU_SETUP = 4224,
     VEL_SENSOR_SETUP = 4244,
     EXT_SENSOR_MEAS = 4050,
-    RECEIVER_TIME = 5914
+    RECEIVER_TIME = 5914,
+    GAL_AUTH_STATUS = 4245
 };
 
 namespace io {
@@ -317,6 +318,13 @@ namespace io {
          * @param[in] telegram telegram from which the msg was assembled
          */
         void assembleDiagnosticArray(const std::shared_ptr<Telegram>& telegram);
+
+        /**
+         * @brief "Callback" function when constructing
+         * OSNMA DiagnosticArrayMsg messages
+         * @param[in] status GalAuthStatusMsg from which the msg was assembled
+         */
+        void assembleOsnmaDiagnosticArray(const GalAuthStatusMsg& status);
 
         /**
          * @brief "Callback" function when constructing

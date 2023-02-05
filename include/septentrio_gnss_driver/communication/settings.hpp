@@ -34,6 +34,16 @@
 #include <string>
 #include <vector>
 
+struct Osnma
+{
+    //! OSNMA mode
+    std::string mode;
+    //! Server for NTP synchronization
+    std::string ntp_server;
+    //! Wether OSNMA shall be kept open on shutdown
+    bool keep_open;
+};
+
 struct RtkNtrip
 {
     //! Id of the NTRIP port
@@ -92,7 +102,7 @@ struct RtkSerial
     bool keep_open;
 };
 
-struct RtkSettings
+struct Rtk
 {
     std::vector<RtkNtrip> ntrip;
     std::vector<RtkIpServer> ip_server;
@@ -200,7 +210,9 @@ struct Settings
     //! Position deviation mask
     float pos_std_dev;
     //! RTK corrections settings
-    RtkSettings rtk_settings;
+    Rtk rtk;
+    //! OSNMA settings
+    Osnma osnma;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message

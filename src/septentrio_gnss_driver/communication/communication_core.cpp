@@ -87,14 +87,14 @@ namespace io {
         {
             resetMainConnection();
             send("sdio, " + streamPort_ + ", auto, none\x0D");
-            for (auto ntrip : settings_->rtk_settings.ntrip)
+            for (auto ntrip : settings_->rtk.ntrip)
             {
                 if (!ntrip.id.empty() && !ntrip.keep_open)
                 {
                     send("snts, " + ntrip.id + ", off \x0D");
                 }
             }
-            for (auto ip_server : settings_->rtk_settings.ip_server)
+            for (auto ip_server : settings_->rtk.ip_server)
             {
                 if (!ip_server.id.empty() && !ip_server.keep_open)
                 {
@@ -102,7 +102,7 @@ namespace io {
                     send("siss, " + ip_server.id + ",  0\x0D");
                 }
             }
-            for (auto serial : settings_->rtk_settings.serial)
+            for (auto serial : settings_->rtk.serial)
             {
                 if (!serial.port.empty() && !serial.keep_open)
                 {
@@ -130,6 +130,20 @@ namespace io {
                              ", baud115200, bits8, No, bit1, none\x0D");
                     send("sdio, " + settings_->ins_vsm_serial_port +
                          ",  auto, none\x0D");
+                }
+            }
+            if (!settings_->osnma.keep_open && (settings_->osnma.mode == "loose" ||
+                                                settings_->osnma.mode == "strict"))
+            {
+                std::stringstream ss;
+                ss << "sou, off \x0D";
+                send(ss.str());
+
+                if (!settings_->osnma.ntp_server.empty())
+                {
+                    std::stringstream ss;
+                    ss << "snc, off \x0D";
+                    send(ss.str());
                 }
             }
 
@@ -329,7 +343,7 @@ namespace io {
         }
 
         // Configuring the corrections connection
-        for (auto ntrip : settings_->rtk_settings.ntrip)
+        for (auto ntrip : settings_->rtk.ntrip)
         {
             if (!ntrip.id.empty())
             {
@@ -359,7 +373,7 @@ namespace io {
             }
         }
 
-        for (auto ip_server : settings_->rtk_settings.ip_server)
+        for (auto ip_server : settings_->rtk.ip_server)
         {
             if (!ip_server.id.empty())
             // Since the Rx does not have internet (and you will not
@@ -394,7 +408,7 @@ namespace io {
             }
         }
 
-        for (auto serial : settings_->rtk_settings.serial)
+        for (auto serial : settings_->rtk.serial)
         {
             if (!serial.port.empty())
             {
@@ -626,6 +640,27 @@ namespace io {
             }
         }
 
+        // OSNMA
+        if (settings_->osnma.mode == "loose" || settings_->osnma.mode == "strict")
+        {
+            std::stringstream ss;
+            ss << "sou, " << settings_->osnma.mode << " \x0D";
+            send(ss.str());
+
+            if (!settings_->osnma.ntp_server.empty())
+            {
+                std::stringstream ss;
+                ss << "snc, on, " << settings_->osnma.ntp_server << " \x0D";
+                send(ss.str());
+            } else
+            {
+                if (settings_->osnma.mode == "strict")
+                    node_->log(
+                        log_level::ERROR,
+                        "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
+            }
+        }
+
         // TODO UDP
         // send("siss, IPS1, 28785, UDP, 10.255.255.200\x0D");
         //  Setting up SBF blocks with rx_period_rest
@@ -645,6 +680,11 @@ namespace io {
             if (settings_->publish_diagnostics)
             {
                 blocks << " +ReceiverStatus +QualityInd";
+            }
+            if (settings_->osnma.mode == "loose" ||
+                settings_->osnma.mode == "strict")
+            {
+                blocks << " +GALAuthStatus";
             }
 
             blocks << " +ReceiverSetup";

@@ -12,7 +12,12 @@ configure_rx: true
 
 login:
   user: ""
-  password: ""
+  password: ""  
+
+osnma:
+  mode: off
+  ntp_server: ""
+  keep_open: true
 
 frame_id: gnss
 

@@ -48,6 +48,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
    "msg/BaseVectorCart.msg"
    "msg/BaseVectorGeod.msg"
    "msg/BlockHeader.msg"
+   "msg/GALAuthStatus.msg"
    "msg/MeasEpoch.msg"
    "msg/MeasEpochChannelType1.msg"
    "msg/MeasEpochChannelType2.msg"

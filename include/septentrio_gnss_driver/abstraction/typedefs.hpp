@@ -65,6 +65,7 @@
 #include <septentrio_gnss_driver/msg/base_vector_cart.hpp>
 #include <septentrio_gnss_driver/msg/base_vector_geod.hpp>
 #include <septentrio_gnss_driver/msg/block_header.hpp>
+#include <septentrio_gnss_driver/msg/gal_auth_status.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type1.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type2.hpp>
@@ -116,6 +117,7 @@ typedef nav_msgs::msg::Odometry LocalizationMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;
+typedef septentrio_gnss_driver::msg::GALAuthStatus GalAuthStatusMsg;
 typedef septentrio_gnss_driver::msg::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType1 MeasEpochChannelType1Msg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType2 MeasEpochChannelType2Msg;

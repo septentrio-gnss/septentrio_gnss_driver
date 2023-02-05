@@ -9,7 +9,12 @@ septentrio_gnss_driver:
       baudrate: 921600
       hw_flow_control: "off"
 
-    configure_rx: true
+    configure_rx: true    
+
+    osnma:
+      mode: off
+      ntp_server: ""
+      keep_open: true
 
     frame_id: gnss
 
