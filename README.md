@@ -147,6 +147,8 @@ configure_rx: true
 
   use_gnss_time: false
 
+  latency_compensation: false
+
   rtk_settings:
     ntrip_1:
       id: "NTR1"
@@ -473,6 +475,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio receiver (for INS/GNSS a firmware >= 1.3.3 is needed).
     + default: `true`
+  + `latency_compensation`: Rx reports processing latency in PVT and INS blocks. If set to `true`this latency is subtracted from ROS timestamps in related blocks (i.e., `use_gnss_time` set to `false`). Related blocks are INS, PVT, Covariances, and BaseVectors. In case of `use_gnss_time` set to `true`, the latency is already compensated within the RX and included in the reported timestamps.
+    + default: `false`
   </details>
   
   <details>

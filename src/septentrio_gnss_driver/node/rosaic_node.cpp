@@ -67,6 +67,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
 [[nodiscard]] bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
+    param("latency_compensation", settings_.latency_compensation, false);
     param("frame_id", settings_.frame_id, static_cast<std::string>("gnss"));
     param("imu_frame_id", settings_.imu_frame_id, static_cast<std::string>("imu"));
     param("poi_frame_id", settings_.poi_frame_id,

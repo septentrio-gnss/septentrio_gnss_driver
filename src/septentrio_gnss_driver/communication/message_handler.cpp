@@ -1929,14 +1929,24 @@ namespace io {
                                  : telegram->stamp;
         msg.header.frame_id = frameId;
 
-        if constexpr (std::is_same<PVTCartesianMsg, T>::value ||
-                      std::is_same<PVTGeodeticMsg, T>::value ||
-                      std::is_same<INSNavCartMsg, T>::value ||
-                      std::is_same<INSNavGeodMsg, T>::value)
+        if (!settings_->use_gnss_time && settings_->latency_compensation)
         {
-            if (!settings_->use_gnss_time)
+            if constexpr (std::is_same<INSNavCartMsg, T>::value ||
+                          std::is_same<INSNavGeodMsg, T>::value)
             {
                 time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
+            } else if constexpr (std::is_same<PVTCartesianMsg, T>::value ||
+                                 std::is_same<PVTGeodeticMsg, T>::value)
+            {
+                last_pvt_latency_ = msg.latency * 100000ul; // from 0.0001 s to ns
+                time_obj -= last_pvt_latency_;
+            } else if constexpr (std::is_same<PosCovCartesianMsg, T>::value ||
+                                 std::is_same<PosCovGeodeticMsg, T>::value ||
+                                 std::is_same<VelCovGeodeticMsg, T>::value ||
+                                 std::is_same<BaseVectorCartMsg, T>::value ||
+                                 std::is_same<BaseVectorGeodMsg, T>::value)
+            {
+                time_obj -= last_pvt_latency_;
             }
         }
 
