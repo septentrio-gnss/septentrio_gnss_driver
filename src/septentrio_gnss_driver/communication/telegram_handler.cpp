@@ -74,9 +74,23 @@ namespace io {
         }
         case telegram_type::UNKNOWN:
         {
-            node_->log(log_level::DEBUG, "Unhandeled message received: " +
-                                             std::string(telegram->message.begin(),
-                                                         telegram->message.end()));
+            std::string block_in_string(telegram->message.begin(),
+                                        telegram->message.end());
+
+            node_->log(log_level::DEBUG, "A message received: " + block_in_string);
+            if (block_in_string.find("ReceiverCapabilities") != std::string::npos)
+            {
+                if (block_in_string.find("INS") != std::string::npos)
+                {
+                    isIns_ = true;
+                }
+
+                if (block_in_string.find("Heading") != std::string::npos)
+                {
+                    hasHeading_ = true;
+                }
+                capabilitiesSemaphore_.notify();
+            }
             break;
         }
         default:
@@ -123,7 +137,7 @@ namespace io {
             {
                 node_->log(
                     log_level::WARN,
-                    "Rx does understand sao command, maybe an INS is used as GNSS. In this case set parameter receiver_type to ins_in_gnss_mode.");
+                    "Rx does not understand sao command, maybe an INS is used as GNSS. In this case set parameter receiver_type to ins_in_gnss_mode.");
             }
         } else
         {

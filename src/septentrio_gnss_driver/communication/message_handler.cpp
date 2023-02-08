@@ -2494,17 +2494,12 @@ namespace io {
                     }
                 } else if (settings_->septentrio_receiver_type == "gnss")
                 {
-                    if (major_minor_patch[0] < 3)
-                    {
-                        node_->log(
-                            log_level::WARN,
-                            "INS receiver seems to be used as GNSS. Some settings may trigger warnings or errors. Consider using 'ins_in_gnss_mode' as receiver type.");
-                    } else if ((major_minor_patch[0] < gnss_major) ||
-                               ((major_minor_patch[0] == gnss_major) &&
-                                (major_minor_patch[1] < gnss_minor)) ||
-                               ((major_minor_patch[0] == gnss_major) &&
-                                (major_minor_patch[1] == gnss_minor) &&
-                                (major_minor_patch[2] < gnss_patch)))
+                    if ((major_minor_patch[0] < gnss_major) ||
+                        ((major_minor_patch[0] == gnss_major) &&
+                         (major_minor_patch[1] < gnss_minor)) ||
+                        ((major_minor_patch[0] == gnss_major) &&
+                         (major_minor_patch[1] == gnss_minor) &&
+                         (major_minor_patch[2] < gnss_patch)))
                     {
                         node_->log(
                             log_level::WARN,

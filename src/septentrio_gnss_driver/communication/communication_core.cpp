@@ -284,6 +284,20 @@ namespace io {
         send("sso, all, none, none, off \x0D");
         send("sno, all, none, none, off \x0D");
 
+        // Get Rx capabilities
+        send("grc \x0D");
+        telegramHandler_.waitForCapabilities();
+
+        bool ins_in_gnss_mode = settings_->ins_in_gnss_mode;
+        if (telegramHandler_.isIns() &&
+            (settings_->septentrio_receiver_type == "gnss") && !ins_in_gnss_mode)
+        {
+            node_->log(
+                log_level::WARN,
+                "INS receiver seems to be used as GNSS. If this is intended, please consider setting receiver type to 'ins_in_gnss_mode'.");
+            ins_in_gnss_mode = true;
+        }
+
         // Activate NTP server
         if (settings_->use_gnss_time)
             send("sntp, on \x0D");
@@ -297,8 +311,7 @@ namespace io {
             send(ss.str());
         }
 
-        if ((settings_->septentrio_receiver_type == "ins") ||
-            settings_->ins_in_gnss_mode)
+        if ((settings_->septentrio_receiver_type == "ins") || ins_in_gnss_mode)
         {
             {
                 std::stringstream ss;
@@ -438,7 +451,11 @@ namespace io {
         // Setting multi antenna
         if (settings_->multi_antenna)
         {
-            send("sga, MultiAntenna \x0D");
+            if (telegramHandler_.hasHeading())
+                send("sga, MultiAntenna \x0D");
+            else
+                node_->log(log_level::WARN,
+                           "Multi antenna requested but Rx does not support it.");
         } else
         {
             send("sga, none \x0D");
