@@ -747,7 +747,8 @@ namespace io {
                 (settings_->publish_gpsfix &&
                  (settings_->septentrio_receiver_type == "gnss")) ||
                 (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
+                 (settings_->septentrio_receiver_type == "gnss")) ||
+                settings_->latency_compensation)
             {
                 blocks << " +PVTGeodetic";
             }
