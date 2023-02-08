@@ -9,6 +9,7 @@ Changelog for package septentrio_gnss_driver
    * Add option to bypass configuration of Rx
    * Add tests
    * OSNMA
+   * Latency compensation for ROS timestamps
 * Improvements
    * Rework IO core and message handling
      * Unified stream processing 

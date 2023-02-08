@@ -62,6 +62,8 @@ polling_period:
 
 use_gnss_time: false
 
+latency_compensation: false
+
 rtk_settings:
   keep_open: true
   ntrip_1:

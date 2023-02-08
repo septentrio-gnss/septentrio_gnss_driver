@@ -64,6 +64,8 @@ septentrio_gnss_driver:
 
     use_gnss_time: false
 
+    latency_compensation: false
+
     rtk_settings:  
       ntrip_1:
         id: ""

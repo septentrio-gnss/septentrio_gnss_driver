@@ -293,6 +293,9 @@ namespace io {
         //! by the time stamps found in the SBF blocks therein.
         Timestamp unix_time_;
 
+        //! Last reported PVT processing latency
+        mutable uint64_t last_pvt_latency_ = 0;
+
         //! Current leap seconds as received, do not use value is -128
         int32_t current_leap_seconds_ = -128;
 
