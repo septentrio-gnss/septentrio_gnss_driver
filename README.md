@@ -217,6 +217,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     basevectorgeod: false
     poscovcartesian: false
     poscovgeodetic: true
+    velcovcartesian: false
 	  velcovgeodetic: false
     atteuler: true
     attcoveuler: true
@@ -601,38 +602,39 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
-    + `publish/gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
-    + `publish/gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
-    + `publish/gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
-    + `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
-    + `publish/measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
-    + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
-    + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
-    + `publish/basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
-    + `publish/basevectorgeod`: `true` to publish `septentrio_gnss_driver/BaseVectorGeod.msg` messages into the topic `/basevectorgeod`
-    + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
-    + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
-    + `publish/velcovgeodetic`: `true` to publish `septentrio_gnss_driver/VelCovGeodetic.msg` messages into the topic `/velcovgeodetic`
-    + `publish/atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
-    + `publish/attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
-    + `publish/gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
-    + `publish/navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
-    + `publish/gpsfix`: `true` to publish `gps_msgs/GPSFix.msg` messages into the topic `/gpsfix`
-    + `publish/pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
-    + `publish/twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist` and `/twist_ins` respectively 
-    + `publish/diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
-    + `publish/insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
-    + `publish/insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
-    + `publish/extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
-    + `publish/imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
-    + `publish/velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
-    + `publish/exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
-    + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
-    + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
-    + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
-    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.   
-    + `publish/localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization` related to ECEF frame.
-    + `publish/tf_ecef`: `true` to broadcast tf of localization  related to ECEF frame. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.
+    + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
+    + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
+    + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
+    + `publish.gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
+    + `publish.measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
+    + `publish.pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
+    + `publish.pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
+    + `publish.basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
+    + `publish.basevectorgeod`: `true` to publish `septentrio_gnss_driver/BaseVectorGeod.msg` messages into the topic `/basevectorgeod`
+    + `publish.poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
+    + `publish.poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
+    + `publish.velcovcartesian`: `true` to publish `septentrio_gnss_driver/VelCovCartesian.msg` messages into the topic `/velcovcartesian`
+    + `publish.velcovgeodetic`: `true` to publish `septentrio_gnss_driver/VelCovGeodetic.msg` messages into the topic `/velcovgeodetic`
+    + `publish.atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
+    + `publish.attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
+    + `publish.gpst`: `true` to publish `sensor_msgs/TimeReference.msg` messages into the topic `/gpst`
+    + `publish.navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
+    + `publish.gpsfix`: `true` to publish `gps_msgs/GPSFix.msg` messages into the topic `/gpsfix`
+    + `publish.pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
+    + `publish.twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist` and `/twist_ins` respectively 
+    + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
+    + `publish.insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
+    + `publish.insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
+    + `publish.extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
+    + `publish.imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
+    + `publish.velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
+    + `publish.exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
+    + `publish.exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
+    + `publish.imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
+    + `publish.localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
+    + `publish.tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish.tf` or `publish.tf_ecef` may be `true`.   
+    + `publish.localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization` related to ECEF frame.
+    + `publish.tf_ecef`: `true` to broadcast tf of localization  related to ECEF frame. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish.tf` or `publish.tf_ecef` may be `true`.
   </details>
 
 ## ROS Topic Publications
@@ -652,6 +654,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/basevectorgeod`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorGeod.msg`, corresponding to the SBF block `BaseVectorGeod`.
   + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
+  + `/velcovcartesian`: publishes custom ROS message `septentrio_gnss_driver/VelCovCartesian.msg`, corresponding to SBF block `VelCovCartesian` (GNSS case).
   + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
   + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`.
   + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`.

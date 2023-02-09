@@ -91,6 +91,7 @@ publish:
   basevectorgeod: false
   poscovcartesian: true
   poscovgeodetic: true
+  velcovcartesian: false
   velcovgeodetic: true
   atteuler: true
   attcoveuler: true
