@@ -2402,6 +2402,20 @@ namespace io {
             assembleGpsFix();
             break;
         }
+        case VEL_COV_CARTESIAN:
+        {
+            VelCovCartesianMsg msg;
+            if (!VelCovCartesianParser(node_, telegram->message.begin(),
+                                       telegram->message.end(), msg))
+            {
+                node_->log(log_level::ERROR, "parse error in VelCovCartesian");
+                break;
+            }
+            assembleHeader(settings_->frame_id, telegram, msg);
+            if (settings_->publish_velcovcartesian)
+                publish<VelCovCartesianMsg>("/velcovcartesian", msg);
+            break;
+        }
         case VEL_COV_GEODETIC:
         {
 
