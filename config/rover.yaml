@@ -112,6 +112,7 @@ publish:
   basevectorgeod: false
   poscovcartesian: false
   poscovgeodetic: true
+  velcovcartesian: false
   velcovgeodetic: true
   atteuler: true
   attcoveuler: true

@@ -215,6 +215,7 @@ configure_rx: true
     basevectorgeod: false
     poscovcartesian: false
     poscovgeodetic: true
+    velcovcartesian: false
 	  velcovgeodetic: false
     atteuler: true
     attcoveuler: true
@@ -611,6 +612,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/basevectorgeod`: `true` to publish `septentrio_gnss_driver/BaseVectorGeod.msg` messages into the topic `/basevectorgeod`
     + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
+    + `publish/velcovcartesian`: `true` to publish `septentrio_gnss_driver/VelCovCartesian.msg` messages into the topic `/velcovcartesian`
     + `publish/velcovgeodetic`: `true` to publish `septentrio_gnss_driver/VelCovGeodetic.msg` messages into the topic `/velcovgeodetic`
     + `publish/atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
     + `publish/attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
@@ -651,6 +653,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/basevectorgeod`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorGeod.msg`, corresponding to the SBF block `BaseVectorGeod`.
   + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
+  + `/velcovcartesian`: publishes custom ROS message `septentrio_gnss_driver/VelCovCartesian.msg`, corresponding to SBF block `VelCovCartesian` (GNSS case).
   + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
   + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`.
   + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`.

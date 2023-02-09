@@ -1942,6 +1942,7 @@ namespace io {
                 time_obj -= last_pvt_latency_;
             } else if constexpr (std::is_same<PosCovCartesianMsg, T>::value ||
                                  std::is_same<PosCovGeodeticMsg, T>::value ||
+                                 std::is_same<VelCovCartesianMsg, T>::value ||
                                  std::is_same<VelCovGeodeticMsg, T>::value ||
                                  std::is_same<BaseVectorCartMsg, T>::value ||
                                  std::is_same<BaseVectorGeodMsg, T>::value)
@@ -2400,6 +2401,20 @@ namespace io {
                 break;
             }
             assembleGpsFix();
+            break;
+        }
+        case VEL_COV_CARTESIAN:
+        {
+            VelCovCartesianMsg msg;
+            if (!VelCovCartesianParser(node_, telegram->message.begin(),
+                                       telegram->message.end(), msg))
+            {
+                node_->log(log_level::ERROR, "parse error in VelCovCartesian");
+                break;
+            }
+            assembleHeader(settings_->frame_id, telegram, msg);
+            if (settings_->publish_velcovcartesian)
+                publish<VelCovCartesianMsg>("/velcovcartesian", msg);
             break;
         }
         case VEL_COV_GEODETIC:

@@ -153,24 +153,17 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     param("publish/gpgsv", settings_.publish_gpgsv, false);
     param("publish/measepoch", settings_.publish_measepoch, false);
     param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
-    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
+    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, false);
     param("publish/basevectorcart", settings_.publish_basevectorcart, false);
     param("publish/basevectorgeod", settings_.publish_basevectorgeod, false);
     param("publish/poscovcartesian", settings_.publish_poscovcartesian, false);
-    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
-    param("publish/velcovgeodetic", settings_.publish_velcovgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
-    param(
-        "publish/atteuler", settings_.publish_atteuler,
-        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
-    param(
-        "publish/attcoveuler", settings_.publish_attcoveuler,
-        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, false);
+    param("publish/velcovcartesian", settings_.publish_velcovcartesian, false);
+    param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, false);
+    param("publish/atteuler", settings_.publish_atteuler, false);
+    param("publish/attcoveuler", settings_.publish_attcoveuler, false);
     param("publish/insnavcart", settings_.publish_insnavcart, false);
-    param("publish/insnavgeod", settings_.publish_insnavgeod,
-          (settings_.septentrio_receiver_type == "ins"));
+    param("publish/insnavgeod", settings_.publish_insnavgeod, false);
     param("publish/imusetup", settings_.publish_imusetup, false);
     param("publish/velsensorsetup", settings_.publish_velsensorsetup, false);
     param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);

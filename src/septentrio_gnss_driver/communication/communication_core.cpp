@@ -791,6 +791,10 @@ namespace io {
             {
                 blocks << " +PosCovGeodetic";
             }
+            if (settings_->publish_velcovcartesian)
+            {
+                blocks << " +VelCovCartesian";
+            }
             if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
                 (settings_->publish_gpsfix &&
                  (settings_->septentrio_receiver_type == "gnss")))
