@@ -647,6 +647,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.
   + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
+  + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, corresponding to the SBF block `RFStatus`.
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
   + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.

@@ -85,6 +85,8 @@ add_message_files(
    BaseVectorGeod.msg
    BlockHeader.msg
    GALAuthStatus.msg
+   RFBand.msg
+   RFStatus.msg
    MeasEpoch.msg
    MeasEpochChannelType1.msg
    MeasEpochChannelType2.msg

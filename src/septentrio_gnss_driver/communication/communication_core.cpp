@@ -701,7 +701,7 @@ namespace io {
             if (settings_->osnma.mode == "loose" ||
                 settings_->osnma.mode == "strict")
             {
-                blocks << " +GALAuthStatus";
+                blocks << " +GALAuthStatus +RFStatus";
             }
 
             blocks << " +ReceiverSetup";

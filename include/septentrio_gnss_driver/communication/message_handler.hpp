@@ -125,7 +125,8 @@ enum SbfId
     VEL_SENSOR_SETUP = 4244,
     EXT_SENSOR_MEAS = 4050,
     RECEIVER_TIME = 5914,
-    GAL_AUTH_STATUS = 4245
+    GAL_AUTH_STATUS = 4245,
+    RF_STATUS = 4092
 };
 
 namespace io {
@@ -290,6 +291,16 @@ namespace io {
          */
         ReceiverSetup last_receiversetup_;
 
+        /**
+         * @brief Stores incoming GALAuthStatus block
+         */
+        GalAuthStatusMsg last_gal_auth_status_;
+
+        /**
+         * @brief Stores incoming RFStatus block
+         */
+        RfStatusMsg last_rf_status_;
+
         //! When reading from an SBF file, the ROS publishing frequency is governed
         //! by the time stamps found in the SBF blocks therein.
         Timestamp unix_time_;
@@ -326,9 +337,8 @@ namespace io {
         /**
          * @brief "Callback" function when constructing
          * OSNMA DiagnosticArrayMsg messages
-         * @param[in] status GalAuthStatusMsg from which the msg was assembled
          */
-        void assembleOsnmaDiagnosticArray(const GalAuthStatusMsg& status);
+        void assembleOsnmaDiagnosticArray();
 
         /**
          * @brief "Callback" function when constructing

@@ -550,7 +550,7 @@ void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg,
 };
 
 /**
- * @class MeasEpochChannelType1Parser
+ * MeasEpochChannelType1Parser
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType1"
  */
 template <typename It>
@@ -587,7 +587,7 @@ template <typename It>
 };
 
 /**
- * @class MeasEpoch
+ * MeasEpochParser
  * @brief Qi based parser for the SBF block "MeasEpoch"
  */
 template <typename It>
@@ -631,7 +631,7 @@ template <typename It>
 };
 
 /**
- * @class GALAuthStatus
+ * GALAuthStatus
  * @brief Qi based parser for the SBF block "GALAuthStatus"
  */
 template <typename It>
@@ -652,6 +652,52 @@ template <typename It>
     qiLittleEndianParser(it, msg.gal_authentic_mask);
     qiLittleEndianParser(it, msg.gps_active_mask);
     qiLittleEndianParser(it, msg.gps_authentic_mask);
+    if (it > itEnd)
+    {
+        node->log(log_level::ERROR, "Parse error: iterator past end.");
+        return false;
+    }
+    return true;
+};
+
+/**
+ * RFBandParser
+ * @brief Qi based parser for the SBF sub-block "RFBand"
+ */
+template <typename It>
+void RfBandParser(It& it, RfBandMsg& msg, uint8_t sb_length)
+{
+    qiLittleEndianParser(it, msg.frequency);
+    qiLittleEndianParser(it, msg.bandwidth);
+    qiLittleEndianParser(it, msg.info);
+    std::advance(it, sb_length - 7); // skip padding
+};
+
+/**
+ * RFStatusParser
+ * @brief Qi based parser for the SBF block "RFStatus"
+ */
+template <typename It>
+[[nodiscard]] bool RfStatusParser(ROSaicNodeBase* node, It it, It itEnd,
+                                  RfStatusMsg& msg)
+{
+    if (!BlockHeaderParser(node, it, msg.block_header))
+        return false;
+    if (msg.block_header.id != 4092)
+    {
+        node->log(log_level::ERROR, "Parse error: Wrong header ID " +
+                                        std::to_string(msg.block_header.id));
+        return false;
+    }
+    qiLittleEndianParser(it, msg.n);
+    qiLittleEndianParser(it, msg.sb_length);
+    qiLittleEndianParser(it, msg.flags);
+    std::advance(it, 3); // reserved
+    msg.rfband.resize(msg.n);
+    for (auto& rfband : msg.rfband)
+    {
+        RfBandParser(it, rfband, msg.sb_length);
+    }
     if (it > itEnd)
     {
         node->log(log_level::ERROR, "Parse error: iterator past end.");
@@ -973,7 +1019,7 @@ void VectorInfoCartParser(It& it, VectorInfoCartMsg& msg, uint8_t sb_length)
 };
 
 /**
- * @class BaseVectorCart
+ * BaseVectorCartParser
  * @brief Qi based parser for the SBF block "BaseVectorCart"
  */
 template <typename It>
@@ -1035,7 +1081,7 @@ void VectorInfoGeodParser(It& it, VectorInfoGeodMsg& msg, uint8_t sb_length)
 };
 
 /**
- * @class BaseVectorGeod
+ * BaseVectorGeodParser
  * @brief Qi based parser for the SBF block "BaseVectorGeod"
  */
 template <typename It>

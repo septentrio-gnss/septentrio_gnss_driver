@@ -65,6 +65,8 @@
 #include <septentrio_gnss_driver/PVTGeodetic.h>
 #include <septentrio_gnss_driver/PosCovCartesian.h>
 #include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/RFBand.h>
+#include <septentrio_gnss_driver/RFStatus.h>
 #include <septentrio_gnss_driver/ReceiverTime.h>
 #include <septentrio_gnss_driver/VectorInfoCart.h>
 #include <septentrio_gnss_driver/VectorInfoGeod.h>
@@ -110,6 +112,8 @@ typedef septentrio_gnss_driver::BaseVectorCart BaseVectorCartMsg;
 typedef septentrio_gnss_driver::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::BlockHeader BlockHeaderMsg;
 typedef septentrio_gnss_driver::GALAuthStatus GalAuthStatusMsg;
+typedef septentrio_gnss_driver::RFStatus RfStatusMsg;
+typedef septentrio_gnss_driver::RFBand RfBandMsg;
 typedef septentrio_gnss_driver::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::MeasEpochChannelType1 MeasEpochChannelType1Msg;
 typedef septentrio_gnss_driver::MeasEpochChannelType2 MeasEpochChannelType2Msg;
