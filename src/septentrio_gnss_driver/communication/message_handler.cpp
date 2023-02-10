@@ -850,22 +850,39 @@ namespace io {
         double meridian_convergence = 0.0;
         if (fixedUtmZone_)
         {
-            double k;
-            GeographicLib::UTMUPS::DecodeZone(*fixedUtmZone_, zone,
-                                              northernHemisphere);
-            GeographicLib::UTMUPS::Forward(rad2deg(last_insnavgeod_.latitude),
-                                           rad2deg(last_insnavgeod_.longitude), zone,
-                                           northernHemisphere, easting, northing,
-                                           meridian_convergence, k, zone);
+            try
+            {
+                GeographicLib::UTMUPS::DecodeZone(*fixedUtmZone_, zone,
+                                                  northernHemisphere);
+                double k;
+                GeographicLib::UTMUPS::Forward(
+                    rad2deg(last_insnavgeod_.latitude),
+                    rad2deg(last_insnavgeod_.longitude), zone, northernHemisphere,
+                    easting, northing, meridian_convergence, k, zone);
+            } catch (const std::exception& e)
+            {
+                node_->log(log_level::DEBUG,
+                           "UTMUPS conversion exception: " + std::string(e.what()));
+                return;
+            }
             zonestring = *fixedUtmZone_;
         } else
         {
-            double k;
-            GeographicLib::UTMUPS::Forward(rad2deg(last_insnavgeod_.latitude),
-                                           rad2deg(last_insnavgeod_.longitude), zone,
-                                           northernHemisphere, easting, northing,
-                                           meridian_convergence, k);
-            zonestring = GeographicLib::UTMUPS::EncodeZone(zone, northernHemisphere);
+            try
+            {
+                double k;
+                GeographicLib::UTMUPS::Forward(rad2deg(last_insnavgeod_.latitude),
+                                               rad2deg(last_insnavgeod_.longitude),
+                                               zone, northernHemisphere, easting,
+                                               northing, meridian_convergence, k);
+                zonestring =
+                    GeographicLib::UTMUPS::EncodeZone(zone, northernHemisphere);
+            } catch (const std::exception& e)
+            {
+                node_->log(log_level::DEBUG,
+                           "UTMUPS conversion exception: " + std::string(e.what()));
+                return;
+            }
         }
         if (settings_->lock_utm_zone && !fixedUtmZone_)
             fixedUtmZone_ = std::make_shared<std::string>(zonestring);
