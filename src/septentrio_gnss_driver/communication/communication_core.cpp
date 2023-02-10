@@ -258,8 +258,8 @@ namespace io {
         mainConnectionPort_ = resetMainConnection();
         node_->log(log_level::INFO,
                    "The connection descriptor is " + mainConnectionPort_);
-        // streamPort_ = "IPS1"; // TODO UDP
         streamPort_ = mainConnectionPort_;
+        // streamPort_ = "IPS1"; // TODO UDP
 
         node_->log(log_level::INFO, "Setting up Rx.");
 
@@ -903,8 +903,11 @@ namespace io {
     std::string CommunicationCore::resetMainConnection()
     {
         // Escape sequence (escape from correction mode), ensuring that we
-        // can send our real commands afterwards...
+        // can send our real commands afterwards... has to be sent twice.
         std::string cmd("\x0DSSSSSSSSSS\x0D\x0D");
+        telegramHandler_.resetWaitforMainCd();
+        manager_.get()->send(cmd);
+        std::ignore = telegramHandler_.getMainCd();
         telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);
         return telegramHandler_.getMainCd();
