@@ -147,6 +147,8 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     param("publish/gpsfix", settings_.publish_gpsfix, false);
     param("publish/pose", settings_.publish_pose, false);
     param("publish/diagnostics", settings_.publish_diagnostics, false);
+    param("publish/aimplusstatus", settings_.publish_aimplusstatus, false);
+    param("publish/galauthstatus", settings_.publish_galauthstatus, false);
     param("publish/gpgga", settings_.publish_gpgga, false);
     param("publish/gprmc", settings_.publish_gprmc, false);
     param("publish/gpgsa", settings_.publish_gpgsa, false);

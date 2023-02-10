@@ -15,7 +15,7 @@ login:
   password: ""
 
 osnma:
-  mode: "off"
+  mode: "loose"
   ntp_server: ""
   keep_open: true
 
@@ -119,6 +119,8 @@ publish:
   pose: false
   twist: false
   diagnostics: false
+  aimplusstatus: true
+  galauthstatus: false
   # For GNSS Rx only
   gpgsa: false
   gpgsv: false

@@ -223,6 +223,11 @@ struct Settings
     bool publish_gpgsv;
     //! Whether or not to publish the MeasEpoch message
     bool publish_measepoch;
+    //! Whether or not to publish the RFStatus and AIMPlusStatus message and
+    //! diagnostics
+    bool publish_aimplusstatus;
+    //! Whether or not to publish the GALAuthStatus message and diagnostics
+    bool publish_galauthstatus;
     //! Whether or not to publish the PVTCartesianMsg
     //! message
     bool publish_pvtcartesian;

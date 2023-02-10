@@ -698,10 +698,15 @@ namespace io {
             {
                 blocks << " +ReceiverStatus +QualityInd";
             }
-            if (settings_->osnma.mode == "loose" ||
-                settings_->osnma.mode == "strict")
+            if (settings_->publish_aimplusstatus)
             {
-                blocks << " +GALAuthStatus +RFStatus";
+                blocks << " +RFStatus";
+            }
+            if (settings_->publish_galauthstatus ||
+                (settings_->osnma.mode == "loose") ||
+                (settings_->osnma.mode == "strict"))
+            {
+                blocks << " +GALAuthStatus";
             }
 
             blocks << " +ReceiverSetup";

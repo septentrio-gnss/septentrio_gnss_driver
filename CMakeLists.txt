@@ -81,6 +81,7 @@ endif ()
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
+   AIMPlusStatus.msg
    BaseVectorCart.msg
    BaseVectorGeod.msg
    BlockHeader.msg

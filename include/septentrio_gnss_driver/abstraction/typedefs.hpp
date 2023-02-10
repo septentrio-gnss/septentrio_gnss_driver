@@ -52,6 +52,7 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/TimeReference.h>
 // GNSS msg includes
+#include <septentrio_gnss_driver/AIMPlusStatus.h>
 #include <septentrio_gnss_driver/AttCovEuler.h>
 #include <septentrio_gnss_driver/AttEuler.h>
 #include <septentrio_gnss_driver/BaseVectorCart.h>
@@ -108,6 +109,7 @@ typedef sensor_msgs::Imu ImuMsg;
 typedef nav_msgs::Odometry LocalizationMsg;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::AIMPlusStatus AimPlusStatusMsg;
 typedef septentrio_gnss_driver::BaseVectorCart BaseVectorCartMsg;
 typedef septentrio_gnss_driver::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::BlockHeader BlockHeaderMsg;

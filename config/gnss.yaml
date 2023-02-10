@@ -98,6 +98,8 @@ publish:
   pose: true
   twist: false
   diagnostics: true
+  aimplusstatus: true
+  galauthstatus: false
   # For GNSS Rx only
   gpgsa: false
   gpgsv: false
