@@ -110,6 +110,8 @@ publish:
   pose: false
   twist: true
   diagnostics: true
+  aimplusstatus: true
+  galauthstatus: false
   # For INS Rx only
   insnavcart: true
   insnavgeod: true

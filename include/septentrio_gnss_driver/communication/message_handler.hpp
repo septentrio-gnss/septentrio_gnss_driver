@@ -297,6 +297,11 @@ namespace io {
         GalAuthStatusMsg last_gal_auth_status_;
 
         /**
+         * @brief Wether OSNMA info has been received
+         */
+        bool osnma_info_available_ = false;
+
+        /**
          * @brief Stores incoming RFStatus block
          */
         RfStatusMsg last_rf_status_;
@@ -339,6 +344,12 @@ namespace io {
          * OSNMA DiagnosticArrayMsg messages
          */
         void assembleOsnmaDiagnosticArray();
+
+        /**
+         * @brief "Callback" function when constructing
+         * RFStatus DiagnosticArrayMsg messages
+         */
+        void assembleAimAndDiagnosticArray();
 
         /**
          * @brief "Callback" function when constructing

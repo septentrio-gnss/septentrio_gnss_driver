@@ -60,6 +60,7 @@
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <sensor_msgs/msg/time_reference.hpp>
 // GNSS msg includes
+#include <septentrio_gnss_driver/msg/aim_plus_status.hpp>
 #include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
 #include <septentrio_gnss_driver/msg/att_euler.hpp>
 #include <septentrio_gnss_driver/msg/base_vector_cart.hpp>
@@ -116,6 +117,7 @@ typedef sensor_msgs::msg::Imu ImuMsg;
 typedef nav_msgs::msg::Odometry LocalizationMsg;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::msg::AIMPlusStatus AimPlusStatusMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;

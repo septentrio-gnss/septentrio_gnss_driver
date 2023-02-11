@@ -45,6 +45,7 @@ endif ()
 
 ## Declare  messages
 rosidl_generate_interfaces(${PROJECT_NAME}
+   "msg/AIMPlusStatus.msg"
    "msg/BaseVectorCart.msg"
    "msg/BaseVectorGeod.msg"
    "msg/BlockHeader.msg"

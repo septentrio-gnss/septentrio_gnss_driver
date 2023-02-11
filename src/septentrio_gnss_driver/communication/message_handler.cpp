@@ -346,65 +346,7 @@ namespace io {
 
     void MessageHandler::assembleOsnmaDiagnosticArray()
     {
-        if (!validValue(last_gal_auth_status_.block_header.tow) ||
-            (last_gal_auth_status_.block_header.tow !=
-             last_rf_status_.block_header.tow))
-            return;
-
         DiagnosticArrayMsg msg;
-        DiagnosticStatusMsg diagRf;
-        diagRf.hardware_id = "Septentrio";
-        diagRf.name = "RF";
-        diagRf.message = "Current status of the radio-frequency (RF) signal";
-
-        diagRf.values.resize(2);
-        diagRf.values[0].key = "interference";
-        diagRf.values[0].value = "spectrum clean";
-        bool mitigated = false;
-        bool detected = false;
-        for (auto rfband : last_rf_status_.rfband)
-        {
-            std::bitset<8> info = rfband.info;
-            if (info.test(1))
-                mitigated = true;
-            if (info.test(3))
-            {
-                detected = true;
-                break;
-            }
-        }
-        if (detected)
-            diagRf.values[0].value = "detected";
-        else if (mitigated)
-            diagRf.values[0].value = "mitigated";
-
-        diagRf.values[1].key = "spoofing";
-        bool spoofed = false;
-        std::bitset<8> flags = last_rf_status_.flags;
-        if (flags.test(0) && flags.test(1))
-        {
-            diagRf.values[1].value = "detected by OSNMA and authenticity test";
-            spoofed = true;
-        } else if (flags.test(0))
-        {
-            diagRf.values[1].value = "detected by authenticity test";
-            spoofed = true;
-        } else if (flags.test(1))
-        {
-            diagRf.values[1].value = "detected by OSNMA";
-            spoofed = true;
-        } else
-            diagRf.values[1].value = "none detected";
-
-        if (spoofed || detected)
-            diagRf.level = DiagnosticStatusMsg::ERROR;
-        else if (mitigated)
-            diagRf.level = DiagnosticStatusMsg::WARN;
-        else
-            diagRf.level = DiagnosticStatusMsg::OK;
-
-        msg.status.push_back(diagRf);
-
         DiagnosticStatusMsg diagOsnma;
 
         diagOsnma.hardware_id = "Septentrio";
@@ -491,6 +433,107 @@ namespace io {
 
         msg.status.push_back(diagOsnma);
         msg.header = last_gal_auth_status_.header;
+
+        publish<DiagnosticArrayMsg>("/diagnostics", msg);
+    }
+
+    void MessageHandler::assembleAimAndDiagnosticArray()
+    {
+        AimPlusStatusMsg aimMsg;
+        DiagnosticArrayMsg msg;
+        DiagnosticStatusMsg diagRf;
+        diagRf.hardware_id = "Septentrio";
+        diagRf.name = "RF";
+        diagRf.message = "Current status of the radio-frequency (RF) signal";
+
+        diagRf.values.resize(2);
+        diagRf.values[0].key = "interference";
+        bool mitigated = false;
+        bool detected = false;
+        for (auto rfband : last_rf_status_.rfband)
+        {
+            std::bitset<8> info = rfband.info;
+            if (info.test(1))
+                mitigated = true;
+            if (info.test(3))
+            {
+                detected = true;
+                break;
+            }
+        }
+        if (detected)
+        {
+            diagRf.values[0].value = "present";
+            aimMsg.interference = AimPlusStatusMsg::INTERFERENCE_PRESENT;
+        } else if (mitigated)
+        {
+            diagRf.values[0].value = "mitigated";
+            aimMsg.interference = AimPlusStatusMsg::INTERFERENCE_MITIGATED;
+        } else
+        {
+            diagRf.values[0].value = "spectrum clean";
+            aimMsg.interference = AimPlusStatusMsg::SPECTRUM_CLEAN;
+        }
+
+        diagRf.values[1].key = "spoofing";
+        bool spoofed = false;
+        std::bitset<8> flags = last_rf_status_.flags;
+        if (flags.test(0) && flags.test(1))
+        {
+            diagRf.values[1].value = "detected by OSNMA and authenticity test";
+            aimMsg.spoofing =
+                AimPlusStatusMsg::SPOOFING_DETECTED_BY_OSNMA_AND_AUTHENTCITY_TEST;
+            spoofed = true;
+        } else if (flags.test(0))
+        {
+            diagRf.values[1].value = "detected by authenticity test";
+            aimMsg.spoofing =
+                AimPlusStatusMsg::SPOOFING_DETECTED_BY_AUTHENTCITY_TEST;
+            spoofed = true;
+        } else if (flags.test(1))
+        {
+            diagRf.values[1].value = "detected by OSNMA";
+            aimMsg.spoofing = AimPlusStatusMsg::SPOOFING_DETECTED_BY_OSNMA;
+            spoofed = true;
+        } else
+        {
+            diagRf.values[1].value = "none detected";
+            aimMsg.spoofing = AimPlusStatusMsg::NONE_DETECTED;
+        }
+        if (osnma_info_available_)
+        {
+            aimMsg.osnma_authenticating =
+                ((last_gal_auth_status_.osnma_status & 7) == 6);
+            std::bitset<64> gal_active = last_gal_auth_status_.gal_active_mask;
+            std::bitset<64> gal_auth = last_gal_auth_status_.gal_authentic_mask;
+            aimMsg.galileo_authentic = (gal_auth & gal_active).count();
+            aimMsg.galileo_spoofed = (~gal_auth & gal_active).count();
+            std::bitset<64> gps_active = last_gal_auth_status_.gps_active_mask;
+            std::bitset<64> gps_auth = last_gal_auth_status_.gps_authentic_mask;
+            aimMsg.gps_authentic = (gps_auth & gps_active).count();
+            aimMsg.gps_spoofed = (~gps_auth & gps_active).count();
+        } else
+        {
+            aimMsg.osnma_authenticating = false;
+            aimMsg.galileo_authentic = 0;
+            aimMsg.galileo_spoofed = 0;
+            aimMsg.gps_authentic = 0;
+            aimMsg.gps_spoofed = 0;
+        }
+        aimMsg.header = last_rf_status_.header;
+        aimMsg.tow = last_rf_status_.block_header.tow;
+        aimMsg.wnc = last_rf_status_.block_header.wnc;
+        publish<AimPlusStatusMsg>("/aimplusstatus", aimMsg);
+
+        if (spoofed || detected)
+            diagRf.level = DiagnosticStatusMsg::ERROR;
+        else if (mitigated)
+            diagRf.level = DiagnosticStatusMsg::WARN;
+        else
+            diagRf.level = DiagnosticStatusMsg::OK;
+
+        msg.status.push_back(diagRf);
+        msg.header = last_rf_status_.header;
 
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     }
@@ -2221,7 +2264,6 @@ namespace io {
         }
         case POS_COV_GEODETIC:
         {
-
             if (!PosCovGeodeticParser(node_, telegram->message.begin(),
                                       telegram->message.end(), last_poscovgeodetic_))
             {
@@ -2238,7 +2280,6 @@ namespace io {
         }
         case ATT_EULER:
         {
-
             if (!AttEulerParser(node_, telegram->message.begin(),
                                 telegram->message.end(), last_atteuler_,
                                 settings_->use_ros_axis_orientation))
@@ -2255,7 +2296,6 @@ namespace io {
         }
         case ATT_COV_EULER:
         {
-
             if (!AttCovEulerParser(node_, telegram->message.begin(),
                                    telegram->message.end(), last_attcoveuler_,
                                    settings_->use_ros_axis_orientation))
@@ -2278,9 +2318,13 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in GalAuthStatus");
                 break;
             }
+            osnma_info_available_ = true;
             assembleHeader(settings_->frame_id, telegram, last_gal_auth_status_);
-            publish<GalAuthStatusMsg>("/galauthstatus", last_gal_auth_status_);
-            assembleOsnmaDiagnosticArray();
+            if (settings_->publish_galauthstatus)
+            {
+                publish<GalAuthStatusMsg>("/galauthstatus", last_gal_auth_status_);
+                assembleOsnmaDiagnosticArray();
+            }
             break;
         }
         case RF_STATUS:
@@ -2292,14 +2336,16 @@ namespace io {
                 break;
             }
             assembleHeader(settings_->frame_id, telegram, last_rf_status_);
-            publish<RfStatusMsg>("/rfstatus", last_rf_status_);
-            assembleOsnmaDiagnosticArray();
+            if (settings_->publish_aimplusstatus)
+            {
+                publish<RfStatusMsg>("/rfstatus", last_rf_status_);
+                assembleAimAndDiagnosticArray();
+            }
             break;
         }
         case INS_NAV_CART: // Position, velocity and orientation in cartesian
                            // coordinate frame (ENU frame)
         {
-
             if (!INSNavCartParser(node_, telegram->message.begin(),
                                   telegram->message.end(), last_insnavcart_,
                                   settings_->use_ros_axis_orientation))
@@ -2323,7 +2369,6 @@ namespace io {
         case INS_NAV_GEOD: // Position, velocity and orientation in geodetic
                            // coordinate frame (ENU frame)
         {
-
             if (!INSNavGeodParser(node_, telegram->message.begin(),
                                   telegram->message.end(), last_insnavgeod_,
                                   settings_->use_ros_axis_orientation))

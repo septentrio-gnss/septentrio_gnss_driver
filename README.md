@@ -9,6 +9,7 @@ Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial (RNDIS) and TCP/IP protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
+- Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
 - Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
@@ -224,6 +225,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     pose: false
     twist: false
     diagnostics: false
+    aimplusstatus: true
+    galauthstatus: false
     # For GNSS Rx only
     gpgsa: false
     gpgsv: false
@@ -607,6 +610,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     + `publish.gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     + `publish.measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
+    + `publish.galauthstatus`: `true` to publish `septentrio_gnss_driver/GALAuthStatus.msg` messages into the topic `/galauthstatus` and corresponding `/diganostics`
+    + `publish.aimplusstatus`: `true` to publish `septentrio_gnss_driver/RFStatus.msg` messages into the topic `/rfstatus`, `septentrio_gnss_driver/AIMPlusStatus.msg` messages into `/aimplusstatus` and corresponding `/diganostics`
     + `publish.pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish.pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     + `publish.basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
@@ -648,7 +653,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.  
   + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
-  + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, corresponding to the SBF block `RFStatus`.
+  + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, compiled from the SBF block `RFStatus`.
+  + `/aimplusstatus`: publishes custom ROS message `septentrio_gnss_driver/AIMPlusStatus.msg`, reporting status of AIM+.
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
   + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.
