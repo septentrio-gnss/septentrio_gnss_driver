@@ -502,7 +502,8 @@ namespace io {
         }
         if (osnma_info_available_)
         {
-            aimMsg.osnma_info_available = true;
+            aimMsg.osnma_authenticating =
+                ((last_gal_auth_status_.osnma_status & 7) == 6);
             std::bitset<64> gal_active = last_gal_auth_status_.gal_active_mask;
             std::bitset<64> gal_auth = last_gal_auth_status_.gal_authentic_mask;
             aimMsg.galileo_authentic = (gal_auth & gal_active).count();
@@ -513,7 +514,7 @@ namespace io {
             aimMsg.gps_spoofed = (~gps_auth & gps_active).count();
         } else
         {
-            aimMsg.osnma_info_available = false;
+            aimMsg.osnma_authenticating = false;
             aimMsg.galileo_authentic = 0;
             aimMsg.galileo_spoofed = 0;
             aimMsg.gps_authentic = 0;

@@ -20,7 +20,7 @@ uint8 SPOOFING_DETECTED_BY_AUTHENTCITY_TEST           = 2
 uint8 SPOOFING_DETECTED_BY_OSNMA_AND_AUTHENTCITY_TEST = 3
 #--------------------------------------------------------
 
-bool osnma_info_available
+bool  osnma_authenticating
 uint8 galileo_authentic
 uint8 galileo_spoofed
 uint8 gps_authentic
