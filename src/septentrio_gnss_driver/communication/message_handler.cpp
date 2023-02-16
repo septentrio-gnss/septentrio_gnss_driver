@@ -320,8 +320,8 @@ namespace io {
                     (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
             }
         }
-        gnss_status.hardware_id = "Septentrio";
-        gnss_status.name = "serial number " + serialnumber;
+        gnss_status.hardware_id = "serial number " + serialnumber;
+        gnss_status.name = "Septentrio";
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
@@ -349,8 +349,8 @@ namespace io {
         DiagnosticArrayMsg msg;
         DiagnosticStatusMsg diagOsnma;
 
-        diagOsnma.hardware_id = "Septentrio";
-        diagOsnma.name = "OSNMA";
+        diagOsnma.hardware_id = "";
+        diagOsnma.name = "Septentrio";
         diagOsnma.message = "Current status of the OSNMA authentication";
 
         diagOsnma.values.resize(6);
@@ -442,8 +442,8 @@ namespace io {
         AimPlusStatusMsg aimMsg;
         DiagnosticArrayMsg msg;
         DiagnosticStatusMsg diagRf;
-        diagRf.hardware_id = "Septentrio";
-        diagRf.name = "RF";
+        diagRf.hardware_id = "";
+        diagRf.name = "Septentrio";
         diagRf.message = "Current status of the radio-frequency (RF) signal";
 
         diagRf.values.resize(2);
