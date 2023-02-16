@@ -320,8 +320,8 @@ namespace io {
                     (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
             }
         }
-        gnss_status.hardware_id = "serial number " + serialnumber;
-        gnss_status.name = "Septentrio";
+        gnss_status.hardware_id = serialnumber;
+        gnss_status.name = "septentrio_driver: Quality indicators";
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
@@ -349,8 +349,8 @@ namespace io {
         DiagnosticArrayMsg msg;
         DiagnosticStatusMsg diagOsnma;
 
-        diagOsnma.hardware_id = "";
-        diagOsnma.name = "Septentrio";
+        diagOsnma.hardware_id = last_receiversetup_.rx_serial_number;
+        diagOsnma.name = "septentrio_driver: OSNMA";
         diagOsnma.message = "Current status of the OSNMA authentication";
 
         diagOsnma.values.resize(6);
@@ -442,9 +442,10 @@ namespace io {
         AimPlusStatusMsg aimMsg;
         DiagnosticArrayMsg msg;
         DiagnosticStatusMsg diagRf;
-        diagRf.hardware_id = "";
-        diagRf.name = "Septentrio";
-        diagRf.message = "Current status of the radio-frequency (RF) signal";
+        diagRf.hardware_id = last_receiversetup_.rx_serial_number;
+        diagRf.name = "septentrio_driver: AIM+ status";
+        diagRf.message =
+            "Current status of the AIM+ interference and spoofing mitigation";
 
         diagRf.values.resize(2);
         diagRf.values[0].key = "interference";
