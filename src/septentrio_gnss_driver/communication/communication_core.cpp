@@ -718,6 +718,9 @@ namespace io {
             ++stream;
         }
 
+        // send command to trigger emission of receiver setup
+        send("sop, TestObserver, TestAgency\x0D");
+
         // Setting up NMEA streams
         {
             if (settings_->septentrio_receiver_type == "ins")
