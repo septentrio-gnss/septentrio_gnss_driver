@@ -3,7 +3,7 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with mosaic and AsteRx - two of Septentrio's cutting-edge GNSS/INS receiver families - and beyond. Since Noetic will only be supported until 2025, a ROS2 version is available in the branch `ros2`.
+This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. Since Noetic will only be supported until 2025, a ROS2 version is available in the branch `ros2`.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
