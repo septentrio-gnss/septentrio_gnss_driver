@@ -1807,13 +1807,6 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
             qiLittleEndianParser(it, msg.acceleration_x);
             qiLittleEndianParser(it, msg.acceleration_y);
             qiLittleEndianParser(it, msg.acceleration_z);
-            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
-            {
-                if (validValue(msg.acceleration_y))
-                    msg.acceleration_y = -msg.acceleration_y;
-                if (validValue(msg.acceleration_z))
-                    msg.acceleration_z = -msg.acceleration_z;
-            }
             hasAcc = true;
             break;
         }
@@ -1822,13 +1815,6 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
             qiLittleEndianParser(it, msg.angular_rate_x);
             qiLittleEndianParser(it, msg.angular_rate_y);
             qiLittleEndianParser(it, msg.angular_rate_z);
-            if (!use_ros_axis_orientation) // IMU is mounted upside down in SBi
-            {
-                if (validValue(msg.angular_rate_y))
-                    msg.angular_rate_y = -msg.angular_rate_y;
-                if (validValue(msg.angular_rate_z))
-                    msg.angular_rate_z = -msg.angular_rate_z;
-            }
             hasOmega = true;
             break;
         }
