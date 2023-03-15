@@ -423,7 +423,7 @@ private:
         static Eigen::Vector3d vel = Eigen::Vector3d::Zero();
         static Eigen::Vector3d var = Eigen::Vector3d::Zero();
         static uint64_t ctr = 0;
-        static Timestamp lastStamp = stamp;
+        static Timestamp lastStamp = 0;
 
         ++ctr;
         vel[0] += twist.twist.linear.x;
