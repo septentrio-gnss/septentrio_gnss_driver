@@ -416,96 +416,119 @@ private:
     void processTwist(Timestamp stamp,
                       const geometry_msgs::msg::TwistWithCovariance& twist)
     {
-        time_t epochSeconds = stamp / 1000000000;
-        struct tm* tm_temp = std::gmtime(&epochSeconds);
-        std::stringstream timeUtc;
-        timeUtc << std::setfill('0') << std::setw(2)
-                << std::to_string(tm_temp->tm_hour) << std::setw(2)
-                << std::to_string(tm_temp->tm_min) << std::setw(2)
-                << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
-                << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
-                                  1000000);
+        // in case stamp was not set
+        if (stamp == 0)
+            stamp = getTime();
 
-        std::string v_x;
-        std::string v_y;
-        std::string v_z;
-        std::string std_x;
-        std::string std_y;
-        std::string std_z;
-        if (settings_.ins_vsm_ros_config[0])
+        static Eigen::Vector3d vel = Eigen::Vector3d::Zero();
+        static Eigen::Vector3d var = Eigen::Vector3d::Zero();
+        static uint64_t ctr = 0;
+        static Timestamp lastStamp = stamp;
+
+        ++ctr;
+        vel[0] += twist.twist.linear.x;
+        vel[1] += twist.twist.linear.y;
+        vel[2] += twist.twist.linear.z;
+        var[0] += twist.covariance[0];
+        var[1] += twist.covariance[7];
+        var[2] += twist.covariance[14];
+
+        // Rx expects averaged velocity at a rate of 2 Hz
+        if ((stamp - lastStamp) >= 495000000) // allow for 5 ms jitter
         {
-            v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_x = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[0]);
-            else if (twist.covariance[0] > 0.0)
-                std_x = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[0]));
-            else
+            vel /= ctr;
+            var /= ctr;
+            time_t epochSeconds = stamp / 1000000000;
+            struct tm* tm_temp = std::gmtime(&epochSeconds);
+            std::stringstream timeUtc;
+            timeUtc << std::setfill('0') << std::setw(2)
+                    << std::to_string(tm_temp->tm_hour) << std::setw(2)
+                    << std::to_string(tm_temp->tm_min) << std::setw(2)
+                    << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
+                    << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
+                                      1000000);
+
+            std::string v_x;
+            std::string v_y;
+            std::string v_z;
+            std::string std_x;
+            std::string std_y;
+            std::string std_z;
+            if (settings_.ins_vsm_ros_config[0])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_x: " +
-                                        std::to_string(twist.covariance[0]) +
-                                        ". Ignoring measurement.");
-            }
-        } else
-            std_x = std::to_string(1000000.0);
-        if (settings_.ins_vsm_ros_config[1])
-        {
-            if (settings_.use_ros_axis_orientation)
-                v_y = "-";
-            v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_y = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[1]);
-            else if (twist.covariance[7] > 0.0)
-                std_y = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[7]));
-            else
+                v_x = string_utilities::trimDecimalPlaces(vel[0]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_x = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[0]);
+                else if (var[0] > 0.0)
+                    std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
+                else
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_x: " +
+                                              std::to_string(var[0]) +
+                                              ". Ignoring measurement.");
+                }
+            } else
+                std_x = std::to_string(1000000.0);
+            if (settings_.ins_vsm_ros_config[1])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_y: " +
-                                        std::to_string(twist.covariance[1]) +
-                                        ". Ignoring measurement.");
-                v_y = "";
+                if (settings_.use_ros_axis_orientation)
+                    v_y = "-";
+                v_y += string_utilities::trimDecimalPlaces(vel[1]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_y = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[1]);
+                else if (var[1] > 0.0)
+                    std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
+                else
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_y: " +
+                                              std::to_string(var[1]) +
+                                              ". Ignoring measurement.");
+                    v_y = "";
+                    std_y = string_utilities::trimDecimalPlaces(1000000.0);
+                }
+            } else
                 std_y = string_utilities::trimDecimalPlaces(1000000.0);
-            }
-        } else
-            std_y = string_utilities::trimDecimalPlaces(1000000.0);
-        if (settings_.ins_vsm_ros_config[2])
-        {
-            if (settings_.use_ros_axis_orientation)
-                v_z = "-";
-            v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_z = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[2]);
-            else if (twist.covariance[14] > 0.0)
-                std_z = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[14]));
-            else
+            if (settings_.ins_vsm_ros_config[2])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_z: " +
-                                        std::to_string(twist.covariance[2]) +
-                                        ". Ignoring measurement.");
-                v_z = "";
+                if (settings_.use_ros_axis_orientation)
+                    v_z = "-";
+                v_z += string_utilities::trimDecimalPlaces(vel[2]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_z = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[2]);
+                else if (var[2] > 0.0)
+                    std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
+                else
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_z: " +
+                                              std::to_string(var[2]) +
+                                              ". Ignoring measurement.");
+                    v_z = "";
+                    std_z = string_utilities::trimDecimalPlaces(1000000.0);
+                }
+            } else
                 std_z = string_utilities::trimDecimalPlaces(1000000.0);
-            }
-        } else
-            std_z = string_utilities::trimDecimalPlaces(1000000.0);
 
-        std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," + v_y +
-                              "," + std_x + "," + std_y + "," + v_z + "," + std_z;
+            std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," +
+                                  v_y + "," + std_x + "," + std_y + "," + v_z + "," +
+                                  std_z;
 
-        char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
-                                   [](char sum, char ch) { return sum ^ ch; });
+            char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
+                                       [](char sum, char ch) { return sum ^ ch; });
 
-        std::stringstream crcss;
-        crcss << std::hex << static_cast<int32_t>(crc);
+            std::stringstream crcss;
+            crcss << std::hex << static_cast<int32_t>(crc);
 
-        velNmea += "*" + crcss.str() + "\r\n";
-        sendVelocity(velNmea);
+            velNmea += "*" + crcss.str() + "\r\n";
+            sendVelocity(velNmea);
+
+            vel = Eigen::Vector3d::Zero();
+            var = Eigen::Vector3d::Zero();
+            ctr = 0;
+            lastStamp = stamp;
+        }
     }
 
 protected:
