@@ -549,7 +549,7 @@ private:
     //! Twist subscriber
     rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
     //! Last tf stamp
-    Timestamp lastTfStamp_;
+    Timestamp lastTfStamp_ = 0;
     //! tf buffer
     tf2_ros::Buffer tfBuffer_;
     // tf listener
