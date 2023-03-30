@@ -184,7 +184,10 @@ namespace log_level {
 class ROSaicNodeBase
 {
 public:
-    ROSaicNodeBase() : pNh_(new ros::NodeHandle("~")), tfListener_(tfBuffer_) {}
+    ROSaicNodeBase() :
+        pNh_(new ros::NodeHandle("~")), tfListener_(tfBuffer_), lastTfStamp_(0)
+    {
+    }
 
     virtual ~ROSaicNodeBase() {}
 

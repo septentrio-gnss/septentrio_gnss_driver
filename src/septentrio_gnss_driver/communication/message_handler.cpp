@@ -881,7 +881,7 @@ namespace io {
      */
     void MessageHandler::assembleLocalizationUtm()
     {
-        if (!settings_->publish_localization)
+        if (!settings_->publish_localization && !settings_->publish_tf)
             return;
 
         LocalizationMsg msg;
@@ -945,6 +945,7 @@ namespace io {
         }
 
         msg.header.frame_id = "utm_" + zonestring;
+        msg.header.stamp = last_insnavgeod_.header.stamp;
         if (settings_->ins_use_poi)
             msg.child_frame_id = settings_->poi_frame_id; // TODO param
         else
@@ -1071,7 +1072,10 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        publish<LocalizationMsg>("/localization", msg);
+        if (settings_->publish_localization)
+            publish<LocalizationMsg>("/localization", msg);
+        if (settings_->publish_tf)
+            publishTf(msg);
     };
 
     /**
@@ -1081,7 +1085,7 @@ namespace io {
      */
     void MessageHandler::assembleLocalizationEcef()
     {
-        if (!settings_->publish_localization_ecef)
+        if (!settings_->publish_localization_ecef && !settings_->publish_tf_ecef)
             return;
 
         if ((!validValue(last_insnavcart_.block_header.tow)) ||
@@ -1091,6 +1095,7 @@ namespace io {
         LocalizationMsg msg;
 
         msg.header.frame_id = "ecef";
+        msg.header.stamp = last_insnavcart_.header.stamp;
         if (settings_->ins_use_poi)
             msg.child_frame_id = settings_->poi_frame_id; // TODO param
         else
@@ -1236,7 +1241,10 @@ namespace io {
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
-        publish<LocalizationMsg>("/localization_ecef", msg);
+        if (settings_->publish_localization_ecef)
+            publish<LocalizationMsg>("/localization_ecef", msg);
+        if (settings_->publish_tf_ecef)
+            publishTf(msg);
     };
 
     void MessageHandler::assembleLocalizationMsgTwist(double roll, double pitch,
