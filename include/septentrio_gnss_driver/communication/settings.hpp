@@ -132,6 +132,8 @@ struct Settings
     std::string tcp_ip;
     //! TCP port
     std::string tcp_port;
+    //! UDP port
+    uint32_t udp_port;
     //! Filename
     std::string file_name;
     //! Username for login

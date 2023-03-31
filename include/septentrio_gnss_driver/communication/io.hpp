@@ -93,63 +93,74 @@ namespace io {
         }
 
         void asyncReceive()
-        {
-            std::shared_ptr<Telegram> telegram(new Telegram(MAX_SBF_SIZE));
 
+        {
             socket_->async_receive_from(
-                boost::asio::buffer(telegram->message, MAX_SBF_SIZE), eP_,
+                boost::asio::buffer(buffer_, MAX_SBF_SIZE), eP_,
                 boost::bind(&UdpClient::handleReceive, this,
                             boost::asio::placeholders::error,
-                            boost::asio::placeholders::bytes_transferred, telegram));
+                            boost::asio::placeholders::bytes_transferred));
         }
 
         void handleReceive(const boost::system::error_code& error,
-                           size_t bytes_recvd, std::shared_ptr<Telegram> telegram)
+                           size_t bytes_recvd)
         {
-            telegram->stamp = node_->getTime();
+            Timestamp stamp = node_->getTime();
+            size_t idx = 0;
 
             if (!error && (bytes_recvd > 0))
             {
-                if (bytes_recvd > 2)
+                while ((bytes_recvd - idx) > 2)
                 {
-                    telegram->message.resize(bytes_recvd);
+                    std::shared_ptr<Telegram> telegram(new Telegram);
+                    telegram->stamp = stamp;
                     /*node_->log(log_level::DEBUG,
                                "Buffer: " + std::string(telegram->message.begin(),
                                                         telegram->message.end()));*/
-                    if (telegram->message[0] == SYNC_BYTE_1)
+                    if (buffer_[idx] == SYNC_BYTE_1)
                     {
-                        if (telegram->message[1] == SBF_SYNC_BYTE_2)
+                        if (buffer_[idx + 1] == SBF_SYNC_BYTE_2)
                         {
-                            if (crc::isValid(telegram->message))
+                            if ((bytes_recvd - idx) > SBF_HEADER_SIZE)
                             {
-                                telegram->type = telegram_type::SBF;
-                                telegramQueue_->push(telegram);
-                            } else
-                                node_->log(
-                                    log_level::DEBUG,
-                                    "AsyncManager crc failed for SBF  " +
-                                        std::to_string(parsing_utilities::getId(
-                                            telegram->message)) +
-                                        ".");
-                        } else if ((telegram->message[1] == NMEA_SYNC_BYTE_2) &&
-                                   (telegram->message[2] == NMEA_SYNC_BYTE_3) &&
-                                   (telegram->message[telegram->message.size() -
-                                                      2] == CR) &&
-                                   (telegram->message[telegram->message.size() -
-                                                      1] == LF))
+                                uint16_t length = parsing_utilities::parseUInt16(
+                                    &buffer_[idx + 6]);
+                                telegram->message.assign(&buffer_[idx],
+                                                         &buffer_[idx + length]);
+                                if (crc::isValid(telegram->message))
+                                {
+                                    telegram->type = telegram_type::SBF;
+                                    telegramQueue_->push(telegram);
+                                } else
+                                    node_->log(
+                                        log_level::DEBUG,
+                                        "AsyncManager crc failed for SBF  " +
+                                            std::to_string(parsing_utilities::getId(
+                                                telegram->message)) +
+                                            ".");
+
+                                idx += length;
+                            }
+
+                        } else if ((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
+                                   (buffer_[idx + 2] == NMEA_SYNC_BYTE_3))
                         {
+                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
+                            telegram->message.assign(&buffer_[idx],
+                                                     &buffer_[idx_end + 1]);
                             telegram->type = telegram_type::NMEA;
                             telegramQueue_->push(telegram);
+                            idx = idx_end + 1;
 
-                        } else if ((telegram->message[1] == NMEA_INS_SYNC_BYTE_2) &&
-                                   (telegram->message[2] == NMEA_INS_SYNC_BYTE_3) &&
-                                   (telegram->message[telegram->message.size() -
-                                                      2] == CR) &&
-                                   (telegram->message[telegram->message.size() -
-                                                      1] == LF))
+                        } else if ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
+                                   (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3))
                         {
+                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
+                            telegram->message.assign(&buffer_[idx],
+                                                     &buffer_[idx_end + 1]);
                             telegram->type = telegram_type::NMEA_INS;
                             telegramQueue_->push(telegram);
+                            idx = idx_end + 1;
                         } else
                         {
                             node_->log(log_level::DEBUG,
@@ -160,13 +171,10 @@ namespace io {
                         }
                     } else
                     {
-                        node_->log(log_level::DEBUG,
-                                   "head: " + std::string(std::string(
-                                                  telegram->message.begin(),
-                                                  telegram->message.begin() + 2)));
+                        node_->log(log_level::DEBUG, "UDP msg resync.");
+                        ++idx;
                     }
                 }
-
             } else
             {
                 node_->log(log_level::ERROR,
@@ -200,6 +208,19 @@ namespace io {
         }
 
     private:
+        size_t findNmeaEnd(size_t idx, size_t bytes_recvd)
+        {
+            size_t idx_end = idx + 2;
+
+            while (idx_end < bytes_recvd)
+            {
+                if ((buffer_[idx_end] == LF) && (buffer_[idx_end - 1] == CR))
+                    break;
+
+                ++idx_end;
+            }
+            return idx_end;
+        }
         //! Pointer to the node
         ROSaicNodeBase* node_;
         std::atomic<bool> running_;
@@ -209,6 +230,7 @@ namespace io {
         std::thread watchdogThread_;
         boost::asio::ip::udp::endpoint eP_;
         std::unique_ptr<boost::asio::ip::udp::socket> socket_;
+        std::array<uint8_t, MAX_SBF_SIZE> buffer_;
         TelegramQueue* telegramQueue_;
     };
 

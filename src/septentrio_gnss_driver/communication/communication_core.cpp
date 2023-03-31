@@ -86,7 +86,10 @@ namespace io {
             !settings_->read_from_pcap)
         {
             resetMainConnection();
-            send("sdio, " + streamPort_ + ", auto, none\x0D");
+            send("sdio, " + mainConnectionPort_ + ", auto, none\x0D");
+            // Turning off all current SBF/NMEA output
+            send("sso, all, none, none, off \x0D");
+            send("sno, all, none, none, off \x0D");
             for (auto ntrip : settings_->rtk.ntrip)
             {
                 if (!ntrip.id.empty() && !ntrip.keep_open)
@@ -102,6 +105,7 @@ namespace io {
                     send("siss, " + ip_server.id + ",  0\x0D");
                 }
             }
+            send("siss, IPS1,  0\x0D"); // TODO UDP
             for (auto serial : settings_->rtk.serial)
             {
                 if (!serial.port.empty() && !serial.keep_open)
@@ -202,7 +206,7 @@ namespace io {
         case device_type::TCP:
         {
             manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
-            // udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_)); //TODO
+            udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_)); // TODO
             // UDP
             break;
         }
@@ -259,7 +263,8 @@ namespace io {
         node_->log(log_level::INFO,
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
-        // streamPort_ = "IPS1"; // TODO UDP
+        streamPort_ = "IPS1";                                           // TODO UDP
+        send("siss, " + streamPort_ + ", 28785, UDP, 192.168.7.1\x0D"); // TODO UDP
 
         node_->log(log_level::INFO, "Setting up Rx.");
 
@@ -678,8 +683,6 @@ namespace io {
             }
         }
 
-        // TODO UDP
-        // send("siss, IPS1, 28785, UDP, 10.255.255.200\x0D");
         //  Setting up SBF blocks with rx_period_rest
         {
             std::stringstream blocks;
@@ -911,8 +914,11 @@ namespace io {
     std::string CommunicationCore::resetMainConnection()
     {
         // Escape sequence (escape from correction mode), ensuring that we
-        // can send our real commands afterwards... has to be sent twice.
+        // can send our real commands afterwards... has to be sent multiple times.
         std::string cmd("\x0DSSSSSSSSSS\x0D\x0D");
+        telegramHandler_.resetWaitforMainCd();
+        manager_.get()->send(cmd);
+        std::ignore = telegramHandler_.getMainCd();
         telegramHandler_.resetWaitforMainCd();
         manager_.get()->send(cmd);
         std::ignore = telegramHandler_.getMainCd();
@@ -927,6 +933,7 @@ namespace io {
         {
             std::shared_ptr<Telegram> telegram;
             telegramQueue_.pop(telegram);
+
             if (telegram->type != telegram_type::EMPTY)
                 telegramHandler_.handleTelegram(telegram);
         }
