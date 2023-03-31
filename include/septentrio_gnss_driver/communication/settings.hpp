@@ -134,6 +134,10 @@ struct Settings
     std::string tcp_port;
     //! UDP port
     uint32_t udp_port;
+    //! UDP unicast destination ip
+    std::string udp_unicast_ip;
+    //! UDP IP server id
+    std::string udp_ip_server;
     //! Filename
     std::string file_name;
     //! Username for login
