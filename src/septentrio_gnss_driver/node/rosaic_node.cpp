@@ -110,6 +110,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         settings_.septentrio_receiver_type = "gnss";
         settings_.ins_in_gnss_mode = true;
     }
+    settings_.udp_port = 28785;
 
     // Polling period parameters
     getUint32Param("polling_period/pvt", settings_.polling_period_pvt,
