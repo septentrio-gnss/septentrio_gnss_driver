@@ -93,6 +93,9 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                    static_cast<uint32_t>(921600));
     param("serial.hw_flow_control", settings_.hw_flow_control,
           static_cast<std::string>("off"));
+    getUint32Param("udp.port", settings_.udp_port, static_cast<uint32_t>(0));
+    param("udp.unicast_ip", settings_.udp_unicast_ip, static_cast<std::string>(""));
+    param("udp.ip_server", settings_.udp_ip_server, static_cast<std::string>(""));
     param("login.user", settings_.login_user, static_cast<std::string>(""));
     param("login.password", settings_.login_password, static_cast<std::string>(""));
 
@@ -114,7 +117,6 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         settings_.septentrio_receiver_type = "gnss";
         settings_.ins_in_gnss_mode = true;
     }
-    settings_.udp_port = 28785;
 
     // Polling period parameters
     getUint32Param("polling_period.pvt", settings_.polling_period_pvt,

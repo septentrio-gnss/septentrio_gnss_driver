@@ -90,6 +90,10 @@ namespace io {
             // Turning off all current SBF/NMEA output
             send("sso, all, none, none, off \x0D");
             send("sno, all, none, none, off \x0D");
+            if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+            {
+                send("siss, " + settings_->udp_ip_server + ",  0\x0D");
+            }
             for (auto ntrip : settings_->rtk.ntrip)
             {
                 if (!ntrip.id.empty() && !ntrip.keep_open)
@@ -105,7 +109,6 @@ namespace io {
                     send("siss, " + ip_server.id + ",  0\x0D");
                 }
             }
-            send("siss, IPS1,  0\x0D"); // TODO UDP
             for (auto serial : settings_->rtk.serial)
             {
                 if (!serial.port.empty() && !serial.keep_open)
@@ -201,13 +204,17 @@ namespace io {
     [[nodiscard]] bool CommunicationCore::initializeIo()
     {
         node_->log(log_level::DEBUG, "Called initializeIo() method");
+        if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+        {
+            udpClient_.reset(
+                new UdpClient(node_, settings_->udp_port, &telegramQueue_));
+        }
+
         switch (settings_->device_type)
         {
         case device_type::TCP:
         {
             manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
-            udpClient_.reset(new UdpClient(node_, 28785, &telegramQueue_)); // TODO
-            // UDP
             break;
         }
         case device_type::SERIAL:
@@ -227,8 +234,11 @@ namespace io {
         }
         default:
         {
-            node_->log(log_level::DEBUG, "Unsupported device.");
-            return false;
+            if (settings_->configure_rx)
+            {
+                node_->log(log_level::DEBUG, "Unsupported device.");
+                return false;
+            }
             break;
         }
         }
@@ -263,8 +273,18 @@ namespace io {
         node_->log(log_level::INFO,
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
-        streamPort_ = "IPS1";                                           // TODO UDP
-        send("siss, " + streamPort_ + ", 28785, UDP, 192.168.7.1\x0D"); // TODO UDP
+        if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+        {
+            streamPort_ = settings_->udp_ip_server;
+            std::string destination;
+            if (!settings_->udp_unicast_ip.empty())
+                destination = settings_->udp_unicast_ip;
+            else
+                destination = "255.255.255.255";
+            send("siss, " + streamPort_ + ", " +
+                 std::to_string(settings_->udp_port) + ", UDP, " + destination +
+                 "\x0D");
+        }
 
         node_->log(log_level::INFO, "Setting up Rx.");
 
