@@ -85,6 +85,7 @@ static const uint8_t CONNECTION_DESCRIPTOR_FOOTER = 0x3E;
 
 static const uint16_t SBF_HEADER_SIZE = 8;
 static const uint16_t MAX_SBF_SIZE = 65535;
+static const uint16_t MAX_UDP_PACKET_SIZE = 65535;
 
 namespace telegram_type {
     enum TelegramType
