@@ -10,6 +10,7 @@ Changelog for package septentrio_gnss_driver
    * OSNMA
    * Latency compensation for ROS timestamps
    * Output of SBf block VelCovCartesian
+   * Support for UDP
 * Improvements
    * Rework IO core and message handling
      * Unified stream processing 
