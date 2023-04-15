@@ -96,7 +96,7 @@ namespace io {
 
         {
             socket_->async_receive_from(
-                boost::asio::buffer(buffer_, MAX_SBF_SIZE), eP_,
+                boost::asio::buffer(buffer_, MAX_UDP_PACKET_SIZE), eP_,
                 boost::bind(&UdpClient::handleReceive, this,
                             boost::asio::placeholders::error,
                             boost::asio::placeholders::bytes_transferred));
@@ -230,7 +230,7 @@ namespace io {
         std::thread watchdogThread_;
         boost::asio::ip::udp::endpoint eP_;
         std::unique_ptr<boost::asio::ip::udp::socket> socket_;
-        std::array<uint8_t, MAX_SBF_SIZE> buffer_;
+        std::array<uint8_t, MAX_UDP_PACKET_SIZE> buffer_;
         TelegramQueue* telegramQueue_;
     };
 

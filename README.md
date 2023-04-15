@@ -354,7 +354,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
-  + `udp`: specifications for low latecy UDP reception of SBF blocks and NMEA sentences
+  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences
     + `ip_server`: IP server of Rx to be used.
     + `port`: UDP destination port.
     + `unicast_ip`: Set to computer's IP to use unicast. If not set multicast will be used.
