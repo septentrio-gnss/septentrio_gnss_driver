@@ -2429,7 +2429,7 @@ namespace io {
         }
         case IMU_SETUP: // IMU orientation and lever arm
         {
-            if (settings_->publish_imu)
+            if (settings_->publish_imusetup)
             {
                 IMUSetupMsg msg;
 
