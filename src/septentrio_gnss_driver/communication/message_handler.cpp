@@ -2074,6 +2074,8 @@ namespace io {
                                  std::is_same<PosCovGeodeticMsg, T>::value ||
                                  std::is_same<VelCovCartesianMsg, T>::value ||
                                  std::is_same<VelCovGeodeticMsg, T>::value ||
+                                 std::is_same<AttEulerMsg, T>::value ||
+                                 std::is_same<AttCovEulerMsg, T>::value ||
                                  std::is_same<BaseVectorCartMsg, T>::value ||
                                  std::is_same<BaseVectorGeodMsg, T>::value)
             {
