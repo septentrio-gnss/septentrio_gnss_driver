@@ -91,6 +91,11 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     baudrate: 921600
     hw_flow_control: "off"
 
+  udp:
+  ip_server: ""
+  port: 0
+  unicast_ip: ""
+
   configure_rx: true
   
   login:
@@ -351,6 +356,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
+  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences
+    + `ip_server`: IP server of Rx to be used.
+    + `port`: UDP destination port.
+    + `unicast_ip`: Set to computer's IP to use unicast. If not set multicast will be used.
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password

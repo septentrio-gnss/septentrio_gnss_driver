@@ -8,6 +8,11 @@ serial:
   baudrate: 921600
   hw_flow_control: "off"
 
+udp:
+  ip_server: ""
+  port: 0
+  unicast_ip: ""
+
 configure_rx: true
 
 login:
@@ -15,7 +20,7 @@ login:
   password: ""
 
 osnma:
-  mode: "off"
+  mode: "loose"
   ntp_server: ""
   keep_open: true
 
