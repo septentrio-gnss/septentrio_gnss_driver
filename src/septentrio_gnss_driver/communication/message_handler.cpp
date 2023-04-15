@@ -56,6 +56,9 @@ using parsing_utilities::square;
 namespace io {
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
+        if (!settings_->publish_pose)
+            return;
+
         static auto last_ins_tow = last_insnavgeod_.block_header.tow;
 
         PoseWithCovarianceStampedMsg msg;
@@ -213,6 +216,9 @@ namespace io {
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
+        if (!settings_->publish_diagnostics)
+            return;
+
         DiagnosticArrayMsg msg;
         if (!validValue(last_receiverstatus_.block_header.tow) ||
             (last_receiverstatus_.block_header.tow !=
@@ -655,6 +661,7 @@ namespace io {
         if (!settings_->publish_twist)
             return;
         TwistWithCovarianceStampedMsg msg;
+        msg.header.frame_id = "navigation";
 
         if (fromIns)
         {
@@ -767,6 +774,7 @@ namespace io {
             msg.twist.covariance[28] = -1.0;
             msg.twist.covariance[35] = -1.0;
 
+            publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg);
         } else
         {
             if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
@@ -866,11 +874,9 @@ namespace io {
             msg.twist.covariance[21] = -1.0;
             msg.twist.covariance[28] = -1.0;
             msg.twist.covariance[35] = -1.0;
+
+            publish<TwistWithCovarianceStampedMsg>("/twist_gnss", msg);
         }
-
-        msg.header.frame_id = "navigation";
-
-        publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg);
     };
 
     /**
@@ -1372,10 +1378,10 @@ namespace io {
      */
     void MessageHandler::assembleNavSatFix()
     {
-        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
-
         if (!settings_->publish_navsatfix)
             return;
+
+        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
 
         NavSatFixMsg msg;
         uint16_t mask = 15; // We extract the first four bits using this mask.
@@ -2198,16 +2204,19 @@ namespace io {
         {
         case PVT_CARTESIAN: // Position and velocity in XYZ
         {
-            PVTCartesianMsg msg;
-
-            if (!PVTCartesianParser(node_, telegram->message.begin(),
-                                    telegram->message.end(), msg))
+            if (settings_->publish_pvtcartesian)
             {
-                node_->log(log_level::ERROR, "parse error in PVTCartesian");
-                break;
+                PVTCartesianMsg msg;
+
+                if (!PVTCartesianParser(node_, telegram->message.begin(),
+                                        telegram->message.end(), msg))
+                {
+                    node_->log(log_level::ERROR, "parse error in PVTCartesian");
+                    break;
+                }
+                assembleHeader(settings_->frame_id, telegram, msg);
+                publish<PVTCartesianMsg>("/pvtcartesian", msg);
             }
-            assembleHeader(settings_->frame_id, telegram, msg);
-            publish<PVTCartesianMsg>("/pvtcartesian", msg);
             break;
         }
         case PVT_GEODETIC: // Position and velocity in geodetic coordinate frame
@@ -2233,44 +2242,53 @@ namespace io {
         }
         case BASE_VECTOR_CART:
         {
-            BaseVectorCartMsg msg;
-
-            if (!BaseVectorCartParser(node_, telegram->message.begin(),
-                                      telegram->message.end(), msg))
+            if (settings_->publish_basevectorcart)
             {
-                node_->log(log_level::ERROR, "parse error in BaseVectorCart");
-                break;
+                BaseVectorCartMsg msg;
+
+                if (!BaseVectorCartParser(node_, telegram->message.begin(),
+                                          telegram->message.end(), msg))
+                {
+                    node_->log(log_level::ERROR, "parse error in BaseVectorCart");
+                    break;
+                }
+                assembleHeader(settings_->frame_id, telegram, msg);
+                publish<BaseVectorCartMsg>("/basevectorcart", msg);
             }
-            assembleHeader(settings_->frame_id, telegram, msg);
-            publish<BaseVectorCartMsg>("/basevectorcart", msg);
             break;
         }
         case BASE_VECTOR_GEOD:
         {
-            BaseVectorGeodMsg msg;
-
-            if (!BaseVectorGeodParser(node_, telegram->message.begin(),
-                                      telegram->message.end(), msg))
+            if (settings_->publish_basevectorgeod)
             {
-                node_->log(log_level::ERROR, "parse error in BaseVectorGeod");
-                break;
+                BaseVectorGeodMsg msg;
+
+                if (!BaseVectorGeodParser(node_, telegram->message.begin(),
+                                          telegram->message.end(), msg))
+                {
+                    node_->log(log_level::ERROR, "parse error in BaseVectorGeod");
+                    break;
+                }
+                assembleHeader(settings_->frame_id, telegram, msg);
+                publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
             }
-            assembleHeader(settings_->frame_id, telegram, msg);
-            publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
             break;
         }
         case POS_COV_CARTESIAN:
         {
-            PosCovCartesianMsg msg;
-
-            if (!PosCovCartesianParser(node_, telegram->message.begin(),
-                                       telegram->message.end(), msg))
+            if (settings_->publish_poscovcartesian)
             {
-                node_->log(log_level::ERROR, "parse error in PosCovCartesian");
-                break;
+                PosCovCartesianMsg msg;
+
+                if (!PosCovCartesianParser(node_, telegram->message.begin(),
+                                           telegram->message.end(), msg))
+                {
+                    node_->log(log_level::ERROR, "parse error in PosCovCartesian");
+                    break;
+                }
+                assembleHeader(settings_->frame_id, telegram, msg);
+                publish<PosCovCartesianMsg>("/poscovcartesian", msg);
             }
-            assembleHeader(settings_->frame_id, telegram, msg);
-            publish<PosCovCartesianMsg>("/poscovcartesian", msg);
             break;
         }
         case POS_COV_GEODETIC:
@@ -2373,7 +2391,8 @@ namespace io {
                 frame_id = settings_->frame_id;
             }
             assembleHeader(frame_id, telegram, last_insnavcart_);
-            publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
+            if (settings_->publish_insnavcart)
+                publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
             assembleLocalizationEcef();
             break;
         }
@@ -2408,88 +2427,97 @@ namespace io {
                 assembleTimeReference(telegram);
             break;
         }
-
         case IMU_SETUP: // IMU orientation and lever arm
         {
-            IMUSetupMsg msg;
-
-            if (!IMUSetupParser(node_, telegram->message.begin(),
-                                telegram->message.end(), msg,
-                                settings_->use_ros_axis_orientation))
+            if (settings_->publish_imu)
             {
-                node_->log(log_level::ERROR, "parse error in IMUSetup");
-                break;
+                IMUSetupMsg msg;
+
+                if (!IMUSetupParser(node_, telegram->message.begin(),
+                                    telegram->message.end(), msg,
+                                    settings_->use_ros_axis_orientation))
+                {
+                    node_->log(log_level::ERROR, "parse error in IMUSetup");
+                    break;
+                }
+                assembleHeader(settings_->vehicle_frame_id, telegram, msg);
+                publish<IMUSetupMsg>("/imusetup", msg);
             }
-            assembleHeader(settings_->vehicle_frame_id, telegram, msg);
-            publish<IMUSetupMsg>("/imusetup", msg);
             break;
         }
-
         case VEL_SENSOR_SETUP: // Velocity sensor lever arm
         {
-            VelSensorSetupMsg msg;
-
-            if (!VelSensorSetupParser(node_, telegram->message.begin(),
-                                      telegram->message.end(), msg,
-                                      settings_->use_ros_axis_orientation))
+            if (settings_->publish_velcovgeodetic)
             {
-                node_->log(log_level::ERROR, "parse error in VelSensorSetup");
-                break;
+                VelSensorSetupMsg msg;
+
+                if (!VelSensorSetupParser(node_, telegram->message.begin(),
+                                          telegram->message.end(), msg,
+                                          settings_->use_ros_axis_orientation))
+                {
+                    node_->log(log_level::ERROR, "parse error in VelSensorSetup");
+                    break;
+                }
+                assembleHeader(settings_->vehicle_frame_id, telegram, msg);
+                publish<VelSensorSetupMsg>("/velsensorsetup", msg);
             }
-            assembleHeader(settings_->vehicle_frame_id, telegram, msg);
-            publish<VelSensorSetupMsg>("/velsensorsetup", msg);
             break;
         }
-
         case EXT_EVENT_INS_NAV_CART: // Position, velocity and orientation in
                                      // cartesian coordinate frame (ENU frame)
         {
-            INSNavCartMsg msg;
+            if (settings_->publish_exteventinsnavcart)
+            {
+                INSNavCartMsg msg;
 
-            if (!INSNavCartParser(node_, telegram->message.begin(),
-                                  telegram->message.end(), msg,
-                                  settings_->use_ros_axis_orientation))
-            {
-                node_->log(log_level::ERROR, "parse error in ExtEventINSNavCart");
-                break;
+                if (!INSNavCartParser(node_, telegram->message.begin(),
+                                      telegram->message.end(), msg,
+                                      settings_->use_ros_axis_orientation))
+                {
+                    node_->log(log_level::ERROR,
+                               "parse error in ExtEventINSNavCart");
+                    break;
+                }
+                std::string frame_id;
+                if (settings_->ins_use_poi)
+                {
+                    frame_id = settings_->poi_frame_id;
+                } else
+                {
+                    frame_id = settings_->frame_id;
+                }
+                assembleHeader(frame_id, telegram, msg);
+                publish<INSNavCartMsg>("/exteventinsnavcart", msg);
             }
-            std::string frame_id;
-            if (settings_->ins_use_poi)
-            {
-                frame_id = settings_->poi_frame_id;
-            } else
-            {
-                frame_id = settings_->frame_id;
-            }
-            assembleHeader(frame_id, telegram, msg);
-            publish<INSNavCartMsg>("/exteventinsnavcart", msg);
             break;
         }
-
         case EXT_EVENT_INS_NAV_GEOD:
         {
-            INSNavGeodMsg msg;
+            if (settings_->publish_exteventinsnavgeod)
+            {
+                INSNavGeodMsg msg;
 
-            if (!INSNavGeodParser(node_, telegram->message.begin(),
-                                  telegram->message.end(), msg,
-                                  settings_->use_ros_axis_orientation))
-            {
-                node_->log(log_level::ERROR, "parse error in ExtEventINSNavGeod");
-                break;
+                if (!INSNavGeodParser(node_, telegram->message.begin(),
+                                      telegram->message.end(), msg,
+                                      settings_->use_ros_axis_orientation))
+                {
+                    node_->log(log_level::ERROR,
+                               "parse error in ExtEventINSNavGeod");
+                    break;
+                }
+                std::string frame_id;
+                if (settings_->ins_use_poi)
+                {
+                    frame_id = settings_->poi_frame_id;
+                } else
+                {
+                    frame_id = settings_->frame_id;
+                }
+                assembleHeader(frame_id, telegram, msg);
+                publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
             }
-            std::string frame_id;
-            if (settings_->ins_use_poi)
-            {
-                frame_id = settings_->poi_frame_id;
-            } else
-            {
-                frame_id = settings_->frame_id;
-            }
-            assembleHeader(frame_id, telegram, msg);
-            publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
             break;
         }
-
         case EXT_SENSOR_MEAS:
         {
             bool hasImuMeas = false;
@@ -2523,7 +2551,6 @@ namespace io {
         }
         case MEAS_EPOCH:
         {
-
             if (!MeasEpochParser(node_, telegram->message.begin(),
                                  telegram->message.end(), last_measepoch_))
             {
@@ -2538,7 +2565,6 @@ namespace io {
         }
         case DOP:
         {
-
             if (!DOPParser(node_, telegram->message.begin(), telegram->message.end(),
                            last_dop_))
             {
@@ -2550,16 +2576,18 @@ namespace io {
         }
         case VEL_COV_CARTESIAN:
         {
-            VelCovCartesianMsg msg;
-            if (!VelCovCartesianParser(node_, telegram->message.begin(),
-                                       telegram->message.end(), msg))
-            {
-                node_->log(log_level::ERROR, "parse error in VelCovCartesian");
-                break;
-            }
-            assembleHeader(settings_->frame_id, telegram, msg);
             if (settings_->publish_velcovcartesian)
+            {
+                VelCovCartesianMsg msg;
+                if (!VelCovCartesianParser(node_, telegram->message.begin(),
+                                           telegram->message.end(), msg))
+                {
+                    node_->log(log_level::ERROR, "parse error in VelCovCartesian");
+                    break;
+                }
+                assembleHeader(settings_->frame_id, telegram, msg);
                 publish<VelCovCartesianMsg>("/velcovcartesian", msg);
+            }
             break;
         }
         case VEL_COV_GEODETIC:
@@ -2591,7 +2619,6 @@ namespace io {
         }
         case QUALITY_IND:
         {
-
             if (!QualityIndParser(node_, telegram->message.begin(),
                                   telegram->message.end(), last_qualityind_))
             {
