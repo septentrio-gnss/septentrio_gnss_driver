@@ -203,11 +203,13 @@ namespace io {
 
     [[nodiscard]] bool CommunicationCore::initializeIo()
     {
+        bool udp = false;
         node_->log(log_level::DEBUG, "Called initializeIo() method");
         if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
         {
             udpClient_.reset(
                 new UdpClient(node_, settings_->udp_port, &telegramQueue_));
+            udp = true;
         }
 
         switch (settings_->device_type)
@@ -234,7 +236,9 @@ namespace io {
         }
         default:
         {
-            if (settings_->configure_rx)
+            if (!udp || settings_->configure_rx ||
+                (settings_->ins_vsm_ros_source == "odometry") ||
+                (settings_->ins_vsm_ros_source == "twist"))
             {
                 node_->log(log_level::DEBUG, "Unsupported device.");
                 return false;
