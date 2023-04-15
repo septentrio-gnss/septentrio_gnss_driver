@@ -695,10 +695,15 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         settings_.device = proto;
     } else
     {
-        std::stringstream ss;
-        ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
-        this->log(log_level::ERROR, ss.str());
-        return false;
+        if (settings_.udp_ip_server.empty() || settings_.configure_rx ||
+            (settings_.ins_vsm_ros_source == "odometry") ||
+            (settings_.ins_vsm_ros_source == "twist"))
+        {
+            std::stringstream ss;
+            ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
+            this->log(log_level::ERROR, ss.str());
+            return false;
+        }
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
