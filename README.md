@@ -357,9 +357,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
   + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences. If left unconfigured, intreface specified by `device` will be utilized.
-    + `ip_server`: IP server of Rx to be used.
+    + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
     + `port`: UDP destination port.
-    + `unicast_ip`: Set to computer's IP to use unicast. If not set multicast will be used.
+    + `unicast_ip`: Set to computer's IP to use unicast (optinal). If not set multicast will be used.
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
