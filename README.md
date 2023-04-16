@@ -340,7 +340,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Connectivity Specs</summary>
 
-  + `device`: location of device connection
+  + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. SBF blocks and NMEA sentences are recevied either via this interface or UDP. The former will be utilized if section `udp` is not configured.
     + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
     + `file_name:path/to/file.sbf` format for publishing from an SBF log
     + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
@@ -354,7 +354,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
-  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences
+  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences. If left unconfigured, intreface specified by `device` will be utilized.
     + `ip_server`: IP server of Rx to be used.
     + `port`: UDP destination port.
     + `unicast_ip`: Set to computer's IP to use unicast. If not set multicast will be used.
