@@ -317,16 +317,6 @@ namespace io {
         send("grc \x0D");
         telegramHandler_.waitForCapabilities();
 
-        bool ins_in_gnss_mode = settings_->ins_in_gnss_mode;
-        if (telegramHandler_.isIns() &&
-            (settings_->septentrio_receiver_type == "gnss") && !ins_in_gnss_mode)
-        {
-            node_->log(
-                log_level::WARN,
-                "INS receiver seems to be used as GNSS. If this is intended, please consider setting receiver type to 'ins_in_gnss_mode'.");
-            ins_in_gnss_mode = true;
-        }
-
         // Activate NTP server
         if (settings_->use_gnss_time)
             send("sntp, on \x0D");
@@ -340,7 +330,8 @@ namespace io {
             send(ss.str());
         }
 
-        if ((settings_->septentrio_receiver_type == "ins") || ins_in_gnss_mode)
+        if ((settings_->septentrio_receiver_type == "ins") ||
+            telegramHandler_.isIns())
         {
             {
                 std::stringstream ss;
