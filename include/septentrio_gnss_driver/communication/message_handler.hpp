@@ -166,6 +166,11 @@ namespace io {
          */
         void parseNmea(const std::shared_ptr<Telegram>& telegram);
 
+        /**
+         * @brief Set INS to true
+         */
+        void setIsIns() { isIns_ = true; }
+
     private:
         /**
          * @brief Header assembling
@@ -426,5 +431,10 @@ namespace io {
          * epoch
          */
         Timestamp timestampSBF(uint32_t tow, uint16_t wnc) const;
+
+        /**
+         * Bool to signal if Rx is INS
+         */
+        bool isIns_ = false;
     };
 } // namespace io

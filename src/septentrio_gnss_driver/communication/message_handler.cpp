@@ -2660,8 +2660,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error of firmware version.");
             } else
             {
-                if ((settings_->septentrio_receiver_type == "ins") ||
-                    settings_->ins_in_gnss_mode)
+                if ((settings_->septentrio_receiver_type == "ins") || isIns_)
                 {
                     if ((major_minor_patch[0] < ins_major) ||
                         ((major_minor_patch[0] == ins_major) &&

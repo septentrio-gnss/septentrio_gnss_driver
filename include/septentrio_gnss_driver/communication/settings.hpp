@@ -302,8 +302,6 @@ struct Settings
     std::string local_frame_id;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
-    //! Handle the case when an INS is used in GNSS mode
-    bool ins_in_gnss_mode = false;
     //! If true, the ROS message headers' unix time field is constructed from the TOW
     //! (in the SBF case) and UTC (in the NMEA case) data. If false, times are
     //! constructed within the driver via time(NULL) of the \<ctime\> library.
