@@ -442,6 +442,8 @@ private:
                     log(log_level::ERROR, "Invalid covariance value for v_x: " +
                                               std::to_string(var[0]) +
                                               ". Ignoring measurement.");
+                    v_x = "";
+                    std_x = string_utilities::trimDecimalPlaces(1000000.0);
                 }
             } else
                 std_x = std::to_string(1000000.0);
