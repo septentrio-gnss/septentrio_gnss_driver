@@ -145,12 +145,6 @@ namespace io {
         //! Waits for capabilities
         void waitForCapabilities() { capabilitiesSemaphore_.wait(); }
 
-        //! Check if capability contains INS
-        bool isIns() { return isIns_; }
-
-        //! Check if capability contains Heading
-        bool hasHeading() { return hasHeading_; }
-
     private:
         void handleSbf(const std::shared_ptr<Telegram>& telegram);
         void handleNmea(const std::shared_ptr<Telegram>& telegram);
@@ -162,10 +156,6 @@ namespace io {
 
         //! MessageHandler parser
         MessageHandler messageHandler_;
-
-        //! Rx capabilities
-        mutable bool isIns_ = false;
-        mutable bool hasHeading_ = false;
 
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;

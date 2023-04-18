@@ -350,3 +350,14 @@ struct Settings
     //! Wether VSM shall be kept open om shutdown
     bool ins_vsm_serial_keep_open;
 };
+
+//! Capabilities struct
+struct Capabilities
+{
+    //! Wether Rx is INS
+    bool is_ins = false;
+    //! Wether Rx has heading
+    bool has_heading = false;
+    //! Wether Rx has improved VSM handling
+    bool has_improved_vsm_handling = false;
+};

@@ -73,6 +73,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     * GNSS with firmware < 4.12.1 does not support OSNMA.
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
+    * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
     * INS with firmware 1.2.0 does not support velocity aiding.
     * INS with firmware 1.2.0 does not support setting of initial heading.
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI.
