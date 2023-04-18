@@ -398,6 +398,36 @@ public:
         tf2Publisher_.sendTransform(transformStamped);
     }
 
+    /**
+     * @brief Set INS to true
+     */
+    void setIsIns() { capabilities_.is_ins = true; }
+
+    /**
+     * @brief Set has heading to true
+     */
+    void setHasHeading() { capabilities_.has_heading = true; }
+
+    /**
+     * @brief Set improved VSM handling to true
+     */
+    void setImprovedVsmHandling() { capabilities_.has_improved_vsm_handling = true; }
+
+    /**
+     * @brief Check if Rx is INS
+     */
+    bool isIns() { return capabilities_.is_ins; }
+
+    /**
+     * @brief Check if Rx has heading
+     */
+    bool hasHeading() { return capabilities_.has_heading; }
+
+    /**
+     * @brief Check if Rx has improved VSM handling
+     */
+    bool hasImprovedVsmHandling() { return capabilities_.has_improved_vsm_handling; }
+
 private:
     void callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr odo)
     {
@@ -462,7 +492,7 @@ private:
                         settings_.ins_vsm_ros_variances[0]);
                 else if (var[0] > 0.0)
                     std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
-                else
+                else if (!capabilities_.has_improved_vsm_handling)
                 {
                     log(log_level::ERROR, "Invalid covariance value for v_x: " +
                                               std::to_string(var[0]) +
@@ -482,7 +512,7 @@ private:
                         settings_.ins_vsm_ros_variances[1]);
                 else if (var[1] > 0.0)
                     std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
-                else
+                else if (!capabilities_.has_improved_vsm_handling)
                 {
                     log(log_level::ERROR, "Invalid covariance value for v_y: " +
                                               std::to_string(var[1]) +
@@ -502,7 +532,7 @@ private:
                         settings_.ins_vsm_ros_variances[2]);
                 else if (var[2] > 0.0)
                     std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
-                else
+                else if (!capabilities_.has_improved_vsm_handling)
                 {
                     log(log_level::ERROR, "Invalid covariance value for v_z: " +
                                               std::to_string(var[2]) +
@@ -556,4 +586,6 @@ private:
     tf2_ros::Buffer tfBuffer_;
     // tf listener
     tf2_ros::TransformListener tfListener_;
+    // Capabilities of Rx
+    Capabilities capabilities_;
 };

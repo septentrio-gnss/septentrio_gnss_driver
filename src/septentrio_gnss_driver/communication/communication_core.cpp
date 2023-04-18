@@ -330,8 +330,7 @@ namespace io {
             send(ss.str());
         }
 
-        if ((settings_->septentrio_receiver_type == "ins") ||
-            telegramHandler_.isIns())
+        if ((settings_->septentrio_receiver_type == "ins") || node_->isIns())
         {
             {
                 std::stringstream ss;
@@ -471,7 +470,7 @@ namespace io {
         // Setting multi antenna
         if (settings_->multi_antenna)
         {
-            if (telegramHandler_.hasHeading())
+            if (node_->hasHeading())
                 send("sga, MultiAntenna \x0D");
             else
                 node_->log(log_level::WARN,

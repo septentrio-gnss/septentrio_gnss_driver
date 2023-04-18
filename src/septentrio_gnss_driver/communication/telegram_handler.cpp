@@ -82,13 +82,12 @@ namespace io {
             {
                 if (block_in_string.find("INS") != std::string::npos)
                 {
-                    isIns_ = true;
-                    messageHandler_.setIsIns();
+                    node_->setIsIns();
                 }
 
                 if (block_in_string.find("Heading") != std::string::npos)
                 {
-                    hasHeading_ = true;
+                    node_->setHasHeading();
                 }
                 capabilitiesSemaphore_.notify();
             }

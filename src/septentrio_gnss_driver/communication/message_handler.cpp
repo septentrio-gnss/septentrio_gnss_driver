@@ -2641,7 +2641,7 @@ namespace io {
 
             static const int32_t ins_major = 1;
             static const int32_t ins_minor = 4;
-            static const int32_t ins_patch = 0;
+            static const int32_t ins_patch = 1;
             static const int32_t gnss_major = 4;
             static const int32_t gnss_minor = 12;
             static const int32_t gnss_patch = 1;
@@ -2660,7 +2660,7 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error of firmware version.");
             } else
             {
-                if ((settings_->septentrio_receiver_type == "ins") || isIns_)
+                if ((settings_->septentrio_receiver_type == "ins") || node_->isIns())
                 {
                     if ((major_minor_patch[0] < ins_major) ||
                         ((major_minor_patch[0] == ins_major) &&
@@ -2677,7 +2677,8 @@ namespace io {
                                 std::to_string(ins_major) + "." +
                                 std::to_string(ins_minor) + "." +
                                 std::to_string(ins_patch) + " or consult README.");
-                    }
+                    } else
+                        node_->setImprovedVsmHandling();
                 } else if (settings_->septentrio_receiver_type == "gnss")
                 {
                     if ((major_minor_patch[0] < gnss_major) ||
