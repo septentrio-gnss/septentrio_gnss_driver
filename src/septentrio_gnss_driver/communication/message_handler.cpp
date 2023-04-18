@@ -2670,7 +2670,7 @@ namespace io {
                          (major_minor_patch[2] < ins_patch)))
                     {
                         node_->log(
-                            log_level::WARN,
+                            log_level::INFO,
                             "INS receiver has firmware version: " +
                                 last_receiversetup_.rx_version +
                                 ", which does not support all features. Please update to at least " +
@@ -2689,7 +2689,7 @@ namespace io {
                          (major_minor_patch[2] < gnss_patch)))
                     {
                         node_->log(
-                            log_level::WARN,
+                            log_level::INFO,
                             "GNSS receiver has firmware version: " +
                                 last_receiversetup_.rx_version +
                                 ", which may not support all features. Please update to at least " +
