@@ -44,6 +44,8 @@
 
 namespace parsing_utilities {
 
+    const double pihalf = boost::math::constants::pi<double>() / 2.0;
+
     namespace qi = boost::spirit::qi;
 
     [[nodiscard]] double wrapAngle180to180(double angle)
@@ -341,7 +343,6 @@ namespace parsing_utilities {
 
     [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon)
     {
-        static double pihalf = boost::math::constants::pi<double>() / 2.0;
         double sr = sin((pihalf - lat) / 2.0);
         double cr = cos((pihalf - lat) / 2.0);
         double sy = sin((lon + pihalf) / 2.0);
@@ -352,7 +353,6 @@ namespace parsing_utilities {
 
     [[nodiscard]] Eigen::Quaterniond q_ned_ecef(double lat, double lon)
     {
-        static double pihalf = boost::math::constants::pi<double>() / 2.0;
         double sp = sin((-lat - pihalf) / 2.0);
         double cp = cos((-lat - pihalf) / 2.0);
         double sy = sin(lon / 2.0);
