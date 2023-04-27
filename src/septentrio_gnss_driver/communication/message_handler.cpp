@@ -1799,8 +1799,11 @@ namespace io {
             msg.speed = std::sqrt(square(last_pvtgeodetic_.vn) +
                                   square(last_pvtgeodetic_.ve));
             msg.climb = last_pvtgeodetic_.vu;
-            msg.pitch = last_atteuler_.pitch;
+
             msg.roll = last_atteuler_.roll;
+            msg.pitch = last_atteuler_.pitch;
+            msg.dip = last_atteuler_.heading;
+
             if (last_dop_.pdop == 0.0 || last_dop_.tdop == 0.0)
             {
                 msg.gdop = -1.0;
@@ -1839,8 +1842,8 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_pvtgeodetic_.block_header.tow) / 1000 +
-                static_cast<double>(last_pvtgeodetic_.block_header.wnc * 7 * 24 *
-                                    60 * 60);
+                static_cast<double>(last_pvtgeodetic_.block_header.wnc * 604800);
+            // position
             msg.err =
                 2 *
                 (std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_latlat) +
@@ -1852,6 +1855,7 @@ namespace io {
                            static_cast<double>(last_poscovgeodetic_.cov_lonlon)));
             msg.err_vert =
                 2 * std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_hgthgt));
+            // motion
             msg.err_track =
                 2 * (std::sqrt(square(1.0 / (last_pvtgeodetic_.vn +
                                              square(last_pvtgeodetic_.ve) /
@@ -1866,10 +1870,14 @@ namespace io {
                                static_cast<double>(last_velcovgeodetic_.cov_veve)));
             msg.err_climb =
                 2 * std::sqrt(static_cast<double>(last_velcovgeodetic_.cov_vuvu));
-            msg.err_pitch =
-                2 * std::sqrt(static_cast<double>(last_attcoveuler_.cov_pitchpitch));
+            // attitude
             msg.err_roll =
                 2 * std::sqrt(static_cast<double>(last_attcoveuler_.cov_rollroll));
+            msg.err_pitch =
+                2 * std::sqrt(static_cast<double>(last_attcoveuler_.cov_pitchpitch));
+            msg.err_dip =
+                2 * std::sqrt(static_cast<double>(last_attcoveuler_.cov_headhead));
+
             msg.position_covariance[0] = last_poscovgeodetic_.cov_lonlon;
             msg.position_covariance[1] = last_poscovgeodetic_.cov_latlon;
             msg.position_covariance[2] = last_poscovgeodetic_.cov_lonhgt;
@@ -1932,9 +1940,9 @@ namespace io {
             // Note that cog is of type float32 while track is of type float64.
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                msg.track = last_insnavgeod_.heading;
                 msg.pitch = last_insnavgeod_.pitch;
                 msg.roll = last_insnavgeod_.roll;
+                msg.dip = last_insnavgeod_.heading;
             }
             if ((last_insnavgeod_.sb_list & 8) != 0)
             {
@@ -1942,6 +1950,7 @@ namespace io {
                                       square(last_insnavgeod_.ve));
 
                 msg.climb = last_insnavgeod_.vu;
+                msg.track = std::atan2(last_insnavgeod_.vn, last_insnavgeod_.ve);
             }
             if (last_dop_.pdop == 0.0 || last_dop_.tdop == 0.0)
             {
@@ -1981,8 +1990,7 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_insnavgeod_.block_header.tow) / 1000 +
-                static_cast<double>(last_insnavgeod_.block_header.wnc * 7 * 24 * 60 *
-                                    60);
+                static_cast<double>(last_insnavgeod_.block_header.wnc * 604800);
             if ((last_insnavgeod_.sb_list & 1) != 0)
             {
                 msg.err = 2 * (std::sqrt(square(last_insnavgeod_.latitude_std_dev) +
@@ -1991,8 +1999,7 @@ namespace io {
                 msg.err_horz =
                     2 * (std::sqrt(square(last_insnavgeod_.latitude_std_dev) +
                                    square(last_insnavgeod_.longitude_std_dev)));
-                msg.err_vert =
-                    2 * (std::sqrt(square(last_insnavgeod_.height_std_dev)));
+                msg.err_vert = 2 * last_insnavgeod_.height_std_dev;
             }
             if (((last_insnavgeod_.sb_list & 8) != 0) ||
                 ((last_insnavgeod_.sb_list & 1) != 0))
@@ -2009,17 +2016,15 @@ namespace io {
             }
             if ((last_insnavgeod_.sb_list & 8) != 0)
             {
-                msg.err_speed = 2 * (std::sqrt(square(last_insnavgeod_.vn) +
-                                               square(last_insnavgeod_.ve)));
-                msg.err_climb = 2 * std::sqrt(square(last_insnavgeod_.vn));
+                msg.err_speed = 2 * (std::sqrt(square(last_insnavgeod_.ve_std_dev) +
+                                               square(last_insnavgeod_.vn_std_dev)));
+                msg.err_climb = 2 * last_insnavgeod_.vu_std_dev;
             }
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                msg.err_pitch = 2 * std::sqrt(square(last_insnavgeod_.pitch));
-            }
-            if ((last_insnavgeod_.sb_list & 2) != 0)
-            {
-                msg.err_pitch = 2 * std::sqrt(square(last_insnavgeod_.roll));
+                msg.err_pitch = 2 * last_insnavgeod_.pitch_std_dev;
+                msg.err_roll = 2 * last_insnavgeod_.roll_std_dev;
+                msg.err_dip = 2 * last_insnavgeod_.heading_std_dev;
             }
             if ((last_insnavgeod_.sb_list & 1) != 0)
             {

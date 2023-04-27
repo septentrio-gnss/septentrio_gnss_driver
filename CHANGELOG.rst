@@ -13,6 +13,7 @@ Changelog for package septentrio_gnss_driver
    * Output of SBf block VelCovCartesian
    * Support for UDP
    * New VSM handling allows for unknown variances (INS firmware >= 1.4.1)
+   * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
 * Improvements
    * Rework IO core and message handling
      * Unified stream processing 
