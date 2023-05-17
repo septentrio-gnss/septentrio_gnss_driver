@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef PARSE_EXCEPTION_HPP
-#define PARSE_EXCEPTION_HPP
+#pragma once
 
 // C++ library includes
 #include <stdexcept>
@@ -89,5 +88,3 @@ class ParseException : public std::runtime_error
 public:
     explicit ParseException(const std::string& error) : std::runtime_error(error) {}
 };
-
-#endif // PARSE_EXCEPTION_HPP

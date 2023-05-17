@@ -4,6 +4,15 @@ project(septentrio_gnss_driver)
 ## Compile as C++17
 add_compile_options(-std=c++17)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+message(STATUS "Setting build type to Release as none was specified.")
+set(CMAKE_BUILD_TYPE "Release" CACHE
+    STRING "Choose the type of build." FORCE)
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 ## ROS dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -36,9 +45,13 @@ endif ()
 
 ## Declare  messages
 rosidl_generate_interfaces(${PROJECT_NAME}
+   "msg/AIMPlusStatus.msg"
    "msg/BaseVectorCart.msg"
    "msg/BaseVectorGeod.msg"
    "msg/BlockHeader.msg"
+   "msg/GALAuthStatus.msg"
+   "msg/RFBand.msg"
+   "msg/RFStatus.msg"
    "msg/MeasEpoch.msg"
    "msg/MeasEpochChannelType1.msg"
    "msg/MeasEpochChannelType2.msg"
@@ -81,19 +94,18 @@ set(dependencies
 
 ## shared library
 add_library(${library_name} SHARED
-   src/septentrio_gnss_driver/node/rosaic_node.cpp
-   src/septentrio_gnss_driver/communication/circular_buffer.cpp 
-   src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
-   src/septentrio_gnss_driver/parsers/string_utilities.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
-   src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-   src/septentrio_gnss_driver/crc/crc.cpp
-   src/septentrio_gnss_driver/communication/communication_core.cpp 
-   src/septentrio_gnss_driver/communication/rx_message.cpp 
-   src/septentrio_gnss_driver/communication/callback_handlers.cpp
-   src/septentrio_gnss_driver/communication/pcap_reader.cpp
+  src/septentrio_gnss_driver/communication/communication_core.cpp
+  src/septentrio_gnss_driver/communication/message_handler.cpp 
+  src/septentrio_gnss_driver/communication/telegram_handler.cpp
+  src/septentrio_gnss_driver/crc/crc.cpp
+  src/septentrio_gnss_driver/node/main.cpp
+  src/septentrio_gnss_driver/node/rosaic_node.cpp
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp
+  src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
+  src/septentrio_gnss_driver/parsers/string_utilities.cpp 
 )
 target_include_directories(${library_name} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
@@ -131,13 +143,9 @@ ament_target_dependencies(${executable_name}
 
 rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
 
-# Enable testing with colcon build --cmake-args -DBUILD_TESTING=ON
-#if(BUILD_TESTING)
-#  find_package(ament_lint_auto REQUIRED)
-#  ament_lint_auto_find_test_dependencies()
-#
-#  add_subdirectory(test)
-#endif()
+# Testing
+find_package(ament_cmake_gtest REQUIRED)
+add_subdirectory(test)
 
 # Export Targets
 ament_export_targets(${library_name} HAS_LIBRARY_TARGET)

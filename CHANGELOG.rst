@@ -2,6 +2,28 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.4 (upcoming)
+------------------
+* New Features
+   * Recovery from connection interruption
+   * Add option to bypass configuration of Rx
+   * Add tests
+   * OSNMA
+   * Latency compensation for ROS timestamps
+   * Output of SBf block VelCovCartesian
+   * Support for UDP
+   * New VSM handling allows for unknown variances (INS firmware >= 1.4.1)
+   * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
+* Improvements
+   * Rework IO core and message handling
+     * Unified stream processing 
+     * Internal data queue
+     * Prevent message loss in file reading
+   * Add some explanatory warnings for parameter mismatches
+   * Add units to message definitions
+* Preliminary Features
+   * Output of localization and tf in ECEF frame, testing and feedback welcome
+
 1.2.3 (2022-11-09)
 ------------------
 * New Features

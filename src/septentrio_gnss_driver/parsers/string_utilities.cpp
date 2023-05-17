@@ -29,7 +29,7 @@
 // *****************************************************************************
 
 // ROSaic includes
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // C++ library includes
 #include <cerrno>
 #include <cmath>
@@ -50,7 +50,7 @@ namespace string_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * and the string is non-empty, false otherwise.
      */
-    bool toDouble(const std::string& string, double& value)
+    [[nodiscard]] bool toDouble(const std::string& string, double& value)
     {
         if (string.empty())
         {
@@ -76,7 +76,7 @@ namespace string_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * and the string is non-empty, false otherwise.
      */
-    bool toFloat(const std::string& string, float& value)
+    [[nodiscard]] bool toFloat(const std::string& string, float& value)
     {
         if (string.empty())
         {
@@ -101,7 +101,8 @@ namespace string_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * and the string is non-empty, false otherwise.
      */
-    bool toInt32(const std::string& string, int32_t& value, int32_t base)
+    [[nodiscard]] bool toInt32(const std::string& string, int32_t& value,
+                               int32_t base)
     {
         if (string.empty())
         {
@@ -132,7 +133,8 @@ namespace string_utilities {
      * exist within "string", and returns true if the latter two tests are negative
      * and the string is non-empty, false otherwise.
      */
-    bool toUInt32(const std::string& string, uint32_t& value, int32_t base)
+    [[nodiscard]] bool toUInt32(const std::string& string, uint32_t& value,
+                                int32_t base)
     {
         if (string.empty())
         {
@@ -160,7 +162,8 @@ namespace string_utilities {
     /**
      * Not used as of now..
      */
-    int8_t toInt8(const std::string& string, int8_t& value, int32_t base)
+    [[nodiscard]] int8_t toInt8(const std::string& string, int8_t& value,
+                                int32_t base)
     {
         char* end;
         errno = 0;
@@ -173,7 +176,8 @@ namespace string_utilities {
     /**
      * Not used as of now..
      */
-    uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base)
+    [[nodiscard]] uint8_t toUInt8(const std::string& string, uint8_t& value,
+                                  int32_t base)
     {
         char* end;
         errno = 0;
@@ -183,7 +187,7 @@ namespace string_utilities {
         return true;
     }
 
-    std::string trimDecimalPlaces(double num)
+    [[nodiscard]] std::string trimDecimalPlaces(double num)
     {
         num = std::round(num * 1000);
         num = num / 1000;
@@ -194,7 +198,7 @@ namespace string_utilities {
         return ss.str();
     }
 
-    bool containsSpace(const std::string str)
+    [[nodiscard]] bool containsSpace(const std::string str)
     {
         for (size_t i = 0; i < str.size(); ++i)
         {
