@@ -58,78 +58,109 @@
 
 #pragma once
 
-/**
- * @file rosaic_node.hpp
- * @date 21/08/20
- * @brief The heart of the ROSaic driver: The ROS node that represents it
- */
+// C++ includes
+#include <condition_variable>
 
-// ROS includes
-#include <ros/console.h>
-#include <ros/ros.h>
-// tf2 includes
-#include <tf2_ros/transform_listener.h>
 // ROSaic includes
-#include <septentrio_gnss_driver/communication/communication_core.hpp>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
 
 /**
- * @namespace rosaic_node
- * This namespace is for the ROSaic node, handling all aspects regarding
- * ROS parameters, ROS message publishing etc.
+ * @file telegram_handler.hpp
+ * @brief Handles messages when reading NMEA/SBF/response/error/connection descriptor
+ * messages
  */
-namespace rosaic_node {
-    /**
-     * @class ROSaicNode
-     * @brief This class represents the ROsaic node, to be extended..
-     */
-    class ROSaicNode : ROSaicNodeBase
+
+namespace io {
+    class Semaphore
     {
     public:
-        //! The constructor initializes and runs the ROSaic node, if everything works
-        //! fine. It loads the user-defined ROS parameters, subscribes to Rx
-        //! messages, and publishes requested ROS messages...
-        ROSaicNode();
+        Semaphore() : block_(true) {}
+
+        void notify()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            block_ = false;
+            cv_.notify_one();
+        }
+
+        void wait()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            while (block_)
+            {
+                cv_.wait(lock);
+            }
+            block_ = true;
+        }
 
     private:
-        /**
-         * @brief Gets the node parameters from the ROS Parameter Server, parts of
-         * which are specified in a YAML file
-         *
-         * The other ROSaic parameters are specified via the command line.
-         */
-        [[nodiscard]] bool getROSParams();
-        /**
-         * @brief Checks if the period has a valid value
-         * @param[in] period period [ms]
-         * @param[in] isIns wether recevier is an INS
-         * @return wether the period is valid
-         */
-        [[nodiscard]] bool validPeriod(uint32_t period, bool isIns) const;
-        /**
-         * @brief Gets transforms from tf2
-         * @param[in] targetFrame traget frame id
-         * @param[in] sourceFrame source frame id
-         * @param[out] T_s_t transfrom from source to target
-         */
-        void getTransform(const std::string& targetFrame,
-                          const std::string& sourceFrame,
-                          TransformStampedMsg& T_s_t) const;
-        /**
-         * @brief Gets Euler angles from quaternion message
-         * @param[in] qm quaternion message
-         * @param[out] roll roll angle
-         * @param[out] pitch pitch angle
-         * @param[out] yaw yaw angle
-         */
-        void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
-                    double& yaw) const;
-
-        void sendVelocity(const std::string& velNmea);
-
-        //! Handles communication with the Rx
-        io::CommunicationCore IO_;
-        //! tf2 buffer and listener
-        tf2_ros::Buffer tfBuffer_;
-        std::unique_ptr<tf2_ros::TransformListener> tfListener_;
+        std::mutex mtx_;
+        std::condition_variable cv_;
+        bool block_;
     };
-} // namespace rosaic_node
+
+    /**
+     * @class TelegramHandler
+     * @brief Represents ensemble of (to be constructed) ROS messages, to be handled
+     * at once by this class
+     */
+    class TelegramHandler
+    {
+
+    public:
+        TelegramHandler(ROSaicNodeBase* node) : node_(node), messageHandler_(node) {}
+
+        ~TelegramHandler()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
+        void clearSemaphores()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
+        /**
+         * @brief Called every time a telegram is received
+         */
+        void handleTelegram(const std::shared_ptr<Telegram>& telegram);
+
+        //! Returns the connection descriptor
+        void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
+
+        //! Returns the connection descriptor
+        [[nodiscard]] std::string getMainCd()
+        {
+            cdSemaphore_.wait();
+            return mainConnectionDescriptor_;
+        }
+
+        //! Waits for response
+        void waitForResponse() { responseSemaphore_.wait(); }
+
+        //! Waits for capabilities
+        void waitForCapabilities() { capabilitiesSemaphore_.wait(); }
+
+    private:
+        void handleSbf(const std::shared_ptr<Telegram>& telegram);
+        void handleNmea(const std::shared_ptr<Telegram>& telegram);
+        void handleResponse(const std::shared_ptr<Telegram>& telegram);
+        void handleError(const std::shared_ptr<Telegram>& telegram);
+        void handleCd(const std::shared_ptr<Telegram>& telegram);
+        //! Pointer to Node
+        ROSaicNodeBase* node_;
+
+        //! MessageHandler parser
+        MessageHandler messageHandler_;
+
+        Semaphore cdSemaphore_;
+        Semaphore responseSemaphore_;
+        Semaphore capabilitiesSemaphore_;
+        std::string mainConnectionDescriptor_ = std::string();
+    };
+
+} // namespace io

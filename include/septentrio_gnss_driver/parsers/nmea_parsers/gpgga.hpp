@@ -56,14 +56,11 @@
 //
 // *****************************************************************************
 
-#ifndef GPGGA_HPP
-#define GPGGA_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
-// Boost and ROS includes
-#include <boost/make_shared.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 /**
  * @file gpgga.hpp
@@ -82,10 +79,7 @@ public:
     /**
      * @brief Constructor of the class GpggaParser
      */
-    GpggaParser() :
-        BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false)
-    {
-    }
+    GpggaParser() : BaseParser<GpggaMsg>(), was_last_gpgga_valid_(false) {}
 
     /**
      * @brief Returns the ASCII message ID, here "$GPGGA"
@@ -98,8 +92,9 @@ public:
      * @param[in] sentence The GGA message to be parsed
      * @return A ROS message pointer of ROS type GpggaMsg
      */
-    GpggaMsg
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
+    GpggaMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
+                        bool use_gnss_time,
+                        Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Tells us whether the last GGA message was valid or not
@@ -119,5 +114,3 @@ private:
      */
     bool was_last_gpgga_valid_;
 };
-
-#endif // GPGGA_HPP

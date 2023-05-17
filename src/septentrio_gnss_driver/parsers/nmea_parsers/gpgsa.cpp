@@ -50,8 +50,9 @@ const std::string GpgsaParser::getMessageID() const
  * the argument "sentence" here, though the checksum is never parsed: It would be
  * sentence.get_body()[18] if anybody ever needs it.
  */
-GpgsaMsg
-GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool /*use_gnss_time*/, Timestamp /*time_obj*/) noexcept(false)
+GpgsaMsg GpgsaParser::parseASCII(const NMEASentence& sentence,
+                                 const std::string& frame_id, bool /*use_gnss_time*/,
+                                 Timestamp /*time_obj*/) noexcept(false)
 {
 
     // Checking the length first, it should be 19 elements
@@ -68,7 +69,12 @@ GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
     msg.header.frame_id = frame_id;
     msg.message_id = sentence.get_body()[0];
     msg.auto_manual_mode = sentence.get_body()[1];
-    parsing_utilities::parseUInt8(sentence.get_body()[2], msg.fix_mode);
+    if (!parsing_utilities::parseUInt8(sentence.get_body()[2], msg.fix_mode))
+    {
+        std::stringstream error;
+        error << "GPGSA fix_mode parsing error.";
+        throw ParseException(error.str());
+    }
     // Words 3-14 of the sentence are SV PRNs. Copying only the non-null strings..
     // 0 is the character needed to fill the new character space, in case 12 (first
     // argument) is larger than sv_ids.
@@ -80,14 +86,34 @@ GpgsaParser::parseASCII(const NMEASentence& sentence, const std::string& frame_i
     {
         if (!id->empty())
         {
-            parsing_utilities::parseUInt8(*id, msg.sv_ids[n_svs]);
+            if (!parsing_utilities::parseUInt8(*id, msg.sv_ids[n_svs]))
+            {
+                std::stringstream error;
+                error << "GPGSA sv_ids parsing error.";
+                throw ParseException(error.str());
+            }
             ++n_svs;
         }
     }
     msg.sv_ids.resize(n_svs);
 
-    parsing_utilities::parseFloat(sentence.get_body()[15], msg.pdop);
-    parsing_utilities::parseFloat(sentence.get_body()[16], msg.hdop);
-    parsing_utilities::parseFloat(sentence.get_body()[17], msg.vdop);
+    if (!parsing_utilities::parseFloat(sentence.get_body()[15], msg.pdop))
+    {
+        std::stringstream error;
+        error << "GPGSA pdop parsing error.";
+        throw ParseException(error.str());
+    }
+    if (!parsing_utilities::parseFloat(sentence.get_body()[16], msg.hdop))
+    {
+        std::stringstream error;
+        error << "GPGSA hdop parsing error.";
+        throw ParseException(error.str());
+    }
+    if (!parsing_utilities::parseFloat(sentence.get_body()[17], msg.vdop))
+    {
+        std::stringstream error;
+        error << "GPGSA vdop parsing error.";
+        throw ParseException(error.str());
+    }
     return msg;
 }

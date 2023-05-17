@@ -9,6 +9,6 @@ uint8 n
 uint8 sb1_length
 uint8 sb2_length      
 uint8 common_flags
-uint8 cum_clk_jumps
+uint8 cum_clk_jumps # 0.001 s
 
 MeasEpochChannelType1[] type1

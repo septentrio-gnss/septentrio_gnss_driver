@@ -56,12 +56,11 @@
 //
 // *****************************************************************************
 
-#ifndef GPGSA_HPP
-#define GPGSA_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 // Boost and ROS includes
 #include <boost/make_shared.hpp>
 
@@ -95,13 +94,12 @@ public:
      * @param[in] sentence The GSA message to be parsed
      * @return A ROS message pointer of ROS type GpgsaMsg
      */
-    GpgsaMsg
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
+    GpgsaMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
+                        bool use_gnss_time,
+                        Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID
      */
     static const std::string MESSAGE_ID;
 };
-
-#endif // GPGSA_HPP

@@ -56,14 +56,11 @@
 //
 // *****************************************************************************
 
-#ifndef GPGSV_HPP
-#define GPGSV_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
-// Boost and ROS includes
-#include <boost/make_shared.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 /**
  * @file gpgsv.hpp
@@ -95,13 +92,12 @@ public:
      * @param[in] sentence The GSV message to be parsed
      * @return A ROS message pointer of ROS type nmea_msgs::GpgsvPtr
      */
-    GpgsvMsg
-    parseASCII(const NMEASentence& sentence, const std::string& frame_id, bool use_gnss_time, Timestamp time_obj) noexcept(false) override;
+    GpgsvMsg parseASCII(const NMEASentence& sentence, const std::string& frame_id,
+                        bool use_gnss_time,
+                        Timestamp time_obj) noexcept(false) override;
 
     /**
      * @brief Declares the string MESSAGE_ID
      */
     static const std::string MESSAGE_ID;
 };
-
-#endif // GPGSV_HPP

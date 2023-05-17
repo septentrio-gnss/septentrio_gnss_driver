@@ -7,6 +7,6 @@ std_msgs/Header header
 BlockHeader block_header
 
 uint8   port
-float32 lever_arm_x
-float32 lever_arm_y
-float32 lever_arm_z
+float32 lever_arm_x # m
+float32 lever_arm_y # m
+float32 lever_arm_z # m

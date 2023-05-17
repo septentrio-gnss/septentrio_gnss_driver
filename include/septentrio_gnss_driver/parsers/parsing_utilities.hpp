@@ -28,8 +28,7 @@
 //
 // *****************************************************************************
 
-#ifndef PARSING_UTILITIES_HPP
-#define PARSING_UTILITIES_HPP
+#pragma once
 
 // C++ library includes
 #include <cmath>   // C++ header, corresponds to <math.h> in C
@@ -50,15 +49,15 @@
  * @date 17/08/20
  */
 
-namespace parsing_utilities {    
+namespace parsing_utilities {
 
     constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
 
     /***********************************************************************
      * Square value
      **********************************************************************/
-    template<class T>
-    inline T square(T val)
+    template <class T>
+    [[nodiscard]] inline T square(T val)
     {
         return val * val;
     }
@@ -66,8 +65,8 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert degrees to radians
      **********************************************************************/
-    template<class T>
-    inline T deg2rad(T deg)
+    template <class T>
+    [[nodiscard]] inline T deg2rad(T deg)
     {
         return deg * boost::math::constants::degree<T>();
     }
@@ -75,17 +74,18 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert degrees^2 to radians^2
      **********************************************************************/
-    template<class T>
-    inline T deg2radSq(T deg)
+    template <class T>
+    [[nodiscard]] inline T deg2radSq(T deg)
     {
-        return deg * boost::math::constants::degree<T>() * boost::math::constants::degree<T>();
+        return deg * boost::math::constants::degree<T>() *
+               boost::math::constants::degree<T>();
     }
 
     /***********************************************************************
      * Convert radians to degree
      **********************************************************************/
-    template<class T>
-    inline T rad2deg(T rad)
+    template <class T>
+    [[nodiscard]] inline T rad2deg(T rad)
     {
         return rad * boost::math::constants::radian<T>();
     }
@@ -93,10 +93,10 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert Euler angles to rotation matrix
      **********************************************************************/
-    inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
+    [[nodiscard]] inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
     {
         Eigen::Matrix3d M;
-        double          sa, ca, sb, cb, sc, cc;
+        double sa, ca, sb, cb, sc, cc;
         sa = std::sin(roll);
         ca = std::cos(roll);
         sb = std::sin(pitch);
@@ -104,9 +104,8 @@ namespace parsing_utilities {
         sc = std::sin(yaw);
         cc = std::cos(yaw);
 
-        M << cb * cc, -ca * sc + sa * sb * cc, sc* sa + ca * sb * cc,
-            cb* sc, ca* cc + sa * sb * sc, -sa * cc + ca * sb * sc,
-            -sb,          sa* cb,           ca* cb;
+        M << cb * cc, -ca * sc + sa * sb * cc, sc * sa + ca * sb * cc, cb * sc,
+            ca * cc + sa * sb * sc, -sa * cc + ca * sb * sc, -sb, sa * cb, ca * cb;
         return M;
     }
 
@@ -114,14 +113,14 @@ namespace parsing_utilities {
      * @brief Wraps an angle between -180 and 180 degrees
      * @param[in] angle The angle to be wrapped
      */
-    double wrapAngle180to180(double angle);
+    [[nodiscard]] double wrapAngle180to180(double angle);
 
     /**
      * @brief Converts an 8-byte-buffer into a double
      * @param[in] buffer A pointer to a buffer containing 8 bytes of data
      * @return The double extracted from the data in the buffer
      */
-    double parseDouble(const uint8_t* buffer);
+    [[nodiscard]] double parseDouble(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of type
@@ -135,14 +134,14 @@ namespace parsing_utilities {
      * floating point number found in "string"
      * @return True if all went fine, false if not
      */
-    bool parseDouble(const std::string& string, double& value);
+    [[nodiscard]] bool parseDouble(const std::string& string, double& value);
 
     /**
      * @brief Converts a 4-byte-buffer into a float
      * @param[in] buffer A pointer to a buffer containing 4 bytes of data
      * @return The float extracted from the data in the buffer
      */
-    float parseFloat(const uint8_t* buffer);
+    [[nodiscard]] float parseFloat(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a floating point number of type
@@ -156,14 +155,14 @@ namespace parsing_utilities {
      * floating point number found in "string"
      * @return True if all went fine, false if not
      */
-    bool parseFloat(const std::string& string, float& value);
+    [[nodiscard]] bool parseFloat(const std::string& string, float& value);
 
     /**
      * @brief Converts a 2-byte-buffer into a signed 16-bit integer
      * @param[in] buffer A pointer to a buffer containing 2 bytes of data
      * @return The int16_t value extracted from the data in the buffer
      */
-    int16_t parseInt16(const uint8_t* buffer);
+    [[nodiscard]] int16_t parseInt16(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a integer number of type
@@ -179,14 +178,14 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    bool parseInt16(const std::string& string, int16_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseInt16(const std::string& string, int16_t& value, int32_t base = 10);
 
     /**
      * @brief Converts a 4-byte-buffer into a signed 32-bit integer
      * @param[in] buffer A pointer to a buffer containing 4 bytes of data
      * @return The int32_t value extracted from the data in the buffer
      */
-    int32_t parseInt32(const uint8_t* buffer);
+    [[nodiscard]] int32_t parseInt32(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a integer number of type
@@ -202,7 +201,7 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    bool parseInt32(const std::string& string, int32_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseInt32(const std::string& string, int32_t& value, int32_t base = 10);
 
     /**
      * @brief Interprets the contents of "string" as a unsigned integer number of
@@ -218,14 +217,14 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    bool parseUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
 
     /**
      * @brief Converts a 2-byte-buffer into an unsigned 16-bit integer
      * @param[in] buffer A pointer to a buffer containing 2 bytes of data
      * @return The uint16_t value extracted from the data in the buffer
      */
-    uint16_t parseUInt16(const uint8_t* buffer);
+    [[nodiscard]] uint16_t parseUInt16(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a unsigned integer number of
@@ -241,14 +240,14 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    bool parseUInt16(const std::string& string, uint16_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt16(const std::string& string, uint16_t& value, int32_t base = 10);
 
     /**
      * @brief Converts a 4-byte-buffer into an unsigned 32-bit integer
      * @param[in] buffer A pointer to a buffer containing 4 bytes of data
      * @return The uint32_t value extracted from the data in the buffer
      */
-    uint32_t parseUInt32(const uint8_t* buffer);
+    [[nodiscard]] uint32_t parseUInt32(const uint8_t* buffer);
 
     /**
      * @brief Interprets the contents of "string" as a unsigned integer number of
@@ -264,7 +263,7 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    bool parseUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
 
     /**
      * @brief Converts UTC time from the without-colon-delimiter format to the
@@ -273,7 +272,7 @@ namespace parsing_utilities {
      * format
      * @return Represents UTC time in the number-of-seconds-since-midnight format
      */
-    double convertUTCDoubleToSeconds(double utc_double);
+    [[nodiscard]] double convertUTCDoubleToSeconds(double utc_double);
 
     /**
      * @brief Converts UTC time from the without-colon-delimiter format to Unix Epoch
@@ -285,7 +284,7 @@ namespace parsing_utilities {
      * format
      * @return The time_t variable representing Unix Epoch time
      */
-    std::time_t convertUTCtoUnix(double utc_double);
+    [[nodiscard]] std::time_t convertUTCtoUnix(double utc_double);
 
     /**
      * @brief Converts latitude or longitude from the DMS notation (in the
@@ -296,67 +295,113 @@ namespace parsing_utilities {
      * without-colon-delimiter format)
      * @return Represents latitude or longitude in the pure degree notation
      */
-    double convertDMSToDegrees(double dms);
+    [[nodiscard]] double convertDMSToDegrees(double dms);
 
     /**
      * @brief Transforms Euler angles to a quaternion
-     * @param[in] yaw Yaw, i.e. heading, about the Up-axis
-     * @param[in] pitch Pitch about the new North-axis
-     * @param[in] roll Roll about the new East-axis
-     * @return ROS message representing a quaternion
+     * @param[in] yaw Yaw, i.e. heading, about the z-axis [rad]
+     * @param[in] pitch Pitch about the new y-axis [rad]
+     * @param[in] roll Roll about the new y-axis [rad]
+     * @return quaternion
      */
-    QuaternionMsg convertEulerToQuaternion(double yaw, double pitch,
-                                                       double roll);
+    [[nodiscard]] Eigen::Quaterniond convertEulerToQuaternion(double roll, double pitch,
+                                                double yaw);
 
     /**
-     * @brief Transforms the input polling period [milliseconds] into a uint32_t
+     * @brief Transforms Euler angles to a QuaternionMsg
+     * @param[in] yaw Yaw, i.e. heading, about the z-axis [rad]
+     * @param[in] pitch Pitch about the new y-axis [rad]
+     * @param[in] roll Roll about the new x-axis [rad]
+     * @return ROS message representing a quaternion
+     */
+    [[nodiscard]] QuaternionMsg convertEulerToQuaternionMsg(double roll, double pitch, double yaw);
+
+    /**
+     * @brief Convert Eigen quaternion to a QuaternionMsg
+     * @param[in] q Eigen quaternion
+     * @return ROS message representing a quaternion
+     */
+    [[nodiscard]] QuaternionMsg quaternionToQuaternionMsg(const Eigen::Quaterniond& q);
+
+    /**
+     * @brief Generates the quaternion to rotate from local ENU to ECEF
+     * @param[in] lat gedoetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return quaternion
+     */
+    [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the quaternion to rotate from local NED to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    [[nodiscard]] Eigen::Quaterniond q_ned_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the matrix to rotate from local ENU to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    [[nodiscard]] Eigen::Matrix3d R_enu_ecef(double lat, double lon);
+
+    /**
+     * @brief Generates the matrix to rotate from local NED to ECEF
+     * @param[in] lat geodetic latitude [rad]
+     * @param[in] lon geodetic longitude [rad]
+     * @return rotation matrix
+     */
+    [[nodiscard]] Eigen::Matrix3d R_ned_ecef(double lat, double lon);
+
+    /**
+     * @brief Transforms the input polling period [milliseconds] into a std::string
      * number that can be appended to either sec or msec for Rx commands
      * @param[in] period_user Polling period in milliseconds as specified by the
      * ROSaic user
-     * @return Number to be appended to either sec or msec when sending commands to
-     * the Rx
+     * @return Number to be appended to either msec, sec or min when sending commands
+     * to the Rx
      */
-    uint32_t convertUserPeriodToRxCommand(uint32_t period_user);
+    [[nodiscard]] std::string convertUserPeriodToRxCommand(uint32_t period_user);
 
     /**
      * @brief Get the CRC of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message CRC 
+     * @return SBF message CRC
      */
-    uint16_t getCrc(const uint8_t* buffer);
+    [[nodiscard]] uint16_t getCrc(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the ID of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message ID 
+     * @return SBF message ID
      */
-    uint16_t getId(const uint8_t* buffer);
+    [[nodiscard]] uint16_t getId(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the length of the SBF message
-     * 
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF message length 
+     * @return SBF message length
      */
-    uint16_t getLength(const uint8_t* buffer);
+    [[nodiscard]] uint16_t getLength(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the time of week in ms of the SBF message
-     * 
+     *
      * @param[in] buffer A pointer to a buffer containing an SBF message
      * @return SBF time of week in ms
      */
-    uint32_t getTow(const uint8_t* buffer);
+    [[nodiscard]] uint32_t getTow(const std::vector<uint8_t>& message);
 
     /**
      * @brief Get the GPS week counter of the SBF message
-     *  
+     *
      * @param buffer A pointer to a buffer containing an SBF message
-     * @return SBF GPS week counter 
+     * @return SBF GPS week counter
      */
-    uint16_t getWnc(const uint8_t* buffer);
+    [[nodiscard]] uint16_t getWnc(const std::vector<uint8_t>& message);
 } // namespace parsing_utilities
-
-#endif // PARSING_UTILITIES_HPP

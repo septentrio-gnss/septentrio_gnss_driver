@@ -56,28 +56,18 @@
 //
 // *****************************************************************************
 
-#ifndef COMMUNICATION_CORE_HPP // This block is called a conditional group. The
-                               // controlled text will get included in the
-                               // preprocessor output iff the macroname is not
-                               // defined.
-#define COMMUNICATION_CORE_HPP // Include guards help to avoid the double inclusion
-                               // of header files, by defining a token = macro.
+#pragma once
 
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
-#include <boost/bind.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/exception/diagnostic_information.hpp> // dealing with bad file descriptor error
-#include <boost/function.hpp>
 // C++ library includes
 #include <fstream>
 #include <memory>
 #include <sstream>
-#include <unistd.h> // for usleep()
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
-#include <septentrio_gnss_driver/communication/callback_handlers.hpp>
+#include <septentrio_gnss_driver/communication/telegram_handler.hpp>
 
 /**
  * @file communication_core.hpp
@@ -86,11 +76,11 @@
  */
 
 /**
- * @namespace io_comm_rx
+ * @namespace io
  * This namespace is for the communication interface, handling all aspects related to
  * serial and TCP/IP communication..
  */
-namespace io_comm_rx {
+namespace io {
 
     //! Possible baudrates for the Rx
     const static uint32_t BAUDRATES[] = {
@@ -99,167 +89,93 @@ namespace io_comm_rx {
         1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
 
     /**
-     * @class Comm_IO
+     * @class CommunicationCore
      * @brief Handles communication with and configuration of the mosaic (and beyond)
      * receiver(s)
      */
-    class Comm_IO
+    class CommunicationCore
     {
     public:
         /**
-         * @brief Constructor of the class Comm_IO
+         * @brief Constructor of the class CommunicationCore
          * @param[in] node Pointer to node
          */
-        Comm_IO(ROSaicNodeBase* node, Settings* settings);
+        CommunicationCore(ROSaicNodeBase* node);
         /**
-         * @brief Default destructor of the class Comm_IO
+         * @brief Default destructor of the class CommunicationCore
          */
-        ~Comm_IO()
-        {
-            stopping_ = true;
-            connectionThread_->join();
-        }
+        ~CommunicationCore();
 
         /**
-         * @brief Initializes the I/O handling
-         */
-        void initializeIO();
-
-        /**
-         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
-         * correction settings
-         * @param[in] settings The device's settings
-         * */
-        void configureRx();
-
-        /**
-         * @brief Defines which Rx messages to read and which ROS messages to publish
-         * @param[in] settings The device's settings
-         * */
-        void defineMessages();        
-
-    private:
-        /**
-         * @brief Sets up the stage for SBF file reading
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
-         */
-        void prepareSBFFileReading(std::string file_name);
-
-        /**
-         * @brief Sets up the stage for PCAP file reading
-         * @param[in] file_name The path to PCAP file, e.g. "/tmp/capture.sbf"
-         */
-        void preparePCAPFileReading(std::string file_name);
-
-        /**
-         * @brief Attempts to (re)connect every reconnect_delay_s_ seconds
-         */
-        void reconnect();
-
-        /**
-         * @brief Calls the reconnect() method
+         * @brief Connects the data stream
          */
         void connect();
 
         /**
-         * @brief Initializes the serial port
-         * @param[in] port The device's port address
-         * @param[in] baudrate The chosen baud rate of the port
-         * @param[in] flowcontrol Default is "None", set variable (not yet checked)
-         * to "RTS|CTS" to activate hardware flow control (only for serial ports
-         * COM1, COM2 and COM3 (for mosaic))
-         * @return True if connection could be established, false otherwise
-         */
-        bool initializeSerial(std::string port, uint32_t baudrate = 115200,
-                              std::string flowcontrol = "None");
+         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
+         * correction settings
+         * */
+        void configureRx();
 
         /**
-         * @brief Initializes the TCP I/O
-         * @param[in] host The TCP host
-         * @param[in] port The TCP port
-         * @return True if connection could be established, false otherwise
+         * @brief Hands over NMEA velocity message over to the send() method of
+         * manager_
+         * @param cmd The command to hand over
          */
-        bool initializeTCP(std::string host, std::string port);
+        void sendVelocity(const std::string& velNmea);
+
+    private:
+        /**
+         * @brief Resets Rx settings
+         */
+        void resetSettings();
 
         /**
-         * @brief Initializes SBF file reading and reads SBF file by repeatedly
-         * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the SBF file, e.g. "xyz.sbf"
+         * @brief Initializes the I/O handling
+         * * @return Wether connection was successful
          */
-        void initializeSBFFileReading(std::string file_name);
+        [[nodiscard]] bool initializeIo();
 
         /**
-         * @brief Initializes PCAP file reading and reads PCAP file by repeatedly
-         * calling read_callback_()
-         * @param[in] file_name The name of (or path to) the PCAP file, e.g. "/tmp/capture.pcap"
+         * @brief Reset main connection so it can receive commands
+         * @return Main connection descriptor
          */
-        void initializePCAPFileReading(std::string file_name);
+        std::string resetMainConnection();
 
-        /**
-         * @brief Set the I/O manager
-         * @param[in] manager An I/O handler
-         */
-        void setManager(const boost::shared_ptr<Manager>& manager);
-
-        /**
-         * @brief Reset the Serial I/O port, e.g. after a Rx reset
-         * @param[in] port The device's port address
-         */
-        void resetSerial(std::string port);
+        void processTelegrams();
 
         /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(std::string cmd);
+        void send(const std::string&);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
-        //! Callback handlers for the inwards streaming messages
-        CallbackHandlers handlers_;
         //! Settings
-        Settings* settings_;
-        //! Whether connecting to Rx was successful
-        bool connected_ = false;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated mutex..
-        boost::mutex connection_mutex_;
-        //! Since the configureRx() method should only be called once the connection
-        //! was established, we need the threads to communicate this to each other.
-        //! Associated condition variable..
-        boost::condition_variable connection_condition_;
-        //! Host name of TCP server
-        std::string tcp_host_;
-        //! TCP port number
-        std::string tcp_port_;
-        //! Whether yet-to-be-established connection to Rx will be serial or TCP
-        bool serial_;
-        //! Saves the port description
-        std::string serial_port_;
+        const Settings* settings_;
+        //! TelegramQueue
+        TelegramQueue telegramQueue_;
+        //! TelegramHandler
+        TelegramHandler telegramHandler_;
+        //! Processing thread
+        std::thread processingThread_;
+        //! Whether connecting was successful
+        bool initializedIo_ = false;
         //! Processes I/O stream data
         //! This declaration is deliberately stream-independent (Serial or TCP).
-        boost::shared_ptr<Manager> manager_;
-        //! Baudrate at the moment, unless InitializeSerial or ResetSerial fail
-        uint32_t baudrate_;
+        std::unique_ptr<AsyncManagerBase> manager_;
 
-        //! Connection or reading thread
-        std::unique_ptr<boost::thread> connectionThread_;
-        //! Indicator for threads to exit
-        std::atomic<bool> stopping_;
+        std::unique_ptr<UdpClient> udpClient_;
 
-        friend class CallbackHandlers;
-        friend class RxMessage;
+        bool nmeaActivated_ = false;
 
-        //! Host currently connected to
-        std::string host_;
-        //! Port over which TCP/IP connection is currently established
-        std::string port_;
-        //! Sleep time in microseconds (there is no Unix command for milliseconds)
-        //! after setting the baudrate to certain value (important between
-        //! increments)
-        const static unsigned int SET_BAUDRATE_SLEEP_ = 500000;
+        //! Indicator for threads to run
+        std::atomic<bool> running_;
+
+        //! Main communication port
+        std::string mainConnectionPort_;
+        // Port for receiving data streams
+        std::string streamPort_;
     };
-} // namespace io_comm_rx
-
-#endif // for COMMUNICATION_CORE_HPP
+} // namespace io

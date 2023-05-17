@@ -28,57 +28,39 @@
 //
 // *****************************************************************************
 
-// ROS includes
-#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#pragma once
 
-// C++ library includes
-#include <algorithm>
+// ROSaic includes
+// The following imports structs into which SBF blocks can be unpacked then shipped
+// to handler functions
+#include <septentrio_gnss_driver/parsers/sbf_blocks.hpp>
+// C++ libary includes
 #include <cstdint>
+#include <stdbool.h>
+#include <stddef.h>
 
-#ifndef CIRCULAR_BUFFER_HPP
-#define CIRCULAR_BUFFER_HPP
+namespace crc {
+    /**
+     * @file crc.hpp
+     * @brief Declares the functions to compute and validate the CRC of a buffer
+     * @date 17/08/20
+     */
 
-/**
- * @file circular_buffer.hpp
- * @brief Declares a class for creating, writing to and reading from a circular
- * bufffer
- * @date 25/09/20
- */
+    /**
+     * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
+     * buffer "buf" of "buf_length" bytes
+     * @param[in] buf The buffer at hand
+     * @param[in] buf_length Number of bytes in "buf"
+     * @return The calculated CRC
+     */
+    uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
 
-/**
- * @class CircularBuffer
- * @brief Class for creating, writing to and reading from a circular buffer
- */
-class CircularBuffer
-{
-public:
-    //! Constructor of CircularBuffer
-    explicit CircularBuffer(ROSaicNodeBase* node, std::size_t capacity);
-    //! Destructor of CircularBuffer
-    ~CircularBuffer();
-    //! Returns size_
-    std::size_t size() const { return size_; }
-    //! Returns capacity_
-    std::size_t capacity() const { return capacity_; }
-    //! Returns number of bytes written.
-    std::size_t write(const uint8_t* data, std::size_t bytes);
-    //! Returns number of bytes read.
-    std::size_t read(uint8_t* data, std::size_t bytes);
+    /**
+     * @brief Validates whether the calculated CRC of the SBF block at hand matches
+     * the CRC field of the streamed SBF block
+     * @param block The SBF block that we are interested in
+     * @return True if the CRC check of the SBFBlock has passed, false otherwise
+     */
+    bool isValid(const std::vector<uint8_t>& message);
 
-private:
-    //! Pointer to the node
-    ROSaicNodeBase* node_;
-    //! Specifies where we start writing
-    std::size_t head_;
-    //! Specifies where we start reading
-    std::size_t tail_;
-    //! Number of bytes that have been written but not yet read
-    std::size_t size_;
-    //! Capacity of the circular buffer
-    std::size_t capacity_;
-    //! Pointer that always points to the same memory address, hence could be const
-    //! pointer
-    uint8_t* data_;
-};
-
-#endif // for CIRCULAR_BUFFER_HPP
+} // namespace crc
