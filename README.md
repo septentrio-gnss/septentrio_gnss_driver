@@ -90,10 +90,14 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     baudrate: 921600
     hw_flow_control: off
 
+  tcp:
+    ip_server: ""
+    port: 0
+
   udp:
-  ip_server: ""
-  port: 0
-  unicast_ip: ""
+    ip_server: ""
+    port: 0
+    unicast_ip: ""
 
   configure_rx: true
   
@@ -341,7 +345,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Connectivity Specs</summary>
 
-  + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. SBF blocks and NMEA sentences are recevied either via this interface or UDP. The former will be utilized if section `udp` is not configured.
+  + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. SBF blocks and NMEA sentences are recevied either via this interface, a static IP server for TCP or UDP. The former will be utilized if section `tcp` and `udp` are not configured.
     + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
     + `file_name:path/to/file.sbf` format for publishing from an SBF log
     + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
@@ -355,7 +359,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
-  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences. If left unconfigured, interface specified by `device` will be utilized.
+  + `tcp`: specifications for static TCP server of SBF blocks and NMEA sentences. If left unconfigured, interface specified by `device` or `udp` will be utilized.
+    + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
+    + `port`: UDP destination port.
+  + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences. If left unconfigured, interface specified by `device` or `tcp` will be utilized.
     + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
     + `port`: UDP destination port.
     + `unicast_ip`: Set to computer's IP to use unicast (optional). If not set multicast will be used.
@@ -379,7 +386,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Receiver Configuration</summary>
 
-    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`; `PVTGeodetic`or `PVTCartesian` if latency compensation for PVT related blocks shall be used). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated with matching periods, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
+    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. ON the driver side communication has to set accorsingly to serial, TCP or UDP. For TCP communication it is recommended to use a static TCP server (`tcp/ip_server` and `tcp/port`) as dynamic connections is not guaranteed to have the same id on reconnection. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`; `PVTGeodetic`or `PVTCartesian` if latency compensation for PVT related blocks shall be used). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated with matching periods, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
       + default: true
   </details>
   
