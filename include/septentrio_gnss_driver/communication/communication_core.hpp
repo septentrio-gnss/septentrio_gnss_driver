@@ -166,6 +166,7 @@ namespace io {
         //! This declaration is deliberately stream-independent (Serial or TCP).
         std::unique_ptr<AsyncManagerBase> manager_;
 
+        std::unique_ptr<AsyncManager<TcpIo>> tcpClient_;
         std::unique_ptr<UdpClient> udpClient_;
 
         bool nmeaActivated_ = false;

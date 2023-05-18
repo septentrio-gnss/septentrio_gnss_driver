@@ -129,15 +129,19 @@ struct Settings
     //! Device type
     device_type::DeviceType device_type;
     //! TCP IP
-    std::string tcp_ip;
+    std::string device_tcp_ip;
     //! TCP port
-    std::string tcp_port;
+    std::string device_tcp_port;
     //! UDP port
     uint32_t udp_port;
     //! UDP unicast destination ip
     std::string udp_unicast_ip;
     //! UDP IP server id
     std::string udp_ip_server;
+    //! TCP port
+    uint32_t tcp_port;
+    //! TCP IP server id
+    std::string tcp_ip_server;
     //! Filename
     std::string file_name;
     //! Username for login

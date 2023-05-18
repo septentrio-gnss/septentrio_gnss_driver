@@ -8,6 +8,10 @@ serial:
   baudrate: 921600
   hw_flow_control: "off"
 
+tcp:
+  ip_server: ""
+  port: 0
+
 udp:
   ip_server: ""
   port: 0

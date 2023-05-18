@@ -119,6 +119,8 @@ namespace io {
 
         [[nodiscard]] bool connect();
 
+        void setPort(const std::string& port);
+
         void send(const std::string& cmd);
 
     private:
@@ -187,6 +189,12 @@ namespace io {
         receive();
 
         return true;
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::setPort(const std::string& port)
+    {
+        ioInterface_.setPort(port);
     }
 
     template <typename IoType>
