@@ -93,11 +93,16 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                    static_cast<uint32_t>(921600));
     param("serial.hw_flow_control", settings_.hw_flow_control,
           static_cast<std::string>("off"));
-    getUint32Param("tcp.port", settings_.tcp_port, static_cast<uint32_t>(0));
-    param("tcp.ip_server", settings_.tcp_ip_server, static_cast<std::string>(""));
-    getUint32Param("udp.port", settings_.udp_port, static_cast<uint32_t>(0));
-    param("udp.unicast_ip", settings_.udp_unicast_ip, static_cast<std::string>(""));
-    param("udp.ip_server", settings_.udp_ip_server, static_cast<std::string>(""));
+    getUint32Param("stream_device.tcp.port", settings_.tcp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.tcp.ip_server", settings_.tcp_ip_server,
+          static_cast<std::string>(""));
+    getUint32Param("stream_device.udp.port", settings_.udp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.udp.unicast_ip", settings_.udp_unicast_ip,
+          static_cast<std::string>(""));
+    param("stream_device.udp.ip_server", settings_.udp_ip_server,
+          static_cast<std::string>(""));
     param("login.user", settings_.login_user, static_cast<std::string>(""));
     param("login.password", settings_.login_password, static_cast<std::string>(""));
 
