@@ -93,9 +93,16 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                    static_cast<uint32_t>(921600));
     param("serial.hw_flow_control", settings_.hw_flow_control,
           static_cast<std::string>("off"));
-    getUint32Param("udp.port", settings_.udp_port, static_cast<uint32_t>(0));
-    param("udp.unicast_ip", settings_.udp_unicast_ip, static_cast<std::string>(""));
-    param("udp.ip_server", settings_.udp_ip_server, static_cast<std::string>(""));
+    getUint32Param("stream_device.tcp.port", settings_.tcp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.tcp.ip_server", settings_.tcp_ip_server,
+          static_cast<std::string>(""));
+    getUint32Param("stream_device.udp.port", settings_.udp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.udp.unicast_ip", settings_.udp_unicast_ip,
+          static_cast<std::string>(""));
+    param("stream_device.udp.ip_server", settings_.udp_ip_server,
+          static_cast<std::string>(""));
     param("login.user", settings_.login_user, static_cast<std::string>(""));
     param("login.password", settings_.login_password, static_cast<std::string>(""));
 
@@ -109,6 +116,14 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                                         settings_.septentrio_receiver_type +
                                         " use either gnss or ins.");
         return false;
+    }
+
+    if (settings_.configure_rx && !settings_.tcp_ip_server.empty() &&
+        !settings_.udp_ip_server.empty())
+    {
+        this->log(
+            log_level::WARN,
+            "Both UDP and TCP have been defined to receive data, only TCP will be used. If UDP is intended, leave tcp/ip_server empty.");
     }
 
     // Polling period parameters
@@ -629,6 +644,25 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
             registerSubscriber();
         }
 
+        if (!settings_.tcp_ip_server.empty())
+        {
+            if (settings_.tcp_ip_server == settings_.udp_ip_server)
+                this->log(
+                    log_level::ERROR,
+                    "tcp.ip_server and udp.ip_server cannot use the same IP server");
+            if (settings_.tcp_ip_server == settings_.ins_vsm_ip_server_id)
+                this->log(
+                    log_level::ERROR,
+                    "tcp.ip_server and ins_vsm.ip_server.id cannot use the same IP server");
+            for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
+            {
+                if (settings_.tcp_ip_server == settings_.rtk.ip_server[i].id)
+                    this->log(log_level::ERROR,
+                              "tcp.ip_server and rtk_settings.ip_server_" +
+                                  std::to_string(i + 1) +
+                                  ".id cannot use the same IP server");
+            }
+        }
         if (!settings_.udp_ip_server.empty())
         {
             if (settings_.udp_ip_server == settings_.ins_vsm_ip_server_id)
@@ -669,8 +703,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     if (boost::regex_match(settings_.device, match,
                            boost::regex("(tcp)://(.+):(\\d+)")))
     {
-        settings_.tcp_ip = match[2];
-        settings_.tcp_port = match[3];
+        settings_.device_tcp_ip = match[2];
+        settings_.device_tcp_port = match[3];
         settings_.device_type = device_type::TCP;
     } else if (boost::regex_match(settings_.device, match,
                                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
