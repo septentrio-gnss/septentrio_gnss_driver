@@ -10,7 +10,7 @@ Changelog for package septentrio_gnss_driver
    * OSNMA
    * Latency compensation for ROS timestamps
    * Output of SBf block VelCovCartesian
-   * Support for UDP
+   * Support for UDP and TCP via IP server
    * New VSM handling allows for unknown variances (INS firmware >= 1.4.1)
    * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
 * Improvements

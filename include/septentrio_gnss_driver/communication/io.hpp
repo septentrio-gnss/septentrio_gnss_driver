@@ -242,11 +242,14 @@ namespace io {
             node_(node),
             ioService_(ioService)
         {
+            port_ = node_->settings()->device_tcp_port;
         }
 
         ~TcpIo() { stream_->close(); }
 
         void close() { stream_->close(); }
+
+        void setPort(const std::string& port) { port_ = port; }
 
         [[nodiscard]] bool connect()
         {
@@ -256,22 +259,21 @@ namespace io {
             {
                 boost::asio::ip::tcp::resolver resolver(*ioService_);
                 boost::asio::ip::tcp::resolver::query query(
-                    node_->settings()->tcp_ip, node_->settings()->tcp_port);
+                    node_->settings()->device_tcp_ip, port_);
                 endpointIterator = resolver.resolve(query);
             } catch (std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
-                           "Could not resolve " + node_->settings()->tcp_ip +
-                               " on port " + node_->settings()->tcp_port + ": " +
-                               e.what());
+                           "Could not resolve " + node_->settings()->device_tcp_ip +
+                               " on port " + port_ + ": " + e.what());
                 return false;
             }
 
             stream_.reset(new boost::asio::ip::tcp::socket(*ioService_));
 
             node_->log(log_level::INFO, "Connecting to tcp://" +
-                                            node_->settings()->tcp_ip + ":" +
-                                            node_->settings()->tcp_port + "...");
+                                            node_->settings()->device_tcp_ip + ":" +
+                                            port_ + "...");
 
             try
             {
@@ -296,6 +298,8 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_service> ioService_;
+
+        std::string port_;
 
     public:
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;

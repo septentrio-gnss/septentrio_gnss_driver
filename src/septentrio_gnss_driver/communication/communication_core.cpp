@@ -203,13 +203,21 @@ namespace io {
 
     [[nodiscard]] bool CommunicationCore::initializeIo()
     {
-        bool udp = false;
+        bool client = false;
         node_->log(log_level::DEBUG, "Called initializeIo() method");
+        if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
+        {
+            tcpClient_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
+            tcpClient_->setPort(std::to_string(settings_->tcp_port));
+            if (!settings_->configure_rx)
+                tcpClient_->connect();
+            client = true;
+        }
         if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
         {
             udpClient_.reset(
                 new UdpClient(node_, settings_->udp_port, &telegramQueue_));
-            udp = true;
+            client = true;
         }
 
         switch (settings_->device_type)
@@ -236,7 +244,7 @@ namespace io {
         }
         default:
         {
-            if (!udp || settings_->configure_rx ||
+            if (!client || settings_->configure_rx ||
                 (settings_->ins_vsm_ros_source == "odometry") ||
                 (settings_->ins_vsm_ros_source == "twist"))
             {
@@ -277,7 +285,13 @@ namespace io {
         node_->log(log_level::INFO,
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
-        if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+        if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
+        {
+            streamPort_ = settings_->tcp_ip_server;
+            send("siss, " + streamPort_ + ", " +
+                 std::to_string(settings_->tcp_port) + ", TCP, " + "\x0D");
+            tcpClient_->connect();
+        } else if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
         {
             streamPort_ = settings_->udp_ip_server;
             std::string destination;

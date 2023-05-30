@@ -50,15 +50,7 @@ namespace parsing_utilities {
 
     [[nodiscard]] double wrapAngle180to180(double angle)
     {
-        while (angle > 180.0)
-        {
-            angle -= 360.0;
-        }
-        while (angle < -180.0)
-        {
-            angle += 360.0;
-        }
-        return angle;
+        return std::remainder(angle, 360.0);
     }
 
     [[nodiscard]] double parseDouble(const uint8_t* buffer)

@@ -119,6 +119,8 @@ namespace io {
 
         [[nodiscard]] bool connect();
 
+        void setPort(const std::string& port);
+
         void send(const std::string& cmd);
 
     private:
@@ -190,6 +192,12 @@ namespace io {
     }
 
     template <typename IoType>
+    void AsyncManager<IoType>::setPort(const std::string& port)
+    {
+        ioInterface_.setPort(port);
+    }
+
+    template <typename IoType>
     void AsyncManager<IoType>::send(const std::string& cmd)
     {
         if (cmd.size() == 0)
@@ -251,6 +259,13 @@ namespace io {
                         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                     receive();
                 }
+            } else if (running_ && std::is_same<TcpIo, IoType>::value)
+            {
+                // Send to check if TCP connection still alive
+                std::string empty = " ";
+                boost::asio::async_write(
+                    *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
+                    [](boost::system::error_code ec, std::size_t /*length*/) {});
             }
         }
     }
