@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.2.4 (upcoming)
+1.3.0 (upcoming)
 ------------------
 * New Features
    * Recovery from connection interruption
