@@ -70,6 +70,7 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
   + Once the colcon build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one. Launch as composition with `ros2 launch septentrio_gnss_driver rover.launch.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.launch.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
+  - NOTE: Unless `configure_rx` is set to `false`, this driver will overwrite the previous values of the parameters, even if the value is left to zero in the "yaml" file.
   + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.    
     * GNSS with firmware < 4.12.1 does not support OSNMA.
@@ -78,9 +79,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
     * INS with firmware 1.2.0 does not support velocity aiding.
     * INS with firmware 1.2.0 does not support setting of initial heading.
+  + Known issues:
+    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4.1. For GNSS it will be fixed in the soon-to-be-released 4.14 (expected in July 2023), for INS it will be fixed in 1.4.1 (expected in November 2023).
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI in this case.
-  + An INS can be used in GNSS mode but some features may not be supported. Known limitations are:
-    * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
   
   ```
