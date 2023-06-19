@@ -2646,7 +2646,7 @@ namespace io {
 
             static const int32_t ins_major = 1;
             static const int32_t ins_minor = 4;
-            static const int32_t ins_patch = 1;
+            static const int32_t ins_patch = 0;
             static const int32_t gnss_major = 4;
             static const int32_t gnss_minor = 12;
             static const int32_t gnss_patch = 1;
