@@ -1475,7 +1475,6 @@ namespace io {
             }
             last_ins_tow = last_insnavgeod_.block_header.tow;
 
-            NavSatFixMsg msg;
             uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
             switch (type_of_pvt)
             {
