@@ -20,6 +20,8 @@ Changelog for package septentrio_gnss_driver
      * Prevent message loss in file reading
    * Add some explanatory warnings for parameter mismatches
    * Add units to message definitions
+* Fixes
+   * navsatfix for INS 
 * Preliminary Features
    * Output of localization and tf in ECEF frame, testing and feedback welcome
 
