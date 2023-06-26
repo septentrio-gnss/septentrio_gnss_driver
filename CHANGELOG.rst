@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.3.0 (2022-06-15)
+1.3.1 (upcoming)
 ------------------
 * New Features
    * Recovery from connection interruption
@@ -21,7 +21,8 @@ Changelog for package septentrio_gnss_driver
    * Add some explanatory warnings for parameter mismatches
    * Add units to message definitions
 * Fixes
-   * navsatfix for INS 
+   * navsatfix for INS
+   * Empty headers
 * Preliminary Features
    * Output of localization and tf in ECEF frame, testing and feedback welcome
 
