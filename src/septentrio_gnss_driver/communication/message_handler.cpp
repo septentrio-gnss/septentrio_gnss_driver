@@ -661,7 +661,6 @@ namespace io {
         if (!settings_->publish_twist)
             return;
         TwistWithCovarianceStampedMsg msg;
-        msg.header.frame_id = "navigation";
 
         if (fromIns)
         {
@@ -1392,6 +1391,8 @@ namespace io {
                  last_poscovgeodetic_.block_header.tow))
                 return;
 
+            msg.header = last_pvtgeodetic_.header;
+
             uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
             switch (type_of_pvt)
             {
@@ -1474,6 +1475,8 @@ namespace io {
                 return;
             }
             last_ins_tow = last_insnavgeod_.block_header.tow;
+
+            msg.header = last_insnavgeod_.header;
 
             uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
             switch (type_of_pvt)
@@ -1560,6 +1563,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
+        msg.header.frame_id = "wgs84";
         publish<NavSatFixMsg>("/navsatfix", msg);
     };
 
@@ -1732,6 +1736,7 @@ namespace io {
 
         if (settings_->septentrio_receiver_type == "gnss")
         {
+            msg.header = last_pvtgeodetic_.header;
 
             // PVT Status Analysis
             uint16_t status_mask =
@@ -1889,6 +1894,8 @@ namespace io {
             msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
         } else if (settings_->septentrio_receiver_type == "ins")
         {
+            msg.header = last_insnavgeod_.header;
+
             // PVT Status Analysis
             uint16_t status_mask =
                 15; // We extract the first four bits using this mask.
@@ -2045,6 +2052,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
+        msg.header.frame_id = "wgs84";
         publish<GpsFixMsg>("/gpsfix", msg);
     }
 
