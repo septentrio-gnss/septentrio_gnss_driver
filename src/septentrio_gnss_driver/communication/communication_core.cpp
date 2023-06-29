@@ -354,6 +354,7 @@ namespace io {
             }
 
             // Configure Aux1 antenna
+            if (settings_->multi_antenna)
             {
                 std::stringstream ss;
                 ss << "sat, Aux1, \"" << settings_->ant_type << "\""
@@ -377,6 +378,7 @@ namespace io {
             }
 
             // Configure Aux1 antenna
+            if (settings_->multi_antenna)
             {
                 std::stringstream ss;
                 ss << "sao, Aux1, " << string_utilities::trimDecimalPlaces(0.0)
