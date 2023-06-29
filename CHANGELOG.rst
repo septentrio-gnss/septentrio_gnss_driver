@@ -23,6 +23,7 @@ Changelog for package septentrio_gnss_driver
 * Fixes
    * navsatfix for INS
    * Empty headers
+   * Single antenna receiver setup
 * Preliminary Features
    * Output of localization and tf in ECEF frame, testing and feedback welcome
 
