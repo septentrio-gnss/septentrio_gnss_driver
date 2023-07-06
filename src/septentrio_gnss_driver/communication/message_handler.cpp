@@ -952,7 +952,7 @@ namespace io {
         msg.header.frame_id = "utm_" + zonestring;
         msg.header.stamp = last_insnavgeod_.header.stamp;
         if (settings_->ins_use_poi)
-            msg.child_frame_id = settings_->poi_frame_id; // TODO param
+            msg.child_frame_id = settings_->poi_frame_id;
         else
             msg.child_frame_id = settings_->frame_id;
 
@@ -1102,7 +1102,7 @@ namespace io {
         msg.header.frame_id = "ecef";
         msg.header.stamp = last_insnavcart_.header.stamp;
         if (settings_->ins_use_poi)
-            msg.child_frame_id = settings_->poi_frame_id; // TODO param
+            msg.child_frame_id = settings_->poi_frame_id;
         else
             msg.child_frame_id = settings_->frame_id;
 
@@ -1563,7 +1563,6 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        msg.header.frame_id = "wgs84";
         publish<NavSatFixMsg>("/navsatfix", msg);
     };
 
@@ -2052,7 +2051,6 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        msg.header.frame_id = "wgs84";
         publish<GpsFixMsg>("/gpsfix", msg);
     }
 
