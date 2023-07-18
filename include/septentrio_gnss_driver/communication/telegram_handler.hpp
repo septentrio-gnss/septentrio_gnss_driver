@@ -58,125 +58,109 @@
 
 #pragma once
 
-// Boost includes
-#include <boost/asio.hpp>
-#include <boost/asio/serial_port.hpp>
-// C++ library includes
-#include <fstream>
-#include <memory>
-#include <sstream>
+// C++ includes
+#include <condition_variable>
+
 // ROSaic includes
-#include <septentrio_gnss_driver/communication/async_manager.hpp>
-#include <septentrio_gnss_driver/communication/telegram_handler.hpp>
+#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/communication/telegram.hpp>
 
 /**
- * @file communication_core.hpp
- * @date 22/08/20
- * @brief Highest-Level view on communication services
+ * @file telegram_handler.hpp
+ * @brief Handles messages when reading NMEA/SBF/response/error/connection descriptor
+ * messages
  */
 
-/**
- * @namespace io
- * This namespace is for the communication interface, handling all aspects related to
- * serial and TCP/IP communication..
- */
 namespace io {
-
-    //! Possible baudrates for the Rx
-    const static uint32_t BAUDRATES[] = {
-        1200,    2400,    4800,    9600,    19200,   38400,   57600,
-        115200,  230400,  460800,  500000,  576000,  921600,  1000000,
-        1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
-
-    /**
-     * @class CommunicationCore
-     * @brief Handles communication with and configuration of the mosaic (and beyond)
-     * receiver(s)
-     */
-    class CommunicationCore
+    class Semaphore
     {
     public:
-        /**
-         * @brief Constructor of the class CommunicationCore
-         * @param[in] node Pointer to node
-         */
-        CommunicationCore(ROSaicNodeBase* node);
-        /**
-         * @brief Default destructor of the class CommunicationCore
-         */
-        ~CommunicationCore();
+        Semaphore() : block_(true) {}
 
-        /**
-         * @brief Connects the data stream
-         */
-        void connect();
+        void notify()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            block_ = false;
+            cv_.notify_one();
+        }
 
-        /**
-         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
-         * correction settings
-         * */
-        void configureRx();
-
-        /**
-         * @brief Hands over NMEA velocity message over to the send() method of
-         * manager_
-         * @param cmd The command to hand over
-         */
-        void sendVelocity(const std::string& velNmea);
+        void wait()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            while (block_)
+            {
+                cv_.wait(lock);
+            }
+            block_ = true;
+        }
 
     private:
-        /**
-         * @brief Resets Rx settings
-         */
-        void resetSettings();
+        std::mutex mtx_;
+        std::condition_variable cv_;
+        bool block_;
+    };
+
+    /**
+     * @class TelegramHandler
+     * @brief Represents ensemble of (to be constructed) ROS messages, to be handled
+     * at once by this class
+     */
+    class TelegramHandler
+    {
+
+    public:
+        TelegramHandler(ROSaicNodeBase* node) : node_(node), messageHandler_(node) {}
+
+        ~TelegramHandler()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
+        void clearSemaphores()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
 
         /**
-         * @brief Initializes the I/O handling
-         * * @return Wether connection was successful
+         * @brief Called every time a telegram is received
          */
-        [[nodiscard]] bool initializeIo();
+        void handleTelegram(const std::shared_ptr<Telegram>& telegram);
 
-        /**
-         * @brief Reset main connection so it can receive commands
-         * @return Main connection descriptor
-         */
-        std::string resetMainConnection();
+        //! Returns the connection descriptor
+        void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
 
-        void processTelegrams();
+        //! Returns the connection descriptor
+        [[nodiscard]] std::string getMainCd()
+        {
+            cdSemaphore_.wait();
+            return mainConnectionDescriptor_;
+        }
 
-        /**
-         * @brief Hands over to the send() method of manager_
-         * @param cmd The command to hand over
-         */
-        void send(const std::string&);
+        //! Waits for response
+        void waitForResponse() { responseSemaphore_.wait(); }
 
+        //! Waits for capabilities
+        void waitForCapabilities() { capabilitiesSemaphore_.wait(); }
+
+    private:
+        void handleSbf(const std::shared_ptr<Telegram>& telegram);
+        void handleNmea(const std::shared_ptr<Telegram>& telegram);
+        void handleResponse(const std::shared_ptr<Telegram>& telegram);
+        void handleError(const std::shared_ptr<Telegram>& telegram);
+        void handleCd(const std::shared_ptr<Telegram>& telegram);
         //! Pointer to Node
         ROSaicNodeBase* node_;
-        //! Settings
-        const Settings* settings_;
-        //! TelegramQueue
-        TelegramQueue telegramQueue_;
-        //! TelegramHandler
-        TelegramHandler telegramHandler_;
-        //! Processing thread
-        std::thread processingThread_;
-        //! Whether connecting was successful
-        bool initializedIo_ = false;
-        //! Processes I/O stream data
-        //! This declaration is deliberately stream-independent (Serial or TCP).
-        std::unique_ptr<AsyncManagerBase> manager_;
 
-        std::unique_ptr<AsyncManager<TcpIo>> tcpClient_;
-        std::unique_ptr<UdpClient> udpClient_;
+        //! MessageHandler parser
+        MessageHandler messageHandler_;
 
-        bool nmeaActivated_ = false;
-
-        //! Indicator for threads to run
-        std::atomic<bool> running_;
-
-        //! Main communication port
-        std::string mainConnectionPort_;
-        // Port for receiving data streams
-        std::string streamPort_;
+        Semaphore cdSemaphore_;
+        Semaphore responseSemaphore_;
+        Semaphore capabilitiesSemaphore_;
+        std::string mainConnectionDescriptor_ = std::string();
     };
+
 } // namespace io

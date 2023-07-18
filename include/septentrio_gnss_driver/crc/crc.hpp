@@ -30,38 +30,37 @@
 
 #pragma once
 
-// C++ library includes
-#include <string>
-#include <vector>
+// ROSaic includes
+// The following imports structs into which SBF blocks can be unpacked then shipped
+// to handler functions
+#include <septentrio_gnss_driver/parsers/sbf_blocks.hpp>
+// C++ libary includes
+#include <cstdint>
+#include <stdbool.h>
+#include <stddef.h>
 
-/**
- * @file nmea_sentence.hpp
- * @brief Defines a struct NMEASentence, into which NMEA sentences - both
- * standardized and proprietary ones - should be mapped
- * @date 13/08/20
- */
+namespace crc {
+    /**
+     * @file crc.hpp
+     * @brief Declares the functions to compute and validate the CRC of a buffer
+     * @date 17/08/20
+     */
 
-/**
- * @brief Struct to split an NMEA sentence into its ID and its body, the latter
- * tokenized into a vector of strings.
- *
- * By ID, we mean either a standardized ID, e.g. "$GPGGA", or proprietary ID such as
- * "$PSSN,HRP". The STL Container Vector can be used to dynamically allocate arrays
- * (C++ feature). Also note that the ID of !all! (not just those defined by
- * Septentrio) proprietary NMEA messages starts with "$P". The body_ member variable
- * shall exclude the NMEA checksum (also hinted at in files that implement the
- * parsing).
- */
-class NMEASentence
-{
-public:
-    NMEASentence(std::string id, std::vector<std::string> body) :
-        id_(id), body_(body)
-    {
-    }
-    std::vector<std::string> get_body() const { return body_; }
+    /**
+     * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
+     * buffer "buf" of "buf_length" bytes
+     * @param[in] buf The buffer at hand
+     * @param[in] buf_length Number of bytes in "buf"
+     * @return The calculated CRC
+     */
+    uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
 
-protected:
-    std::string id_;
-    std::vector<std::string> body_;
-};
+    /**
+     * @brief Validates whether the calculated CRC of the SBF block at hand matches
+     * the CRC field of the streamed SBF block
+     * @param block The SBF block that we are interested in
+     * @return True if the CRC check of the SBFBlock has passed, false otherwise
+     */
+    bool isValid(const std::vector<uint8_t>& message);
+
+} // namespace crc

@@ -34,6 +34,16 @@
 #include <string>
 #include <vector>
 
+struct Osnma
+{
+    //! OSNMA mode
+    std::string mode;
+    //! Server for NTP synchronization
+    std::string ntp_server;
+    //! Wether OSNMA shall be kept open on shutdown
+    bool keep_open;
+};
+
 struct RtkNtrip
 {
     //! Id of the NTRIP port
@@ -92,20 +102,48 @@ struct RtkSerial
     bool keep_open;
 };
 
-struct RtkSettings
+struct Rtk
 {
     std::vector<RtkNtrip> ntrip;
     std::vector<RtkIpServer> ip_server;
     std::vector<RtkSerial> serial;
 };
 
+namespace device_type {
+    enum DeviceType
+    {
+        TCP,
+        SERIAL,
+        SBF_FILE,
+        PCAP_FILE
+    };
+} // namespace device_type
+
 //! Settings struct
 struct Settings
 {
     //! Set logger level to DEBUG
     bool activate_debug_log;
-    //! Device port
+    //! Device
     std::string device;
+    //! Device type
+    device_type::DeviceType device_type;
+    //! TCP IP
+    std::string device_tcp_ip;
+    //! TCP port
+    std::string device_tcp_port;
+    //! UDP port
+    uint32_t udp_port;
+    //! UDP unicast destination ip
+    std::string udp_unicast_ip;
+    //! UDP IP server id
+    std::string udp_ip_server;
+    //! TCP port
+    uint32_t tcp_port;
+    //! TCP IP server id
+    std::string tcp_ip_server;
+    //! Filename
+    std::string file_name;
     //! Username for login
     std::string login_user;
     //! Password for login
@@ -117,9 +155,8 @@ struct Settings
     uint32_t baudrate;
     //! HW flow control
     std::string hw_flow_control;
-    //! In case of serial communication to Rx, rx_serial_port specifies Rx's
-    //! serial port connected to, e.g. USB1 or COM1
-    std::string rx_serial_port;
+    // Wether to configure Rx
+    bool configure_rx;
     //! Datum to be used
     std::string datum;
     //! Polling period for PVT-related SBF blocks
@@ -183,7 +220,9 @@ struct Settings
     //! Position deviation mask
     float pos_std_dev;
     //! RTK corrections settings
-    RtkSettings rtk_settings;
+    Rtk rtk;
+    //! OSNMA settings
+    Osnma osnma;
     //! Whether or not to publish the GGA message
     bool publish_gpgga;
     //! Whether or not to publish the RMC message
@@ -194,6 +233,11 @@ struct Settings
     bool publish_gpgsv;
     //! Whether or not to publish the MeasEpoch message
     bool publish_measepoch;
+    //! Whether or not to publish the RFStatus and AIMPlusStatus message and
+    //! diagnostics
+    bool publish_aimplusstatus;
+    //! Whether or not to publish the GALAuthStatus message and diagnostics
+    bool publish_galauthstatus;
     //! Whether or not to publish the PVTCartesianMsg
     //! message
     bool publish_pvtcartesian;
@@ -210,6 +254,9 @@ struct Settings
     //! Whether or not to publish the PosCovGeodeticMsg
     //! message
     bool publish_poscovgeodetic;
+    //! Whether or not to publish the VelCovCartesianMsg
+    //! message
+    bool publish_velcovcartesian;
     //! Whether or not to publish the VelCovGeodeticMsg
     //! message
     bool publish_velcovgeodetic;
@@ -235,7 +282,7 @@ struct Settings
     bool publish_gpst;
     //! Whether or not to publish the NavSatFixMsg message
     bool publish_navsatfix;
-    //! Whether or not to publish the GPSFixMsg message
+    //! Whether or not to publish the GpsFixMsg message
     bool publish_gpsfix;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;
@@ -245,22 +292,26 @@ struct Settings
     bool publish_imu;
     //! Whether or not to publish the LocalizationMsg message
     bool publish_localization;
+    //! Whether or not to publish the LocalizationMsg message
+    bool publish_localization_ecef;
     //! Whether or not to publish the TwistWithCovarianceStampedMsg message
     bool publish_twist;
     //! Whether or not to publish the tf of the localization
     bool publish_tf;
+    //! Whether or not to publish the tf of the localization
+    bool publish_tf_ecef;
     //! Wether local frame should be inserted into tf
     bool insert_local_frame = false;
     //! Frame id of the local frame to be inserted
     std::string local_frame_id;
     //! Septentrio receiver type, either "gnss" or "ins"
     std::string septentrio_receiver_type;
-    //! Handle the case when an INS is used in GNSS mode
-    bool ins_in_gnss_mode = false;
     //! If true, the ROS message headers' unix time field is constructed from the TOW
     //! (in the SBF case) and UTC (in the NMEA case) data. If false, times are
     //! constructed within the driver via time(NULL) of the \<ctime\> library.
     bool use_gnss_time;
+    //! Wether processing latency shall be compensated for in ROS timestamp
+    bool latency_compensation;
     //! The frame ID used in the header of every published ROS message
     std::string frame_id;
     //! The frame ID used in the header of published ROS Imu message
@@ -277,7 +328,7 @@ struct Settings
     //! Wether the UTM zone of the localization is locked
     bool lock_utm_zone;
     //! The number of leap seconds that have been inserted into the UTC time
-    int32_t leap_seconds;
+    int32_t leap_seconds = -128;
     //! Whether or not we are reading from an SBF file
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
@@ -302,4 +353,15 @@ struct Settings
     uint32_t ins_vsm_serial_baud_rate;
     //! Wether VSM shall be kept open om shutdown
     bool ins_vsm_serial_keep_open;
+};
+
+//! Capabilities struct
+struct Capabilities
+{
+    //! Wether Rx is INS
+    bool is_ins = false;
+    //! Wether Rx has heading
+    bool has_heading = false;
+    //! Wether Rx has improved VSM handling
+    bool has_improved_vsm_handling = false;
 };

@@ -39,7 +39,7 @@
  */
 
 rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
-    ROSaicNodeBase(options), IO_(this, &settings_), tfBuffer_(this->get_clock())
+    ROSaicNodeBase(options), IO_(this), tfBuffer_(this->get_clock())
 {
     param("activate_debug_log", settings_.activate_debug_log, false);
     if (settings_.activate_debug_log)
@@ -54,7 +54,7 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         }
     }
 
-    this->log(LogLevel::DEBUG, "Called ROSaicNode() constructor..");
+    this->log(log_level::DEBUG, "Called ROSaicNode() constructor..");
 
     tfListener_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
@@ -63,61 +63,67 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         return;
 
     // Initializes Connection
-    IO_.initializeIO();
+    IO_.connect();
 
-    // Subscribes to all requested Rx messages by adding entries to the C++ multimap
-    // storing the callback handlers and publishes ROS messages
-    IO_.defineMessages();
-
-    // Sends commands to the Rx regarding which SBF/NMEA messages it should output
-    // and sets all its necessary corrections-related parameters
-    if (!settings_.read_from_sbf_log && !settings_.read_from_pcap)
-    {
-        IO_.configureRx();
-    }
-
-    this->log(LogLevel::DEBUG, "Leaving ROSaicNode() constructor..");
+    this->log(log_level::DEBUG, "Leaving ROSaicNode() constructor..");
 }
 
-bool rosaic_node::ROSaicNode::getROSParams()
+[[nodiscard]] bool rosaic_node::ROSaicNode::getROSParams()
 {
     param("use_gnss_time", settings_.use_gnss_time, true);
-    param("frame_id", settings_.frame_id, (std::string) "gnss");
-    param("imu_frame_id", settings_.imu_frame_id, (std::string) "imu");
-    param("poi_frame_id", settings_.poi_frame_id, (std::string) "base_link");
-    param("vsm_frame_id", settings_.vsm_frame_id, (std::string) "vsm");
-    param("aux1_frame_id", settings_.aux1_frame_id, (std::string) "aux1");
+    param("latency_compensation", settings_.latency_compensation, false);
+    param("frame_id", settings_.frame_id, static_cast<std::string>("gnss"));
+    param("imu_frame_id", settings_.imu_frame_id, static_cast<std::string>("imu"));
+    param("poi_frame_id", settings_.poi_frame_id,
+          static_cast<std::string>("base_link"));
+    param("vsm_frame_id", settings_.vsm_frame_id, static_cast<std::string>("vsm"));
+    param("aux1_frame_id", settings_.aux1_frame_id,
+          static_cast<std::string>("aux1"));
     param("vehicle_frame_id", settings_.vehicle_frame_id, settings_.poi_frame_id);
-    param("local_frame_id", settings_.local_frame_id, (std::string) "odom");
+    param("local_frame_id", settings_.local_frame_id,
+          static_cast<std::string>("odom"));
     param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
+    param("configure_rx", settings_.configure_rx, true);
 
     // Communication parameters
-    param("device", settings_.device, std::string("/dev/ttyACM0"));
+    param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
     getUint32Param("serial.baudrate", settings_.baudrate,
                    static_cast<uint32_t>(921600));
-    param("serial.hw_flow_control", settings_.hw_flow_control, std::string("off"));
-    param("serial.rx_serial_port", settings_.rx_serial_port, std::string("USB1"));
-    param("login.user", settings_.login_user, std::string(""));
-    param("login.password", settings_.login_password, std::string(""));
+    param("serial.hw_flow_control", settings_.hw_flow_control,
+          static_cast<std::string>("off"));
+    getUint32Param("stream_device.tcp.port", settings_.tcp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.tcp.ip_server", settings_.tcp_ip_server,
+          static_cast<std::string>(""));
+    getUint32Param("stream_device.udp.port", settings_.udp_port,
+                   static_cast<uint32_t>(0));
+    param("stream_device.udp.unicast_ip", settings_.udp_unicast_ip,
+          static_cast<std::string>(""));
+    param("stream_device.udp.ip_server", settings_.udp_ip_server,
+          static_cast<std::string>(""));
+    param("login.user", settings_.login_user, static_cast<std::string>(""));
+    param("login.password", settings_.login_password, static_cast<std::string>(""));
 
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
-    param("receiver_type", settings_.septentrio_receiver_type, std::string("gnss"));
+    param("receiver_type", settings_.septentrio_receiver_type,
+          static_cast<std::string>("gnss"));
     if (!((settings_.septentrio_receiver_type == "gnss") ||
-          (settings_.septentrio_receiver_type == "ins") ||
-          (settings_.septentrio_receiver_type == "ins_in_gnss_mode")))
+          (settings_.septentrio_receiver_type == "ins")))
     {
-        this->log(LogLevel::FATAL, "Unkown septentrio_receiver_type " +
-                                       settings_.septentrio_receiver_type +
-                                       " use either gnss or ins.");
+        this->log(log_level::FATAL, "Unkown septentrio_receiver_type " +
+                                        settings_.septentrio_receiver_type +
+                                        " use either gnss or ins.");
         return false;
     }
 
-    if (settings_.septentrio_receiver_type == "ins_in_gnss_mode")
+    if (settings_.configure_rx && !settings_.tcp_ip_server.empty() &&
+        !settings_.udp_ip_server.empty())
     {
-        settings_.septentrio_receiver_type = "gnss";
-        settings_.ins_in_gnss_mode = true;
+        this->log(
+            log_level::WARN,
+            "Both UDP and TCP have been defined to receive data, only TCP will be used. If UDP is intended, leave tcp/ip_server empty.");
     }
 
     // Polling period parameters
@@ -127,7 +133,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                       settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
-            LogLevel::FATAL,
+            log_level::FATAL,
             "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " +
                 std::to_string(settings_.polling_period_pvt));
         return false;
@@ -138,10 +144,15 @@ bool rosaic_node::ROSaicNode::getROSParams()
                       settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
-            LogLevel::FATAL,
+            log_level::FATAL,
             "Please specify a valid polling period for PVT-unrelated SBF blocks and NMEA messages.");
         return false;
     }
+
+    // OSNMA parameters
+    param("osnma.mode", settings_.osnma.mode, std::string("off"));
+    param("osnma.ntp_server", settings_.osnma.ntp_server, std::string(""));
+    param("osnma.keep_open", settings_.osnma.keep_open, true);
 
     // multi_antenna param
     param("multi_antenna", settings_.multi_antenna, false);
@@ -152,30 +163,25 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.gpsfix", settings_.publish_gpsfix, false);
     param("publish.pose", settings_.publish_pose, false);
     param("publish.diagnostics", settings_.publish_diagnostics, false);
+    param("publish.aimplusstatus", settings_.publish_aimplusstatus, false);
+    param("publish.galauthstatus", settings_.publish_galauthstatus, false);
     param("publish.gpgga", settings_.publish_gpgga, false);
     param("publish.gprmc", settings_.publish_gprmc, false);
     param("publish.gpgsa", settings_.publish_gpgsa, false);
     param("publish.gpgsv", settings_.publish_gpgsv, false);
     param("publish.measepoch", settings_.publish_measepoch, false);
     param("publish.pvtcartesian", settings_.publish_pvtcartesian, false);
-    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
+    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, false);
     param("publish.basevectorcart", settings_.publish_basevectorcart, false);
     param("publish.basevectorgeod", settings_.publish_basevectorgeod, false);
     param("publish.poscovcartesian", settings_.publish_poscovcartesian, false);
-    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
-    param("publish.velcovgeodetic", settings_.publish_velcovgeodetic,
-          (settings_.septentrio_receiver_type == "gnss"));
-    param(
-        "publish.atteuler", settings_.publish_atteuler,
-        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
-    param(
-        "publish.attcoveuler", settings_.publish_attcoveuler,
-        ((settings_.septentrio_receiver_type == "gnss") && settings_.multi_antenna));
+    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic, false);
+    param("publish.velcovcartesian", settings_.publish_velcovcartesian, false);
+    param("publish.velcovgeodetic", settings_.publish_velcovgeodetic, false);
+    param("publish.atteuler", settings_.publish_atteuler, false);
+    param("publish.attcoveuler", settings_.publish_attcoveuler, false);
     param("publish.insnavcart", settings_.publish_insnavcart, false);
-    param("publish.insnavgeod", settings_.publish_insnavgeod,
-          (settings_.septentrio_receiver_type == "ins"));
+    param("publish.insnavgeod", settings_.publish_insnavgeod, false);
     param("publish.imusetup", settings_.publish_imusetup, false);
     param("publish.velsensorsetup", settings_.publish_velsensorsetup, false);
     param("publish.exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
@@ -183,11 +189,24 @@ bool rosaic_node::ROSaicNode::getROSParams()
     param("publish.extsensormeas", settings_.publish_extsensormeas, false);
     param("publish.imu", settings_.publish_imu, false);
     param("publish.localization", settings_.publish_localization, false);
+    param("publish.localization_ecef", settings_.publish_localization_ecef, false);
     param("publish.twist", settings_.publish_twist, false);
     param("publish.tf", settings_.publish_tf, false);
+    param("publish.tf_ecef", settings_.publish_tf_ecef, false);
+
+    if (settings_.publish_tf && settings_.publish_tf_ecef)
+    {
+        this->log(
+            log_level::WARN,
+            "Only one of the tfs may be published at once, just activating tf in ECEF ");
+        settings_.publish_tf = false;
+    }
 
     // Datum and marker-to-ARP offset
     param("datum", settings_.datum, std::string("Default"));
+    // WGS84 is equivalent to Default and kept for backwards compatibility
+    if (settings_.datum == "Default")
+        settings_.datum = "WGS84";
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
     if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
@@ -339,28 +358,28 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (settings_.publish_atteuler)
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Pitch angle output by topic /atteuler is a tilt angle rotated by " +
                     std::to_string(settings_.heading_offset) + ".");
         }
         if (settings_.publish_pose && (settings_.septentrio_receiver_type == "gnss"))
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Pitch angle output by topic /pose is a tilt angle rotated by " +
                     std::to_string(settings_.heading_offset) + ".");
         }
     }
 
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU roll offset: " + std::to_string(settings_.theta_x));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU pitch offset: " + std::to_string(settings_.theta_y));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "IMU yaw offset: " + std::to_string(settings_.theta_z));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "Ant heading offset: " + std::to_string(settings_.heading_offset));
-    this->log(LogLevel::DEBUG,
+    this->log(log_level::DEBUG,
               "Ant pitch offset: " + std::to_string(settings_.pitch_offset));
 
     // ins_initial_heading param
@@ -376,7 +395,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
     if (settings_.publish_tf && !settings_.ins_use_poi)
     {
         this->log(
-            LogLevel::ERROR,
+            log_level::ERROR,
             "If tf shall be published, ins_use_poi has to be set to true! It is set automatically to true.");
         settings_.ins_use_poi = true;
     }
@@ -422,7 +441,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             ntripSettings.send_gga = "off";
         param("rtk_settings." + ntrip + ".keep_open", ntripSettings.keep_open, true);
 
-        settings_.rtk_settings.ntrip.push_back(ntripSettings);
+        settings_.rtk.ntrip.push_back(ntripSettings);
     }
     // IP server
     for (uint8_t i = 1; i < 6; ++i)
@@ -444,7 +463,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             ipSettings.send_gga = "off";
         param("rtk_settings." + ips + ".keep_open", ipSettings.keep_open, true);
 
-        settings_.rtk_settings.ip_server.push_back(ipSettings);
+        settings_.rtk.ip_server.push_back(ipSettings);
     }
     // Serial
     for (uint8_t i = 1; i < 6; ++i)
@@ -468,7 +487,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("rtk_settings." + serial + ".keep_open", serialSettings.keep_open,
               true);
 
-        settings_.rtk_settings.serial.push_back(serialSettings);
+        settings_.rtk.serial.push_back(serialSettings);
     }
 
     {
@@ -479,28 +498,28 @@ bool rosaic_node::ROSaicNode::getROSParams()
         param("ntrip_settings.mode", tempString, std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings.mode has been removed, see README under section rtk_settings.");
         param("ntrip_settings.caster", tempString, std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings.caster has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_has_internet", tempBool, false);
         if (tempBool)
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings.rx_has_internet has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_input_corrections_tcp", tempInt, 0);
         if (tempInt != 0)
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings.rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
         param("ntrip_settings.rx_input_corrections_serial", tempString,
               std::string(""));
         if (tempString != "")
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtk_settings.");
     }
 
@@ -509,7 +528,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
         if (!settings_.multi_antenna)
         {
             this->log(
-                LogLevel::WARN,
+                log_level::WARN,
                 "AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
             settings_.multi_antenna = true;
         }
@@ -524,9 +543,9 @@ bool rosaic_node::ROSaicNode::getROSParams()
         ins_use_vsm = ((settings_.ins_vsm_ros_source == "odometry") ||
                        (settings_.ins_vsm_ros_source == "twist"));
         if (!settings_.ins_vsm_ros_source.empty() && !ins_use_vsm)
-            this->log(LogLevel::ERROR, "unknown ins_vsm.ros.source " +
-                                           settings_.ins_vsm_ros_source +
-                                           " -> VSM input will not be used!");
+            this->log(log_level::ERROR, "unknown ins_vsm.ros.source " +
+                                            settings_.ins_vsm_ros_source +
+                                            " -> VSM input will not be used!");
 
         param("ins_vsm.ip_server.id", settings_.ins_vsm_ip_server_id,
               std::string(""));
@@ -538,7 +557,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             param("ins_vsm.ip_server.keep_open",
                   settings_.ins_vsm_ip_server_keep_open, true);
             this->log(
-                LogLevel::INFO,
+                log_level::INFO,
                 "external velocity sensor measurements via ip_server are used.");
         }
 
@@ -550,7 +569,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                            static_cast<uint32_t>(115200));
             param("ins_vsm.serial.keep_open", settings_.ins_vsm_serial_keep_open,
                   true);
-            this->log(LogLevel::INFO,
+            this->log(log_level::INFO,
                       "external velocity sensor measurements via serial are used.");
         }
 
@@ -564,7 +583,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
             {
                 ins_use_vsm = false;
                 this->log(
-                    LogLevel::ERROR,
+                    log_level::ERROR,
                     "all elements of ins_vsm.ros.config have been set to false -> VSM input will not be used!");
             } else
             {
@@ -577,7 +596,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                     if (settings_.ins_vsm_ros_variances.size() != 3)
                     {
                         this->log(
-                            LogLevel::ERROR,
+                            log_level::ERROR,
                             "ins_vsm.ros.variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
                         ins_use_vsm = false;
                         settings_.ins_vsm_ros_source = "";
@@ -590,7 +609,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                                 (settings_.ins_vsm_ros_variances[i] <= 0.0))
                             {
                                 this->log(
-                                    LogLevel::ERROR,
+                                    log_level::ERROR,
                                     "ins_vsm.ros.config of element " +
                                         std::to_string(i) +
                                         " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
@@ -605,7 +624,7 @@ bool rosaic_node::ROSaicNode::getROSParams()
                         ins_use_vsm = false;
                         settings_.ins_vsm_ros_source = "";
                         this->log(
-                            LogLevel::ERROR,
+                            log_level::ERROR,
                             "all elements of ins_vsm.ros.config have been set to false due to invalid covariances -> VSM input will not be used!");
                     }
                 }
@@ -614,24 +633,120 @@ bool rosaic_node::ROSaicNode::getROSParams()
         {
             settings_.ins_vsm_ros_source = "";
             this->log(
-                LogLevel::ERROR,
+                log_level::ERROR,
                 "ins_vsm.ros.config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
         }
         if (ins_use_vsm)
         {
-            this->log(LogLevel::INFO, "ins_vsm.ros.source " +
-                                          settings_.ins_vsm_ros_source +
-                                          " will be used.");
+            this->log(log_level::INFO, "ins_vsm.ros.source " +
+                                           settings_.ins_vsm_ros_source +
+                                           " will be used.");
             registerSubscriber();
+        }
+
+        if (!settings_.tcp_ip_server.empty())
+        {
+            if (settings_.tcp_ip_server == settings_.udp_ip_server)
+                this->log(
+                    log_level::ERROR,
+                    "tcp.ip_server and udp.ip_server cannot use the same IP server");
+            if (settings_.tcp_ip_server == settings_.ins_vsm_ip_server_id)
+                this->log(
+                    log_level::ERROR,
+                    "tcp.ip_server and ins_vsm.ip_server.id cannot use the same IP server");
+            for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
+            {
+                if (settings_.tcp_ip_server == settings_.rtk.ip_server[i].id)
+                    this->log(log_level::ERROR,
+                              "tcp.ip_server and rtk_settings.ip_server_" +
+                                  std::to_string(i + 1) +
+                                  ".id cannot use the same IP server");
+            }
+        }
+        if (!settings_.udp_ip_server.empty())
+        {
+            if (settings_.udp_ip_server == settings_.ins_vsm_ip_server_id)
+                this->log(
+                    log_level::ERROR,
+                    "udp.ip_server and ins_vsm.ip_server.id cannot use the same IP server");
+            for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
+            {
+                if (settings_.udp_ip_server == settings_.rtk.ip_server[i].id)
+                    this->log(log_level::ERROR,
+                              "udp.ip_server and rtk_settings.ip_server_" +
+                                  std::to_string(i + 1) +
+                                  ".id cannot use the same IP server");
+            }
+        }
+        if (!settings_.ins_vsm_ip_server_id.empty())
+        {
+            for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
+            {
+                if (settings_.ins_vsm_ip_server_id == settings_.rtk.ip_server[i].id)
+                    this->log(log_level::ERROR,
+                              "ins_vsm.ip_server.id and rtk_settings.ip_server_" +
+                                  std::to_string(i + 1) +
+                                  ".id cannot use the same IP server");
+            }
+        }
+        if (settings_.rtk.ip_server.size() == 2)
+        {
+            if (!settings_.rtk.ip_server[0].id.empty() &&
+                (settings_.rtk.ip_server[0].id == settings_.rtk.ip_server[1].id))
+                this->log(
+                    log_level::ERROR,
+                    "rtk_settings.ip_server_1.id and rtk_settings.ip_server_2.id cannot use the same IP server");
+        }
+    }
+
+    boost::smatch match;
+    if (boost::regex_match(settings_.device, match,
+                           boost::regex("(tcp)://(.+):(\\d+)")))
+    {
+        settings_.device_tcp_ip = match[2];
+        settings_.device_tcp_port = match[3];
+        settings_.device_type = device_type::TCP;
+    } else if (boost::regex_match(settings_.device, match,
+                                  boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
+    {
+        settings_.read_from_sbf_log = true;
+        settings_.use_gnss_time = true;
+        settings_.device = match[2];
+        settings_.device_type = device_type::SBF_FILE;
+    } else if (boost::regex_match(
+                   settings_.device, match,
+                   boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+    {
+        settings_.read_from_pcap = true;
+        settings_.use_gnss_time = true;
+        settings_.device = match[2];
+        settings_.device_type = device_type::PCAP_FILE;
+    } else if (boost::regex_match(settings_.device, match,
+                                  boost::regex("(serial):(.+)")))
+    {
+        std::string proto(match[2]);
+        settings_.device_type = device_type::SERIAL;
+        settings_.device = proto;
+    } else
+    {
+        if (settings_.udp_ip_server.empty() || settings_.configure_rx ||
+            (settings_.ins_vsm_ros_source == "odometry") ||
+            (settings_.ins_vsm_ros_source == "twist"))
+        {
+            std::stringstream ss;
+            ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";
+            this->log(log_level::ERROR, ss.str());
+            return false;
         }
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
-    this->log(LogLevel::DEBUG, "Finished getROSParams() method");
+    this->log(log_level::DEBUG, "Finished getROSParams() method");
     return true;
 }
 
-bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns)
+[[nodiscard]] bool rosaic_node::ROSaicNode::validPeriod(uint32_t period,
+                                                        bool isIns) const
 {
     return ((period == 0) || ((period == 5 && isIns)) || (period == 10) ||
             (period == 20) || (period == 40) || (period == 50) || (period == 100) ||
@@ -644,7 +759,7 @@ bool rosaic_node::ROSaicNode::validPeriod(uint32_t period, bool isIns)
 
 void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
                                            const std::string& sourceFrame,
-                                           TransformStampedMsg& T_s_t)
+                                           TransformStampedMsg& T_s_t) const
 {
     bool found = false;
     while (!found)
@@ -657,9 +772,9 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
             found = true;
         } catch (const tf2::TransformException& ex)
         {
-            this->log(LogLevel::WARN, "Waiting for transform from " + sourceFrame +
-                                          " to " + targetFrame + ": " + ex.what() +
-                                          ".");
+            this->log(log_level::WARN, "Waiting for transform from " + sourceFrame +
+                                           " to " + targetFrame + ": " + ex.what() +
+                                           ".");
             found = false;
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(2000ms);
@@ -668,7 +783,7 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
 }
 
 void rosaic_node::ROSaicNode::getRPY(const QuaternionMsg& qm, double& roll,
-                                     double& pitch, double& yaw)
+                                     double& pitch, double& yaw) const
 {
     Eigen::Quaterniond q(qm.w, qm.x, qm.y, qm.z);
     Eigen::Quaterniond::RotationMatrixType C = q.matrix();

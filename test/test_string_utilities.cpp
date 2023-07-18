@@ -28,39 +28,35 @@
 //
 // *****************************************************************************
 
-#ifndef CRC_H
-#define CRC_H
+#include <gtest/gtest.h>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
-// ROSaic includes
-// The following imports structs into which SBF blocks can be unpacked then shipped
-// to handler functions
-#include <septentrio_gnss_driver/packed_structs/sbf_structs.hpp>
-// C++ libary includes
-#include <cstdint>
-#include <stdbool.h>
-#include <stddef.h>
+TEST(TrimTest, string_trimming)
+{
+    {
+        double val = 0.333333333;
+        auto str = string_utilities::trimDecimalPlaces(val);
 
-/**
- * @file crc.h
- * @brief Declares the functions to compute and validate the CRC of a buffer
- * @date 17/08/20
- */
+        EXPECT_EQ(str.size(), 5);
+    }
+    {
 
-/**
- * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
- * buffer "buf" of "buf_length" bytes
- * @param[in] buf The buffer at hand
- * @param[in] buf_length Number of bytes in "buf"
- * @return The calculated CRC
- */
-uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
+        double val = 0.0;
+        auto str = string_utilities::trimDecimalPlaces(val);
 
-/**
- * @brief Validates whether the calculated CRC of the SBF block at hand matches the
- * CRC field of the streamed SBF block
- * @param block The SBF block that we are interested in
- * @return True if the CRC check of the SBFBlock has passed, false otherwise
- */
-bool isValid(const uint8_t* block);
+        EXPECT_EQ(str.size(), 5);
+    }
+    {
 
-#endif // CRC_H
+        double val = 100.333333333;
+        auto str = string_utilities::trimDecimalPlaces(val);
+
+        EXPECT_EQ(str.size(), 7);
+    }
+    {
+        double val = 100.0;
+        auto str = string_utilities::trimDecimalPlaces(val);
+
+        EXPECT_EQ(str.size(), 7);
+    }
+}

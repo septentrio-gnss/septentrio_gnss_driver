@@ -60,11 +60,13 @@
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <sensor_msgs/msg/time_reference.hpp>
 // GNSS msg includes
+#include <septentrio_gnss_driver/msg/aim_plus_status.hpp>
 #include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
 #include <septentrio_gnss_driver/msg/att_euler.hpp>
 #include <septentrio_gnss_driver/msg/base_vector_cart.hpp>
 #include <septentrio_gnss_driver/msg/base_vector_geod.hpp>
 #include <septentrio_gnss_driver/msg/block_header.hpp>
+#include <septentrio_gnss_driver/msg/gal_auth_status.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type1.hpp>
 #include <septentrio_gnss_driver/msg/meas_epoch_channel_type2.hpp>
@@ -73,6 +75,8 @@
 #include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
 #include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
 #include <septentrio_gnss_driver/msg/receiver_time.hpp>
+#include <septentrio_gnss_driver/msg/rf_band.hpp>
+#include <septentrio_gnss_driver/msg/rf_status.hpp>
 #include <septentrio_gnss_driver/msg/vector_info_cart.hpp>
 #include <septentrio_gnss_driver/msg/vector_info_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_cov_cartesian.hpp>
@@ -89,8 +93,8 @@
 #include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
 // Rosaic includes
-#include <septentrio_gnss_driver/communication/settings.h>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
+#include <septentrio_gnss_driver/communication/settings.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;
@@ -104,18 +108,22 @@ typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
-typedef gps_msgs::msg::GPSFix GPSFixMsg;
-typedef gps_msgs::msg::GPSStatus GPSStatusMsg;
+typedef gps_msgs::msg::GPSFix GpsFixMsg;
+typedef gps_msgs::msg::GPSStatus GpsStatusMsg;
 typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
 typedef sensor_msgs::msg::NavSatStatus NavSatStatusMsg;
 typedef sensor_msgs::msg::TimeReference TimeReferenceMsg;
 typedef sensor_msgs::msg::Imu ImuMsg;
-typedef nav_msgs::msg::Odometry LocalizationUtmMsg;
+typedef nav_msgs::msg::Odometry LocalizationMsg;
 
 // Septentrio GNSS SBF messages
+typedef septentrio_gnss_driver::msg::AIMPlusStatus AimPlusStatusMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
 typedef septentrio_gnss_driver::msg::BaseVectorGeod BaseVectorGeodMsg;
 typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;
+typedef septentrio_gnss_driver::msg::GALAuthStatus GalAuthStatusMsg;
+typedef septentrio_gnss_driver::msg::RFStatus RfStatusMsg;
+typedef septentrio_gnss_driver::msg::RFBand RfBandMsg;
 typedef septentrio_gnss_driver::msg::MeasEpoch MeasEpochMsg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType1 MeasEpochChannelType1Msg;
 typedef septentrio_gnss_driver::msg::MeasEpochChannelType2 MeasEpochChannelType2Msg;
@@ -165,14 +173,16 @@ inline Timestamp timestampFromRos(const TimestampRos& tsr)
 /**
  * @brief Log level for ROS logging
  */
-enum LogLevel
-{
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
-};
+namespace log_level {
+    enum LogLevel
+    {
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        FATAL
+    };
+} // namespace log_level
 
 /**
  * @class ROSaicNodeBase
@@ -189,19 +199,29 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
+    const Settings* settings() const { return &settings_; }
+
     void registerSubscriber()
     {
-        if (settings_.ins_vsm_ros_source == "odometry")
-            odometrySubscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
-                "odometry_vsm", 10,
-                std::bind(&ROSaicNodeBase::callbackOdometry, this,
-                          std::placeholders::_1));
-        else if (settings_.ins_vsm_ros_source == "twist")
-            twistSubscriber_ =
-                this->create_subscription<TwistWithCovarianceStampedMsg>(
-                    "twist_vsm", 10,
-                    std::bind(&ROSaicNodeBase::callbackTwist, this,
-                              std::placeholders::_1));
+        try
+        {
+            if (settings_.ins_vsm_ros_source == "odometry")
+                odometrySubscriber_ =
+                    this->create_subscription<nav_msgs::msg::Odometry>(
+                        "odometry_vsm", 10,
+                        std::bind(&ROSaicNodeBase::callbackOdometry, this,
+                                  std::placeholders::_1));
+            else if (settings_.ins_vsm_ros_source == "twist")
+                twistSubscriber_ =
+                    this->create_subscription<TwistWithCovarianceStampedMsg>(
+                        "twist_vsm", 10,
+                        std::bind(&ROSaicNodeBase::callbackTwist, this,
+                                  std::placeholders::_1));
+        } catch (const std::runtime_error& ex)
+        {
+            this->log(log_level::ERROR, "Subscriber initialization failed due to: " +
+                                            std::string(ex.what()) + ".");
+        }
     }
 
     /**
@@ -254,23 +274,23 @@ public:
      * @param[in] logLevel Log level
      * @param[in] s String to log
      */
-    void log(LogLevel logLevel, const std::string& s)
+    void log(log_level::LogLevel logLevel, const std::string& s) const
     {
         switch (logLevel)
         {
-        case LogLevel::DEBUG:
+        case log_level::DEBUG:
             RCLCPP_DEBUG_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::INFO:
+        case log_level::INFO:
             RCLCPP_INFO_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::WARN:
+        case log_level::WARN:
             RCLCPP_WARN_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::ERROR:
+        case log_level::ERROR:
             RCLCPP_ERROR_STREAM(this->get_logger(), s);
             break;
-        case LogLevel::FATAL:
+        case log_level::FATAL:
             RCLCPP_FATAL_STREAM(this->get_logger(), s);
             break;
         default:
@@ -282,7 +302,7 @@ public:
      * @brief Gets current timestamp
      * @return Timestamp
      */
-    Timestamp getTime() { return this->now().nanoseconds(); }
+    Timestamp getTime() const { return this->now().nanoseconds(); }
 
     /**
      * @brief Publishing function
@@ -311,7 +331,7 @@ public:
      * @brief Publishing function for tf
      * @param[in] msg ROS localization message to be converted to tf
      */
-    void publishTf(const LocalizationUtmMsg& loc)
+    void publishTf(const LocalizationMsg& loc)
     {
         if (std::isnan(loc.pose.pose.orientation.w))
             return;
@@ -378,6 +398,36 @@ public:
         tf2Publisher_.sendTransform(transformStamped);
     }
 
+    /**
+     * @brief Set INS to true
+     */
+    void setIsIns() { capabilities_.is_ins = true; }
+
+    /**
+     * @brief Set has heading to true
+     */
+    void setHasHeading() { capabilities_.has_heading = true; }
+
+    /**
+     * @brief Set improved VSM handling to true
+     */
+    void setImprovedVsmHandling() { capabilities_.has_improved_vsm_handling = true; }
+
+    /**
+     * @brief Check if Rx is INS
+     */
+    bool isIns() { return capabilities_.is_ins; }
+
+    /**
+     * @brief Check if Rx has heading
+     */
+    bool hasHeading() { return capabilities_.has_heading; }
+
+    /**
+     * @brief Check if Rx has improved VSM handling
+     */
+    bool hasImprovedVsmHandling() { return capabilities_.has_improved_vsm_handling; }
+
 private:
     void callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr odo)
     {
@@ -396,96 +446,121 @@ private:
     void processTwist(Timestamp stamp,
                       const geometry_msgs::msg::TwistWithCovariance& twist)
     {
-        time_t epochSeconds = stamp / 1000000000;
-        struct tm* tm_temp = std::gmtime(&epochSeconds);
-        std::stringstream timeUtc;
-        timeUtc << std::setfill('0') << std::setw(2)
-                << std::to_string(tm_temp->tm_hour) << std::setw(2)
-                << std::to_string(tm_temp->tm_min) << std::setw(2)
-                << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
-                << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
-                                  1000000);
+        // in case stamp was not set
+        if (stamp == 0)
+            stamp = getTime();
 
-        std::string v_x;
-        std::string v_y;
-        std::string v_z;
-        std::string std_x;
-        std::string std_y;
-        std::string std_z;
-        if (settings_.ins_vsm_ros_config[0])
+        static Eigen::Vector3d vel = Eigen::Vector3d::Zero();
+        static Eigen::Vector3d var = Eigen::Vector3d::Zero();
+        static uint64_t ctr = 0;
+        static Timestamp lastStamp = 0;
+
+        ++ctr;
+        vel[0] += twist.twist.linear.x;
+        vel[1] += twist.twist.linear.y;
+        vel[2] += twist.twist.linear.z;
+        var[0] += twist.covariance[0];
+        var[1] += twist.covariance[7];
+        var[2] += twist.covariance[14];
+
+        // Rx expects averaged velocity at a rate of 2 Hz
+        if ((stamp - lastStamp) >= 495000000) // allow for 5 ms jitter
         {
-            v_x = string_utilities::trimDecimalPlaces(twist.twist.linear.x);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_x = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[0]);
-            else if (twist.covariance[0] > 0.0)
-                std_x = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[0]));
-            else
+            vel /= ctr;
+            var /= ctr;
+            time_t epochSeconds = stamp / 1000000000;
+            struct tm* tm_temp = std::gmtime(&epochSeconds);
+            std::stringstream timeUtc;
+            timeUtc << std::setfill('0') << std::setw(2)
+                    << std::to_string(tm_temp->tm_hour) << std::setw(2)
+                    << std::to_string(tm_temp->tm_min) << std::setw(2)
+                    << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
+                    << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
+                                      1000000);
+
+            std::string v_x;
+            std::string v_y;
+            std::string v_z;
+            std::string std_x;
+            std::string std_y;
+            std::string std_z;
+            if (settings_.ins_vsm_ros_config[0])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_x: " +
-                                        std::to_string(twist.covariance[0]) +
-                                        ". Ignoring measurement.");
-            }
-        } else
-            std_x = std::to_string(1000000.0);
-        if (settings_.ins_vsm_ros_config[1])
-        {
-            if (settings_.use_ros_axis_orientation)
-                v_y = "-";
-            v_y += string_utilities::trimDecimalPlaces(twist.twist.linear.y);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_y = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[1]);
-            else if (twist.covariance[7] > 0.0)
-                std_y = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[7]));
-            else
+                v_x = string_utilities::trimDecimalPlaces(vel[0]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_x = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[0]);
+                else if (var[0] > 0.0)
+                    std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
+                else if (!capabilities_.has_improved_vsm_handling)
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_x: " +
+                                              std::to_string(var[0]) +
+                                              ". Ignoring measurement.");
+                    v_x = "";
+                    std_x = string_utilities::trimDecimalPlaces(1000000.0);
+                }
+            } else
+                std_x = std::to_string(1000000.0);
+            if (settings_.ins_vsm_ros_config[1])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_y: " +
-                                        std::to_string(twist.covariance[1]) +
-                                        ". Ignoring measurement.");
-                v_y = "";
+                if (settings_.use_ros_axis_orientation)
+                    v_y = "-";
+                v_y += string_utilities::trimDecimalPlaces(vel[1]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_y = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[1]);
+                else if (var[1] > 0.0)
+                    std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
+                else if (!capabilities_.has_improved_vsm_handling)
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_y: " +
+                                              std::to_string(var[1]) +
+                                              ". Ignoring measurement.");
+                    v_y = "";
+                    std_y = string_utilities::trimDecimalPlaces(1000000.0);
+                }
+            } else
                 std_y = string_utilities::trimDecimalPlaces(1000000.0);
-            }
-        } else
-            std_y = string_utilities::trimDecimalPlaces(1000000.0);
-        if (settings_.ins_vsm_ros_config[2])
-        {
-            if (settings_.use_ros_axis_orientation)
-                v_z = "-";
-            v_z += string_utilities::trimDecimalPlaces(twist.twist.linear.z);
-            if (settings_.ins_vsm_ros_variances_by_parameter)
-                std_z = string_utilities::trimDecimalPlaces(
-                    settings_.ins_vsm_ros_variances[2]);
-            else if (twist.covariance[14] > 0.0)
-                std_z = string_utilities::trimDecimalPlaces(
-                    std::sqrt(twist.covariance[14]));
-            else
+            if (settings_.ins_vsm_ros_config[2])
             {
-                RCLCPP_ERROR_STREAM(this->get_logger(),
-                                    "Invalid covariance value for v_z: " +
-                                        std::to_string(twist.covariance[2]) +
-                                        ". Ignoring measurement.");
-                v_z = "";
+                if (settings_.use_ros_axis_orientation)
+                    v_z = "-";
+                v_z += string_utilities::trimDecimalPlaces(vel[2]);
+                if (settings_.ins_vsm_ros_variances_by_parameter)
+                    std_z = string_utilities::trimDecimalPlaces(
+                        settings_.ins_vsm_ros_variances[2]);
+                else if (var[2] > 0.0)
+                    std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
+                else if (!capabilities_.has_improved_vsm_handling)
+                {
+                    log(log_level::ERROR, "Invalid covariance value for v_z: " +
+                                              std::to_string(var[2]) +
+                                              ". Ignoring measurement.");
+                    v_z = "";
+                    std_z = string_utilities::trimDecimalPlaces(1000000.0);
+                }
+            } else
                 std_z = string_utilities::trimDecimalPlaces(1000000.0);
-            }
-        } else
-            std_z = string_utilities::trimDecimalPlaces(1000000.0);
 
-        std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," + v_y +
-                              "," + std_x + "," + std_y + "," + v_z + "," + std_z;
+            std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," +
+                                  v_y + "," + std_x + "," + std_y + "," + v_z + "," +
+                                  std_z;
 
-        char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
-                                   [](char sum, char ch) { return sum ^ ch; });
+            char crc = std::accumulate(velNmea.begin() + 1, velNmea.end(), 0,
+                                       [](char sum, char ch) { return sum ^ ch; });
 
-        std::stringstream crcss;
-        crcss << std::hex << static_cast<int32_t>(crc);
+            std::stringstream crcss;
+            crcss << std::hex << static_cast<int32_t>(crc);
 
-        velNmea += "*" + crcss.str() + "\r\n";
-        sendVelocity(velNmea);
+            velNmea += "*" + crcss.str() + "\r\n";
+            sendVelocity(velNmea);
+
+            vel = Eigen::Vector3d::Zero();
+            var = Eigen::Vector3d::Zero();
+            ctr = 0;
+            lastStamp = stamp;
+        }
     }
 
 protected:
@@ -506,9 +581,11 @@ private:
     //! Twist subscriber
     rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
     //! Last tf stamp
-    Timestamp lastTfStamp_;
+    Timestamp lastTfStamp_ = 0;
     //! tf buffer
     tf2_ros::Buffer tfBuffer_;
     // tf listener
     tf2_ros::TransformListener tfListener_;
+    // Capabilities of Rx
+    Capabilities capabilities_;
 };

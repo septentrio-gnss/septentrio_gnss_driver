@@ -6,12 +6,27 @@ device: tcp://192.168.3.1:28784
 
 serial:
   baudrate: 921600
-  rx_serial_port: USB1
   hw_flow_control: "off"
+
+stream_device:
+  tcp:
+    ip_server: ""
+    port: 0
+  udp:
+    ip_server: ""
+    port: 0
+    unicast_ip: ""
+
+configure_rx: true
 
 login:
   user: ""
   password: ""
+
+osnma:
+  mode: "loose"
+  ntp_server: ""
+  keep_open: true
 
 frame_id: gnss
 
@@ -56,6 +71,8 @@ polling_period:
 
 use_gnss_time: false
 
+latency_compensation: false
+
 rtk_settings:
   keep_open: true
   ntrip_1:
@@ -95,12 +112,15 @@ publish:
   basevectorgeod: false
   poscovcartesian: false
   poscovgeodetic: false
+  velcovcartesian: false
   velcovgeodetic: false
   atteuler: false
   attcoveuler: false
   pose: false
   twist: true
   diagnostics: true
+  aimplusstatus: true
+  galauthstatus: false
   # For INS Rx only
   insnavcart: true
   insnavgeod: true
@@ -112,6 +132,9 @@ publish:
   imu: true
   localization: true
   tf: true
+  localization_ecef: false
+  tf_ecef: false
+
 
 # INS-Specific Parameters
 

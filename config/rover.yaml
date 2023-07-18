@@ -6,12 +6,27 @@ device: tcp://192.168.3.1:28784
 
 serial:
   baudrate: 921600
-  rx_serial_port: USB1
   hw_flow_control: "off"
+
+stream_device:
+  tcp:
+    ip_server: ""
+    port: 0
+  udp:
+    ip_server: ""
+    port: 0
+    unicast_ip: ""
+
+configure_rx: true
 
 login:
   user: ""
-  password: ""
+  password: ""  
+
+osnma:
+  mode: "off"
+  ntp_server: ""
+  keep_open: true
 
 frame_id: gnss
 
@@ -61,6 +76,8 @@ polling_period:
 
 use_gnss_time: false
 
+latency_compensation: false
+
 rtk_settings:
   ntrip_1:
     id: ""
@@ -102,12 +119,15 @@ publish:
   basevectorgeod: false
   poscovcartesian: false
   poscovgeodetic: true
+  velcovcartesian: false
   velcovgeodetic: true
   atteuler: true
   attcoveuler: true
   pose: false
   twist: false
   diagnostics: false
+  aimplusstatus: true
+  galauthstatus: false
   # For GNSS Rx only
   gpgsa: false
   gpgsv: false
@@ -122,6 +142,9 @@ publish:
   imu: false
   localization: false
   tf: false
+  localization_ecef: false
+  tf_ecef: false
+
 
 # INS-Specific Parameters
 

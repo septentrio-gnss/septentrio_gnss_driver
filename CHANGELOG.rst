@@ -2,6 +2,114 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2022-07-06)
+------------------
+* New Features
+   * Recovery from connection interruption
+   * Add option to bypass configuration of Rx
+   * Add tests
+   * OSNMA
+   * Latency compensation for ROS timestamps
+   * Output of SBf block VelCovCartesian
+   * Support for UDP and TCP via IP server
+   * New VSM handling allows for unknown variances (INS firmware >= 1.4.1)
+   * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
+* Improvements
+   * Rework IO core and message handling
+     * Unified stream processing 
+     * Internal data queue
+     * Prevent message loss in file reading
+   * Add some explanatory warnings for parameter mismatches
+   * Add units to message definitions
+* Fixes
+   * navsatfix for INS
+   * Empty headers
+   * Single antenna receiver setup
+* Preliminary Features
+   * Output of localization and tf in ECEF frame, testing and feedback welcome
+* Commits
+   * Merge pull request `#83 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/83>`_ from thomasemter/dev/next2
+     Update readme
+   * Add expected release dates
+   * Add known issues to readme
+   * Update version
+   * Update readme
+   * Merge pull request `#82 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/82>`_ from thomasemter/dev/next2
+     Fix spelling
+   * Categorize stream params
+   * Add keep alive check for TCP
+   * Fix spelling
+   * Add TCP communication via static IP server
+   * Add units to msgs
+   * Fix spelling
+   * Merge pull request `#76 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/76>`_ from thomasemter/dev/next2
+     upcoming release
+   * Add heading to GPSFix msg
+   * Move constant
+   * Change log level of firmware check
+   * Add improved VSM handling
+   * Change INS in GNSS node detection to auto
+   * Fix invald v_x var case
+   * Refine readme on UDP
+   * Improve server duplicate check
+   * Add more info un UDP configuration
+   * Fix publish check
+   * Add more publishing checks for configured Rx
+   * Add const for max udp packet size
+   * Update readme and changelog
+   * Add device check to node
+   * Fix param name separators
+   * Add checks for IP server duplicates
+   * Add latency compensation to att msgs
+   * Add device check logic
+   * Add UDP params and setup logic
+   * Fix multi msg per packet
+   * Fix localization stamp and tf publishing
+   * Change VSM to be averaged and published with 2 Hz
+   * Change VSM to be averaged and published with 2 Hz
+   * Always publish raw IMU data as indicated
+   * Change to empty fields
+   * Refine diagnostics naming scheme and add trigger to ensure emission of ReceiverSetup
+   * Change diagnostics naming scheme
+   * Add missing new params to gnss.yaml
+   * Expand readme on AIM+
+   * Reformulate readme about ROS and ROS2
+   * Add custom message to report AIM+ status
+   * Catch invalid UTM conversion
+   * Robustify command reset
+   * Add RFStatus diagnostics
+   * Add VelCovCartesian output
+   * Refine Rx type check
+   * Add option for latency compensation
+   * Fix param type misinterpretation
+   * Add OSNMA msg and diagnostics
+   * Update changelog
+   * Refine README and fix compiled message logic
+   * Update changelog
+   * Add warning for configuring INS as GNSS
+   * Add warn log for misconfiguration
+   * Fix pose publishing rate
+   * Fix navsatfix publishing
+   * Make vars const
+   * Merge rework of internal IO handling
+   * Change connection thread
+   * Fix attitude cov flipped twice
+   * Add cov alignment from true north to grid north
+   * Rename meridian convergence and fix sense
+   * Remove obsolete define
+   * Add tests
+   * Rename example launch files so they are found by auto-completion
+   * Merge branch 'dev/ros2' into dev/next2
+   * Fix lat/long in rad
+   * Fix readme concerning ROS 2 distros
+   * Reorder localization msg filling
+   * Update readme
+   * Fix NED to ECEF rotation matrix
+   * Add localization ECEF publishing
+   * Add ecef localization msg
+   * Add local to ecef transforms
+   * Contributors: Thomas Emter, Tibor Dome
+
 1.2.3 (2022-11-09)
 ------------------
 * New Features

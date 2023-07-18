@@ -28,57 +28,45 @@
 //
 // *****************************************************************************
 
-// ROS includes
-#include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#include <gtest/gtest.h>
+#include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
-// C++ library includes
-#include <algorithm>
-#include <cstdint>
-
-#ifndef CIRCULAR_BUFFER_HPP
-#define CIRCULAR_BUFFER_HPP
-
-/**
- * @file circular_buffer.hpp
- * @brief Declares a class for creating, writing to and reading from a circular
- * bufffer
- * @date 25/09/20
- */
-
-/**
- * @class CircularBuffer
- * @brief Class for creating, writing to and reading from a circular buffer
- */
-class CircularBuffer
+TEST(WrapTest, angle180)
 {
-public:
-    //! Constructor of CircularBuffer
-    explicit CircularBuffer(ROSaicNodeBase* node, std::size_t capacity);
-    //! Destructor of CircularBuffer
-    ~CircularBuffer();
-    //! Returns size_
-    std::size_t size() const { return size_; }
-    //! Returns capacity_
-    std::size_t capacity() const { return capacity_; }
-    //! Returns number of bytes written.
-    std::size_t write(const uint8_t* data, std::size_t bytes);
-    //! Returns number of bytes read.
-    std::size_t read(uint8_t* data, std::size_t bytes);
+    {
+        double val = 270.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
 
-private:
-    //! Pointer to the node
-    ROSaicNodeBase* node_;
-    //! Specifies where we start writing
-    std::size_t head_;
-    //! Specifies where we start reading
-    std::size_t tail_;
-    //! Number of bytes that have been written but not yet read
-    std::size_t size_;
-    //! Capacity of the circular buffer
-    std::size_t capacity_;
-    //! Pointer that always points to the same memory address, hence could be const
-    //! pointer
-    uint8_t* data_;
-};
+        EXPECT_EQ(wrapped_val, -90.0);
+    }
+    {
+        double val = -270.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
 
-#endif // for CIRCULAR_BUFFER_HPP
+        EXPECT_EQ(wrapped_val, 90.0);
+    }
+    {
+        double val = -90.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
+
+        EXPECT_EQ(wrapped_val, -90.0);
+    }
+    {
+        double val = 90.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
+
+        EXPECT_EQ(wrapped_val, 90.0);
+    }
+    {
+        double val = 630.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
+
+        EXPECT_EQ(wrapped_val, -90.0);
+    }
+    {
+        double val = -630.0;
+        auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
+
+        EXPECT_EQ(wrapped_val, 90.0);
+    }
+}
