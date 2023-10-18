@@ -555,9 +555,9 @@ namespace io {
         msg.linear_acceleration.y = last_extsensmeas_.acceleration_y;
         msg.linear_acceleration.z = last_extsensmeas_.acceleration_z;
 
-        msg.angular_velocity.x = last_extsensmeas_.angular_rate_x;
-        msg.angular_velocity.y = last_extsensmeas_.angular_rate_y;
-        msg.angular_velocity.z = last_extsensmeas_.angular_rate_z;
+        msg.angular_velocity.x = deg2rad(last_extsensmeas_.angular_rate_x);
+        msg.angular_velocity.y = deg2rad(last_extsensmeas_.angular_rate_y);
+        msg.angular_velocity.z = deg2rad(last_extsensmeas_.angular_rate_z);
 
         bool valid_orientation = false;
         if (settings_->septentrio_receiver_type == "ins")
