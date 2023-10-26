@@ -210,7 +210,7 @@ namespace io {
             msg.pose.covariance[34] = deg2radSq(last_attcoveuler_.cov_headpitch);
             msg.pose.covariance[35] = deg2radSq(last_attcoveuler_.cov_headhead);
         }
-        publish<PoseWithCovarianceStampedMsg>("/pose", msg);
+        publish<PoseWithCovarianceStampedMsg>("pose", msg);
     };
 
     void MessageHandler::assembleDiagnosticArray(
@@ -530,7 +530,7 @@ namespace io {
         aimMsg.header = last_rf_status_.header;
         aimMsg.tow = last_rf_status_.block_header.tow;
         aimMsg.wnc = last_rf_status_.block_header.wnc;
-        publish<AimPlusStatusMsg>("/aimplusstatus", aimMsg);
+        publish<AimPlusStatusMsg>("aimplusstatus", aimMsg);
 
         if (spoofed || detected)
             diagRf.level = DiagnosticStatusMsg::ERROR;
@@ -555,9 +555,9 @@ namespace io {
         msg.linear_acceleration.y = last_extsensmeas_.acceleration_y;
         msg.linear_acceleration.z = last_extsensmeas_.acceleration_z;
 
-        msg.angular_velocity.x = last_extsensmeas_.angular_rate_x;
-        msg.angular_velocity.y = last_extsensmeas_.angular_rate_y;
-        msg.angular_velocity.z = last_extsensmeas_.angular_rate_z;
+        msg.angular_velocity.x = deg2rad(last_extsensmeas_.angular_rate_x);
+        msg.angular_velocity.y = deg2rad(last_extsensmeas_.angular_rate_y);
+        msg.angular_velocity.z = deg2rad(last_extsensmeas_.angular_rate_z);
 
         bool valid_orientation = false;
         if (settings_->septentrio_receiver_type == "ins")
@@ -653,7 +653,7 @@ namespace io {
             msg.orientation_covariance[8] = -1.0;
         }
 
-        publish<ImuMsg>("/imu", msg);
+        publish<ImuMsg>("imu", msg);
     };
 
     void MessageHandler::assembleTwist(bool fromIns /* = false*/)
@@ -773,7 +773,7 @@ namespace io {
             msg.twist.covariance[28] = -1.0;
             msg.twist.covariance[35] = -1.0;
 
-            publish<TwistWithCovarianceStampedMsg>("/twist_ins", msg);
+            publish<TwistWithCovarianceStampedMsg>("twist_ins", msg);
         } else
         {
             if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
@@ -874,7 +874,7 @@ namespace io {
             msg.twist.covariance[28] = -1.0;
             msg.twist.covariance[35] = -1.0;
 
-            publish<TwistWithCovarianceStampedMsg>("/twist_gnss", msg);
+            publish<TwistWithCovarianceStampedMsg>("twist_gnss", msg);
         }
     };
 
@@ -1078,7 +1078,7 @@ namespace io {
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
         if (settings_->publish_localization)
-            publish<LocalizationMsg>("/localization", msg);
+            publish<LocalizationMsg>("localization", msg);
         if (settings_->publish_tf)
             publishTf(msg);
     };
@@ -1247,7 +1247,7 @@ namespace io {
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
 
         if (settings_->publish_localization_ecef)
-            publish<LocalizationMsg>("/localization_ecef", msg);
+            publish<LocalizationMsg>("localization_ecef", msg);
         if (settings_->publish_tf_ecef)
             publishTf(msg);
     };
@@ -1563,7 +1563,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        publish<NavSatFixMsg>("/navsatfix", msg);
+        publish<NavSatFixMsg>("navsatfix", msg);
     };
 
     /**
@@ -2051,7 +2051,7 @@ namespace io {
             msg.position_covariance_type =
                 NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
-        publish<GpsFixMsg>("/gpsfix", msg);
+        publish<GpsFixMsg>("gpsfix", msg);
     }
 
     void
@@ -2062,7 +2062,7 @@ namespace io {
         msg.time_ref = timestampToRos(time_obj);
         msg.source = "GPST";
         assembleHeader(settings_->frame_id, telegram, msg);
-        publish<TimeReferenceMsg>("/gpst", msg);
+        publish<TimeReferenceMsg>("gpst", msg);
     }
 
     template <typename T>
@@ -2225,7 +2225,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->frame_id, telegram, msg);
-                publish<PVTCartesianMsg>("/pvtcartesian", msg);
+                publish<PVTCartesianMsg>("pvtcartesian", msg);
             }
             break;
         }
@@ -2240,7 +2240,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_pvtgeodetic_);
             if (settings_->publish_pvtgeodetic)
-                publish<PVTGeodeticMsg>("/pvtgeodetic", last_pvtgeodetic_);
+                publish<PVTGeodeticMsg>("pvtgeodetic", last_pvtgeodetic_);
             assembleTwist();
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
@@ -2263,7 +2263,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->frame_id, telegram, msg);
-                publish<BaseVectorCartMsg>("/basevectorcart", msg);
+                publish<BaseVectorCartMsg>("basevectorcart", msg);
             }
             break;
         }
@@ -2280,7 +2280,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->frame_id, telegram, msg);
-                publish<BaseVectorGeodMsg>("/basevectorgeod", msg);
+                publish<BaseVectorGeodMsg>("basevectorgeod", msg);
             }
             break;
         }
@@ -2297,7 +2297,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->frame_id, telegram, msg);
-                publish<PosCovCartesianMsg>("/poscovcartesian", msg);
+                publish<PosCovCartesianMsg>("poscovcartesian", msg);
             }
             break;
         }
@@ -2311,7 +2311,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_poscovgeodetic_);
             if (settings_->publish_poscovgeodetic)
-                publish<PosCovGeodeticMsg>("/poscovgeodetic", last_poscovgeodetic_);
+                publish<PosCovGeodeticMsg>("poscovgeodetic", last_poscovgeodetic_);
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
             assembleGpsFix();
@@ -2328,7 +2328,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_atteuler_);
             if (settings_->publish_atteuler)
-                publish<AttEulerMsg>("/atteuler", last_atteuler_);
+                publish<AttEulerMsg>("atteuler", last_atteuler_);
             assemblePoseWithCovarianceStamped();
             assembleGpsFix();
             break;
@@ -2344,7 +2344,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_attcoveuler_);
             if (settings_->publish_attcoveuler)
-                publish<AttCovEulerMsg>("/attcoveuler", last_attcoveuler_);
+                publish<AttCovEulerMsg>("attcoveuler", last_attcoveuler_);
             assemblePoseWithCovarianceStamped();
             assembleGpsFix();
             break;
@@ -2361,7 +2361,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_gal_auth_status_);
             if (settings_->publish_galauthstatus)
             {
-                publish<GalAuthStatusMsg>("/galauthstatus", last_gal_auth_status_);
+                publish<GalAuthStatusMsg>("galauthstatus", last_gal_auth_status_);
                 assembleOsnmaDiagnosticArray();
             }
             break;
@@ -2377,7 +2377,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_rf_status_);
             if (settings_->publish_aimplusstatus)
             {
-                publish<RfStatusMsg>("/rfstatus", last_rf_status_);
+                publish<RfStatusMsg>("rfstatus", last_rf_status_);
                 assembleAimAndDiagnosticArray();
             }
             break;
@@ -2402,7 +2402,7 @@ namespace io {
             }
             assembleHeader(frame_id, telegram, last_insnavcart_);
             if (settings_->publish_insnavcart)
-                publish<INSNavCartMsg>("/insnavcart", last_insnavcart_);
+                publish<INSNavCartMsg>("insnavcart", last_insnavcart_);
             assembleLocalizationEcef();
             break;
         }
@@ -2426,7 +2426,7 @@ namespace io {
             }
             assembleHeader(frame_id, telegram, last_insnavgeod_);
             if (settings_->publish_insnavgeod)
-                publish<INSNavGeodMsg>("/insnavgeod", last_insnavgeod_);
+                publish<INSNavGeodMsg>("insnavgeod", last_insnavgeod_);
             assembleLocalizationUtm();
             assembleLocalizationEcef();
             assembleTwist(true);
@@ -2451,7 +2451,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->vehicle_frame_id, telegram, msg);
-                publish<IMUSetupMsg>("/imusetup", msg);
+                publish<IMUSetupMsg>("imusetup", msg);
             }
             break;
         }
@@ -2469,7 +2469,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->vehicle_frame_id, telegram, msg);
-                publish<VelSensorSetupMsg>("/velsensorsetup", msg);
+                publish<VelSensorSetupMsg>("velsensorsetup", msg);
             }
             break;
         }
@@ -2497,7 +2497,7 @@ namespace io {
                     frame_id = settings_->frame_id;
                 }
                 assembleHeader(frame_id, telegram, msg);
-                publish<INSNavCartMsg>("/exteventinsnavcart", msg);
+                publish<INSNavCartMsg>("exteventinsnavcart", msg);
             }
             break;
         }
@@ -2524,7 +2524,7 @@ namespace io {
                     frame_id = settings_->frame_id;
                 }
                 assembleHeader(frame_id, telegram, msg);
-                publish<INSNavGeodMsg>("/exteventinsnavgeod", msg);
+                publish<INSNavGeodMsg>("exteventinsnavgeod", msg);
             }
             break;
         }
@@ -2541,7 +2541,7 @@ namespace io {
             }
             assembleHeader(settings_->imu_frame_id, telegram, last_extsensmeas_);
             if (settings_->publish_extsensormeas)
-                publish<ExtSensorMeasMsg>("/extsensormeas", last_extsensmeas_);
+                publish<ExtSensorMeasMsg>("extsensormeas", last_extsensmeas_);
             if (settings_->publish_imu && hasImuMeas)
             {
                 assembleImu();
@@ -2569,7 +2569,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_measepoch_);
             if (settings_->publish_measepoch)
-                publish<MeasEpochMsg>("/measepoch", last_measepoch_);
+                publish<MeasEpochMsg>("measepoch", last_measepoch_);
             assembleGpsFix();
             break;
         }
@@ -2596,7 +2596,7 @@ namespace io {
                     break;
                 }
                 assembleHeader(settings_->frame_id, telegram, msg);
-                publish<VelCovCartesianMsg>("/velcovcartesian", msg);
+                publish<VelCovCartesianMsg>("velcovcartesian", msg);
             }
             break;
         }
@@ -2611,7 +2611,7 @@ namespace io {
             }
             assembleHeader(settings_->frame_id, telegram, last_velcovgeodetic_);
             if (settings_->publish_velcovgeodetic)
-                publish<VelCovGeodeticMsg>("/velcovgeodetic", last_velcovgeodetic_);
+                publish<VelCovGeodeticMsg>("velcovgeodetic", last_velcovgeodetic_);
             assembleTwist();
             assembleGpsFix();
             break;
@@ -2793,7 +2793,7 @@ namespace io {
                                "GpggaMsg: " + std::string(e.what()));
                     break;
                 }
-                publish<GpggaMsg>("/gpgga", msg);
+                publish<GpggaMsg>("gpgga", msg);
                 break;
             }
             case 1:
@@ -2813,7 +2813,7 @@ namespace io {
                                "GprmcMsg: " + std::string(e.what()));
                     break;
                 }
-                publish<GprmcMsg>("/gprmc", msg);
+                publish<GprmcMsg>("gprmc", msg);
                 break;
             }
             case 2:
@@ -2851,7 +2851,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                publish<GpgsaMsg>("/gpgsa", msg);
+                publish<GpgsaMsg>("gpgsa", msg);
                 break;
             }
             case 4:
@@ -2890,7 +2890,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
-                publish<GpgsvMsg>("/gpgsv", msg);
+                publish<GpgsvMsg>("gpgsv", msg);
                 break;
             }
             }
