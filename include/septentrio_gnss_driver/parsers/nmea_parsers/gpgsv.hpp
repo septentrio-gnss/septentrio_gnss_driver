@@ -56,14 +56,11 @@
 //
 // *****************************************************************************
 
-#ifndef GPGSV_HPP
-#define GPGSV_HPP
+#pragma once
 
 // ROSaic includes
 #include <septentrio_gnss_driver/parsers/parser_base_class.hpp>
-#include <septentrio_gnss_driver/parsers/string_utilities.h>
-// Boost and ROS includes
-#include <boost/make_shared.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 /**
  * @file gpgsv.hpp
@@ -104,5 +101,3 @@ public:
      */
     static const std::string MESSAGE_ID;
 };
-
-#endif // GPGSV_HPP

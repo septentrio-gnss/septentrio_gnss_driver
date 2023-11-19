@@ -7,9 +7,9 @@ std_msgs/Header header
 BlockHeader block_header 
 
 uint8   serial_port
-float32 ant_lever_arm_x
-float32 ant_lever_arm_y
-float32 ant_lever_arm_z
-float32 theta_x
-float32 theta_y
-float32 theta_z
+float32 ant_lever_arm_x # m
+float32 ant_lever_arm_y # m
+float32 ant_lever_arm_z # m
+float32 theta_x # deg
+float32 theta_y # deg
+float32 theta_z # deg

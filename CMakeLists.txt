@@ -1,8 +1,17 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(septentrio_gnss_driver)
 
-## Compile as C++14, supported in ROS Melodic and newer
-add_compile_options(-std=c++14)
+## Compile as C++17, supported in ROS Melodic and newer
+add_compile_options(-std=c++17)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+message(STATUS "Setting build type to Release as none was specified.")
+set(CMAKE_BUILD_TYPE "Release" CACHE
+    STRING "Choose the type of build." FORCE)
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -72,9 +81,13 @@ endif ()
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
+   AIMPlusStatus.msg
    BaseVectorCart.msg
    BaseVectorGeod.msg
    BlockHeader.msg
+   GALAuthStatus.msg
+   RFBand.msg
+   RFStatus.msg
    MeasEpoch.msg
    MeasEpochChannelType1.msg
    MeasEpochChannelType2.msg
@@ -176,21 +189,19 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node 
-    src/septentrio_gnss_driver/node/main.cpp
-    src/septentrio_gnss_driver/node/rosaic_node.cpp
-    src/septentrio_gnss_driver/communication/circular_buffer.cpp 
-    src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
-    src/septentrio_gnss_driver/parsers/string_utilities.cpp 
-    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
-    src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
-    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
-    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp 
-    src/septentrio_gnss_driver/crc/crc.cpp
-    src/septentrio_gnss_driver/communication/communication_core.cpp 
-    src/septentrio_gnss_driver/communication/rx_message.cpp 
-    src/septentrio_gnss_driver/communication/callback_handlers.cpp
-    src/septentrio_gnss_driver/communication/pcap_reader.cpp
+add_executable(${PROJECT_NAME}_node
+  src/septentrio_gnss_driver/communication/communication_core.cpp
+  src/septentrio_gnss_driver/communication/message_handler.cpp 
+  src/septentrio_gnss_driver/communication/telegram_handler.cpp
+  src/septentrio_gnss_driver/crc/crc.cpp
+  src/septentrio_gnss_driver/node/main.cpp
+  src/septentrio_gnss_driver/node/rosaic_node.cpp
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
+  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp
+  src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
+  src/septentrio_gnss_driver/parsers/string_utilities.cpp  
 )
 
 ## Rename C++ executable without prefix

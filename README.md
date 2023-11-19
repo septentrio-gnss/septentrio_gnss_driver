@@ -3,12 +3,13 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts a ROS Melodic and Noetic driver (i.e. for Linux only) - written in C++ - that works with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. Since Noetic will only be supported until 2025, a ROS2 version is available in the branch `ros2`.
+This repository hosts drivers for ROS (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. The ROs version is available in this branch, whereas the ROS2 version is available in the branch `ros2`.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
 - Supports serial, TCP/IP and USB connections, the latter being compatible with both serial (RNDIS) and TCP/IP protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
+- Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
 - Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
@@ -67,14 +68,18 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   + Once the catkin build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs. The `launch/rover.launch` need not be modified. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.:<br>
   + Note for setting `ant_serial_nr` and `ant_aux1_serial_nr`: This is a string parameter, numeric-only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
+  - NOTE: Unless `configure_rx` is set to `false`, this driver will overwrite the previous values of the parameters, even if the value is left to zero in the "yaml" file.
   + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.
+    * GNSS with firmware < 4.12.1 does not support OSNMA.
     * INS with firmware < 1.3.2 does not support NTP.
+    * INS with firmware < 1.4 does not support OSNMA.
+    * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
     * INS with firmware 1.2.0 does not support velocity aiding.
     * INS with firmware 1.2.0 does not support setting of initial heading.
+  + Known issues:
+    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS it will be fixed in to-be-released 1.4.1 (expected in November 2023).
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI.
-  + An INS can be used in GNSS mode but some features may not be supported. Known limitations are:
-    * Antenna types cannot be set, leading to an error messages. The receiver still works, but precision may be degraded by a few mm.
   :<br>
   ```
   # Example configuration Settings for the Rover Rx
@@ -84,12 +89,27 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   serial:
     baudrate: 921600
-    rx_serial_port: USB1
     hw_flow_control: off
+
+  stream_device:
+    tcp:
+      ip_server: ""
+      port: 0
+    udp:
+      ip_server: ""
+      port: 0
+      unicast_ip: ""
+
+  configure_rx: true
   
   login:
     user: ""
     password: ""
+
+  osnma:
+    mode: "off"
+    ntp_server: ""
+    keep_open: true
 
   frame_id: gnss
 
@@ -138,6 +158,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     rest: 500
 
   use_gnss_time: false
+
+  latency_compensation: false
 
   rtk_settings:
     ntrip_1:
@@ -205,12 +227,15 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     basevectorgeod: false
     poscovcartesian: false
     poscovgeodetic: true
+    velcovcartesian: false
 	  velcovgeodetic: false
     atteuler: true
     attcoveuler: true
     pose: false
     twist: false
     diagnostics: false
+    aimplusstatus: true
+    galauthstatus: false
     # For GNSS Rx only
     gpgsa: false
     gpgsv: false
@@ -224,7 +249,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     exteventinsnavgeod: false
     imu: false
     localization: false
-    tf: false
+    tf: false    
+    localization_ecef: false
+    tf_ecef: false
 
   # INS-Specific Parameters
 
@@ -310,7 +337,6 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     - Alternatively the lever arms may be specified via tf. Set `get_spatial_config_from_tf`to `true` in this case.
     - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_lever_arm` parameter.
     
-  - NOTE: This driver will always overwrite the previous value of the above mentioned parameters, also if the value is left to zero in the "yaml" file.
   - For further more information about Septentrio receivers, visit Septentrio [support resources](https://www.septentrio.com/en/supportresources) or check out the [user manual](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) and [reference guide](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf) of the AsteRx SBi3 receiver.
 
 # ROSaic Parameters
@@ -319,24 +345,50 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Connectivity Specs</summary>
 
-  + `device`: location of device connection
-    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyUSB0`
+  + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. Incoming data streams of SBF blocks and NMEA sentences are recevied either via this interface or a static IP server for TCP and/or UDP. The former will be utilized if section `stream_device/tcp` and `stream_device/udp` are not configured.
+    + `serial:xxx` format for serial connections, where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
     + `file_name:path/to/file.sbf` format for publishing from an SBF log
     + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
       + An RNDIS IP interface is provided via USB, assigning the address `192.168.3.1` to the receiver. This should work on most modern Linux distributions. To verify successful connection, open a web browser to access the web interface of the receiver using the IP address `192.168.3.1`.
-    + default: `tcp://192.168.3.1:28784 `
+    + default: `tcp://192.168.3.1:28784`
   + `serial`: specifications for serial communication
     + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
-    + `rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
-    + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART HW flow control enabled or not
-      + `off` to disable UART HW flow control, `RTS|CTS` to enable it
+    + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
+      + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
+  + `stream_device`: If left unconfigured, by default `device` is utilized for the data streams. Within `stream_device` static IP servers may be defined instead. In config mode (`configure_rx` set to `true`), TCP will be prioritized over UDP. If Rx is pre-configured, both may be set simultaneously.
+    + `tcp`: specifications for static TCP server of SBF blocks and NMEA sentences.
+      + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
+      + `port`: UDP destination port.
+    + `udp`: specifications for low latency UDP reception of SBF blocks and NMEA sentences.
+      + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
+      + `port`: UDP destination port.
+      + `unicast_ip`: Set to computer's IP to use unicast (optional). If not set multicast will be used.
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
+  </details>
+
+  <details>
+  <summary>OSNMA</summary>
+
+  + `osnma`: Configuration of the Open Service Navigation Message Authentication (OSNMA) feature.
+    + `mode`: Three operating modes are supported: `off` where OSNMA authentication is disabled, `loose` where satellites are included in the PVT if they are successfully authenticated or if their authentication status is unknown, and `strict` where only successfully-authenticated satellites are included in the PVT. In case of `strict` synchronization via NTP is mandatory.
+      + default: off
+    + `ntp_server`: In `strict` mode, OSNMA authentication requires the availability of external time information. In `loose` mode, this is optional but recommended for enhanced security. The receiver can connect to an NTP time server for this purpose. Options are `default` to let the receiver choose an NTP server or specify one like `pool.ntp.org` for example.
+      + default: ""
+    + `keep_open`: Wether OSNMA shall be kept active on driver shutdown.
+      + default: true
+  </details>
+
+  <details>
+  <summary>Receiver Configuration</summary>
+
+    + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. On the driver side communication has to set accordingly to serial, TCP or UDP (TCP and UDP may even be used simultaneously in this case). For TCP communication it is recommended to use a static TCP server (`stream_device/tcp/ip_server` and `stream_device/tcp/port`), since dynamic connections (`device` is tcp) are not guaranteed to have the same id on reconnection. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`; `PVTGeodetic`or `PVTCartesian` if latency compensation for PVT related blocks shall be used). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated with matching periods, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
+      + default: true
   </details>
   
   <details>
@@ -345,14 +397,13 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `receiver_type`: This parameter is to select the type of the Septentrio receiver
     + `gnss` for GNSS receivers.
     + `ins` for INS receivers.
-    + `ins_in_gnss_mode` INS receivers in GNSS mode.
     + default: `gnss`    
   + `multi_antenna`: Whether or not the Rx has multiple antennas.
       + default: `false`
   </details>
   
   <details>
-  <summary>Frame ID</summary>
+  <summary>Frame IDs</summary>
   
   + `frame_id`: name of the ROS tf frame for the Rx, placed in the header of published GNSS messages. It corresponds to the frame of the main antenna.
     + In ROS, the [tf package](https://wiki.ros.org/tf) lets you keep track of multiple coordinate frames over time. The frame ID will be resolved by [`tf_prefix`](http://wiki.ros.org/geometry/CoordinateFrameConventions) if defined. If a ROS message has a header (all of those we publish do), the frame ID can be found via `rostopic echo /topic`, where `/topic` is the topic into which the message is being published.
@@ -445,6 +496,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio receiver (for INS/GNSS a firmware >= 1.3.3 is needed).
     + default: `true`
+  + `latency_compensation`: Rx reports processing latency in PVT and INS blocks. If set to `true`this latency is subtracted from ROS timestamps in related blocks (i.e., `use_gnss_time` set to `false`). Related blocks are INS, PVT, Covariances, and BaseVectors. In case of `use_gnss_time` set to `true`, the latency is already compensated within the RX and included in the reported timestamps.
+    + default: `false`
   </details>
   
   <details>
@@ -538,7 +591,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
           + default: ""
         + `config`: Defines which measurements belonging to the respective axes are forwarded to the INS. In addition, non-holonomic constraints may be introduced for directions known to be restricted in movement. For example, a vehicle with Ackermann steering is limited in its sidewards and upwards movement. So, even if only motion in x-direction may be measured, zero-velocities for y and z may be sent.
           + default: []
-        + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm/ros/variances` or the values inside the messaged are used.
+        + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm/ros/variances` or the values from inside the ROS messages are used.
           + default: false
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm/ros/variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used. 
           + default: []
@@ -573,12 +626,15 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     + `publish/gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     + `publish/measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
+    + `publish/galauthstatus`: `true` to publish `septentrio_gnss_driver/GALAuthStatus.msg` messages into the topic `/galauthstatus` and corresponding `/diganostics`
+    + `publish/aimplusstatus`: `true` to publish `septentrio_gnss_driver/RFStatus.msg` messages into the topic `/rfstatus`, `septentrio_gnss_driver/AIMPlusStatus.msg` messages into `/aimplusstatus` and corresponding `/diganostics`. Some information is only available with active OSNMA.
     + `publish/pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish/pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     + `publish/basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
     + `publish/basevectorgeod`: `true` to publish `septentrio_gnss_driver/BaseVectorGeod.msg` messages into the topic `/basevectorgeod`
     + `publish/poscovcartesian`: `true` to publish `septentrio_gnss_driver/PosCovCartesian.msg` messages into the topic `/poscovcartesian`
     + `publish/poscovgeodetic`: `true` to publish `septentrio_gnss_driver/PosCovGeodetic.msg` messages into the topic `/poscovgeodetic`
+    + `publish/velcovcartesian`: `true` to publish `septentrio_gnss_driver/VelCovCartesian.msg` messages into the topic `/velcovcartesian`
     + `publish/velcovgeodetic`: `true` to publish `septentrio_gnss_driver/VelCovGeodetic.msg` messages into the topic `/velcovgeodetic`
     + `publish/atteuler`: `true` to publish `septentrio_gnss_driver/AttEuler.msg` messages into the topic `/atteuler`
     + `publish/attcoveuler`: `true` to publish `septentrio_gnss_driver/AttCovEuler.msg` messages into the topic `/attcoveuler`
@@ -597,32 +653,38 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish/exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
     + `publish/imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish/localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
-    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf.
+    + `publish/tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.   
+    + `publish/localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization` related to ECEF frame.
+    + `publish/tf_ecef`: `true` to broadcast tf of localization  related to ECEF frame. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish/tf` or `publish/tf_ecef` may be `true`.
   </details>
 
 ## ROS Topic Publications
 A selection of NMEA sentences, the majority being standardized sentences, and proprietary SBF blocks is translated into ROS messages, partly generic and partly custom, and can be published at the discretion of the user into the following ROS topics. All published ROS messages, even custom ones, start with a ROS generic header [`std_msgs/Header.msg`](https://docs.ros.org/melodic/api/std_msgs/html/msg/Header.html), which includes the receiver time stamp as well as the frame ID, the latter being specified in the ROS parameter `frame_id`.
 <details>
   <summary>Available ROS Topics</summary>
-  
+
   + `/gpgga`: publishes [`nmea_msgs/Gpgga.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgga.html) - converted from the NMEA sentence GGA.
   + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC.
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.
+  + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
+  + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, compiled from the SBF block `RFStatus`.
+  + `/aimplusstatus`: publishes custom ROS message `septentrio_gnss_driver/AIMPlusStatus.msg`, reporting status of AIM+. Converted from SBF blocks `RFStatus` and optionally `GALAuthStatus`. For the latter OSNMA has to be activated.
   + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
   + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.
   + `/basevectorgeod`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorGeod.msg`, corresponding to the SBF block `BaseVectorGeod`.
   + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case).
   + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
+  + `/velcovcartesian`: publishes custom ROS message `septentrio_gnss_driver/VelCovCartesian.msg`, corresponding to SBF block `VelCovCartesian` (GNSS case).
   + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
   + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`.
   + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`.
-  + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its header, or - if `use_gnss_time` is set to `false` - from the systems's wall-clock time.
+  + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros.org/melodic/api/sensor_msgs/html/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its block header.
   + `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/melodic/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
-  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/tree/dashing-devel), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case).
+  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/tree/dashing-devel), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros.org/kinetic/api/sensor_msgs/html/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case). In order to publish heading information, the field *dip* is diverted from its intended meaning an populated with the heading angle and *err_dip* with its uncertainty.
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case).
     + Note that GNSS provides absolute positioning, while robots are often localized within a local level cartesian frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), i.e. not a cartesian frame, while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
   + `/twist`: publishes generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic` and `VelCovGeodetic`.
@@ -639,13 +701,14 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + The ROS message [`sensor_msgs/Imu.msg`](https://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
   + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
+  + `/localization_ecef`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html), converted from the SBF blocks `INSNavCart` and `INSNavGeod`.
+    + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros.org/en/api/nav_msgs/html/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/melodic/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
 </details>
 
 ## Suggestions for Improvements
 <details>
   <summary>Some Ideas</summary>
 
-  + Automatic Search: If the host address of the receiver is omitted in the `host:port` specification, the driver could automatically search and establish a connection on the specified port.
   + Equip ROSaic with an NTRIP client such that it can forward corrections to the receiver independently of `Data Link`.
 </details>
 
@@ -655,16 +718,16 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
 
   Is there an SBF or NMEA message that is not being addressed while being important to your application? If yes, follow these steps:
   1. Find the log reference of interest in the publicly accessible, official documentation. Hence select the reference guide file, e.g. for mosaic-x5 in the [product support section for mosaic-X5](https://www.septentrio.com/en/support/mosaic/mosaic-x5), Chapter 4, of Septentrio's homepage.
-  2. Add a new `.msg` file to the `septentrio_gnss_driver/msg` folder.
-  3. SBF: Add the new struct definition to the `sbf_structs.hpp` file.
-  4. Parsing/Processing the message/block:
-      - Both: Add a new include guard to let the compiler know about the existence of the header file (such as `septentrio_gnss_driver/PVTGeodetic.h`) that gets compiler-generated from the `.msg` file constructed in step 3.
-      - SBF: Extend the `NMEA_ID_Enum` enumeration in the `rx_message.hpp` file with a new entry.
-      - SBF: Extend the initialization of the `RxIDMap` map in the `rx_message.cpp` file with a new pair.
-      - SBF: Add a new callback function declaration, a new method, to the `io_comm_rx::RxMessage class` in the `rx_message.hpp` file.
-      - SBF: Add the latter's definition to the `rx_message.cpp` file.
-      - SBF: Add a new C++ "case" (part of the C++ switch-case structure) in the `rx_message.hpp` file. It should be modeled on the existing `evPVTGeodetic` case, e.g. one needs a static counter variable declaration.
-      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `septentrio_gnss_driver/src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `septentrio_gnss_driver/include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
-  5. Create a new `publish/..` ROSaic parameter in the `septentrio_gnss_driver/config/rover.yaml` file, create a global boolean variable `publish_...` in the `septentrio_gnss_driver/src/septentrio_gnss_driver/node/rosaic_node.cpp` file, insert the publishing callback function to the C++ "multimap" `IO.handlers_.callbackmap_` - which is already storing all the others - in the `rosaic_node::ROSaicNode::defineMessages()` method in the same file and add an `extern bool publish_...;` line to the `septentrio_gnss_driver/include/septentrio_gnss_driver/node/rosaic_node.hpp` file.
-  6. Modify the `septentrio_gnss_driver/CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  2. SBF: Add a new `.msg` file to the `../msg` folder. And modify the `../CMakeLists.txt` file by adding a new entry to the `add_message_files` section.
+  3. Add msg header and typedef to `typedefs.hpp`.
+  4. Parsers:
+      - SBF: Add a parser to the `sbf_blocks.hpp` file.
+      - NMEA: Construct two new parsing files such as `gpgga.cpp` to the `../src/septentrio_gnss_driver/parsers/nmea_parsers` folder and one such as `gpgga.hpp` to the `../include/septentrio_gnss_driver/parsers/nmea_parsers` folder.
+  5. Processing the message/block:
+      - SBF: Extend the `SbfId` enumeration in the `message_handler.hpp` file with a new entry.
+      - SBF: Extend the SBF switch-case in `message_handler.cpp` file with a new case.
+      - NMEA: Extend the `nmeaMap_` in the `message_handler.hpp` file with a new pair.
+      - NMEA: Extend the NMEA switch-case in `message_handler.cpp` file with a new case.
+  6. Create a new `publish/..` ROSaic parameter in the `../config/rover.yaml` file and create a boolean variable `publish_xxx` in the struct in the `settings.h` file. Parse the parameter in the `rosaic_node.cpp` file.
+  7. Add SBF block or NMEA to data stream setup in `communication_core.cpp` (function `configureRx()`).
 </details>
