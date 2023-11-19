@@ -2,6 +2,16 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.2 (2022-11-19)
+-----------
+* Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
+  Fix IMU units
+* Fix topics namespace
+* Fix units of imu angular rates
+* Merge pull request `#96 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/96>`_ from septentrio-gnss/dev2
+  Dev2
+* Contributors: Thomas Emter, Tibor Dome, septentrio-users
+
 1.3.1 (2022-07-06)
 ------------------
 * New Features
