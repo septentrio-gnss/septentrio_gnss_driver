@@ -3,7 +3,7 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts drivers for ROS (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. The ROs version is available in this branch, whereas the ROS2 version is available in the branch `ros2`.
+This repository hosts drivers for ROS (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. The ROS version is available in this branch, whereas the ROS 2 version is available in the branch `ros2`.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
