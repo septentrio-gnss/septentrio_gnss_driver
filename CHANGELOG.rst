@@ -2,6 +2,283 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.2 (2023-11-19)
+------------------
+* Commits
+   * Merge pull request `#97 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/97>`_ from thomasemter/dev/next
+     Integrate README changes from master
+   * Fix topics namespace
+   * Fix units of imu angular rates
+   * Merge upstream README pt2
+   * Merge upstream README
+   * Update README.md
+   * Update README.md
+   * Update README.md
+   * v1.3.1
+   * Updated package.xml
+   * v1.3.1
+   * Updated package.xml
+   * v1.3.1
+   * Updated package.xml
+   * v1.3.1
+   * Updated changelog
+   * Merge pull request `#95 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/95>`_ from thomasemter/dev/next
+     Fix navsatfix and gpsfix frame ids
+   * Update README.md
+   * Fix navsatfix and gpsfix frame ids
+   * Merge pull request `#92 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/92>`_ from thomasemter/dev/next
+     Fix single antenna receiver setup
+   * Update changelog
+   * Merge
+   * Fix single antenna receiver setup
+   * Merge pull request `#90 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/90>`_ from thomasemter/dev/next
+     Fix empty headers
+   * Merge branch 'dev' into dev/next
+   * Bump version
+   * Fix empty headers
+   * Merge pull request `#88 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/88>`_ from thomasemter/dev/next
+     Fix navsatfix containing only zeros for INS
+   * Align indent
+   * Fix navsatfix containig only zeros for INS
+   * Merge pull request `#87 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/87>`_ from thomasemter/dev/next
+     Update firmware info
+   * Reduce INS firmware version info to released version
+   * Update firmware info
+   * v1.3.0
+   * Updated package.xml
+   * v1.3.0
+   * Update firmware info
+   * Updated package.xml
+   * v1.3.0
+   * Merge pull request `#84 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/84>`_ from thomasemter/dev/next
+     Update readme
+   * Add expected release dates
+   * Add known issues to readme
+   * Update version
+   * Update readme
+   * Merge pull request `#81 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/81>`_ from thomasemter/dev/next
+     Fix spelling
+   * Improve explanations in readme
+   * Categorize stream params
+   * Add keep alive check for TCP
+   * Fix spelling
+   * Change angle wrapping
+   * Add TCP communication via static IP server
+   * Add units to msgs
+   * Fix spelling
+   * Merge pull request `#75 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/75>`_ from thomasemter/dev/next
+     upcoming release
+   * Add heading to GPSFix msg
+   * Move constant
+   * Change log level of firmware check
+   * Add improved VSM handling
+   * Change INS in GNSS node detection to auto
+   * Fix invald v_x var case
+   * Refine readme on UDP
+   * Improve server duplicate check
+   * Add more info un UDP configuration
+   * Fix publish check
+   * Add more publishing checks for configured Rx
+   * Add const for max udp packet size
+   * Update readme and changelog
+   * Add device check to node
+   * Add checks for IP server duplicates
+   * Add latency compensation to att msgs
+   * Add device check logic
+   * Add UDP params and setup logic
+   * Fix multi msg per packet
+   * Fix localization stamp and tf publishing
+   * Change VSM to be averaged and published with 2 Hz
+   * Always publish raw IMU data as indicated
+   * Change to empty fields
+   * Refine diagnostics naming scheme and add trigger to ensure emission of ReceiverSetup
+   * Change diagnostics naming scheme
+   * Expand readme on AIM+
+   * Reformulate readme about ROS and ROS2
+   * Rename msg var
+   * Add custom message to report AIM+ status
+   * Catch invalid UTM conversion
+   * Robustify command reset
+   * Add RFStatus diagnostics
+   * Merge branch 'dev/next' of https://github.com/thomasemter/septentrio_gnss_driver into dev/next
+   * Add VelCovCartesian output
+   * Add VelCovCartesian output
+   * Refine Rx type check
+   * Ensure latency reporting block is activated
+   * Add option for latency compensation
+   * Fix param type misinterpretation
+   * Add missing param to example in readme
+   * Add OSNMA diagnostics output
+   * Add keep_open option to OSNMA
+   * Add OSNMA msg
+   * Update changelog
+   * Refine README and fix compiled message logic
+   * Update changelog
+   * Add warning for configuring INS as GNSS
+   * Add warn log for misconfiguration
+   * Fix pose publishing rate
+   * Fix navsatfix publishing
+   * Make vars const
+   * Replace log functions
+   * Add small fixes and cleanup
+   * Merge branch 'dev/next' of https://github.com/thomasemter/septentrio_gnss_driver into dev/next
+   * Add option to bypass configuration of Rx
+   * Add option to bypass confugration of Rx
+   * Add diagnostics and time ref msgs again
+   * Update README on how to add new messages
+   * Add automiatic detection of serial port ID
+   * Refine changelog
+   * Change invalid timestamp handling for reading from file
+   * Add USB serial by ID info to README
+   * Fix leap seconds for timestamp if reading from file
+   * Fix reconnection logic
+   * Replace flow control setup
+   * Refactor ioservice
+   * notify semaphores in destructor
+   * Send port reset only once
+   * Fix serial connection
+   * Fix talker ID setting for INS
+   * Add NMEA talker ID setting to ensure reception
+   * Prepare communication for UDP option (still inactive)
+   * Fix UDP message identification logic
+   * Add test code for UDP, WIP
+   * Add UDP client, WIP
+   * Set do-not-use for temp to NaN
+   * Add processing latency correction for ROS timestamps
+   * Fix extsensor parser
+   * Add units to remaining msgs
+   * Add nodiscard attribute to functions
+   * Add nodiscard attribute to functions
+   * Add nodiscard attribute to functions
+   * Add const specifiers to functions
+   * Make settings access const
+   * Move SBF ID handling
+   * Refactor header assembly
+   * Rename message handler again
+   * Change parsing utilities and crc to get message
+   * Add namespace to enum
+   * Change timestamp code
+   * Update changelog
+   * Change class privacy
+   * Add assembled messages, to be tested
+   * Add units to come msg definitions
+   * Add custom BlockHeader constructor
+   * Move wait
+   * Remove copy paste vars
+   * Add file readers
+   * Fix reset main connection on exit hang
+   * Fix handling of INS NMEA talker ID
+   * Fix error response detection
+   * Add packing of generic string messages
+   * Exchange concurrent queue
+   * Remove obsolete includes
+   * Add NMEA handling
+   * Change syncronization to semaphore
+   * Add message parser, WIP
+   * Rearrange io handling, WIP
+   * Refactor and cleanup
+   * Improve io handling, WIP
+   * Refactor message parser, WIP
+   * Add message handler
+   * Add io modules
+   * Add new low level interface, WIP
+   * Change connection thread
+   * Fix attitude cov flipped twice
+   * Add cov alignment from true north to grid north
+   * Rename meridian convergence and fix sense
+   * Remove obsolete define
+   * Fix spelling errors
+   * Merge branch 'master' into dev/next
+   * v1.2.3
+   * Update package.xml
+   * v1.2.3
+   * Update package.xml
+   * v1.2.3
+   * Update package.xml
+   * v1.2.3
+   * Update package.xml
+   * Merge pull request `#68 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/68>`_ from thomasemter/master
+     dev
+   * Fix lat/long in rad
+   * Reorder localization msg filling
+   * Update readme
+   * Fix NED to ECEF rotation matrix
+   * Add localization ECEF publishing
+   * Merge branch 'dev/next' of https://github.com/thomasemter/septentrio_gnss_driver into dev/next
+   * Merge branch 'dev/next' of https://github.com/thomasemter/septentrio_gnss_driver into dev/next
+   * Merge branch 'dev/next' of https://github.com/thomasemter/septentrio_gnss_driver into dev/next
+   * Add ecef localization msg
+   * Add local to ecef transforms
+   * Change default datum to Default
+   * Clean up block data size defines
+   * Change default datum to WGS84
+   * Set correct value for max number of base vector info
+   * Add check on shutdown to only close ports on hardware
+   * Refine readme
+   * Merge branch 'master' of https://github.com/thomasemter/septentrio_gnss_driver
+   * Add missing param
+   * Add possibility to use multiple RTK corrections of the same type
+   * Only set baud rates on real serial ports
+   * Fix decimal places trimming
+   * Update changelog
+   * Merge branch 'dev/next'
+   * Add base vecotr info to README
+   * Change param to empty vector
+   * Change param to empty vector
+   * Fix template argument
+   * Add quotation marks to pw if it contains spaces
+   * Add quotation marks to pw if it contains spaces
+   * Add option to keep aiding connections open on shutdown
+   * Merge branch 'master' into dev/next
+   * Add option to keep aiding connections open on shutdown
+   * Disable ntrip on shutdown
+   * Disable ntrip on shutdown
+   * Add base vector callbacks and publishing, WIP
+   * Add base vector msgs and parsers, WIP
+   * Fix comment swap
+   * Add send_gga option to serial RTK and fix IP server id
+   * Add possibility to specify IP server connection
+   * Increase version number in package.xml and harmonize it with ROS2
+   * Reset main port to auto input
+   * Add reset all used ports on shutdown
+   * Improve readme
+   * Change vsm options to allow simultaneous input
+   * Change corrections settings to receiver simultaneously
+   * Change correction options to be used simultenously
+   * Change param name for future extensibility
+   * Change param name for future extensibility
+   * Rework corretion parameters and add more flexible options
+   * Fix some spelling in readme
+   * Add receiver type INS as GNSS
+   * Add option to use external VSM input
+   * Add more log output for vsm
+   * Add VSM from odometry or twist ROS messages
+   * Fix GPGGA and GPRMC timestamp from GNSS
+   * Use only one stream for NMEA messages
+   * Fix merge error
+   * Fix merge error
+   * Add all possible periods and rework validity check
+   * Update changelog
+   * Add 5 ms period option
+   * Fix changelog
+   * Add twist output
+   * Add missing files to clang-formatting
+   * Merge branch 'dev/next'
+   * Merge branch 'master' of https://github.com/thomasemter/septentrio_gnss_driver
+   * Format according to clang-format
+   * Change log level of local frame tf insertion
+   * Always register ReceiverSetup
+   * Add firmware checks
+   * Add log and info to README
+   * Add insertion of local frame
+   * Update README and CHANGELOG
+   * Use leap seconds from receiver
+   * Update changelog
+   * Add config files for GNSS and INS
+   * Add ReceiverTime, WIP
+   * Add configs for GNSS and INS
+   * Contributors: Thomas Emter, Tibor Dome, septentrio-users, tibordome
+
 1.3.1 (2023-07-06)
 ------------------
 * New Features
