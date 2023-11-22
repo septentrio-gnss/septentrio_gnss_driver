@@ -21,7 +21,7 @@ Main Features:
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
 ## Dependencies
-The `ros2` branch for this driver functions on ROS Foxy, Galactic, Rolling, and Humble (Ubuntu 20.04 or 22.04 respectively). It is thus necessary to [install](https://docs.ros.org/en/humble/index.html) the ROS version that has been designed for your Linux distro.<br><br>
+The `ros2` branch for this driver functions on ROS Foxy, Galactic, Rolling, and Humble (Ubuntu 20.04 or 22.04 respectively). It is thus necessary to [install](https://docs.ros.org/en/iron/index.html) the ROS version that has been designed for your Linux distro.<br><br>
 Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
 `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
 The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
