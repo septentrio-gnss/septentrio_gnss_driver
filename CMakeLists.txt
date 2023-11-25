@@ -31,12 +31,7 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
   add_compile_definitions(ROS1)
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
-  cpp_common
-  rosconsole
   roscpp
-  roscpp_serialization
-  rostime
-  xmlrpcpp
   nmea_msgs
   sensor_msgs
   geometry_msgs
@@ -93,7 +88,7 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
   catkin_package(
    INCLUDE_DIRS include
    LIBRARIES 
-   CATKIN_DEPENDS cpp_common rosconsole roscpp roscpp_serialization rostime xmlrpcpp message_runtime
+   CATKIN_DEPENDS roscpp message_runtime
    DEPENDS Boost
   )
 

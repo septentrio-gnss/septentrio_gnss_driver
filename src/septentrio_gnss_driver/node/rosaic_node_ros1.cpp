@@ -30,7 +30,7 @@
 
 // Eigen include
 #include <Eigen/Geometry>
-#include <septentrio_gnss_driver/node/rosaic_node.hpp>
+#include <septentrio_gnss_driver/node/rosaic_node_ros1.hpp>
 
 /**
  * @file rosaic_node.cpp
@@ -791,10 +791,10 @@ void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "septentrio_gnss");
-  	
+
     rosaic_node::ROSaicNode
         rx_node; // This launches everything we need, in theory :)
     ros::spin();
-    
+
     return 0;
 }
