@@ -68,7 +68,7 @@ septentrio_gnss_driver:
     ant_aux1_serial_nr: "Unknown"
 
     polling_period:
-      pvt: 0
+      pvt: 100
       rest: 500
 
     use_gnss_time: false
