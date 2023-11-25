@@ -284,6 +284,6 @@ elseif("$ENV{ROS_VERSION}" STREQUAL "2")
   ament_package()
   ##-------------------------------------------------------------------------
 else()
-  message(FATAL_ERROR "ROS 1 or ROS 2 not found!")
+  message(FATAL_ERROR "ROS 1 or ROS 2 not found! Plase, source your ROS installation.")
 endif()
 
