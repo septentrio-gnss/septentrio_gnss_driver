@@ -932,6 +932,9 @@ namespace io {
             }
         }
 
+        // Save config to boot
+        send("eccf, Current, Boot\x0D");
+
         node_->log(log_level::DEBUG, "Leaving configureRx() method");
     }
 

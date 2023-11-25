@@ -2,6 +2,11 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (Upcoming)
+-----------
+* Combine ROS 1 and ROS 2 in one branch
+* Save config to boot after setup
+
 1.3.2 (2022-11-19)
 -----------
 * Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
