@@ -38,7 +38,12 @@
 #include <vector>
 
 // ROSaic
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 
 //! 0x24 is ASCII for $ - 1st byte in each message
 static const uint8_t SYNC_BYTE_1 = 0x24;

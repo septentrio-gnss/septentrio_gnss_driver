@@ -41,7 +41,12 @@
 // Boost includes
 #include <boost/math/constants/constants.hpp>
 // ROS includes
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 
 /**
  * @file parsing_utilities.hpp
