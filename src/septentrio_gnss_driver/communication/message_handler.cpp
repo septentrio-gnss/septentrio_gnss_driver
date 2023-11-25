@@ -662,6 +662,15 @@ namespace io {
             return;
         TwistWithCovarianceStampedMsg msg;
 
+        // Autocovariances of angular velocity
+        msg.twist.covariance[21] = -1.0;
+        msg.twist.covariance[28] = -1.0;
+        msg.twist.covariance[35] = -1.0;
+        // Set angular velocities to NaN
+        msg.twist.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+        msg.twist.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+        msg.twist.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
         if (fromIns)
         {
             msg.header = last_insnavgeod_.header;
@@ -767,11 +776,7 @@ namespace io {
                 msg.twist.covariance[0] = -1.0;
                 msg.twist.covariance[7] = -1.0;
                 msg.twist.covariance[14] = -1.0;
-            }
-            // Autocovariances of angular velocity
-            msg.twist.covariance[21] = -1.0;
-            msg.twist.covariance[28] = -1.0;
-            msg.twist.covariance[35] = -1.0;
+            }          
 
             publish<TwistWithCovarianceStampedMsg>("twist_ins", msg);
         } else
@@ -869,10 +874,6 @@ namespace io {
                 msg.twist.covariance[7] = -1.0;
                 msg.twist.covariance[14] = -1.0;
             }
-            // Autocovariances of angular velocity
-            msg.twist.covariance[21] = -1.0;
-            msg.twist.covariance[28] = -1.0;
-            msg.twist.covariance[35] = -1.0;
 
             publish<TwistWithCovarianceStampedMsg>("twist_gnss", msg);
         }
