@@ -68,7 +68,12 @@ static const uint8_t SBF_SYNC_2 = 0x40;
 // Boost
 #include <boost/spirit/include/qi.hpp>
 // ROSaic
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
 /**

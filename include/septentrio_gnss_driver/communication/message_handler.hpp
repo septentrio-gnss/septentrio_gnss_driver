@@ -69,7 +69,12 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/tokenizer.hpp>
 // ROSaic includes
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 #include <septentrio_gnss_driver/communication/telegram.hpp>
 #include <septentrio_gnss_driver/crc/crc.hpp>
 #include <septentrio_gnss_driver/parsers/nmea_parsers/gpgga.hpp>

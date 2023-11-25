@@ -27,7 +27,8 @@ else ()
 endif ()
 
 if("$ENV{ROS_VERSION}" STREQUAL "1")
-  ## ROS 1 -----------------------------------------------------------------------------------------------
+  ## ROS 1 -----------------------------------------------------------------------------------------------  
+  add_compile_definitions(ROS1)
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
   cpp_common
@@ -108,8 +109,7 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
     src/septentrio_gnss_driver/communication/message_handler.cpp 
     src/septentrio_gnss_driver/communication/telegram_handler.cpp
     src/septentrio_gnss_driver/crc/crc.cpp
-    src/septentrio_gnss_driver/node/main.cpp
-    src/septentrio_gnss_driver/node/rosaic_node.cpp
+    src/septentrio_gnss_driver/node/rosaic_node_ros1.cpp
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
@@ -138,6 +138,7 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
   #-------------------------------------------------------------------------------------------------------
 elseif("$ENV{ROS_VERSION}" STREQUAL "2")
   ## ROS 2 -----------------------------------------------------------------------------------------------
+  add_compile_definitions(ROS2)
   # Dependencies
   find_package(ament_cmake REQUIRED)
   find_package(rclcpp REQUIRED)
@@ -232,13 +233,13 @@ elseif("$ENV{ROS_VERSION}" STREQUAL "2")
   )
 
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
-  rosidl_target_interfaces(${library_name}
-  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+    rosidl_target_interfaces(${library_name}
+    ${PROJECT_NAME} "rosidl_typesupport_cpp")
   else()
-  rosidl_get_typesupport_target(
-  cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-  target_link_libraries(${library_name} "${cpp_typesupport_target}")
-  add_compile_definitions(ROS2_VER_N250)
+    rosidl_get_typesupport_target(
+    cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+    target_link_libraries(${library_name} "${cpp_typesupport_target}")
+    add_compile_definitions(ROS2_VER_N250)
   endif()
 
   ## executable
