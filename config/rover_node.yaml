@@ -18,7 +18,9 @@ septentrio_gnss_driver:
         port: 0
         unicast_ip: ""
 
-    configure_rx: true    
+    configure_rx: true
+
+    custom_commands_file: ""  
 
     osnma:
       mode: "off"

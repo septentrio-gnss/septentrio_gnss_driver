@@ -30,6 +30,8 @@
 
 #include <chrono>
 #include <linux/serial.h>
+#include <filesystem>
+#include <fstream>
 
 // Boost includes
 #include <boost/regex.hpp>
@@ -285,6 +287,7 @@ namespace io {
         node_->log(log_level::INFO,
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
+
         if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
         {
             streamPort_ = settings_->tcp_ip_server;
@@ -321,6 +324,29 @@ namespace io {
             else
                 send("login, " + settings_->login_user + ", " +
                      settings_->login_password + " \x0D");
+        }
+
+        if (!settings_->custom_commands_file.empty())
+        {
+            if ((std::filesystem::exists(settings_->custom_commands_file)))
+            {
+                std::ifstream filestream(settings_->custom_commands_file);
+                node_->log(log_level::INFO,
+                       "Custom command file " + settings_->custom_commands_file + " loaded.");
+
+                size_t ctr = 0;
+                std::string line;
+                while (std::getline(filestream, line))
+                {
+                     send(line + "\x0D");
+                }
+                node_->log(log_level::INFO, std::to_string(ctr) + " custom commands have been parsed and sent to the Rx.");             
+            }
+            else
+            {
+                 node_->log(log_level::ERROR,
+                       "Custom command file " + settings_->custom_commands_file + " could not be found.");
+            }
         }
 
         // Turning off all current SBF/NMEA output
@@ -922,18 +948,22 @@ namespace io {
                          ", bits8, No, bit1, none\x0D");
                 send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
             }
+            // Save config to boot
+            send("eccf, Current, Boot\x0D"); // TODO use dedicated streaming device for VSM
             if ((settings_->ins_vsm_ros_source == "odometry") ||
                 (settings_->ins_vsm_ros_source == "twist"))
-            {
+            {                
                 std::string s;
                 s = "sdio, " + mainConnectionPort_ + ", NMEA, +NMEA +SBF\x0D";
                 send(s);
                 nmeaActivated_ = true;
             }
         }
-
-        // Save config to boot
-        send("eccf, Current, Boot\x0D");
+        else
+        {
+            // Save config to boot
+            send("eccf, Current, Boot\x0D");
+        }
 
         node_->log(log_level::DEBUG, "Leaving configureRx() method");
     }

@@ -103,6 +103,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     unicast_ip: ""
 
   configure_rx: true
+
+  custom_commands_file: ""
   
   login:
     user: ""
@@ -373,6 +375,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
+  + `custom_commands_file`: path to a file containing custom commands to be sent to the Rx. The file shall contain one command per line. Be **very** careful using this command, since commands are sent to the Rx without further checks.
   </details>
 
   <details>

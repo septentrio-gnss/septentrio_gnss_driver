@@ -148,6 +148,8 @@ struct Settings
     std::string login_user;
     //! Password for login
     std::string login_password;
+    //! Custom commands file
+    std::string custom_commands_file;
     //! Delay in seconds between reconnection attempts to the connection type
     //! specified in the parameter connection_type
     float reconnect_delay_s;
