@@ -84,7 +84,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
 
     param("configure_rx", settings_.configure_rx, true);
 
-    param("custom_commands_file", settings_.custom_commands_file, "");
+    param("custom_commands_file", settings_.custom_commands_file, static_cast<std::string>(""));
 
     // Communication parameters
     param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
