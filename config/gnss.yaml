@@ -23,6 +23,8 @@ login:
   user: ""
   password: ""
 
+custom_commands_file: ""
+
 osnma:
   mode: "loose"
   ntp_server: ""

@@ -19,6 +19,8 @@ stream_device:
 
 configure_rx: true
 
+custom_commands_file: ""
+
 login:
   user: ""
   password: ""  
