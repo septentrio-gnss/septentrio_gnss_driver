@@ -338,7 +338,8 @@ namespace io {
                 std::string line;
                 while (std::getline(filestream, line))
                 {
-                     send(line + "\x0D");
+                    ++ctr;
+                    send(line + "\x0D");
                 }
                 node_->log(log_level::INFO, std::to_string(ctr) + " custom commands have been parsed and sent to the Rx.");             
             }
