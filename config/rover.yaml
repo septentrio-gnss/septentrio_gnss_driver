@@ -6,12 +6,29 @@ device: tcp://192.168.3.1:28784
 
 serial:
   baudrate: 921600
-  rx_serial_port: USB1
-  hw_flow_control: off
+  hw_flow_control: "off"
+
+stream_device:
+  tcp:
+    ip_server: ""
+    port: 0
+  udp:
+    ip_server: ""
+    port: 0
+    unicast_ip: ""
+
+configure_rx: true
+
+custom_commands_file: ""
 
 login:
   user: ""
-  password: ""
+  password: ""  
+
+osnma:
+  mode: "off"
+  ntp_server: ""
+  keep_open: true
 
 frame_id: gnss
 
@@ -37,7 +54,7 @@ use_ros_axis_orientation: true
 
 receiver_type: gnss
 
-multi_antenna: false
+multi_antenna: true
 
 datum: Default
 
@@ -49,19 +66,19 @@ poi_to_arp:
 att_offset:
   heading: 0.0
   pitch: 0.0
-  
+
 ant_type: "Unknown"
 ant_serial_nr: "Unknown"
 ant_aux1_type: "Unknown"
 ant_aux1_serial_nr: "Unknown"
 
-leap_seconds: 18
-
 polling_period:
-  pvt: 500
+  pvt: 100
   rest: 500
 
 use_gnss_time: false
+
+latency_compensation: false
 
 rtk_settings:
   ntrip_1:
@@ -104,12 +121,15 @@ publish:
   basevectorgeod: false
   poscovcartesian: false
   poscovgeodetic: true
+  velcovcartesian: false
   velcovgeodetic: true
   atteuler: true
   attcoveuler: true
   pose: false
   twist: false
   diagnostics: false
+  aimplusstatus: true
+  galauthstatus: false
   # For GNSS Rx only
   gpgsa: false
   gpgsv: false
@@ -124,6 +144,9 @@ publish:
   imu: false
   localization: false
   tf: false
+  localization_ecef: false
+  tf_ecef: false
+
 
 # INS-Specific Parameters
 
@@ -167,7 +190,8 @@ ins_vsm:
     port: ""
     baud_rate: 115200
     keep_open: true
-  
-# Logger
+
+
+# logger
 
 activate_debug_log: false

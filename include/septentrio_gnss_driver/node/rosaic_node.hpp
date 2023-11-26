@@ -56,8 +56,7 @@
 //
 // *****************************************************************************
 
-#ifndef ROSAIC_NODE_HPP
-#define ROSAIC_NODE_HPP
+#pragma once
 
 /**
  * @file rosaic_node.hpp
@@ -65,10 +64,8 @@
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
-// ROS includes
-#include <ros/console.h>
-#include <ros/ros.h>
 // tf2 includes
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/communication_core.hpp>
@@ -83,13 +80,13 @@ namespace rosaic_node {
      * @class ROSaicNode
      * @brief This class represents the ROsaic node, to be extended..
      */
-    class ROSaicNode : ROSaicNodeBase
+    class ROSaicNode : public ROSaicNodeBase
     {
     public:
         //! The constructor initializes and runs the ROSaic node, if everything works
         //! fine. It loads the user-defined ROS parameters, subscribes to Rx
         //! messages, and publishes requested ROS messages...
-        ROSaicNode();
+        ROSaicNode(const rclcpp::NodeOptions& options);
 
     private:
         /**
@@ -98,14 +95,14 @@ namespace rosaic_node {
          *
          * The other ROSaic parameters are specified via the command line.
          */
-        bool getROSParams();
+        [[nodiscard]] bool getROSParams();
         /**
          * @brief Checks if the period has a valid value
          * @param[in] period period [ms]
          * @param[in] isIns wether recevier is an INS
          * @return wether the period is valid
          */
-        bool validPeriod(uint32_t period, bool isIns);
+        [[nodiscard]] bool validPeriod(uint32_t period, bool isIns) const;
         /**
          * @brief Gets transforms from tf2
          * @param[in] targetFrame traget frame id
@@ -114,7 +111,7 @@ namespace rosaic_node {
          */
         void getTransform(const std::string& targetFrame,
                           const std::string& sourceFrame,
-                          TransformStampedMsg& T_s_t);
+                          TransformStampedMsg& T_s_t) const;
         /**
          * @brief Gets Euler angles from quaternion message
          * @param[in] qm quaternion message
@@ -123,16 +120,14 @@ namespace rosaic_node {
          * @param[out] yaw yaw angle
          */
         void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
-                    double& yaw);
+                    double& yaw) const;
 
         void sendVelocity(const std::string& velNmea);
 
         //! Handles communication with the Rx
-        io_comm_rx::Comm_IO IO_;
+        io::CommunicationCore IO_;
         //! tf2 buffer and listener
         tf2_ros::Buffer tfBuffer_;
         std::unique_ptr<tf2_ros::TransformListener> tfListener_;
     };
 } // namespace rosaic_node
-
-#endif // for ROSAIC_NODE_HPP

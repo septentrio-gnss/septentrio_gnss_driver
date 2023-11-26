@@ -2,6 +2,129 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (Upcoming)
+-----------
+* Combine ROS 1 and ROS 2 in one branch
+* Save config to boot after setup
+
+1.3.2 (2022-11-19)
+-----------
+* Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
+  Fix IMU units
+* Fix topics namespace
+* Fix units of imu angular rates
+* Merge pull request `#96 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/96>`_ from septentrio-gnss/dev2
+  Dev2
+* Contributors: Thomas Emter, Tibor Dome, septentrio-users
+
+1.3.1 (2022-07-06)
+------------------
+* New Features
+   * Recovery from connection interruption
+   * Add option to bypass configuration of Rx
+   * Add tests
+   * OSNMA
+   * Latency compensation for ROS timestamps
+   * Output of SBf block VelCovCartesian
+   * Support for UDP and TCP via IP server
+   * New VSM handling allows for unknown variances (INS firmware >= 1.4.1)
+   * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
+* Improvements
+   * Rework IO core and message handling
+     * Unified stream processing 
+     * Internal data queue
+     * Prevent message loss in file reading
+   * Add some explanatory warnings for parameter mismatches
+   * Add units to message definitions
+* Fixes
+   * navsatfix for INS
+   * Empty headers
+   * Single antenna receiver setup
+* Preliminary Features
+   * Output of localization and tf in ECEF frame, testing and feedback welcome
+* Commits
+   * Merge pull request `#83 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/83>`_ from thomasemter/dev/next2
+     Update readme
+   * Add expected release dates
+   * Add known issues to readme
+   * Update version
+   * Update readme
+   * Merge pull request `#82 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/82>`_ from thomasemter/dev/next2
+     Fix spelling
+   * Categorize stream params
+   * Add keep alive check for TCP
+   * Fix spelling
+   * Add TCP communication via static IP server
+   * Add units to msgs
+   * Fix spelling
+   * Merge pull request `#76 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/76>`_ from thomasemter/dev/next2
+     upcoming release
+   * Add heading to GPSFix msg
+   * Move constant
+   * Change log level of firmware check
+   * Add improved VSM handling
+   * Change INS in GNSS node detection to auto
+   * Fix invald v_x var case
+   * Refine readme on UDP
+   * Improve server duplicate check
+   * Add more info un UDP configuration
+   * Fix publish check
+   * Add more publishing checks for configured Rx
+   * Add const for max udp packet size
+   * Update readme and changelog
+   * Add device check to node
+   * Fix param name separators
+   * Add checks for IP server duplicates
+   * Add latency compensation to att msgs
+   * Add device check logic
+   * Add UDP params and setup logic
+   * Fix multi msg per packet
+   * Fix localization stamp and tf publishing
+   * Change VSM to be averaged and published with 2 Hz
+   * Change VSM to be averaged and published with 2 Hz
+   * Always publish raw IMU data as indicated
+   * Change to empty fields
+   * Refine diagnostics naming scheme and add trigger to ensure emission of ReceiverSetup
+   * Change diagnostics naming scheme
+   * Add missing new params to gnss.yaml
+   * Expand readme on AIM+
+   * Reformulate readme about ROS and ROS2
+   * Add custom message to report AIM+ status
+   * Catch invalid UTM conversion
+   * Robustify command reset
+   * Add RFStatus diagnostics
+   * Add VelCovCartesian output
+   * Refine Rx type check
+   * Add option for latency compensation
+   * Fix param type misinterpretation
+   * Add OSNMA msg and diagnostics
+   * Update changelog
+   * Refine README and fix compiled message logic
+   * Update changelog
+   * Add warning for configuring INS as GNSS
+   * Add warn log for misconfiguration
+   * Fix pose publishing rate
+   * Fix navsatfix publishing
+   * Make vars const
+   * Merge rework of internal IO handling
+   * Change connection thread
+   * Fix attitude cov flipped twice
+   * Add cov alignment from true north to grid north
+   * Rename meridian convergence and fix sense
+   * Remove obsolete define
+   * Add tests
+   * Rename example launch files so they are found by auto-completion
+   * Merge branch 'dev/ros2' into dev/next2
+   * Fix lat/long in rad
+   * Fix readme concerning ROS 2 distros
+   * Reorder localization msg filling
+   * Update readme
+   * Fix NED to ECEF rotation matrix
+   * Add localization ECEF publishing
+   * Add ecef localization msg
+   * Add local to ecef transforms
+   * Contributors: Thomas Emter, Tibor Dome
+
 1.2.3 (2022-11-09)
 ------------------
 * New Features
@@ -19,12 +142,29 @@ Changelog for package septentrio_gnss_driver
    * Twist covariance matrix of localization
    * Support 5 ms period for IMU explicitly
 
-1.1.2 (2022-06-22)
+1.2.2 (2022-06-22)
 ------------------
 * Fixes
    * Memory corruption under adverse conditions
+* Commits
+    * Merge pull request `#66 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/66>`_ from thomasemter/dev/next2
+      Fix memory corruption
+    * Fix parameter warnings
+    * Reset buffer size to 16384
+    * Update changelog
+    * Fix memory corruption
+    * Replace maps with unordered_maps
+    * Overload timestamp function
+    * Fix frame ids for INS msgs
+    * Add define to avoid usage of deprecated header
+    * Change readme on gps-msgs packet
+    * Add info on user credentials
+    * Fix spelling in readme
+    * Merge remote-tracking branch 'upstream/ros2' into dev/next2
+    * Add comment for heading from pose
+    * Contributors: Thomas Emter, Tibor Dome
 
-1.1.1 (2022-05-16)
+1.2.1 (2022-05-16)
 ------------------
 * New Features
    * Add login credentials
@@ -34,9 +174,14 @@ Changelog for package septentrio_gnss_driver
 * Fixes
    * IMU orientation for ROS axis convention
 * Commits
-    * Merge pull request `#62 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/62>`_ from thomasemter/dev/next
+    * Merge pull request `#63 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/63>`_ from thomasemter/dev/next2
       Small fixes and additions
+    * Merge pull request `#60 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/60>`_ from wep21/support-rolling
+      fix: modify build error for rolling/humble
+    * Revert change for deprecation warning in Humble
+    * Change links to reflect ROS2
     * Amend readme regarding robot_localization
+    * Fix compiler warnings for humble
     * Add more explanations for IMU orientation in ROS convention
     * Fix formatting in readme
     * Fix package name in readme
@@ -45,14 +190,14 @@ Changelog for package septentrio_gnss_driver
     * Fix IMU orientation for ROS axis orientation
     * Activate NTP only if GNSS time is used
     * Add NED option to localization
-    * Set NMEA header to
-    * Fix logging causing crash
+    * Set NMEA header to GP
     * Update readme and changelog
     * Activate NTP server
     * Add credentials for access control
-    * Contributors: Thomas Emter, Tibor Dome
+    * fix: modify build error for rolling/humble
+    * Contributors: Daisuke Nishimatsu, Thomas Emter, Tibor Dome
 
-1.1.0 (2022-04-25)
+1.2.0 (2022-04-27)
 ------------------
 * New Features
    * Add option to use ROS axis orientations according to REP103
@@ -317,8 +462,13 @@ Changelog for package septentrio_gnss_driver
     * Change UTC calculation to use tow and wnc
     * WIP, add boost spirit and endian buffers
     * Change UTC calculation to use tow and wnc
-* Update Readme and Changelog
-* Contributors: Thomas Emter, Tibor Dome
+* ROS2 Commits
+    * Prepare ros2 release
+    * Merge pull request `#54 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/54>`_ from thomasemter/dev/ros2
+      ROS2 branch
+    * Port driver to ros2
+* Change UTC calculation to use tow and wnc
+* Contributors: Thomas Emter, Tibor Dome, tibordome
 
 1.0.8 (2021-10-23)
 ------------------
@@ -490,3 +640,4 @@ Changelog for package septentrio_gnss_driver
 * Successfully tested publishing to /gpgga topic via serial
 * To make sure master branch exists
 * Contributors: Tibor Dome, tibordome
+

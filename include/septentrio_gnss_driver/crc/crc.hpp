@@ -26,25 +26,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// ****************************************************************************
+// *****************************************************************************
 
-#include <septentrio_gnss_driver/node/rosaic_node.hpp>
+#pragma once
 
-/**
- * @file main.cpp
- * @date 01/12/21
- * @brief Main function of the ROSaic driver:
- */
+// ROSaic includes
+// The following imports structs into which SBF blocks can be unpacked then shipped
+// to handler functions
+#include <septentrio_gnss_driver/parsers/sbf_blocks.hpp>
+// C++ libary includes
+#include <cstdint>
+#include <stdbool.h>
+#include <stddef.h>
 
-int main(int argc, char** argv)
-{
-    rclcpp::init(argc, argv);
+namespace crc {
+    /**
+     * @file crc.hpp
+     * @brief Declares the functions to compute and validate the CRC of a buffer
+     * @date 17/08/20
+     */
 
-    auto options = rclcpp::NodeOptions().use_intra_process_comms(false);
-    auto rx_node = std::make_shared<rosaic_node::ROSaicNode>(options);
+    /**
+     * @brief This function computes the CRC-8-CCITT (Cyclic Redundancy Check) of a
+     * buffer "buf" of "buf_length" bytes
+     * @param[in] buf The buffer at hand
+     * @param[in] buf_length Number of bytes in "buf"
+     * @return The calculated CRC
+     */
+    uint16_t compute16CCITT(const uint8_t* buf, size_t buf_length);
 
-    rclcpp::spin(rx_node->get_node_base_interface());
+    /**
+     * @brief Validates whether the calculated CRC of the SBF block at hand matches
+     * the CRC field of the streamed SBF block
+     * @param block The SBF block that we are interested in
+     * @return True if the CRC check of the SBFBlock has passed, false otherwise
+     */
+    bool isValid(const std::vector<uint8_t>& message);
 
-    rclcpp::shutdown();
-    return 0;
-}
+} // namespace crc
