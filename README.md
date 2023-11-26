@@ -93,14 +93,14 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     baudrate: 921600
     hw_flow_control: "off"
 
-  tcp:
-    ip_server: ""
-    port: 0
-
-  udp:
-    ip_server: ""
-    port: 0
-    unicast_ip: ""
+  stream_device:
+    tcp:
+      ip_server: ""
+      port: 0
+    udp:
+      ip_server: ""
+      port: 0
+      unicast_ip: ""
 
   configure_rx: true
 
