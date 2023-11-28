@@ -29,9 +29,9 @@
 // *****************************************************************************
 
 #include <chrono>
-#include <linux/serial.h>
 #include <filesystem>
 #include <fstream>
+#include <linux/serial.h>
 
 // Boost includes
 #include <boost/regex.hpp>
@@ -288,25 +288,6 @@ namespace io {
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
 
-        if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
-        {
-            streamPort_ = settings_->tcp_ip_server;
-            send("siss, " + streamPort_ + ", " +
-                 std::to_string(settings_->tcp_port) + ", TCP, " + "\x0D");
-            tcpClient_->connect();
-        } else if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
-        {
-            streamPort_ = settings_->udp_ip_server;
-            std::string destination;
-            if (!settings_->udp_unicast_ip.empty())
-                destination = settings_->udp_unicast_ip;
-            else
-                destination = "255.255.255.255";
-            send("siss, " + streamPort_ + ", " +
-                 std::to_string(settings_->udp_port) + ", UDP, " + destination +
-                 "\x0D");
-        }
-
         node_->log(log_level::INFO, "Setting up Rx.");
 
         std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
@@ -331,8 +312,9 @@ namespace io {
             if ((std::filesystem::exists(settings_->custom_commands_file)))
             {
                 std::ifstream filestream(settings_->custom_commands_file);
-                node_->log(log_level::INFO,
-                       "Custom command file " + settings_->custom_commands_file + " loaded.");
+                node_->log(log_level::INFO, "Custom command file " +
+                                                settings_->custom_commands_file +
+                                                " loaded.");
 
                 size_t ctr = 0;
                 std::string line;
@@ -341,13 +323,35 @@ namespace io {
                     ++ctr;
                     send(line + "\x0D");
                 }
-                node_->log(log_level::INFO, std::to_string(ctr) + " custom commands have been parsed and sent to the Rx.");             
-            }
-            else
+                node_->log(
+                    log_level::INFO,
+                    std::to_string(ctr) +
+                        " custom commands have been parsed and sent to the Rx.");
+            } else
             {
-                 node_->log(log_level::ERROR,
-                       "Custom command file " + settings_->custom_commands_file + " could not be found.");
+                node_->log(log_level::ERROR, "Custom command file " +
+                                                 settings_->custom_commands_file +
+                                                 " could not be found.");
             }
+        }
+
+        if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
+        {
+            streamPort_ = settings_->tcp_ip_server;
+            send("siss, " + streamPort_ + ", " +
+                 std::to_string(settings_->tcp_port) + ", TCP, " + "\x0D");
+            tcpClient_->connect();
+        } else if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+        {
+            streamPort_ = settings_->udp_ip_server;
+            std::string destination;
+            if (!settings_->udp_unicast_ip.empty())
+                destination = settings_->udp_unicast_ip;
+            else
+                destination = "255.255.255.255";
+            send("siss, " + streamPort_ + ", " +
+                 std::to_string(settings_->udp_port) + ", UDP, " + destination +
+                 "\x0D");
         }
 
         // Turning off all current SBF/NMEA output
@@ -950,17 +954,17 @@ namespace io {
                 send("sdio, " + settings_->ins_vsm_serial_port + ", NMEA\x0D");
             }
             // Save config to boot
-            send("eccf, Current, Boot\x0D"); // TODO use dedicated streaming device for VSM
+            send("eccf, Current, Boot\x0D"); // TODO use dedicated streaming device
+                                             // for VSM
             if ((settings_->ins_vsm_ros_source == "odometry") ||
                 (settings_->ins_vsm_ros_source == "twist"))
-            {                
+            {
                 std::string s;
                 s = "sdio, " + mainConnectionPort_ + ", NMEA, +NMEA +SBF\x0D";
                 send(s);
                 nmeaActivated_ = true;
             }
-        }
-        else
+        } else
         {
             // Save config to boot
             send("eccf, Current, Boot\x0D");
