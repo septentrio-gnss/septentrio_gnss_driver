@@ -144,7 +144,6 @@ typedef nmea_msgs::msg::Gpgga GpggaMsg;
 typedef nmea_msgs::msg::Gpgsa GpgsaMsg;
 typedef nmea_msgs::msg::Gpgsv GpgsvMsg;
 typedef nmea_msgs::msg::Gprmc GprmcMsg;
-;
 
 // Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::msg::INSNavCart INSNavCartMsg;
