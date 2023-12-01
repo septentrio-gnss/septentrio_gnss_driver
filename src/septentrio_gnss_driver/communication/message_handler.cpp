@@ -90,15 +90,9 @@ namespace io {
             }
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                double yaw = 0.0;
-                if (validValue(last_insnavgeod_.heading))
-                    yaw = last_insnavgeod_.heading;
-                double pitch = 0.0;
-                if (validValue(last_insnavgeod_.pitch))
-                    pitch = last_insnavgeod_.pitch;
-                double roll = 0.0;
-                if (validValue(last_insnavgeod_.roll))
-                    roll = last_insnavgeod_.roll;
+                double yaw = last_insnavgeod_.heading;
+                double pitch = last_insnavgeod_.pitch;
+                double roll = last_insnavgeod_.roll;
                 // Attitude
                 msg.pose.pose.orientation = convertEulerToQuaternionMsg(
                     deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
@@ -176,15 +170,9 @@ namespace io {
             msg.header = last_pvtgeodetic_.header;
 
             // Filling in the pose data
-            double yaw = 0.0;
-            if (validValue(last_atteuler_.heading))
-                yaw = last_atteuler_.heading;
-            double pitch = 0.0;
-            if (validValue(last_atteuler_.pitch))
-                pitch = last_atteuler_.pitch;
-            double roll = 0.0;
-            if (validValue(last_atteuler_.roll))
-                roll = last_atteuler_.roll;
+            double yaw = last_atteuler_.heading;
+            double pitch = last_atteuler_.pitch;
+            double roll = last_atteuler_.roll;
             msg.pose.pose.orientation = convertEulerToQuaternionMsg(
                 deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
             msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
@@ -678,15 +666,9 @@ namespace io {
             if ((last_insnavgeod_.sb_list & 8) != 0)
             {
                 // Linear velocity in navigation frame
-                double ve = 0.0;
-                if (validValue(last_insnavgeod_.ve))
-                    ve = last_insnavgeod_.ve;
-                double vn = 0.0;
-                if (validValue(last_insnavgeod_.vn))
-                    vn = last_insnavgeod_.vn;
-                double vu = 0.0;
-                if (validValue(last_insnavgeod_.vu))
-                    vu = last_insnavgeod_.vu;
+                double ve = last_insnavgeod_.ve;
+                double vn = last_insnavgeod_.vn;
+                double vu = last_insnavgeod_.vu;
                 Eigen::Vector3d vel;
                 if (settings_->use_ros_axis_orientation)
                 {
@@ -790,15 +772,9 @@ namespace io {
             if (last_pvtgeodetic_.error == 0)
             {
                 // Linear velocity in navigation frame
-                double ve = 0.0;
-                if (validValue(last_pvtgeodetic_.ve))
-                    ve = last_pvtgeodetic_.ve;
-                double vn = 0.0;
-                if (validValue(last_pvtgeodetic_.vn))
-                    vn = last_pvtgeodetic_.vn;
-                double vu = 0.0;
-                if (validValue(last_pvtgeodetic_.vu))
-                    vu = last_pvtgeodetic_.vu;
+                double ve = last_pvtgeodetic_.ve;
+                double vn = last_pvtgeodetic_.vn;
+                double vu = last_pvtgeodetic_.vu;
                 Eigen::Vector3d vel;
                 if (settings_->use_ros_axis_orientation)
                 {
@@ -847,16 +823,20 @@ namespace io {
                     last_velcovgeodetic_.cov_vnve;
                 if (settings_->use_ros_axis_orientation)
                 {
-                    covVel_local(0, 2) = covVel_local(2, 0) =
-                        last_velcovgeodetic_.cov_vevu;
-                    covVel_local(2, 1) = covVel_local(1, 2) =
-                        last_velcovgeodetic_.cov_vnvu;
+                    if (validValue(last_velcovgeodetic_.cov_vevu))
+                        covVel_local(0, 2) = covVel_local(2, 0) =
+                            last_velcovgeodetic_.cov_vevu;
+                    if (validValue(last_velcovgeodetic_.cov_vnvu))
+                        covVel_local(2, 1) = covVel_local(1, 2) =
+                            last_velcovgeodetic_.cov_vnvu;
                 } else
                 {
-                    covVel_local(0, 2) = covVel_local(2, 0) =
-                        -last_velcovgeodetic_.cov_vnvu;
-                    covVel_local(2, 1) = covVel_local(1, 2) =
-                        -last_velcovgeodetic_.cov_vevu;
+                    if (validValue(last_velcovgeodetic_.cov_vnvu))
+                        covVel_local(0, 2) = covVel_local(2, 0) =
+                            -last_velcovgeodetic_.cov_vnvu;
+                    if (validValue(last_velcovgeodetic_.cov_vevu))
+                        covVel_local(2, 1) = covVel_local(1, 2) =
+                            -last_velcovgeodetic_.cov_vevu;
                 }
 
                 msg.twist.covariance[0] = covVel_local(0, 0);
@@ -967,15 +947,9 @@ namespace io {
         }
 
         // Euler angles
-        double roll = 0.0;
-        if (validValue(last_insnavgeod_.roll))
-            roll = deg2rad(last_insnavgeod_.roll);
-        double pitch = 0.0;
-        if (validValue(last_insnavgeod_.pitch))
-            pitch = deg2rad(last_insnavgeod_.pitch);
-        double yaw = 0.0;
-        if (validValue(last_insnavgeod_.heading))
-            yaw = deg2rad(last_insnavgeod_.heading);
+        double roll = deg2rad(last_insnavgeod_.roll);
+        double pitch = deg2rad(last_insnavgeod_.pitch);
+        double yaw = deg2rad(last_insnavgeod_.heading);
         // meridian_convergence for conversion from true north to grid north
         if (settings_->use_ros_axis_orientation)
             yaw += deg2rad(meridian_convergence);
@@ -1136,15 +1110,9 @@ namespace io {
         }
 
         // Euler angles
-        double roll = 0.0;
-        if (validValue(last_insnavcart_.roll))
-            roll = deg2rad(last_insnavcart_.roll);
-        double pitch = 0.0;
-        if (validValue(last_insnavcart_.pitch))
-            pitch = deg2rad(last_insnavcart_.pitch);
-        double yaw = 0.0;
-        if (validValue(last_insnavcart_.heading))
-            yaw = deg2rad(last_insnavcart_.heading);
+        double roll = deg2rad(last_insnavcart_.roll);
+        double pitch = deg2rad(last_insnavcart_.pitch);
+        double yaw = deg2rad(last_insnavcart_.heading);
 
         if ((last_insnavcart_.sb_list & 2) != 0)
         {
@@ -1262,15 +1230,9 @@ namespace io {
         if ((last_insnavgeod_.sb_list & 8) != 0)
         {
             // Linear velocity (ENU)
-            double ve = 0.0;
-            if (validValue(last_insnavgeod_.ve))
-                ve = last_insnavgeod_.ve;
-            double vn = 0.0;
-            if (validValue(last_insnavgeod_.vn))
-                vn = last_insnavgeod_.vn;
-            double vu = 0.0;
-            if (validValue(last_insnavgeod_.vu))
-                vu = last_insnavgeod_.vu;
+            double ve = last_insnavgeod_.ve;
+            double vn = last_insnavgeod_.vn;
+            double vu = last_insnavgeod_.vu;
             Eigen::Vector3d vel_local;
             if (settings_->use_ros_axis_orientation)
             {
