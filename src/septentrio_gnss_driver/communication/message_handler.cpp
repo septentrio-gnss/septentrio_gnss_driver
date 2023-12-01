@@ -776,7 +776,7 @@ namespace io {
                 msg.twist.covariance[0] = -1.0;
                 msg.twist.covariance[7] = -1.0;
                 msg.twist.covariance[14] = -1.0;
-            }          
+            }
 
             publish<TwistWithCovarianceStampedMsg>("twist_ins", msg);
         } else
@@ -1597,6 +1597,7 @@ namespace io {
         {
             if (!validValue(last_measepoch_.block_header.tow) ||
                 !validValue(last_channelstatus_.block_header.tow) ||
+                !validValue(last_dop_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
                  last_pvtgeodetic_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
@@ -1610,8 +1611,7 @@ namespace io {
         {
             if (!validValue(last_measepoch_.block_header.tow) ||
                 !validValue(last_channelstatus_.block_header.tow) ||
-                (last_measepoch_.block_header.tow !=
-                 last_insnavgeod_.block_header.tow))
+                !validValue(last_dop_.block_header.tow))
                 return;
         }
 
@@ -2245,7 +2245,8 @@ namespace io {
             assembleTwist();
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             if (settings_->publish_gpst &&
                 (settings_->septentrio_receiver_type == "gnss"))
                 assembleTimeReference(telegram);
@@ -2315,7 +2316,8 @@ namespace io {
                 publish<PosCovGeodeticMsg>("poscovgeodetic", last_poscovgeodetic_);
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case ATT_EULER:
@@ -2331,7 +2333,8 @@ namespace io {
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("atteuler", last_atteuler_);
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case ATT_COV_EULER:
@@ -2347,7 +2350,8 @@ namespace io {
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("attcoveuler", last_attcoveuler_);
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case GAL_AUTH_STATUS:
@@ -2557,7 +2561,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ChannelStatus");
                 break;
             }
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case MEAS_EPOCH:
@@ -2571,7 +2576,8 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_measepoch_);
             if (settings_->publish_measepoch)
                 publish<MeasEpochMsg>("measepoch", last_measepoch_);
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case DOP:
@@ -2582,7 +2588,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in DOP");
                 break;
             }
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case VEL_COV_CARTESIAN:
@@ -2614,7 +2621,8 @@ namespace io {
             if (settings_->publish_velcovgeodetic)
                 publish<VelCovGeodeticMsg>("velcovgeodetic", last_velcovgeodetic_);
             assembleTwist();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case RECEIVER_STATUS:
