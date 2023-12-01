@@ -84,22 +84,6 @@ static const uint8_t SBF_SYNC_2 = 0x40;
  */
 
 /**
- * @brief Struct for the SBF block's header message
- */
-struct BlockHeader
-{
-    uint8_t sync_1;   //!< first sync byte is $ or 0x24
-    uint8_t sync_2;   //!< 2nd sync byte is @ or 0x40
-    uint16_t crc;     //!< The check sum
-    uint16_t id;      //!< This is the block ID
-    uint8_t revision; //!< This is the block revision
-    uint16_t length;  //!< Length of the entire message including the header. A
-                      //!< multiple of 4 between 8 and 4096
-    uint32_t tow;     //!< This is the time of week in ms
-    uint16_t wnc;     //!< This is the GPS week counter
-};
-
-/**
  * @class ChannelStateInfo
  * @brief Struct for the SBF sub-block "ChannelStateInfo"
  */
@@ -134,7 +118,7 @@ struct ChannelSatInfo
  */
 struct ChannelStatus
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t n;
     uint8_t sb1_length;
@@ -149,7 +133,7 @@ struct ChannelStatus
  */
 struct Dop
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t nr_sv;
     double pdop;
@@ -166,7 +150,7 @@ struct Dop
  */
 struct ReceiverSetup
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     std::string marker_name;
     std::string marker_number;
@@ -198,7 +182,7 @@ struct ReceiverSetup
  */
 struct QualityInd
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t n = 0;
 
@@ -222,7 +206,7 @@ struct AgcState
  */
 struct ReceiverStatus
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t cpu_load;
     uint8_t ext_error;
