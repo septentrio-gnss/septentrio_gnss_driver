@@ -29,6 +29,9 @@ endif ()
 if("$ENV{ROS_VERSION}" STREQUAL "1")
   ## ROS 1 -----------------------------------------------------------------------------------------------  
   add_compile_definitions(ROS1)
+
+  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos1.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
+
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -134,6 +137,9 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
 elseif("$ENV{ROS_VERSION}" STREQUAL "2")
   ## ROS 2 -----------------------------------------------------------------------------------------------
   add_compile_definitions(ROS2)
+
+  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
+
   # Dependencies
   find_package(ament_cmake REQUIRED)
   find_package(rclcpp REQUIRED)
