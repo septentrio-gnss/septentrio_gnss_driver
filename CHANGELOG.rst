@@ -4,10 +4,13 @@ Changelog for package septentrio_gnss_driver
 
 1.3.3 (Upcoming)
 -----------
-* Combine ROS 1 and ROS 2 in one branch
-* Save config to boot after setup
-* Change GPSFix publishing policy to allow for high update rates
-* Change floating point do-not-use-values to NaN
+* New features
+  * Send custom commands via ASCII file on startup
+  * Save config to boot after setup
+* Improvements
+  * Combine ROS 1 and ROS 2 in one branch
+  * Change GPSFix publishing policy to allow for high update rates
+  * Change floating point do-not-use-values to NaN
 
 1.3.2 (2022-11-19)
 -----------
