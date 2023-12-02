@@ -1567,7 +1567,10 @@ namespace io {
                 (last_measepoch_.block_header.tow !=
                  last_atteuler_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
-                 last_attcoveuler_.block_header.tow))
+                 last_attcoveuler_.block_header.tow) ||
+                (last_measepoch_.block_header.tow != last_dop_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_channelstatus_.block_header.tow))
                 return;
         } else if (settings_->septentrio_receiver_type == "ins")
         {
