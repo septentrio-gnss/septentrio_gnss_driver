@@ -12,7 +12,7 @@ Changelog for package septentrio_gnss_driver
   * Change GPSFix publishing policy to allow for high update rates
   * Change floating point do-not-use-values to NaN
 
-1.3.2 (2022-11-19)
+1.3.2 (2023-11-19)
 -----------
 * Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
   Fix IMU units
@@ -22,7 +22,7 @@ Changelog for package septentrio_gnss_driver
   Dev2
 * Contributors: Thomas Emter, Tibor Dome, septentrio-users
 
-1.3.1 (2022-07-06)
+1.3.1 (2023-07-06)
 ------------------
 * New Features
    * Recovery from connection interruption
