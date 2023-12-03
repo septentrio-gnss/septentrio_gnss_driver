@@ -2,11 +2,12 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.3.3 (Upcoming)
+1.4.0 (Upcoming)
 -----------
 * New features
   * Send custom commands via ASCII file on startup
   * Save config to boot after setup
+  * NTP and PTP server options
 * Improvements
   * Combine ROS 1 and ROS 2 in one branch
   * Change GPSFix publishing policy to allow for high update rates

@@ -530,7 +530,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_gnss_time`: `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, it is **imperative** that the ROS system is synchronized to an NTP time server or PTP clock either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection.
+  + `use_gnss_time`: `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, it is **imperative** that the ROS system is synchronized to an NTP time server or PTP clock either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. If this is not followed, the time stamps may drift apart!
     + default: `false`
   + `ntp_server`: Wether the NTP server shall be activated.
     + default: `false`
