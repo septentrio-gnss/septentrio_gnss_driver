@@ -28,7 +28,7 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
 <details>
 <summary>Binary Install</summary>
   
-  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galacitc are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
+  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
 </details>
 
 <details>
@@ -53,14 +53,14 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
 
   ```
   source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
-  mkdir -p ~/septentrio/src                                           # Note: Change accordingly dependending on where you want your package to be installed.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
   cd ~/septentrio
   catkin init                                                         # Initialize with a hidden marker file
   catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
   cd src
   git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
   rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
-  catkin build                                                        # If catkin cannot find empy, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
+  catkin build                                                        # If catkin cannot find empty, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
   echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
   source ~/.bashrc 
   ```
@@ -88,9 +88,11 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
 <details>
 <summary>Notes Before Usage</summary>
 
-  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.  
+  + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.
+  + Note for serial connection: Make sure the user is part of the `dialout` group to have full access to the serial ports. If not, add it for example with `sudo adduser [username] dialout`.
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
+  + Note for usage of NTRIP via USB with virtual ethernet (RNDIS): RNDIS provides a virtual network connection only between the receiver and the PC. First outgoing network access via USB has to be activated, which is explained [here](https://www.youtube.com/watch?v=bUt8cL9Ue1Y). Next setup internet sharing under Linux by setting the connection of the virtual network interface (the name should be something like enx1a3202991545) to "Shared to other computers".
   + Once the build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one, examples for GNSS specific parameters `config/gnss.yaml` and INS `config/ins.yaml` are also available. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.<br> 
   ROS 1: Launch the `launch/rover.launch` to use `rover.yaml` or add  `param_file_name:=xxx` to use a custom config.<br> 
   ROS 2: Launch as composition with `ros2 launch septentrio_gnss_driver rover.launch.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.launch.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
