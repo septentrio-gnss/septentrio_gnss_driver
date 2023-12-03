@@ -9,6 +9,7 @@ Changelog for package septentrio_gnss_driver
   * Save config to boot after setup
   * NTP and PTP server options
 * Improvements
+  * Rework some sections of the README
   * Combine ROS 1 and ROS 2 in one branch
   * Change GPSFix publishing policy to allow for high update rates
   * Change floating point do-not-use-values to NaN
