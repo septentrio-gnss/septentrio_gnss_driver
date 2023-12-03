@@ -310,7 +310,7 @@ struct Settings
     std::string septentrio_receiver_type;
     //! If true, the ROS message headers' unix time field is constructed from the TOW
     //! (in the SBF case) and UTC (in the NMEA case) data. If false, times are
-    //! constructed within the driver via time(NULL) of the \<ctime\> library.
+    //! constructed within the driver via ROS time.
     bool use_gnss_time;
     //! Wether NTP server shall be activated
     bool ntp_server;
