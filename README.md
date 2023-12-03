@@ -101,13 +101,15 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
   + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.    
     * GNSS with firmware < 4.12.1 does not support OSNMA.
+    * GNSS with firmware < 4.14 does not support PTP server clock.
+    * INS with firmware <= 1.2.0 does not support velocity aiding.
+    * INS with firmware <= 1.2.0 does not support setting of initial heading.
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
-    * INS with firmware 1.2.0 does not support velocity aiding.
-    * INS with firmware 1.2.0 does not support setting of initial heading.
+    * INS does not support PTP server clock as of now.
  + Known issues:
-    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14, for INS it is fixed in version 1.4.1.
+    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS is fixed in 1.4.1 (released November 2023).
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI in this case.
   :<br>
   

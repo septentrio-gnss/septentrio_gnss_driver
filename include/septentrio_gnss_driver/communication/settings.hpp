@@ -312,6 +312,10 @@ struct Settings
     //! (in the SBF case) and UTC (in the NMEA case) data. If false, times are
     //! constructed within the driver via time(NULL) of the \<ctime\> library.
     bool use_gnss_time;
+    //! Wether NTP server shall be activated
+    bool ntp_server;
+    //! Wether PTP grandmaster clock shall be activated
+    bool ptp_server_clock;
     //! Wether processing latency shall be compensated for in ROS timestamp
     bool latency_compensation;
     //! The frame ID used in the header of every published ROS message
