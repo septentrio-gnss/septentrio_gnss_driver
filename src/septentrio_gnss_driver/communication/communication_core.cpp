@@ -363,8 +363,12 @@ namespace io {
         telegramHandler_.waitForCapabilities();
 
         // Activate NTP server
-        if (settings_->use_gnss_time)
+        if (settings_->use_gnss_time || settings_->ntp_server)
             send("sntp, on \x0D");
+
+        // Activate PTP server clock
+        if (settings_->ptp_server_clock)
+            send("sptp, on \x0D");
 
         // Setting the datum to be used by the Rx (not the NMEA output though, which
         // only provides MSL and undulation (by default with respect to WGS84), but
