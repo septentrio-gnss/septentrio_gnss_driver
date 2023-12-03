@@ -71,10 +71,12 @@ polling_period:
   pvt: 0
   rest: 500
 
+# time
 use_gnss_time: false
+ntp_server: true
+latency_compensation: true
 
-latency_compensation: false
-
+# RTK
 rtk_settings:
   keep_open: true
   ntrip_1:

@@ -77,6 +77,8 @@ polling_period:
   rest: 500
 
 use_gnss_time: false
+ntp_server: false
+ptp_server_clock: false
 
 latency_compensation: false
 

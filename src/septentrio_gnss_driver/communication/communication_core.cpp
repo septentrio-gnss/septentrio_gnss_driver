@@ -363,7 +363,7 @@ namespace io {
         telegramHandler_.waitForCapabilities();
 
         // Activate NTP server
-        if (settings_->use_gnss_time || settings_->ntp_server)
+        if (settings_->ntp_server)
             send("sntp, on \x0D");
 
         // Activate PTP server clock

@@ -191,6 +191,8 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
     rest: 500
 
   use_gnss_time: false
+  ntp_server: false
+  ptp_server_clock: false
 
   latency_compensation: false
 
@@ -528,8 +530,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio receiver (for INS/GNSS a firmware >= 1.3.3 is needed).
-    + default: `true`
+  + `use_gnss_time`: `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, it is **imperative** that the ROS system is synchronized to an NTP time server or PTP clock either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection.
+    + default: `false`
+  + `ntp_server`: Wether the NTP server shall be activated.
+    + default: `false`
+  + `ptp_server_clock`: Wether the PTP server slcok hall be activated.
+    + default: `false`
   + `latency_compensation`: Rx reports processing latency in PVT and INS blocks. If set to `true`this latency is subtracted from ROS timestamps in related blocks (i.e., `use_gnss_time` set to `false`). Related blocks are INS, PVT, Covariances, and BaseVectors. In case of `use_gnss_time` set to `true`, the latency is already compensated within the RX and included in the reported timestamps.
     + default: `false`
   </details>
