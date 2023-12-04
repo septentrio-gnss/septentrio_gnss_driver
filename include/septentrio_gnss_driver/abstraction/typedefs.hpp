@@ -198,6 +198,8 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
+    bool ok() { return rclcpp::ok(); }
+
     const Settings* settings() const { return &settings_; }
 
     void registerSubscriber()

@@ -279,7 +279,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 <details>
 <summary>ROS</summary>
 This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
-[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details><br>
+[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
 
 ### Installation via apt
 <details>
