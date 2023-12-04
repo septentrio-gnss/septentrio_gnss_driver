@@ -12,79 +12,17 @@ Main Features:
 - Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
-- Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
+- Supports optional axis convention conversion since Septentrio follows the NED convention, whereas ROS is ENU.
 - Easy configuration of multiple RTK corrections simultaneously (via NTRIP, TCP/IP stream, or serial)
 - Can play back PCAP capture logs for testing purposes
-- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
+- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+, AsteRx-SB Pro+ and the AsteRx-SBi3 Pro receiver
 - Easy to add support for more log types
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
-## Dependencies
-This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
-[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.<br><br>
-
 ## Usage
-<details>
-<summary>Binary Install</summary>
-  
-  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
-</details>
 
-<details>
-<summary>Build from Source </summary>
-
-  + Building ROSaic only works from C++17 onwards due to std::any() etc.
-
-  #### Dependencies for development
-  Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
-  ROS 1: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-common`.<br><br>
-  ROS 2: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
-  The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
-  `sudo apt install libboost-all-dev`.<br><br>
-  Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
-  `sudo apt install libgeographic-dev`<br><br>
-  Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
-  `sudo apt install libpcap-dev`.<br><br>
-
-  #### ROS 1
-  For ROS 1, the package can be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command
-  `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic. The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:
-
-  ```
-  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
-  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
-  cd ~/septentrio
-  catkin init                                                         # Initialize with a hidden marker file
-  catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
-  cd src
-  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-  rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
-  catkin build                                                        # If catkin cannot find empty, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
-  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
-  source ~/.bashrc 
-  ```
-  
-  #### ROS 2
-  For ROS 2, The package has to be built from source using [`colcon`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html):
-
-  ```
-  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
-  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
-  cd ~/septentrio/src
-  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-msgs libboost-all-dev libpcap-dev libgeographic-dev`)  
-  colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with installing by symlinks: add `--symlink-install`
-  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
-  source ~/.bashrc 
-  ```
-
-  Run tests
-  ```
-  colcon test --packages-select septentrio_gnss_driver --event-handlers console_direct+
-  ```
-</details>
-
+### Important notes
 <details>
 <summary>Notes Before Usage</summary>
 
@@ -335,6 +273,74 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
   ```
   In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
 
+</details>
+
+### Dependencies
+<details>
+<summary>ROS</summary>
+This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
+[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details><br>
+
+### Installation via apt
+<details>
+<summary>Binary Install</summary>
+  
+  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
+</details>
+
+### Build from source
+<details>
+<summary>Build</summary>
+
+  + Building ROSaic only works from C++17 onwards due to the usage of std::any() etc.
+
+  #### Dependencies for development
+  Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
+  ROS 1: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-common`.<br><br>
+  ROS 2: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
+  The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
+  `sudo apt install libboost-all-dev`.<br><br>
+  Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
+  `sudo apt install libgeographic-dev`<br><br>
+  Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
+  `sudo apt install libpcap-dev`.<br><br>
+
+  #### ROS 1
+  For ROS 1, the package can be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command
+  `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic. The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:
+
+  ```
+  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
+  cd ~/septentrio
+  catkin init                                                         # Initialize with a hidden marker file
+  catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
+  cd src
+  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
+  rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
+  catkin build                                                        # If catkin cannot find empty, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
+  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
+  source ~/.bashrc 
+  ```
+  
+  #### ROS 2
+  For ROS 2, The package has to be built from source using [`colcon`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html):
+
+  ```
+  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
+  cd ~/septentrio/src
+  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
+  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-msgs libboost-all-dev libpcap-dev libgeographic-dev`)  
+  colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with installing by symlinks: add `--symlink-install`
+  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
+  source ~/.bashrc 
+  ```
+
+  Run tests
+  ```
+  colcon test --packages-select septentrio_gnss_driver --event-handlers console_direct+
+  ```
 </details>
 
 # Inertial Navigation System (INS): Basics
