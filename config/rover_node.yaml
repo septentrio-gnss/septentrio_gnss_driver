@@ -73,10 +73,13 @@ septentrio_gnss_driver:
       pvt: 100
       rest: 500
 
+    # time
     use_gnss_time: false
+    ntp_server: true
+    ptp_server_clock: false
+    latency_compensation: true
 
-    latency_compensation: false
-
+    # RTK
     rtk_settings:  
       ntrip_1:
         id: ""

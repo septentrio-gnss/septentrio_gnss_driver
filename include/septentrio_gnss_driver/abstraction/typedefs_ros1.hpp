@@ -191,6 +191,8 @@ public:
 
     virtual ~ROSaicNodeBase() {}
 
+    bool ok() { return ros::ok(); }
+
     const Settings* settings() const { return &settings_; }
 
     void registerSubscriber()
