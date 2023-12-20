@@ -16,7 +16,7 @@ endif()
 set(WARNFLAGS "-Wall -Wextra -Wpedantic -Wcast-align -Wnon-virtual-dtor -Woverloaded-virtual -Wcast-qual -Wctor-dtor-privacy")
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system thread regex chrono)
+find_package(Boost REQUIRED)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
 
@@ -120,6 +120,7 @@ if("$ENV{ROS_VERSION}" STREQUAL "1")
   add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
   target_link_libraries(${PROJECT_NAME}_node 
     ${catkin_LIBRARIES}
+    boost_regex # ordering is important for regex https://stackoverflow.com/questions/17588440/cannot-link-boost-regex
     ${Boost_LIBRARIES} 
     ${libpcap_LIBRARIES}
     ${GeographicLib_LIBRARIES}
@@ -227,6 +228,7 @@ elseif("$ENV{ROS_VERSION}" STREQUAL "2")
   "$<INSTALL_INTERFACE:include>"
   )
   target_link_libraries(${library_name}
+  boost_regex # ordering is important for regex https://stackoverflow.com/questions/17588440/cannot-link-boost-regex
   ${Boost_LIBRARIES}
   pcap
   ${GeographicLib_LIBRARIES}
