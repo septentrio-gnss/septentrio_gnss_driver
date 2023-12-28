@@ -15,6 +15,8 @@ endif()
 
 set(WARNFLAGS "-Wall -Wextra -Wpedantic -Wcast-align -Wnon-virtual-dtor -Woverloaded-virtual -Wcast-qual -Wctor-dtor-privacy")
 
+add_definitions(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
+
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")

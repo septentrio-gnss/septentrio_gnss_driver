@@ -535,47 +535,57 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     // VSM - velocity sensor measurements for INS
     if (settings_.septentrio_receiver_type == "ins")
     {
-        param("ins_vsm/ros/source", settings_.ins_vsm_ros_source, std::string(""));
+        param("ins_vsm/ros/source", settings_.ins_vsm.ros_source, std::string(""));
+        std::string ipid = "IPS5";
 
         bool ins_use_vsm = false;
-        ins_use_vsm = ((settings_.ins_vsm_ros_source == "odometry") ||
-                       (settings_.ins_vsm_ros_source == "twist"));
-        if (!settings_.ins_vsm_ros_source.empty() && !ins_use_vsm)
+        ins_use_vsm = ((settings_.ins_vsm.ros_source == "odometry") ||
+                       (settings_.ins_vsm.ros_source == "twist"));
+        if (!settings_.ins_vsm.ros_source.empty() && !ins_use_vsm)
             this->log(log_level::ERROR, "unknown ins_vsm/ros/source " +
-                                            settings_.ins_vsm_ros_source +
+                                            settings_.ins_vsm.ros_source +
                                             " -> VSM input will not be used!");
-        param("ins_vsm/ip_server/id", settings_.ins_vsm_ip_server_id,
-              std::string(""));
-        if (!settings_.ins_vsm_ip_server_id.empty())
+        else if (!settings_.tcp_ip_server.empty())
+            ipid = settings_.tcp_ip_server;
+
+        param("ins_vsm/ip_server/id", settings_.ins_vsm.ip_server, ipid);
+        if (!settings_.ins_vsm.ip_server.empty())
         {
             getUint32Param("ins_vsm/ip_server/port",
-                           settings_.ins_vsm_ip_server_port,
-                           static_cast<uint32_t>(0));
+                           settings_.ins_vsm.ip_server_port,
+                           static_cast<uint32_t>(24786));
             param("ins_vsm/ip_server/keep_open",
-                  settings_.ins_vsm_ip_server_keep_open, true);
-            this->log(
-                log_level::INFO,
-                "external velocity sensor measurements via ip_server are used.");
+                  settings_.ins_vsm.ip_server_keep_open, !ins_use_vsm);
+            this->log(log_level::INFO,
+                      "velocity sensor measurements via ip_server will be used.");
+
+            if (settings_.ins_vsm.ip_server == settings_.tcp_ip_server)
+                settings_.ins_vsm.use_stream_device = true;
+        } else if (ins_use_vsm)
+        {
+            this->log(log_level::ERROR,
+                      "no ins_vsm.ip_server.id set -> VSM input will not be used!");
+            ins_use_vsm = false;
         }
 
-        param("ins_vsm/serial/port", settings_.ins_vsm_serial_port, std::string(""));
-        if (!settings_.ins_vsm_serial_port.empty())
+        param("ins_vsm/serial/port", settings_.ins_vsm.serial_port, std::string(""));
+        if (!settings_.ins_vsm.serial_port.empty())
         {
             getUint32Param("ins_vsm/serial/baud_rate",
-                           settings_.ins_vsm_serial_baud_rate,
+                           settings_.ins_vsm.serial_baud_rate,
                            static_cast<uint32_t>(115200));
-            param("ins_vsm/serial/keep_open", settings_.ins_vsm_serial_keep_open,
+            param("ins_vsm/serial/keep_open", settings_.ins_vsm.serial_keep_open,
                   true);
             this->log(log_level::INFO,
-                      "external velocity sensor measurements via serial are used.");
+                      "velocity sensor measurements via serial will be used.");
         }
 
-        param("ins_vsm/ros/config", settings_.ins_vsm_ros_config,
+        param("ins_vsm/ros/config", settings_.ins_vsm.ros_config,
               std::vector<bool>());
-        if (ins_use_vsm && (settings_.ins_vsm_ros_config.size() == 3))
+        if (ins_use_vsm && (settings_.ins_vsm.ros_config.size() == 3))
         {
-            if (std::all_of(settings_.ins_vsm_ros_config.begin(),
-                            settings_.ins_vsm_ros_config.end(),
+            if (std::all_of(settings_.ins_vsm.ros_config.begin(),
+                            settings_.ins_vsm.ros_config.end(),
                             [](bool v) { return !v; }))
             {
                 ins_use_vsm = false;
@@ -585,41 +595,41 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             } else
             {
                 param("ins_vsm/ros/variances_by_parameter",
-                      settings_.ins_vsm_ros_variances_by_parameter, false);
-                if (settings_.ins_vsm_ros_variances_by_parameter)
+                      settings_.ins_vsm.ros_variances_by_parameter, false);
+                if (settings_.ins_vsm.ros_variances_by_parameter)
                 {
-                    param("ins_vsm/ros/variances", settings_.ins_vsm_ros_variances,
+                    param("ins_vsm/ros/variances", settings_.ins_vsm.ros_variances,
                           std::vector<double>());
-                    if (settings_.ins_vsm_ros_variances.size() != 3)
+                    if (settings_.ins_vsm.ros_variances.size() != 3)
                     {
                         this->log(
                             log_level::ERROR,
                             "ins_vsm/ros/variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
                         ins_use_vsm = false;
-                        settings_.ins_vsm_ros_source = "";
+                        settings_.ins_vsm.ros_source = "";
                     } else
                     {
-                        for (size_t i = 0; i < settings_.ins_vsm_ros_config.size();
+                        for (size_t i = 0; i < settings_.ins_vsm.ros_config.size();
                              ++i)
                         {
-                            if (settings_.ins_vsm_ros_config[i] &&
-                                (settings_.ins_vsm_ros_variances[i] <= 0.0))
+                            if (settings_.ins_vsm.ros_config[i] &&
+                                (settings_.ins_vsm.ros_variances[i] <= 0.0))
                             {
                                 this->log(
                                     log_level::ERROR,
                                     "ins_vsm/ros/config of element " +
                                         std::to_string(i) +
                                         " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
-                                settings_.ins_vsm_ros_config[i] = false;
+                                settings_.ins_vsm.ros_config[i] = false;
                             }
                         }
                     }
-                    if (std::all_of(settings_.ins_vsm_ros_config.begin(),
-                                    settings_.ins_vsm_ros_config.end(),
+                    if (std::all_of(settings_.ins_vsm.ros_config.begin(),
+                                    settings_.ins_vsm.ros_config.end(),
                                     [](bool v) { return !v; }))
                     {
                         ins_use_vsm = false;
-                        settings_.ins_vsm_ros_source = "";
+                        settings_.ins_vsm.ros_source = "";
                         this->log(
                             log_level::ERROR,
                             "all elements of ins_vsm/ros/config have been set to false due to invalid covariances -> VSM input will not be used!");
@@ -628,7 +638,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             }
         } else if (ins_use_vsm)
         {
-            settings_.ins_vsm_ros_source = "";
+            settings_.ins_vsm.ros_source = "";
             this->log(
                 log_level::ERROR,
                 "ins_vsm/ros/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
@@ -636,7 +646,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         if (ins_use_vsm)
         {
             this->log(log_level::INFO, "ins_vsm/ros/source " +
-                                           settings_.ins_vsm_ros_source +
+                                           settings_.ins_vsm.ros_source +
                                            " will be used.");
             registerSubscriber();
         }
@@ -647,10 +657,6 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
                 this->log(
                     log_level::ERROR,
                     "tcp/ip_server and udp/ip_server cannot use the same IP server");
-            if (settings_.tcp_ip_server == settings_.ins_vsm_ip_server_id)
-                this->log(
-                    log_level::ERROR,
-                    "tcp/ip_server and ins_vsm/ip_server/id cannot use the same IP server");
             for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
             {
                 if (settings_.tcp_ip_server == settings_.rtk.ip_server[i].id)
@@ -662,7 +668,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         }
         if (!settings_.udp_ip_server.empty())
         {
-            if (settings_.udp_ip_server == settings_.ins_vsm_ip_server_id)
+            if (settings_.udp_ip_server == settings_.ins_vsm.ip_server)
                 this->log(
                     log_level::ERROR,
                     "udp/ip_server and ins_vsm/ip_server/id cannot use the same IP server");
@@ -675,11 +681,11 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
                                   "/id cannot use the same IP server");
             }
         }
-        if (!settings_.ins_vsm_ip_server_id.empty())
+        if (!settings_.ins_vsm.ip_server.empty())
         {
             for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
             {
-                if (settings_.ins_vsm_ip_server_id == settings_.rtk.ip_server[i].id)
+                if (settings_.ins_vsm.ip_server == settings_.rtk.ip_server[i].id)
                     this->log(log_level::ERROR,
                               "ins_vsm/ip_server/id and rtk_settings/ip_server_" +
                                   std::to_string(i + 1) +
@@ -727,8 +733,8 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     } else
     {
         if (settings_.udp_ip_server.empty() || settings_.configure_rx ||
-            (settings_.ins_vsm_ros_source == "odometry") ||
-            (settings_.ins_vsm_ros_source == "twist"))
+            (settings_.ins_vsm.ros_source == "odometry") ||
+            (settings_.ins_vsm.ros_source == "twist"))
         {
             std::stringstream ss;
             ss << "Device is unsupported. Perhaps you meant 'tcp://host:port' or 'file_name:xxx.sbf' or 'serial:/path/to/device'?";

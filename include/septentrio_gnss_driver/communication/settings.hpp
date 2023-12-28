@@ -109,6 +109,32 @@ struct Rtk
     std::vector<RtkSerial> serial;
 };
 
+struct InsVsm
+{
+    //! VSM source for INS
+    std::string ros_source;
+    //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
+    std::vector<bool> ros_config = {false, false, false};
+    //! Whether or not to use variance defined by ROS parameter
+    bool ros_variances_by_parameter = false;
+    //! Variances of the 3D velocity (var_x, var_y, var_z)
+    std::vector<double> ros_variances = {-1.0, -1.0, -1.0};
+    //! Wether to use stream device tcp
+    bool use_stream_device = false;
+    //! VSM IP server id
+    std::string ip_server;
+    //! VSM tcp port
+    uint32_t ip_server_port;
+    //! Wether VSM shall be kept open om shutdown
+    bool ip_server_keep_open;
+    //! VSM serial port
+    std::string serial_port;
+    //! VSM serial baud rate
+    uint32_t serial_baud_rate;
+    //! Wether VSM shall be kept open om shutdown
+    bool serial_keep_open;
+};
+
 namespace device_type {
     enum DeviceType
     {
@@ -339,26 +365,8 @@ struct Settings
     bool read_from_sbf_log = false;
     //! Whether or not we are reading from a PCAP file
     bool read_from_pcap = false;
-    //! VSM source for INS
-    std::string ins_vsm_ros_source;
-    //! Whether or not to use individual elements of 3D velocity (v_x, v_y, v_z)
-    std::vector<bool> ins_vsm_ros_config = {false, false, false};
-    //! Whether or not to use variance defined by ROS parameter
-    bool ins_vsm_ros_variances_by_parameter = false;
-    //! Variances of the 3D velocity (var_x, var_y, var_z)
-    std::vector<double> ins_vsm_ros_variances = {-1.0, -1.0, -1.0};
-    //! VSM IP server id
-    std::string ins_vsm_ip_server_id;
-    //! VSM tcp port
-    uint32_t ins_vsm_ip_server_port;
-    //! Wether VSM shall be kept open om shutdown
-    bool ins_vsm_ip_server_keep_open;
-    //! VSM serial port
-    std::string ins_vsm_serial_port;
-    //! VSM serial baud rate
-    uint32_t ins_vsm_serial_baud_rate;
-    //! Wether VSM shall be kept open om shutdown
-    bool ins_vsm_serial_keep_open;
+    //! INS VSM setting
+    InsVsm ins_vsm;
 };
 
 //! Capabilities struct
