@@ -60,7 +60,7 @@
 
 // Boost includes
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/regex.hpp>
 
 // ROSaic includes
