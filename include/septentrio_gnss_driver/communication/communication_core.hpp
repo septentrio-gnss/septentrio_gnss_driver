@@ -169,6 +169,8 @@ namespace io {
         std::unique_ptr<AsyncManager<TcpIo>> tcpClient_;
         std::unique_ptr<UdpClient> udpClient_;
 
+        std::unique_ptr<AsyncManager<TcpIo>> tcpVsm_;
+
         bool nmeaActivated_ = false;
 
         //! Indicator for threads to run
