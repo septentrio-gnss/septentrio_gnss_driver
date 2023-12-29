@@ -30,6 +30,7 @@
 
 // Eigen include
 #include <Eigen/Geometry>
+#include <septentrio_gnss_driver/communication/settings_helpers.hpp>
 #include <septentrio_gnss_driver/node/rosaic_node_ros1.hpp>
 
 /**
