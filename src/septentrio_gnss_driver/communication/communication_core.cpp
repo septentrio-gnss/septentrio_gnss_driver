@@ -770,7 +770,7 @@ namespace io {
             }
             if (settings_->publish_diagnostics)
             {
-                blocks << " +ReceiverStatus +QualityInd";
+                blocks << " +QualityInd";
             }
             if (settings_->publish_aimplusstatus)
             {
@@ -783,7 +783,7 @@ namespace io {
                 blocks << " +GALAuthStatus";
             }
 
-            blocks << " +ReceiverSetup";
+            blocks << " +ReceiverSetup +ReceiverStatus";
 
             std::stringstream ss;
             ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_

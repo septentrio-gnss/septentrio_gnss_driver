@@ -204,6 +204,9 @@ namespace io {
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
+        if (last_receiverstatus_.rx_error & (1 << 9))
+            node_->log(log_level::WARN, " RX has reported CPU overload!");
+
         if (!settings_->publish_diagnostics)
             return;
 
@@ -319,6 +322,33 @@ namespace io {
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+        DiagnosticStatusMsg receiver_status;
+        receiver_status.hardware_id = serialnumber;
+        receiver_status.name = "septentrio_driver: receiver status";
+        receiver_status.message = "Receiver status";
+        receiver_status.values.resize(5);
+        receiver_status.values[0].key = "ExtError";
+        receiver_status.values[0].value =
+            std::to_string(last_receiverstatus_.ext_error);
+        receiver_status.values[1].key = "RxError";
+        receiver_status.values[1].value =
+            std::to_string(last_receiverstatus_.rx_error);
+        receiver_status.values[2].key = "RxStatus";
+        receiver_status.values[2].value =
+            std::to_string(last_receiverstatus_.rx_status);
+        receiver_status.values[3].key = "Uptime in s";
+        receiver_status.values[3].value =
+            std::to_string(last_receiverstatus_.up_time);
+        receiver_status.values[4].key = "CPU load in %";
+        receiver_status.values[4].value =
+            std::to_string(last_receiverstatus_.cpu_load);
+        if ((last_receiverstatus_.rx_error & (1 << 9)))
+            receiver_status.level = DiagnosticStatusMsg::ERROR;
+        else if ((last_receiverstatus_.rx_status & (1 << 8)))
+            receiver_status.level = DiagnosticStatusMsg::WARN;
+        else
+            receiver_status.level = DiagnosticStatusMsg::OK;
+        msg.status.push_back(receiver_status);
         std::string frame_id;
         if (settings_->septentrio_receiver_type == "gnss")
         {
