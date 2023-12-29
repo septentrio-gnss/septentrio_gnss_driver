@@ -1441,8 +1441,7 @@ namespace io {
 
             msg.header = last_insnavgeod_.header;
 
-            uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
-            switch (type_of_pvt)
+            switch (last_insnavgeod_.gnss_mode)
             {
             case evNoPVT:
             {
@@ -1474,7 +1473,8 @@ namespace io {
             {
                 node_->log(
                     log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
+                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
                 break;
             }
             }
@@ -1861,12 +1861,7 @@ namespace io {
         {
             msg.header = last_insnavgeod_.header;
 
-            // PVT Status Analysis
-            uint16_t status_mask =
-                15; // We extract the first four bits using this mask.
-            uint16_t type_of_pvt =
-                ((uint16_t)(last_insnavgeod_.gnss_mode)) & status_mask;
-            switch (type_of_pvt)
+            switch (last_insnavgeod_.gnss_mode)
             {
             case evNoPVT:
             {
@@ -1890,11 +1885,16 @@ namespace io {
                 break;
             }
             case evSBAS:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
+                break;
+            }
             default:
             {
                 node_->log(
                     log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
+                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
                 break;
             }
             }
