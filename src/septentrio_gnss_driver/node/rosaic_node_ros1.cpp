@@ -532,46 +532,6 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
         }
     }
 
-    // Check uniqueness of IPS ids
-    if (!settings_.tcp_ip_server.empty())
-    {
-        if (settings_.tcp_ip_server == settings_.udp_ip_server)
-            this->log(
-                log_level::ERROR,
-                "tcp.ip_server and udp.ip_server cannot use the same IP server");
-        for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
-        {
-            if (settings_.tcp_ip_server == settings_.rtk.ip_server[i].id)
-                this->log(log_level::ERROR,
-                          "tcp.ip_server and rtk_settings.ip_server_" +
-                              std::to_string(i + 1) +
-                              ".id cannot use the same IP server");
-        }
-    }
-    if (!settings_.udp_ip_server.empty())
-    {
-        if (settings_.udp_ip_server == settings_.ins_vsm.ip_server)
-            this->log(
-                log_level::ERROR,
-                "udp.ip_server and ins_vsm.ip_server.id cannot use the same IP server");
-        for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
-        {
-            if (settings_.udp_ip_server == settings_.rtk.ip_server[i].id)
-                this->log(log_level::ERROR,
-                          "udp.ip_server and rtk_settings.ip_server_" +
-                              std::to_string(i + 1) +
-                              ".id cannot use the same IP server");
-        }
-    }
-    if (settings_.rtk.ip_server.size() == 2)
-    {
-        if (!settings_.rtk.ip_server[0].id.empty() &&
-            (settings_.rtk.ip_server[0].id == settings_.rtk.ip_server[1].id))
-            this->log(
-                log_level::ERROR,
-                "rtk_settings.ip_server_1.id and rtk_settings.ip_server_2.id cannot use the same IP server");
-    }
-
     // VSM - velocity sensor measurements for INS
     if (settings_.septentrio_receiver_type == "ins")
     {
@@ -690,18 +650,6 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
                                            " will be used.");
             registerSubscriber();
         }
-
-        if (!settings_.ins_vsm.ip_server.empty())
-        {
-            for (size_t i = 0; i < settings_.rtk.ip_server.size(); ++i)
-            {
-                if (settings_.ins_vsm.ip_server == settings_.rtk.ip_server[i].id)
-                    this->log(log_level::ERROR,
-                              "ins_vsm/ip_server/id and rtk_settings/ip_server_" +
-                                  std::to_string(i + 1) +
-                                  "/id cannot use the same IP server");
-            }
-        }
     }
 
     boost::smatch match;
@@ -743,6 +691,15 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             this->log(log_level::ERROR, ss.str());
             return false;
         }
+    }
+
+    settings::checkUniquenssOfIps(this, settings_);
+    settings::checkUniquenssOfIpsPorts(this, settings_);
+
+    if (settings_.septentrio_receiver_type == "ins")
+    {
+        settings::checkUniquenssOfIpsVsm(this, settings_);
+        settings::checkUniquenssOfIpsPortsVsm(this, settings_);
     }
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
