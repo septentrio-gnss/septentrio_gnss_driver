@@ -159,6 +159,7 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
     param("multi_antenna", settings_.multi_antenna, false);
 
     // Publishing parameters
+    param("publish/publish_only_valid", settings_.publish_only_valid, false);
     param("publish/gpst", settings_.publish_gpst, false);
     param("publish/navsatfix", settings_.publish_navsatfix, true);
     param("publish/gpsfix", settings_.publish_gpsfix, false);

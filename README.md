@@ -187,6 +187,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   publish:
     # For both GNSS and INS Rxs
+    publish_only_valid: false
 	  navsatfix: false
     gpsfix: true
     gpgga: false
@@ -666,6 +667,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
+    + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`

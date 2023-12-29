@@ -112,6 +112,7 @@ rtk_settings:
 
 publish:
   # For both GNSS and INS Rxs
+  publish_only_valid: false
   navsatfix: false
   gpsfix: true
   gpgga: false

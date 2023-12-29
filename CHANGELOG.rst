@@ -8,7 +8,8 @@ Changelog for package septentrio_gnss_driver
     * Send custom commands via ASCII file on startup
     * Save config to boot after setup
     * NTP and PTP server options (BREAKING: NTP is not setup automatically for `use_gnss_time: true` anymore)
-    * Receiver status on `/diagnotics`
+    * Receiver status on `/diagnostics`
+    * Option to publish only valid SBF block messages
 * Changes
     * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
     * VSM now uses separate TCP device specified IP server

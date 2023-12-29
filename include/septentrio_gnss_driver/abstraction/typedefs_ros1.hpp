@@ -86,6 +86,7 @@
 #include <septentrio_gnss_driver/VelSensorSetup.h>
 // Rosaic includes
 #include <septentrio_gnss_driver/communication/settings.hpp>
+#include <septentrio_gnss_driver/parsers/sbf_utilities.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -294,6 +295,12 @@ public:
     template <typename M>
     void publishMessage(const std::string& topic, const M& msg)
     {
+        if constexpr (has_block_header<M>::value)
+        {
+            if (settings_.publish_only_valid && !validValue(msg.block_header.tow))
+                return;
+        }
+
         auto it = topicMap_.find(topic);
         if (it != topicMap_.end())
         {
