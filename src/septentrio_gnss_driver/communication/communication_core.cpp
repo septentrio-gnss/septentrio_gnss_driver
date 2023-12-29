@@ -335,13 +335,19 @@ namespace io {
             }
         }
 
-        if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
+        if (tcpClient_)
         {
             streamPort_ = settings_->tcp_ip_server;
+            std::string tcp_mode;
+            if (settings_->ins_vsm.use_stream_device)
+                tcp_mode = "TCP2Way";
+            else
+                tcp_mode = "TCP";
             send("siss, " + streamPort_ + ", " +
-                 std::to_string(settings_->tcp_port) + ", TCP, " + "\x0D");
+                 std::to_string(settings_->tcp_port) + ", " + tcp_mode + ", " +
+                 "\x0D");
             tcpClient_->connect();
-        } else if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
+        } else if (udpClient_)
         {
             streamPort_ = settings_->udp_ip_server;
             std::string destination;
@@ -992,7 +998,17 @@ namespace io {
     void CommunicationCore::sendVelocity(const std::string& velNmea)
     {
         if (nmeaActivated_)
-            manager_.get()->send(velNmea);
+        {
+            if (settings_->ins_vsm.use_stream_device)
+            {
+                if (tcpClient_)
+                    tcpClient_.get()->send(velNmea);
+            } else
+            {
+                if (tcpVsm_)
+                    tcpVsm_.get()->send(velNmea);
+            }
+        }
     }
 
     std::string CommunicationCore::resetMainConnection()
@@ -1025,10 +1041,7 @@ namespace io {
 
     void CommunicationCore::send(const std::string& cmd)
     {
-        if (settings_->ins_vsm.use_stream_device)
-            tcpClient_.get()->send(cmd);
-        else
-            tcpVsm_.get()->send(cmd);
+        manager_.get()->send(cmd);
         telegramHandler_.waitForResponse();
     }
 

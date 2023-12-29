@@ -148,7 +148,7 @@ namespace io {
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(const std::string&);
+        void send(const std::string& cmd);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
