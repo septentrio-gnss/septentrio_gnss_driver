@@ -186,4 +186,50 @@ namespace settings {
         }
     }
 
+    void autoPublish(ROSaicNodeBase* node, Settings& settings)
+    {
+        if (settings.auto_publish && !settings.configure_rx)
+        {
+            settings.publish_gpst = true;
+            settings.publish_navsatfix = true;
+            settings.publish_gpsfix = true;
+            settings.publish_pose = true;
+            settings.publish_diagnostics = true;
+            settings.publish_aimplusstatus = true;
+            settings.publish_galauthstatus = true;
+            settings.publish_gpgga = true;
+            settings.publish_gprmc = true;
+            settings.publish_gpgsa = true;
+            settings.publish_gpgsv = true;
+            settings.publish_measepoch = true;
+            settings.publish_pvtcartesian = true;
+            settings.publish_pvtgeodetic = true;
+            settings.publish_basevectorcart = true;
+            settings.publish_basevectorgeod = true;
+            settings.publish_poscovcartesian = true;
+            settings.publish_poscovgeodetic = true;
+            settings.publish_velcovcartesian = true;
+            settings.publish_velcovgeodetic = true;
+            settings.publish_atteuler = true;
+            settings.publish_attcoveuler = true;
+            settings.publish_insnavcart = true;
+            settings.publish_insnavgeod = true;
+            settings.publish_imusetup = true;
+            settings.publish_velsensorsetup = true;
+            settings.publish_exteventinsnavgeod = true;
+            settings.publish_exteventinsnavcart = true;
+            settings.publish_extsensormeas = true;
+            settings.publish_imu = true;
+            settings.publish_localization = true;
+            settings.publish_localization_ecef = true;
+            settings.publish_twist = true;
+            if (!settings.publish_tf_ecef)
+                settings.publish_tf = true;
+        } else if (settings.auto_publish && settings.configure_rx)
+        {
+            node->log(log_level::WARN,
+                      "auto_publish has no effect if configure_rx is true.");
+        }
+    }
+
 } // namespace settings

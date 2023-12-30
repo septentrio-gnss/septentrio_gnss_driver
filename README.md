@@ -186,7 +186,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
       keep_open: true
 
   publish:
-    # For both GNSS and INS Rxs
+    # For both GNSS and INS Rxs 
+    auto_publish: false
     publish_only_valid: false
 	  navsatfix: false
     gpsfix: true
@@ -667,6 +668,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
+    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
     + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`

@@ -164,6 +164,7 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("multi_antenna", settings_.multi_antenna, false);
 
     // Publishing parameters
+    param("publish.auto_publish", settings_.auto_publish, false);
     param("publish.publish_only_valid", settings_.publish_only_valid, false);
     param("publish.gpst", settings_.publish_gpst, false);
     param("publish.navsatfix", settings_.publish_navsatfix, true);
@@ -710,6 +711,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         settings::checkUniquenssOfIpsVsm(this, settings_);
         settings::checkUniquenssOfIpsPortsVsm(this, settings_);
     }
+
+    settings::autoPublish(this, settings_);
 
     // To be implemented: RTCM, raw data settings, PPP, SBAS ...
     this->log(log_level::DEBUG, "Finished getROSParams() method");

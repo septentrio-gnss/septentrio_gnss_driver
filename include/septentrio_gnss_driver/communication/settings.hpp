@@ -251,6 +251,8 @@ struct Settings
     Rtk rtk;
     //! OSNMA settings
     Osnma osnma;
+    //! Wether to publish automatically for cinfigure_rx = false
+    bool auto_publish;
     //! Wether to publish only valid messages
     bool publish_only_valid;
     //! Whether or not to publish the GGA message
