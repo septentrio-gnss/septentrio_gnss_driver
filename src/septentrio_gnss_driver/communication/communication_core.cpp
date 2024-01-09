@@ -465,9 +465,6 @@ namespace io {
         for (auto ip_server : settings_->rtk.ip_server)
         {
             if (!ip_server.id.empty())
-            // Since the Rx does not have internet (and you will not
-            // be able to share it via USB), we need to forward the
-            // corrections ourselves, though not on the same port.
             {
                 {
                     std::stringstream ss;
