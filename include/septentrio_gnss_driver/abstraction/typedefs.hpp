@@ -210,13 +210,19 @@ public:
             if (settings_.ins_vsm.ros_source == "odometry")
                 odometrySubscriber_ =
                     this->create_subscription<nav_msgs::msg::Odometry>(
-                        "odometry_vsm", 10,
+                        "odometry_vsm",
+                        rclcpp::QoS(rclcpp::KeepLast(1))
+                            .durability_volatile()
+                            .best_effort(),
                         std::bind(&ROSaicNodeBase::callbackOdometry, this,
                                   std::placeholders::_1));
             else if (settings_.ins_vsm.ros_source == "twist")
                 twistSubscriber_ =
                     this->create_subscription<TwistWithCovarianceStampedMsg>(
-                        "twist_vsm", 10,
+                        "twist_vsm",
+                        rclcpp::QoS(rclcpp::KeepLast(1))
+                            .durability_volatile()
+                            .best_effort(),
                         std::bind(&ROSaicNodeBase::callbackTwist, this,
                                   std::placeholders::_1));
         } catch (const std::runtime_error& ex)
@@ -329,7 +335,7 @@ public:
         } else
         {
             typename rclcpp::Publisher<M>::SharedPtr pub =
-                this->create_publisher<M>(topic, queueSize_);
+                this->create_publisher<M>(topic, rclcpp::QoS(queueSize_));
             topicMap_.insert(std::make_pair(topic, pub));
             pub->publish(msg);
         }
