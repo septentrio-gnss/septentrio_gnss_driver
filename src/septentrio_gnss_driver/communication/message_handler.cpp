@@ -204,8 +204,8 @@ namespace io {
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
-        //        if (last_receiverstatus_.rx_error & (1 << 9))
-        //           node_->log(log_level::WARN, " RX has reported CPU overload!");
+        if (last_receiverstatus_.rx_error & (1 << 9))
+            node_->log(log_level::DEBUG, " RX has reported CPU overload!");
 
         if (!settings_->publish_diagnostics)
             return;
