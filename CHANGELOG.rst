@@ -18,6 +18,8 @@ Changelog for package septentrio_gnss_driver
     * Rework some sections of the README
     * Combine ROS 1 and ROS 2 in one branch
     * Change GPSFix publishing policy to allow for high update rates
+* Known issues
+    * TCP connection fail prevents setup from finishing and blocks shutdown. 
 
 1.3.2 (2023-11-19)
 -----------
