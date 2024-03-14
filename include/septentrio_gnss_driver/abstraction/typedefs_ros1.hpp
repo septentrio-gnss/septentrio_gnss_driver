@@ -31,67 +31,59 @@
 #pragma once
 
 // std includes
-#include <any>
-#include <iomanip>
-#include <sstream>
+#include <numeric>
 #include <unordered_map>
 // ROS includes
-#include <rclcpp/rclcpp.hpp>
+#include <ros/ros.h>
 // tf2 includes
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
-#ifdef ROS2_VER_N250
-#include <tf2_eigen/tf2_eigen.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#else
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#endif
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
 // ROS msg includes
-#include <diagnostic_msgs/msg/diagnostic_array.hpp>
-#include <diagnostic_msgs/msg/diagnostic_status.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
-#include <geometry_msgs/msg/twist_with_covariance.hpp>
-#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
-#include <gps_msgs/msg/gps_fix.hpp>
-#include <nav_msgs/msg/odometry.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <sensor_msgs/msg/time_reference.hpp>
+#include <diagnostic_msgs/DiagnosticArray.h>
+#include <diagnostic_msgs/DiagnosticStatus.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <gps_common/GPSFix.h>
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/TimeReference.h>
 // GNSS msg includes
-#include <septentrio_gnss_driver/msg/aim_plus_status.hpp>
-#include <septentrio_gnss_driver/msg/att_cov_euler.hpp>
-#include <septentrio_gnss_driver/msg/att_euler.hpp>
-#include <septentrio_gnss_driver/msg/base_vector_cart.hpp>
-#include <septentrio_gnss_driver/msg/base_vector_geod.hpp>
-#include <septentrio_gnss_driver/msg/block_header.hpp>
-#include <septentrio_gnss_driver/msg/gal_auth_status.hpp>
-#include <septentrio_gnss_driver/msg/meas_epoch.hpp>
-#include <septentrio_gnss_driver/msg/meas_epoch_channel_type1.hpp>
-#include <septentrio_gnss_driver/msg/meas_epoch_channel_type2.hpp>
-#include <septentrio_gnss_driver/msg/pos_cov_cartesian.hpp>
-#include <septentrio_gnss_driver/msg/pos_cov_geodetic.hpp>
-#include <septentrio_gnss_driver/msg/pvt_cartesian.hpp>
-#include <septentrio_gnss_driver/msg/pvt_geodetic.hpp>
-#include <septentrio_gnss_driver/msg/receiver_time.hpp>
-#include <septentrio_gnss_driver/msg/rf_band.hpp>
-#include <septentrio_gnss_driver/msg/rf_status.hpp>
-#include <septentrio_gnss_driver/msg/vector_info_cart.hpp>
-#include <septentrio_gnss_driver/msg/vector_info_geod.hpp>
-#include <septentrio_gnss_driver/msg/vel_cov_cartesian.hpp>
-#include <septentrio_gnss_driver/msg/vel_cov_geodetic.hpp>
+#include <septentrio_gnss_driver/AIMPlusStatus.h>
+#include <septentrio_gnss_driver/AttCovEuler.h>
+#include <septentrio_gnss_driver/AttEuler.h>
+#include <septentrio_gnss_driver/BaseVectorCart.h>
+#include <septentrio_gnss_driver/BaseVectorGeod.h>
+#include <septentrio_gnss_driver/BlockHeader.h>
+#include <septentrio_gnss_driver/GALAuthStatus.h>
+#include <septentrio_gnss_driver/MeasEpoch.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType1.h>
+#include <septentrio_gnss_driver/MeasEpochChannelType2.h>
+#include <septentrio_gnss_driver/PVTCartesian.h>
+#include <septentrio_gnss_driver/PVTGeodetic.h>
+#include <septentrio_gnss_driver/PosCovCartesian.h>
+#include <septentrio_gnss_driver/PosCovGeodetic.h>
+#include <septentrio_gnss_driver/RFBand.h>
+#include <septentrio_gnss_driver/RFStatus.h>
+#include <septentrio_gnss_driver/ReceiverTime.h>
+#include <septentrio_gnss_driver/VectorInfoCart.h>
+#include <septentrio_gnss_driver/VectorInfoGeod.h>
+#include <septentrio_gnss_driver/VelCovCartesian.h>
+#include <septentrio_gnss_driver/VelCovGeodetic.h>
 // NMEA msg includes
-#include <nmea_msgs/msg/gpgga.hpp>
-#include <nmea_msgs/msg/gpgsa.hpp>
-#include <nmea_msgs/msg/gpgsv.hpp>
-#include <nmea_msgs/msg/gprmc.hpp>
+#include <nmea_msgs/Gpgga.h>
+#include <nmea_msgs/Gpgsa.h>
+#include <nmea_msgs/Gpgsv.h>
+#include <nmea_msgs/Gprmc.h>
 // INS msg includes
-#include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
-#include <septentrio_gnss_driver/msg/imu_setup.hpp>
-#include <septentrio_gnss_driver/msg/ins_nav_cart.hpp>
-#include <septentrio_gnss_driver/msg/ins_nav_geod.hpp>
-#include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
+#include <septentrio_gnss_driver/ExtSensorMeas.h>
+#include <septentrio_gnss_driver/IMUSetup.h>
+#include <septentrio_gnss_driver/INSNavCart.h>
+#include <septentrio_gnss_driver/INSNavGeod.h>
+#include <septentrio_gnss_driver/VelSensorSetup.h>
 // Rosaic includes
 #include <septentrio_gnss_driver/communication/settings.hpp>
 #include <septentrio_gnss_driver/parsers/sbf_utilities.hpp>
@@ -100,75 +92,77 @@
 // Timestamp in nanoseconds (Unix epoch)
 typedef uint64_t Timestamp;
 // ROS timestamp
-typedef rclcpp::Time TimestampRos;
+typedef ros::Time TimestampRos;
 
 // ROS messages
-typedef diagnostic_msgs::msg::DiagnosticArray DiagnosticArrayMsg;
-typedef diagnostic_msgs::msg::DiagnosticStatus DiagnosticStatusMsg;
-typedef geometry_msgs::msg::Quaternion QuaternionMsg;
-typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
-typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
-typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
-typedef gps_msgs::msg::GPSFix GpsFixMsg;
-typedef gps_msgs::msg::GPSStatus GpsStatusMsg;
-typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
-typedef sensor_msgs::msg::NavSatStatus NavSatStatusMsg;
-typedef sensor_msgs::msg::TimeReference TimeReferenceMsg;
-typedef sensor_msgs::msg::Imu ImuMsg;
-typedef nav_msgs::msg::Odometry LocalizationMsg;
+typedef diagnostic_msgs::DiagnosticArray DiagnosticArrayMsg;
+typedef diagnostic_msgs::DiagnosticStatus DiagnosticStatusMsg;
+typedef geometry_msgs::Quaternion QuaternionMsg;
+typedef geometry_msgs::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
+typedef geometry_msgs::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
+typedef geometry_msgs::TransformStamped TransformStampedMsg;
+typedef gps_common::GPSFix GpsFixMsg;
+typedef gps_common::GPSStatus GpsStatusMsg;
+typedef sensor_msgs::NavSatFix NavSatFixMsg;
+typedef sensor_msgs::NavSatStatus NavSatStatusMsg;
+typedef sensor_msgs::TimeReference TimeReferenceMsg;
+typedef sensor_msgs::Imu ImuMsg;
+typedef nav_msgs::Odometry LocalizationMsg;
 
 // Septentrio GNSS SBF messages
-typedef septentrio_gnss_driver::msg::AIMPlusStatus AimPlusStatusMsg;
-typedef septentrio_gnss_driver::msg::BaseVectorCart BaseVectorCartMsg;
-typedef septentrio_gnss_driver::msg::BaseVectorGeod BaseVectorGeodMsg;
-typedef septentrio_gnss_driver::msg::BlockHeader BlockHeaderMsg;
-typedef septentrio_gnss_driver::msg::GALAuthStatus GalAuthStatusMsg;
-typedef septentrio_gnss_driver::msg::RFStatus RfStatusMsg;
-typedef septentrio_gnss_driver::msg::RFBand RfBandMsg;
-typedef septentrio_gnss_driver::msg::MeasEpoch MeasEpochMsg;
-typedef septentrio_gnss_driver::msg::MeasEpochChannelType1 MeasEpochChannelType1Msg;
-typedef septentrio_gnss_driver::msg::MeasEpochChannelType2 MeasEpochChannelType2Msg;
-typedef septentrio_gnss_driver::msg::AttCovEuler AttCovEulerMsg;
-typedef septentrio_gnss_driver::msg::AttEuler AttEulerMsg;
-typedef septentrio_gnss_driver::msg::PVTCartesian PVTCartesianMsg;
-typedef septentrio_gnss_driver::msg::PVTGeodetic PVTGeodeticMsg;
-typedef septentrio_gnss_driver::msg::PosCovCartesian PosCovCartesianMsg;
-typedef septentrio_gnss_driver::msg::PosCovGeodetic PosCovGeodeticMsg;
-typedef septentrio_gnss_driver::msg::ReceiverTime ReceiverTimeMsg;
-typedef septentrio_gnss_driver::msg::VectorInfoCart VectorInfoCartMsg;
-typedef septentrio_gnss_driver::msg::VectorInfoGeod VectorInfoGeodMsg;
-typedef septentrio_gnss_driver::msg::VelCovCartesian VelCovCartesianMsg;
-typedef septentrio_gnss_driver::msg::VelCovGeodetic VelCovGeodeticMsg;
+typedef septentrio_gnss_driver::AIMPlusStatus AimPlusStatusMsg;
+typedef septentrio_gnss_driver::BaseVectorCart BaseVectorCartMsg;
+typedef septentrio_gnss_driver::BaseVectorGeod BaseVectorGeodMsg;
+typedef septentrio_gnss_driver::BlockHeader BlockHeaderMsg;
+typedef septentrio_gnss_driver::GALAuthStatus GalAuthStatusMsg;
+typedef septentrio_gnss_driver::RFStatus RfStatusMsg;
+typedef septentrio_gnss_driver::RFBand RfBandMsg;
+typedef septentrio_gnss_driver::MeasEpoch MeasEpochMsg;
+typedef septentrio_gnss_driver::MeasEpochChannelType1 MeasEpochChannelType1Msg;
+typedef septentrio_gnss_driver::MeasEpochChannelType2 MeasEpochChannelType2Msg;
+typedef septentrio_gnss_driver::AttCovEuler AttCovEulerMsg;
+typedef septentrio_gnss_driver::AttEuler AttEulerMsg;
+typedef septentrio_gnss_driver::PVTCartesian PVTCartesianMsg;
+typedef septentrio_gnss_driver::PVTGeodetic PVTGeodeticMsg;
+typedef septentrio_gnss_driver::PosCovCartesian PosCovCartesianMsg;
+typedef septentrio_gnss_driver::PosCovGeodetic PosCovGeodeticMsg;
+typedef septentrio_gnss_driver::ReceiverTime ReceiverTimeMsg;
+typedef septentrio_gnss_driver::VectorInfoCart VectorInfoCartMsg;
+typedef septentrio_gnss_driver::VectorInfoGeod VectorInfoGeodMsg;
+typedef septentrio_gnss_driver::VelCovCartesian VelCovCartesianMsg;
+typedef septentrio_gnss_driver::VelCovGeodetic VelCovGeodeticMsg;
 
-// NMEA message
-typedef nmea_msgs::msg::Gpgga GpggaMsg;
-typedef nmea_msgs::msg::Gpgsa GpgsaMsg;
-typedef nmea_msgs::msg::Gpgsv GpgsvMsg;
-typedef nmea_msgs::msg::Gprmc GprmcMsg;
+// NMEA messages
+typedef nmea_msgs::Gpgga GpggaMsg;
+typedef nmea_msgs::Gpgsa GpgsaMsg;
+typedef nmea_msgs::Gpgsv GpgsvMsg;
+typedef nmea_msgs::Gprmc GprmcMsg;
 
 // Septentrio INS+GNSS SBF messages
-typedef septentrio_gnss_driver::msg::INSNavCart INSNavCartMsg;
-typedef septentrio_gnss_driver::msg::INSNavGeod INSNavGeodMsg;
-typedef septentrio_gnss_driver::msg::IMUSetup IMUSetupMsg;
-typedef septentrio_gnss_driver::msg::VelSensorSetup VelSensorSetupMsg;
-typedef septentrio_gnss_driver::msg::ExtSensorMeas ExtSensorMeasMsg;
+typedef septentrio_gnss_driver::INSNavCart INSNavCartMsg;
+typedef septentrio_gnss_driver::INSNavGeod INSNavGeodMsg;
+typedef septentrio_gnss_driver::IMUSetup IMUSetupMsg;
+typedef septentrio_gnss_driver::VelSensorSetup VelSensorSetupMsg;
+typedef septentrio_gnss_driver::ExtSensorMeas ExtSensorMeasMsg;
 
 /**
  * @brief Convert nsec timestamp to ROS timestamp
  * @param[in] ts timestamp in nanoseconds (Unix epoch)
  * @return ROS timestamp
  */
-inline TimestampRos timestampToRos(Timestamp ts) { return TimestampRos(ts); }
+inline TimestampRos timestampToRos(Timestamp ts)
+{
+    TimestampRos tsr;
+    tsr.fromNSec(ts);
+    return tsr;
+}
 
 /**
  * @brief Convert ROS timestamp to nsec timestamp
  * @param[in] ts ROS timestamp
  * @return timestamp in nanoseconds (Unix epoch)
  */
-inline Timestamp timestampFromRos(const TimestampRos& tsr)
-{
-    return tsr.nanoseconds();
-}
+inline Timestamp timestampFromRos(const TimestampRos& tsr) { return tsr.toNSec(); }
 
 /**
  * @brief Log level for ROS logging
@@ -188,18 +182,17 @@ namespace log_level {
  * @class ROSaicNodeBase
  * @brief This class is the base class for abstraction
  */
-class ROSaicNodeBase : public rclcpp::Node
+class ROSaicNodeBase
 {
 public:
-    ROSaicNodeBase(const rclcpp::NodeOptions& options) :
-        Node("septentrio_gnss", options), tf2Publisher_(this),
-        tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
+    ROSaicNodeBase() :
+        pNh_(new ros::NodeHandle("~")), tfListener_(tfBuffer_), lastTfStamp_(0)
     {
     }
 
     virtual ~ROSaicNodeBase() {}
 
-    bool ok() { return rclcpp::ok(); }
+    bool ok() { return ros::ok(); }
 
     const Settings* settings() const { return &settings_; }
 
@@ -207,24 +200,13 @@ public:
     {
         try
         {
+            ros::NodeHandle nh;
             if (settings_.ins_vsm.ros_source == "odometry")
-                odometrySubscriber_ =
-                    this->create_subscription<nav_msgs::msg::Odometry>(
-                        "odometry_vsm",
-                        rclcpp::QoS(rclcpp::KeepLast(1))
-                            .durability_volatile()
-                            .best_effort(),
-                        std::bind(&ROSaicNodeBase::callbackOdometry, this,
-                                  std::placeholders::_1));
+                odometrySubscriber_ = nh.subscribe<nav_msgs::Odometry>(
+                    "odometry_vsm", 10, &ROSaicNodeBase::callbackOdometry, this);
             else if (settings_.ins_vsm.ros_source == "twist")
-                twistSubscriber_ =
-                    this->create_subscription<TwistWithCovarianceStampedMsg>(
-                        "twist_vsm",
-                        rclcpp::QoS(rclcpp::KeepLast(1))
-                            .durability_volatile()
-                            .best_effort(),
-                        std::bind(&ROSaicNodeBase::callbackTwist, this,
-                                  std::placeholders::_1));
+                twistSubscriber_ = nh.subscribe<TwistWithCovarianceStampedMsg>(
+                    "twist_vsm", 10, &ROSaicNodeBase::callbackTwist, this);
         } catch (const std::runtime_error& ex)
         {
             this->log(log_level::ERROR, "Subscriber initialization failed due to: " +
@@ -233,17 +215,20 @@ public:
     }
 
     /**
-     * @brief Gets an integer or unsigned integer value from the parameter server
-     * @param[in] name The key to be used in the parameter server's dictionary
-     * @param[out] val Storage for the retrieved value, of type U, which can be
-     * either unsigned int or int
-     * @param[in] defaultVal Value to use if the server doesn't contain this
-     * parameter
+     * @brief Gets an integer or unsigned integer value from the
+     * parameter server
+     * @param[in] name The key to be used in the parameter server's
+     * dictionary
+     * @param[out] val Storage for the retrieved value, of type U, which
+     * can be either unsigned int or int
+     * @param[in] defaultVal Value to use if the server doesn't contain
+     * this parameter
      */
-    bool getUint32Param(const std::string& name, uint32_t& val, uint32_t defaultVal)
+    bool getUint32Param(const std::string& name, uint32_t& val,
+                        uint32_t defaultVal) const
     {
         int32_t tempVal;
-        if ((!this->param(name, tempVal, -1)) || (tempVal < 0))
+        if ((!pNh_->getParam(name, tempVal)) || (tempVal < 0))
         {
             val = defaultVal;
             return false;
@@ -254,27 +239,17 @@ public:
 
     /**
      * @brief Gets parameter of type T from the parameter server
-     * @param[in] name The key to be used in the parameter server's dictionary
+     * @param[in] name The key to be used in the parameter server's
+     * dictionary
      * @param[out] val Storage for the retrieved value, of type T
-     * @param[in] defaultVal Value to use if the server doesn't contain this
-     * parameter
+     * @param[in] defaultVal Value to use if the server doesn't contain
+     * this parameter
      * @return True if it could be retrieved, false if not
      */
     template <typename T>
-    bool param(const std::string& name, T& val, const T& defaultVal)
+    bool param(const std::string& name, T& val, const T& defaultVal) const
     {
-        if (this->has_parameter(name))
-            this->undeclare_parameter(name);
-
-        try
-        {
-            val = this->declare_parameter<T>(name, defaultVal);
-        } catch (std::runtime_error& e)
-        {
-            RCLCPP_WARN_STREAM(this->get_logger(), e.what());
-            return false;
-        }
-        return true;
+        return pNh_->param(name, val, defaultVal);
     };
 
     /**
@@ -287,19 +262,19 @@ public:
         switch (logLevel)
         {
         case log_level::DEBUG:
-            RCLCPP_DEBUG_STREAM(this->get_logger(), s);
+            ROS_DEBUG_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case log_level::INFO:
-            RCLCPP_INFO_STREAM(this->get_logger(), s);
+            ROS_INFO_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case log_level::WARN:
-            RCLCPP_WARN_STREAM(this->get_logger(), s);
+            ROS_WARN_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case log_level::ERROR:
-            RCLCPP_ERROR_STREAM(this->get_logger(), s);
+            ROS_ERROR_STREAM(ros::this_node::getName() << ": " << s);
             break;
         case log_level::FATAL:
-            RCLCPP_FATAL_STREAM(this->get_logger(), s);
+            ROS_FATAL_STREAM(ros::this_node::getName() << ": " << s);
             break;
         default:
             break;
@@ -310,7 +285,7 @@ public:
      * @brief Gets current timestamp
      * @return Timestamp
      */
-    Timestamp getTime() const { return this->now().nanoseconds(); }
+    Timestamp getTime() const { return ros::Time::now().toNSec(); }
 
     /**
      * @brief Publishing function
@@ -329,17 +304,12 @@ public:
         auto it = topicMap_.find(topic);
         if (it != topicMap_.end())
         {
-            typename rclcpp::Publisher<M>::SharedPtr ptr =
-                std::any_cast<typename rclcpp::Publisher<M>::SharedPtr>(it->second);
-            ptr->publish(msg);
+            it->second.publish(msg);
         } else
         {
-            typename rclcpp::Publisher<M>::SharedPtr pub = this->create_publisher<M>(
-                topic, rclcpp::QoS(rclcpp::KeepLast(queueSize_))
-                           .durability_volatile()
-                           .reliable());
+            ros::Publisher pub = pNh_->advertise<M>(topic, queueSize_);
             topicMap_.insert(std::make_pair(topic, pub));
-            pub->publish(msg);
+            pub.publish(msg);
         }
     }
 
@@ -352,14 +322,11 @@ public:
         if (std::isnan(loc.pose.pose.orientation.w))
             return;
 
-        Timestamp currentStamp = timestampFromRos(loc.header.stamp);
-        if (lastTfStamp_ == currentStamp)
+        if (lastTfStamp_ == loc.header.stamp)
             return;
+        lastTfStamp_ = loc.header.stamp;
 
-        lastTfStamp_ = currentStamp;
-
-        geometry_msgs::msg::TransformStamped transformStamped;
-
+        geometry_msgs::TransformStamped transformStamped;
         transformStamped.header.stamp = loc.header.stamp;
         transformStamped.header.frame_id = loc.header.frame_id;
         transformStamped.child_frame_id = loc.child_frame_id;
@@ -373,36 +340,37 @@ public:
 
         if (settings_.insert_local_frame)
         {
-            geometry_msgs::msg::TransformStamped T_l_b;
+            geometry_msgs::TransformStamped T_l_b;
             try
             {
                 // try to get tf at timestamp of message
                 T_l_b = tfBuffer_.lookupTransform(
-                    loc.child_frame_id, settings_.local_frame_id, loc.header.stamp);
+                    loc.child_frame_id, settings_.local_frame_id, lastTfStamp_);
             } catch (const tf2::TransformException& ex)
             {
                 try
                 {
-                    RCLCPP_INFO_STREAM_THROTTLE(
-                        this->get_logger(), *this->get_clock(), 10000,
-                        ": No transform for insertion of local frame at t="
-                            << std::to_string(currentStamp)
+                    ROS_INFO_STREAM_THROTTLE(
+                        10.0,
+                        ros::this_node::getName()
+                            << ": No transform for insertion of local frame at t="
+                            << lastTfStamp_.toNSec()
                             << ". Exception: " << std::string(ex.what()));
                     // try to get latest tf
-                    T_l_b = tfBuffer_.lookupTransform(loc.child_frame_id,
-                                                      settings_.local_frame_id,
-                                                      rclcpp::Time(0));
+                    T_l_b = tfBuffer_.lookupTransform(
+                        loc.child_frame_id, settings_.local_frame_id, ros::Time(0));
                 } catch (const tf2::TransformException& ex)
                 {
-                    RCLCPP_WARN_STREAM_THROTTLE(
-                        this->get_logger(), *this->get_clock(), 10000,
-                        ": No most recent transform for insertion of local frame. Exception: "
+                    ROS_WARN_STREAM_THROTTLE(
+                        10.0,
+                        ros::this_node::getName()
+                            << ": No most recent transform for insertion of local frame. Exception: "
                             << std::string(ex.what()));
                     return;
                 }
             }
 
-            // T_l_g = T_b_l^-1 * T_b_g;
+            // T_l_g = T_b_g * T_l_b;
             transformStamped =
                 tf2::eigenToTransform(tf2::transformToEigen(transformStamped) *
                                       tf2::transformToEigen(T_l_b));
@@ -445,14 +413,14 @@ public:
     bool hasImprovedVsmHandling() { return capabilities_.has_improved_vsm_handling; }
 
 private:
-    void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr& odo)
+    void callbackOdometry(const nav_msgs::Odometry::ConstPtr& odo)
     {
         Timestamp stamp = timestampFromRos(odo->header.stamp);
 
         processTwist(stamp, odo->twist);
     }
 
-    void callbackTwist(const TwistWithCovarianceStampedMsg::ConstSharedPtr& twist)
+    void callbackTwist(const TwistWithCovarianceStampedMsg::ConstPtr& twist)
     {
         Timestamp stamp = timestampFromRos(twist->header.stamp);
 
@@ -460,7 +428,7 @@ private:
     }
 
     void processTwist(Timestamp stamp,
-                      const geometry_msgs::msg::TwistWithCovariance& twist)
+                      const geometry_msgs::TwistWithCovariance& twist)
     {
         // in case stamp was not set
         if (stamp == 0)
@@ -580,6 +548,8 @@ private:
     }
 
 protected:
+    //! Node handle pointer
+    std::shared_ptr<ros::NodeHandle> pNh_;
     //! Settings
     Settings settings_;
     //! Send velocity to communication layer (virtual)
@@ -587,17 +557,17 @@ protected:
 
 private:
     //! Map of topics and publishers
-    std::unordered_map<std::string, std::any> topicMap_;
+    std::unordered_map<std::string, ros::Publisher> topicMap_;
     //! Publisher queue size
     uint32_t queueSize_ = 1;
     //! Transform publisher
     tf2_ros::TransformBroadcaster tf2Publisher_;
     //! Odometry subscriber
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySubscriber_;
+    ros::Subscriber odometrySubscriber_;
     //! Twist subscriber
-    rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
+    ros::Subscriber twistSubscriber_;
     //! Last tf stamp
-    Timestamp lastTfStamp_ = 0;
+    TimestampRos lastTfStamp_;
     //! tf buffer
     tf2_ros::Buffer tfBuffer_;
     // tf listener

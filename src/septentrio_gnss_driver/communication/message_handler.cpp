@@ -90,15 +90,9 @@ namespace io {
             }
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                double yaw = 0.0;
-                if (validValue(last_insnavgeod_.heading))
-                    yaw = last_insnavgeod_.heading;
-                double pitch = 0.0;
-                if (validValue(last_insnavgeod_.pitch))
-                    pitch = last_insnavgeod_.pitch;
-                double roll = 0.0;
-                if (validValue(last_insnavgeod_.roll))
-                    roll = last_insnavgeod_.roll;
+                double yaw = last_insnavgeod_.heading;
+                double pitch = last_insnavgeod_.pitch;
+                double roll = last_insnavgeod_.roll;
                 // Attitude
                 msg.pose.pose.orientation = convertEulerToQuaternionMsg(
                     deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
@@ -176,15 +170,9 @@ namespace io {
             msg.header = last_pvtgeodetic_.header;
 
             // Filling in the pose data
-            double yaw = 0.0;
-            if (validValue(last_atteuler_.heading))
-                yaw = last_atteuler_.heading;
-            double pitch = 0.0;
-            if (validValue(last_atteuler_.pitch))
-                pitch = last_atteuler_.pitch;
-            double roll = 0.0;
-            if (validValue(last_atteuler_.roll))
-                roll = last_atteuler_.roll;
+            double yaw = last_atteuler_.heading;
+            double pitch = last_atteuler_.pitch;
+            double roll = last_atteuler_.roll;
             msg.pose.pose.orientation = convertEulerToQuaternionMsg(
                 deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
             msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
@@ -216,6 +204,9 @@ namespace io {
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
+        if (last_receiverstatus_.rx_error & (1 << 9))
+            node_->log(log_level::DEBUG, " RX has reported CPU overload!");
+
         if (!settings_->publish_diagnostics)
             return;
 
@@ -331,6 +322,33 @@ namespace io {
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+        DiagnosticStatusMsg receiver_status;
+        receiver_status.hardware_id = serialnumber;
+        receiver_status.name = "septentrio_driver: receiver status";
+        receiver_status.message = "Receiver status";
+        receiver_status.values.resize(5);
+        receiver_status.values[0].key = "ExtError";
+        receiver_status.values[0].value =
+            std::to_string(last_receiverstatus_.ext_error);
+        receiver_status.values[1].key = "RxError";
+        receiver_status.values[1].value =
+            std::to_string(last_receiverstatus_.rx_error);
+        receiver_status.values[2].key = "RxStatus";
+        receiver_status.values[2].value =
+            std::to_string(last_receiverstatus_.rx_status);
+        receiver_status.values[3].key = "Uptime in s";
+        receiver_status.values[3].value =
+            std::to_string(last_receiverstatus_.up_time);
+        receiver_status.values[4].key = "CPU load in %";
+        receiver_status.values[4].value =
+            std::to_string(last_receiverstatus_.cpu_load);
+        if ((last_receiverstatus_.rx_error & (1 << 9)))
+            receiver_status.level = DiagnosticStatusMsg::ERROR;
+        else if ((last_receiverstatus_.rx_status & (1 << 8)))
+            receiver_status.level = DiagnosticStatusMsg::WARN;
+        else
+            receiver_status.level = DiagnosticStatusMsg::OK;
+        msg.status.push_back(receiver_status);
         std::string frame_id;
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -560,85 +578,74 @@ namespace io {
         msg.angular_velocity.z = deg2rad(last_extsensmeas_.angular_rate_z);
 
         bool valid_orientation = false;
-        if (settings_->septentrio_receiver_type == "ins")
+        if (validValue(last_insnavgeod_.block_header.tow))
         {
-            if (validValue(last_insnavgeod_.block_header.tow))
-            {
-                // INS tow and extsens meas tow have the same time scale
-                Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
-                                               last_extsensmeas_.block_header.wnc);
-                Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
-                                               last_insnavgeod_.block_header.wnc);
+            // INS tow and extsens meas tow have the same time scale
+            Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
+                                           last_extsensmeas_.block_header.wnc);
+            Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
+                                           last_insnavgeod_.block_header.wnc);
 
-                static int64_t maxDt = (settings_->polling_period_pvt == 0)
-                                           ? 10000000
-                                           : settings_->polling_period_pvt * 1000000;
-                if ((tsImu - tsIns) > maxDt)
-                {
-                    valid_orientation = false;
-                } else
-                {
-                    if ((last_insnavgeod_.sb_list & 2) != 0)
-                    {
-                        // Attitude
-                        if (validValue(last_insnavgeod_.heading) &&
-                            validValue(last_insnavgeod_.pitch) &&
-                            validValue(last_insnavgeod_.roll))
-                        {
-                            msg.orientation = convertEulerToQuaternionMsg(
-                                deg2rad(last_insnavgeod_.roll),
-                                deg2rad(last_insnavgeod_.pitch),
-                                deg2rad(last_insnavgeod_.heading));
-                        } else
-                        {
-                            valid_orientation = false;
-                        }
-                    } else
-                    {
-                        valid_orientation = false;
-                    }
-                    if ((last_insnavgeod_.sb_list & 4) != 0)
-                    {
-                        // Attitude autocov
-                        if (validValue(last_insnavgeod_.roll_std_dev) &&
-                            validValue(last_insnavgeod_.pitch_std_dev) &&
-                            validValue(last_insnavgeod_.heading_std_dev))
-                        {
-                            msg.orientation_covariance[0] =
-                                square(deg2rad(last_insnavgeod_.roll_std_dev));
-                            msg.orientation_covariance[4] =
-                                square(deg2rad(last_insnavgeod_.pitch_std_dev));
-                            msg.orientation_covariance[8] =
-                                square(deg2rad(last_insnavgeod_.heading_std_dev));
-                        } else
-                        {
-                            valid_orientation = false;
-                        }
-                    } else
-                    {
-                        valid_orientation = false;
-                    }
-                    if ((last_insnavgeod_.sb_list & 64) != 0)
-                    {
-                        // Attitude cov
-                        msg.orientation_covariance[1] =
-                            deg2radSq(last_insnavgeod_.pitch_roll_cov);
-                        msg.orientation_covariance[2] =
-                            deg2radSq(last_insnavgeod_.heading_roll_cov);
-                        msg.orientation_covariance[3] =
-                            deg2radSq(last_insnavgeod_.pitch_roll_cov);
-
-                        msg.orientation_covariance[5] =
-                            deg2radSq(last_insnavgeod_.heading_pitch_cov);
-                        msg.orientation_covariance[6] =
-                            deg2radSq(last_insnavgeod_.heading_roll_cov);
-                        msg.orientation_covariance[7] =
-                            deg2radSq(last_insnavgeod_.heading_pitch_cov);
-                    }
-                }
-            } else
+            static int64_t maxDt = (settings_->polling_period_pvt == 0)
+                                       ? 10000000
+                                       : settings_->polling_period_pvt * 1000000;
+            if ((tsImu - tsIns) > maxDt)
             {
                 valid_orientation = false;
+            } else
+            {
+                if ((last_insnavgeod_.sb_list & 2) != 0)
+                {
+                    // Attitude
+                    if (validValue(last_insnavgeod_.heading) &&
+                        validValue(last_insnavgeod_.pitch) &&
+                        validValue(last_insnavgeod_.roll))
+                    {
+                        msg.orientation = convertEulerToQuaternionMsg(
+                            deg2rad(last_insnavgeod_.roll),
+                            deg2rad(last_insnavgeod_.pitch),
+                            deg2rad(last_insnavgeod_.heading));
+                        valid_orientation = true;
+                    }
+                }
+                if ((last_insnavgeod_.sb_list & 4) != 0)
+                {
+                    // Attitude autocov
+                    if (validValue(last_insnavgeod_.roll_std_dev) &&
+                        validValue(last_insnavgeod_.pitch_std_dev) &&
+                        validValue(last_insnavgeod_.heading_std_dev))
+                    {
+                        msg.orientation_covariance[0] =
+                            square(deg2rad(last_insnavgeod_.roll_std_dev));
+                        msg.orientation_covariance[4] =
+                            square(deg2rad(last_insnavgeod_.pitch_std_dev));
+                        msg.orientation_covariance[8] =
+                            square(deg2rad(last_insnavgeod_.heading_std_dev));
+
+                        if ((last_insnavgeod_.sb_list & 64) != 0)
+                        {
+                            // Attitude cov
+                            msg.orientation_covariance[1] =
+                                deg2radSq(last_insnavgeod_.pitch_roll_cov);
+                            msg.orientation_covariance[2] =
+                                deg2radSq(last_insnavgeod_.heading_roll_cov);
+                            msg.orientation_covariance[3] =
+                                deg2radSq(last_insnavgeod_.pitch_roll_cov);
+
+                            msg.orientation_covariance[5] =
+                                deg2radSq(last_insnavgeod_.heading_pitch_cov);
+                            msg.orientation_covariance[6] =
+                                deg2radSq(last_insnavgeod_.heading_roll_cov);
+                            msg.orientation_covariance[7] =
+                                deg2radSq(last_insnavgeod_.heading_pitch_cov);
+                        }
+                    } else
+                    {
+                        msg.orientation_covariance[0] = -1.0;
+                        msg.orientation_covariance[4] = -1.0;
+                        msg.orientation_covariance[8] = -1.0;
+                    }
+                }
             }
         }
 
@@ -648,9 +655,6 @@ namespace io {
             msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
             msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
             msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation_covariance[0] = -1.0;
-            msg.orientation_covariance[4] = -1.0;
-            msg.orientation_covariance[8] = -1.0;
         }
 
         publish<ImuMsg>("imu", msg);
@@ -662,6 +666,15 @@ namespace io {
             return;
         TwistWithCovarianceStampedMsg msg;
 
+        // Autocovariances of angular velocity
+        msg.twist.covariance[21] = -1.0;
+        msg.twist.covariance[28] = -1.0;
+        msg.twist.covariance[35] = -1.0;
+        // Set angular velocities to NaN
+        msg.twist.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+        msg.twist.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+        msg.twist.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
         if (fromIns)
         {
             msg.header = last_insnavgeod_.header;
@@ -669,15 +682,9 @@ namespace io {
             if ((last_insnavgeod_.sb_list & 8) != 0)
             {
                 // Linear velocity in navigation frame
-                double ve = 0.0;
-                if (validValue(last_insnavgeod_.ve))
-                    ve = last_insnavgeod_.ve;
-                double vn = 0.0;
-                if (validValue(last_insnavgeod_.vn))
-                    vn = last_insnavgeod_.vn;
-                double vu = 0.0;
-                if (validValue(last_insnavgeod_.vu))
-                    vu = last_insnavgeod_.vu;
+                double ve = last_insnavgeod_.ve;
+                double vn = last_insnavgeod_.vn;
+                double vu = last_insnavgeod_.vu;
                 Eigen::Vector3d vel;
                 if (settings_->use_ros_axis_orientation)
                 {
@@ -768,10 +775,6 @@ namespace io {
                 msg.twist.covariance[7] = -1.0;
                 msg.twist.covariance[14] = -1.0;
             }
-            // Autocovariances of angular velocity
-            msg.twist.covariance[21] = -1.0;
-            msg.twist.covariance[28] = -1.0;
-            msg.twist.covariance[35] = -1.0;
 
             publish<TwistWithCovarianceStampedMsg>("twist_ins", msg);
         } else
@@ -785,15 +788,9 @@ namespace io {
             if (last_pvtgeodetic_.error == 0)
             {
                 // Linear velocity in navigation frame
-                double ve = 0.0;
-                if (validValue(last_pvtgeodetic_.ve))
-                    ve = last_pvtgeodetic_.ve;
-                double vn = 0.0;
-                if (validValue(last_pvtgeodetic_.vn))
-                    vn = last_pvtgeodetic_.vn;
-                double vu = 0.0;
-                if (validValue(last_pvtgeodetic_.vu))
-                    vu = last_pvtgeodetic_.vu;
+                double ve = last_pvtgeodetic_.ve;
+                double vn = last_pvtgeodetic_.vn;
+                double vu = last_pvtgeodetic_.vu;
                 Eigen::Vector3d vel;
                 if (settings_->use_ros_axis_orientation)
                 {
@@ -842,16 +839,20 @@ namespace io {
                     last_velcovgeodetic_.cov_vnve;
                 if (settings_->use_ros_axis_orientation)
                 {
-                    covVel_local(0, 2) = covVel_local(2, 0) =
-                        last_velcovgeodetic_.cov_vevu;
-                    covVel_local(2, 1) = covVel_local(1, 2) =
-                        last_velcovgeodetic_.cov_vnvu;
+                    if (validValue(last_velcovgeodetic_.cov_vevu))
+                        covVel_local(0, 2) = covVel_local(2, 0) =
+                            last_velcovgeodetic_.cov_vevu;
+                    if (validValue(last_velcovgeodetic_.cov_vnvu))
+                        covVel_local(2, 1) = covVel_local(1, 2) =
+                            last_velcovgeodetic_.cov_vnvu;
                 } else
                 {
-                    covVel_local(0, 2) = covVel_local(2, 0) =
-                        -last_velcovgeodetic_.cov_vnvu;
-                    covVel_local(2, 1) = covVel_local(1, 2) =
-                        -last_velcovgeodetic_.cov_vevu;
+                    if (validValue(last_velcovgeodetic_.cov_vnvu))
+                        covVel_local(0, 2) = covVel_local(2, 0) =
+                            -last_velcovgeodetic_.cov_vnvu;
+                    if (validValue(last_velcovgeodetic_.cov_vevu))
+                        covVel_local(2, 1) = covVel_local(1, 2) =
+                            -last_velcovgeodetic_.cov_vevu;
                 }
 
                 msg.twist.covariance[0] = covVel_local(0, 0);
@@ -869,10 +870,6 @@ namespace io {
                 msg.twist.covariance[7] = -1.0;
                 msg.twist.covariance[14] = -1.0;
             }
-            // Autocovariances of angular velocity
-            msg.twist.covariance[21] = -1.0;
-            msg.twist.covariance[28] = -1.0;
-            msg.twist.covariance[35] = -1.0;
 
             publish<TwistWithCovarianceStampedMsg>("twist_gnss", msg);
         }
@@ -966,15 +963,9 @@ namespace io {
         }
 
         // Euler angles
-        double roll = 0.0;
-        if (validValue(last_insnavgeod_.roll))
-            roll = deg2rad(last_insnavgeod_.roll);
-        double pitch = 0.0;
-        if (validValue(last_insnavgeod_.pitch))
-            pitch = deg2rad(last_insnavgeod_.pitch);
-        double yaw = 0.0;
-        if (validValue(last_insnavgeod_.heading))
-            yaw = deg2rad(last_insnavgeod_.heading);
+        double roll = deg2rad(last_insnavgeod_.roll);
+        double pitch = deg2rad(last_insnavgeod_.pitch);
+        double yaw = deg2rad(last_insnavgeod_.heading);
         // meridian_convergence for conversion from true north to grid north
         if (settings_->use_ros_axis_orientation)
             yaw += deg2rad(meridian_convergence);
@@ -1135,15 +1126,9 @@ namespace io {
         }
 
         // Euler angles
-        double roll = 0.0;
-        if (validValue(last_insnavcart_.roll))
-            roll = deg2rad(last_insnavcart_.roll);
-        double pitch = 0.0;
-        if (validValue(last_insnavcart_.pitch))
-            pitch = deg2rad(last_insnavcart_.pitch);
-        double yaw = 0.0;
-        if (validValue(last_insnavcart_.heading))
-            yaw = deg2rad(last_insnavcart_.heading);
+        double roll = deg2rad(last_insnavcart_.roll);
+        double pitch = deg2rad(last_insnavcart_.pitch);
+        double yaw = deg2rad(last_insnavcart_.heading);
 
         if ((last_insnavcart_.sb_list & 2) != 0)
         {
@@ -1261,15 +1246,9 @@ namespace io {
         if ((last_insnavgeod_.sb_list & 8) != 0)
         {
             // Linear velocity (ENU)
-            double ve = 0.0;
-            if (validValue(last_insnavgeod_.ve))
-                ve = last_insnavgeod_.ve;
-            double vn = 0.0;
-            if (validValue(last_insnavgeod_.vn))
-                vn = last_insnavgeod_.vn;
-            double vu = 0.0;
-            if (validValue(last_insnavgeod_.vu))
-                vu = last_insnavgeod_.vu;
+            double ve = last_insnavgeod_.ve;
+            double vn = last_insnavgeod_.vn;
+            double vu = last_insnavgeod_.vu;
             Eigen::Vector3d vel_local;
             if (settings_->use_ros_axis_orientation)
             {
@@ -1478,8 +1457,7 @@ namespace io {
 
             msg.header = last_insnavgeod_.header;
 
-            uint16_t type_of_pvt = ((uint16_t)(last_insnavgeod_.gnss_mode)) & mask;
-            switch (type_of_pvt)
+            switch (last_insnavgeod_.gnss_mode)
             {
             case evNoPVT:
             {
@@ -1511,7 +1489,8 @@ namespace io {
             {
                 node_->log(
                     log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
+                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
                 break;
             }
             }
@@ -1596,6 +1575,7 @@ namespace io {
         {
             if (!validValue(last_measepoch_.block_header.tow) ||
                 !validValue(last_channelstatus_.block_header.tow) ||
+                !validValue(last_dop_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
                  last_pvtgeodetic_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
@@ -1603,14 +1583,16 @@ namespace io {
                 (last_measepoch_.block_header.tow !=
                  last_atteuler_.block_header.tow) ||
                 (last_measepoch_.block_header.tow !=
-                 last_attcoveuler_.block_header.tow))
+                 last_attcoveuler_.block_header.tow) ||
+                (last_measepoch_.block_header.tow != last_dop_.block_header.tow) ||
+                (last_measepoch_.block_header.tow !=
+                 last_channelstatus_.block_header.tow))
                 return;
         } else if (settings_->septentrio_receiver_type == "ins")
         {
             if (!validValue(last_measepoch_.block_header.tow) ||
                 !validValue(last_channelstatus_.block_header.tow) ||
-                (last_measepoch_.block_header.tow !=
-                 last_insnavgeod_.block_header.tow))
+                !validValue(last_dop_.block_header.tow))
                 return;
         }
 
@@ -1895,12 +1877,7 @@ namespace io {
         {
             msg.header = last_insnavgeod_.header;
 
-            // PVT Status Analysis
-            uint16_t status_mask =
-                15; // We extract the first four bits using this mask.
-            uint16_t type_of_pvt =
-                ((uint16_t)(last_insnavgeod_.gnss_mode)) & status_mask;
-            switch (type_of_pvt)
+            switch (last_insnavgeod_.gnss_mode)
             {
             case evNoPVT:
             {
@@ -1924,11 +1901,16 @@ namespace io {
                 break;
             }
             case evSBAS:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
+                break;
+            }
             default:
             {
                 node_->log(
                     log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution.");
+                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
+                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
                 break;
             }
             }
@@ -2244,7 +2226,8 @@ namespace io {
             assembleTwist();
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             if (settings_->publish_gpst &&
                 (settings_->septentrio_receiver_type == "gnss"))
                 assembleTimeReference(telegram);
@@ -2314,7 +2297,8 @@ namespace io {
                 publish<PosCovGeodeticMsg>("poscovgeodetic", last_poscovgeodetic_);
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case ATT_EULER:
@@ -2330,7 +2314,8 @@ namespace io {
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("atteuler", last_atteuler_);
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case ATT_COV_EULER:
@@ -2346,7 +2331,8 @@ namespace io {
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("attcoveuler", last_attcoveuler_);
             assemblePoseWithCovarianceStamped();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case GAL_AUTH_STATUS:
@@ -2556,7 +2542,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in ChannelStatus");
                 break;
             }
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case MEAS_EPOCH:
@@ -2570,7 +2557,8 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_measepoch_);
             if (settings_->publish_measepoch)
                 publish<MeasEpochMsg>("measepoch", last_measepoch_);
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case DOP:
@@ -2581,7 +2569,8 @@ namespace io {
                 node_->log(log_level::ERROR, "parse error in DOP");
                 break;
             }
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case VEL_COV_CARTESIAN:
@@ -2613,7 +2602,8 @@ namespace io {
             if (settings_->publish_velcovgeodetic)
                 publish<VelCovGeodeticMsg>("velcovgeodetic", last_velcovgeodetic_);
             assembleTwist();
-            assembleGpsFix();
+            if (settings_->septentrio_receiver_type == "gnss")
+                assembleGpsFix();
             break;
         }
         case RECEIVER_STATUS:

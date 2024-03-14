@@ -44,7 +44,12 @@
 #include <pcap.h>
 
 // ROSaic
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 #include <septentrio_gnss_driver/communication/telegram.hpp>
 
 //! Possible baudrates for the Rx
@@ -277,7 +282,19 @@ namespace io {
 
             try
             {
-                stream_->connect(*endpointIterator);
+                boost::system::error_code ec;
+                stream_->connect(*endpointIterator, ec);
+                while (node_->ok() && ec)
+                {
+                    node_->log(
+                        log_level::ERROR,
+                        "TCP connection to " +
+                            endpointIterator->endpoint().address().to_string() +
+                            " on port " +
+                            std::to_string(endpointIterator->endpoint().port()) +
+                            " failed: " + ec.message() + ". Retrying ...");
+                    stream_->connect(*endpointIterator, ec);
+                }
 
                 stream_->set_option(boost::asio::ip::tcp::no_delay(true));
 

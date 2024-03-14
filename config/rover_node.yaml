@@ -18,7 +18,9 @@ septentrio_gnss_driver:
         port: 0
         unicast_ip: ""
 
-    configure_rx: true    
+    configure_rx: true
+
+    custom_commands_file: ""  
 
     osnma:
       mode: "off"
@@ -68,13 +70,16 @@ septentrio_gnss_driver:
     ant_aux1_serial_nr: "Unknown"
 
     polling_period:
-      pvt: 0
+      pvt: 100
       rest: 500
 
+    # time
     use_gnss_time: false
+    ntp_server: true
+    ptp_server_clock: false
+    latency_compensation: true
 
-    latency_compensation: false
-
+    # RTK
     rtk_settings:  
       ntrip_1:
         id: ""
@@ -104,6 +109,8 @@ septentrio_gnss_driver:
 
     publish:
       # For both GNSS and INS Rxs
+      auto_publish: false
+      publish_only_valid: false
       navsatfix: false
       gpsfix: true
       gpgga: false

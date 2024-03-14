@@ -65,10 +65,16 @@ static const uint8_t SBF_SYNC_2 = 0x40;
 
 // C++
 #include <algorithm>
+#include <type_traits>
 // Boost
 #include <boost/spirit/include/qi.hpp>
 // ROSaic
+#ifdef ROS2
 #include <septentrio_gnss_driver/abstraction/typedefs.hpp>
+#endif
+#ifdef ROS1
+#include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
+#endif
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
 /**
@@ -77,22 +83,6 @@ static const uint8_t SBF_SYNC_2 = 0x40;
  * shipped to handler functions
  * @date 17/08/20
  */
-
-/**
- * @brief Struct for the SBF block's header message
- */
-struct BlockHeader
-{
-    uint8_t sync_1;   //!< first sync byte is $ or 0x24
-    uint8_t sync_2;   //!< 2nd sync byte is @ or 0x40
-    uint16_t crc;     //!< The check sum
-    uint16_t id;      //!< This is the block ID
-    uint8_t revision; //!< This is the block revision
-    uint16_t length;  //!< Length of the entire message including the header. A
-                      //!< multiple of 4 between 8 and 4096
-    uint32_t tow;     //!< This is the time of week in ms
-    uint16_t wnc;     //!< This is the GPS week counter
-};
 
 /**
  * @class ChannelStateInfo
@@ -129,7 +119,7 @@ struct ChannelSatInfo
  */
 struct ChannelStatus
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t n;
     uint8_t sb1_length;
@@ -144,7 +134,7 @@ struct ChannelStatus
  */
 struct Dop
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t nr_sv;
     double pdop;
@@ -161,7 +151,7 @@ struct Dop
  */
 struct ReceiverSetup
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     std::string marker_name;
     std::string marker_number;
@@ -193,7 +183,7 @@ struct ReceiverSetup
  */
 struct QualityInd
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t n = 0;
 
@@ -217,7 +207,7 @@ struct AgcState
  */
 struct ReceiverStatus
 {
-    BlockHeader block_header;
+    BlockHeaderMsg block_header;
 
     uint8_t cpu_load;
     uint8_t ext_error;
@@ -268,31 +258,6 @@ static const std::array<uint16_t, 256> CRC_LOOK_UP = {
 namespace qi = boost::spirit::qi;
 
 /**
- * validValue
- * @brief Check if value is not set to Do-Not-Use
- */
-template <typename T>
-[[nodiscard]] bool validValue(T s)
-{
-    static_assert(std::is_same<uint16_t, T>::value ||
-                  std::is_same<uint32_t, T>::value ||
-                  std::is_same<float, T>::value || std::is_same<double, T>::value);
-    if (std::is_same<uint16_t, T>::value)
-    {
-        return (s != static_cast<uint16_t>(65535));
-    } else if (std::is_same<uint32_t, T>::value)
-    {
-        return (s != 4294967295u);
-    } else if (std::is_same<float, T>::value)
-    {
-        return (s != -2e10f);
-    } else if (std::is_same<double, T>::value)
-    {
-        return (s != -2e10);
-    }
-}
-
-/**
  * setDoNotUse
  * @brief Sets scalar to Do-Not-Use value
  */
@@ -312,12 +277,33 @@ void setDoNotUse(Val& s)
         s = 4294967295ul;
     } else if (std::is_same<float, Val>::value)
     {
-        s = -2e10f;
+        s = std::numeric_limits<float>::quiet_NaN();
     } else if (std::is_same<double, Val>::value)
     {
-        s = -2e10;
+        s = std::numeric_limits<double>::quiet_NaN();
     }
     // TODO add more
+}
+
+/**
+ * doNotUseToNaN
+ * @brief Sets scalar to Do-Not-Use value to NaN
+ */
+template <typename Val>
+void doNotUseToNaN(Val& s)
+{
+    static_assert(std::is_same<float, Val>::value ||
+                  std::is_same<double, Val>::value);
+
+    if constexpr (std::is_same<float, Val>::value)
+    {
+        if (s == -2e10f)
+            s = std::numeric_limits<float>::quiet_NaN();
+    } else if constexpr (std::is_same<double, Val>::value)
+    {
+        if (s == -2e10)
+            s = std::numeric_limits<double>::quiet_NaN();
+    }
 }
 
 /**
@@ -334,30 +320,32 @@ void qiLittleEndianParser(It& it, Val& val)
         std::is_same<int64_t, Val>::value || std::is_same<uint64_t, Val>::value ||
         std::is_same<float, Val>::value || std::is_same<double, Val>::value);
 
-    if (std::is_same<int8_t, Val>::value)
+    if constexpr (std::is_same<int8_t, Val>::value)
     {
         qi::parse(it, it + 1, qi::char_, val);
-    } else if (std::is_same<uint8_t, Val>::value)
+    } else if constexpr (std::is_same<uint8_t, Val>::value)
     {
         qi::parse(it, it + 1, qi::byte_, val);
-    } else if ((std::is_same<int16_t, Val>::value) ||
-               (std::is_same<uint16_t, Val>::value))
+    } else if constexpr ((std::is_same<int16_t, Val>::value) ||
+                         (std::is_same<uint16_t, Val>::value))
     {
         qi::parse(it, it + 2, qi::little_word, val);
-    } else if ((std::is_same<int32_t, Val>::value) ||
-               (std::is_same<uint32_t, Val>::value))
+    } else if constexpr ((std::is_same<int32_t, Val>::value) ||
+                         (std::is_same<uint32_t, Val>::value))
     {
         qi::parse(it, it + 4, qi::little_dword, val);
-    } else if ((std::is_same<int64_t, Val>::value) ||
-               (std::is_same<uint64_t, Val>::value))
+    } else if constexpr ((std::is_same<int64_t, Val>::value) ||
+                         (std::is_same<uint64_t, Val>::value))
     {
         qi::parse(it, it + 8, qi::little_qword, val);
-    } else if (std::is_same<float, Val>::value)
+    } else if constexpr (std::is_same<float, Val>::value)
     {
         qi::parse(it, it + 4, qi::little_bin_float, val);
-    } else if (std::is_same<double, Val>::value)
+        doNotUseToNaN(val);
+    } else if constexpr (std::is_same<double, Val>::value)
     {
         qi::parse(it, it + 8, qi::little_bin_double, val);
+        doNotUseToNaN(val);
     }
 }
 
@@ -936,14 +924,10 @@ template <typename It>
     qiLittleEndianParser(it, msg.heading_dot);
     if (use_ros_axis_orientation)
     {
-        if (validValue(msg.heading))
-            msg.heading = -msg.heading + 90;
-        if (validValue(msg.pitch))
-            msg.pitch = -msg.pitch;
-        if (validValue(msg.pitch_dot))
-            msg.pitch_dot = -msg.pitch_dot;
-        if (validValue(msg.heading_dot))
-            msg.heading_dot = -msg.heading_dot;
+        msg.heading = -msg.heading + 90;
+        msg.pitch = -msg.pitch;
+        msg.pitch_dot = -msg.pitch_dot;
+        msg.heading_dot = -msg.heading_dot;
     }
     if (it > itEnd)
     {
@@ -980,10 +964,8 @@ template <typename It>
     qiLittleEndianParser(it, msg.cov_pitchroll);
     if (use_ros_axis_orientation)
     {
-        if (validValue(msg.cov_headroll))
-            msg.cov_headroll = -msg.cov_headroll;
-        if (validValue(msg.cov_pitchroll))
-            msg.cov_pitchroll = -msg.cov_pitchroll;
+        msg.cov_headroll = -msg.cov_headroll;
+        msg.cov_pitchroll = -msg.cov_pitchroll;
     }
     if (it > itEnd)
     {
@@ -1164,10 +1146,8 @@ template <typename It>
         qiLittleEndianParser(it, msg.roll);
         if (use_ros_axis_orientation)
         {
-            if (validValue(msg.heading))
-                msg.heading = -msg.heading + 90;
-            if (validValue(msg.pitch))
-                msg.pitch = -msg.pitch;
+            msg.heading = -msg.heading + 90;
+            msg.pitch = -msg.pitch;
         }
     } else
     {
@@ -1226,10 +1206,8 @@ template <typename It>
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
         {
-            if (validValue(msg.heading_roll_cov))
-                msg.heading_roll_cov = -msg.heading_roll_cov;
-            if (validValue(msg.pitch_roll_cov))
-                msg.pitch_roll_cov = -msg.pitch_roll_cov;
+            msg.heading_roll_cov = -msg.heading_roll_cov;
+            msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
     } else
     {
@@ -1576,10 +1554,8 @@ template <typename It>
         qiLittleEndianParser(it, msg.roll);
         if (use_ros_axis_orientation)
         {
-            if (validValue(msg.heading))
-                msg.heading = -msg.heading + 90;
-            if (validValue(msg.pitch))
-                msg.pitch = -msg.pitch;
+            msg.heading = -msg.heading + 90;
+            msg.pitch = -msg.pitch;
         }
     } else
     {
@@ -1638,10 +1614,8 @@ template <typename It>
         qiLittleEndianParser(it, msg.pitch_roll_cov);
         if (use_ros_axis_orientation)
         {
-            if (validValue(msg.heading_roll_cov))
-                msg.heading_roll_cov = -msg.heading_roll_cov;
-            if (validValue(msg.pitch_roll_cov))
-                msg.pitch_roll_cov = -msg.pitch_roll_cov;
+            msg.heading_roll_cov = -msg.heading_roll_cov;
+            msg.pitch_roll_cov = -msg.pitch_roll_cov;
         }
     } else
     {
@@ -1839,10 +1813,8 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
             qiLittleEndianParser(it, msg.std_dev_z);
             if (use_ros_axis_orientation)
             {
-                if (validValue(msg.velocity_y))
-                    msg.velocity_y = -msg.velocity_y;
-                if (validValue(msg.velocity_z))
-                    msg.velocity_z = -msg.velocity_z;
+                msg.velocity_y = -msg.velocity_y;
+                msg.velocity_z = -msg.velocity_z;
             }
             break;
         }

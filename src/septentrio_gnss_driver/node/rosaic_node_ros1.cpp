@@ -31,7 +31,7 @@
 // Eigen include
 #include <Eigen/Geometry>
 #include <septentrio_gnss_driver/communication/settings_helpers.hpp>
-#include <septentrio_gnss_driver/node/rosaic_node.hpp>
+#include <septentrio_gnss_driver/node/rosaic_node_ros1.hpp>
 
 /**
  * @file rosaic_node.cpp
@@ -39,20 +39,16 @@
  * @brief The heart of the ROSaic driver: The ROS node that represents it
  */
 
-rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
-    ROSaicNodeBase(options), IO_(this), tfBuffer_(this->get_clock())
+rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
 {
     param("activate_debug_log", settings_.activate_debug_log, false);
     if (settings_.activate_debug_log)
     {
-        auto ret = rcutils_logging_set_logger_level(this->get_logger().get_name(),
-                                                    RCUTILS_LOG_SEVERITY_DEBUG);
-        if (ret != RCUTILS_RET_OK)
-        {
-            RCLCPP_ERROR(this->get_logger(), "Error setting severity: %s",
-                         rcutils_get_error_string().str);
-            rcutils_reset_error();
-        }
+        if (ros::console::set_logger_level(
+                ROSCONSOLE_DEFAULT_NAME,
+                ros::console::levels::Debug)) // debug is lowest level, shows
+                                              // everything
+            ros::console::notifyLoggerLevelsChanged();
     }
 
     this->log(log_level::DEBUG, "Called ROSaicNode() constructor..");
@@ -88,6 +84,7 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("insert_local_frame", settings_.insert_local_frame, false);
     param("lock_utm_zone", settings_.lock_utm_zone, true);
     param("leap_seconds", settings_.leap_seconds, -128);
+
     param("configure_rx", settings_.configure_rx, true);
 
     param("custom_commands_file", settings_.custom_commands_file,
@@ -95,23 +92,22 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
 
     // Communication parameters
     param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
-    getUint32Param("serial.baudrate", settings_.baudrate,
+    getUint32Param("serial/baudrate", settings_.baudrate,
                    static_cast<uint32_t>(921600));
-    param("serial.hw_flow_control", settings_.hw_flow_control,
+    param("serial/hw_flow_control", settings_.hw_flow_control,
           static_cast<std::string>("off"));
-    getUint32Param("stream_device.tcp.port", settings_.tcp_port,
+    getUint32Param("stream_device/tcp/port", settings_.tcp_port,
                    static_cast<uint32_t>(0));
-    param("stream_device.tcp.ip_server", settings_.tcp_ip_server,
+    param("stream_device/tcp/ip_server", settings_.tcp_ip_server,
           static_cast<std::string>(""));
-    getUint32Param("stream_device.udp.port", settings_.udp_port,
+    getUint32Param("stream_device/udp/port", settings_.udp_port,
                    static_cast<uint32_t>(0));
-    param("stream_device.udp.unicast_ip", settings_.udp_unicast_ip,
+    param("stream_device/udp/unicast_ip", settings_.udp_unicast_ip,
           static_cast<std::string>(""));
-    param("stream_device.udp.ip_server", settings_.udp_ip_server,
+    param("stream_device/udp/ip_server", settings_.udp_ip_server,
           static_cast<std::string>(""));
-    param("login.user", settings_.login_user, static_cast<std::string>(""));
-    param("login.password", settings_.login_password, static_cast<std::string>(""));
-
+    param("login/user", settings_.login_user, static_cast<std::string>(""));
+    param("login/password", settings_.login_password, static_cast<std::string>(""));
     settings_.reconnect_delay_s = 2.0f; // Removed from ROS parameter list.
     param("receiver_type", settings_.septentrio_receiver_type,
           static_cast<std::string>("gnss"));
@@ -133,18 +129,17 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     }
 
     // Polling period parameters
-    getUint32Param("polling_period.pvt", settings_.polling_period_pvt,
+    getUint32Param("polling_period/pvt", settings_.polling_period_pvt,
                    static_cast<uint32_t>(1000));
     if (!(validPeriod(settings_.polling_period_pvt,
                       settings_.septentrio_receiver_type == "ins")))
     {
         this->log(
             log_level::FATAL,
-            "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages. " +
-                std::to_string(settings_.polling_period_pvt));
+            "Please specify a valid polling period for PVT-related SBF blocks and NMEA messages.");
         return false;
     }
-    getUint32Param("polling_period.rest", settings_.polling_period_rest,
+    getUint32Param("polling_period/rest", settings_.polling_period_rest,
                    static_cast<uint32_t>(1000));
     if (!(validPeriod(settings_.polling_period_rest,
                       settings_.septentrio_receiver_type == "ins")))
@@ -156,51 +151,51 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     }
 
     // OSNMA parameters
-    param("osnma.mode", settings_.osnma.mode, std::string("off"));
-    param("osnma.ntp_server", settings_.osnma.ntp_server, std::string(""));
-    param("osnma.keep_open", settings_.osnma.keep_open, true);
+    param("osnma/mode", settings_.osnma.mode, std::string("off"));
+    param("osnma/ntp_server", settings_.osnma.ntp_server, std::string(""));
+    param("osnma/keep_open", settings_.osnma.keep_open, true);
 
     // multi_antenna param
     param("multi_antenna", settings_.multi_antenna, false);
 
     // Publishing parameters
-    param("publish.auto_publish", settings_.auto_publish, false);
-    param("publish.publish_only_valid", settings_.publish_only_valid, false);
-    param("publish.gpst", settings_.publish_gpst, false);
-    param("publish.navsatfix", settings_.publish_navsatfix, true);
-    param("publish.gpsfix", settings_.publish_gpsfix, false);
-    param("publish.pose", settings_.publish_pose, false);
-    param("publish.diagnostics", settings_.publish_diagnostics, false);
-    param("publish.aimplusstatus", settings_.publish_aimplusstatus, false);
-    param("publish.galauthstatus", settings_.publish_galauthstatus, false);
-    param("publish.gpgga", settings_.publish_gpgga, false);
-    param("publish.gprmc", settings_.publish_gprmc, false);
-    param("publish.gpgsa", settings_.publish_gpgsa, false);
-    param("publish.gpgsv", settings_.publish_gpgsv, false);
-    param("publish.measepoch", settings_.publish_measepoch, false);
-    param("publish.pvtcartesian", settings_.publish_pvtcartesian, false);
-    param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, false);
-    param("publish.basevectorcart", settings_.publish_basevectorcart, false);
-    param("publish.basevectorgeod", settings_.publish_basevectorgeod, false);
-    param("publish.poscovcartesian", settings_.publish_poscovcartesian, false);
-    param("publish.poscovgeodetic", settings_.publish_poscovgeodetic, false);
-    param("publish.velcovcartesian", settings_.publish_velcovcartesian, false);
-    param("publish.velcovgeodetic", settings_.publish_velcovgeodetic, false);
-    param("publish.atteuler", settings_.publish_atteuler, false);
-    param("publish.attcoveuler", settings_.publish_attcoveuler, false);
-    param("publish.insnavcart", settings_.publish_insnavcart, false);
-    param("publish.insnavgeod", settings_.publish_insnavgeod, false);
-    param("publish.imusetup", settings_.publish_imusetup, false);
-    param("publish.velsensorsetup", settings_.publish_velsensorsetup, false);
-    param("publish.exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
-    param("publish.exteventinsnavcart", settings_.publish_exteventinsnavcart, false);
-    param("publish.extsensormeas", settings_.publish_extsensormeas, false);
-    param("publish.imu", settings_.publish_imu, false);
-    param("publish.localization", settings_.publish_localization, false);
-    param("publish.localization_ecef", settings_.publish_localization_ecef, false);
-    param("publish.twist", settings_.publish_twist, false);
-    param("publish.tf", settings_.publish_tf, false);
-    param("publish.tf_ecef", settings_.publish_tf_ecef, false);
+    param("publish/auto_publish", settings_.auto_publish, false);
+    param("publish/publish_only_valid", settings_.publish_only_valid, false);
+    param("publish/gpst", settings_.publish_gpst, false);
+    param("publish/navsatfix", settings_.publish_navsatfix, true);
+    param("publish/gpsfix", settings_.publish_gpsfix, false);
+    param("publish/pose", settings_.publish_pose, false);
+    param("publish/diagnostics", settings_.publish_diagnostics, false);
+    param("publish/aimplusstatus", settings_.publish_aimplusstatus, false);
+    param("publish/galauthstatus", settings_.publish_galauthstatus, false);
+    param("publish/gpgga", settings_.publish_gpgga, false);
+    param("publish/gprmc", settings_.publish_gprmc, false);
+    param("publish/gpgsa", settings_.publish_gpgsa, false);
+    param("publish/gpgsv", settings_.publish_gpgsv, false);
+    param("publish/measepoch", settings_.publish_measepoch, false);
+    param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
+    param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, false);
+    param("publish/basevectorcart", settings_.publish_basevectorcart, false);
+    param("publish/basevectorgeod", settings_.publish_basevectorgeod, false);
+    param("publish/poscovcartesian", settings_.publish_poscovcartesian, false);
+    param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, false);
+    param("publish/velcovcartesian", settings_.publish_velcovcartesian, false);
+    param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, false);
+    param("publish/atteuler", settings_.publish_atteuler, false);
+    param("publish/attcoveuler", settings_.publish_attcoveuler, false);
+    param("publish/insnavcart", settings_.publish_insnavcart, false);
+    param("publish/insnavgeod", settings_.publish_insnavgeod, false);
+    param("publish/imusetup", settings_.publish_imusetup, false);
+    param("publish/velsensorsetup", settings_.publish_velsensorsetup, false);
+    param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod, false);
+    param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart, false);
+    param("publish/extsensormeas", settings_.publish_extsensormeas, false);
+    param("publish/imu", settings_.publish_imu, false);
+    param("publish/localization", settings_.publish_localization, false);
+    param("publish/localization_ecef", settings_.publish_localization_ecef, false);
+    param("publish/twist", settings_.publish_twist, false);
+    param("publish/tf", settings_.publish_tf, false);
+    param("publish/tf_ecef", settings_.publish_tf_ecef, false);
 
     if (settings_.publish_tf && settings_.publish_tf_ecef)
     {
@@ -217,7 +212,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         settings_.datum = "WGS84";
     param("ant_type", settings_.ant_type, std::string("Unknown"));
     param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
-    if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
+    param("ant_serial_nr", settings_.ant_serial_nr, std::string());
+    if (settings_.ant_serial_nr.empty())
     {
         uint32_t sn_tmp;
         if (getUint32Param("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -225,7 +221,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         else
             settings_.ant_serial_nr = "Unknown";
     }
-    if (!param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string()))
+    param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string());
+    if (settings_.ant_aux1_serial_nr.empty())
     {
         uint32_t sn_tmp;
         if (getUint32Param("ant_aux1_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -233,9 +230,9 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         else
             settings_.ant_aux1_serial_nr = "Unknown";
     }
-    param("poi_to_arp.delta_e", settings_.delta_e, 0.0f);
-    param("poi_to_arp.delta_n", settings_.delta_n, 0.0f);
-    param("poi_to_arp.delta_u", settings_.delta_u, 0.0f);
+    param("poi_to_arp/delta_e", settings_.delta_e, 0.0f);
+    param("poi_to_arp/delta_n", settings_.delta_n, 0.0f);
+    param("poi_to_arp/delta_u", settings_.delta_u, 0.0f);
 
     param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
 
@@ -244,10 +241,6 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("get_spatial_config_from_tf", getConfigFromTf, false);
     if (getConfigFromTf)
     {
-        // Wait a little for tf to become ready
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1000ms);
-
         if (settings_.septentrio_receiver_type == "ins")
         {
             TransformStampedMsg T_imu_vehicle;
@@ -325,24 +318,24 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     } else
     {
         // IMU orientation parameter
-        param("ins_spatial_config.imu_orientation.theta_x", settings_.theta_x, 0.0);
-        param("ins_spatial_config.imu_orientation.theta_y", settings_.theta_y, 0.0);
-        param("ins_spatial_config.imu_orientation.theta_z", settings_.theta_z, 0.0);
+        param("ins_spatial_config/imu_orientation/theta_x", settings_.theta_x, 0.0);
+        param("ins_spatial_config/imu_orientation/theta_y", settings_.theta_y, 0.0);
+        param("ins_spatial_config/imu_orientation/theta_z", settings_.theta_z, 0.0);
         // INS antenna lever arm offset parameter
-        param("ins_spatial_config.ant_lever_arm.x", settings_.ant_lever_x, 0.0);
-        param("ins_spatial_config.ant_lever_arm.y", settings_.ant_lever_y, 0.0);
-        param("ins_spatial_config.ant_lever_arm.z", settings_.ant_lever_z, 0.0);
+        param("ins_spatial_config/ant_lever_arm/x", settings_.ant_lever_x, 0.0);
+        param("ins_spatial_config/ant_lever_arm/y", settings_.ant_lever_y, 0.0);
+        param("ins_spatial_config/ant_lever_arm/z", settings_.ant_lever_z, 0.0);
         // INS POI ofset paramter
-        param("ins_spatial_config.poi_lever_arm.delta_x", settings_.poi_x, 0.0);
-        param("ins_spatial_config.poi_lever_arm.delta_y", settings_.poi_y, 0.0);
-        param("ins_spatial_config.poi_lever_arm.delta_z", settings_.poi_z, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_x", settings_.poi_x, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_y", settings_.poi_y, 0.0);
+        param("ins_spatial_config/poi_lever_arm/delta_z", settings_.poi_z, 0.0);
         // INS velocity sensor lever arm offset parameter
-        param("ins_spatial_config.vsm_lever_arm.vsm_x", settings_.vsm_x, 0.0);
-        param("ins_spatial_config.vsm_lever_arm.vsm_y", settings_.vsm_y, 0.0);
-        param("ins_spatial_config.vsm_lever_arm.vsm_z", settings_.vsm_z, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_x", settings_.vsm_x, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_y", settings_.vsm_y, 0.0);
+        param("ins_spatial_config/vsm_lever_arm/vsm_z", settings_.vsm_z, 0.0);
         // Antenna Attitude Determination parameter
-        param("att_offset.heading", settings_.heading_offset, 0.0);
-        param("att_offset.pitch", settings_.pitch_offset, 0.0);
+        param("att_offset/heading", settings_.heading_offset, 0.0);
+        param("att_offset/pitch", settings_.pitch_offset, 0.0);
     }
 
     if (settings_.use_ros_axis_orientation)
@@ -394,8 +387,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("ins_initial_heading", settings_.ins_initial_heading, std::string("auto"));
 
     // ins_std_dev_mask
-    param("ins_std_dev_mask.att_std_dev", settings_.att_std_dev, 5.0f);
-    param("ins_std_dev_mask.pos_std_dev", settings_.pos_std_dev, 10.0f);
+    param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 5.0f);
+    param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 10.0f);
 
     // INS solution reference point
     param("ins_use_poi", settings_.ins_use_poi, false);
@@ -415,39 +408,39 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         RtkNtrip ntripSettings;
         std::string ntrip = "ntrip_" + std::to_string(i);
 
-        param("rtk_settings." + ntrip + ".id", ntripSettings.id, std::string());
+        param("rtk_settings/" + ntrip + "/id", ntripSettings.id, std::string());
         if (ntripSettings.id.empty())
             continue;
 
-        param("rtk_settings." + ntrip + ".caster", ntripSettings.caster,
+        param("rtk_settings/" + ntrip + "/caster", ntripSettings.caster,
               std::string());
-        getUint32Param("rtk_settings." + ntrip + ".caster_port",
+        getUint32Param("rtk_settings/" + ntrip + "/caster_port",
                        ntripSettings.caster_port, static_cast<uint32_t>(0));
-        param("rtk_settings." + ntrip + ".username", ntripSettings.username,
+        param("rtk_settings/" + ntrip + "/username", ntripSettings.username,
               std::string());
-        if (!param("rtk_settings." + ntrip + ".password", ntripSettings.password,
+        if (!param("rtk_settings/" + ntrip + "/password", ntripSettings.password,
                    std::string()))
         {
             uint32_t pwd_tmp;
-            getUint32Param("rtk_settings." + ntrip + ".password", pwd_tmp,
+            getUint32Param("rtk_settings/" + ntrip + "/password", pwd_tmp,
                            static_cast<uint32_t>(0));
             ntripSettings.password = std::to_string(pwd_tmp);
         }
-        param("rtk_settings." + ntrip + ".mountpoint", ntripSettings.mountpoint,
+        param("rtk_settings/" + ntrip + "/mountpoint", ntripSettings.mountpoint,
               std::string());
-        param("rtk_settings." + ntrip + ".version", ntripSettings.version,
+        param("rtk_settings/" + ntrip + "/version", ntripSettings.version,
               std::string("v2"));
-        param("rtk_settings." + ntrip + ".tls", ntripSettings.tls, false);
+        param("rtk_settings/" + ntrip + "/tls", ntripSettings.tls, false);
         if (ntripSettings.tls)
-            param("rtk_settings." + ntrip + ".fingerprint",
+            param("rtk_settings/" + ntrip + "/fingerprint",
                   ntripSettings.fingerprint, std::string(""));
-        param("rtk_settings." + ntrip + ".rtk_standard", ntripSettings.rtk_standard,
+        param("rtk_settings/" + ntrip + "/rtk_standard", ntripSettings.rtk_standard,
               std::string("auto"));
-        param("rtk_settings." + ntrip + ".send_gga", ntripSettings.send_gga,
+        param("rtk_settings/" + ntrip + "/send_gga", ntripSettings.send_gga,
               std::string("auto"));
         if (ntripSettings.send_gga.empty())
             ntripSettings.send_gga = "off";
-        param("rtk_settings." + ntrip + ".keep_open", ntripSettings.keep_open, true);
+        param("rtk_settings/" + ntrip + "/keep_open", ntripSettings.keep_open, true);
 
         settings_.rtk.ntrip.push_back(ntripSettings);
     }
@@ -457,19 +450,19 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         RtkIpServer ipSettings;
         std::string ips = "ip_server_" + std::to_string(i);
 
-        param("rtk_settings." + ips + ".id", ipSettings.id, std::string(""));
+        param("rtk_settings/" + ips + "/id", ipSettings.id, std::string(""));
         if (ipSettings.id.empty())
             continue;
 
-        getUint32Param("rtk_settings." + ips + ".port", ipSettings.port,
+        getUint32Param("rtk_settings/" + ips + "/port", ipSettings.port,
                        static_cast<uint32_t>(0));
-        param("rtk_settings." + ips + ".rtk_standard", ipSettings.rtk_standard,
+        param("rtk_settings/" + ips + "/rtk_standard", ipSettings.rtk_standard,
               std::string("auto"));
-        param("rtk_settings." + ips + ".send_gga", ipSettings.send_gga,
+        param("rtk_settings/" + ips + "/send_gga", ipSettings.send_gga,
               std::string("auto"));
         if (ipSettings.send_gga.empty())
             ipSettings.send_gga = "off";
-        param("rtk_settings." + ips + ".keep_open", ipSettings.keep_open, true);
+        param("rtk_settings/" + ips + "/keep_open", ipSettings.keep_open, true);
 
         settings_.rtk.ip_server.push_back(ipSettings);
     }
@@ -479,20 +472,20 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         RtkSerial serialSettings;
         std::string serial = "serial_" + std::to_string(i);
 
-        param("rtk_settings." + serial + ".port", serialSettings.port,
+        param("rtk_settings/" + serial + "/port", serialSettings.port,
               std::string());
         if (serialSettings.port.empty())
             continue;
 
-        getUint32Param("rtk_settings." + serial + ".baud_rate",
+        getUint32Param("rtk_settings/" + serial + "/baud_rate",
                        serialSettings.baud_rate, static_cast<uint32_t>(115200));
-        param("rtk_settings." + serial + ".rtk_standard",
+        param("rtk_settings/" + serial + "/rtk_standard",
               serialSettings.rtk_standard, std::string("auto"));
-        param("rtk_settings." + serial + ".send_gga", serialSettings.send_gga,
+        param("rtk_settings/" + serial + "/send_gga", serialSettings.send_gga,
               std::string("auto"));
         if (serialSettings.send_gga.empty())
             serialSettings.send_gga = "off";
-        param("rtk_settings." + serial + ".keep_open", serialSettings.keep_open,
+        param("rtk_settings/" + serial + "/keep_open", serialSettings.keep_open,
               true);
 
         settings_.rtk.serial.push_back(serialSettings);
@@ -503,32 +496,32 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
         std::string tempString;
         int32_t tempInt;
         bool tempBool;
-        param("ntrip_settings.mode", tempString, std::string(""));
+        param("ntrip_settings/mode", tempString, std::string(""));
         if (tempString != "")
             this->log(
                 log_level::WARN,
-                "Deprecation warning: parameter ntrip_settings.mode has been removed, see README under section rtk_settings.");
-        param("ntrip_settings.caster", tempString, std::string(""));
+                "Deprecation warning: parameter ntrip_settings/mode has been removed, see README under section rtk_settings.");
+        param("ntrip_settings/caster", tempString, std::string(""));
         if (tempString != "")
             this->log(
                 log_level::WARN,
-                "Deprecation warning: parameter ntrip_settings.caster has been removed, see README under section rtk_settings.");
-        param("ntrip_settings.rx_has_internet", tempBool, false);
+                "Deprecation warning: parameter ntrip_settings/caster has been removed, see README under section rtk_settings.");
+        param("ntrip_settings/rx_has_internet", tempBool, false);
         if (tempBool)
             this->log(
                 log_level::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_has_internet has been removed, see README under section rtk_settings.");
-        param("ntrip_settings.rx_input_corrections_tcp", tempInt, 0);
+                "Deprecation warning: parameter ntrip_settings/rx_has_internet has been removed, see README under section rtk_settings.");
+        param("ntrip_settings/rx_input_corrections_tcp", tempInt, 0);
         if (tempInt != 0)
             this->log(
                 log_level::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
-        param("ntrip_settings.rx_input_corrections_serial", tempString,
+                "Deprecation warning: parameter ntrip_settings/rx_input_corrections_tcp has been removed, see README under section rtk_settings.");
+        param("ntrip_settings/rx_input_corrections_serial", tempString,
               std::string(""));
         if (tempString != "")
             this->log(
                 log_level::WARN,
-                "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtk_settings.");
+                "Deprecation warning: parameter ntrip_settings/rx_input_corrections_serial has been removed, see README under section rtk_settings.");
     }
 
     if (settings_.publish_atteuler)
@@ -545,27 +538,27 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     // VSM - velocity sensor measurements for INS
     if (settings_.septentrio_receiver_type == "ins")
     {
-        param("ins_vsm.ros.source", settings_.ins_vsm.ros_source, std::string(""));
+        param("ins_vsm/ros/source", settings_.ins_vsm.ros_source, std::string(""));
         std::string ipid = "IPS5";
 
         bool ins_use_vsm = false;
         ins_use_vsm = ((settings_.ins_vsm.ros_source == "odometry") ||
                        (settings_.ins_vsm.ros_source == "twist"));
         if (!settings_.ins_vsm.ros_source.empty() && !ins_use_vsm)
-            this->log(log_level::ERROR, "unknown ins_vsm.ros.source " +
+            this->log(log_level::ERROR, "unknown ins_vsm/ros/source " +
                                             settings_.ins_vsm.ros_source +
                                             " -> VSM input will not be used!");
         else if (!settings_.tcp_ip_server.empty())
             ipid = settings_.tcp_ip_server;
 
-        param("ins_vsm.ip_server.id", settings_.ins_vsm.ip_server, ipid);
+        param("ins_vsm/ip_server/id", settings_.ins_vsm.ip_server, ipid);
         if (!settings_.ins_vsm.ip_server.empty())
         {
-            getUint32Param("ins_vsm.ip_server.port",
+            getUint32Param("ins_vsm/ip_server/port",
                            settings_.ins_vsm.ip_server_port,
                            static_cast<uint32_t>(24786));
-            param("ins_vsm.ip_server.keep_open",
-                  settings_.ins_vsm.ip_server_keep_open, true);
+            param("ins_vsm/ip_server/keep_open",
+                  settings_.ins_vsm.ip_server_keep_open, !ins_use_vsm);
             this->log(log_level::INFO,
                       "velocity sensor measurements via ip_server will be used.");
 
@@ -578,19 +571,19 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
             ins_use_vsm = false;
         }
 
-        param("ins_vsm.serial.port", settings_.ins_vsm.serial_port, std::string(""));
+        param("ins_vsm/serial/port", settings_.ins_vsm.serial_port, std::string(""));
         if (!settings_.ins_vsm.serial_port.empty())
         {
-            getUint32Param("ins_vsm.serial.baud_rate",
+            getUint32Param("ins_vsm/serial/baud_rate",
                            settings_.ins_vsm.serial_baud_rate,
                            static_cast<uint32_t>(115200));
-            param("ins_vsm.serial.keep_open", settings_.ins_vsm.serial_keep_open,
+            param("ins_vsm/serial/keep_open", settings_.ins_vsm.serial_keep_open,
                   true);
             this->log(log_level::INFO,
                       "velocity sensor measurements via serial will be used.");
         }
 
-        param("ins_vsm.ros.config", settings_.ins_vsm.ros_config,
+        param("ins_vsm/ros/config", settings_.ins_vsm.ros_config,
               std::vector<bool>());
         if (ins_use_vsm && (settings_.ins_vsm.ros_config.size() == 3))
         {
@@ -601,20 +594,20 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                 ins_use_vsm = false;
                 this->log(
                     log_level::ERROR,
-                    "all elements of ins_vsm.ros.config have been set to false -> VSM input will not be used!");
+                    "all elements of ins_vsm/ros/config have been set to false -> VSM input will not be used!");
             } else
             {
-                param("ins_vsm.ros.variances_by_parameter",
+                param("ins_vsm/ros/variances_by_parameter",
                       settings_.ins_vsm.ros_variances_by_parameter, false);
                 if (settings_.ins_vsm.ros_variances_by_parameter)
                 {
-                    param("ins_vsm.ros.variances", settings_.ins_vsm.ros_variances,
+                    param("ins_vsm/ros/variances", settings_.ins_vsm.ros_variances,
                           std::vector<double>());
                     if (settings_.ins_vsm.ros_variances.size() != 3)
                     {
                         this->log(
                             log_level::ERROR,
-                            "ins_vsm.ros.variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
+                            "ins_vsm/ros/variances has to be of size 3 for var_x, var_y, and var_z -> VSM input will not be used!");
                         ins_use_vsm = false;
                         settings_.ins_vsm.ros_source = "";
                     } else
@@ -627,7 +620,7 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                             {
                                 this->log(
                                     log_level::ERROR,
-                                    "ins_vsm.ros.config of element " +
+                                    "ins_vsm/ros/config of element " +
                                         std::to_string(i) +
                                         " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
                                 settings_.ins_vsm.ros_config[i] = false;
@@ -642,7 +635,7 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                         settings_.ins_vsm.ros_source = "";
                         this->log(
                             log_level::ERROR,
-                            "all elements of ins_vsm.ros.config have been set to false due to invalid covariances -> VSM input will not be used!");
+                            "all elements of ins_vsm/ros/config have been set to false due to invalid covariances -> VSM input will not be used!");
                     }
                 }
             }
@@ -651,11 +644,11 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
             settings_.ins_vsm.ros_source = "";
             this->log(
                 log_level::ERROR,
-                "ins_vsm.ros.config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
+                "ins_vsm/ros/config has to be of size 3 to signal wether to use v_x, v_y, and v_z -> VSM input will not be used!");
         }
         if (ins_use_vsm)
         {
-            this->log(log_level::INFO, "ins_vsm.ros.source " +
+            this->log(log_level::INFO, "ins_vsm/ros/source " +
                                            settings_.ins_vsm.ros_source +
                                            " will be used.");
             registerSubscriber();
@@ -741,8 +734,8 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
         try
         {
             // try to get tf from source frame to target frame
-            T_s_t =
-                tfBuffer_.lookupTransform(targetFrame, sourceFrame, rclcpp::Time(0));
+            T_s_t = tfBuffer_.lookupTransform(targetFrame, sourceFrame, ros::Time(0),
+                                              ros::Duration(2.0));
             found = true;
         } catch (const tf2::TransformException& ex)
         {
@@ -750,8 +743,6 @@ void rosaic_node::ROSaicNode::getTransform(const std::string& targetFrame,
                                            " to " + targetFrame + ": " + ex.what() +
                                            ".");
             found = false;
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(2000ms);
         }
     }
 }
@@ -772,9 +763,13 @@ void rosaic_node::ROSaicNode::sendVelocity(const std::string& velNmea)
     IO_.sendVelocity(velNmea);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "septentrio_gnss");
 
-// Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable
-// when its library is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(rosaic_node::ROSaicNode)
+    rosaic_node::ROSaicNode
+        rx_node; // This launches everything we need, in theory :)
+    ros::spin();
+
+    return 0;
+}

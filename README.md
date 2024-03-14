@@ -3,7 +3,7 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts drivers for ROS (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. The ROS 2 version is available in this branch, whereas the ROS 1 version is available in the branch `master`.
+This repository hosts drivers for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. Both ROS 1 and ROS 2 are supported within one repository.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
@@ -12,75 +12,42 @@ Main Features:
 - Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
 - Can blend SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic` and `DOP` in order to publish `gps_common/GPSFix` and `sensor_msgs/NavSatFix` messages
-- Supports axis convention conversion as Septentrio follows the NED convention, whereas ROS is ENU.
+- Supports optional axis convention conversion since Septentrio follows the NED convention, whereas ROS is ENU.
 - Easy configuration of multiple RTK corrections simultaneously (via NTRIP, TCP/IP stream, or serial)
 - Can play back PCAP capture logs for testing purposes
-- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+ and the AsteRx-SBi3 Pro receiver
+- Tested with the mosaic-X5, mosaic-H, AsteRx-m3 Pro+, AsteRx-SB Pro+ and the AsteRx-SBi3 Pro receiver
 - Easy to add support for more log types
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately.
 
-## Dependencies
-The `ros2` branch for this driver functions on ROS Foxy, Galactic, Rolling, and Humble (Ubuntu 20.04 or 22.04 respectively). It is thus necessary to [install](https://docs.ros.org/en/humble/index.html) the ROS version that has been designed for your Linux distro.<br><br>
-Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
-`sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
-The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
-`sudo apt install libboost-all-dev`.<br><br>
-Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
-`sudo apt install libpcap-dev`.<br><br>
-Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
-`sudo apt install libgeographic-dev`
-
 ## Usage
-<details>
-<summary>Binary Install</summary>
-  
-  The binary release is now available for Foxy and Galactic. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
-</details>
 
-<details>
-<summary>Build from Source </summary>
-  
-  The package has to be built from source using [`colcon`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html):
-
-  ```
-  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
-  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
-  cd ~/septentrio/src
-  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
-  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-msgs libboost-all-dev libpcap-dev libgeographic-dev`)  
-  colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with installing by symlinks: add `--symlink-install`
-  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
-  source ~/.bashrc 
-  ```
-
-  Run tests
-  ```
-  colcon test --packages-select septentrio_gnss_driver --event-handlers console_direct+
-  ```
-</details>
-
+### Important notes
 <details>
 <summary>Notes Before Usage</summary>
 
-  + In your bash sessions, navigating to the ROSaic package can be achieved from anywhere with no more effort than `roscd septentrio_gnss_driver`. 
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.
-  + ROSaic only works from C++17 onwards due to std::any() etc.  
+  + Note for serial connection: Make sure the user is part of the `dialout` group to have full access to the serial ports. If not, add it for example with `sudo adduser [username] dialout`.
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
-  + Once the colcon build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one. Launch as composition with `ros2 launch septentrio_gnss_driver rover.launch.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.launch.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
+  + Note for usage of NTRIP via USB with virtual ethernet (RNDIS): RNDIS provides a virtual network connection only between the receiver and the PC. First outgoing network access via USB has to be activated, which is explained [here](https://www.youtube.com/watch?v=bUt8cL9Ue1Y). Next setup internet sharing under Linux by setting the connection of the virtual network interface (the name should be something like enx1a3202991545) to "Shared to other computers".
+  + Once the build or binary installation is finished, adapt the `config/rover.yaml` file according to your needs or assemble a new one, examples for GNSS specific parameters `config/gnss.yaml` and INS `config/ins.yaml` are also available. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.<br> 
+  ROS 1: Launch the `launch/rover.launch` to use `rover.yaml` or add  `param_file_name:=xxx` to use a custom config.<br> 
+  ROS 2: Launch as composition with `ros2 launch septentrio_gnss_driver rover.launch.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.launch.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
   - NOTE: Unless `configure_rx` is set to `false`, this driver will overwrite the previous values of the parameters, even if the value is left to zero in the "yaml" file.
   + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.    
     * GNSS with firmware < 4.12.1 does not support OSNMA.
+    * GNSS with firmware < 4.14 does not support PTP server clock.
+    * INS with firmware <= 1.2.0 does not support velocity aiding.
+    * INS with firmware <= 1.2.0 does not support setting of initial heading.
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
-    * INS with firmware 1.2.0 does not support velocity aiding.
-    * INS with firmware 1.2.0 does not support setting of initial heading.
+    * INS does not support PTP server clock as of now.
  + Known issues:
-    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS it will be fixed in to-be-released 1.4.1 (expected in November 2023).
+    * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS is fixed in 1.4.1 (released November 2023).
   + If `use_ros_axis_orientation` to `true` axis orientations are converted by the driver between NED (Septentrio: yaw = 0 is north, positive clockwise) and ENU (ROS: yaw = 0 is east, positive counterclockwise). There is no conversion when setting this parameter to `false` and the angles will be consistent with the web GUI in this case.
   :<br>
   
@@ -93,16 +60,18 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     baudrate: 921600
     hw_flow_control: "off"
 
-  tcp:
-    ip_server: ""
-    port: 0
-
-  udp:
-    ip_server: ""
-    port: 0
-    unicast_ip: ""
+  stream_device:
+    tcp:
+      ip_server: ""
+      port: 0
+    udp:
+      ip_server: ""
+      port: 0
+      unicast_ip: ""
 
   configure_rx: true
+
+  custom_commands_file: ""
   
   login:
     user: ""
@@ -160,7 +129,8 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
     rest: 500
 
   use_gnss_time: false
-
+  ntp_server: false
+  ptp_server_clock: false
   latency_compensation: false
 
   rtk_settings:
@@ -216,7 +186,9 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
       keep_open: true
 
   publish:
-    # For both GNSS and INS Rxs
+    # For both GNSS and INS Rxs 
+    auto_publish: false
+    publish_only_valid: false
 	  navsatfix: false
     gpsfix: true
     gpgga: false
@@ -301,8 +273,76 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
 
   activate_debug_log: false
   ```
-  In order to launch ROSaic, one must specify all `arg` fields of the `rover.py` file which have no associated default values, i.e. for now only the `file_name` field. Hence, the launch command reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. This can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.py`and `rover_node.py` respectively.
+  In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
 
+</details>
+
+### Dependencies
+<details>
+<summary>ROS</summary>
+This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
+[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
+
+### Installation via apt
+<details>
+<summary>Binary Install</summary>
+  
+  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
+</details>
+
+### Build from source
+<details>
+<summary>Build</summary>
+
+  + Building ROSaic only works from C++17 onwards due to the usage of std::any() etc.
+
+  #### Dependencies for development
+  Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
+  ROS 1: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-common`.<br><br>
+  ROS 2: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
+  The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
+  `sudo apt install libboost-all-dev`.<br><br>
+  Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
+  `sudo apt install libgeographic-dev`<br><br>
+  Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
+  `sudo apt install libpcap-dev`.<br><br>
+
+  #### ROS 1
+  For ROS 1, the package can be built from source using [`catkin_tools`](https://catkin-tools.readthedocs.io/en/latest/installing.html), where the latter can be installed using the command
+  `sudo apt-get install python-catkin-tools` for Melodic or `sudo apt-get install python3-catkin-tools` for Noetic. The typical `catkin_tools` [workflow](https://catkin-tools.readthedocs.io/en/latest/quick_start.html) should suffice:
+
+  ```
+  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
+  cd ~/septentrio
+  catkin init                                                         # Initialize with a hidden marker file
+  catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo        # CMake build types pass compiler-specific flags to your compiler. This type amounts to a release with debug info, while keeping debugging symbols and doing optimization. I.e. for GCC the flags would be -O2, -g and -DNDEBUG.
+  cd src
+  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
+  rosdep install . --from-paths -i                                    # Might raise "rosaic: Unsupported OS [mint]" warning, if your OS is Linux Mint, since rosdep does not know Mint (and possible other OSes). In that case, add the "--os=ubuntu:saucy" option to "fool" rosdep into believing it faces some Ubuntu version. The syntax is "--os=OS_NAME:OS_VERSION".
+  catkin build                                                        # If catkin cannot find empty, tell catkin to use Python 3 by adding "-DPYTHON_EXECUTABLE=/usr/bin/python3".
+  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
+  source ~/.bashrc 
+  ```
+  
+  #### ROS 2
+  For ROS 2, The package has to be built from source using [`colcon`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html):
+
+  ```
+  source /opt/ros/${ROS_DISTRO}/setup.bash                            # In case you do not use the default shell of Ubuntu, you need to source another script, e.g. setup.sh.
+  mkdir -p ~/septentrio/src                                           # Note: Change accordingly depending on where you want your package to be installed.
+  cd ~/septentrio/src
+  git clone https://github.com/septentrio-gnss/septentrio_gnss_driver
+  git checkout ros2                                                   # Install mentioned dependencies (`sudo apt install ros-$ROS_DISTRO-nmea_msgs ros-$ROS_DISTRO-gps-msgs libboost-all-dev libpcap-dev libgeographic-dev`)  
+  colcon build --packages-up-to septentrio_gnss_driver                # Be sure to call colcon build in the root folder of your workspace. Launch files are installed, so changing them on the fly in the source folder only works with installing by symlinks: add `--symlink-install`
+  echo "source ~/septentrio/devel/setup.bash" >> ~/.bashrc            # It is convenient if the ROS environment variable is automatically added to your bash session every time a new shell is launched. Again, this works for bash shells only. Also note that if you have more than one ROS distribution installed, ~/.bashrc must only source the setup.bash for the version you are currently using.
+  source ~/.bashrc 
+  ```
+
+  Run tests
+  ```
+  colcon test --packages-select septentrio_gnss_driver --event-handlers console_direct+
+  ```
 </details>
 
 # Inertial Navigation System (INS): Basics
@@ -342,15 +382,15 @@ Conversions from LLA to UTM are incorporated through [GeographicLib](https://geo
   - For further more information about Septentrio receivers, visit Septentrio [support resources](https://www.septentrio.com/en/supportresources) or check out the [user manual](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) and [reference guide](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf) of the AsteRx SBi3 receiver.
 
 # ROSaic Parameters
-The following is a list of ROSaic parameters found in the `config/rover.yaml` file.
+The following is a list of ROSaic parameters found in the `config/rover.yaml` file. Note, that in the following nested parameters are depicted in ROS 2 style, i.e., using a `.` as delimiter, whereas in ROS 1 the delimiter is a `/`.
 * Parameters Configuring Communication Ports and Processing of GNSS and INS Data
   <details>
   <summary>Connectivity Specs</summary>
 
   + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. Incoming data streams of SBF blocks and NMEA sentences are recevied either via this interface or a static IP server for TCP and/or UDP. The former will be utilized if section `stream_device.tcp` and `stream_device.udp` are not configured.
     + `serial:xxx` format for serial connections,where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
-    + `file_name:path/to/file.sbf` format for publishing from an SBF log
-    + `file_name:path/to/file.pcap` format for publishing from PCAP capture.
+    + `file_name:path/to/file.sbf` format for publishing from an SBF log. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the sbf log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
+    + `file_name:path/to/file.pcap` format for publishing from PCAP capture. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the pcap log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
@@ -373,6 +413,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   + `login`: credentials for user authentication to perform actions not allowed to anonymous users. Leave empty for anonymous access.
     + `user`: user name
     + `password`: password
+  + `custom_commands_file`: path to a file containing custom commands to be sent to the Rx. The file shall contain one command per line. Be **very** careful using this command, since commands are sent to the Rx without further checks.
   </details>
 
   <details>
@@ -496,8 +537,12 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>Time Systems</summary>
   
-  + `use_gnss_time`:  `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, make sure the ROS system is synchronized to an NTP time server either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. The NTP server of the receiver is automatically activated on the Septentrio receiver (for INS/GNSS a firmware >= 1.3.3 is needed).
-    + default: `true`
+  + `use_gnss_time`: `true` if the ROS message headers' unix epoch time field shall be constructed from the TOW/WNC (in the SBF case) and UTC (in the NMEA case) data, `false` if those times shall be taken by the driver from ROS time. If `use_gnss_time` is set to `true`, it is **imperative** that the ROS system is synchronized to an NTP time server or PTP clock either via internet or ideally via the Septentrio receiver since the latter serves as a Stratum 1 time server not dependent on an internet connection. If this is not followed, the time stamps may drift apart!
+    + default: `false`
+  + `ntp_server`: Wether the NTP server shall be activated.
+    + default: `false`
+  + `ptp_server_clock`: Wether the PTP server slcok hall be activated.
+    + default: `false`
   + `latency_compensation`: Rx reports processing latency in PVT and INS blocks. If set to `true`this latency is subtracted from ROS timestamps in related blocks (i.e., `use_gnss_time` set to `false`). Related blocks are INS, PVT, Covariances, and BaseVectors. In case of `use_gnss_time` set to `true`, the latency is already compensated within the RX and included in the reported timestamps.
     + default: `false`
   </details>
@@ -587,7 +632,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config.poi_lever_arm`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
-    + `ins_vsm`: Configuration of the velocity sensor measurements.
+    + `ins_vsm`: Configuration of the velocity sensor measurements. IP server may be used to receive velocity information from ROS or from an external device. Serial connection may be used to receive velocity information from an external device only.
       + `ros`: VSM info received from ROS msgs
         + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to the frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`.
           + default: ""
@@ -598,10 +643,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
           + default: []
       + `ip_server`:
-        + `id`: IP server to receive the VSM info (e.g. `IPS2`).
-            + default: ""
+        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` my be set to the same. 
+            + default: "IPS5"
         + `port`: TCP port to receive the VSM info. When selecting a port number, make sure to avoid conflicts with other services.
-          + default: 0
+          + default: 24786
         + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
           + default: `true`
       + `serial`:
@@ -623,6 +668,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
+    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
+    + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
@@ -686,7 +733,8 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its block header.
   + `/navsatfix`: publishes generic ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`,`PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case)
     + The ROS message [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) can be fed directly into the [`navsat_transform_node`](https://docs.ros.org/en/api/robot_localization/html/navsat_transform_node.html) of the ROS navigation stack.
-  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `DOP` (INS case). In order to publish heading information, the field *dip* is diverted from its intended meaning an populated with the heading angle and *err_dip* with its uncertainty.
+  + `/gpsfix`: publishes generic ROS message [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg), which is much more detailed than [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `ChannelStatus`, `MeasEpoch`, `AttEuler`, `AttCovEuler`, `VelCovGeodetic`, `DOP` (GNSS case) or `INSNavGeod`, `ChannelStatus`, `MeasEpoch`, `DOP` (INS case). In order to publish heading information, the field *dip* is diverted from its intended meaning an populated with the heading angle and *err_dip* with its uncertainty.
+    + INS case: **Beware**, in order to allow a high update rate, `ChannelStatus`, `MeasEpoch`, and `DOP` are not time aligned, i.e., they might contain outdated information.
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case).
     + Note that GNSS provides absolute positioning, while robots are often localized within a local level cartesian frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), i.e. not a cartesian frame, while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
   + `/twist`: publishes generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic` and `VelCovGeodetic`.

@@ -58,127 +58,78 @@
 
 #pragma once
 
-// Boost includes
-#include <boost/asio.hpp>
-#include <boost/asio/serial_port.hpp>
-// C++ library includes
-#include <fstream>
-#include <memory>
-#include <sstream>
+/**
+ * @file rosaic_node.hpp
+ * @date 21/08/20
+ * @brief The heart of the ROSaic driver: The ROS node that represents it
+ */
+
+// ROS includes
+#include <ros/console.h>
+#include <ros/ros.h>
+// tf2 includes
+#include <tf2_ros/transform_listener.h>
 // ROSaic includes
-#include <septentrio_gnss_driver/communication/async_manager.hpp>
-#include <septentrio_gnss_driver/communication/telegram_handler.hpp>
+#include <septentrio_gnss_driver/communication/communication_core.hpp>
 
 /**
- * @file communication_core.hpp
- * @date 22/08/20
- * @brief Highest-Level view on communication services
+ * @namespace rosaic_node
+ * This namespace is for the ROSaic node, handling all aspects regarding
+ * ROS parameters, ROS message publishing etc.
  */
-
-/**
- * @namespace io
- * This namespace is for the communication interface, handling all aspects related to
- * serial and TCP/IP communication..
- */
-namespace io {
-
-    //! Possible baudrates for the Rx
-    const static uint32_t BAUDRATES[] = {
-        1200,    2400,    4800,    9600,    19200,   38400,   57600,
-        115200,  230400,  460800,  500000,  576000,  921600,  1000000,
-        1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000};
-
+namespace rosaic_node {
     /**
-     * @class CommunicationCore
-     * @brief Handles communication with and configuration of the mosaic (and beyond)
-     * receiver(s)
+     * @class ROSaicNode
+     * @brief This class represents the ROsaic node, to be extended..
      */
-    class CommunicationCore
+    class ROSaicNode : ROSaicNodeBase
     {
     public:
-        /**
-         * @brief Constructor of the class CommunicationCore
-         * @param[in] node Pointer to node
-         */
-        CommunicationCore(ROSaicNodeBase* node);
-        /**
-         * @brief Default destructor of the class CommunicationCore
-         */
-        ~CommunicationCore();
-
-        /**
-         * @brief Connects the data stream
-         */
-        void connect();
-
-        /**
-         * @brief Configures Rx: Which SBF/NMEA messages it should output and later
-         * correction settings
-         * */
-        void configureRx();
-
-        /**
-         * @brief Hands over NMEA velocity message over to the send() method of
-         * manager_
-         * @param cmd The command to hand over
-         */
-        void sendVelocity(const std::string& velNmea);
+        //! The constructor initializes and runs the ROSaic node, if everything works
+        //! fine. It loads the user-defined ROS parameters, subscribes to Rx
+        //! messages, and publishes requested ROS messages...
+        ROSaicNode();
 
     private:
         /**
-         * @brief Resets Rx settings
+         * @brief Gets the node parameters from the ROS Parameter Server, parts of
+         * which are specified in a YAML file
+         *
+         * The other ROSaic parameters are specified via the command line.
          */
-        void resetSettings();
-
+        [[nodiscard]] bool getROSParams();
         /**
-         * @brief Initializes the I/O handling
-         * * @return Wether connection was successful
+         * @brief Checks if the period has a valid value
+         * @param[in] period period [ms]
+         * @param[in] isIns wether recevier is an INS
+         * @return wether the period is valid
          */
-        [[nodiscard]] bool initializeIo();
-
+        [[nodiscard]] bool validPeriod(uint32_t period, bool isIns) const;
         /**
-         * @brief Reset main connection so it can receive commands
-         * @return Main connection descriptor
+         * @brief Gets transforms from tf2
+         * @param[in] targetFrame traget frame id
+         * @param[in] sourceFrame source frame id
+         * @param[out] T_s_t transfrom from source to target
          */
-        std::string resetMainConnection();
-
-        void processTelegrams();
-
+        void getTransform(const std::string& targetFrame,
+                          const std::string& sourceFrame,
+                          TransformStampedMsg& T_s_t) const;
         /**
-         * @brief Hands over to the send() method of manager_
-         * @param cmd The command to hand over
+         * @brief Gets Euler angles from quaternion message
+         * @param[in] qm quaternion message
+         * @param[out] roll roll angle
+         * @param[out] pitch pitch angle
+         * @param[out] yaw yaw angle
          */
-        void send(const std::string& cmd);
+        void getRPY(const QuaternionMsg& qm, double& roll, double& pitch,
+                    double& yaw) const;
 
-        //! Pointer to Node
-        ROSaicNodeBase* node_;
-        //! Settings
-        const Settings* settings_;
-        //! TelegramQueue
-        TelegramQueue telegramQueue_;
-        //! TelegramHandler
-        TelegramHandler telegramHandler_;
-        //! Processing thread
-        std::thread processingThread_;
-        //! Whether connecting was successful
-        bool initializedIo_ = false;
-        //! Processes I/O stream data
-        //! This declaration is deliberately stream-independent (Serial or TCP).
-        std::unique_ptr<AsyncManagerBase> manager_;
+        void sendVelocity(const std::string& velNmea);
 
-        std::unique_ptr<AsyncManager<TcpIo>> tcpClient_;
-        std::unique_ptr<UdpClient> udpClient_;
-
-        std::unique_ptr<AsyncManager<TcpIo>> tcpVsm_;
-
-        bool nmeaActivated_ = false;
-
-        //! Indicator for threads to run
-        std::atomic<bool> running_;
-
-        //! Main communication port
-        std::string mainConnectionPort_;
-        // Port for receiving data streams
-        std::string streamPort_;
+        //! Handles communication with the Rx
+        io::CommunicationCore IO_;
+        //! tf2 buffer and listener
+        tf2_ros::Buffer tfBuffer_;
+        std::unique_ptr<tf2_ros::TransformListener> tfListener_;
     };
-} // namespace io
+} // namespace rosaic_node

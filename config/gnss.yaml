@@ -23,6 +23,8 @@ login:
   user: ""
   password: ""
 
+custom_commands_file: ""
+
 osnma:
   mode: "loose"
   ntp_server: ""
@@ -52,13 +54,16 @@ ant_aux1_type: "Unknown"
 ant_aux1_serial_nr: "Unknown"
 
 polling_period:
-  pvt: 0
+  pvt: 100
   rest: 500
 
+# time
 use_gnss_time: false
+ntp_server: true
+ptp_server_clock: false
+latency_compensation: true
 
-latency_compensation: false
-
+# RTK
 rtk_settings:  
   ntrip_1:
     id: ""
@@ -88,6 +93,8 @@ rtk_settings:
 
 publish:
   # For both GNSS and INS Rxs
+  auto_publish: false
+  publish_only_valid: false
   navsatfix: true
   gpsfix: true
   gpgga: true

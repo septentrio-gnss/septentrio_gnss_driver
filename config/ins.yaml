@@ -23,6 +23,8 @@ login:
   user: ""
   password: ""
 
+custom_commands_file: ""
+
 osnma:
   mode: "loose"
   ntp_server: ""
@@ -69,10 +71,12 @@ polling_period:
   pvt: 0
   rest: 500
 
+# time
 use_gnss_time: false
+ntp_server: true
+latency_compensation: true
 
-latency_compensation: false
-
+# RTK
 rtk_settings:
   keep_open: true
   ntrip_1:
@@ -100,6 +104,8 @@ rtk_settings:
 
 publish:
   # For both GNSS and INS Rxs
+  auto_publish: false
+  publish_only_valid: false
   navsatfix: false
   gpsfix: false
   gpgga: false
