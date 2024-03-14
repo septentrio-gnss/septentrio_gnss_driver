@@ -148,7 +148,7 @@ namespace io {
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
-        void send(const std::string&);
+        void send(const std::string& cmd);
 
         //! Pointer to Node
         ROSaicNodeBase* node_;
@@ -168,6 +168,8 @@ namespace io {
 
         std::unique_ptr<AsyncManager<TcpIo>> tcpClient_;
         std::unique_ptr<UdpClient> udpClient_;
+
+        std::unique_ptr<AsyncManager<TcpIo>> tcpVsm_;
 
         bool nmeaActivated_ = false;
 

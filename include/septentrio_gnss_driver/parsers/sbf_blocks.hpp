@@ -65,6 +65,7 @@ static const uint8_t SBF_SYNC_2 = 0x40;
 
 // C++
 #include <algorithm>
+#include <type_traits>
 // Boost
 #include <boost/spirit/include/qi.hpp>
 // ROSaic
@@ -255,31 +256,6 @@ static const std::array<uint16_t, 256> CRC_LOOK_UP = {
     0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 namespace qi = boost::spirit::qi;
-
-/**
- * validValue
- * @brief Check if value is not set to Do-Not-Use
- */
-template <typename T>
-[[nodiscard]] bool validValue(T s)
-{
-    static_assert(std::is_same<uint16_t, T>::value ||
-                  std::is_same<uint32_t, T>::value ||
-                  std::is_same<float, T>::value || std::is_same<double, T>::value);
-    if (std::is_same<uint16_t, T>::value)
-    {
-        return (s != static_cast<uint16_t>(65535));
-    } else if (std::is_same<uint32_t, T>::value)
-    {
-        return (s != 4294967295u);
-    } else if (std::is_same<float, T>::value)
-    {
-        return (!std::isnan(s) && (s != -2e10f));
-    } else if (std::is_same<double, T>::value)
-    {
-        return (!std::isnan(s) && (s != -2e10));
-    }
-}
 
 /**
  * setDoNotUse

@@ -94,6 +94,7 @@
 #include <septentrio_gnss_driver/msg/vel_sensor_setup.hpp>
 // Rosaic includes
 #include <septentrio_gnss_driver/communication/settings.hpp>
+#include <septentrio_gnss_driver/parsers/sbf_utilities.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 
 // Timestamp in nanoseconds (Unix epoch)
@@ -206,16 +207,22 @@ public:
     {
         try
         {
-            if (settings_.ins_vsm_ros_source == "odometry")
+            if (settings_.ins_vsm.ros_source == "odometry")
                 odometrySubscriber_ =
                     this->create_subscription<nav_msgs::msg::Odometry>(
-                        "odometry_vsm", 10,
+                        "odometry_vsm",
+                        rclcpp::QoS(rclcpp::KeepLast(1))
+                            .durability_volatile()
+                            .best_effort(),
                         std::bind(&ROSaicNodeBase::callbackOdometry, this,
                                   std::placeholders::_1));
-            else if (settings_.ins_vsm_ros_source == "twist")
+            else if (settings_.ins_vsm.ros_source == "twist")
                 twistSubscriber_ =
                     this->create_subscription<TwistWithCovarianceStampedMsg>(
-                        "twist_vsm", 10,
+                        "twist_vsm",
+                        rclcpp::QoS(rclcpp::KeepLast(1))
+                            .durability_volatile()
+                            .best_effort(),
                         std::bind(&ROSaicNodeBase::callbackTwist, this,
                                   std::placeholders::_1));
         } catch (const std::runtime_error& ex)
@@ -313,6 +320,12 @@ public:
     template <typename M>
     void publishMessage(const std::string& topic, const M& msg)
     {
+        if constexpr (has_block_header<M>::value)
+        {
+            if (settings_.publish_only_valid && !validValue(msg.block_header.tow))
+                return;
+        }
+
         auto it = topicMap_.find(topic);
         if (it != topicMap_.end())
         {
@@ -321,8 +334,10 @@ public:
             ptr->publish(msg);
         } else
         {
-            typename rclcpp::Publisher<M>::SharedPtr pub =
-                this->create_publisher<M>(topic, queueSize_);
+            typename rclcpp::Publisher<M>::SharedPtr pub = this->create_publisher<M>(
+                topic, rclcpp::QoS(rclcpp::KeepLast(queueSize_))
+                           .durability_volatile()
+                           .reliable());
             topicMap_.insert(std::make_pair(topic, pub));
             pub->publish(msg);
         }
@@ -485,12 +500,12 @@ private:
             std::string std_x;
             std::string std_y;
             std::string std_z;
-            if (settings_.ins_vsm_ros_config[0])
+            if (settings_.ins_vsm.ros_config[0])
             {
                 v_x = string_utilities::trimDecimalPlaces(vel[0]);
-                if (settings_.ins_vsm_ros_variances_by_parameter)
+                if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_x = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm_ros_variances[0]);
+                        settings_.ins_vsm.ros_variances[0]);
                 else if (var[0] > 0.0)
                     std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
                 else if (!capabilities_.has_improved_vsm_handling)
@@ -503,14 +518,14 @@ private:
                 }
             } else
                 std_x = std::to_string(1000000.0);
-            if (settings_.ins_vsm_ros_config[1])
+            if (settings_.ins_vsm.ros_config[1])
             {
                 if (settings_.use_ros_axis_orientation)
                     v_y = "-";
                 v_y += string_utilities::trimDecimalPlaces(vel[1]);
-                if (settings_.ins_vsm_ros_variances_by_parameter)
+                if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_y = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm_ros_variances[1]);
+                        settings_.ins_vsm.ros_variances[1]);
                 else if (var[1] > 0.0)
                     std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
                 else if (!capabilities_.has_improved_vsm_handling)
@@ -523,14 +538,14 @@ private:
                 }
             } else
                 std_y = string_utilities::trimDecimalPlaces(1000000.0);
-            if (settings_.ins_vsm_ros_config[2])
+            if (settings_.ins_vsm.ros_config[2])
             {
                 if (settings_.use_ros_axis_orientation)
                     v_z = "-";
                 v_z += string_utilities::trimDecimalPlaces(vel[2]);
-                if (settings_.ins_vsm_ros_variances_by_parameter)
+                if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_z = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm_ros_variances[2]);
+                        settings_.ins_vsm.ros_variances[2]);
                 else if (var[2] > 0.0)
                     std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
                 else if (!capabilities_.has_improved_vsm_handling)

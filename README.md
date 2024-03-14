@@ -186,7 +186,9 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
       keep_open: true
 
   publish:
-    # For both GNSS and INS Rxs
+    # For both GNSS and INS Rxs 
+    auto_publish: false
+    publish_only_valid: false
 	  navsatfix: false
     gpsfix: true
     gpgga: false
@@ -630,7 +632,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config.poi_lever_arm`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
       + default: `true`
-    + `ins_vsm`: Configuration of the velocity sensor measurements.
+    + `ins_vsm`: Configuration of the velocity sensor measurements. IP server may be used to receive velocity information from ROS or from an external device. Serial connection may be used to receive velocity information from an external device only.
       + `ros`: VSM info received from ROS msgs
         + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to the frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`.
           + default: ""
@@ -641,10 +643,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
           + default: []
       + `ip_server`:
-        + `id`: IP server to receive the VSM info (e.g. `IPS2`).
-            + default: ""
+        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` my be set to the same. 
+            + default: "IPS5"
         + `port`: TCP port to receive the VSM info. When selecting a port number, make sure to avoid conflicts with other services.
-          + default: 0
+          + default: 24786
         + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
           + default: `true`
       + `serial`:
@@ -666,6 +668,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
+    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
+    + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`

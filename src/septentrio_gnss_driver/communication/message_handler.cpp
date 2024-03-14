@@ -204,6 +204,9 @@ namespace io {
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
+        if (last_receiverstatus_.rx_error & (1 << 9))
+            node_->log(log_level::DEBUG, " RX has reported CPU overload!");
+
         if (!settings_->publish_diagnostics)
             return;
 
@@ -319,6 +322,33 @@ namespace io {
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+        DiagnosticStatusMsg receiver_status;
+        receiver_status.hardware_id = serialnumber;
+        receiver_status.name = "septentrio_driver: receiver status";
+        receiver_status.message = "Receiver status";
+        receiver_status.values.resize(5);
+        receiver_status.values[0].key = "ExtError";
+        receiver_status.values[0].value =
+            std::to_string(last_receiverstatus_.ext_error);
+        receiver_status.values[1].key = "RxError";
+        receiver_status.values[1].value =
+            std::to_string(last_receiverstatus_.rx_error);
+        receiver_status.values[2].key = "RxStatus";
+        receiver_status.values[2].value =
+            std::to_string(last_receiverstatus_.rx_status);
+        receiver_status.values[3].key = "Uptime in s";
+        receiver_status.values[3].value =
+            std::to_string(last_receiverstatus_.up_time);
+        receiver_status.values[4].key = "CPU load in %";
+        receiver_status.values[4].value =
+            std::to_string(last_receiverstatus_.cpu_load);
+        if ((last_receiverstatus_.rx_error & (1 << 9)))
+            receiver_status.level = DiagnosticStatusMsg::ERROR;
+        else if ((last_receiverstatus_.rx_status & (1 << 8)))
+            receiver_status.level = DiagnosticStatusMsg::WARN;
+        else
+            receiver_status.level = DiagnosticStatusMsg::OK;
+        msg.status.push_back(receiver_status);
         std::string frame_id;
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -548,85 +578,74 @@ namespace io {
         msg.angular_velocity.z = deg2rad(last_extsensmeas_.angular_rate_z);
 
         bool valid_orientation = false;
-        if (settings_->septentrio_receiver_type == "ins")
+        if (validValue(last_insnavgeod_.block_header.tow))
         {
-            if (validValue(last_insnavgeod_.block_header.tow))
-            {
-                // INS tow and extsens meas tow have the same time scale
-                Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
-                                               last_extsensmeas_.block_header.wnc);
-                Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
-                                               last_insnavgeod_.block_header.wnc);
+            // INS tow and extsens meas tow have the same time scale
+            Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
+                                           last_extsensmeas_.block_header.wnc);
+            Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
+                                           last_insnavgeod_.block_header.wnc);
 
-                static int64_t maxDt = (settings_->polling_period_pvt == 0)
-                                           ? 10000000
-                                           : settings_->polling_period_pvt * 1000000;
-                if ((tsImu - tsIns) > maxDt)
-                {
-                    valid_orientation = false;
-                } else
-                {
-                    if ((last_insnavgeod_.sb_list & 2) != 0)
-                    {
-                        // Attitude
-                        if (validValue(last_insnavgeod_.heading) &&
-                            validValue(last_insnavgeod_.pitch) &&
-                            validValue(last_insnavgeod_.roll))
-                        {
-                            msg.orientation = convertEulerToQuaternionMsg(
-                                deg2rad(last_insnavgeod_.roll),
-                                deg2rad(last_insnavgeod_.pitch),
-                                deg2rad(last_insnavgeod_.heading));
-                        } else
-                        {
-                            valid_orientation = false;
-                        }
-                    } else
-                    {
-                        valid_orientation = false;
-                    }
-                    if ((last_insnavgeod_.sb_list & 4) != 0)
-                    {
-                        // Attitude autocov
-                        if (validValue(last_insnavgeod_.roll_std_dev) &&
-                            validValue(last_insnavgeod_.pitch_std_dev) &&
-                            validValue(last_insnavgeod_.heading_std_dev))
-                        {
-                            msg.orientation_covariance[0] =
-                                square(deg2rad(last_insnavgeod_.roll_std_dev));
-                            msg.orientation_covariance[4] =
-                                square(deg2rad(last_insnavgeod_.pitch_std_dev));
-                            msg.orientation_covariance[8] =
-                                square(deg2rad(last_insnavgeod_.heading_std_dev));
-                        } else
-                        {
-                            valid_orientation = false;
-                        }
-                    } else
-                    {
-                        valid_orientation = false;
-                    }
-                    if ((last_insnavgeod_.sb_list & 64) != 0)
-                    {
-                        // Attitude cov
-                        msg.orientation_covariance[1] =
-                            deg2radSq(last_insnavgeod_.pitch_roll_cov);
-                        msg.orientation_covariance[2] =
-                            deg2radSq(last_insnavgeod_.heading_roll_cov);
-                        msg.orientation_covariance[3] =
-                            deg2radSq(last_insnavgeod_.pitch_roll_cov);
-
-                        msg.orientation_covariance[5] =
-                            deg2radSq(last_insnavgeod_.heading_pitch_cov);
-                        msg.orientation_covariance[6] =
-                            deg2radSq(last_insnavgeod_.heading_roll_cov);
-                        msg.orientation_covariance[7] =
-                            deg2radSq(last_insnavgeod_.heading_pitch_cov);
-                    }
-                }
-            } else
+            static int64_t maxDt = (settings_->polling_period_pvt == 0)
+                                       ? 10000000
+                                       : settings_->polling_period_pvt * 1000000;
+            if ((tsImu - tsIns) > maxDt)
             {
                 valid_orientation = false;
+            } else
+            {
+                if ((last_insnavgeod_.sb_list & 2) != 0)
+                {
+                    // Attitude
+                    if (validValue(last_insnavgeod_.heading) &&
+                        validValue(last_insnavgeod_.pitch) &&
+                        validValue(last_insnavgeod_.roll))
+                    {
+                        msg.orientation = convertEulerToQuaternionMsg(
+                            deg2rad(last_insnavgeod_.roll),
+                            deg2rad(last_insnavgeod_.pitch),
+                            deg2rad(last_insnavgeod_.heading));
+                        valid_orientation = true;
+                    }
+                }
+                if ((last_insnavgeod_.sb_list & 4) != 0)
+                {
+                    // Attitude autocov
+                    if (validValue(last_insnavgeod_.roll_std_dev) &&
+                        validValue(last_insnavgeod_.pitch_std_dev) &&
+                        validValue(last_insnavgeod_.heading_std_dev))
+                    {
+                        msg.orientation_covariance[0] =
+                            square(deg2rad(last_insnavgeod_.roll_std_dev));
+                        msg.orientation_covariance[4] =
+                            square(deg2rad(last_insnavgeod_.pitch_std_dev));
+                        msg.orientation_covariance[8] =
+                            square(deg2rad(last_insnavgeod_.heading_std_dev));
+
+                        if ((last_insnavgeod_.sb_list & 64) != 0)
+                        {
+                            // Attitude cov
+                            msg.orientation_covariance[1] =
+                                deg2radSq(last_insnavgeod_.pitch_roll_cov);
+                            msg.orientation_covariance[2] =
+                                deg2radSq(last_insnavgeod_.heading_roll_cov);
+                            msg.orientation_covariance[3] =
+                                deg2radSq(last_insnavgeod_.pitch_roll_cov);
+
+                            msg.orientation_covariance[5] =
+                                deg2radSq(last_insnavgeod_.heading_pitch_cov);
+                            msg.orientation_covariance[6] =
+                                deg2radSq(last_insnavgeod_.heading_roll_cov);
+                            msg.orientation_covariance[7] =
+                                deg2radSq(last_insnavgeod_.heading_pitch_cov);
+                        }
+                    } else
+                    {
+                        msg.orientation_covariance[0] = -1.0;
+                        msg.orientation_covariance[4] = -1.0;
+                        msg.orientation_covariance[8] = -1.0;
+                    }
+                }
             }
         }
 
@@ -636,9 +655,6 @@ namespace io {
             msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
             msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
             msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation_covariance[0] = -1.0;
-            msg.orientation_covariance[4] = -1.0;
-            msg.orientation_covariance[8] = -1.0;
         }
 
         publish<ImuMsg>("imu", msg);
