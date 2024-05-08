@@ -281,7 +281,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 <details>
 <summary>ROS</summary>
 This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
-[Iron](https://docs.ros.org/en/iron/Installation.html), [Iron](https://docs.ros.org/en/jazzy/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, 22.04, or 24.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
+[Iron](https://docs.ros.org/en/iron/Installation.html), [Jazzy](https://docs.ros.org/en/jazzy/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, 22.04, or 24.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
 
 ### Installation via apt
 <details>
@@ -306,7 +306,7 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
   `sudo apt install libgeographic-dev`<br><br>
   or<br><br>
   `sudo apt install libgeographiclib-dev`<br><br>
-  on Ubunutu 24.04. respectively.<br><br>
+  since Ubunutu 24.04. respectively.<br><br>
   Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
   `sudo apt install libpcap-dev`.<br><br>
 
