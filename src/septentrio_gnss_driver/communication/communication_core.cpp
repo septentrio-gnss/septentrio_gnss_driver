@@ -968,7 +968,7 @@ namespace io {
                 {
                     send("sdio, " + settings_->tcp_ip_server +
                          ", NMEA, +NMEA +SBF\x0D");
-                } else
+                } else if (!settings_->ins_vsm.ip_server.empty())
                 {
                     send("siss, " + settings_->ins_vsm.ip_server + ", " +
                          std::to_string(settings_->ins_vsm.ip_server_port) +

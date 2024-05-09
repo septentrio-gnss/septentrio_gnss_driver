@@ -281,13 +281,13 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 <details>
 <summary>ROS</summary>
 This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
-[Iron](https://docs.ros.org/en/iron/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, or 22.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
+[Iron](https://docs.ros.org/en/iron/Installation.html), [Jazzy](https://docs.ros.org/en/jazzy/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, 22.04, or 24.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
 
 ### Installation via apt
 <details>
 <summary>Binary Install</summary>
   
-  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Rolling,. Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron , and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
+  The binary release is available for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Jazzy, and Rolling). Since Melodic, Foxy, and Galactic are EOL, only Noetic, Humble, Iron, Jazzy, and Rolling will get updated versions. To install the binary package, simply run `sudo apt-get install ros-$ROS_DISTRO-septentrio-gnss-driver`.
 </details>
 
 ### Build from source
@@ -304,6 +304,9 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
   `sudo apt install libboost-all-dev`.<br><br>
   Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
   `sudo apt install libgeographic-dev`<br><br>
+  or<br><br>
+  `sudo apt install libgeographiclib-dev`<br><br>
+  since Ubunutu 24.04. respectively.<br><br>
   Compatiblity with PCAP captures are incorporated through [pcap libraries](https://github.com/the-tcpdump-group/libpcap). Install the necessary headers via<br><br>
   `sudo apt install libpcap-dev`.<br><br>
 

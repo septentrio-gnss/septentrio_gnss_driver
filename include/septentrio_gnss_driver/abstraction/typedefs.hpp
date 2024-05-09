@@ -334,8 +334,10 @@ public:
             ptr->publish(msg);
         } else
         {
-            typename rclcpp::Publisher<M>::SharedPtr pub =
-                this->create_publisher<M>(topic, rclcpp::QoS(queueSize_));
+            typename rclcpp::Publisher<M>::SharedPtr pub = this->create_publisher<M>(
+                topic, rclcpp::QoS(rclcpp::KeepLast(queueSize_))
+                           .durability_volatile()
+                           .reliable());
             topicMap_.insert(std::make_pair(topic, pub));
             pub->publish(msg);
         }
