@@ -443,14 +443,14 @@ public:
     bool hasImprovedVsmHandling() { return capabilities_.has_improved_vsm_handling; }
 
 private:
-    void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr& odo)
+    void callbackOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr odo)
     {
         Timestamp stamp = timestampFromRos(odo->header.stamp);
 
         processTwist(stamp, odo->twist);
     }
 
-    void callbackTwist(const TwistWithCovarianceStampedMsg::ConstSharedPtr& twist)
+    void callbackTwist(const TwistWithCovarianceStampedMsg::ConstSharedPtr twist)
     {
         Timestamp stamp = timestampFromRos(twist->header.stamp);
 
