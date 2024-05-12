@@ -3,26 +3,26 @@ Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1.4.0 (Upcoming)
------------
+------------------
 * New features
-    * Send custom commands via ASCII file on startup
-    * Save config to boot after setup
-    * NTP and PTP server options (BREAKING: NTP is not setup automatically for `use_gnss_time: true` anymore)
-    * Receiver status on `/diagnostics`
-    * Option to publish only valid SBF block messages
-    * Option to auto publish available messages for `configure_rx: false`
+  * Send custom commands via ASCII file on startup
+  * Save config to boot after setup
+  * NTP and PTP server options (BREAKING: NTP is not setup automatically for `use_gnss_time: true` anymore)
+  * Receiver status on `/diagnostics`
+  * Option to publish only valid SBF block messages
+  * Option to auto publish available messages for `configure_rx: false`
 * Changes
-    * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
-    * VSM now uses separate TCP device specified IP server
+  * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
+  * VSM now uses separate TCP device specified IP server
 * Improvements
-    * Rework some sections of the README
-    * Combine ROS 1 and ROS 2 in one branch
-    * Change GPSFix publishing policy to allow for high update rates
+  * Rework some sections of the README
+  * Combine ROS 1 and ROS 2 in one branch
+  * Change GPSFix publishing policy to allow for high update rates
 * Known issues
-    * TCP connection fail prevents setup from finishing and blocks shutdown. 
+  * TCP connection fail prevents setup from finishing and blocks shutdown. 
 
 1.3.2 (2023-11-19)
------------
+------------------
 * Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
   Fix IMU units
 * Fix topics namespace
