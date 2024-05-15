@@ -271,7 +271,7 @@ namespace io {
                 boost::asio::ip::tcp::resolver::query query(
                     node_->settings()->device_tcp_ip, port_);
                 endpointIterator = resolver.resolve(query);
-            } catch (std::runtime_error& e)
+            } catch (const std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
                            "Could not resolve " + node_->settings()->device_tcp_ip +
@@ -304,7 +304,7 @@ namespace io {
                 if (ec)
                     return false;
 
-            } catch (std::runtime_error& e)
+            } catch (const std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
                            "Could not connect to " + endpointIterator->host_name() +
@@ -332,9 +332,10 @@ namespace io {
                                        boost::lambda::var(ec) = boost::lambda::_1);
             do
                 ioService_->run_one();
-            while (ec == boost::asio::error::would_block);
+            while (node_->ok() && (ec == boost::asio::error::would_block));
             return ec;
         }
+
         void checkDeadline()
         {
             if (deadline_.expires_at() <=
@@ -347,6 +348,7 @@ namespace io {
             }
             deadline_.async_wait(boost::lambda::bind(&TcpIo::checkDeadline, this));
         }
+
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_service> ioService_;
         boost::asio::deadline_timer deadline_;
