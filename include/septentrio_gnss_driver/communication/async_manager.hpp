@@ -170,9 +170,13 @@ namespace io {
         running_ = false;
         close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
-        ioService_->stop();
-        ioThread_.join();
-        watchdogThread_.join();
+        if (ioThread_.joinable())
+        {
+            ioService_->stop();
+            ioThread_.join();
+        }
+        if (watchdogThread_.joinable())
+            watchdogThread_.join();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
 
@@ -260,7 +264,6 @@ namespace io {
                 }
             } else if (running_ && std::is_same<TcpIo, IoType>::value)
             {
-                node_->log(log_level::DEBUG, "ping.");
                 // Send to check if TCP connection still alive
                 std::string empty = " ";
                 boost::asio::async_write(
