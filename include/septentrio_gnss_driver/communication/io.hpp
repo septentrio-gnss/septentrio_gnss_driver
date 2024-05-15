@@ -39,6 +39,9 @@
 
 // Boost
 #include <boost/asio.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 // pcap
 #include <pcap.h>
@@ -244,10 +247,12 @@ namespace io {
     public:
         TcpIo(ROSaicNodeBase* node,
               std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node),
-            ioService_(ioService)
+            node_(node), ioService_(ioService), deadline_(*ioService_)
         {
             port_ = node_->settings()->device_tcp_port;
+
+            deadline_.expires_at(boost::posix_time::pos_infin);
+            checkDeadline();
         }
 
         ~TcpIo() { stream_->close(); }
@@ -282,8 +287,7 @@ namespace io {
 
             try
             {
-                boost::system::error_code ec;
-                stream_->connect(*endpointIterator, ec);
+                boost::system::error_code ec = connectInternal(endpointIterator);
                 while (node_->ok() && ec)
                 {
                     node_->log(
@@ -293,14 +297,13 @@ namespace io {
                             " on port " +
                             std::to_string(endpointIterator->endpoint().port()) +
                             " failed: " + ec.message() + ". Retrying ...");
-                    stream_->connect(*endpointIterator, ec);
+                    using namespace std::chrono_literals;
+                    std::this_thread::sleep_for(1s);
+                    ec = connectInternal(endpointIterator);
                 }
+                if (ec)
+                    return false;
 
-                stream_->set_option(boost::asio::ip::tcp::no_delay(true));
-
-                node_->log(log_level::INFO,
-                           "Connected to " + endpointIterator->host_name() + ":" +
-                               endpointIterator->service_name() + ".");
             } catch (std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
@@ -309,12 +312,44 @@ namespace io {
                                e.what());
                 return false;
             }
+
+            deadline_.expires_at(boost::posix_time::pos_infin);
+            stream_->set_option(boost::asio::ip::tcp::no_delay(true));
+            node_->log(log_level::INFO, "Connected to " +
+                                            endpointIterator->host_name() + ":" +
+                                            endpointIterator->service_name() + ".");
             return true;
         }
 
     private:
+        boost::system::error_code connectInternal(
+            const boost::asio::ip::tcp::resolver::iterator& endpointIterator)
+        {
+            boost::system::error_code ec;
+            deadline_.expires_from_now(boost::posix_time::seconds(1));
+            ec = boost::asio::error::would_block;
+            boost::asio::async_connect(*stream_, endpointIterator,
+                                       boost::lambda::var(ec) = boost::lambda::_1);
+            do
+                ioService_->run_one();
+            while (ec == boost::asio::error::would_block);
+            return ec;
+        }
+        void checkDeadline()
+        {
+            if (deadline_.expires_at() <=
+                boost::asio::deadline_timer::traits_type::now())
+            {
+                boost::system::error_code ignored_ec;
+                stream_->close(ignored_ec);
+
+                deadline_.expires_at(boost::posix_time::pos_infin);
+            }
+            deadline_.async_wait(boost::lambda::bind(&TcpIo::checkDeadline, this));
+        }
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_service> ioService_;
+        boost::asio::deadline_timer deadline_;
 
         std::string port_;
 
@@ -327,8 +362,8 @@ namespace io {
     public:
         SerialIo(ROSaicNodeBase* node,
                  std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node),
-            ioService_(ioService), flowcontrol_(node->settings()->hw_flow_control),
+            node_(node), ioService_(ioService),
+            flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
         {
             stream_.reset(new boost::asio::serial_port(*ioService_));
@@ -517,8 +552,7 @@ namespace io {
     public:
         SbfFileIo(ROSaicNodeBase* node,
                   std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node),
-            ioService_(ioService)
+            node_(node), ioService_(ioService)
         {
         }
 
@@ -566,8 +600,7 @@ namespace io {
     public:
         PcapFileIo(ROSaicNodeBase* node,
                    std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node),
-            ioService_(ioService)
+            node_(node), ioService_(ioService)
         {
         }
 

@@ -158,9 +158,8 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node),
-        ioService_(new boost::asio::io_service), ioInterface_(node, ioService_),
-        telegramQueue_(telegramQueue)
+        node_(node), ioService_(new boost::asio::io_service),
+        ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -261,6 +260,7 @@ namespace io {
                 }
             } else if (running_ && std::is_same<TcpIo, IoType>::value)
             {
+                node_->log(log_level::DEBUG, "ping.");
                 // Send to check if TCP connection still alive
                 std::string empty = " ";
                 boost::asio::async_write(
@@ -456,6 +456,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager sync read error: " + ec.message());
+                    resync();
                 }
             });
     }
@@ -497,6 +498,7 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
+                    resync();
                 }
             });
     }
@@ -536,6 +538,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
+                    resync();
                 }
             });
     }
@@ -624,6 +627,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
+                    resync();
                 }
             });
     }
