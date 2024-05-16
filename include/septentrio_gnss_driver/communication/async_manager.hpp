@@ -158,9 +158,8 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node),
-        ioService_(new boost::asio::io_service), ioInterface_(node, ioService_),
-        telegramQueue_(telegramQueue)
+        node_(node), ioService_(new boost::asio::io_service),
+        ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -171,9 +170,13 @@ namespace io {
         running_ = false;
         close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
-        ioService_->stop();
-        ioThread_.join();
-        watchdogThread_.join();
+        if (ioThread_.joinable())
+        {
+            ioService_->stop();
+            ioThread_.join();
+        }
+        if (watchdogThread_.joinable())
+            watchdogThread_.join();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
 
@@ -456,6 +459,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager sync read error: " + ec.message());
+                    resync();
                 }
             });
     }
@@ -497,6 +501,7 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
+                    resync();
                 }
             });
     }
@@ -536,6 +541,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
+                    resync();
                 }
             });
     }
@@ -624,6 +630,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
+                    resync();
                 }
             });
     }
