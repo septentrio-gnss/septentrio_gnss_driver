@@ -190,7 +190,7 @@ public:
     {
     }
 
-    virtual ~ROSaicNodeBase() {}
+    ~ROSaicNodeBase() {}
 
     bool ok() { return ros::ok(); }
 

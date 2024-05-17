@@ -197,7 +197,7 @@ public:
     {
     }
 
-    virtual ~ROSaicNodeBase() {}
+    ~ROSaicNodeBase() {}
 
     bool ok() { return rclcpp::ok(); }
 

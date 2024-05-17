@@ -95,6 +95,7 @@ namespace io {
         [[nodiscard]] virtual bool connect() = 0;
         //! Sends commands to the receiver
         virtual void send(const std::string& cmd) = 0;
+        bool connected() { return false; };
     };
 
     /**
@@ -123,9 +124,10 @@ namespace io {
 
         void send(const std::string& cmd);
 
+        bool connected();
+
     private:
         void receive();
-        void close();
         void runIoService();
         void runWatchdog();
         void write(const std::string& cmd);
@@ -145,6 +147,8 @@ namespace io {
         std::atomic<bool> running_;
         std::thread ioThread_;
         std::thread watchdogThread_;
+
+        bool connected_ = false;
 
         std::array<uint8_t, 1> buf_;
         //! Timestamp of receiving buffer
@@ -168,7 +172,7 @@ namespace io {
     AsyncManager<IoType>::~AsyncManager()
     {
         running_ = false;
-        close();
+        ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
         if (ioThread_.joinable())
         {
@@ -189,6 +193,7 @@ namespace io {
         {
             return false;
         }
+        connected_ = true;
         receive();
 
         return true;
@@ -214,6 +219,12 @@ namespace io {
     }
 
     template <typename IoType>
+    bool AsyncManager<IoType>::connected()
+    {
+        return connected_;
+    }
+
+    template <typename IoType>
     void AsyncManager<IoType>::receive()
     {
         resync();
@@ -222,12 +233,6 @@ namespace io {
         if (!watchdogThread_.joinable())
             watchdogThread_ =
                 std::thread(std::bind(&AsyncManager::runWatchdog, this));
-    }
-
-    template <typename IoType>
-    void AsyncManager<IoType>::close()
-    {
-        ioService_->post([this]() { ioInterface_.close(); });
     }
 
     template <typename IoType>
@@ -254,12 +259,14 @@ namespace io {
                     break;
                 } else
                 {
+                    connected_ = false;
                     node_->log(log_level::ERROR,
                                "AsyncManager connection lost. Trying to reconnect.");
                     ioService_->reset();
                     ioThread_.join();
                     while (!ioInterface_.connect())
                         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    connected_ = true;
                     receive();
                 }
             } else if (running_ && std::is_same<TcpIo, IoType>::value)
