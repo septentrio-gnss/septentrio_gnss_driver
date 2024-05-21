@@ -84,6 +84,8 @@ namespace io {
 
     void CommunicationCore::resetSettings()
     {
+        if (!manager_->connected())
+            return;
         if (settings_->configure_rx && !settings_->read_from_sbf_log &&
             !settings_->read_from_pcap)
         {
@@ -173,7 +175,7 @@ namespace io {
             static_cast<uint32_t>(settings_->reconnect_delay_s * 1000));
         if (initializeIo())
         {
-            while (running_)
+            while (running_ && node_->ok())
             {
                 boost::asio::deadline_timer t(io, wait_ms);
 
@@ -186,6 +188,9 @@ namespace io {
                 t.wait();
             }
         }
+        // If node is shut down before a connection could be established
+        if (!node_->ok())
+            return;
 
         // Sends commands to the Rx regarding which SBF/NMEA messages it should
         // output
@@ -389,8 +394,7 @@ namespace io {
         {
             {
                 std::stringstream ss;
-                ss << "sat, Main, \"" << settings_->ant_type << "\""
-                   << "\x0D";
+                ss << "sat, Main, \"" << settings_->ant_type << "\"" << "\x0D";
                 send(ss.str());
             }
 
@@ -398,8 +402,7 @@ namespace io {
             if (settings_->multi_antenna)
             {
                 std::stringstream ss;
-                ss << "sat, Aux1, \"" << settings_->ant_type << "\""
-                   << "\x0D";
+                ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
                 send(ss.str());
             }
         } else if (settings_->septentrio_receiver_type == "gnss")
@@ -568,9 +571,7 @@ namespace io {
                     settings_->theta_z >= ANGLE_MIN &&
                     settings_->theta_z <= ANGLE_MAX)
                 {
-                    ss << " sio, "
-                       << "manual"
-                       << ", "
+                    ss << " sio, " << "manual" << ", "
                        << string_utilities::trimDecimalPlaces(settings_->theta_x)
                        << ", "
                        << string_utilities::trimDecimalPlaces(settings_->theta_y)
@@ -677,15 +678,11 @@ namespace io {
                 std::stringstream ss;
                 if (settings_->ins_use_poi)
                 {
-                    ss << "sinc, on, all, "
-                       << "POI1"
-                       << " \x0D";
+                    ss << "sinc, on, all, " << "POI1" << " \x0D";
                     send(ss.str());
                 } else
                 {
-                    ss << "sinc, on, all, "
-                       << "MainAnt"
-                       << " \x0D";
+                    ss << "sinc, on, all, " << "MainAnt" << " \x0D";
                     send(ss.str());
                 }
             }

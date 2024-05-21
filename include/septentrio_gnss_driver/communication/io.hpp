@@ -257,7 +257,11 @@ namespace io {
 
         ~TcpIo() { stream_->close(); }
 
-        void close() { stream_->close(); }
+        void close()
+        {
+            deadline_.cancel();
+            stream_->close();
+        }
 
         void setPort(const std::string& port) { port_ = port; }
 
@@ -326,7 +330,7 @@ namespace io {
             const boost::asio::ip::tcp::resolver::iterator& endpointIterator)
         {
             boost::system::error_code ec;
-            deadline_.expires_from_now(boost::posix_time::seconds(1));
+            deadline_.expires_from_now(boost::posix_time::seconds(10));
             ec = boost::asio::error::would_block;
             boost::asio::async_connect(*stream_, endpointIterator,
                                        boost::lambda::var(ec) = boost::lambda::_1);
