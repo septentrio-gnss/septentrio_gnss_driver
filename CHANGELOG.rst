@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.0 (Upcoming)
+1.4.0 (2024-05-21)
 ------------------
 * New features
   * Send custom commands via ASCII file on startup
