@@ -216,7 +216,8 @@ namespace io {
         {
             tcpClient_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
             tcpClient_->setPort(std::to_string(settings_->tcp_port));
-            tcpClient_->connect();
+            if (!settings_->configure_rx)
+                tcpClient_->connect();
             client = true;
         }
         if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
@@ -350,6 +351,7 @@ namespace io {
             send("siss, " + streamPort_ + ", " +
                  std::to_string(settings_->tcp_port) + ", " + tcp_mode + ", " +
                  "\x0D");
+            tcpClient_->connect();
         } else if (udpClient_)
         {
             streamPort_ = settings_->udp_ip_server;
