@@ -34,6 +34,7 @@ find_package(catkin QUIET)
 if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
   add_compile_definitions(ROS1)
+  set(ENV{ROS_VERSION} "2")
 
   configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos1.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
 
@@ -143,6 +144,7 @@ if(catkin_FOUND)
 elseif(ament_cmake_FOUND)
   ## ROS 2 -----------------------------------------------------------------------------------------------
   add_compile_definitions(ROS2)
+  set(ENV{ROS_VERSION} "2")
 
   configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
 
