@@ -148,6 +148,9 @@ elseif(ament_cmake_FOUND)
 
   configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
 
+  unset(CATKIN_INSTALL_INTO_PREFIX_ROOT)
+  unset(CATKIN_SYMLINK_INSTALL)
+
   # Dependencies
   find_package(ament_cmake REQUIRED)
   find_package(rclcpp REQUIRED)
