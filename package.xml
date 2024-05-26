@@ -23,24 +23,24 @@
   <author>Thomas Emter</author>
 
   <!-- Dependencies-->
-  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
-  <build_depend condition="$ROS_VERSION == 2">rosidl_default_generators</build_depend>
-  <exec_depend condition="$ROS_VERSION == 2">rosidl_default_runtime</exec_depend>
-  <member_of_group condition="$ROS_VERSION == 2">rosidl_interface_packages</member_of_group>
-  <depend condition="$ROS_VERSION == 2">rclcpp</depend>
-  <depend condition="$ROS_VERSION == 2">rclcpp_components</depend>
+  <buildtool_depend condition="$ROS == 2">ament_cmake</buildtool_depend>
+  <build_depend condition="$ROS == 2">rosidl_default_generators</build_depend>
+  <exec_depend condition="$ROS == 2">rosidl_default_runtime</exec_depend>
+  <member_of_group condition="$ROS == 2">rosidl_interface_packages</member_of_group>
+  <depend condition="$ROS == 2">rclcpp</depend>
+  <depend condition="$ROS == 2">rclcpp_components</depend>
   
-  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
-  <build_depend condition="$ROS_VERSION == 1">message_generation</build_depend>
-  <depend condition="$ROS_VERSION == 1">roscpp</depend>
-  <exec_depend condition="$ROS_VERSION == 1">message_runtime</exec_depend>
+  <buildtool_depend condition="$ROS == 1">catkin</buildtool_depend>
+  <build_depend condition="$ROS == 1">message_generation</build_depend>
+  <depend condition="$ROS == 1">roscpp</depend>
+  <exec_depend condition="$ROS == 1">message_runtime</exec_depend>
   
   <depend>diagnostic_msgs</depend>
   <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend condition="$ROS_VERSION == 2">gps_msgs</depend>
-  <depend condition="$ROS_VERSION == 1">gps_common</depend>
+  <depend condition="$ROS == 2">gps_msgs</depend>
+  <depend condition="$ROS == 1">gps_common</depend>
   <depend>nav_msgs</depend>
   <depend>boost</depend>
   <depend>libpcap</depend>  
@@ -51,7 +51,7 @@
   <depend>tf2_ros</depend>
 
   <export>
-    <build_type condition="$ROS_VERSION == 1">catkin</build_type>
-    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+    <build_type condition="$ROS == 1">catkin</build_type>
+    <build_type condition="$ROS == 2">ament_cmake</build_type>
   </export>
 </package>
