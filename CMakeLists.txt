@@ -34,7 +34,7 @@ find_package(catkin QUIET)
 if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
   add_compile_definitions(ROS1)
-  set(ENV{ROS_VERSION} "2")
+  set(ENV{ROS_VERSION} "1")
 
   configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos1.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
 
@@ -147,6 +147,9 @@ elseif(ament_cmake_FOUND)
   set(ENV{ROS_VERSION} "2")
 
   configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
+
+  unset(CATKIN_INSTALL_INTO_PREFIX_ROOT)
+  unset(CATKIN_SYMLINK_INSTALL)
 
   # Dependencies
   find_package(ament_cmake REQUIRED)

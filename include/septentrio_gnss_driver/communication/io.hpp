@@ -388,7 +388,7 @@ namespace io {
 
             bool opened = false;
 
-            while (!opened)
+            while (!opened && node_->ok())
             {
                 try
                 {
@@ -410,6 +410,8 @@ namespace io {
                     std::this_thread::sleep_for(1s);
                 }
             }
+            if (!opened)
+                return false;
 
             // No Parity, 8bits data, 1 stop Bit
             stream_->set_option(boost::asio::serial_port_base::baud_rate(baudrate_));

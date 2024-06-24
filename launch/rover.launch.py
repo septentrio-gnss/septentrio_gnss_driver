@@ -58,7 +58,7 @@ def generate_launch_description():
         name='septentrio_gnss_driver_container',
         namespace='septentrio_gnss_driver',
         package='rclcpp_components',
-        executable='component_container',
+        executable='component_container_isolated',
         emulate_tty=True,
         sigterm_timeout = '20',
         composable_node_descriptions=[composable_node],
