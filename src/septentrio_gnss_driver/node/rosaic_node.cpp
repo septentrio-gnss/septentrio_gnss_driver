@@ -296,15 +296,20 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
                 TransformStampedMsg T_aux1_imu;
                 getTransform(settings_.imu_frame_id, settings_.aux1_frame_id,
                              T_aux1_imu);
+
+                // Lever arms from IMU in vehicle frame
+                Eigen::Affine3d T_aux1_imuWrtVeh =
+                    C_imu_vehicle * tf2::transformToEigen(T_aux1_imu);
+
                 // Antenna Attitude Determination parameter
-                double dy = T_aux1_imu.transform.translation.y -
-                            T_ant_imu.transform.translation.y;
-                double dx = T_aux1_imu.transform.translation.x -
-                            T_ant_imu.transform.translation.x;
+                double dy = T_aux1_imuWrtVeh.translation()[1] -
+                            T_ant_imuWrtVeh.translation()[1];
+                double dx = T_aux1_imuWrtVeh.translation()[0] -
+                            T_ant_imuWrtVeh.translation()[0];
                 settings_.heading_offset =
                     parsing_utilities::rad2deg(std::atan2(dy, dx));
-                double dz = T_aux1_imu.transform.translation.z -
-                            T_ant_imu.transform.translation.z;
+                double dz = T_aux1_imuWrtVeh.translation()[2] -
+                            T_ant_imuWrtVeh.translation()[2];
                 double dr = std::sqrt(parsing_utilities::square(dx) +
                                       parsing_utilities::square(dy));
                 settings_.pitch_offset =
