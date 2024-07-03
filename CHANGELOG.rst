@@ -2,6 +2,11 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.1 (upcoming)
+------------------
+* Fixes
+  * Lever arm calculation from tf
+
 1.4.0 (2024-05-21)
 ------------------
 * New features
