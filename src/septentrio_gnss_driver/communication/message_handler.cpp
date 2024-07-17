@@ -1362,7 +1362,6 @@ namespace io {
         static auto last_ins_tow = last_insnavgeod_.block_header.tow;
 
         NavSatFixMsg msg;
-        uint16_t mask = 15; // We extract the first four bits using this mask.
         if (settings_->septentrio_receiver_type == "gnss")
         {
             if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
@@ -1372,7 +1371,7 @@ namespace io {
 
             msg.header = last_pvtgeodetic_.header;
 
-            uint16_t type_of_pvt = ((uint16_t)(last_pvtgeodetic_.mode)) & mask;
+            uint8_t type_of_pvt = last_pvtgeodetic_.mode & 15;
             switch (type_of_pvt)
             {
             case evNoPVT:
@@ -1381,19 +1380,43 @@ namespace io {
                 break;
             }
             case evStandAlone:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evFixed:
             {
                 msg.status.status = NavSatStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evRTKFixed:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evRTKFloat:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evMovingBaseRTKFixed:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evMovingBaseRTKFloat:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evPPP:
             {
-                msg.status.status = NavSatStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
                 break;
             }
             case evSBAS:
@@ -1457,7 +1480,8 @@ namespace io {
 
             msg.header = last_insnavgeod_.header;
 
-            switch (last_insnavgeod_.gnss_mode)
+            uint8_t type_of_pvt = last_insnavgeod_.gnss_mode & 15;
+            switch (type_of_pvt)
             {
             case evNoPVT:
             {
@@ -1465,19 +1489,43 @@ namespace io {
                 break;
             }
             case evStandAlone:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evFixed:
             {
                 msg.status.status = NavSatStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evRTKFixed:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evRTKFloat:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evMovingBaseRTKFixed:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evMovingBaseRTKFloat:
+            {
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
+                break;
+            }
             case evPPP:
             {
-                msg.status.status = NavSatStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = NavSatStatusMsg::STATUS_FIX;
                 break;
             }
             case evSBAS:
@@ -1719,11 +1767,7 @@ namespace io {
         {
             msg.header = last_pvtgeodetic_.header;
 
-            // PVT Status Analysis
-            uint16_t status_mask =
-                15; // We extract the first four bits using this mask.
-            uint16_t type_of_pvt =
-                ((uint16_t)(last_pvtgeodetic_.mode)) & status_mask;
+            uint8_t type_of_pvt = last_pvtgeodetic_.mode & 15;
             switch (type_of_pvt)
             {
             case evNoPVT:
@@ -1732,19 +1776,43 @@ namespace io {
                 break;
             }
             case evStandAlone:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_FIX;
+                break;
+            }
             case evFixed:
             {
                 msg.status.status = GpsStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evRTKFixed:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evRTKFloat:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evMovingBaseRTKFixed:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evMovingBaseRTKFloat:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evPPP:
             {
-                msg.status.status = GpsStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
                 break;
             }
             case evSBAS:
@@ -1877,7 +1945,8 @@ namespace io {
         {
             msg.header = last_insnavgeod_.header;
 
-            switch (last_insnavgeod_.gnss_mode)
+            uint8_t type_of_pvt = last_insnavgeod_.gnss_mode & 15;
+            switch (type_of_pvt)
             {
             case evNoPVT:
             {
@@ -1885,24 +1954,57 @@ namespace io {
                 break;
             }
             case evStandAlone:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_FIX;
+                break;
+            }
             case evFixed:
             {
                 msg.status.status = GpsStatusMsg::STATUS_FIX;
                 break;
             }
             case evDGPS:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evRTKFixed:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evRTKFloat:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evMovingBaseRTKFixed:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evMovingBaseRTKFloat:
+            {
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+                break;
+            }
             case evPPP:
             {
-                msg.status.status = GpsStatusMsg::STATUS_GBAS_FIX;
+                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
                 break;
             }
             case evSBAS:
             {
-                msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
+                uint16_t reference_id = last_pvtgeodetic_.reference_id;
+                // Here come the PRNs of the 4 WAAS satellites..
+                if (reference_id == 131 || reference_id == 133 ||
+                    reference_id == 135 || reference_id == 135)
+                {
+                    msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
+                } else
+                {
+                    msg.status.status = GpsStatusMsg::STATUS_SBAS_FIX;
+                }
                 break;
             }
             default:
