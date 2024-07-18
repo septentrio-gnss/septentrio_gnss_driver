@@ -1347,6 +1347,71 @@ namespace io {
         msg.twist.covariance[35] = -1.0;
     }
 
+    void MessageHandler::setStatus(uint8_t mode, NavSatFixMsg& msg)
+    {
+        switch (mode & 15)
+        {
+        case evNoPVT:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_NO_FIX;
+            break;
+        }
+        case evStandAlone:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evFixed:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evDGPS:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evRTKFixed:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evRTKFloat:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evMovingBaseRTKFixed:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evMovingBaseRTKFloat:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evPPP:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evSBAS:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
+            break;
+        }
+        default:
+        {
+            msg.status.status = NavSatStatusMsg::STATUS_NO_FIX;
+            node_->log(
+                log_level::DEBUG,
+                "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            break;
+        }
+        }
+    }
+
     /**
      * The position_covariance array is populated in row-major order, where the basis
      * of the corresponding matrix is ENU (so Cov_lonlon is in location 11 of the
@@ -1371,67 +1436,8 @@ namespace io {
 
             msg.header = last_pvtgeodetic_.header;
 
-            uint8_t type_of_pvt = last_pvtgeodetic_.mode & 15;
-            switch (type_of_pvt)
-            {
-            case evNoPVT:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_NO_FIX;
-                break;
-            }
-            case evStandAlone:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evDGPS:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evRTKFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evRTKFloat:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFloat:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evPPP:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evSBAS:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
-                break;
-            }
-            default:
-            {
-                node_->log(
-                    log_level::DEBUG,
-                    "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
-                break;
-            }
-            }
+            setStatus(last_pvtgeodetic_.mode, msg);
+
             bool gps_in_pvt = false;
             bool glo_in_pvt = false;
             bool com_in_pvt = false;
@@ -1480,68 +1486,8 @@ namespace io {
 
             msg.header = last_insnavgeod_.header;
 
-            uint8_t type_of_pvt = last_insnavgeod_.gnss_mode & 15;
-            switch (type_of_pvt)
-            {
-            case evNoPVT:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_NO_FIX;
-                break;
-            }
-            case evStandAlone:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evDGPS:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evRTKFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evRTKFloat:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFixed:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFloat:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evPPP:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evSBAS:
-            {
-                msg.status.status = NavSatStatusMsg::STATUS_SBAS_FIX;
-                break;
-            }
-            default:
-            {
-                node_->log(
-                    log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
-                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
-                break;
-            }
-            }
+            setStatus(last_insnavgeod_.gnss_mode, msg);
+
             bool gps_in_pvt = false;
             bool glo_in_pvt = false;
             bool com_in_pvt = false;
@@ -1592,6 +1538,80 @@ namespace io {
         }
         publish<NavSatFixMsg>("navsatfix", msg);
     };
+
+    void MessageHandler::setStatus(uint8_t mode, GpsFixMsg& msg)
+    {
+        switch (mode & 15)
+        {
+        case evNoPVT:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
+            break;
+        }
+        case evStandAlone:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evFixed:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_FIX;
+            break;
+        }
+        case evDGPS:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evRTKFixed:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evRTKFloat:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evMovingBaseRTKFixed:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evMovingBaseRTKFloat:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evPPP:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+            break;
+        }
+        case evSBAS:
+        {
+            uint16_t reference_id = last_pvtgeodetic_.reference_id;
+            // Here come the PRNs of the 4 WAAS satellites..
+            if (reference_id == 131 || reference_id == 133 || reference_id == 135 ||
+                reference_id == 135)
+            {
+                msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
+            } else
+            {
+                msg.status.status = GpsStatusMsg::STATUS_SBAS_FIX;
+            }
+            break;
+        }
+        default:
+        {
+            msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
+            node_->log(
+                log_level::DEBUG,
+                "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
+            break;
+        }
+        }
+    }
 
     /**
      * Note that the field "dip" denotes the local magnetic inclination in degrees
@@ -1767,76 +1787,8 @@ namespace io {
         {
             msg.header = last_pvtgeodetic_.header;
 
-            uint8_t type_of_pvt = last_pvtgeodetic_.mode & 15;
-            switch (type_of_pvt)
-            {
-            case evNoPVT:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
-                break;
-            }
-            case evStandAlone:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evDGPS:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evRTKFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evRTKFloat:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFloat:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evPPP:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evSBAS:
-            {
-                uint16_t reference_id = last_pvtgeodetic_.reference_id;
-                // Here come the PRNs of the 4 WAAS satellites..
-                if (reference_id == 131 || reference_id == 133 ||
-                    reference_id == 135 || reference_id == 135)
-                {
-                    msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
-                } else
-                {
-                    msg.status.status = GpsStatusMsg::STATUS_SBAS_FIX;
-                }
-                break;
-            }
-            default:
-            {
-                node_->log(
-                    log_level::DEBUG,
-                    "PVTGeodetic's Mode field contains an invalid type of PVT solution.");
-                break;
-            }
-            }
+            setStatus(last_pvtgeodetic_.mode, msg);
+
             // Doppler is not used when calculating the velocities of, say,
             // mosaic-x5, hence:
             msg.status.motion_source = GpsStatusMsg::SOURCE_POINTS;
@@ -1945,77 +1897,8 @@ namespace io {
         {
             msg.header = last_insnavgeod_.header;
 
-            uint8_t type_of_pvt = last_insnavgeod_.gnss_mode & 15;
-            switch (type_of_pvt)
-            {
-            case evNoPVT:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_NO_FIX;
-                break;
-            }
-            case evStandAlone:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_FIX;
-                break;
-            }
-            case evDGPS:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evRTKFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evRTKFloat:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFixed:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evMovingBaseRTKFloat:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evPPP:
-            {
-                msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
-                break;
-            }
-            case evSBAS:
-            {
-                uint16_t reference_id = last_pvtgeodetic_.reference_id;
-                // Here come the PRNs of the 4 WAAS satellites..
-                if (reference_id == 131 || reference_id == 133 ||
-                    reference_id == 135 || reference_id == 135)
-                {
-                    msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
-                } else
-                {
-                    msg.status.status = GpsStatusMsg::STATUS_SBAS_FIX;
-                }
-                break;
-            }
-            default:
-            {
-                node_->log(
-                    log_level::DEBUG,
-                    "INSNavGeod's Mode field contains an invalid type of PVT solution:" +
-                        std::to_string((uint16_t)(last_insnavgeod_.gnss_mode)));
-                break;
-            }
-            }
+            setStatus(last_insnavgeod_.gnss_mode, msg);
+
             // Doppler is not used when calculating the velocities of, say,
             // mosaic-x5, hence:
             msg.status.motion_source = GpsStatusMsg::SOURCE_POINTS;
