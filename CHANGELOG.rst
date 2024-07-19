@@ -6,7 +6,8 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Fixes
   * Lever arm calculation from tf
-  * Fix NavSatStatus and GPSFixStatus
+  * NavSatStatus and GPSFixStatus
+  * Orientation in pose topic of GNSS
 
 1.4.0 (2024-05-21)
 ------------------

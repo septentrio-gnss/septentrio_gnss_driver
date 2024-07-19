@@ -173,6 +173,12 @@ namespace io {
             double yaw = last_atteuler_.heading;
             double pitch = last_atteuler_.pitch;
             double roll = last_atteuler_.roll;
+
+            if (std::isnan(roll))
+                roll = 0.0;
+            if (std::isnan(pitch))
+                pitch = 0.0;
+
             msg.pose.pose.orientation = convertEulerToQuaternionMsg(
                 deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
             msg.pose.pose.position.x = rad2deg(last_pvtgeodetic_.longitude);
