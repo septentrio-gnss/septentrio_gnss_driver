@@ -90,10 +90,6 @@ namespace settings {
                 node->log(
                     log_level::ERROR,
                     "stream_device.tcp.port and device port cannot be the same");
-            if (settings.tcp_port == settings.udp_port)
-                node->log(
-                    log_level::ERROR,
-                    "stream_device.tcp.port and stream_device.udp.port cannot be the same");
             for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
             {
                 if (settings.tcp_port == settings.rtk.ip_server[i].port)
@@ -101,21 +97,6 @@ namespace settings {
                               "stream_device.tcp.port and rtk_settings.ip_server_" +
                                   std::to_string(i + 1) +
                                   ".port cannot be the same!");
-            }
-        }
-        if (settings.udp_port != 0)
-        {
-            if (std::to_string(settings.udp_port) == settings.device_tcp_port)
-                node->log(
-                    log_level::ERROR,
-                    "stream_device.udp.port and device port cannot be the same");
-            for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
-            {
-                if (settings.udp_port == settings.rtk.ip_server[i].port)
-                    node->log(log_level::ERROR,
-                              "stream_device.udp.port and rtk_settings.ip_server_" +
-                                  std::to_string(i + 1) +
-                                  ".port cannot be the same");
             }
         }
         if (settings.rtk.ip_server.size() == 2)

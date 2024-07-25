@@ -70,7 +70,7 @@ namespace io {
         if (!settings_->publish_pose)
             return;
 
-        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
 
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
@@ -604,9 +604,10 @@ namespace io {
             Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
                                            last_insnavgeod_.block_header.wnc);
 
-            static int64_t maxDt = (settings_->polling_period_pvt == 0)
-                                       ? 10000000
-                                       : settings_->polling_period_pvt * 1000000;
+            thread_local int64_t maxDt =
+                (settings_->polling_period_pvt == 0)
+                    ? 10000000
+                    : settings_->polling_period_pvt * 1000000;
             if ((tsImu - tsIns) > maxDt)
             {
                 valid_orientation = false;
@@ -1432,7 +1433,7 @@ namespace io {
         if (!settings_->publish_navsatfix)
             return;
 
-        static auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
 
         NavSatFixMsg msg;
         if (settings_->septentrio_receiver_type == "gnss")
@@ -1736,7 +1737,7 @@ namespace io {
                         static_cast<int32_t>(channel_sat_info.sv_id));
                     elevation_tracked.push_back(
                         static_cast<int32_t>(channel_sat_info.elev));
-                    static uint16_t azimuth_mask = 511;
+                    constexpr uint16_t azimuth_mask = 511;
                     azimuth_tracked.push_back(static_cast<int32_t>(
                         (channel_sat_info.az_rise_set & azimuth_mask)));
                 }
@@ -2099,13 +2100,13 @@ namespace io {
 
         // conversion from GPS time of week and week number to UTC taking leap
         // seconds into account
-        static uint64_t secToNSec = 1000000000;
-        static uint64_t mSec2NSec = 1000000;
-        static uint64_t nsOfGpsStart =
+        constexpr uint64_t secToNSec = 1000000000;
+        constexpr uint64_t mSec2NSec = 1000000;
+        constexpr uint64_t nsOfGpsStart =
             315964800 *
             secToNSec; // GPS week counter starts at 1980-01-06 which is
                        // 315964800 seconds since Unix epoch (1970-01-01 UTC)
-        static uint64_t nsecPerWeek = 7 * 24 * 60 * 60 * secToNSec;
+        constexpr uint64_t nsecPerWeek = 7 * 24 * 60 * 60 * secToNSec;
 
         time_obj = nsOfGpsStart + tow * mSec2NSec + wnc * nsecPerWeek;
 

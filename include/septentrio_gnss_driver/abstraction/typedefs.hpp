@@ -470,10 +470,10 @@ private:
         if (stamp == 0)
             stamp = getTime();
 
-        static Eigen::Vector3d vel = Eigen::Vector3d::Zero();
-        static Eigen::Vector3d var = Eigen::Vector3d::Zero();
-        static uint64_t ctr = 0;
-        static Timestamp lastStamp = 0;
+        thread_local Eigen::Vector3d vel = Eigen::Vector3d::Zero();
+        thread_local Eigen::Vector3d var = Eigen::Vector3d::Zero();
+        thread_local uint64_t ctr = 0;
+        thread_local Timestamp lastStamp = 0;
 
         ++ctr;
         vel[0] += twist.twist.linear.x;
