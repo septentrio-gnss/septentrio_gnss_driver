@@ -253,6 +253,18 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             TransformStampedMsg T_ant_imu;
             getTransform(settings_.imu_frame_id, settings_.frame_id, T_ant_imu);
 
+            // Rotation between IMU and vehicle
+            Eigen::Matrix3d C_imu_vehicle =
+                tf2::transformToEigen(T_imu_vehicle).rotation();
+
+            // Lever arms from IMU in vehicle frame
+            Eigen::Affine3d T_poi_imuWrtVeh =
+                C_imu_vehicle * tf2::transformToEigen(T_poi_imu);
+            Eigen::Affine3d T_vsm_imuWrtVeh =
+                C_imu_vehicle * tf2::transformToEigen(T_vsm_imu);
+            Eigen::Affine3d T_ant_imuWrtVeh =
+                C_imu_vehicle * tf2::transformToEigen(T_ant_imu);
+
             // IMU orientation parameter
             double roll, pitch, yaw;
             getRPY(T_imu_vehicle.transform.rotation, roll, pitch, yaw);
@@ -260,32 +272,37 @@ rosaic_node::ROSaicNode::ROSaicNode() : IO_(this)
             settings_.theta_y = parsing_utilities::rad2deg(pitch);
             settings_.theta_z = parsing_utilities::rad2deg(yaw);
             // INS antenna lever arm offset parameter
-            settings_.ant_lever_x = T_ant_imu.transform.translation.x;
-            settings_.ant_lever_y = T_ant_imu.transform.translation.y;
-            settings_.ant_lever_z = T_ant_imu.transform.translation.z;
+            settings_.ant_lever_x = T_ant_imuWrtVeh.translation()[0];
+            settings_.ant_lever_y = T_ant_imuWrtVeh.translation()[1];
+            settings_.ant_lever_z = T_ant_imuWrtVeh.translation()[2];
             // INS POI ofset paramter
-            settings_.poi_x = T_poi_imu.transform.translation.x;
-            settings_.poi_y = T_poi_imu.transform.translation.y;
-            settings_.poi_z = T_poi_imu.transform.translation.z;
+            settings_.poi_x = T_poi_imuWrtVeh.translation()[0];
+            settings_.poi_y = T_poi_imuWrtVeh.translation()[1];
+            settings_.poi_z = T_poi_imuWrtVeh.translation()[2];
             // INS velocity sensor lever arm offset parameter
-            settings_.vsm_x = T_vsm_imu.transform.translation.x;
-            settings_.vsm_y = T_vsm_imu.transform.translation.y;
-            settings_.vsm_z = T_vsm_imu.transform.translation.z;
+            settings_.vsm_x = T_vsm_imuWrtVeh.translation()[0];
+            settings_.vsm_y = T_vsm_imuWrtVeh.translation()[1];
+            settings_.vsm_z = T_vsm_imuWrtVeh.translation()[2];
 
             if (settings_.multi_antenna)
             {
                 TransformStampedMsg T_aux1_imu;
                 getTransform(settings_.imu_frame_id, settings_.aux1_frame_id,
                              T_aux1_imu);
+
+                // Lever arms from IMU in vehicle frame
+                Eigen::Affine3d T_aux1_imuWrtVeh =
+                    C_imu_vehicle * tf2::transformToEigen(T_aux1_imu);
+
                 // Antenna Attitude Determination parameter
-                double dy = T_aux1_imu.transform.translation.y -
-                            T_ant_imu.transform.translation.y;
-                double dx = T_aux1_imu.transform.translation.x -
-                            T_ant_imu.transform.translation.x;
+                double dy = T_aux1_imuWrtVeh.translation()[1] -
+                            T_ant_imuWrtVeh.translation()[1];
+                double dx = T_aux1_imuWrtVeh.translation()[0] -
+                            T_ant_imuWrtVeh.translation()[0];
                 settings_.heading_offset =
                     parsing_utilities::rad2deg(std::atan2(dy, dx));
-                double dz = T_aux1_imu.transform.translation.z -
-                            T_ant_imu.transform.translation.z;
+                double dz = T_aux1_imuWrtVeh.translation()[2] -
+                            T_ant_imuWrtVeh.translation()[2];
                 double dr = std::sqrt(parsing_utilities::square(dx) +
                                       parsing_utilities::square(dy));
                 settings_.pitch_offset =

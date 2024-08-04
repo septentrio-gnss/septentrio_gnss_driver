@@ -420,7 +420,7 @@ namespace parsing_utilities {
     {
         // Defines bit mask..
         // Highest three bits are for revision and rest for block number
-        static uint16_t mask = 8191;
+        constexpr uint16_t mask = 8191;
         // Bitwise AND gives us all but highest 3 bits set to zero, rest unchanged
 
         return parseUInt16(message.data() + 4) & mask;
