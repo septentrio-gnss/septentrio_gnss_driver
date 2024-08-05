@@ -1,4 +1,14 @@
 #config/rover.yaml
 .vscode
-build
 msg/BlockHeader.msg
+__pycache__
+.idea
+*.raw
+*.pt
+node_modules
+dist
+yarn-error.log
+log
+build
+install
+.env
