@@ -166,6 +166,7 @@ elseif(ament_cmake_FOUND)
   find_package(tf2_eigen REQUIRED)
   find_package(tf2_geometry_msgs REQUIRED)
   find_package(tf2_ros REQUIRED)
+  find_package(geographic_msgs REQUIRED)
   
   ## Declare  messages
   rosidl_generate_interfaces(${PROJECT_NAME}
@@ -214,6 +215,7 @@ elseif(ament_cmake_FOUND)
   tf2_eigen
   tf2_geometry_msgs
   tf2_ros
+  geographic_msgs
   )
 
   ## shared library

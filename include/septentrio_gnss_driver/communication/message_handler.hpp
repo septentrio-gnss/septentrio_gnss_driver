@@ -342,10 +342,20 @@ namespace io {
         void assembleGpsFix();
 
         /**
+         * @brief "Callback" function when constructing GeoposeStamped messages
+         */
+        void assembleGeoPoseStamped();
+
+        /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
          * messages
          */
         void assemblePoseWithCovarianceStamped();
+
+        /**
+         * @brief "Callback" function when constructing GeoPoseWithCovarianceStamped
+         */
+        void assembleGeoPoseWithCovarianceStamped();
 
         /**
          * @brief "Callback" function when constructing

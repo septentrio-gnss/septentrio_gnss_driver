@@ -54,6 +54,10 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/twist_with_covariance.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
+
+#include <geographic_msgs/msg/geo_pose_with_covariance_stamped.hpp>
+#include <geographic_msgs/msg/geo_pose_stamped.hpp>
+
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -109,6 +113,10 @@ typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
+
+typedef geographic_msgs::msg::GeoPoseStamped GeoPoseStampedMsg;
+typedef geographic_msgs::msg::GeoPoseWithCovarianceStamped GeoPoseWithCovarianceStampedMsg;
+
 typedef gps_msgs::msg::GPSFix GpsFixMsg;
 typedef gps_msgs::msg::GPSStatus GpsStatusMsg;
 typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;
