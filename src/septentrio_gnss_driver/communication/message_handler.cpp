@@ -2447,6 +2447,8 @@ namespace io {
             assembleTwist();
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
+            assembleGeoPoseStamped();
+            assembleGeoPoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();
             if (settings_->publish_gpst &&
@@ -2518,6 +2520,8 @@ namespace io {
                 publish<PosCovGeodeticMsg>("poscovgeodetic", last_poscovgeodetic_);
             assembleNavSatFix();
             assemblePoseWithCovarianceStamped();
+            assembleGeoPoseStamped();
+            assembleGeoPoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();
             break;
@@ -2535,6 +2539,8 @@ namespace io {
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("atteuler", last_atteuler_);
             assemblePoseWithCovarianceStamped();
+            assembleGeoPoseStamped();
+            assembleGeoPoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();
             break;
@@ -2552,6 +2558,8 @@ namespace io {
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("attcoveuler", last_attcoveuler_);
             assemblePoseWithCovarianceStamped();
+            assembleGeoPoseStamped();
+            assembleGeoPoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();
             break;
@@ -2638,6 +2646,8 @@ namespace io {
             assembleLocalizationEcef();
             assembleTwist(true);
             assemblePoseWithCovarianceStamped();
+            assembleGeoPoseStamped();
+            assembleGeoPoseWithCovarianceStamped();
             assembleNavSatFix();
             assembleGpsFix();
             if (settings_->publish_gpst)

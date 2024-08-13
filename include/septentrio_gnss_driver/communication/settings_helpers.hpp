@@ -175,6 +175,8 @@ namespace settings {
             settings.publish_navsatfix = true;
             settings.publish_gpsfix = true;
             settings.publish_pose = true;
+            settings.publish_geopose_stamped = true;
+            settings.publish_geopose_covariance_stamped = true;
             settings.publish_diagnostics = true;
             settings.publish_aimplusstatus = true;
             settings.publish_galauthstatus = true;

@@ -170,6 +170,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("publish.navsatfix", settings_.publish_navsatfix, true);
     param("publish.gpsfix", settings_.publish_gpsfix, false);
     param("publish.pose", settings_.publish_pose, false);
+    param("publish.geopose_stamped", settings_.publish_geopose_stamped, false);
+    param("publish.geopose_covariance_stamped", settings_.publish_geopose_covariance_stamped, false);
     param("publish.diagnostics", settings_.publish_diagnostics, false);
     param("publish.aimplusstatus", settings_.publish_aimplusstatus, false);
     param("publish.galauthstatus", settings_.publish_galauthstatus, false);
