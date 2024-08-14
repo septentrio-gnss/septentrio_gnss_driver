@@ -148,6 +148,8 @@ namespace device_type {
 //! Settings struct
 struct Settings
 {
+    //! +- Threshold in which an error will be thrown if the covariance is outside 
+    float covariance_threshold;
     //! Set logger level to DEBUG
     bool activate_debug_log;
     //! Device

@@ -71,6 +71,8 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
 
 [[nodiscard]] bool rosaic_node::ROSaicNode::getROSParams()
 {
+    param("covariance_threshold", settings_.covariance_threshold, 0.0f);
+    
     param("ntp_server", settings_.ntp_server, false);
     param("ptp_server_clock", settings_.ptp_server_clock, false);
     param("use_gnss_time", settings_.use_gnss_time, false);

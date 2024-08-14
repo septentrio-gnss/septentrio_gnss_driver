@@ -163,6 +163,7 @@ namespace io {
             }
         } else
         {
+
             if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
                 (last_pvtgeodetic_.block_header.tow !=
                  last_atteuler_.block_header.tow) ||
@@ -250,17 +251,12 @@ namespace io {
                     deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
             } else
             {
-                msg.pose.orientation.w =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.orientation.x=
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.orientation.y =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.orientation.z =
-                    std::numeric_limits<double>::quiet_NaN();
+                msg.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
+                msg.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
+                msg.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
+                msg.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
             }
-        }
-        else
+        } else
         {
             if ((!validValue(last_pvtgeodetic_.block_header.tow)) ||
                 (last_pvtgeodetic_.block_header.tow !=
@@ -283,13 +279,12 @@ namespace io {
 
             msg.pose.orientation = convertEulerToQuaternionMsg(
                 deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
-            msg.pose.position.latitude= last_pvtgeodetic_.latitude;
+            msg.pose.position.latitude = last_pvtgeodetic_.latitude;
             msg.pose.position.longitude = last_pvtgeodetic_.longitude;
             msg.pose.position.altitude = last_pvtgeodetic_.height;
         }
 
         publish<GeoPoseStampedMsg>("geopose_stamped", msg);
-
     };
 
     void MessageHandler::assembleGeoPoseWithCovarianceStamped()
@@ -298,7 +293,7 @@ namespace io {
             return;
 
         thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
-        
+
         GeoPoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
         {
@@ -446,6 +441,31 @@ namespace io {
         publish<GeoPoseWithCovarianceStampedMsg>("geopose_covariance_stamped", msg);
     };
 
+    bool MessageHandler::covarianceOutsideThreshold()
+    {
+        float_t covariance = sqrt(
+            (last_poscovgeodetic_.cov_lonlon * last_poscovgeodetic_.cov_lonlon) +
+            (last_poscovgeodetic_.cov_latlat * last_poscovgeodetic_.cov_latlat));
+
+        float covariance_threshold;
+        node_->get_parameter("covariance_threshold", covariance_threshold);
+
+        covariance_threshold;
+
+        std::string covariance_msg = "Covariance: " + std::to_string(covariance);
+        node_->log(log_level::INFO, covariance_msg);
+        std::string covariance_threshold_msg =
+            "Covariance threshold: " + std::to_string(covariance_threshold);
+        node_->log(log_level::INFO, covariance_threshold_msg);
+
+        if (covariance > covariance_threshold ||
+            covariance < -covariance_threshold || std::isnan(covariance))
+        {
+            return true;
+        }
+        return false;
+    }
+
     void MessageHandler::assembleDiagnosticArray(
         const std::shared_ptr<Telegram>& telegram)
     {
@@ -470,6 +490,7 @@ namespace io {
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
         uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
         uint16_t qualityind_pos;
+
         for (uint16_t i = static_cast<uint16_t>(0);
              i < last_qualityind_.indicators.size(); ++i)
         {
@@ -566,7 +587,6 @@ namespace io {
         gnss_status.name = "septentrio_driver: Quality indicators";
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
-        msg.status.push_back(gnss_status);
         DiagnosticStatusMsg receiver_status;
         receiver_status.hardware_id = serialnumber;
         receiver_status.name = "septentrio_driver: receiver status";
@@ -587,7 +607,12 @@ namespace io {
         receiver_status.values[4].key = "CPU load in %";
         receiver_status.values[4].value =
             std::to_string(last_receiverstatus_.cpu_load);
-        if ((last_receiverstatus_.rx_error & (1 << 9)))
+
+        if (covarianceOutsideThreshold())
+        {
+            receiver_status.level = DiagnosticStatusMsg::ERROR;
+            receiver_status.message = "Covariance outside threshold";
+        } else if ((last_receiverstatus_.rx_error & (1 << 9)))
             receiver_status.level = DiagnosticStatusMsg::ERROR;
         else if ((last_receiverstatus_.rx_status & (1 << 8)))
             receiver_status.level = DiagnosticStatusMsg::WARN;
@@ -609,6 +634,8 @@ namespace io {
                 frame_id = settings_->frame_id;
             }
         }
+        msg.status.push_back(gnss_status);
+
         assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
@@ -693,7 +720,11 @@ namespace io {
         diagOsnma.values[5].key = "GPS spoofed";
         diagOsnma.values[5].value = std::to_string(gps_spoofed);
 
-        if ((gal_spoofed + gps_spoofed) == 0)
+        if (covarianceOutsideThreshold())
+        {
+            diagOsnma.level = DiagnosticStatusMsg::ERROR;
+            diagOsnma.message = "Covariance outside threshold";
+        } else if ((gal_spoofed + gps_spoofed) == 0)
             diagOsnma.level = DiagnosticStatusMsg::OK;
         else if ((gal_authentic + gps_authentic) > 0)
             diagOsnma.level = DiagnosticStatusMsg::WARN;
@@ -795,7 +826,11 @@ namespace io {
         aimMsg.wnc = last_rf_status_.block_header.wnc;
         publish<AimPlusStatusMsg>("aimplusstatus", aimMsg);
 
-        if (spoofed || detected)
+        if (covarianceOutsideThreshold())
+        {
+            diagRf.level = DiagnosticStatusMsg::ERROR;
+            diagRf.message = "Covariance outside threshold";
+        } else if (spoofed || detected)
             diagRf.level = DiagnosticStatusMsg::ERROR;
         else if (mitigated)
             diagRf.level = DiagnosticStatusMsg::WARN;

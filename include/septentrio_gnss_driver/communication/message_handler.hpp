@@ -451,5 +451,15 @@ namespace io {
          * epoch
          */
         Timestamp timestampSBF(uint32_t tow, uint16_t wnc) const;
+
+        /**
+         * @brief Check covariance
+         */
+        bool covarianceOutsideThreshold();
+
+        // /**
+        //  * @brief Covariance estimation based on latlat and lgnlgn
+        //  */
+        // float_t covariance_estimation_;
     };
 } // namespace io

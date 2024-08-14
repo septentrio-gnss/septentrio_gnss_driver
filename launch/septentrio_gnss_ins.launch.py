@@ -37,6 +37,7 @@ def generate_launch_description():
 
     parameters_list = [
     {
+        "covariance_threshold": 0.0,
         "device": "tcp://10.27.1.102:28784",
         "serial": {
             "baudrate": 921600,
