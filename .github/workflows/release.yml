@@ -16,19 +16,19 @@ jobs:
       fail-fast: true
       matrix:
         job:
-          - runner: buildjet-2vcpu-ubuntu-2204
+          - runner: buildjet-8vcpu-ubuntu-2204
             arch: amd64
             ros_distro: iron
             github_release: true
-          - runner: buildjet-8vcpu-ubuntu-2204-arm
+          - runner: buildjet-16vcpu-ubuntu-2204-arm
             arch: arm64
             ros_distro: iron
             github_release: false
-          - runner: buildjet-2vcpu-ubuntu-2204
+          - runner: buildjet-8vcpu-ubuntu-2204
             arch: amd64
             ros_distro: jazzy
             github_release: false
-          - runner: buildjet-8vcpu-ubuntu-2204-arm
+          - runner: buildjet-16vcpu-ubuntu-2204-arm
             arch: arm64
             ros_distro: jazzy
             github_release: false
