@@ -148,6 +148,8 @@ namespace device_type {
 //! Settings struct
 struct Settings
 {
+    //! +- Threshold in which an error will be thrown if the covariance is outside 
+    float covariance_threshold;
     //! Set logger level to DEBUG
     bool activate_debug_log;
     //! Device
@@ -318,6 +320,12 @@ struct Settings
     bool publish_gpsfix;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;
+    //! Whether or not to publish the PoseStampedMsg message
+    bool publish_pose_stamped;
+    //! Whether or not to publish the GeoPoseStampedMsg message
+    bool publish_geopose_stamped;
+    //! Whether or not to publish the GeoPoseWithCovarianceStampedMsg message
+    bool publish_geopose_covariance_stamped;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
     //! Whether or not to publish the ImuMsg message
@@ -328,6 +336,8 @@ struct Settings
     bool publish_localization_ecef;
     //! Whether or not to publish the TwistWithCovarianceStampedMsg message
     bool publish_twist;
+    //! Whether or not to publish the TwistStampedMsg message
+    bool publish_twist_stamped;
     //! Whether or not to publish the tf of the localization
     bool publish_tf;
     //! Whether or not to publish the tf of the localization

@@ -63,6 +63,7 @@
 #include <cstddef>
 #include <map>
 #include <sstream>
+#include <array>
 // Boost includes
 #include <boost/call_traits.hpp>
 #include <boost/format.hpp>
@@ -342,10 +343,20 @@ namespace io {
         void assembleGpsFix();
 
         /**
+         * @brief "Callback" function when constructing GeoposeStamped messages
+         */
+        void assembleGeoPoseStamped();
+
+        /**
          * @brief "Callback" function when constructing PoseWithCovarianceStamped
          * messages
          */
         void assemblePoseWithCovarianceStamped();
+
+        /**
+         * @brief "Callback" function when constructing GeoPoseWithCovarianceStamped
+         */
+        void assembleGeoPoseWithCovarianceStamped();
 
         /**
          * @brief "Callback" function when constructing
@@ -441,5 +452,30 @@ namespace io {
          * epoch
          */
         Timestamp timestampSBF(uint32_t tow, uint16_t wnc) const;
+
+        /**
+         * @brief Get current covariance
+         */
+        float getCovarianceErrorLonLat();
+
+        /**
+         * @brief Check covariance
+         */
+        bool horizontalErrorOutsideThreshold();
+
+        /**
+         * @brief Get covariance data
+         */
+        std::array<double, 36> getCovarianceData();
+
+        /**
+         * @brief Assemble PoseStamped message
+         */
+        void assemblePoseStamped();
+
+        /**
+         * @brief Assemble TwistStamped message
+         */
+        void assembleTwistStamped(bool fromIns = false); 
     };
 } // namespace io

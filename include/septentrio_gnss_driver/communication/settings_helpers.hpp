@@ -175,6 +175,9 @@ namespace settings {
             settings.publish_navsatfix = true;
             settings.publish_gpsfix = true;
             settings.publish_pose = true;
+            settings.publish_pose_stamped = true;
+            settings.publish_geopose_stamped = true;
+            settings.publish_geopose_covariance_stamped = true;
             settings.publish_diagnostics = true;
             settings.publish_aimplusstatus = true;
             settings.publish_galauthstatus = true;
@@ -204,6 +207,7 @@ namespace settings {
             settings.publish_localization = true;
             settings.publish_localization_ecef = true;
             settings.publish_twist = true;
+            settings.publish_twist_stamped = true;
             if (!settings.publish_tf_ecef)
                 settings.publish_tf = true;
         } else if (settings.auto_publish && settings.configure_rx)
