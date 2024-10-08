@@ -314,6 +314,18 @@ namespace io {
         }
     }
 
+    bool hasNaNInCovariance(const std::array<double, 36>& covariance)
+    {
+        for (const auto& value : covariance)
+        {
+            if (std::isnan(value))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         if (!settings_->publish_pose)
@@ -357,6 +369,21 @@ namespace io {
 
         msg.pose.covariance = getCovarianceData();
 
+        if (std::isnan(msg.pose.pose.position.x) || std::isnan(msg.pose.pose.position.y) ||
+            std::isnan(msg.pose.pose.position.z))
+        {
+            return;
+        }
+        if (std::isnan(msg.pose.pose.orientation.x) || std::isnan(msg.pose.pose.orientation.y) ||
+            std::isnan(msg.pose.pose.orientation.z) || std::isnan(msg.pose.pose.orientation.w))
+        {
+            return;
+        }
+        if (hasNaNInCovariance(msg.pose.covariance))
+        {
+            return;
+        }
+
         publish<PoseWithCovarianceStampedMsg>("pose_covariance_stamped", msg);
     };
 
@@ -399,6 +426,17 @@ namespace io {
 
             msg.pose.position = getGeoPose(last_pvtgeodetic_);
             msg.pose.orientation = getOrientation(last_atteuler_);
+        }
+
+        if (std::isnan(msg.pose.position.latitude) || std::isnan(msg.pose.position.longitude) ||
+            std::isnan(msg.pose.position.altitude))
+        {
+            return;
+        }
+        if (std::isnan(msg.pose.orientation.x) || std::isnan(msg.pose.orientation.y) ||
+            std::isnan(msg.pose.orientation.z) || std::isnan(msg.pose.orientation.w))
+        {
+            return;
         }
 
         publish<GeoPoseStampedMsg>("geopose_stamped", msg);
@@ -446,6 +484,21 @@ namespace io {
         }
 
         msg.pose.covariance = getCovarianceData();
+
+        if (std::isnan(msg.pose.pose.position.latitude) || std::isnan(msg.pose.pose.position.longitude) ||
+            std::isnan(msg.pose.pose.position.altitude))
+        {
+            return;
+        }
+        if (std::isnan(msg.pose.pose.orientation.x) || std::isnan(msg.pose.pose.orientation.y) ||
+            std::isnan(msg.pose.pose.orientation.z) || std::isnan(msg.pose.pose.orientation.w))
+        {
+            return;
+        }
+        if (hasNaNInCovariance(msg.pose.covariance))
+        {
+            return;
+        }
 
         publish<GeoPoseWithCovarianceStampedMsg>("geopose_covariance_stamped", msg);
     };
