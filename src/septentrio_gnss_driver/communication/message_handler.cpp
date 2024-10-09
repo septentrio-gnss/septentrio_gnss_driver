@@ -193,12 +193,106 @@ namespace io {
         return covariance;
     }
 
+    bool hasNaNInPose(const geometry_msgs::msg::Pose& pose)
+    {
+        if (std::isnan(pose.position.x) || std::isnan(pose.position.y) || std::isnan(pose.position.z))
+        {
+            return true;
+        }
+        if (std::isnan(pose.orientation.x) || std::isnan(pose.orientation.y) || std::isnan(pose.orientation.z) || std::isnan(pose.orientation.w))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    bool hasNaNInGeoPose (const geographic_msgs::msg::GeoPose& pose)
+    {
+        if (std::isnan(pose.position.latitude) || std::isnan(pose.position.longitude) || std::isnan(pose.position.altitude))
+        {
+            return true;
+        }
+        if (std::isnan(pose.orientation.x) || std::isnan(pose.orientation.y) || std::isnan(pose.orientation.z) || std::isnan(pose.orientation.w))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    void replaceNaNPoseWithZero(geometry_msgs::msg::Pose& pose)
+    {
+        if (std::isnan(pose.position.x)) pose.position.x = 0.0;
+        if (std::isnan(pose.position.y)) pose.position.y = 0.0;
+        if (std::isnan(pose.position.z)) pose.position.z = 0.0;
+
+        if (std::isnan(pose.orientation.x)) pose.orientation.x = 0.0;
+        if (std::isnan(pose.orientation.y)) pose.orientation.y = 0.0;
+        if (std::isnan(pose.orientation.z)) pose.orientation.z = 0.0;
+        if (std::isnan(pose.orientation.w)) pose.orientation.w = 0.0;
+    }
+
+    void replaceNaNGeoPoseWithZero(geographic_msgs::msg::GeoPose& geopose)
+    {
+        if (std::isnan(geopose.position.latitude)) geopose.position.latitude = 0.0;
+        if (std::isnan(geopose.position.longitude)) geopose.position.longitude = 0.0;
+        if (std::isnan(geopose.position.altitude)) geopose.position.altitude = 0.0;
+
+        if (std::isnan(geopose.orientation.x)) geopose.orientation.x = 0.0;
+        if (std::isnan(geopose.orientation.y)) geopose.orientation.y = 0.0;
+        if (std::isnan(geopose.orientation.z)) geopose.orientation.z = 0.0;
+        if (std::isnan(geopose.orientation.w)) geopose.orientation.w = 0.0;
+    }
+
+    void replaceNaNCovarianceWithZero(std::array<double, 36>& covariance)
+    {
+        for (auto& value : covariance)
+        {
+            if (std::isnan(value))
+            {
+                value = 0.0;
+            }
+        }
+    }
+
+    bool hasNaNInCovariance(const std::array<double, 36>& covariance)
+    {
+        for (const auto& value : covariance)
+        {
+            if (std::isnan(value))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void setPublisherNanStatusDiagnostic(diagnostic_msgs::msg::DiagnosticStatus& status, const std::string& publisher_name, bool published)
+    {
+        for (auto& kv : status.values)
+        {
+            if (kv.key == publisher_name)
+            {
+                if (published)
+                {
+                    kv.value = "Published";
+                }
+                else
+                {
+                    status.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
+                    kv.value = "Not published due to NaN value(s)";
+                }
+                break;
+            }
+        }
+    }
+
     void MessageHandler::assemblePoseStamped()
     {
         if (!settings_->publish_pose_stamped)
             return;
 
         thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        pose_stamped_published_ = false;
 
         PoseStampedMsg msg;
 
@@ -235,6 +329,7 @@ namespace io {
         }
 
         publish<PoseStampedMsg>("pose_stamped", msg);
+        pose_stamped_published_ = true;
     }
 
     void setTwistLinearToNaN(Vector3Msg& twist_linear)
@@ -314,24 +409,13 @@ namespace io {
         }
     }
 
-    bool hasNaNInCovariance(const std::array<double, 36>& covariance)
-    {
-        for (const auto& value : covariance)
-        {
-            if (std::isnan(value))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         if (!settings_->publish_pose)
             return;
 
         thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        pose_with_covariance_stamped_published_ = false;
 
         PoseWithCovarianceStampedMsg msg;
 
@@ -369,22 +453,25 @@ namespace io {
 
         msg.pose.covariance = getCovarianceData();
 
-        if (std::isnan(msg.pose.pose.position.x) || std::isnan(msg.pose.pose.position.y) ||
-            std::isnan(msg.pose.pose.position.z))
+        if (settings_->block_nan_values)
         {
-            return;
+            if (hasNaNInPose(msg.pose.pose))
+            {
+                return;
+            }
+            if (hasNaNInCovariance(msg.pose.covariance))
+            {
+                return;
+            }
         }
-        if (std::isnan(msg.pose.pose.orientation.x) || std::isnan(msg.pose.pose.orientation.y) ||
-            std::isnan(msg.pose.pose.orientation.z) || std::isnan(msg.pose.pose.orientation.w))
+        else
         {
-            return;
-        }
-        if (hasNaNInCovariance(msg.pose.covariance))
-        {
-            return;
+            replaceNaNPoseWithZero(msg.pose.pose);
+            replaceNaNCovarianceWithZero(msg.pose.covariance);
         }
 
         publish<PoseWithCovarianceStampedMsg>("pose_covariance_stamped", msg);
+        pose_with_covariance_stamped_published_ = true;
     };
 
     void MessageHandler::assembleGeoPoseStamped()
@@ -393,6 +480,7 @@ namespace io {
             return;
 
         thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        geo_pose_stamped_published_ = false;
 
         GeoPoseStampedMsg msg;
 
@@ -428,18 +516,20 @@ namespace io {
             msg.pose.orientation = getOrientation(last_atteuler_);
         }
 
-        if (std::isnan(msg.pose.position.latitude) || std::isnan(msg.pose.position.longitude) ||
-            std::isnan(msg.pose.position.altitude))
+        if (settings_->block_nan_values)
         {
-            return;
+            if (hasNaNInGeoPose(msg.pose))
+            {
+                return;
+            }
         }
-        if (std::isnan(msg.pose.orientation.x) || std::isnan(msg.pose.orientation.y) ||
-            std::isnan(msg.pose.orientation.z) || std::isnan(msg.pose.orientation.w))
+        else
         {
-            return;
+            replaceNaNGeoPoseWithZero(msg.pose);
         }
 
         publish<GeoPoseStampedMsg>("geopose_stamped", msg);
+        geo_pose_stamped_published_ = true;
     };
 
     void MessageHandler::assembleGeoPoseWithCovarianceStamped()
@@ -448,6 +538,7 @@ namespace io {
             return;
 
         thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
+        geo_pose_with_covariance_stamped_published_ = false;
 
         GeoPoseWithCovarianceStampedMsg msg;
 
@@ -485,22 +576,25 @@ namespace io {
 
         msg.pose.covariance = getCovarianceData();
 
-        if (std::isnan(msg.pose.pose.position.latitude) || std::isnan(msg.pose.pose.position.longitude) ||
-            std::isnan(msg.pose.pose.position.altitude))
+        if (settings_->block_nan_values)
         {
-            return;
+            if (hasNaNInGeoPose(msg.pose.pose))
+            {
+                return;
+            }
+            if (hasNaNInCovariance(msg.pose.covariance))
+            {
+                return;
+            }
         }
-        if (std::isnan(msg.pose.pose.orientation.x) || std::isnan(msg.pose.pose.orientation.y) ||
-            std::isnan(msg.pose.pose.orientation.z) || std::isnan(msg.pose.pose.orientation.w))
+        else
         {
-            return;
-        }
-        if (hasNaNInCovariance(msg.pose.covariance))
-        {
-            return;
+            replaceNaNGeoPoseWithZero(msg.pose.pose);
+            replaceNaNCovarianceWithZero(msg.pose.covariance);
         }
 
         publish<GeoPoseWithCovarianceStampedMsg>("geopose_covariance_stamped", msg);
+        geo_pose_with_covariance_stamped_published_ = true;
     };
 
     float MessageHandler::getCovarianceErrorLonLat()
@@ -690,6 +784,29 @@ namespace io {
             }
         }
         msg.status.push_back(gnss_status);
+
+        
+        DiagnosticStatusMsg publisher_nan_status;
+        publisher_nan_status.hardware_id = serialnumber;
+        publisher_nan_status.name = "septentrio_driver: Publisher NaN values status";
+        publisher_nan_status.message = "Publishers won't publish if NaN values are present in data";
+        publisher_nan_status.level = DiagnosticStatusMsg::OK;
+
+        if (settings_->block_nan_values)
+        {
+            publisher_nan_status.values.resize(4);
+            publisher_nan_status.values[0].key = "pose_stamped";
+            publisher_nan_status.values[1].key = "pose_with_covariance_stamped";
+            publisher_nan_status.values[2].key = "geopose_stamped";
+            publisher_nan_status.values[3].key = "gepose_with_covariance_stamped";
+
+            setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_stamped", pose_stamped_published_);
+            setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_with_covariance_stamped", pose_with_covariance_stamped_published_);
+            setPublisherNanStatusDiagnostic(publisher_nan_status, "geopose_stamped", geo_pose_stamped_published_);
+            setPublisherNanStatusDiagnostic(publisher_nan_status, "gepose_with_covariance_stamped", geo_pose_with_covariance_stamped_published_);
+        }
+
+        msg.status.push_back(publisher_nan_status);
 
         assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);

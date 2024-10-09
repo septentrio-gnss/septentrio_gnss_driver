@@ -149,10 +149,10 @@ def generate_launch_description():
             "velcovgeodetic": False,
             "atteuler": False,
             "attcoveuler": False,
-            "pose": False,
+            "pose": True,
             "pose_stamped": True,
             "geopose_stamped": True,
-            "geopose_covariance_stamped": False,
+            "geopose_covariance_stamped": True,
             "twist": False,
             "twist_stamped": True,
             "diagnostics": True,
@@ -173,6 +173,7 @@ def generate_launch_description():
             "localization_ecef": False,
             "tf_ecef": False
         },
+        "block_nan_values": True,
         "ins_spatial_config": {
             "imu_orientation": {
                 "theta_x": 0.0,
