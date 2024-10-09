@@ -65,6 +65,14 @@ namespace io {
         return std::isnan(val) ? 0.0 : deg2radSq(val);
     }
 
+    void setQuaternionNaN(QuaternionMsg& quaternion)
+    {
+        quaternion.w = std::numeric_limits<double>::quiet_NaN();
+        quaternion.x = std::numeric_limits<double>::quiet_NaN();
+        quaternion.y = std::numeric_limits<double>::quiet_NaN();
+        quaternion.z = std::numeric_limits<double>::quiet_NaN();
+    }
+
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         if (!settings_->publish_pose)
@@ -109,14 +117,7 @@ namespace io {
                     deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
             } else
             {
-                msg.pose.pose.orientation.w =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.x =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.y =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.z =
-                    std::numeric_limits<double>::quiet_NaN();
+                setQuaternionNaN(msg.pose.pose.orientation);
             }
             if ((last_insnavgeod_.sb_list & 4) != 0)
             {
@@ -670,10 +671,7 @@ namespace io {
 
         if (!valid_orientation)
         {
-            msg.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            setQuaternionNaN(msg.orientation);
         }
 
         publish<ImuMsg>("imu", msg);
@@ -998,10 +996,7 @@ namespace io {
                 convertEulerToQuaternionMsg(roll, pitch, yaw);
         } else
         {
-            msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            setQuaternionNaN(msg.pose.pose.orientation);
         }
         if ((last_insnavgeod_.sb_list & 4) != 0)
         {
@@ -1165,10 +1160,7 @@ namespace io {
                 parsing_utilities::quaternionToQuaternionMsg(q_b_ecef);
         } else
         {
-            msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            setQuaternionNaN(msg.pose.pose.orientation);
         }
         Eigen::Matrix3d covAtt_local = Eigen::Matrix3d::Zero();
         bool covAttValid = true;

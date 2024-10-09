@@ -333,6 +333,14 @@ namespace parsing_utilities {
         return quaternionToQuaternionMsg(convertEulerToQuaternion(roll, pitch, yaw));
     }
 
+    void setQuaternionNaN(QuaternionMsg& quaternion)
+    {
+        quaternion.w = std::numeric_limits<double>::quiet_NaN();
+        quaternion.x = std::numeric_limits<double>::quiet_NaN();
+        quaternion.y = std::numeric_limits<double>::quiet_NaN();
+        quaternion.z = std::numeric_limits<double>::quiet_NaN();
+    }
+
     [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon)
     {
         double sr = sin((pihalf - lat) / 2.0);
@@ -439,6 +447,16 @@ namespace parsing_utilities {
     [[nodiscard]] uint16_t getWnc(const std::vector<uint8_t>& message)
     {
         return parseUInt16(message.data() + 12);
+    }
+
+    double convertAutoCovariance(double val)
+    {
+        return std::isnan(val) ? -1.0 : deg2radSq(val);
+    }
+
+    double convertCovariance(double val)
+    {
+        return std::isnan(val) ? 0.0 : deg2radSq(val);
     }
 
 } // namespace parsing_utilities
