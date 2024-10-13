@@ -328,6 +328,18 @@ namespace io {
             msg.pose.orientation = getOrientation(last_atteuler_);
         }
 
+        if (settings_->block_nan_values)
+        {
+            if (hasNaNInPose(msg.pose))
+            {
+                return;
+            }
+        }
+        else
+        {
+            replaceNaNPoseWithZero(msg.pose);
+        }
+
         publish<PoseStampedMsg>("pose_stamped", msg);
         pose_stamped_published_ = true;
     }
@@ -664,12 +676,6 @@ namespace io {
                 break;
             }
         }
-        // If the ReceiverStatus's RxError field is not 0, then at least one
-        // error has been detected.
-        if (last_receiverstatus_.rx_error != static_cast<uint32_t>(0))
-        {
-            gnss_status.level = DiagnosticStatusMsg::ERROR;
-        }
         // Creating an array of values associated with the GNSS status
         gnss_status.values.resize(static_cast<uint16_t>(last_qualityind_.n - 1));
         for (uint16_t i = static_cast<uint16_t>(0);
@@ -730,10 +736,31 @@ namespace io {
                     (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
             }
         }
+        
+        if (settings_->block_nan_values) // If block_nan_values is false, then NaN values in data will be replaced with 0
+        {
+            if (!(pose_stamped_published_ || pose_with_covariance_stamped_published_ || geo_pose_stamped_published_ || geo_pose_with_covariance_stamped_published_))
+            {
+                gnss_status.level = DiagnosticStatusMsg::ERROR;
+                gnss_status.message = "Not publishing due to NaN values in data";
+            }        
+        }
+        // If the ReceiverStatus's RxError field is not 0, then at least one
+        // error has been detected.
+        else if (last_receiverstatus_.rx_error != static_cast<uint32_t>(0))
+        {
+            gnss_status.level = DiagnosticStatusMsg::WARN;
+            gnss_status.message = "Receiver status: BAD - received " +
+                          std::to_string(last_receiverstatus_.rx_error) + " errors";
+        }
+        else
+        {
+            gnss_status.message =
+            "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
+        }
         gnss_status.hardware_id = serialnumber;
         gnss_status.name = "septentrio_driver: Quality indicators";
-        gnss_status.message =
-            "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
+
         DiagnosticStatusMsg receiver_status;
         receiver_status.hardware_id = serialnumber;
         receiver_status.name = "septentrio_driver: receiver status";
@@ -785,28 +812,31 @@ namespace io {
         }
         msg.status.push_back(gnss_status);
 
-        
-        DiagnosticStatusMsg publisher_nan_status;
-        publisher_nan_status.hardware_id = serialnumber;
-        publisher_nan_status.name = "septentrio_driver: Publisher NaN values status";
-        publisher_nan_status.message = "Publishers won't publish if NaN values are present in data";
-        publisher_nan_status.level = DiagnosticStatusMsg::OK;
+        // DiagnosticStatusMsg publisher_nan_status;
+        // publisher_nan_status.hardware_id = serialnumber;
+        // publisher_nan_status.name = "septentrio_driver: Publisher NaN values status";
+        // publisher_nan_status.level = DiagnosticStatusMsg::OK;
 
-        if (settings_->block_nan_values)
-        {
-            publisher_nan_status.values.resize(4);
-            publisher_nan_status.values[0].key = "pose_stamped";
-            publisher_nan_status.values[1].key = "pose_with_covariance_stamped";
-            publisher_nan_status.values[2].key = "geopose_stamped";
-            publisher_nan_status.values[3].key = "gepose_with_covariance_stamped";
+        // if (settings_->block_nan_values)
+        // {
+        //     publisher_nan_status.message = "Publishers won't publish if NaN values are present in data";        
+        //     publisher_nan_status.values.resize(4);
+        //     publisher_nan_status.values[0].key = "pose_stamped";
+        //     publisher_nan_status.values[1].key = "pose_with_covariance_stamped";
+        //     publisher_nan_status.values[2].key = "geopose_stamped";
+        //     publisher_nan_status.values[3].key = "gepose_with_covariance_stamped";
 
-            setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_stamped", pose_stamped_published_);
-            setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_with_covariance_stamped", pose_with_covariance_stamped_published_);
-            setPublisherNanStatusDiagnostic(publisher_nan_status, "geopose_stamped", geo_pose_stamped_published_);
-            setPublisherNanStatusDiagnostic(publisher_nan_status, "gepose_with_covariance_stamped", geo_pose_with_covariance_stamped_published_);
-        }
+        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_stamped", pose_stamped_published_);
+        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_with_covariance_stamped", pose_with_covariance_stamped_published_);
+        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "geopose_stamped", geo_pose_stamped_published_);
+        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "gepose_with_covariance_stamped", geo_pose_with_covariance_stamped_published_);
+        // }
+        // else
+        // {
+        //     publisher_nan_status.message = "NaN values in data will be replaced with 0";
+        // }
 
-        msg.status.push_back(publisher_nan_status);
+        // msg.status.push_back(publisher_nan_status);
 
         assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
