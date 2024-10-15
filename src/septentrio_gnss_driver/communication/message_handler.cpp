@@ -739,11 +739,14 @@ namespace io {
         
         if (settings_->block_nan_values) // If block_nan_values is false, then NaN values in data will be replaced with 0
         {
-            if (!(pose_stamped_published_ || pose_with_covariance_stamped_published_ || geo_pose_stamped_published_ || geo_pose_with_covariance_stamped_published_))
+            if ((settings_->publish_pose_stamped && ! pose_stamped_published_) ||
+                (settings_->publish_pose && ! pose_with_covariance_stamped_published_) ||
+                (settings_->publish_geopose_stamped && ! geo_pose_stamped_published_) ||
+                (settings_->publish_geopose_covariance_stamped && ! geo_pose_with_covariance_stamped_published_))
             {
                 gnss_status.level = DiagnosticStatusMsg::ERROR;
                 gnss_status.message = "Not publishing due to NaN values in data";
-            }        
+            }     
         }
         // If the ReceiverStatus's RxError field is not 0, then at least one
         // error has been detected.
