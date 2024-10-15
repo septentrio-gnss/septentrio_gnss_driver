@@ -815,32 +815,6 @@ namespace io {
         }
         msg.status.push_back(gnss_status);
 
-        // DiagnosticStatusMsg publisher_nan_status;
-        // publisher_nan_status.hardware_id = serialnumber;
-        // publisher_nan_status.name = "septentrio_driver: Publisher NaN values status";
-        // publisher_nan_status.level = DiagnosticStatusMsg::OK;
-
-        // if (settings_->block_nan_values)
-        // {
-        //     publisher_nan_status.message = "Publishers won't publish if NaN values are present in data";        
-        //     publisher_nan_status.values.resize(4);
-        //     publisher_nan_status.values[0].key = "pose_stamped";
-        //     publisher_nan_status.values[1].key = "pose_with_covariance_stamped";
-        //     publisher_nan_status.values[2].key = "geopose_stamped";
-        //     publisher_nan_status.values[3].key = "gepose_with_covariance_stamped";
-
-        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_stamped", pose_stamped_published_);
-        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "pose_with_covariance_stamped", pose_with_covariance_stamped_published_);
-        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "geopose_stamped", geo_pose_stamped_published_);
-        //     setPublisherNanStatusDiagnostic(publisher_nan_status, "gepose_with_covariance_stamped", geo_pose_with_covariance_stamped_published_);
-        // }
-        // else
-        // {
-        //     publisher_nan_status.message = "NaN values in data will be replaced with 0";
-        // }
-
-        // msg.status.push_back(publisher_nan_status);
-
         assembleHeader(frame_id, telegram, msg);
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     };
