@@ -381,6 +381,8 @@ struct Settings
     bool read_from_pcap = false;
     //! INS VSM setting
     InsVsm ins_vsm;
+    //! Switch between blocking publishing of NaN values or setting them to zero instead
+    bool block_nan_values;
 };
 
 //! Capabilities struct

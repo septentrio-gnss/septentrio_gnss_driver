@@ -477,5 +477,11 @@ namespace io {
          * @brief Assemble TwistStamped message
          */
         void assembleTwistStamped(bool fromIns = false); 
+
+        // Class variables
+        bool pose_stamped_published_ = false;
+        bool pose_with_covariance_stamped_published_ = false;
+        bool geo_pose_stamped_published_ = false;
+        bool geo_pose_with_covariance_stamped_published_ = false;
     };
 } // namespace io

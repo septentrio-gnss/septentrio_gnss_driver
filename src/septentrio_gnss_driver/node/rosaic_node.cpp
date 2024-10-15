@@ -208,6 +208,9 @@ rosaic_node::ROSaicNode::ROSaicNode(const rclcpp::NodeOptions& options) :
     param("publish.tf", settings_.publish_tf, false);
     param("publish.tf_ecef", settings_.publish_tf_ecef, false);
 
+    // Switch between blocking publishing of NaN values or setting them to zero
+    param("block_nan_values", settings_.block_nan_values, false);
+
     if (settings_.publish_tf && settings_.publish_tf_ecef)
     {
         this->log(

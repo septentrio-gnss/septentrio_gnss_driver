@@ -37,7 +37,7 @@ def generate_launch_description():
 
     parameters_list = [
     {
-        "covariance_threshold": 0.0,
+        "covariance_threshold": 10.0,
         "device": "tcp://10.27.1.102:28784",
         "serial": {
             "baudrate": 921600,
@@ -149,7 +149,7 @@ def generate_launch_description():
             "velcovgeodetic": False,
             "atteuler": False,
             "attcoveuler": False,
-            "pose": False,
+            "pose": True,
             "pose_stamped": True,
             "geopose_stamped": True,
             "geopose_covariance_stamped": False,
@@ -173,6 +173,7 @@ def generate_launch_description():
             "localization_ecef": False,
             "tf_ecef": False
         },
+        "block_nan_values": True,
         "ins_spatial_config": {
             "imu_orientation": {
                 "theta_x": 0.0,
