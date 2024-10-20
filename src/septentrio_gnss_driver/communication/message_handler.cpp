@@ -1088,19 +1088,20 @@ namespace io {
         {
             GeoPoseStampedMsg geopose_msg;
             geopose_msg.header.stamp = last_insnavgeod_.header.stamp;
-            geopose.msg.position.latitude = rad2deg(last_insnavgeod_.latitude);
-            geopose.msg.position.longitude = rad2deg(last_insnavgeod_.longitude);
-            geopose.msg.position.altitude = last_insnavgeod_.height;
-            geopose.msg.orientation = msg.pose.pose.orientation;
-            publish<GeoPoseStampedMsg>("geopose", msg);
+            geopose_msg.pose.position.latitude = rad2deg(last_insnavgeod_.latitude);
+            geopose_msg.pose.position.longitude = rad2deg(last_insnavgeod_.longitude);
+            geopose_msg.pose.position.altitude = last_insnavgeod_.height;
+            geopose_msg.pose.orientation = msg.pose.pose.orientation;
+            publish<GeoPoseStampedMsg>("geopose", geopose_msg);
         }
 
         if (settings_->publish_geopose_covariance_stamped)
         {
             GeoPoseWithCovarianceStampedMsg geopose_cov_msg;
-            geopose_cov_msg.header = msg.header;
             geopose_cov_msg.header.stamp = last_insnavgeod_.header.stamp;
-            geopose_cov_msg.pose.pose.position = msg.pose.pose.position;
+            geopose_cov_msg.pose.pose.position.latitude = rad2deg(last_insnavgeod_.latitude);
+            geopose_cov_msg.pose.pose.position.longitude = rad2deg(last_insnavgeod_.longitude);
+            geopose_cov_msg.pose.pose.position.altitude = last_insnavgeod_.height;
             geopose_cov_msg.pose.pose.orientation = msg.pose.pose.orientation;
             geopose_cov_msg.pose.covariance = msg.pose.covariance;
             publish<GeoPoseWithCovarianceStampedMsg>("geopose_cov", geopose_cov_msg);
