@@ -95,15 +95,9 @@ def generate_launch_description():
                 # },
             # },
             "publish": {
-                "pose": True,  # required
-                "pose_stamped": True,
                 "geopose_stamped": True,
-                "geopose_covariance_stamped": False,
-                "twist": True,  # required
                 "twist_flu_stamped": True,
                 "diagnostics": True,
-                "localization": True,
-                "imu": True
             },
             "ins_spatial_config": {
                 "imu_orientation": {"theta_x": 0.0, "theta_y": 0.0, "theta_z": 0.0},
