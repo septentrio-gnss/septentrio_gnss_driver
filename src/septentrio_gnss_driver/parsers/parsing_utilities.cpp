@@ -336,10 +336,10 @@ namespace parsing_utilities {
         quat.setEuler(pitch, roll, yaw);
 
         geometry_msgs::msg::Quaternion quat_msg;
-        quat_msg.x = q.x();
-        quat_msg.y = q.y();
-        quat_msg.z = q.z();
-        quat_msg.w = q.w();
+        quat_msg.x = quat.x();
+        quat_msg.y = quat.y();
+        quat_msg.z = quat.z();
+        quat_msg.w = quat.w();
 
         return quat_msg;
     }
