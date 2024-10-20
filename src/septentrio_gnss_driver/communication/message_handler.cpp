@@ -902,7 +902,12 @@ namespace io {
      */
     void MessageHandler::assembleLocalizationUtm()
     {
-        if (!settings_->publish_localization && !settings_->publish_tf)
+        if (!settings_->publish_localization && 
+            !settings_->publish_tf && 
+            !settings_->publish_twist_flu_stamped && 
+            !settings_->publish_geopose_covariance_stamped &&
+            !settings_->publish_geopose_stamped
+        )
             return;
 
         LocalizationMsg msg;
@@ -1040,16 +1045,6 @@ namespace io {
                 P_pos(2, 0) = -last_insnavgeod_.latitude_height_cov;
                 P_pos(2, 1) = -last_insnavgeod_.longitude_height_cov;
             }
-        }
-
-        if ((meridian_convergence != 0.0) && (last_insnavgeod_.sb_list & 1))
-        {
-            double cg = std::cos(meridian_convergence);
-            double sg = std::sin(meridian_convergence);
-            Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
-            R(0, 0) = cg;
-            R(0, 1) = -sg;
-            R(1, 0) = sg;
             R(1, 1) = cg;
             P_pos = (R * P_pos * R.transpose()).eval();
         }
