@@ -318,6 +318,12 @@ struct Settings
     bool publish_gpsfix;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose;
+    //! Whether or not to publish the GeoposeMsg message
+    bool publish_geopose_stamped;
+    //! Whether or not to publish the GeoposeWithCovarianceStampedMsg message
+    bool publish_geopose_covariance_stamped;
+    //! Whether or not to publish the TwistMsg message
+    bool publish_twist_flu_stamped;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics;
     //! Whether or not to publish the ImuMsg message

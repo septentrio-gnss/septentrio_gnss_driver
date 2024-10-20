@@ -1,0 +1,52 @@
+name: Tag & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: 'If not specified, all packages will be released.'
+        options:
+          - ""
+          - septentrio_gnss_driver
+
+jobs:
+ release:
+    strategy:
+      fail-fast: true
+      matrix:
+        job:
+          - runner: buildjet-8vcpu-ubuntu-2204
+            arch: amd64
+            ros_distro: iron
+            github_release: true
+          - runner: buildjet-16vcpu-ubuntu-2204-arm
+            arch: arm64
+            ros_distro: iron
+            github_release: false
+          - runner: buildjet-8vcpu-ubuntu-2204
+            arch: amd64
+            ros_distro: jazzy
+            github_release: false
+          - runner: buildjet-16vcpu-ubuntu-2204-arm
+            arch: arm64
+            ros_distro: jazzy
+            github_release: false
+
+    name: Release - ${{ matrix.job.arch }} - ${{ matrix.job.ros_distro }}
+    runs-on: ${{ matrix.job.runner }}
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3
+
+      - name: Semantic release
+        uses: Greenroom-Robotics/ros_semantic_release_action@main
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          package: ${{ github.event.inputs.package }}
+          arch: ${{ matrix.job.arch }}
+          ros_distro: ${{ matrix.job.ros_distro }}
+          github_release: ${{ matrix.job.github_release }}
+          public: true
+          changelog: false

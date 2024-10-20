@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(septentrio_gnss_driver)
 
-## Compile as C++17
-add_compile_options(-std=c++17)
+## Compile as C++20
+add_compile_options(-std=c++20)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 message(STATUS "Setting build type to Release as none was specified.")
@@ -166,7 +166,8 @@ elseif(ament_cmake_FOUND)
   find_package(tf2_eigen REQUIRED)
   find_package(tf2_geometry_msgs REQUIRED)
   find_package(tf2_ros REQUIRED)
-  
+  find_package(geographic_msgs REQUIRED)
+
   ## Declare  messages
   rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AIMPlusStatus.msg"

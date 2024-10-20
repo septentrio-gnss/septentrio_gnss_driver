@@ -35,7 +35,8 @@
 #include <limits>
 // Boost
 #include <boost/spirit/include/qi_binary.hpp>
-
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <tf2/LinearMath/Quaternion.h>
 /**
  * @file parsing_utilities.cpp
  * @brief Declares utility functions used when parsing messages
@@ -330,7 +331,17 @@ namespace parsing_utilities {
     [[nodiscard]] QuaternionMsg convertEulerToQuaternionMsg(double roll,
                                                             double pitch, double yaw)
     {
-        return quaternionToQuaternionMsg(convertEulerToQuaternion(roll, pitch, yaw));
+        tf2::Quaternion quat;
+        // This is strange isn't it...
+        quat.setEuler(pitch, roll, yaw);
+
+        geometry_msgs::msg::Quaternion quat_msg;
+        quat_msg.x = q.x();
+        quat_msg.y = q.y();
+        quat_msg.z = q.z();
+        quat_msg.w = q.w();
+
+        return quat_msg;
     }
 
     [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon)
