@@ -1,4 +1,6 @@
 #config/rover.yaml
 .vscode
 build
+install
+log
 msg/BlockHeader.msg

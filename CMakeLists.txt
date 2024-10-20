@@ -215,6 +215,7 @@ elseif(ament_cmake_FOUND)
   tf2_eigen
   tf2_geometry_msgs
   tf2_ros
+  geographic_msgs
   )
 
   ## shared library

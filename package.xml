@@ -39,6 +39,7 @@
   <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>geographic_msgs</depend>
   <depend condition="$ROS_VERSION == 2">gps_msgs</depend>
   <depend condition="$ROS_VERSION == 1">gps_common</depend>
   <depend>nav_msgs</depend>
