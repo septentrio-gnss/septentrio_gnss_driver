@@ -4,3 +4,4 @@ build
 install
 log
 msg/BlockHeader.msg
+__pycache__
