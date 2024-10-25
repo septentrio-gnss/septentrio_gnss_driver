@@ -187,7 +187,8 @@ class ROSaicNodeBase
 {
 public:
     ROSaicNodeBase() :
-        pNh_(new ros::NodeHandle("~")), tfListener_(tfBuffer_), lastTfStamp_(0)
+        pNh_(std::make_shared<ros::NodeHandle>("~")), tfListener_(tfBuffer_),
+        lastTfStamp_(0)
     {
     }
 

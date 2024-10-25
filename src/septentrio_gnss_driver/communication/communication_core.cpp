@@ -77,7 +77,7 @@ namespace io {
         resetSettings();
 
         running_ = false;
-        std::shared_ptr<Telegram> telegram(new Telegram);
+        auto telegram = std::make_shared<Telegram>();
         telegramQueue_.push(telegram);
         processingThread_.join();
     }
@@ -214,7 +214,8 @@ namespace io {
         node_->log(log_level::DEBUG, "Called initializeIo() method");
         if ((settings_->tcp_port != 0) && (!settings_->tcp_ip_server.empty()))
         {
-            tcpClient_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
+            tcpClient_ =
+                std::make_unique<AsyncManager<TcpIo>>(node_, &telegramQueue_);
             tcpClient_->setPort(std::to_string(settings_->tcp_port));
             if (!settings_->configure_rx)
                 tcpClient_->connect();
@@ -222,8 +223,8 @@ namespace io {
         }
         if ((settings_->udp_port != 0) && (!settings_->udp_ip_server.empty()))
         {
-            udpClient_.reset(
-                new UdpClient(node_, settings_->udp_port, &telegramQueue_));
+            udpClient_ = std::make_unique<UdpClient>(node_, settings_->udp_port,
+                                                     &telegramQueue_);
             client = true;
         }
 
@@ -231,22 +232,25 @@ namespace io {
         {
         case device_type::TCP:
         {
-            manager_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
+            manager_ = std::make_unique<AsyncManager<TcpIo>>(node_, &telegramQueue_);
             break;
         }
         case device_type::SERIAL:
         {
-            manager_.reset(new AsyncManager<SerialIo>(node_, &telegramQueue_));
+            manager_ =
+                std::make_unique<AsyncManager<SerialIo>>(node_, &telegramQueue_);
             break;
         }
         case device_type::SBF_FILE:
         {
-            manager_.reset(new AsyncManager<SbfFileIo>(node_, &telegramQueue_));
+            manager_ =
+                std::make_unique<AsyncManager<SbfFileIo>>(node_, &telegramQueue_);
             break;
         }
         case device_type::PCAP_FILE:
         {
-            manager_.reset(new AsyncManager<PcapFileIo>(node_, &telegramQueue_));
+            manager_ =
+                std::make_unique<AsyncManager<PcapFileIo>>(node_, &telegramQueue_);
             break;
         }
         default:
@@ -974,7 +978,8 @@ namespace io {
                     send("sdio, " + settings_->ins_vsm.ip_server +
                          ", NMEA, none\x0D");
 
-                    tcpVsm_.reset(new AsyncManager<TcpIo>(node_, &telegramQueue_));
+                    tcpVsm_ = std::make_unique<AsyncManager<TcpIo>>(node_,
+                                                                    &telegramQueue_);
                     tcpVsm_->setPort(
                         std::to_string(settings_->ins_vsm.ip_server_port));
                     tcpVsm_->connect();

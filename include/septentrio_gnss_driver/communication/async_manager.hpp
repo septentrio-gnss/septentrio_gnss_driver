@@ -162,7 +162,7 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node), ioService_(new boost::asio::io_service),
+        node_(node), ioService_(std::make_shared<boost::asio::io_service>()),
         ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
@@ -305,7 +305,7 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::resync()
     {
-        telegram_.reset(new Telegram);
+        telegram_ = std::make_shared<Telegram>();
         readSync<0>();
     }
 
@@ -589,7 +589,7 @@ namespace io {
                         {
                         case SYNC_BYTE_1:
                         {
-                            telegram_.reset(new Telegram);
+                            telegram_ = std::make_shared<Telegram>();
                             telegram_->message[0] = buf_[0];
                             telegram_->stamp = node_->getTime();
                             node_->log(
