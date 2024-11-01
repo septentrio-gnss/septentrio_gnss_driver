@@ -311,7 +311,11 @@ namespace io {
                 send("login, " + settings_->login_user + ", " +
                      settings_->login_password + " \x0D");
         }
-
+        
+        // Turning off all current SBF/NMEA output
+        send("sso, all, none, none, off \x0D");
+        send("sno, all, none, none, off \x0D");
+        
         if (!settings_->custom_commands_file.empty())
         {
             if ((std::filesystem::exists(settings_->custom_commands_file)))
@@ -364,10 +368,6 @@ namespace io {
                  std::to_string(settings_->udp_port) + ", UDP, " + destination +
                  "\x0D");
         }
-
-        // Turning off all current SBF/NMEA output
-        send("sso, all, none, none, off \x0D");
-        send("sno, all, none, none, off \x0D");
 
         // Get Rx capabilities
         send("grc \x0D");
