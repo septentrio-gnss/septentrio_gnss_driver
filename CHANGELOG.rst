@@ -2,29 +2,29 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.1 (upcoming)
+1.4.1 (2024-08-04)
 ------------------
 * Fixes
-  * Lever arm calculation from tf
-  * NavSatStatus and GPSFixStatus
-  * Orientation in pose topic of GNSS
+   * Lever arm calculation from tf
+   * NavSatStatus and GPSFixStatus
+   * Orientation in pose topic of GNSS
 
 1.4.0 (2024-05-21)
 ------------------
 * New features
-  * Send custom commands via ASCII file on startup
-  * Save config to boot after setup
-  * NTP and PTP server options (BREAKING: NTP is not setup automatically for `use_gnss_time: true` anymore)
-  * Receiver status on `/diagnostics`
-  * Option to publish only valid SBF block messages
-  * Option to auto publish available messages for `configure_rx: false`
+   * Send custom commands via ASCII file on startup
+   * Save config to boot after setup
+   * NTP and PTP server options (BREAKING: NTP is not setup automatically for `use_gnss_time: true` anymore)
+   * Receiver status on `/diagnostics`
+   * Option to publish only valid SBF block messages
+   * Option to auto publish available messages for `configure_rx: false`
 * Changes
-  * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
-  * VSM now uses separate TCP device specified IP server
+   * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
+   * VSM now uses separate TCP device specified IP server
 * Improvements
-  * Rework some sections of the README
-  * Combine ROS 1 and ROS 2 in one branch
-  * Change GPSFix publishing policy to allow for high update rates
+   * Rework some sections of the README
+   * Combine ROS 1 and ROS 2 in one branch
+   * Change GPSFix publishing policy to allow for high update rates
 
 1.3.2 (2023-11-19)
 ------------------
@@ -50,9 +50,9 @@ Changelog for package septentrio_gnss_driver
    * Add heading angle to GPSFix msg (by diverting dip field, cf. readme)
 * Improvements
    * Rework IO core and message handling
-     * Unified stream processing 
-     * Internal data queue
-     * Prevent message loss in file reading
+      * Unified stream processing 
+      * Internal data queue
+      * Prevent message loss in file reading
    * Add some explanatory warnings for parameter mismatches
    * Add units to message definitions
 * Fixes
