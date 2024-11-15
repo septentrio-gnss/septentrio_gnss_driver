@@ -2,6 +2,11 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.2 (upcoming)
+------------------
+* Fixes
+  * Add export of compiler directives (thanks to @oysstu)
+
 1.4.1 (2024-08-04)
 ------------------
 * Fixes
