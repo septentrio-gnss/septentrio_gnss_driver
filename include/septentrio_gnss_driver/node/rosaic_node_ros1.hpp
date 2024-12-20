@@ -91,6 +91,7 @@ namespace rosaic_node {
         ROSaicNode();
 
     private:
+        void setup();
         /**
          * @brief Gets the node parameters from the ROS Parameter Server, parts of
          * which are specified in a YAML file
@@ -131,5 +132,7 @@ namespace rosaic_node {
         //! tf2 buffer and listener
         tf2_ros::Buffer tfBuffer_;
         std::unique_ptr<tf2_ros::TransformListener> tfListener_;
+
+        std::thread setupThread_;
     };
 } // namespace rosaic_node

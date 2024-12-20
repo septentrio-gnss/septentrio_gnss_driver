@@ -106,6 +106,8 @@ namespace io {
          */
         ~CommunicationCore();
 
+        void close();
+
         /**
          * @brief Connects the data stream
          */
