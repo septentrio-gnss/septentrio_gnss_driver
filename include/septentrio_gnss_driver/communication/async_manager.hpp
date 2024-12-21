@@ -93,6 +93,7 @@ namespace io {
         virtual ~AsyncManagerBase() {}
         //! Connects the stream
         [[nodiscard]] virtual bool connect() = 0;
+
         virtual void close() = 0;
         //! Sends commands to the receiver
         virtual void send(const std::string& cmd) = 0;
@@ -174,7 +175,6 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::~AsyncManager()
     {
-        running_ = false;
         if (connected_)
             close();
     }
@@ -197,6 +197,8 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::close()
     {
+        running_ = false;
+        connected_ = false;
         ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
         if (ioThread_.joinable())
@@ -248,6 +250,7 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::runIoService()
     {
+        ioService_->reset();
         ioService_->run();
         node_->log(log_level::DEBUG, "AsyncManager ioService terminated.");
     }
@@ -269,23 +272,13 @@ namespace io {
                     break;
                 } else
                 {
-                    connected_ = false;
                     node_->log(log_level::ERROR,
                                "AsyncManager connection lost. Trying to reconnect.");
-                    ioService_->reset();
                     ioThread_.join();
-                    while (!ioInterface_.connect())
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                    connected_ = true;
-                    receive();
+                    connected_ = ioInterface_.connect();
+                    if (connected_)
+                        receive();
                 }
-            } else if (running_ && std::is_same<TcpIo, IoType>::value)
-            {
-                // Send to check if TCP connection still alive
-                std::string empty = " ";
-                boost::asio::async_write(
-                    *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
-                    [](boost::system::error_code ec, std::size_t /*length*/) {});
             }
         }
     }
@@ -458,7 +451,7 @@ namespace io {
                             {
                                 node_->log(
                                     log_level::DEBUG,
-                                    "AsyncManager sync read fault, should never come here.");
+                                    "AsyncManager sync read fault, unknown sync byte 2 found.");
                                 resync();
                                 break;
                             }
@@ -470,13 +463,25 @@ namespace io {
                             log_level::DEBUG,
                             "AsyncManager sync read fault, wrong number of bytes read: " +
                                 std::to_string(numBytes));
-                        resync();
                     }
                 } else
                 {
-                    node_->log(log_level::DEBUG,
-                               "AsyncManager sync read error: " + ec.message());
-                    resync();
+                    if (connected_)
+                        node_->log(log_level::DEBUG,
+                                   "AsyncManager sync read error: " + ec.message());
+
+                    if ((boost::asio::error::eof == ec) ||
+                        (boost::asio::error::network_unreachable == ec) ||
+                        (boost::asio::error::interrupted == ec) ||
+                        (boost::asio::error::bad_descriptor == ec) ||
+                        (boost::asio::error::connection_reset == ec))
+                    {
+                        ioService_->stop();
+                    } else
+                    {
+                        if (connected_)
+                            resync();
+                    }
                 }
             });
     }
