@@ -36,8 +36,6 @@ if(catkin_FOUND)
   add_compile_definitions(ROS1)
   set(ENV{ROS_VERSION} "1")
 
-  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos1.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
-
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -60,7 +58,6 @@ if(catkin_FOUND)
     AIMPlusStatus.msg
     BaseVectorCart.msg
     BaseVectorGeod.msg
-    BlockHeader.msg
     GALAuthStatus.msg
     RFBand.msg
     RFStatus.msg
@@ -83,6 +80,10 @@ if(catkin_FOUND)
     VectorInfoGeod.msg
     VelSensorSetup.msg
     ExtSensorMeas.msg
+  )
+  add_message_files(DIRECTORY msg BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros1"
+    FILES
+    BlockHeader.msg
   )
   ## Generate messages
   generate_messages(
@@ -146,8 +147,6 @@ elseif(ament_cmake_FOUND)
   add_compile_definitions(ROS2)
   set(ENV{ROS_VERSION} "2")
 
-  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
-
   unset(CATKIN_INSTALL_INTO_PREFIX_ROOT)
   unset(CATKIN_SYMLINK_INSTALL)
 
@@ -172,7 +171,7 @@ elseif(ament_cmake_FOUND)
   "msg/AIMPlusStatus.msg"
   "msg/BaseVectorCart.msg"
   "msg/BaseVectorGeod.msg"
-  "msg/BlockHeader.msg"
+  "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros2:msg/BlockHeader.msg"
   "msg/GALAuthStatus.msg"
   "msg/RFBand.msg"
   "msg/RFStatus.msg"
