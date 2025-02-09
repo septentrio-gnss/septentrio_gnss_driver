@@ -58,6 +58,7 @@ if(catkin_FOUND)
     AIMPlusStatus.msg
     BaseVectorCart.msg
     BaseVectorGeod.msg
+    BlockHeader.msg
     GALAuthStatus.msg
     RFBand.msg
     RFStatus.msg
@@ -80,10 +81,6 @@ if(catkin_FOUND)
     VectorInfoGeod.msg
     VelSensorSetup.msg
     ExtSensorMeas.msg
-  )
-  add_message_files(DIRECTORY msg BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros1"
-    FILES
-    BlockHeader.msg
   )
   ## Generate messages
   generate_messages(

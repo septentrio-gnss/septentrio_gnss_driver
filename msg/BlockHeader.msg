@@ -1,4 +1,6 @@
 # Blockheader including time header for all ROS messages that publish SBF blocks
+# This is the ROS 1 version of the message file. The ROS 2 version is
+# msg_ros2/msg/BlockHeader.msg .
 
 uint8     sync_1
 uint8     sync_2
