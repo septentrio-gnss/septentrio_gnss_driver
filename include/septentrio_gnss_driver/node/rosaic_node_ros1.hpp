@@ -90,6 +90,8 @@ namespace rosaic_node {
         //! messages, and publishes requested ROS messages...
         ROSaicNode();
 
+        ~ROSaicNode();
+
     private:
         void setup();
         /**
