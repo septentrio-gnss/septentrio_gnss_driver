@@ -816,14 +816,14 @@ namespace rosaic_node {
     {
         IO_.sendVelocity(velNmea);
     }
-
-    int main(int argc, char** argv)
-    {
-        ros::init(argc, argv, "septentrio_gnss");
-
-        ROSaicNode rx_node; // This launches everything we need, in theory :)
-        ros::spin();
-
-        return 0;
-    }
 } // namespace rosaic_node
+
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "septentrio_gnss");
+
+    rosaic_node::ROSaicNode rx_node;
+    ros::spin();
+
+    return 0;
+}
