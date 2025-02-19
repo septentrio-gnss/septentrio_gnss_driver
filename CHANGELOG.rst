@@ -6,8 +6,9 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Fixes
   * Add export of compiler directives (thanks to @oysstu)
+  * ROS 1 rebuild (thanks to @peci1)
 * Improvements
-   * Rework TCP connection/reconnection
+  * Rework TCP connection/reconnection
 
 1.4.1 (2024-08-04)
 ------------------
