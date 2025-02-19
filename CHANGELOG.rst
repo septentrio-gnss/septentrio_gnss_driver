@@ -9,6 +9,7 @@ Changelog for package septentrio_gnss_driver
   * ROS 1 rebuild (thanks to @peci1)
 * Improvements
   * Rework TCP connection/reconnection
+* Contributors: @oysstu, @peci1, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.1 (2024-08-04)
 ------------------
