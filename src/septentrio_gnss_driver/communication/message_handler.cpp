@@ -91,12 +91,21 @@ namespace io {
             }
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                double yaw = last_insnavgeod_.heading;
-                double pitch = last_insnavgeod_.pitch;
-                double roll = last_insnavgeod_.roll;
+                double yaw = deg2rad(last_insnavgeod_.heading);
+                double pitch = deg2rad(last_insnavgeod_.pitch);
+                double roll = deg2rad(last_insnavgeod_.roll);
                 // Attitude
-                msg.pose.pose.orientation = convertEulerToQuaternionMsg(
-                    deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
+                if (validValue(last_insnavgeod_.heading) &&
+                    validValue(last_insnavgeod_.pitch) &&
+                    validValue(last_insnavgeod_.roll))
+                {
+                    msg.pose.pose.orientation =
+                        convertEulerToQuaternionMsg(roll, pitch, yaw);
+                } else if (validValue(last_insnavgeod_.heading))
+                {
+                    msg.pose.pose.orientation =
+                        convertEulerToQuaternionMsg(0.0, 0.0, yaw);
+                }
             } else
             {
                 parsing_utilities::setQuaternionNaN(msg.pose.pose.orientation);
@@ -608,6 +617,11 @@ namespace io {
                             deg2rad(last_insnavgeod_.pitch),
                             deg2rad(last_insnavgeod_.heading));
                         valid_orientation = true;
+                    } else if (validValue(last_insnavgeod_.heading))
+                    {
+                        msg.orientation = convertEulerToQuaternionMsg(
+                            0.0, 0.0, deg2rad(last_insnavgeod_.heading));
+                        valid_orientation = true;
                     }
                 }
                 if ((last_insnavgeod_.sb_list & 4) != 0)
@@ -965,9 +979,15 @@ namespace io {
         }
 
         // Euler angles
-        double roll = deg2rad(last_insnavgeod_.roll);
-        double pitch = deg2rad(last_insnavgeod_.pitch);
-        double yaw = deg2rad(last_insnavgeod_.heading);
+        double roll = 0.0;
+        double pitch = 0.0;
+        double yaw = 0.0;
+        if (validValue(last_insnavgeod_.roll))
+            roll = deg2rad(last_insnavgeod_.roll);
+        if (validValue(last_insnavgeod_.pitch))
+            pitch = deg2rad(last_insnavgeod_.pitch);
+        if (validValue(last_insnavgeod_.heading))
+            yaw = deg2rad(last_insnavgeod_.heading);
         // meridian_convergence for conversion from true north to grid north
         if (settings_->use_ros_axis_orientation)
             yaw += deg2rad(meridian_convergence);
@@ -1122,9 +1142,15 @@ namespace io {
         }
 
         // Euler angles
-        double roll = deg2rad(last_insnavcart_.roll);
-        double pitch = deg2rad(last_insnavcart_.pitch);
-        double yaw = deg2rad(last_insnavcart_.heading);
+        double roll = 0.0;
+        double pitch = 0.0;
+        double yaw = 0.0;
+        if (validValue(last_insnavcart_.roll))
+            roll = deg2rad(last_insnavcart_.roll);
+        if (validValue(last_insnavcart_.pitch))
+            pitch = deg2rad(last_insnavcart_.pitch);
+        if (validValue(last_insnavcart_.heading))
+            yaw = deg2rad(last_insnavcart_.heading);
 
         if ((last_insnavcart_.sb_list & 2) != 0)
         {
