@@ -2,8 +2,33 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.2 (upcoming)
-------------------
+Forthcoming
+-----------
+* Merge branch 'peci1-patch-4'
+* Resolved merge conflict in msg/BlockHeader.msg
+* Merge pull request `#144 <https://github.com/septentrio-gnss/septentrio_gnss_driver//issues/144>`_ from thomasemter/master
+  Export compiler directives and some minor changes
+* Merge pull request `#141 <https://github.com/septentrio-gnss/septentrio_gnss_driver//issues/141>`_ from peci1/patch-1
+  Disable SBF/NMEA streams before executing user commands
+* Change unaligned INS publishing behavior
+* Update changelog
+* Update changelog
+* Fix namespace
+* Add missing declaration
+* Update changelog
+* A smoother ROS 1 experience for dual ROS 1 / 2 messages
+* Better handling of different ROS 1 and ROS 2 messages
+* Improve disconnection detection
+* Rework connection and shutwdown
+* Update changelog
+* Merge remote-tracking branch 'upstream/master'
+* Export directives
+* Disable SBF/NMEA streams before executing user commands
+  This gives the possibility to configure additional streams in the user commands file.
+* Replace new
+* Add function to set vector to NaN and refactor parsing utilities
+* Add function to set quaternion to NaN
+* Remove msg to be copied
 * Fixes
   * Add export of compiler directives (thanks to @oysstu)
   * ROS 1 rebuild (thanks to @peci1)
@@ -11,7 +36,7 @@ Changelog for package septentrio_gnss_driver
   * Rework TCP connection/reconnection
 * Changes
   * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
-* Contributors: @oysstu, @peci1, Thomas Emter, Tibor Dome, septentrio-users
+* Contributors: Martin Pecka, Thomas Emter, @oysstu, septentrio-users
 
 1.4.1 (2024-08-04)
 ------------------
