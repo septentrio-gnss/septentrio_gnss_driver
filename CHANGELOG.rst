@@ -2,8 +2,8 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.2 (2025-02-22)
+------------------
 * Merge branch 'peci1-patch-4'
 * Resolved merge conflict in msg/BlockHeader.msg
 * Merge pull request `#144 <https://github.com/septentrio-gnss/septentrio_gnss_driver//issues/144>`_ from thomasemter/master

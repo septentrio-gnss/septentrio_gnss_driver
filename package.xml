@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>septentrio_gnss_driver</name>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
   <description>ROSaic: C++ driver for Septentrio's GNSS and INS receivers</description>
 
   <!-- Maintainers -->
