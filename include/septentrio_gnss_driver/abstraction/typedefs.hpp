@@ -109,6 +109,7 @@ typedef geometry_msgs::msg::Quaternion QuaternionMsg;
 typedef geometry_msgs::msg::PoseWithCovarianceStamped PoseWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TwistWithCovarianceStamped TwistWithCovarianceStampedMsg;
 typedef geometry_msgs::msg::TransformStamped TransformStampedMsg;
+typedef geometry_msgs::msg::Vector3 Vector3Msg;
 typedef gps_msgs::msg::GPSFix GpsFixMsg;
 typedef gps_msgs::msg::GPSStatus GpsStatusMsg;
 typedef sensor_msgs::msg::NavSatFix NavSatFixMsg;

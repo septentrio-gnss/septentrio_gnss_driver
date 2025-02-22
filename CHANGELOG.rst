@@ -2,6 +2,17 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.2 (upcoming)
+------------------
+* Fixes
+  * Add export of compiler directives (thanks to @oysstu)
+  * ROS 1 rebuild (thanks to @peci1)
+* Improvements
+  * Rework TCP connection/reconnection
+* Changes
+  * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
+* Contributors: @oysstu, @peci1, Thomas Emter, Tibor Dome, septentrio-users
+
 1.4.1 (2024-08-04)
 ------------------
 * Fixes

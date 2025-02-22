@@ -56,7 +56,7 @@
 
 namespace parsing_utilities {
 
-    constexpr double pi_half = boost::math::constants::pi<double>() / 2.0;
+    const double pihalf = boost::math::constants::half_pi<double>();
 
     /***********************************************************************
      * Square value
@@ -98,7 +98,8 @@ namespace parsing_utilities {
     /***********************************************************************
      * Convert Euler angles to rotation matrix
      **********************************************************************/
-    [[nodiscard]] inline Eigen::Matrix3d rpyToRot(double roll, double pitch, double yaw)
+    [[nodiscard]] inline Eigen::Matrix3d rpyToRot(double roll, double pitch,
+                                                  double yaw)
     {
         Eigen::Matrix3d M;
         double sa, ca, sb, cb, sc, cc;
@@ -118,7 +119,10 @@ namespace parsing_utilities {
      * @brief Wraps an angle between -180 and 180 degrees
      * @param[in] angle The angle to be wrapped
      */
-    [[nodiscard]] double wrapAngle180to180(double angle);
+    [[nodiscard]] inline double wrapAngle180to180(double angle)
+    {
+        return std::remainder(angle, 360.0);
+    }
 
     /**
      * @brief Converts an 8-byte-buffer into a double
@@ -183,7 +187,8 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    [[nodiscard]] bool parseInt16(const std::string& string, int16_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseInt16(const std::string& string, int16_t& value,
+                                  int32_t base = 10);
 
     /**
      * @brief Converts a 4-byte-buffer into a signed 32-bit integer
@@ -206,7 +211,8 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    [[nodiscard]] bool parseInt32(const std::string& string, int32_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseInt32(const std::string& string, int32_t& value,
+                                  int32_t base = 10);
 
     /**
      * @brief Interprets the contents of "string" as a unsigned integer number of
@@ -222,7 +228,8 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    [[nodiscard]] bool parseUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt8(const std::string& string, uint8_t& value,
+                                  int32_t base = 10);
 
     /**
      * @brief Converts a 2-byte-buffer into an unsigned 16-bit integer
@@ -245,7 +252,8 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    [[nodiscard]] bool parseUInt16(const std::string& string, uint16_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt16(const std::string& string, uint16_t& value,
+                                   int32_t base = 10);
 
     /**
      * @brief Converts a 4-byte-buffer into an unsigned 32-bit integer
@@ -268,7 +276,8 @@ namespace parsing_utilities {
      * 10
      * @return True if all went fine, false if not
      */
-    [[nodiscard]] bool parseUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
+    [[nodiscard]] bool parseUInt32(const std::string& string, uint32_t& value,
+                                   int32_t base = 10);
 
     /**
      * @brief Converts UTC time from the without-colon-delimiter format to the
@@ -309,8 +318,24 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new y-axis [rad]
      * @return quaternion
      */
-    [[nodiscard]] Eigen::Quaterniond convertEulerToQuaternion(double roll, double pitch,
-                                                double yaw);
+    //! The rotational sequence convention we adopt here (and Septentrio receivers'
+    //! pitch, roll, yaw definition too) is the yaw-pitch-roll sequence, i.e. the
+    //! 3-2-1 sequence: The body first does yaw around the z-axis, then pitches
+    //! around the new y-axis and finally rolls around the new x-axis.
+    [[nodiscard]] inline Eigen::Quaterniond
+    convertEulerToQuaternion(double roll, double pitch, double yaw)
+    {
+        double cy = std::cos(yaw * 0.5);
+        double sy = std::sin(yaw * 0.5);
+        double cp = std::cos(pitch * 0.5);
+        double sp = std::sin(pitch * 0.5);
+        double cr = std::cos(roll * 0.5);
+        double sr = std::sin(roll * 0.5);
+
+        return Eigen::Quaterniond(
+            cr * cp * cy + sr * sp * sy, sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy);
+    }
 
     /**
      * @brief Transforms Euler angles to a QuaternionMsg
@@ -319,14 +344,44 @@ namespace parsing_utilities {
      * @param[in] roll Roll about the new x-axis [rad]
      * @return ROS message representing a quaternion
      */
-    [[nodiscard]] QuaternionMsg convertEulerToQuaternionMsg(double roll, double pitch, double yaw);
+    [[nodiscard]] inline QuaternionMsg
+    quaternionToQuaternionMsg(const Eigen::Quaterniond& q)
+    {
+        QuaternionMsg qm;
+
+        qm.w = q.w();
+        qm.x = q.x();
+        qm.y = q.y();
+        qm.z = q.z();
+
+        return qm;
+    }
 
     /**
      * @brief Convert Eigen quaternion to a QuaternionMsg
      * @param[in] q Eigen quaternion
      * @return ROS message representing a quaternion
      */
-    [[nodiscard]] QuaternionMsg quaternionToQuaternionMsg(const Eigen::Quaterniond& q);
+    [[nodiscard]] inline QuaternionMsg
+    convertEulerToQuaternionMsg(double roll, double pitch, double yaw)
+    {
+        return quaternionToQuaternionMsg(convertEulerToQuaternion(roll, pitch, yaw));
+    }
+
+    inline void setQuaternionNaN(QuaternionMsg& quaternion)
+    {
+        quaternion.w = std::numeric_limits<double>::quiet_NaN();
+        quaternion.x = std::numeric_limits<double>::quiet_NaN();
+        quaternion.y = std::numeric_limits<double>::quiet_NaN();
+        quaternion.z = std::numeric_limits<double>::quiet_NaN();
+    }
+
+    inline void setVector3NaN(Vector3Msg& v)
+    {
+        v.x = std::numeric_limits<double>::quiet_NaN();
+        v.y = std::numeric_limits<double>::quiet_NaN();
+        v.z = std::numeric_limits<double>::quiet_NaN();
+    }
 
     /**
      * @brief Generates the quaternion to rotate from local ENU to ECEF
@@ -334,7 +389,15 @@ namespace parsing_utilities {
      * @param[in] lon geodetic longitude [rad]
      * @return quaternion
      */
-    [[nodiscard]] Eigen::Quaterniond q_enu_ecef(double lat, double lon);
+    [[nodiscard]] inline Eigen::Quaterniond q_enu_ecef(double lat, double lon)
+    {
+        double sr = sin((pihalf - lat) / 2.0);
+        double cr = cos((pihalf - lat) / 2.0);
+        double sy = sin((lon + pihalf) / 2.0);
+        double cy = cos((lon + pihalf) / 2.0);
+
+        return Eigen::Quaterniond(cr * cy, sr * cy, sr * sy, cr * sy);
+    }
 
     /**
      * @brief Generates the quaternion to rotate from local NED to ECEF
@@ -342,7 +405,15 @@ namespace parsing_utilities {
      * @param[in] lon geodetic longitude [rad]
      * @return rotation matrix
      */
-    [[nodiscard]] Eigen::Quaterniond q_ned_ecef(double lat, double lon);
+    [[nodiscard]] inline Eigen::Quaterniond q_ned_ecef(double lat, double lon)
+    {
+        double sp = sin((-lat - pihalf) / 2.0);
+        double cp = cos((-lat - pihalf) / 2.0);
+        double sy = sin(lon / 2.0);
+        double cy = cos(lon / 2.0);
+
+        return Eigen::Quaterniond(cp * cy, -sp * sy, sp * cy, cp * sy);
+    }
 
     /**
      * @brief Generates the matrix to rotate from local ENU to ECEF
@@ -350,7 +421,27 @@ namespace parsing_utilities {
      * @param[in] lon geodetic longitude [rad]
      * @return rotation matrix
      */
-    [[nodiscard]] Eigen::Matrix3d R_enu_ecef(double lat, double lon);
+    [[nodiscard]] inline Eigen::Matrix3d R_enu_ecef(double lat, double lon)
+    {
+        Eigen::Matrix3d R;
+
+        double sin_lat = sin(lat);
+        double cos_lat = cos(lat);
+        double sin_lon = sin(lon);
+        double cos_lon = cos(lon);
+
+        R(0, 0) = -sin_lon;
+        R(0, 1) = -cos_lon * sin_lat;
+        R(0, 2) = cos_lon * cos_lat;
+        R(1, 0) = cos_lon;
+        R(1, 1) = -sin_lon * sin_lat;
+        R(1, 2) = sin_lon * cos_lat;
+        R(2, 0) = 0.0;
+        R(2, 1) = cos_lat;
+        R(2, 2) = sin_lat;
+
+        return R;
+    }
 
     /**
      * @brief Generates the matrix to rotate from local NED to ECEF
@@ -358,7 +449,27 @@ namespace parsing_utilities {
      * @param[in] lon geodetic longitude [rad]
      * @return rotation matrix
      */
-    [[nodiscard]] Eigen::Matrix3d R_ned_ecef(double lat, double lon);
+    [[nodiscard]] inline Eigen::Matrix3d R_ned_ecef(double lat, double lon)
+    {
+        Eigen::Matrix3d R;
+
+        double sin_lat = sin(lat);
+        double cos_lat = cos(lat);
+        double sin_lon = sin(lon);
+        double cos_lon = cos(lon);
+
+        R(0, 0) = -cos_lon * sin_lat;
+        R(0, 1) = -sin_lon;
+        R(0, 2) = -cos_lon * cos_lat;
+        R(1, 0) = -sin_lon * sin_lat;
+        R(1, 1) = cos_lon;
+        R(1, 2) = -sin_lon * cos_lat;
+        R(2, 0) = cos_lat;
+        R(2, 1) = 0.0;
+        R(2, 2) = -sin_lat;
+
+        return R;
+    }
 
     /**
      * @brief Transforms the input polling period [milliseconds] into a std::string
@@ -409,4 +520,14 @@ namespace parsing_utilities {
      * @return SBF GPS week counter
      */
     [[nodiscard]] uint16_t getWnc(const std::vector<uint8_t>& message);
+
+    inline double convertAutoCovariance(double val)
+    {
+        return std::isnan(val) ? -1.0 : deg2radSq(val);
+    }
+
+    inline double convertCovariance(double val)
+    {
+        return std::isnan(val) ? 0.0 : deg2radSq(val);
+    }
 } // namespace parsing_utilities

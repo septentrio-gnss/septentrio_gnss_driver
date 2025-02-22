@@ -88,9 +88,9 @@ namespace io {
     private:
         void connect()
         {
-            socket_.reset(new boost::asio::ip::udp::socket(
+            socket_ = std::make_unique<boost::asio::ip::udp::socket>(
                 ioService_,
-                boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_)));
+                boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_));
 
             asyncReceive();
 
@@ -120,7 +120,7 @@ namespace io {
             {
                 while ((bytes_recvd - idx) > 2)
                 {
-                    std::shared_ptr<Telegram> telegram(new Telegram);
+                    auto telegram = std::make_shared<Telegram>();
                     telegram->stamp = stamp;
                     /*node_->log(log_level::DEBUG,
                                "Buffer: " + std::string(telegram->message.begin(),
@@ -283,7 +283,7 @@ namespace io {
                 return false;
             }
 
-            stream_.reset(new boost::asio::ip::tcp::socket(*ioService_));
+            stream_ = std::make_unique<boost::asio::ip::tcp::socket>(*ioService_);
 
             node_->log(log_level::INFO, "Connecting to tcp://" +
                                             node_->settings()->device_tcp_ip + ":" +
@@ -372,7 +372,7 @@ namespace io {
             flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
         {
-            stream_.reset(new boost::asio::serial_port(*ioService_));
+            stream_ = std::make_unique<boost::asio::serial_port>(*ioService_);
         }
 
         ~SerialIo() { stream_->close(); }
@@ -582,8 +582,8 @@ namespace io {
 
             try
             {
-                stream_.reset(
-                    new boost::asio::posix::stream_descriptor(*ioService_));
+                stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
+                    *ioService_);
                 stream_->assign(fd);
 
             } catch (std::runtime_error& e)
@@ -631,8 +631,8 @@ namespace io {
                 node_->log(log_level::INFO, "Opening pcap file stream" +
                                                 node_->settings()->device + "...");
 
-                stream_.reset(
-                    new boost::asio::posix::stream_descriptor(*ioService_));
+                stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
+                    *ioService_);
 
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());

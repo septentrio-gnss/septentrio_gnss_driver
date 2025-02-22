@@ -55,16 +55,6 @@ using parsing_utilities::square;
 
 namespace io {
 
-    double convertAutoCovariance(double val)
-    {
-        return std::isnan(val) ? -1.0 : deg2radSq(val);
-    }
-
-    double convertCovariance(double val)
-    {
-        return std::isnan(val) ? 0.0 : deg2radSq(val);
-    }
-
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         if (!settings_->publish_pose)
@@ -101,32 +91,34 @@ namespace io {
             }
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                double yaw = last_insnavgeod_.heading;
-                double pitch = last_insnavgeod_.pitch;
-                double roll = last_insnavgeod_.roll;
+                double yaw = deg2rad(last_insnavgeod_.heading);
+                double pitch = deg2rad(last_insnavgeod_.pitch);
+                double roll = deg2rad(last_insnavgeod_.roll);
                 // Attitude
-                msg.pose.pose.orientation = convertEulerToQuaternionMsg(
-                    deg2rad(roll), deg2rad(pitch), deg2rad(yaw));
+                if (validValue(last_insnavgeod_.heading) &&
+                    validValue(last_insnavgeod_.pitch) &&
+                    validValue(last_insnavgeod_.roll))
+                {
+                    msg.pose.pose.orientation =
+                        convertEulerToQuaternionMsg(roll, pitch, yaw);
+                } else if (validValue(last_insnavgeod_.heading))
+                {
+                    msg.pose.pose.orientation =
+                        convertEulerToQuaternionMsg(0.0, 0.0, yaw);
+                }
             } else
             {
-                msg.pose.pose.orientation.w =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.x =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.y =
-                    std::numeric_limits<double>::quiet_NaN();
-                msg.pose.pose.orientation.z =
-                    std::numeric_limits<double>::quiet_NaN();
+                parsing_utilities::setQuaternionNaN(msg.pose.pose.orientation);
             }
             if ((last_insnavgeod_.sb_list & 4) != 0)
             {
                 // Attitude autocov
-                msg.pose.covariance[21] =
-                    convertAutoCovariance(last_insnavgeod_.roll_std_dev);
-                msg.pose.covariance[28] =
-                    convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
-                msg.pose.covariance[35] =
-                    convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                msg.pose.covariance[21] = parsing_utilities::convertAutoCovariance(
+                    last_insnavgeod_.roll_std_dev);
+                msg.pose.covariance[28] = parsing_utilities::convertAutoCovariance(
+                    last_insnavgeod_.pitch_std_dev);
+                msg.pose.covariance[35] = parsing_utilities::convertAutoCovariance(
+                    last_insnavgeod_.heading_std_dev);
 
             } else
             {
@@ -147,19 +139,19 @@ namespace io {
             if ((last_insnavgeod_.sb_list & 64) != 0)
             {
                 // Attitude cov
-                msg.pose.covariance[22] =
-                    convertCovariance(last_insnavgeod_.pitch_roll_cov);
-                msg.pose.covariance[23] =
-                    convertCovariance(last_insnavgeod_.heading_roll_cov);
-                msg.pose.covariance[27] =
-                    convertCovariance(last_insnavgeod_.pitch_roll_cov);
+                msg.pose.covariance[22] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.pitch_roll_cov);
+                msg.pose.covariance[23] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.heading_roll_cov);
+                msg.pose.covariance[27] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.pitch_roll_cov);
 
-                msg.pose.covariance[29] =
-                    convertCovariance(last_insnavgeod_.heading_pitch_cov);
-                msg.pose.covariance[33] =
-                    convertCovariance(last_insnavgeod_.heading_roll_cov);
-                msg.pose.covariance[34] =
-                    convertCovariance(last_insnavgeod_.heading_pitch_cov);
+                msg.pose.covariance[29] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.heading_pitch_cov);
+                msg.pose.covariance[33] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.heading_roll_cov);
+                msg.pose.covariance[34] = parsing_utilities::convertCovariance(
+                    last_insnavgeod_.heading_pitch_cov);
             }
         } else
         {
@@ -197,24 +189,24 @@ namespace io {
             msg.pose.covariance[12] = last_poscovgeodetic_.cov_lonhgt;
             msg.pose.covariance[13] = last_poscovgeodetic_.cov_lathgt;
             msg.pose.covariance[14] = last_poscovgeodetic_.cov_hgthgt;
-            msg.pose.covariance[21] =
-                convertAutoCovariance(last_attcoveuler_.cov_rollroll);
-            msg.pose.covariance[22] =
-                convertCovariance(last_attcoveuler_.cov_pitchroll);
+            msg.pose.covariance[21] = parsing_utilities::convertAutoCovariance(
+                last_attcoveuler_.cov_rollroll);
+            msg.pose.covariance[22] = parsing_utilities::convertCovariance(
+                last_attcoveuler_.cov_pitchroll);
             msg.pose.covariance[23] =
-                convertCovariance(last_attcoveuler_.cov_headroll);
-            msg.pose.covariance[27] =
-                convertCovariance(last_attcoveuler_.cov_pitchroll);
-            msg.pose.covariance[28] =
-                convertAutoCovariance(last_attcoveuler_.cov_pitchpitch);
-            msg.pose.covariance[29] =
-                convertCovariance(last_attcoveuler_.cov_headpitch);
+                parsing_utilities::convertCovariance(last_attcoveuler_.cov_headroll);
+            msg.pose.covariance[27] = parsing_utilities::convertCovariance(
+                last_attcoveuler_.cov_pitchroll);
+            msg.pose.covariance[28] = parsing_utilities::convertAutoCovariance(
+                last_attcoveuler_.cov_pitchpitch);
+            msg.pose.covariance[29] = parsing_utilities::convertCovariance(
+                last_attcoveuler_.cov_headpitch);
             msg.pose.covariance[33] =
-                convertCovariance(last_attcoveuler_.cov_headroll);
-            msg.pose.covariance[34] =
-                convertCovariance(last_attcoveuler_.cov_headpitch);
-            msg.pose.covariance[35] =
-                convertAutoCovariance(last_attcoveuler_.cov_headhead);
+                parsing_utilities::convertCovariance(last_attcoveuler_.cov_headroll);
+            msg.pose.covariance[34] = parsing_utilities::convertCovariance(
+                last_attcoveuler_.cov_headpitch);
+            msg.pose.covariance[35] = parsing_utilities::convertAutoCovariance(
+                last_attcoveuler_.cov_headhead);
         }
         publish<PoseWithCovarianceStampedMsg>("pose", msg);
     };
@@ -625,6 +617,11 @@ namespace io {
                             deg2rad(last_insnavgeod_.pitch),
                             deg2rad(last_insnavgeod_.heading));
                         valid_orientation = true;
+                    } else if (validValue(last_insnavgeod_.heading))
+                    {
+                        msg.orientation = convertEulerToQuaternionMsg(
+                            0.0, 0.0, deg2rad(last_insnavgeod_.heading));
+                        valid_orientation = true;
                     }
                 }
                 if ((last_insnavgeod_.sb_list & 4) != 0)
@@ -635,28 +632,37 @@ namespace io {
                         validValue(last_insnavgeod_.heading_std_dev))
                     {
                         msg.orientation_covariance[0] =
-                            convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                            parsing_utilities::convertAutoCovariance(
+                                last_insnavgeod_.roll_std_dev);
                         msg.orientation_covariance[4] =
-                            convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                            parsing_utilities::convertAutoCovariance(
+                                last_insnavgeod_.pitch_std_dev);
                         msg.orientation_covariance[8] =
-                            convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                            parsing_utilities::convertAutoCovariance(
+                                last_insnavgeod_.heading_std_dev);
 
                         if ((last_insnavgeod_.sb_list & 64) != 0)
                         {
                             // Attitude cov
                             msg.orientation_covariance[1] =
-                                convertCovariance(last_insnavgeod_.pitch_roll_cov);
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.pitch_roll_cov);
                             msg.orientation_covariance[2] =
-                                convertCovariance(last_insnavgeod_.heading_roll_cov);
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.heading_roll_cov);
                             msg.orientation_covariance[3] =
-                                convertCovariance(last_insnavgeod_.pitch_roll_cov);
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.pitch_roll_cov);
 
-                            msg.orientation_covariance[5] = convertCovariance(
-                                last_insnavgeod_.heading_pitch_cov);
+                            msg.orientation_covariance[5] =
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.heading_pitch_cov);
                             msg.orientation_covariance[6] =
-                                convertCovariance(last_insnavgeod_.heading_roll_cov);
-                            msg.orientation_covariance[7] = convertCovariance(
-                                last_insnavgeod_.heading_pitch_cov);
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.heading_roll_cov);
+                            msg.orientation_covariance[7] =
+                                parsing_utilities::convertCovariance(
+                                    last_insnavgeod_.heading_pitch_cov);
                         }
                     } else
                     {
@@ -670,10 +676,7 @@ namespace io {
 
         if (!valid_orientation)
         {
-            msg.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            parsing_utilities::setQuaternionNaN(msg.orientation);
         }
 
         publish<ImuMsg>("imu", msg);
@@ -690,9 +693,7 @@ namespace io {
         msg.twist.covariance[28] = -1.0;
         msg.twist.covariance[35] = -1.0;
         // Set angular velocities to NaN
-        msg.twist.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-        msg.twist.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-        msg.twist.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+        parsing_utilities::setVector3NaN(msg.twist.twist.angular);
 
         if (fromIns)
         {
@@ -720,9 +721,7 @@ namespace io {
                 msg.twist.twist.linear.z = vel(2);
             } else
             {
-                msg.twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-                msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-                msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+                parsing_utilities::setVector3NaN(msg.twist.twist.linear);
             }
 
             if (((last_insnavgeod_.sb_list & 16) != 0) &&
@@ -826,9 +825,7 @@ namespace io {
                 msg.twist.twist.linear.z = vel(2);
             } else
             {
-                msg.twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-                msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-                msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+                parsing_utilities::setVector3NaN(msg.twist.twist.linear);
             }
 
             if (last_velcovgeodetic_.error == 0)
@@ -982,9 +979,15 @@ namespace io {
         }
 
         // Euler angles
-        double roll = deg2rad(last_insnavgeod_.roll);
-        double pitch = deg2rad(last_insnavgeod_.pitch);
-        double yaw = deg2rad(last_insnavgeod_.heading);
+        double roll = 0.0;
+        double pitch = 0.0;
+        double yaw = 0.0;
+        if (validValue(last_insnavgeod_.roll))
+            roll = deg2rad(last_insnavgeod_.roll);
+        if (validValue(last_insnavgeod_.pitch))
+            pitch = deg2rad(last_insnavgeod_.pitch);
+        if (validValue(last_insnavgeod_.heading))
+            yaw = deg2rad(last_insnavgeod_.heading);
         // meridian_convergence for conversion from true north to grid north
         if (settings_->use_ros_axis_orientation)
             yaw += deg2rad(meridian_convergence);
@@ -998,20 +1001,17 @@ namespace io {
                 convertEulerToQuaternionMsg(roll, pitch, yaw);
         } else
         {
-            msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            parsing_utilities::setQuaternionNaN(msg.pose.pose.orientation);
         }
         if ((last_insnavgeod_.sb_list & 4) != 0)
         {
             // Attitude autocovariance
-            msg.pose.covariance[21] =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
-            msg.pose.covariance[28] =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
-            msg.pose.covariance[35] =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+            msg.pose.covariance[21] = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.roll_std_dev);
+            msg.pose.covariance[28] = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.pitch_std_dev);
+            msg.pose.covariance[35] = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.heading_std_dev);
         } else
         {
             msg.pose.covariance[21] = -1.0;
@@ -1067,19 +1067,19 @@ namespace io {
         if ((last_insnavgeod_.sb_list & 64) != 0)
         {
             // Attitude covariancae
-            msg.pose.covariance[22] =
-                convertCovariance(last_insnavgeod_.pitch_roll_cov);
-            msg.pose.covariance[23] =
-                convertCovariance(last_insnavgeod_.heading_roll_cov);
-            msg.pose.covariance[27] =
-                convertCovariance(last_insnavgeod_.pitch_roll_cov);
+            msg.pose.covariance[22] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.pitch_roll_cov);
+            msg.pose.covariance[23] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.heading_roll_cov);
+            msg.pose.covariance[27] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.pitch_roll_cov);
 
-            msg.pose.covariance[29] =
-                convertCovariance(last_insnavgeod_.heading_pitch_cov);
-            msg.pose.covariance[33] =
-                convertCovariance(last_insnavgeod_.heading_roll_cov);
-            msg.pose.covariance[34] =
-                convertCovariance(last_insnavgeod_.heading_pitch_cov);
+            msg.pose.covariance[29] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.heading_pitch_cov);
+            msg.pose.covariance[33] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.heading_roll_cov);
+            msg.pose.covariance[34] = parsing_utilities::convertCovariance(
+                last_insnavgeod_.heading_pitch_cov);
         }
 
         assembleLocalizationMsgTwist(roll, pitch, yaw, msg);
@@ -1142,9 +1142,15 @@ namespace io {
         }
 
         // Euler angles
-        double roll = deg2rad(last_insnavcart_.roll);
-        double pitch = deg2rad(last_insnavcart_.pitch);
-        double yaw = deg2rad(last_insnavcart_.heading);
+        double roll = 0.0;
+        double pitch = 0.0;
+        double yaw = 0.0;
+        if (validValue(last_insnavcart_.roll))
+            roll = deg2rad(last_insnavcart_.roll);
+        if (validValue(last_insnavcart_.pitch))
+            pitch = deg2rad(last_insnavcart_.pitch);
+        if (validValue(last_insnavcart_.heading))
+            yaw = deg2rad(last_insnavcart_.heading);
 
         if ((last_insnavcart_.sb_list & 2) != 0)
         {
@@ -1165,22 +1171,19 @@ namespace io {
                 parsing_utilities::quaternionToQuaternionMsg(q_b_ecef);
         } else
         {
-            msg.pose.pose.orientation.w = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.x = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.y = std::numeric_limits<double>::quiet_NaN();
-            msg.pose.pose.orientation.z = std::numeric_limits<double>::quiet_NaN();
+            parsing_utilities::setQuaternionNaN(msg.pose.pose.orientation);
         }
         Eigen::Matrix3d covAtt_local = Eigen::Matrix3d::Zero();
         bool covAttValid = true;
         if ((last_insnavgeod_.sb_list & 4) != 0)
         {
             // Attitude autocovariance
-            covAtt_local(0, 0) =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
-            covAtt_local(1, 1) =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
-            covAtt_local(2, 2) =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+            covAtt_local(0, 0) = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.roll_std_dev);
+            covAtt_local(1, 1) = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.pitch_std_dev);
+            covAtt_local(2, 2) = parsing_utilities::convertAutoCovariance(
+                last_insnavgeod_.heading_std_dev);
             covAttValid = !std::isnan(last_insnavgeod_.roll_std_dev) &&
                           !std::isnan(last_insnavgeod_.pitch_std_dev) &&
                           !std::isnan(last_insnavgeod_.heading_std_dev);
@@ -1197,18 +1200,18 @@ namespace io {
             if ((last_insnavcart_.sb_list & 64) != 0)
             {
                 // Attitude covariancae
-                covAtt_local(0, 1) =
-                    convertCovariance(last_insnavcart_.pitch_roll_cov);
-                covAtt_local(0, 2) =
-                    convertCovariance(last_insnavcart_.heading_roll_cov);
-                covAtt_local(1, 0) =
-                    convertCovariance(last_insnavcart_.pitch_roll_cov);
-                covAtt_local(2, 1) =
-                    convertCovariance(last_insnavcart_.heading_pitch_cov);
-                covAtt_local(2, 0) =
-                    convertCovariance(last_insnavcart_.heading_roll_cov);
-                covAtt_local(1, 2) =
-                    convertCovariance(last_insnavcart_.heading_pitch_cov);
+                covAtt_local(0, 1) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.pitch_roll_cov);
+                covAtt_local(0, 2) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.heading_roll_cov);
+                covAtt_local(1, 0) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.pitch_roll_cov);
+                covAtt_local(2, 1) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.heading_pitch_cov);
+                covAtt_local(2, 0) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.heading_roll_cov);
+                covAtt_local(1, 2) = parsing_utilities::convertCovariance(
+                    last_insnavcart_.heading_pitch_cov);
             }
 
             Eigen::Matrix3d R_local_ecef;
@@ -1250,6 +1253,8 @@ namespace io {
                                                       double yaw,
                                                       LocalizationMsg& msg) const
     {
+
+        parsing_utilities::setVector3NaN(msg.twist.twist.angular);
         Eigen::Matrix3d R_local_body =
             parsing_utilities::rpyToRot(roll, pitch, yaw).inverse();
         if ((last_insnavgeod_.sb_list & 8) != 0)
@@ -1275,9 +1280,7 @@ namespace io {
             msg.twist.twist.linear.z = vel_body(2);
         } else
         {
-            msg.twist.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-            msg.twist.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-            msg.twist.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+            parsing_utilities::setVector3NaN(msg.twist.twist.linear);
         }
         Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
         if ((last_insnavgeod_.sb_list & 16) != 0)
