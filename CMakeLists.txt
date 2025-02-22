@@ -35,8 +35,6 @@ if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
   set(ENV{ROS_VERSION} "1")
 
-  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos1.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
-
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -145,8 +143,6 @@ elseif(ament_cmake_FOUND)
   ## ROS 2 -----------------------------------------------------------------------------------------------
   set(ENV{ROS_VERSION} "2")
 
-  configure_file(${CMAKE_SOURCE_DIR}/msg_cache/BlockHeaderRos2.msg ${CMAKE_SOURCE_DIR}/msg/BlockHeader.msg COPYONLY)
-
   unset(CATKIN_INSTALL_INTO_PREFIX_ROOT)
   unset(CATKIN_SYMLINK_INSTALL)
 
@@ -171,7 +167,7 @@ elseif(ament_cmake_FOUND)
   "msg/AIMPlusStatus.msg"
   "msg/BaseVectorCart.msg"
   "msg/BaseVectorGeod.msg"
-  "msg/BlockHeader.msg"
+  "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros2:msg/BlockHeader.msg"
   "msg/GALAuthStatus.msg"
   "msg/RFBand.msg"
   "msg/RFStatus.msg"
