@@ -279,6 +279,16 @@ namespace io {
                     if (connected_)
                         receive();
                 }
+            } else if (running_ && std::is_same<TcpIo, IoType>::value)
+            {
+                // Send to check if TCP connection still alive
+                std::string empty = " ";
+                boost::asio::async_write(
+                    *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
+                    [this](boost::system::error_code ec, std::size_t /*length*/) {
+                        if (ec)
+                            ioService_->stop();
+                    });
             }
         }
     }

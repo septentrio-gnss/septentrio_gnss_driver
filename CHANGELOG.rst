@@ -4,38 +4,13 @@ Changelog for package septentrio_gnss_driver
 
 1.4.2 (2025-02-22)
 ------------------
-* Merge branch 'peci1-patch-4'
-* Resolved merge conflict in msg/BlockHeader.msg
-* Merge pull request `#144 <https://github.com/septentrio-gnss/septentrio_gnss_driver//issues/144>`_ from thomasemter/master
-  Export compiler directives and some minor changes
-* Merge pull request `#141 <https://github.com/septentrio-gnss/septentrio_gnss_driver//issues/141>`_ from peci1/patch-1
-  Disable SBF/NMEA streams before executing user commands
-* Change unaligned INS publishing behavior
-* Update changelog
-* Update changelog
-* Fix namespace
-* Add missing declaration
-* Update changelog
-* A smoother ROS 1 experience for dual ROS 1 / 2 messages
-* Better handling of different ROS 1 and ROS 2 messages
-* Improve disconnection detection
-* Rework connection and shutwdown
-* Update changelog
-* Merge remote-tracking branch 'upstream/master'
-* Export directives
-* Disable SBF/NMEA streams before executing user commands
-  This gives the possibility to configure additional streams in the user commands file.
-* Replace new
-* Add function to set vector to NaN and refactor parsing utilities
-* Add function to set quaternion to NaN
-* Remove msg to be copied
 * Fixes
-  * Add export of compiler directives (thanks to @oysstu)
-  * ROS 1 rebuild (thanks to @peci1)
+    * Add export of compiler directives (thanks to @oysstu)
+    * ROS 1 rebuild (thanks to @peci1)
 * Improvements
-  * Rework TCP connection/reconnection
+    * Rework TCP connection/reconnection
 * Changes
-  * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
+    * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
 * Contributors: Martin Pecka, Thomas Emter, @oysstu, septentrio-users
 
 1.4.1 (2024-08-04)
@@ -44,6 +19,7 @@ Changelog for package septentrio_gnss_driver
    * Lever arm calculation from tf
    * NavSatStatus and GPSFixStatus
    * Orientation in pose topic of GNSS
+* Contributors: Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.0 (2024-05-21)
 ------------------
@@ -61,6 +37,7 @@ Changelog for package septentrio_gnss_driver
    * Rework some sections of the README
    * Combine ROS 1 and ROS 2 in one branch
    * Change GPSFix publishing policy to allow for high update rates
+* Contributors: Thomas Emter, Tibor Dome, septentrio-users
 
 1.3.2 (2023-11-19)
 ------------------
@@ -97,88 +74,7 @@ Changelog for package septentrio_gnss_driver
    * Single antenna receiver setup
 * Preliminary Features
    * Output of localization and tf in ECEF frame, testing and feedback welcome
-* Commits
-   * Merge pull request `#83 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/83>`_ from thomasemter/dev/next2
-     Update readme
-   * Add expected release dates
-   * Add known issues to readme
-   * Update version
-   * Update readme
-   * Merge pull request `#82 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/82>`_ from thomasemter/dev/next2
-     Fix spelling
-   * Categorize stream params
-   * Add keep alive check for TCP
-   * Fix spelling
-   * Add TCP communication via static IP server
-   * Add units to msgs
-   * Fix spelling
-   * Merge pull request `#76 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/76>`_ from thomasemter/dev/next2
-     upcoming release
-   * Add heading to GPSFix msg
-   * Move constant
-   * Change log level of firmware check
-   * Add improved VSM handling
-   * Change INS in GNSS node detection to auto
-   * Fix invald v_x var case
-   * Refine readme on UDP
-   * Improve server duplicate check
-   * Add more info un UDP configuration
-   * Fix publish check
-   * Add more publishing checks for configured Rx
-   * Add const for max udp packet size
-   * Update readme and changelog
-   * Add device check to node
-   * Fix param name separators
-   * Add checks for IP server duplicates
-   * Add latency compensation to att msgs
-   * Add device check logic
-   * Add UDP params and setup logic
-   * Fix multi msg per packet
-   * Fix localization stamp and tf publishing
-   * Change VSM to be averaged and published with 2 Hz
-   * Change VSM to be averaged and published with 2 Hz
-   * Always publish raw IMU data as indicated
-   * Change to empty fields
-   * Refine diagnostics naming scheme and add trigger to ensure emission of ReceiverSetup
-   * Change diagnostics naming scheme
-   * Add missing new params to gnss.yaml
-   * Expand readme on AIM+
-   * Reformulate readme about ROS and ROS2
-   * Add custom message to report AIM+ status
-   * Catch invalid UTM conversion
-   * Robustify command reset
-   * Add RFStatus diagnostics
-   * Add VelCovCartesian output
-   * Refine Rx type check
-   * Add option for latency compensation
-   * Fix param type misinterpretation
-   * Add OSNMA msg and diagnostics
-   * Update changelog
-   * Refine README and fix compiled message logic
-   * Update changelog
-   * Add warning for configuring INS as GNSS
-   * Add warn log for misconfiguration
-   * Fix pose publishing rate
-   * Fix navsatfix publishing
-   * Make vars const
-   * Merge rework of internal IO handling
-   * Change connection thread
-   * Fix attitude cov flipped twice
-   * Add cov alignment from true north to grid north
-   * Rename meridian convergence and fix sense
-   * Remove obsolete define
-   * Add tests
-   * Rename example launch files so they are found by auto-completion
-   * Merge branch 'dev/ros2' into dev/next2
-   * Fix lat/long in rad
-   * Fix readme concerning ROS 2 distros
-   * Reorder localization msg filling
-   * Update readme
-   * Fix NED to ECEF rotation matrix
-   * Add localization ECEF publishing
-   * Add ecef localization msg
-   * Add local to ecef transforms
-   * Contributors: Thomas Emter, Tibor Dome
+* Contributors: Thomas Emter, Tibor Dome
 
 1.2.3 (2022-11-09)
 ------------------
@@ -201,23 +97,7 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Fixes
    * Memory corruption under adverse conditions
-* Commits
-    * Merge pull request `#66 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/66>`_ from thomasemter/dev/next2
-      Fix memory corruption
-    * Fix parameter warnings
-    * Reset buffer size to 16384
-    * Update changelog
-    * Fix memory corruption
-    * Replace maps with unordered_maps
-    * Overload timestamp function
-    * Fix frame ids for INS msgs
-    * Add define to avoid usage of deprecated header
-    * Change readme on gps-msgs packet
-    * Add info on user credentials
-    * Fix spelling in readme
-    * Merge remote-tracking branch 'upstream/ros2' into dev/next2
-    * Add comment for heading from pose
-    * Contributors: Thomas Emter, Tibor Dome
+* Contributors: Thomas Emter, Tibor Dome
 
 1.2.1 (2022-05-16)
 ------------------
@@ -228,29 +108,7 @@ Changelog for package septentrio_gnss_driver
    * Add NED option to localization
 * Fixes
    * IMU orientation for ROS axis convention
-* Commits
-    * Merge pull request `#63 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/63>`_ from thomasemter/dev/next2
-      Small fixes and additions
-    * Merge pull request `#60 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/60>`_ from wep21/support-rolling
-      fix: modify build error for rolling/humble
-    * Revert change for deprecation warning in Humble
-    * Change links to reflect ROS2
-    * Amend readme regarding robot_localization
-    * Fix compiler warnings for humble
-    * Add more explanations for IMU orientation in ROS convention
-    * Fix formatting in readme
-    * Fix package name in readme
-    * Update readme
-    * Update changelog
-    * Fix IMU orientation for ROS axis orientation
-    * Activate NTP only if GNSS time is used
-    * Add NED option to localization
-    * Set NMEA header to GP
-    * Update readme and changelog
-    * Activate NTP server
-    * Add credentials for access control
-    * fix: modify build error for rolling/humble
-    * Contributors: Daisuke Nishimatsu, Thomas Emter, Tibor Dome
+* Contributors: Daisuke Nishimatsu, Thomas Emter, Tibor Dome
 
 1.2.0 (2022-04-27)
 ------------------
@@ -279,250 +137,6 @@ Changelog for package septentrio_gnss_driver
    * Broken attitude parsing pose and gpsfix from INS
    * IMU orientation was not sent to Rx
    * Graceful shutdown of threads
-* Commits
-    * Merge branch 'dev'
-    * Prepare new release
-    * Prepare new release
-    * Merge pull request `#53 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/53>`_ from thomasemter/dev/refactor
-      Very last changes
-    * Add geographic lib dependency to package.xml
-    * Add comment for frame of main antenna
-    * Move utm zone locking section in readme
-    * Reformulate readme section on frames
-    * Merge pull request `#52 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/52>`_ from thomasemter/dev/refactor
-      Last changes
-    * Change frame id back to poi_frame_id
-    * Make error log more explicit
-    * Merge pull request `#49 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/49>`_ from thomasemter/dev/refactor
-      Improve IMU blocks sync and do-not-use value handling
-    * Fix buffer size in changelog
-    * Turn off Nagle's algorithm for TCP
-    * Fix changelog formatting
-    * Fix readme
-    * Set default base frame to base_link
-    * Fix valid tow check logic
-    * Increase buffer size for extreme stress tests
-    * Fix crc check
-    * Fix and streamline tf handling
-    * Add checks for validity of values
-    * Fix rad vs deg
-    * Update changelog
-    * Add some comments
-    * Set stdDevMask to values > 0.0 in node
-    * Set stdDevMask to values > 0.0
-    * Add info on RNDIS and set it to default
-    * Increase default serial baud rate
-    * Add parameter to set log level to debug
-    * Change defaults for publishers in node
-    * Put publish params together and fix mismatch in readme
-    * Improve IMU blocks sync and do-not-use value handling
-    * Merge pull request `#48 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/48>`_ from thomasemter/dev/refactor
-      Fix measepoch not publishing without gpsfix
-    * Fix measepoch not publishing without gpsfix
-    * Merge pull request `#47 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/47>`_ from thomasemter/dev/refactor
-      Dev/refactor
-    * Publish only messages set to true
-    * Remove leftover declaration
-    * Merge branch 'dev/endianess_agnostic' into dev/refactor
-    * Update readme to reflect endianess aware parsing
-    * Remove msg smart pointers
-    * Fix array assertion failure
-    * Cleanup
-    * Add ReceiverStatus parser
-    * Add QualityInd parser
-    * Add DOP parser
-    * Add ReceiverSetup parser
-    * Fix MeasEpoch and ChannelStatus parsers, add measepoch publishing
-    * Add ChannelStatus parser
-    * Add MeasEpoch parser
-    * Add IMU and VelSensor setup parsers
-    * Add Cov SBF parsers
-    * Add templated qi parser function
-    * Add AttEuler+Cov parser
-    * Revert ordering change inside INSNav ROS msgs
-    * Add ExtSensorMeas parser
-    * Add PVT parsers
-    * Add range checks to parsers
-    * Replace INSNav grammar with parsers
-    * Test parser vs. grammar for better performance
-    * Fix sb_list check
-    * Add IMU and VelSensor setup grammars
-    * Move adapt ROS header to typedefs.h
-    * Add revision check to MeasEpoch
-    * Fix ReceiverStatus grammar
-    * Extend ReceiverSetup and add revision checks
-    * Change logger and fix loop range
-    * Remove reserved bytes from parsing
-    * Remove obsolete structs
-    * Directly parse Cov SBFs to ROS msg
-    * Directly parse PVT SBFs, remove obsolete ids
-    * Rename rev to revision
-    * Fix block header parsing
-    * Directly parse AttEuler to ROS msg
-    * Directly parse to ROS msgs for INSNavXxx
-    * Exchange pow with square function and remove casts
-    * Merge pull request `#46 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/46>`_ from thomasemter/dev/refactor
-      Dev/refactor
-    * Simplify sync bytes check
-    * Move tow/wnc to BlockHeader
-    * Adjust order in INSNav ros msgs
-    * Fix INSNav grammars
-    * Change BlockHeader structure
-    * Remove length ref from header
-    * Rectify sb_list check of INSNavXxx
-    * Add automtatic activation of multi-antenna mode
-    * Merge branch 'dev/refactor' of https://github.com/thomasemter/septentrio_gnss_driver into dev/refactor
-    * Add automtatic activation of multi-antenna mode
-    * Fix wrong scope of phoenix::ref variables
-    * Fix AttEuler grammar
-    * Add max size checks to QualityInd and ReceiverStatus
-    * Replace locals with phoenix::ref in grammars
-    * Add revision dependent parsing to PVTs
-    * Change offset check to epsilon
-    * Change offset check to epsilon
-    * Fix parsing checks
-    * Set has arrived to false on parsing error
-    * Add INSNav grammars
-    * Add abs to offset check
-    * Add abs to offset check
-    * Add Cov grammars
-    * Remove superfluous typdefs of structs
-    * Add ReceiverStatus grammar
-    * Add QualityINd grammar
-    * Merge pull request `#45 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/45>`_ from thomasemter/dev/refactor
-      Dev/refactor
-    * Add id check to header grammar
-    * Add id check to header grammar
-    * Add ReceiverSetup grammar
-    * Add DOP grammar
-    * Directly intialize vector to parse
-    * Add MeasEpoch grammar
-    * Remove duplicate msg types
-    * Remove obsolete include
-    * Add revision and length return to header grammar
-    * Merge branch 'feature/endianess_agnostic' into dev/endianess_agnostic
-    * Make multi_antenna option also usable for gnss
-    * Add typedefs plus some minor changes
-    * Add warning concerning pitch angle if antennas are rotated
-    * Add multi antenna option to ins and fix antenna offset decimal places trimming
-    * Fix identation
-    * Distinguish between gnss and ins for spatial config from tf
-    * Merge pull request `#43 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/43>`_ from thomasemter/dev/refactor
-      Dev/refactor
-    * Add vehicle frame for clarity
-    * Handle missing tf more gently
-    * Merge branch 'dev/spatial_config_via_tf' into dev/refactor
-    * Update readme
-    * Fix antenna offset from tf
-    * Add automatic publishing of localization if tf is activated
-    * Add automatic publishing of localization if tf is activated
-    * Add spatial config via tf, to be tested
-    * Fix crashes due to parsing errors (replacing uncatched throws)
-    * Add tf broadcasting
-    * Add comments
-    * Add localization in UTM output
-    * Add check to IMU msg sync
-    * Change msg sync to allow for 200 Hz IMU msgs
-    * Add ROS IMU msg
-    * Fix IMU setup message attitude conversion
-    * Fix pose from INS data
-    * Fix IMU raw data rotation compensation
-    * Make antenna attitude offset usable by GNSS
-    * Add ros directions option to pose and fix covariances
-    * Update readme
-    * Merge branch 'feature/ros_axis_orientation' into dev/refactor
-    * Add nmea_msgs dependencies
-    * Merge branch 'dev/nmea' into dev/refactor
-    * Update readme
-    * Update readme
-    * Add antenna offsets to conversions
-    * Fix IMU orientation conversion
-    * Change ExtSensorMead temperature to deg C
-    * Add axis orientation info to readme
-    * Fix IMU axis orientation
-    * Change get int param
-    * Update readme to reflect removal of aux antenna offset
-    * Fix different antenna setup message for INS and remove obsolete aux1 antenna offset for GNSS
-    * Fix ExtSensorMeas message filling
-    * Fix ExtSensorMeas message to reflect available fields
-    * Fix missing INS blocks
-    * Fix missing INS blocks
-    * WIP, introduce ros axis orientation option, to be tested
-    * Add option to set pvt rate to OnChange
-    * Add comment on NTP to readme
-    * Change to nmea_msgs
-    * Add automatic addition of needed sub messages
-    * Comment out setting debug level
-    * Add comments and fix spelling errors
-    * Merge pull request `#42 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/42>`_ from thomasemter/dev/refactor
-      Dev/refactor
-    * Change to quaternion msg typedef
-    * Comment out debug logging
-    * Remove filling of seq field
-    * Change msg definitions to be compatible with ROS2
-    * Update readme
-    * Change make_shared for portability and add more typedefs
-    * Add get param int fallback for numeric antenna serial numbers
-    * Change Attitude to be published with pvt rate
-    * Add log identifier
-    * Add checks for relevant ros params
-    * Concatenate multiple SBF blocks in streams
-    * Move main into own file
-    * Move get ros time to AsyncManager
-    * Remove obsolete param comment
-    * Move get ros params to base class
-    * Change to nsec timestamp internally
-    * Add publishing functionality to node base class
-    * Move node handle ptr and functions to base class and rename
-    * Add stamp to nmea parsing
-    * Add logging in PcapReader
-    * Add logging in CircularBuffer
-    * Add missed logging
-    * Add logging in AsyncManager
-    * Add getTime function
-    * Add logging in RxMessage
-    * Add logging in CallbackHandlers
-    * Add log function to node by polymorphism, logging in Comm_OI
-    * Fix wait function and force use_gnss_time when reading from file
-    * Add thread shutdown and remove spurious delete
-    * Add typedefs for ins messages
-    * Add typedefs for gnss messages
-    * Add typedefs for ros messages
-    * Refine shutdown
-    * Fix shutdown escalating to SIGTERM
-    * Move waiting for response in send function
-    * Make functions private
-    * Change crc to C++
-    * Fix variable name
-    * Remove global variables from node cpp file
-    * Move more global settings to settings struct
-    * Move more global settings to settings struct
-    * Move global settings to settings struct
-    * Move more functions to Comm_IO
-    * Move settings to struct and configuration to Comm_IO
-    * Merge branch 'dev/change_utc_calculation' into dev/refactor
-    * Remove obsolete global variables
-    * Move g_unix_time to class
-    * Make has_arrived booleans class memebers and rx_message a persistent class
-    * Make node handle a class member
-    * Fix parsing of ID and rev
-    * Finish ChannelStatusGrammar, to be tested
-    * WIP, partially fix ChannelStatusGrammar
-    * Add SBF length parsing utility
-    * Insert spirit parsers
-    * WIP, add omission of padding bytes
-    * WIP, add more spirit parsers
-    * Add parsing utilities for tow, wnc and ID
-    * Move getId/Tow/Wnc to parsing utilities
-    * Change UTC calculation to use tow and wnc
-    * WIP, add boost spirit and endian buffers
-    * Change UTC calculation to use tow and wnc
-* ROS2 Commits
-    * Prepare ros2 release
-    * Merge pull request `#54 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/54>`_ from thomasemter/dev/ros2
-      ROS2 branch
-    * Port driver to ros2
-* Change UTC calculation to use tow and wnc
 * Contributors: Thomas Emter, Tibor Dome, tibordome
 
 1.0.8 (2021-10-23)
