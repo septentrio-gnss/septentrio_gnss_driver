@@ -172,7 +172,7 @@ namespace io {
             log_level::DEBUG,
             "Started timer for calling connect() method until connection succeeds");
 
-        boost::asio::io_service io;
+        boost::asio::io_context io;
         if (initializeIo())
         {
             initializedIo_ = manager_->connect();
@@ -308,11 +308,11 @@ namespace io {
                 send("login, " + settings_->login_user + ", " +
                      settings_->login_password + " \x0D");
         }
-        
+
         // Turning off all current SBF/NMEA output
         send("sso, all, none, none, off \x0D");
         send("sno, all, none, none, off \x0D");
-        
+
         if (!settings_->custom_commands_file.empty())
         {
             if ((std::filesystem::exists(settings_->custom_commands_file)))

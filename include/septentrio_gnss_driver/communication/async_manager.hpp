@@ -132,7 +132,7 @@ namespace io {
 
     private:
         void receive();
-        void runIoService();
+        void runIoContext();
         void runWatchdog();
         void write(const std::string& cmd);
         void resync();
@@ -146,7 +146,7 @@ namespace io {
 
         //! Pointer to the node
         ROSaicNodeBase* node_;
-        std::shared_ptr<boost::asio::io_service> ioService_;
+        std::shared_ptr<boost::asio::io_context> ioContext_;
         IoType ioInterface_;
         std::atomic<bool> running_;
         std::thread ioThread_;
@@ -166,8 +166,8 @@ namespace io {
     template <typename IoType>
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
-        node_(node), ioService_(std::make_shared<boost::asio::io_service>()),
-        ioInterface_(node, ioService_), telegramQueue_(telegramQueue)
+        node_(node), ioContext_(std::make_shared<boost::asio::io_context>()),
+        ioInterface_(node, ioContext_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -203,7 +203,7 @@ namespace io {
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
         if (ioThread_.joinable())
         {
-            ioService_->stop();
+            ioContext_->stop();
             ioThread_.join();
         }
         if (watchdogThread_.joinable())
@@ -227,7 +227,8 @@ namespace io {
             return;
         }
 
-        ioService_->post(boost::bind(&AsyncManager<IoType>::write, this, cmd));
+        boost::asio::post(*ioContext_,
+                          boost::bind(&AsyncManager<IoType>::write, this, cmd));
     }
 
     template <typename IoType>
@@ -241,18 +242,18 @@ namespace io {
     {
         resync();
         ioThread_ =
-            std::thread(std::bind(&AsyncManager<IoType>::runIoService, this));
+            std::thread(std::bind(&AsyncManager<IoType>::runIoContext, this));
         if (!watchdogThread_.joinable())
             watchdogThread_ =
                 std::thread(std::bind(&AsyncManager::runWatchdog, this));
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::runIoService()
+    void AsyncManager<IoType>::runIoContext()
     {
-        ioService_->reset();
-        ioService_->run();
-        node_->log(log_level::DEBUG, "AsyncManager ioService terminated.");
+        ioContext_->restart();
+        ioContext_->run();
+        node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
     }
 
     template <typename IoType>
@@ -261,7 +262,7 @@ namespace io {
         while (running_)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            if (running_ && ioService_->stopped())
+            if (running_ && ioContext_->stopped())
             {
                 if (node_->settings()->read_from_sbf_log ||
                     node_->settings()->read_from_pcap)
@@ -287,7 +288,7 @@ namespace io {
                     *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
                     [this](boost::system::error_code ec, std::size_t /*length*/) {
                         if (ec)
-                            ioService_->stop();
+                            ioContext_->stop();
                     });
             }
         }
@@ -486,7 +487,7 @@ namespace io {
                         (boost::asio::error::bad_descriptor == ec) ||
                         (boost::asio::error::connection_reset == ec))
                     {
-                        ioService_->stop();
+                        ioContext_->stop();
                     } else
                     {
                         if (connected_)
