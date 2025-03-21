@@ -6,6 +6,8 @@ Changelog for package septentrio_gnss_driver
 ----------------
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
+* Improvements
+    * Rework IMU orientation sync
 
 1.4.2 (2025-02-22)
 ------------------

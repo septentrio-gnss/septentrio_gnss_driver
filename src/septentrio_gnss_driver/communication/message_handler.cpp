@@ -573,8 +573,28 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     }
 
-    void MessageHandler::assembleImu()
+    void MessageHandler::assembleImu(bool imuUpdate)
     {
+        // SBF block INSNavGeod arrives after the IMU block. So, if INSNavGeod is
+        // valid, the message is assembled upon its arrival instead of arrival of the
+        // IMU block for exact sync. Only in case of the highest possible rate (IMU:
+        // 200 Hz vs. INSNavGeod: 100 Hz) an additional assembly is performed upon
+        // the intermittent arrival of the IMU block. In this case orientation data
+        // is updates only every second assembly.
+        if (validValue(last_insnavgeod_.block_header.tow))
+        {
+            // INS tow and extsens meas tow have the same time scale
+            Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
+                                           last_extsensmeas_.block_header.wnc);
+            Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
+                                           last_insnavgeod_.block_header.wnc);
+
+            if (imuUpdate && ((settings_->polling_period_pvt != 0) ||
+                              ((tsImu - tsIns) != 5000000)))
+                return;
+        } else if (!imuUpdate)
+            return;
+
         ImuMsg msg;
 
         msg.header = last_extsensmeas_.header;
@@ -590,86 +610,75 @@ namespace io {
         bool valid_orientation = false;
         if (validValue(last_insnavgeod_.block_header.tow))
         {
-            // INS tow and extsens meas tow have the same time scale
             Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
                                            last_extsensmeas_.block_header.wnc);
             Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
                                            last_insnavgeod_.block_header.wnc);
 
-            thread_local int64_t maxDt =
-                (settings_->polling_period_pvt == 0)
-                    ? 10000000
-                    : settings_->polling_period_pvt * 1000000;
-            if ((tsImu - tsIns) > maxDt)
+            if ((last_insnavgeod_.sb_list & 2) != 0)
             {
-                valid_orientation = false;
-            } else
-            {
-                if ((last_insnavgeod_.sb_list & 2) != 0)
+                // Attitude
+                if (validValue(last_insnavgeod_.heading) &&
+                    validValue(last_insnavgeod_.pitch) &&
+                    validValue(last_insnavgeod_.roll))
                 {
-                    // Attitude
-                    if (validValue(last_insnavgeod_.heading) &&
-                        validValue(last_insnavgeod_.pitch) &&
-                        validValue(last_insnavgeod_.roll))
-                    {
-                        msg.orientation = convertEulerToQuaternionMsg(
-                            deg2rad(last_insnavgeod_.roll),
-                            deg2rad(last_insnavgeod_.pitch),
-                            deg2rad(last_insnavgeod_.heading));
-                        valid_orientation = true;
-                    } else if (validValue(last_insnavgeod_.heading))
-                    {
-                        msg.orientation = convertEulerToQuaternionMsg(
-                            0.0, 0.0, deg2rad(last_insnavgeod_.heading));
-                        valid_orientation = true;
-                    }
+                    msg.orientation = convertEulerToQuaternionMsg(
+                        deg2rad(last_insnavgeod_.roll),
+                        deg2rad(last_insnavgeod_.pitch),
+                        deg2rad(last_insnavgeod_.heading));
+                    valid_orientation = true;
+                } else if (validValue(last_insnavgeod_.heading))
+                {
+                    msg.orientation = convertEulerToQuaternionMsg(
+                        0.0, 0.0, deg2rad(last_insnavgeod_.heading));
+                    valid_orientation = true;
                 }
-                if ((last_insnavgeod_.sb_list & 4) != 0)
+            }
+            if ((last_insnavgeod_.sb_list & 4) != 0)
+            {
+                // Attitude autocov
+                if (validValue(last_insnavgeod_.roll_std_dev) &&
+                    validValue(last_insnavgeod_.pitch_std_dev) &&
+                    validValue(last_insnavgeod_.heading_std_dev))
                 {
-                    // Attitude autocov
-                    if (validValue(last_insnavgeod_.roll_std_dev) &&
-                        validValue(last_insnavgeod_.pitch_std_dev) &&
-                        validValue(last_insnavgeod_.heading_std_dev))
-                    {
-                        msg.orientation_covariance[0] =
-                            parsing_utilities::convertAutoCovariance(
-                                last_insnavgeod_.roll_std_dev);
-                        msg.orientation_covariance[4] =
-                            parsing_utilities::convertAutoCovariance(
-                                last_insnavgeod_.pitch_std_dev);
-                        msg.orientation_covariance[8] =
-                            parsing_utilities::convertAutoCovariance(
-                                last_insnavgeod_.heading_std_dev);
+                    msg.orientation_covariance[0] =
+                        parsing_utilities::convertAutoCovariance(
+                            last_insnavgeod_.roll_std_dev);
+                    msg.orientation_covariance[4] =
+                        parsing_utilities::convertAutoCovariance(
+                            last_insnavgeod_.pitch_std_dev);
+                    msg.orientation_covariance[8] =
+                        parsing_utilities::convertAutoCovariance(
+                            last_insnavgeod_.heading_std_dev);
 
-                        if ((last_insnavgeod_.sb_list & 64) != 0)
-                        {
-                            // Attitude cov
-                            msg.orientation_covariance[1] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.pitch_roll_cov);
-                            msg.orientation_covariance[2] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.heading_roll_cov);
-                            msg.orientation_covariance[3] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.pitch_roll_cov);
-
-                            msg.orientation_covariance[5] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.heading_pitch_cov);
-                            msg.orientation_covariance[6] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.heading_roll_cov);
-                            msg.orientation_covariance[7] =
-                                parsing_utilities::convertCovariance(
-                                    last_insnavgeod_.heading_pitch_cov);
-                        }
-                    } else
+                    if ((last_insnavgeod_.sb_list & 64) != 0)
                     {
-                        msg.orientation_covariance[0] = -1.0;
-                        msg.orientation_covariance[4] = -1.0;
-                        msg.orientation_covariance[8] = -1.0;
+                        // Attitude cov
+                        msg.orientation_covariance[1] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.pitch_roll_cov);
+                        msg.orientation_covariance[2] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.heading_roll_cov);
+                        msg.orientation_covariance[3] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.pitch_roll_cov);
+
+                        msg.orientation_covariance[5] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.heading_pitch_cov);
+                        msg.orientation_covariance[6] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.heading_roll_cov);
+                        msg.orientation_covariance[7] =
+                            parsing_utilities::convertCovariance(
+                                last_insnavgeod_.heading_pitch_cov);
                     }
+                } else
+                {
+                    msg.orientation_covariance[0] = -1.0;
+                    msg.orientation_covariance[4] = -1.0;
+                    msg.orientation_covariance[8] = -1.0;
                 }
             }
         }
@@ -2407,6 +2416,7 @@ namespace io {
             {
                 frame_id = settings_->frame_id;
             }
+            assembleImu(false);
             assembleHeader(frame_id, telegram, last_insnavgeod_);
             if (settings_->publish_insnavgeod)
                 publish<INSNavGeodMsg>("insnavgeod", last_insnavgeod_);
@@ -2527,7 +2537,7 @@ namespace io {
                 publish<ExtSensorMeasMsg>("extsensormeas", last_extsensmeas_);
             if (settings_->publish_imu && hasImuMeas)
             {
-                assembleImu();
+                assembleImu(true);
             }
             break;
         }

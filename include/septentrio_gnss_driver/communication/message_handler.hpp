@@ -370,7 +370,7 @@ namespace io {
          * @brief "Callback" function when constructing
          * ImuMsg messages
          */
-        void assembleImu();
+        void assembleImu(bool imuUpdate);
 
         /**
          * @brief "Callback" function when constructing
