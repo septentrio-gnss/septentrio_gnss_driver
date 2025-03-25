@@ -7,7 +7,7 @@ Changelog for package septentrio_gnss_driver
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
 * Improvements
-    * Rework IMU orientation sync
+    * IMU orientation sync (BREAKING: 200 Hz publishing dropped, max is now 100 Hz)
 
 1.4.2 (2025-02-22)
 ------------------
