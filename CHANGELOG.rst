@@ -40,7 +40,7 @@ Changelog for package septentrio_gnss_driver
    * Option to publish only valid SBF block messages
    * Option to auto publish available messages for `configure_rx: false`
 * Changes
-   * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
+   * Change floating point do-not-use-values to NaN (BREAKING in case these values are used for validity checks downstream)
    * VSM now uses separate TCP device specified IP server
 * Improvements
    * Rework some sections of the README
