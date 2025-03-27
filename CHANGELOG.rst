@@ -7,7 +7,8 @@ Changelog for package septentrio_gnss_driver
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
 * Improvements
-    * Rework IMU orientation sync
+    * IMU orientation sync
+* Contributors:  @oysstu, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.2 (2025-02-22)
 ------------------
@@ -18,7 +19,7 @@ Changelog for package septentrio_gnss_driver
     * Rework TCP connection/reconnection
 * Changes
     * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
-* Contributors: Martin Pecka, Thomas Emter, @oysstu, septentrio-users
+* Contributors: Martin Pecka, Thomas Emter, @oysstu, Tibor Dome, septentrio-users
 
 1.4.1 (2024-08-04)
 ------------------

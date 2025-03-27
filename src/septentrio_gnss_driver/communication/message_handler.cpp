@@ -573,28 +573,9 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     }
 
-    void MessageHandler::assembleImu(bool imuUpdate)
+    void MessageHandler::assembleImu()
     {
-        // SBF block INSNavGeod arrives after the IMU block. So, if INSNavGeod is
-        // valid, the message is assembled upon its arrival instead of arrival of the
-        // IMU block for exact sync. Only in case of the highest possible rate (IMU:
-        // 200 Hz vs. INSNavGeod: 100 Hz) an additional assembly is performed upon
-        // the intermittent arrival of the IMU block. In this case orientation data
-        // is updates only every second assembly.
-        if (validValue(last_insnavgeod_.block_header.tow))
-        {
-            // INS tow and extsens meas tow have the same time scale
-            Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
-                                           last_extsensmeas_.block_header.wnc);
-            Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
-                                           last_insnavgeod_.block_header.wnc);
-
-            if (imuUpdate && ((settings_->polling_period_pvt != 0) ||
-                              ((tsImu - tsIns) != 5000000)))
-                return;
-        } else if (!imuUpdate)
-            return;
-
+        // INS tow and extsens meas tow have the same time scale
         ImuMsg msg;
 
         msg.header = last_extsensmeas_.header;
@@ -607,14 +588,14 @@ namespace io {
         msg.angular_velocity.y = deg2rad(last_extsensmeas_.angular_rate_y);
         msg.angular_velocity.z = deg2rad(last_extsensmeas_.angular_rate_z);
 
-        bool valid_orientation = false;
-        if (validValue(last_insnavgeod_.block_header.tow))
-        {
-            Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
-                                           last_extsensmeas_.block_header.wnc);
-            Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
-                                           last_insnavgeod_.block_header.wnc);
+        Timestamp tsImu = timestampSBF(last_extsensmeas_.block_header.tow,
+                                       last_extsensmeas_.block_header.wnc);
+        Timestamp tsIns = timestampSBF(last_insnavgeod_.block_header.tow,
+                                       last_insnavgeod_.block_header.wnc);
 
+        bool valid_orientation = false;
+        if (validValue(last_insnavgeod_.block_header.tow) && (tsImu == tsIns))
+        {
             if ((last_insnavgeod_.sb_list & 2) != 0)
             {
                 // Attitude
@@ -2416,7 +2397,12 @@ namespace io {
             {
                 frame_id = settings_->frame_id;
             }
-            assembleImu(false);
+
+            if (settings_->publish_imu && hasImuMeas_)
+            {
+                assembleImu();
+            }
+            hasImuMeas_ = false;
             assembleHeader(frame_id, telegram, last_insnavgeod_);
             if (settings_->publish_insnavgeod)
                 publish<INSNavGeodMsg>("insnavgeod", last_insnavgeod_);
@@ -2523,11 +2509,10 @@ namespace io {
         }
         case EXT_SENSOR_MEAS:
         {
-            bool hasImuMeas = false;
             if (!ExtSensorMeasParser(node_, telegram->message.begin(),
                                      telegram->message.end(), last_extsensmeas_,
                                      settings_->use_ros_axis_orientation,
-                                     hasImuMeas))
+                                     hasImuMeas_))
             {
                 node_->log(log_level::ERROR, "parse error in ExtSensorMeas");
                 break;
@@ -2535,10 +2520,6 @@ namespace io {
             assembleHeader(settings_->imu_frame_id, telegram, last_extsensmeas_);
             if (settings_->publish_extsensormeas)
                 publish<ExtSensorMeasMsg>("extsensormeas", last_extsensmeas_);
-            if (settings_->publish_imu && hasImuMeas)
-            {
-                assembleImu(true);
-            }
             break;
         }
         case CHANNEL_STATUS:
