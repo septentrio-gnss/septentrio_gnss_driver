@@ -6,6 +6,7 @@ Changelog for package septentrio_gnss_driver
 ----------------
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
+    * VSM data not being sent to the rx if configure_rx is false
 * Improvements
     * IMU orientation sync
 * Contributors:  @oysstu, Thomas Emter, Tibor Dome, septentrio-users
