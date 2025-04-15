@@ -30,8 +30,6 @@ endif ()
 
 find_package(ament_cmake QUIET)
 find_package(catkin QUIET)
-find_package(gtest_vendor)
-find_package(ament_cmake_ros)
 
 if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
@@ -163,6 +161,8 @@ elseif(ament_cmake_FOUND)
   find_package(tf2_eigen REQUIRED)
   find_package(tf2_geometry_msgs REQUIRED)
   find_package(tf2_ros REQUIRED)
+  find_package(gtest_vendor REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   
   ## Declare  messages
   rosidl_generate_interfaces(${PROJECT_NAME}
