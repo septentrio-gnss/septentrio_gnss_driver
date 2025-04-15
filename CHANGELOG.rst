@@ -7,9 +7,10 @@ Changelog for package septentrio_gnss_driver
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
     * VSM data not being sent to the rx if configure_rx is false
+    * ROS 2 Rolling regression (thanks to @kevshin2002)
 * Improvements
     * IMU orientation sync
-* Contributors:  @oysstu, Thomas Emter, Tibor Dome, septentrio-users
+* Contributors:  @oysstu, @kevshin2002, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.2 (2025-02-22)
 ------------------
