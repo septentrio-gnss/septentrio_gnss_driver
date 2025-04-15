@@ -30,6 +30,8 @@ endif ()
 
 find_package(ament_cmake QUIET)
 find_package(catkin QUIET)
+find_package(gtest_vendor)
+find_package(ament_cmake_ros)
 
 if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
