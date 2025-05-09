@@ -29,7 +29,9 @@
   <member_of_group condition="$ROS_VERSION == 2">rosidl_interface_packages</member_of_group>
   <depend condition="$ROS_VERSION == 2">rclcpp</depend>
   <depend condition="$ROS_VERSION == 2">rclcpp_components</depend>
-  
+  <depend condition="$ROS_VERSION == 2">ament_cmake_ros</depend>
+  <depend condition="$ROS_VERSION == 2">gtest_vendor</depend>
+
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
   <build_depend condition="$ROS_VERSION == 1">message_generation</build_depend>
   <depend condition="$ROS_VERSION == 1">roscpp</depend>
@@ -49,7 +51,6 @@
   <depend>tf2_eigen</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
-
   <export>
     <build_type condition="$ROS_VERSION == 1">catkin</build_type>
     <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
