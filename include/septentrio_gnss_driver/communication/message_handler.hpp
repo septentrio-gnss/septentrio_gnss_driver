@@ -371,6 +371,7 @@ namespace io {
          * ImuMsg messages
          */
         void assembleImu();
+        bool hasImuMeas_ = false;
 
         /**
          * @brief "Callback" function when constructing

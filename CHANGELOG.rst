@@ -2,6 +2,16 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.3 (upcoming)
+----------------
+* Fixes
+    * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
+    * VSM data not being sent to the rx if configure_rx is false
+    * ROS 2 Rolling regression (thanks to @kevshin2002)
+* Improvements
+    * IMU orientation sync
+* Contributors:  @oysstu, @kevshin2002, Thomas Emter, Tibor Dome, septentrio-users
+
 1.4.2 (2025-02-22)
 ------------------
 * Fixes
@@ -11,7 +21,7 @@ Changelog for package septentrio_gnss_driver
     * Rework TCP connection/reconnection
 * Changes
     * In case INS is not aligned yet but has GNSS heading, a valid orientation with roll and pitch = 0.0 will be published.
-* Contributors: Martin Pecka, Thomas Emter, @oysstu, septentrio-users
+* Contributors: Martin Pecka, Thomas Emter, @oysstu, Tibor Dome, septentrio-users
 
 1.4.1 (2024-08-04)
 ------------------
@@ -31,7 +41,7 @@ Changelog for package septentrio_gnss_driver
    * Option to publish only valid SBF block messages
    * Option to auto publish available messages for `configure_rx: false`
 * Changes
-   * Change floating point do-not-use-values to NaN (BREAKING in case these values ae used for validity checks downstream)
+   * Change floating point do-not-use-values to NaN (BREAKING in case these values are used for validity checks downstream)
    * VSM now uses separate TCP device specified IP server
 * Improvements
    * Rework some sections of the README
@@ -41,12 +51,10 @@ Changelog for package septentrio_gnss_driver
 
 1.3.2 (2023-11-19)
 ------------------
-* Merge pull request `#106 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/106>`_ from thomasemter/dev/next2
-  Fix IMU units
-* Fix topics namespace
-* Fix units of imu angular rates
-* Merge pull request `#96 <https://github.com/septentrio-gnss/septentrio_gnss_driver/issues/96>`_ from septentrio-gnss/dev2
-  Dev2
+* Fixes
+    * IMU units
+    * Topics namespace
+    * Units of imu angular rates
 * Contributors: Thomas Emter, Tibor Dome, septentrio-users
 
 1.3.1 (2023-07-06)

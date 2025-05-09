@@ -188,11 +188,9 @@ namespace io {
         // and sets all its necessary corrections-related parameters
         if (!settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
-            if (settings_->configure_rx)
-            {
-                node_->log(log_level::DEBUG, "Configure Rx.");
-                configureRx();
-            }
+
+            node_->log(log_level::DEBUG, "Configure Rx.");
+            configureRx();
         }
 
         node_->log(log_level::INFO, "Setup complete.");
@@ -290,699 +288,732 @@ namespace io {
                    "The connection descriptor is " + mainConnectionPort_);
         streamPort_ = mainConnectionPort_;
 
-        node_->log(log_level::INFO, "Setting up Rx.");
-
-        std::string pvt_interval = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_pvt);
-
-        std::string rest_interval = parsing_utilities::convertUserPeriodToRxCommand(
-            settings_->polling_period_rest);
-
-        // Credentials for login
-        if (!settings_->login_user.empty() && !settings_->login_password.empty())
+        if (settings_->configure_rx)
         {
-            if (string_utilities::containsSpace(settings_->login_password))
-                send("login, " + settings_->login_user + ", \"" +
-                     settings_->login_password + "\" \x0D");
-            else
-                send("login, " + settings_->login_user + ", " +
-                     settings_->login_password + " \x0D");
-        }
+            node_->log(log_level::INFO, "Setting up Rx.");
 
-        // Turning off all current SBF/NMEA output
-        send("sso, all, none, none, off \x0D");
-        send("sno, all, none, none, off \x0D");
+            std::string pvt_interval =
+                parsing_utilities::convertUserPeriodToRxCommand(
+                    settings_->polling_period_pvt);
 
-        if (!settings_->custom_commands_file.empty())
-        {
-            if ((std::filesystem::exists(settings_->custom_commands_file)))
+            std::string rest_interval =
+                parsing_utilities::convertUserPeriodToRxCommand(
+                    settings_->polling_period_rest);
+
+            // Credentials for login
+            if (!settings_->login_user.empty() && !settings_->login_password.empty())
             {
-                std::ifstream filestream(settings_->custom_commands_file);
-                node_->log(log_level::INFO, "Custom command file " +
-                                                settings_->custom_commands_file +
-                                                " loaded.");
+                if (string_utilities::containsSpace(settings_->login_password))
+                    send("login, " + settings_->login_user + ", \"" +
+                         settings_->login_password + "\" \x0D");
+                else
+                    send("login, " + settings_->login_user + ", " +
+                         settings_->login_password + " \x0D");
+            }
 
-                size_t ctr = 0;
-                std::string line;
-                while (std::getline(filestream, line))
+            // Turning off all current SBF/NMEA output
+            send("sso, all, none, none, off \x0D");
+            send("sno, all, none, none, off \x0D");
+
+            if (!settings_->custom_commands_file.empty())
+            {
+                if ((std::filesystem::exists(settings_->custom_commands_file)))
                 {
-                    ++ctr;
-                    send(line + "\x0D");
-                }
-                node_->log(
-                    log_level::INFO,
-                    std::to_string(ctr) +
-                        " custom commands have been parsed and sent to the Rx.");
-            } else
-            {
-                node_->log(log_level::ERROR, "Custom command file " +
-                                                 settings_->custom_commands_file +
-                                                 " could not be found.");
-            }
-        }
+                    std::ifstream filestream(settings_->custom_commands_file);
+                    node_->log(log_level::INFO, "Custom command file " +
+                                                    settings_->custom_commands_file +
+                                                    " loaded.");
 
-        if (tcpClient_)
-        {
-            streamPort_ = settings_->tcp_ip_server;
-            std::string tcp_mode;
-            if (settings_->ins_vsm.use_stream_device)
-                tcp_mode = "TCP2Way";
-            else
-                tcp_mode = "TCP";
-            send("siss, " + streamPort_ + ", " +
-                 std::to_string(settings_->tcp_port) + ", " + tcp_mode + ", " +
-                 "\x0D");
-            tcpClient_->connect();
-        } else if (udpClient_)
-        {
-            streamPort_ = settings_->udp_ip_server;
-            std::string destination;
-            if (!settings_->udp_unicast_ip.empty())
-                destination = settings_->udp_unicast_ip;
-            else
-                destination = "255.255.255.255";
-            send("siss, " + streamPort_ + ", " +
-                 std::to_string(settings_->udp_port) + ", UDP, " + destination +
-                 "\x0D");
-        }
-
-        // Get Rx capabilities
-        send("grc \x0D");
-        telegramHandler_.waitForCapabilities();
-
-        // Activate NTP server
-        if (settings_->ntp_server)
-            send("sntp, on \x0D");
-
-        // Activate PTP server clock
-        if (settings_->ptp_server_clock)
-            send("sptp, on \x0D");
-
-        // Setting the datum to be used by the Rx (not the NMEA output though, which
-        // only provides MSL and undulation (by default with respect to WGS84), but
-        // not ellipsoidal height)
-        {
-            std::stringstream ss;
-            ss << "sgd, " << settings_->datum << "\x0D";
-            send(ss.str());
-        }
-
-        if ((settings_->septentrio_receiver_type == "ins") || node_->isIns())
-        {
-            {
-                std::stringstream ss;
-                ss << "sat, Main, \"" << settings_->ant_type << "\"" << "\x0D";
-                send(ss.str());
-            }
-
-            // Configure Aux1 antenna
-            if (settings_->multi_antenna)
-            {
-                std::stringstream ss;
-                ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
-                send(ss.str());
-            }
-        } else if (settings_->septentrio_receiver_type == "gnss")
-        {
-            // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
-            // ReceiverSetup, ..." command, since the latter is only generated when a
-            // user-command is entered to change one or more values in the block.
-            {
-                std::stringstream ss;
-                ss << "sao, Main, "
-                   << string_utilities::trimDecimalPlaces(settings_->delta_e) << ", "
-                   << string_utilities::trimDecimalPlaces(settings_->delta_n) << ", "
-                   << string_utilities::trimDecimalPlaces(settings_->delta_u)
-                   << ", \"" << settings_->ant_type << "\", "
-                   << settings_->ant_serial_nr << "\x0D";
-                send(ss.str());
-            }
-
-            // Configure Aux1 antenna
-            if (settings_->multi_antenna)
-            {
-                std::stringstream ss;
-                ss << "sao, Aux1, " << string_utilities::trimDecimalPlaces(0.0)
-                   << ", " << string_utilities::trimDecimalPlaces(0.0) << ", "
-                   << string_utilities::trimDecimalPlaces(0.0) << ", \""
-                   << settings_->ant_aux1_type << "\", "
-                   << settings_->ant_aux1_serial_nr << "\x0D";
-                send(ss.str());
-            }
-        }
-
-        // Configuring the corrections connection
-        for (auto ntrip : settings_->rtk.ntrip)
-        {
-            if (!ntrip.id.empty())
-            {
-                // First disable any existing NTRIP connection on NTR1
-                send("snts, " + ntrip.id + ", off \x0D");
-                {
-                    std::stringstream ss;
-                    ss << "snts, " << ntrip.id << ", Client, " << ntrip.caster
-                       << ", " << std::to_string(ntrip.caster_port) << ", "
-                       << ntrip.username << ", " << ntrip.password << ", "
-                       << ntrip.mountpoint << ", " << ntrip.version << ", "
-                       << ntrip.send_gga << " \x0D";
-                    send(ss.str());
-                }
-                if (ntrip.tls)
-                {
-                    std::stringstream ss;
-                    ss << "sntt, " << ntrip.id << ", on, \"" << ntrip.fingerprint
-                       << "\" \x0D";
-                    send(ss.str());
+                    size_t ctr = 0;
+                    std::string line;
+                    while (std::getline(filestream, line))
+                    {
+                        ++ctr;
+                        send(line + "\x0D");
+                    }
+                    node_->log(
+                        log_level::INFO,
+                        std::to_string(ctr) +
+                            " custom commands have been parsed and sent to the Rx.");
                 } else
                 {
-                    std::stringstream ss;
-                    ss << "sntt, " << ntrip.id << ", off \x0D";
-                    send(ss.str());
+                    node_->log(log_level::ERROR,
+                               "Custom command file " +
+                                   settings_->custom_commands_file +
+                                   " could not be found.");
                 }
             }
-        }
 
-        for (auto ip_server : settings_->rtk.ip_server)
-        {
-            if (!ip_server.id.empty())
+            if (tcpClient_)
+            {
+                streamPort_ = settings_->tcp_ip_server;
+                std::string tcp_mode;
+                if (settings_->ins_vsm.use_stream_device)
+                    tcp_mode = "TCP2Way";
+                else
+                    tcp_mode = "TCP";
+                send("siss, " + streamPort_ + ", " +
+                     std::to_string(settings_->tcp_port) + ", " + tcp_mode + ", " +
+                     "\x0D");
+                tcpClient_->connect();
+            } else if (udpClient_)
+            {
+                streamPort_ = settings_->udp_ip_server;
+                std::string destination;
+                if (!settings_->udp_unicast_ip.empty())
+                    destination = settings_->udp_unicast_ip;
+                else
+                    destination = "255.255.255.255";
+                send("siss, " + streamPort_ + ", " +
+                     std::to_string(settings_->udp_port) + ", UDP, " + destination +
+                     "\x0D");
+            }
+
+            // Get Rx capabilities
+            send("grc \x0D");
+            telegramHandler_.waitForCapabilities();
+
+            // Activate NTP server
+            if (settings_->ntp_server)
+                send("sntp, on \x0D");
+
+            // Activate PTP server clock
+            if (settings_->ptp_server_clock)
+                send("sptp, on \x0D");
+
+            // Setting the datum to be used by the Rx (not the NMEA output though,
+            // which only provides MSL and undulation (by default with respect to
+            // WGS84), but not ellipsoidal height)
+            {
+                std::stringstream ss;
+                ss << "sgd, " << settings_->datum << "\x0D";
+                send(ss.str());
+            }
+
+            if ((settings_->septentrio_receiver_type == "ins") || node_->isIns())
             {
                 {
                     std::stringstream ss;
-                    // In case this IP server was used before, old
-                    // configuration is lost of course.
-                    ss << "siss, " << ip_server.id << ", "
-                       << std::to_string(ip_server.port) << ", TCP2Way \x0D";
+                    ss << "sat, Main, \"" << settings_->ant_type << "\"" << "\x0D";
                     send(ss.str());
                 }
+
+                // Configure Aux1 antenna
+                if (settings_->multi_antenna)
                 {
                     std::stringstream ss;
-                    ss << "sdio, " << ip_server.id << ", " << ip_server.rtk_standard
+                    ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
+                    send(ss.str());
+                }
+            } else if (settings_->septentrio_receiver_type == "gnss")
+            {
+                // Setting the marker-to-ARP offsets. This comes after the "sso, ...,
+                // ReceiverSetup, ..." command, since the latter is only generated
+                // when a user-command is entered to change one or more values in the
+                // block.
+                {
+                    std::stringstream ss;
+                    ss << "sao, Main, "
+                       << string_utilities::trimDecimalPlaces(settings_->delta_e)
+                       << ", "
+                       << string_utilities::trimDecimalPlaces(settings_->delta_n)
+                       << ", "
+                       << string_utilities::trimDecimalPlaces(settings_->delta_u)
+                       << ", \"" << settings_->ant_type << "\", "
+                       << settings_->ant_serial_nr << "\x0D";
+                    send(ss.str());
+                }
+
+                // Configure Aux1 antenna
+                if (settings_->multi_antenna)
+                {
+                    std::stringstream ss;
+                    ss << "sao, Aux1, " << string_utilities::trimDecimalPlaces(0.0)
+                       << ", " << string_utilities::trimDecimalPlaces(0.0) << ", "
+                       << string_utilities::trimDecimalPlaces(0.0) << ", \""
+                       << settings_->ant_aux1_type << "\", "
+                       << settings_->ant_aux1_serial_nr << "\x0D";
+                    send(ss.str());
+                }
+            }
+
+            // Configuring the corrections connection
+            for (auto ntrip : settings_->rtk.ntrip)
+            {
+                if (!ntrip.id.empty())
+                {
+                    // First disable any existing NTRIP connection on NTR1
+                    send("snts, " + ntrip.id + ", off \x0D");
+                    {
+                        std::stringstream ss;
+                        ss << "snts, " << ntrip.id << ", Client, " << ntrip.caster
+                           << ", " << std::to_string(ntrip.caster_port) << ", "
+                           << ntrip.username << ", " << ntrip.password << ", "
+                           << ntrip.mountpoint << ", " << ntrip.version << ", "
+                           << ntrip.send_gga << " \x0D";
+                        send(ss.str());
+                    }
+                    if (ntrip.tls)
+                    {
+                        std::stringstream ss;
+                        ss << "sntt, " << ntrip.id << ", on, \"" << ntrip.fingerprint
+                           << "\" \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        std::stringstream ss;
+                        ss << "sntt, " << ntrip.id << ", off \x0D";
+                        send(ss.str());
+                    }
+                }
+            }
+
+            for (auto ip_server : settings_->rtk.ip_server)
+            {
+                if (!ip_server.id.empty())
+                {
+                    {
+                        std::stringstream ss;
+                        // In case this IP server was used before, old
+                        // configuration is lost of course.
+                        ss << "siss, " << ip_server.id << ", "
+                           << std::to_string(ip_server.port) << ", TCP2Way \x0D";
+                        send(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << "sdio, " << ip_server.id << ", "
+                           << ip_server.rtk_standard << ", +SBF+NMEA \x0D";
+                        send(ss.str());
+                    }
+                    if (ip_server.send_gga != "off")
+                    {
+                        std::string rate = ip_server.send_gga;
+                        if (ip_server.send_gga == "auto")
+                            rate = "sec1";
+                        std::stringstream ss;
+                        ss << "sno, Stream" << std::to_string(stream) << ", "
+                           << ip_server.id << ", GGA, " << rate << " \x0D";
+                        ++stream;
+                        send(ss.str());
+                    }
+                }
+            }
+
+            for (auto serial : settings_->rtk.serial)
+            {
+                if (!serial.port.empty())
+                {
+                    if (serial.port.rfind("COM", 0) == 0)
+                        send("scs, " + serial.port + ", baud" +
+                             std::to_string(serial.baud_rate) +
+                             ", bits8, No, bit1, none\x0D");
+
+                    std::stringstream ss;
+                    ss << "sdio, " << serial.port << ", " << serial.rtk_standard
                        << ", +SBF+NMEA \x0D";
                     send(ss.str());
-                }
-                if (ip_server.send_gga != "off")
-                {
-                    std::string rate = ip_server.send_gga;
-                    if (ip_server.send_gga == "auto")
-                        rate = "sec1";
-                    std::stringstream ss;
-                    ss << "sno, Stream" << std::to_string(stream) << ", "
-                       << ip_server.id << ", GGA, " << rate << " \x0D";
-                    ++stream;
-                    send(ss.str());
-                }
-            }
-        }
-
-        for (auto serial : settings_->rtk.serial)
-        {
-            if (!serial.port.empty())
-            {
-                if (serial.port.rfind("COM", 0) == 0)
-                    send("scs, " + serial.port + ", baud" +
-                         std::to_string(serial.baud_rate) +
-                         ", bits8, No, bit1, none\x0D");
-
-                std::stringstream ss;
-                ss << "sdio, " << serial.port << ", " << serial.rtk_standard
-                   << ", +SBF+NMEA \x0D";
-                send(ss.str());
-                if (serial.send_gga != "off")
-                {
-                    std::string rate = serial.send_gga;
-                    if (serial.send_gga == "auto")
-                        rate = "sec1";
-                    std::stringstream ss;
-                    ss << "sno, Stream" << std::to_string(stream) << ", "
-                       << serial.port << ", GGA, " << rate << " \x0D";
-                    ++stream;
-                    send(ss.str());
+                    if (serial.send_gga != "off")
+                    {
+                        std::string rate = serial.send_gga;
+                        if (serial.send_gga == "auto")
+                            rate = "sec1";
+                        std::stringstream ss;
+                        ss << "sno, Stream" << std::to_string(stream) << ", "
+                           << serial.port << ", GGA, " << rate << " \x0D";
+                        ++stream;
+                        send(ss.str());
+                    }
                 }
             }
-        }
 
-        // Setting multi antenna
-        if (settings_->multi_antenna)
-        {
-            if (node_->hasHeading())
-                send("sga, MultiAntenna \x0D");
-            else
-                node_->log(log_level::WARN,
-                           "Multi antenna requested but Rx does not support it.");
-        } else
-        {
-            send("sga, none \x0D");
-        }
-
-        // Setting the Attitude Determination
-        {
-            if (settings_->heading_offset >= HEADING_MIN &&
-                settings_->heading_offset <= HEADING_MAX &&
-                settings_->pitch_offset >= PITCH_MIN &&
-                settings_->pitch_offset <= PITCH_MAX)
+            // Setting multi antenna
+            if (settings_->multi_antenna)
             {
-                std::stringstream ss;
-                ss << "sto, "
-                   << string_utilities::trimDecimalPlaces(settings_->heading_offset)
-                   << ", "
-                   << string_utilities::trimDecimalPlaces(settings_->pitch_offset)
-                   << " \x0D";
-                send(ss.str());
+                if (node_->hasHeading())
+                    send("sga, MultiAntenna \x0D");
+                else
+                    node_->log(
+                        log_level::WARN,
+                        "Multi antenna requested but Rx does not support it.");
             } else
             {
-                node_->log(log_level::ERROR,
-                           "Please specify a valid parameter for heading and pitch");
+                send("sga, none \x0D");
             }
-        }
 
-        // Setting the INS-related commands
-        if (settings_->septentrio_receiver_type == "ins")
-        {
-            // IMU orientation
+            // Setting the Attitude Determination
+            {
+                if (settings_->heading_offset >= HEADING_MIN &&
+                    settings_->heading_offset <= HEADING_MAX &&
+                    settings_->pitch_offset >= PITCH_MIN &&
+                    settings_->pitch_offset <= PITCH_MAX)
+                {
+                    std::stringstream ss;
+                    ss << "sto, "
+                       << string_utilities::trimDecimalPlaces(
+                              settings_->heading_offset)
+                       << ", "
+                       << string_utilities::trimDecimalPlaces(
+                              settings_->pitch_offset)
+                       << " \x0D";
+                    send(ss.str());
+                } else
+                {
+                    node_->log(
+                        log_level::ERROR,
+                        "Please specify a valid parameter for heading and pitch");
+                }
+            }
+
+            // Setting the INS-related commands
+            if (settings_->septentrio_receiver_type == "ins")
+            {
+                // IMU orientation
+                {
+                    std::stringstream ss;
+                    if (settings_->theta_x >= ANGLE_MIN &&
+                        settings_->theta_x <= ANGLE_MAX &&
+                        settings_->theta_y >= THETA_Y_MIN &&
+                        settings_->theta_y <= THETA_Y_MAX &&
+                        settings_->theta_z >= ANGLE_MIN &&
+                        settings_->theta_z <= ANGLE_MAX)
+                    {
+                        ss << " sio, " << "manual" << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->theta_x)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->theta_y)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->theta_z)
+                           << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "Please specify a correct value for IMU orientation angles");
+                    }
+                }
+
+                // Setting the INS antenna lever arm offset
+                {
+                    if (settings_->ant_lever_x >= LEVER_ARM_MIN &&
+                        settings_->ant_lever_x <= LEVER_ARM_MAX &&
+                        settings_->ant_lever_y >= LEVER_ARM_MIN &&
+                        settings_->ant_lever_y <= LEVER_ARM_MAX &&
+                        settings_->ant_lever_z >= LEVER_ARM_MIN &&
+                        settings_->ant_lever_z <= LEVER_ARM_MAX)
+                    {
+                        std::stringstream ss;
+                        ss << "sial, "
+                           << string_utilities::trimDecimalPlaces(
+                                  settings_->ant_lever_x)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(
+                                  settings_->ant_lever_y)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(
+                                  settings_->ant_lever_z)
+                           << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "Please specify a correct value for x, y and z in the config file under ant_lever_arm");
+                    }
+                }
+
+                // Setting the user defined point offset
+                {
+                    if (settings_->poi_x >= LEVER_ARM_MIN &&
+                        settings_->poi_x <= LEVER_ARM_MAX &&
+                        settings_->poi_y >= LEVER_ARM_MIN &&
+                        settings_->poi_y <= LEVER_ARM_MAX &&
+                        settings_->poi_z >= LEVER_ARM_MIN &&
+                        settings_->poi_z <= LEVER_ARM_MAX)
+                    {
+                        std::stringstream ss;
+                        ss << "sipl, POI1, "
+                           << string_utilities::trimDecimalPlaces(settings_->poi_x)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->poi_y)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->poi_z)
+                           << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_lever_arm");
+                    }
+                }
+
+                // Setting the Velocity sensor lever arm offset
+                {
+                    if (settings_->vsm_x >= LEVER_ARM_MIN &&
+                        settings_->vsm_x <= LEVER_ARM_MAX &&
+                        settings_->vsm_y >= LEVER_ARM_MIN &&
+                        settings_->vsm_y <= LEVER_ARM_MAX &&
+                        settings_->vsm_z >= LEVER_ARM_MIN &&
+                        settings_->vsm_z <= LEVER_ARM_MAX)
+                    {
+                        std::stringstream ss;
+                        ss << "sivl, VSM1, "
+                           << string_utilities::trimDecimalPlaces(settings_->vsm_x)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->vsm_y)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(settings_->vsm_z)
+                           << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vsm_lever_arm");
+                    }
+                }
+
+                // Setting the INS Solution Reference Point: MainAnt or POI1
+                // First disable any existing INS sub-block connection
+                {
+                    std::stringstream ss;
+                    ss << "sinc, off, all, MainAnt \x0D";
+                    send(ss.str());
+                }
+
+                // INS solution reference point
+                {
+                    std::stringstream ss;
+                    if (settings_->ins_use_poi)
+                    {
+                        ss << "sinc, on, all, " << "POI1" << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        ss << "sinc, on, all, " << "MainAnt" << " \x0D";
+                        send(ss.str());
+                    }
+                }
+
+                // Setting the INS heading
+                {
+                    std::stringstream ss;
+                    if (settings_->ins_initial_heading == "auto")
+                    {
+                        ss << "siih, " << settings_->ins_initial_heading << " \x0D";
+                        send(ss.str());
+                    } else if (settings_->ins_initial_heading == "stored")
+                    {
+                        ss << "siih, " << settings_->ins_initial_heading << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "Invalid mode specified for ins_initial_heading.");
+                    }
+                }
+
+                // Setting the INS navigation filter
+                {
+                    if (settings_->att_std_dev >= ATTSTD_DEV_MIN &&
+                        settings_->att_std_dev <= ATTSTD_DEV_MAX &&
+                        settings_->pos_std_dev >= POSSTD_DEV_MIN &&
+                        settings_->pos_std_dev <= POSSTD_DEV_MAX)
+                    {
+                        std::stringstream ss;
+                        ss << "sism, "
+                           << string_utilities::trimDecimalPlaces(
+                                  settings_->att_std_dev)
+                           << ", "
+                           << string_utilities::trimDecimalPlaces(
+                                  settings_->pos_std_dev)
+                           << " \x0D";
+                        send(ss.str());
+                    } else
+                    {
+                        node_->log(log_level::ERROR,
+                                   "Please specify a valid AttStsDev and PosStdDev");
+                    }
+                }
+            }
+
+            // OSNMA
+            if (settings_->osnma.mode == "loose" ||
+                settings_->osnma.mode == "strict")
             {
                 std::stringstream ss;
-                if (settings_->theta_x >= ANGLE_MIN &&
-                    settings_->theta_x <= ANGLE_MAX &&
-                    settings_->theta_y >= THETA_Y_MIN &&
-                    settings_->theta_y <= THETA_Y_MAX &&
-                    settings_->theta_z >= ANGLE_MIN &&
-                    settings_->theta_z <= ANGLE_MAX)
-                {
-                    ss << " sio, " << "manual" << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->theta_x)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->theta_y)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->theta_z)
-                       << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    node_->log(
-                        log_level::ERROR,
-                        "Please specify a correct value for IMU orientation angles");
-                }
-            }
-
-            // Setting the INS antenna lever arm offset
-            {
-                if (settings_->ant_lever_x >= LEVER_ARM_MIN &&
-                    settings_->ant_lever_x <= LEVER_ARM_MAX &&
-                    settings_->ant_lever_y >= LEVER_ARM_MIN &&
-                    settings_->ant_lever_y <= LEVER_ARM_MAX &&
-                    settings_->ant_lever_z >= LEVER_ARM_MIN &&
-                    settings_->ant_lever_z <= LEVER_ARM_MAX)
-                {
-                    std::stringstream ss;
-                    ss << "sial, "
-                       << string_utilities::trimDecimalPlaces(settings_->ant_lever_x)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->ant_lever_y)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->ant_lever_z)
-                       << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    node_->log(
-                        log_level::ERROR,
-                        "Please specify a correct value for x, y and z in the config file under ant_lever_arm");
-                }
-            }
-
-            // Setting the user defined point offset
-            {
-                if (settings_->poi_x >= LEVER_ARM_MIN &&
-                    settings_->poi_x <= LEVER_ARM_MAX &&
-                    settings_->poi_y >= LEVER_ARM_MIN &&
-                    settings_->poi_y <= LEVER_ARM_MAX &&
-                    settings_->poi_z >= LEVER_ARM_MIN &&
-                    settings_->poi_z <= LEVER_ARM_MAX)
-                {
-                    std::stringstream ss;
-                    ss << "sipl, POI1, "
-                       << string_utilities::trimDecimalPlaces(settings_->poi_x)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->poi_y)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->poi_z)
-                       << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    node_->log(
-                        log_level::ERROR,
-                        "Please specify a correct value for poi_x, poi_y and poi_z in the config file under poi_lever_arm");
-                }
-            }
-
-            // Setting the Velocity sensor lever arm offset
-            {
-                if (settings_->vsm_x >= LEVER_ARM_MIN &&
-                    settings_->vsm_x <= LEVER_ARM_MAX &&
-                    settings_->vsm_y >= LEVER_ARM_MIN &&
-                    settings_->vsm_y <= LEVER_ARM_MAX &&
-                    settings_->vsm_z >= LEVER_ARM_MIN &&
-                    settings_->vsm_z <= LEVER_ARM_MAX)
-                {
-                    std::stringstream ss;
-                    ss << "sivl, VSM1, "
-                       << string_utilities::trimDecimalPlaces(settings_->vsm_x)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->vsm_y)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->vsm_z)
-                       << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    node_->log(
-                        log_level::ERROR,
-                        "Please specify a correct value for vsm_x, vsm_y and vsm_z in the config file under vsm_lever_arm");
-                }
-            }
-
-            // Setting the INS Solution Reference Point: MainAnt or POI1
-            // First disable any existing INS sub-block connection
-            {
-                std::stringstream ss;
-                ss << "sinc, off, all, MainAnt \x0D";
+                ss << "sou, " << settings_->osnma.mode << " \x0D";
                 send(ss.str());
-            }
 
-            // INS solution reference point
-            {
-                std::stringstream ss;
-                if (settings_->ins_use_poi)
-                {
-                    ss << "sinc, on, all, " << "POI1" << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    ss << "sinc, on, all, " << "MainAnt" << " \x0D";
-                    send(ss.str());
-                }
-            }
-
-            // Setting the INS heading
-            {
-                std::stringstream ss;
-                if (settings_->ins_initial_heading == "auto")
-                {
-                    ss << "siih, " << settings_->ins_initial_heading << " \x0D";
-                    send(ss.str());
-                } else if (settings_->ins_initial_heading == "stored")
-                {
-                    ss << "siih, " << settings_->ins_initial_heading << " \x0D";
-                    send(ss.str());
-                } else
-                {
-                    node_->log(log_level::ERROR,
-                               "Invalid mode specified for ins_initial_heading.");
-                }
-            }
-
-            // Setting the INS navigation filter
-            {
-                if (settings_->att_std_dev >= ATTSTD_DEV_MIN &&
-                    settings_->att_std_dev <= ATTSTD_DEV_MAX &&
-                    settings_->pos_std_dev >= POSSTD_DEV_MIN &&
-                    settings_->pos_std_dev <= POSSTD_DEV_MAX)
+                if (!settings_->osnma.ntp_server.empty())
                 {
                     std::stringstream ss;
-                    ss << "sism, "
-                       << string_utilities::trimDecimalPlaces(settings_->att_std_dev)
-                       << ", "
-                       << string_utilities::trimDecimalPlaces(settings_->pos_std_dev)
-                       << " \x0D";
+                    ss << "snc, on, " << settings_->osnma.ntp_server << " \x0D";
                     send(ss.str());
                 } else
                 {
-                    node_->log(log_level::ERROR,
-                               "Please specify a valid AttStsDev and PosStdDev");
+                    if (settings_->osnma.mode == "strict")
+                        node_->log(
+                            log_level::ERROR,
+                            "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
                 }
             }
-        }
 
-        // OSNMA
-        if (settings_->osnma.mode == "loose" || settings_->osnma.mode == "strict")
-        {
-            std::stringstream ss;
-            ss << "sou, " << settings_->osnma.mode << " \x0D";
-            send(ss.str());
-
-            if (!settings_->osnma.ntp_server.empty())
+            //  Setting up SBF blocks with rx_period_rest
             {
+                std::stringstream blocks;
+                if (settings_->septentrio_receiver_type == "ins")
+                {
+                    if (settings_->publish_imusetup)
+                    {
+                        blocks << " +IMUSetup";
+                    }
+                    if (settings_->publish_velsensorsetup)
+                    {
+                        blocks << " +VelSensorSetup";
+                    }
+                }
+                if (settings_->publish_diagnostics)
+                {
+                    blocks << " +QualityInd";
+                }
+                if (settings_->publish_aimplusstatus)
+                {
+                    blocks << " +RFStatus";
+                }
+                if (settings_->publish_galauthstatus ||
+                    (settings_->osnma.mode == "loose") ||
+                    (settings_->osnma.mode == "strict"))
+                {
+                    blocks << " +GALAuthStatus";
+                }
+
+                blocks << " +ReceiverSetup +ReceiverStatus";
+
                 std::stringstream ss;
-                ss << "snc, on, " << settings_->osnma.ntp_server << " \x0D";
+                ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
+                   << "," << blocks.str() << ", " << rest_interval << "\x0D";
                 send(ss.str());
-            } else
-            {
-                if (settings_->osnma.mode == "strict")
-                    node_->log(
-                        log_level::ERROR,
-                        "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
+                ++stream;
             }
-        }
 
-        //  Setting up SBF blocks with rx_period_rest
-        {
-            std::stringstream blocks;
+            // send command to trigger emission of receiver setup
+            send("sop, \"\", \"\" \x0D");
+
+            // Setting up NMEA streams
+            {
+                if (settings_->septentrio_receiver_type == "ins")
+                    send("snti, auto\x0D");
+                else
+                    send("snti, GP\x0D");
+
+                std::stringstream blocks;
+                if (settings_->publish_gpgga)
+                {
+                    blocks << " +GGA";
+                }
+                if (settings_->publish_gprmc)
+                {
+                    blocks << " +RMC";
+                }
+                if (settings_->publish_gpgsa)
+                {
+                    blocks << " +GSA";
+                }
+                if (settings_->publish_gpgsv)
+                {
+                    blocks << " +GSV";
+                }
+
+                std::stringstream ss;
+                ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
+                   << "," << blocks.str() << ", " << pvt_interval << "\x0D";
+                send(ss.str());
+                ++stream;
+            }
+
+            // Setting up SBF blocks with rx_period_pvt
+            {
+                std::stringstream blocks;
+                if (settings_->use_gnss_time || settings_->publish_gpst)
+                {
+                    blocks << " +ReceiverTime";
+                }
+                if (settings_->publish_pvtcartesian)
+                {
+                    blocks << " +PVTCartesian";
+                }
+                if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
+                    (settings_->publish_gpst &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_navsatfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_gpsfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_pose &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    settings_->latency_compensation)
+                {
+                    blocks << " +PVTGeodetic";
+                }
+                if (settings_->publish_basevectorcart)
+                {
+                    blocks << " +BaseVectorCart";
+                }
+                if (settings_->publish_basevectorgeod)
+                {
+                    blocks << " +BaseVectorGeod";
+                }
+                if (settings_->publish_poscovcartesian)
+                {
+                    blocks << " +PosCovCartesian";
+                }
+                if (settings_->publish_poscovgeodetic ||
+                    (settings_->publish_navsatfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_gpsfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_pose &&
+                     (settings_->septentrio_receiver_type == "gnss")))
+                {
+                    blocks << " +PosCovGeodetic";
+                }
+                if (settings_->publish_velcovcartesian)
+                {
+                    blocks << " +VelCovCartesian";
+                }
+                if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
+                    (settings_->publish_gpsfix &&
+                     (settings_->septentrio_receiver_type == "gnss")))
+                {
+                    blocks << " +VelCovGeodetic";
+                }
+                if (settings_->publish_atteuler ||
+                    (settings_->publish_gpsfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_pose &&
+                     (settings_->septentrio_receiver_type == "gnss")))
+                {
+                    blocks << " +AttEuler";
+                }
+                if (settings_->publish_attcoveuler ||
+                    (settings_->publish_gpsfix &&
+                     (settings_->septentrio_receiver_type == "gnss")) ||
+                    (settings_->publish_pose &&
+                     (settings_->septentrio_receiver_type == "gnss")))
+                {
+                    blocks << " +AttCovEuler";
+                }
+                if (settings_->publish_measepoch || settings_->publish_gpsfix)
+                {
+                    blocks << " +MeasEpoch";
+                }
+                if (settings_->publish_gpsfix)
+                {
+                    blocks << " +ChannelStatus +DOP";
+                }
+                // Setting SBF output of Rx depending on the receiver type
+                // If INS then...
+                if (settings_->septentrio_receiver_type == "ins")
+                {
+                    if (settings_->publish_insnavcart ||
+                        settings_->publish_localization_ecef ||
+                        settings_->publish_tf_ecef)
+                    {
+                        blocks << " +INSNavCart";
+                    }
+                    if (settings_->publish_insnavgeod ||
+                        settings_->publish_navsatfix || settings_->publish_gpsfix ||
+                        settings_->publish_pose || settings_->publish_imu ||
+                        settings_->publish_localization || settings_->publish_tf ||
+                        settings_->publish_twist ||
+                        settings_->publish_localization_ecef ||
+                        settings_->publish_tf_ecef || settings_->publish_gpst)
+                    {
+                        blocks << " +INSNavGeod";
+                    }
+                    if (settings_->publish_exteventinsnavgeod)
+                    {
+                        blocks << " +ExtEventINSNavGeod";
+                    }
+                    if (settings_->publish_exteventinsnavcart)
+                    {
+                        blocks << " +ExtEventINSNavCart";
+                    }
+                    if (settings_->publish_extsensormeas || settings_->publish_imu)
+                    {
+                        blocks << " +ExtSensorMeas";
+                    }
+                }
+                std::stringstream ss;
+                ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
+                   << "," << blocks.str() << ", " << pvt_interval << "\x0D";
+                send(ss.str());
+                ++stream;
+            }
+
             if (settings_->septentrio_receiver_type == "ins")
             {
-                if (settings_->publish_imusetup)
-                {
-                    blocks << " +IMUSetup";
-                }
-                if (settings_->publish_velsensorsetup)
-                {
-                    blocks << " +VelSensorSetup";
-                }
-            }
-            if (settings_->publish_diagnostics)
-            {
-                blocks << " +QualityInd";
-            }
-            if (settings_->publish_aimplusstatus)
-            {
-                blocks << " +RFStatus";
-            }
-            if (settings_->publish_galauthstatus ||
-                (settings_->osnma.mode == "loose") ||
-                (settings_->osnma.mode == "strict"))
-            {
-                blocks << " +GALAuthStatus";
-            }
-
-            blocks << " +ReceiverSetup +ReceiverStatus";
-
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
-               << "," << blocks.str() << ", " << rest_interval << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-
-        // send command to trigger emission of receiver setup
-        send("sop, \"\", \"\" \x0D");
-
-        // Setting up NMEA streams
-        {
-            if (settings_->septentrio_receiver_type == "ins")
-                send("snti, auto\x0D");
-            else
-                send("snti, GP\x0D");
-
-            std::stringstream blocks;
-            if (settings_->publish_gpgga)
-            {
-                blocks << " +GGA";
-            }
-            if (settings_->publish_gprmc)
-            {
-                blocks << " +RMC";
-            }
-            if (settings_->publish_gpgsa)
-            {
-                blocks << " +GSA";
-            }
-            if (settings_->publish_gpgsv)
-            {
-                blocks << " +GSV";
-            }
-
-            std::stringstream ss;
-            ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
-               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-
-        // Setting up SBF blocks with rx_period_pvt
-        {
-            std::stringstream blocks;
-            if (settings_->use_gnss_time || settings_->publish_gpst)
-            {
-                blocks << " +ReceiverTime";
-            }
-            if (settings_->publish_pvtcartesian)
-            {
-                blocks << " +PVTCartesian";
-            }
-            if (settings_->publish_pvtgeodetic || settings_->publish_twist ||
-                (settings_->publish_gpst &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_navsatfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                settings_->latency_compensation)
-            {
-                blocks << " +PVTGeodetic";
-            }
-            if (settings_->publish_basevectorcart)
-            {
-                blocks << " +BaseVectorCart";
-            }
-            if (settings_->publish_basevectorgeod)
-            {
-                blocks << " +BaseVectorGeod";
-            }
-            if (settings_->publish_poscovcartesian)
-            {
-                blocks << " +PosCovCartesian";
-            }
-            if (settings_->publish_poscovgeodetic ||
-                (settings_->publish_navsatfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +PosCovGeodetic";
-            }
-            if (settings_->publish_velcovcartesian)
-            {
-                blocks << " +VelCovCartesian";
-            }
-            if (settings_->publish_velcovgeodetic || settings_->publish_twist ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +VelCovGeodetic";
-            }
-            if (settings_->publish_atteuler ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +AttEuler";
-            }
-            if (settings_->publish_attcoveuler ||
-                (settings_->publish_gpsfix &&
-                 (settings_->septentrio_receiver_type == "gnss")) ||
-                (settings_->publish_pose &&
-                 (settings_->septentrio_receiver_type == "gnss")))
-            {
-                blocks << " +AttCovEuler";
-            }
-            if (settings_->publish_measepoch || settings_->publish_gpsfix)
-            {
-                blocks << " +MeasEpoch";
-            }
-            if (settings_->publish_gpsfix)
-            {
-                blocks << " +ChannelStatus +DOP";
-            }
-            // Setting SBF output of Rx depending on the receiver type
-            // If INS then...
-            if (settings_->septentrio_receiver_type == "ins")
-            {
-                if (settings_->publish_insnavcart ||
-                    settings_->publish_localization_ecef ||
-                    settings_->publish_tf_ecef)
-                {
-                    blocks << " +INSNavCart";
-                }
-                if (settings_->publish_insnavgeod || settings_->publish_navsatfix ||
-                    settings_->publish_gpsfix || settings_->publish_pose ||
-                    settings_->publish_imu || settings_->publish_localization ||
-                    settings_->publish_tf || settings_->publish_twist ||
-                    settings_->publish_localization_ecef ||
-                    settings_->publish_tf_ecef || settings_->publish_gpst)
-                {
-                    blocks << " +INSNavGeod";
-                }
-                if (settings_->publish_exteventinsnavgeod)
-                {
-                    blocks << " +ExtEventINSNavGeod";
-                }
-                if (settings_->publish_exteventinsnavcart)
-                {
-                    blocks << " +ExtEventINSNavCart";
-                }
-                if (settings_->publish_extsensormeas || settings_->publish_imu)
-                {
-                    blocks << " +ExtSensorMeas";
-                }
-            }
-            std::stringstream ss;
-            ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
-               << "," << blocks.str() << ", " << pvt_interval << "\x0D";
-            send(ss.str());
-            ++stream;
-        }
-
-        if (settings_->septentrio_receiver_type == "ins")
-        {
-            if (!settings_->ins_vsm.ip_server.empty())
-            {
-                send("siss, " + settings_->ins_vsm.ip_server + ", " +
-                     std::to_string(settings_->ins_vsm.ip_server_port) +
-                     ", TCP2Way \x0D");
-                send("sdio, " + settings_->ins_vsm.ip_server + ", NMEA, none\x0D");
-            }
-            if (!settings_->ins_vsm.serial_port.empty())
-            {
-                if (settings_->ins_vsm.serial_port.rfind("COM", 0) == 0)
-                    send("scs, " + settings_->ins_vsm.serial_port + ", baud" +
-                         std::to_string(settings_->ins_vsm.serial_baud_rate) +
-                         ", bits8, No, bit1, none\x0D");
-                send("sdio, " + settings_->ins_vsm.serial_port + ", NMEA\x0D");
-            }
-
-            if ((settings_->ins_vsm.ros_source == "odometry") ||
-                (settings_->ins_vsm.ros_source == "twist"))
-            {
-                if (settings_->ins_vsm.use_stream_device)
-                {
-                    send("sdio, " + settings_->tcp_ip_server +
-                         ", NMEA, +NMEA +SBF\x0D");
-                } else if (!settings_->ins_vsm.ip_server.empty())
+                if (!settings_->ins_vsm.ip_server.empty())
                 {
                     send("siss, " + settings_->ins_vsm.ip_server + ", " +
                          std::to_string(settings_->ins_vsm.ip_server_port) +
                          ", TCP2Way \x0D");
-
                     send("sdio, " + settings_->ins_vsm.ip_server +
                          ", NMEA, none\x0D");
+                }
+                if (!settings_->ins_vsm.serial_port.empty())
+                {
+                    if (settings_->ins_vsm.serial_port.rfind("COM", 0) == 0)
+                        send("scs, " + settings_->ins_vsm.serial_port + ", baud" +
+                             std::to_string(settings_->ins_vsm.serial_baud_rate) +
+                             ", bits8, No, bit1, none\x0D");
+                    send("sdio, " + settings_->ins_vsm.serial_port + ", NMEA\x0D");
+                }
 
+                if ((settings_->ins_vsm.ros_source == "odometry") ||
+                    (settings_->ins_vsm.ros_source == "twist"))
+                {
+                    if (settings_->ins_vsm.use_stream_device)
+                    {
+                        send("sdio, " + settings_->tcp_ip_server +
+                             ", NMEA, +NMEA +SBF\x0D");
+                    } else if (!settings_->ins_vsm.ip_server.empty())
+                    {
+                        send("siss, " + settings_->ins_vsm.ip_server + ", " +
+                             std::to_string(settings_->ins_vsm.ip_server_port) +
+                             ", TCP2Way \x0D");
+
+                        send("sdio, " + settings_->ins_vsm.ip_server +
+                             ", NMEA, none\x0D");
+                    }
+                }
+            }
+            // Save config to boot
+            send("eccf, Current, Boot\x0D");
+        }
+
+        if (settings_->septentrio_receiver_type == "ins")
+        {
+            if ((settings_->ins_vsm.ros_source == "odometry") ||
+                (settings_->ins_vsm.ros_source == "twist"))
+            {
+                if (!settings_->ins_vsm.use_stream_device &&
+                    !settings_->ins_vsm.ip_server.empty())
+                {
                     tcpVsm_ = std::make_unique<AsyncManager<TcpIo>>(node_,
                                                                     &telegramQueue_);
                     tcpVsm_->setPort(
                         std::to_string(settings_->ins_vsm.ip_server_port));
                     tcpVsm_->connect();
                 }
-
-                nmeaActivated_ = true;
             }
+
+            nmeaActivated_ = true;
         }
-        // Save config to boot
-        send("eccf, Current, Boot\x0D");
 
         node_->log(log_level::DEBUG, "Leaving configureRx() method");
     }
