@@ -79,7 +79,7 @@ namespace io {
             running_ = false;
 
             node_->log(log_level::INFO, "UDP client shutting down threads");
-            ioService_.stop();
+            ioContext_.stop();
             ioThread_.join();
             watchdogThread_.join();
             node_->log(log_level::INFO, " UDP client threads stopped");
@@ -89,12 +89,12 @@ namespace io {
         void connect()
         {
             socket_ = std::make_unique<boost::asio::ip::udp::socket>(
-                ioService_,
+                ioContext_,
                 boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_));
 
             asyncReceive();
 
-            ioThread_ = std::thread(boost::bind(&UdpClient::runIoService, this));
+            ioThread_ = std::thread(boost::bind(&UdpClient::runIoContext, this));
 
             node_->log(log_level::INFO,
                        "Listening on UDP port " + std::to_string(port_));
@@ -192,10 +192,10 @@ namespace io {
             asyncReceive();
         }
 
-        void runIoService()
+        void runIoContext()
         {
-            ioService_.run();
-            node_->log(log_level::INFO, "UDP client ioService terminated.");
+            ioContext_.run();
+            node_->log(log_level::INFO, "UDP client ioContext terminated.");
         }
 
         void runWatchdog()
@@ -204,11 +204,11 @@ namespace io {
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-                if (running_ && ioService_.stopped())
+                if (running_ && ioContext_.stopped())
                 {
                     node_->log(log_level::ERROR,
                                "UDP client connection lost. Trying to reconnect.");
-                    ioService_.reset();
+                    ioContext_.restart();
                     ioThread_.join();
                     connect();
                 }
@@ -233,7 +233,7 @@ namespace io {
         ROSaicNodeBase* node_;
         std::atomic<bool> running_;
         int16_t port_;
-        boost::asio::io_service ioService_;
+        boost::asio::io_context ioContext_;
         std::thread ioThread_;
         std::thread watchdogThread_;
         boost::asio::ip::udp::endpoint eP_;
@@ -246,8 +246,8 @@ namespace io {
     {
     public:
         TcpIo(ROSaicNodeBase* node,
-              std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node), ioService_(ioService), deadline_(*ioService_)
+              std::shared_ptr<boost::asio::io_context> ioContext) :
+            node_(node), ioContext_(ioContext), deadline_(*ioContext_)
         {
             port_ = node_->settings()->device_tcp_port;
 
@@ -267,14 +267,13 @@ namespace io {
 
         [[nodiscard]] bool connect()
         {
-            boost::asio::ip::tcp::resolver::iterator endpointIterator;
+            boost::asio::ip::tcp::resolver::results_type endpoints;
 
             try
             {
-                boost::asio::ip::tcp::resolver resolver(*ioService_);
-                boost::asio::ip::tcp::resolver::query query(
-                    node_->settings()->device_tcp_ip, port_);
-                endpointIterator = resolver.resolve(query);
+                boost::asio::ip::tcp::resolver resolver(*ioContext_);
+                endpoints =
+                    resolver.resolve(node_->settings()->device_tcp_ip, port_);
             } catch (const std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
@@ -283,7 +282,7 @@ namespace io {
                 return false;
             }
 
-            stream_ = std::make_unique<boost::asio::ip::tcp::socket>(*ioService_);
+            stream_ = std::make_unique<boost::asio::ip::tcp::socket>(*ioContext_);
 
             node_->log(log_level::INFO, "Connecting to tcp://" +
                                             node_->settings()->device_tcp_ip + ":" +
@@ -291,19 +290,22 @@ namespace io {
 
             try
             {
-                boost::system::error_code ec = connectInternal(endpointIterator);
+                boost::system::error_code ec = connectInternal(endpoints);
                 while (node_->ok() && ec)
                 {
-                    node_->log(
-                        log_level::ERROR,
-                        "TCP connection to " +
-                            endpointIterator->endpoint().address().to_string() +
-                            " on port " +
-                            std::to_string(endpointIterator->endpoint().port()) +
-                            " failed: " + ec.message() + ". Retrying ...");
+                    node_->log(log_level::ERROR,
+                               "TCP connection to " +
+                                   endpoints.begin()
+                                       ->endpoint()
+                                       .address()
+                                       .to_string() +
+                                   " on port " +
+                                   std::to_string(
+                                       endpoints.begin()->endpoint().port()) +
+                                   " failed: " + ec.message() + ". Retrying ...");
                     using namespace std::chrono_literals;
                     std::this_thread::sleep_for(1s);
-                    ec = connectInternal(endpointIterator);
+                    ec = connectInternal(endpoints);
                 }
                 if (ec)
                     return false;
@@ -311,8 +313,8 @@ namespace io {
             } catch (const std::runtime_error& e)
             {
                 node_->log(log_level::ERROR,
-                           "Could not connect to " + endpointIterator->host_name() +
-                               ": " + endpointIterator->service_name() + ": " +
+                           "Could not connect to " + endpoints.begin()->host_name() +
+                               ": " + endpoints.begin()->service_name() + ": " +
                                e.what());
                 return false;
             }
@@ -320,22 +322,22 @@ namespace io {
             deadline_.expires_at(boost::posix_time::pos_infin);
             stream_->set_option(boost::asio::ip::tcp::no_delay(true));
             node_->log(log_level::INFO, "Connected to " +
-                                            endpointIterator->host_name() + ":" +
-                                            endpointIterator->service_name() + ".");
+                                            endpoints.begin()->host_name() + ":" +
+                                            endpoints.begin()->service_name() + ".");
             return true;
         }
 
     private:
         boost::system::error_code connectInternal(
-            const boost::asio::ip::tcp::resolver::iterator& endpointIterator)
+            const boost::asio::ip::tcp::resolver::results_type& endpoints)
         {
             boost::system::error_code ec;
             deadline_.expires_from_now(boost::posix_time::seconds(10));
             ec = boost::asio::error::would_block;
-            boost::asio::async_connect(*stream_, endpointIterator,
+            boost::asio::async_connect(*stream_, endpoints,
                                        boost::lambda::var(ec) = boost::lambda::_1);
             do
-                ioService_->run_one();
+                ioContext_->run_one();
             while (node_->ok() && (ec == boost::asio::error::would_block));
             return ec;
         }
@@ -354,7 +356,7 @@ namespace io {
         }
 
         ROSaicNodeBase* node_;
-        std::shared_ptr<boost::asio::io_service> ioService_;
+        std::shared_ptr<boost::asio::io_context> ioContext_;
         boost::asio::deadline_timer deadline_;
 
         std::string port_;
@@ -367,12 +369,12 @@ namespace io {
     {
     public:
         SerialIo(ROSaicNodeBase* node,
-                 std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node), ioService_(ioService),
+                 std::shared_ptr<boost::asio::io_context> ioContext) :
+            node_(node), ioContext_(ioContext),
             flowcontrol_(node->settings()->hw_flow_control),
             baudrate_(node->settings()->baudrate)
         {
-            stream_ = std::make_unique<boost::asio::serial_port>(*ioService_);
+            stream_ = std::make_unique<boost::asio::serial_port>(*ioContext_);
         }
 
         ~SerialIo() { stream_->close(); }
@@ -547,7 +549,7 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-        std::shared_ptr<boost::asio::io_service> ioService_;
+        std::shared_ptr<boost::asio::io_context> ioContext_;
         std::string flowcontrol_;
         uint32_t baudrate_;
 
@@ -559,8 +561,8 @@ namespace io {
     {
     public:
         SbfFileIo(ROSaicNodeBase* node,
-                  std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node), ioService_(ioService)
+                  std::shared_ptr<boost::asio::io_context> ioContext) :
+            node_(node), ioContext_(ioContext)
         {
         }
 
@@ -583,7 +585,7 @@ namespace io {
             try
             {
                 stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
-                    *ioService_);
+                    *ioContext_);
                 stream_->assign(fd);
 
             } catch (std::runtime_error& e)
@@ -597,7 +599,7 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-        std::shared_ptr<boost::asio::io_service> ioService_;
+        std::shared_ptr<boost::asio::io_context> ioContext_;
 
     public:
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;
@@ -607,8 +609,8 @@ namespace io {
     {
     public:
         PcapFileIo(ROSaicNodeBase* node,
-                   std::shared_ptr<boost::asio::io_service> ioService) :
-            node_(node), ioService_(ioService)
+                   std::shared_ptr<boost::asio::io_context> ioContext) :
+            node_(node), ioContext_(ioContext)
         {
         }
 
@@ -632,7 +634,7 @@ namespace io {
                                                 node_->settings()->device + "...");
 
                 stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
-                    *ioService_);
+                    *ioContext_);
 
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());
@@ -649,7 +651,7 @@ namespace io {
 
     private:
         ROSaicNodeBase* node_;
-        std::shared_ptr<boost::asio::io_service> ioService_;
+        std::shared_ptr<boost::asio::io_context> ioContext_;
         std::array<char, 100> errBuff_;
         pcap_t* pcap_;
 
