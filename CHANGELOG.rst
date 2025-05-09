@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.3 (upcoming)
+Forthcoming
 ----------------
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
