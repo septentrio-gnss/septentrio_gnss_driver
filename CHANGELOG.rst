@@ -2,8 +2,8 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
-----------------
+1.4.3 (2025-05-09)
+------------------
 * Fixes
     * Resolve issues with removed/renamed functionality in boost 1.87 (thanks to @oysstu)
     * VSM data not being sent to the rx if configure_rx is false
