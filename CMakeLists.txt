@@ -228,7 +228,7 @@ elseif(ament_cmake_FOUND)
   add_subdirectory(test)
 
   # Installation
-  ament_auto_package(USE_SCOPED_HEADER_INSTALL_DIR INSTALL_TO_SHARE launch config)
+  ament_auto_package(INSTALL_TO_SHARE launch config)
   ##-------------------------------------------------------------------------
 else()
   message(FATAL_ERROR "Build failed because neither catkin nor ament found.")
