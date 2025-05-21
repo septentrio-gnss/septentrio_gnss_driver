@@ -147,22 +147,8 @@ elseif(ament_cmake_FOUND)
   unset(CATKIN_SYMLINK_INSTALL)
 
   # Dependencies
-  find_package(ament_cmake REQUIRED)
-  find_package(rclcpp REQUIRED)
-  find_package(rclcpp_components REQUIRED)
-  find_package(rosidl_default_generators REQUIRED)
-  find_package(diagnostic_msgs REQUIRED)
-  find_package(nmea_msgs REQUIRED)
-  find_package(sensor_msgs REQUIRED)
-  find_package(geometry_msgs REQUIRED)
-  find_package(gps_msgs REQUIRED)
-  find_package(nav_msgs REQUIRED)
-  find_package(tf2 REQUIRED)
-  find_package(tf2_eigen REQUIRED)
-  find_package(tf2_geometry_msgs REQUIRED)
-  find_package(tf2_ros REQUIRED)
-  find_package(gtest_vendor REQUIRED)
-  find_package(ament_cmake_ros REQUIRED)
+  find_package(ament_cmake_auto REQUIRED)
+  ament_auto_find_build_dependencies()
   
   ## Declare  messages
   rosidl_generate_interfaces(${PROJECT_NAME}
@@ -198,23 +184,8 @@ elseif(ament_cmake_FOUND)
   set(library_name septentrio_gnss_driver_core)
   set(executable_name septentrio_gnss_driver_node)
 
-  set(dependencies
-  rclcpp
-  rclcpp_components
-  diagnostic_msgs
-  nmea_msgs
-  sensor_msgs
-  geometry_msgs
-  gps_msgs
-  nav_msgs
-  tf2
-  tf2_eigen
-  tf2_geometry_msgs
-  tf2_ros
-  )
-
   ## shared library
-  add_library(${library_name} SHARED
+  ament_auto_add_library(${library_name} SHARED
   src/septentrio_gnss_driver/communication/communication_core.cpp
   src/septentrio_gnss_driver/communication/message_handler.cpp 
   src/septentrio_gnss_driver/communication/telegram_handler.cpp
@@ -239,9 +210,6 @@ elseif(ament_cmake_FOUND)
   pcap
   ${GeographicLib_LIBRARIES}
   )
-  ament_target_dependencies(${library_name}
-  ${dependencies}
-  )
 
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
     rosidl_target_interfaces(${library_name}
@@ -254,50 +222,17 @@ elseif(ament_cmake_FOUND)
   endif()
 
   ## executable
-  add_executable(${executable_name}
+  ament_auto_add_executable(${executable_name}
   src/septentrio_gnss_driver/node/main.cpp
-  )
-  target_link_libraries(${executable_name}
-  ${library_name}
-  )
-  ament_target_dependencies(${executable_name}
-  ${dependencies}
   )
 
   rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
 
   # Testing
-  find_package(ament_cmake_gtest REQUIRED)
   add_subdirectory(test)
 
-  # Export Targets
-  ament_export_targets(${library_name} HAS_LIBRARY_TARGET)
-  ament_export_dependencies(${dependencies} rosidl_default_runtime)
-
   # Installation
-  install(TARGETS
-  ${library_name} EXPORT ${library_name}
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  )
-
-  install(TARGETS ${executable_name} EXPORT ${executable_name}
-  DESTINATION lib/${PROJECT_NAME}
-  )
-
-  install(DIRECTORY include/
-  DESTINATION include/
-  )
-
-  install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
-  )
-  install(DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-  )
-
-  ament_package()
+  ament_auto_package(USE_SCOPED_HEADER_INSTALL_DIR INSTALL_TO_SHARE launch config)
   ##-------------------------------------------------------------------------
 else()
   message(FATAL_ERROR "Build failed because neither catkin nor ament found.")
