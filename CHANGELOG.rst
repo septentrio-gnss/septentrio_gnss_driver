@@ -2,6 +2,13 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.4 (upcoming)
+------------------
+* Fixes
+    * Readme on PVT messages for INS
+    * Deprecation of ament_target_dependencies in Rolling
+* Contributors:  Thomas Emter, Tibor Dome, septentrio-users
+
 1.4.3 (2025-05-09)
 ------------------
 * Fixes

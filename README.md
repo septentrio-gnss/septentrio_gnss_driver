@@ -723,14 +723,14 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
   + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, compiled from the SBF block `RFStatus`.
   + `/aimplusstatus`: publishes custom ROS message `septentrio_gnss_driver/AIMPlusStatus.msg`, reporting status of AIM+. Converted from SBF blocks `RFStatus` and optionally `GALAuthStatus`. For the latter OSNMA has to be activated.
-  + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian` (GNSS case) or `INSNavGeod` (INS case).
-  + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case).
+  + `/pvtcartesian`: publishes custom ROS message `septentrio_gnss_driver/PVTCartesian.msg`, corresponding to the SBF block `PVTCartesian`.
+  + `/pvtgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PVTGeodetic.msg`, corresponding to the SBF block `PVTGeodetic`.
   + `/basevectorcart`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorCart.msg`, corresponding to the SBF block `BaseVectorCart`.
   + `/basevectorgeod`: publishes custom ROS message `septentrio_gnss_driver/BaseVectorGeod.msg`, corresponding to the SBF block `BaseVectorGeod`.
-  + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian` (GNSS case) or `INSNavGeod` (INS case).
-  + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic` (GNSS case) or `INSNavGeod` (INS case).
-  + `/velcovcartesian`: publishes custom ROS message `septentrio_gnss_driver/VelCovCartesian.msg`, corresponding to SBF block `VelCovCartesian` (GNSS case).
-  + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic` (GNSS case).
+  + `/poscovcartesian`: publishes custom ROS message `septentrio_gnss_driver/PosCovCartesian.msg`, corresponding to SBF block `PosCovCartesian`.
+  + `/poscovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/PosCovGeodetic.msg`, corresponding to SBF block `PosCovGeodetic`.
+  + `/velcovcartesian`: publishes custom ROS message `septentrio_gnss_driver/VelCovCartesian.msg`, corresponding to SBF block `VelCovCartesian`.
+  + `/velcovgeodetic`: publishes custom ROS message `septentrio_gnss_driver/VelCovGeodetic.msg`, corresponding to SBF block `VelCovGeodetic`.
   + `/atteuler`: publishes custom ROS message `septentrio_gnss_driver/AttEuler.msg`, corresponding to SBF block `AttEuler`.
   + `/attcoveuler`: publishes custom ROS message `septentrio_gnss_driver/AttCovEuler.msg`, corresponding to the SBF block `AttCovEuler`.
   + `/gpst` (for GPS Time): publishes generic ROS message [`sensor_msgs/TimeReference.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/TimeReference.html), converted from the `PVTGeodetic` (GNSS case) or `INSNavGeod` (INS case) block's GPS time information, stored in its block header.
