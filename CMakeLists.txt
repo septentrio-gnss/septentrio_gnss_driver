@@ -186,29 +186,25 @@ elseif(ament_cmake_FOUND)
 
   ## shared library
   ament_auto_add_library(${library_name} SHARED
-  src/septentrio_gnss_driver/communication/communication_core.cpp
-  src/septentrio_gnss_driver/communication/message_handler.cpp 
-  src/septentrio_gnss_driver/communication/telegram_handler.cpp
-  src/septentrio_gnss_driver/crc/crc.cpp
-  src/septentrio_gnss_driver/node/main.cpp
-  src/septentrio_gnss_driver/node/rosaic_node.cpp
-  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
-  src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
-  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
-  src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp
-  src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
-  src/septentrio_gnss_driver/parsers/string_utilities.cpp 
+    src/septentrio_gnss_driver/communication/communication_core.cpp
+    src/septentrio_gnss_driver/communication/message_handler.cpp 
+    src/septentrio_gnss_driver/communication/telegram_handler.cpp
+    src/septentrio_gnss_driver/crc/crc.cpp
+    src/septentrio_gnss_driver/node/main.cpp
+    src/septentrio_gnss_driver/node/rosaic_node.cpp
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsa.cpp 
+    src/septentrio_gnss_driver/parsers/nmea_parsers/gpgsv.cpp
+    src/septentrio_gnss_driver/parsers/parsing_utilities.cpp 
+    src/septentrio_gnss_driver/parsers/string_utilities.cpp 
   )
   target_compile_definitions(${library_name} PUBLIC ROS2)
-  target_include_directories(${library_name} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
-  "$<INSTALL_INTERFACE:include>"
-  )
   target_link_libraries(${library_name}
-  boost_regex # ordering is important for regex https://stackoverflow.com/questions/17588440/cannot-link-boost-regex
-  ${Boost_LIBRARIES}
-  pcap
-  ${GeographicLib_LIBRARIES}
+    boost_regex # ordering is important for regex https://stackoverflow.com/questions/17588440/cannot-link-boost-regex
+    ${Boost_LIBRARIES}
+    pcap
+    ${GeographicLib_LIBRARIES}
   )
 
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
@@ -223,7 +219,7 @@ elseif(ament_cmake_FOUND)
 
   ## executable
   ament_auto_add_executable(${executable_name}
-  src/septentrio_gnss_driver/node/main.cpp
+    src/septentrio_gnss_driver/node/main.cpp
   )
 
   rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
