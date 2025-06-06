@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.4 (upcoming)
+Forthcoming
 ------------------
 * Fixes
     * Readme on PVT messages for INS
