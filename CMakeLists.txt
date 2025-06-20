@@ -147,45 +147,74 @@ elseif(ament_cmake_FOUND)
   unset(CATKIN_SYMLINK_INSTALL)
 
   # Dependencies
-  find_package(ament_cmake_auto REQUIRED)
-  ament_auto_find_build_dependencies()
+  find_package(ament_cmake REQUIRED)
+  find_package(rclcpp REQUIRED)
+  find_package(rclcpp_components REQUIRED)
+  find_package(rosidl_default_generators REQUIRED)
+  find_package(diagnostic_msgs REQUIRED)
+  find_package(nmea_msgs REQUIRED)
+  find_package(sensor_msgs REQUIRED)
+  find_package(geometry_msgs REQUIRED)
+  find_package(gps_msgs REQUIRED)
+  find_package(nav_msgs REQUIRED)
+  find_package(tf2 REQUIRED)
+  find_package(tf2_eigen REQUIRED)
+  find_package(tf2_geometry_msgs REQUIRED)
+  find_package(tf2_ros REQUIRED)
+  find_package(gtest_vendor REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   
   ## Declare  messages
   rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AIMPlusStatus.msg"
-  "msg/BaseVectorCart.msg"
-  "msg/BaseVectorGeod.msg"
-  "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros2:msg/BlockHeader.msg"
-  "msg/GALAuthStatus.msg"
-  "msg/RFBand.msg"
-  "msg/RFStatus.msg"
-  "msg/MeasEpoch.msg"
-  "msg/MeasEpochChannelType1.msg"
-  "msg/MeasEpochChannelType2.msg"
-  "msg/PVTCartesian.msg"
-  "msg/PVTGeodetic.msg"
-  "msg/PosCovCartesian.msg"
-  "msg/PosCovGeodetic.msg"
-  "msg/ReceiverTime.msg"
-  "msg/VelCovCartesian.msg"
-  "msg/VelCovGeodetic.msg"
-  "msg/AttEuler.msg"
-  "msg/AttCovEuler.msg"
-  "msg/INSNavCart.msg"
-  "msg/INSNavGeod.msg"
-  "msg/IMUSetup.msg"
-  "msg/VectorInfoCart.msg"
-  "msg/VectorInfoGeod.msg"
-  "msg/VelSensorSetup.msg"
-  "msg/ExtSensorMeas.msg"
-  DEPENDENCIES std_msgs
+    "msg/AIMPlusStatus.msg"
+    "msg/BaseVectorCart.msg"
+    "msg/BaseVectorGeod.msg"
+    "${CMAKE_CURRENT_SOURCE_DIR}/msg_ros2:msg/BlockHeader.msg"
+    "msg/GALAuthStatus.msg"
+    "msg/RFBand.msg"
+    "msg/RFStatus.msg"
+    "msg/MeasEpoch.msg"
+    "msg/MeasEpochChannelType1.msg"
+    "msg/MeasEpochChannelType2.msg"
+    "msg/PVTCartesian.msg"
+    "msg/PVTGeodetic.msg"
+    "msg/PosCovCartesian.msg"
+    "msg/PosCovGeodetic.msg"
+    "msg/ReceiverTime.msg"
+    "msg/VelCovCartesian.msg"
+    "msg/VelCovGeodetic.msg"
+    "msg/AttEuler.msg"
+    "msg/AttCovEuler.msg"
+    "msg/INSNavCart.msg"
+    "msg/INSNavGeod.msg"
+    "msg/IMUSetup.msg"
+    "msg/VectorInfoCart.msg"
+    "msg/VectorInfoGeod.msg"
+    "msg/VelSensorSetup.msg"
+    "msg/ExtSensorMeas.msg"
+    DEPENDENCIES std_msgs
   )
 
   set(library_name septentrio_gnss_driver_core)
   set(executable_name septentrio_gnss_driver_node)
 
+  set(dependencies
+    rclcpp
+    rclcpp_components
+    diagnostic_msgs
+    nmea_msgs
+    sensor_msgs
+    geometry_msgs
+    gps_msgs
+    nav_msgs
+    tf2
+    tf2_eigen
+    tf2_geometry_msgs
+    tf2_ros
+  )
+
   ## shared library
-  ament_auto_add_library(${library_name} SHARED
+  add_library(${library_name} SHARED
     src/septentrio_gnss_driver/communication/communication_core.cpp
     src/septentrio_gnss_driver/communication/message_handler.cpp 
     src/septentrio_gnss_driver/communication/telegram_handler.cpp
@@ -200,11 +229,30 @@ elseif(ament_cmake_FOUND)
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
   )
   target_compile_definitions(${library_name} PUBLIC ROS2)
+  target_include_directories(${library_name} PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
+    "$<INSTALL_INTERFACE:include>"
+  )
   target_link_libraries(${library_name}
     boost_regex # ordering is important for regex https://stackoverflow.com/questions/17588440/cannot-link-boost-regex
     ${Boost_LIBRARIES}
     pcap
     ${GeographicLib_LIBRARIES}
+    ${diagnostic_msgs_TARGETS}
+    ${geometry_msgs_TARGETS}
+    ${gps_msgs_TARGETS}
+    ${nav_msgs_TARGETS}
+    ${nmea_msgs_TARGETS}
+    ${sensor_msgs_TARGETS}
+    rclcpp::rclcpp
+    rclcpp_components::component
+    rclcpp_components::component_manager
+    sensor_msgs::sensor_msgs_library
+    tf2::tf2
+    tf2_eigen::tf2_eigen
+    tf2_geometry_msgs::tf2_geometry_msgs
+    tf2_ros::static_transform_broadcaster_node
+    tf2_ros::tf2_ros
   )
 
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
@@ -215,20 +263,51 @@ elseif(ament_cmake_FOUND)
     cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
     target_link_libraries(${library_name} "${cpp_typesupport_target}")
     target_compile_definitions(${library_name} PUBLIC ROS2_VER_N250)
+    target_compile_definitions(${library_name} INTERFACE ROS2_VER_N250)
   endif()
 
   ## executable
-  ament_auto_add_executable(${executable_name}
+  add_executable(${executable_name}
     src/septentrio_gnss_driver/node/main.cpp
+  )
+  target_link_libraries(${executable_name}
+    ${library_name}
   )
 
   rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
 
   # Testing
+  find_package(ament_cmake_gtest REQUIRED)
   add_subdirectory(test)
 
+  # Export Targets
+  ament_export_targets(${library_name} HAS_LIBRARY_TARGET)
+  ament_export_dependencies(${dependencies} rosidl_default_runtime)
+
   # Installation
-  ament_auto_package(INSTALL_TO_SHARE launch config)
+  install(TARGETS
+    ${library_name} EXPORT ${library_name}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+  )
+
+  install(TARGETS ${executable_name} EXPORT ${executable_name}
+    DESTINATION lib/${PROJECT_NAME}
+  )
+
+  install(DIRECTORY include/
+    DESTINATION include/
+  )
+
+  install(DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
+  )
+  install(DIRECTORY config
+    DESTINATION share/${PROJECT_NAME}
+  )
+
+  ament_package()
   ##-------------------------------------------------------------------------
 else()
   message(FATAL_ERROR "Build failed because neither catkin nor ament found.")
