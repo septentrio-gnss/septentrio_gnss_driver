@@ -24,7 +24,6 @@
 
   <!-- Dependencies-->
   <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
-  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake_auto</buildtool_depend>
   <build_depend condition="$ROS_VERSION == 2">rosidl_default_generators</build_depend>
   <exec_depend condition="$ROS_VERSION == 2">rosidl_default_runtime</exec_depend>
   <member_of_group condition="$ROS_VERSION == 2">rosidl_interface_packages</member_of_group>
