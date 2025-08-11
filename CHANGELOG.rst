@@ -6,7 +6,9 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Fixes
     * Revert ament_auto to fix compile definition export
-* Contributors:  Thomas Emter, Tibor Dome, septentrio-users
+* Improvements
+    * Add RTK fixed/float status in GPSFix (ROS 2 only)
+* Contributors:  Bart Keulen, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.4 (2025-06-06)
 ------------------
