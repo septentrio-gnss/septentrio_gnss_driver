@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.5 (upcoming)
+Forthcoming
 ------------------
 * Fixes
     * Revert ament_auto to fix compile definition export
