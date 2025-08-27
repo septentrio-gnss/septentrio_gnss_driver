@@ -1567,12 +1567,22 @@ namespace io {
         }
         case evRTKFixed:
         {
+#ifdef ROS2
+            msg.status.status = GpsStatusMsg::STATUS_RTK_FIX;
+#endif
+#ifdef ROS1
             msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+#endif
             break;
         }
         case evRTKFloat:
         {
+#ifdef ROS2
+            msg.status.status = GpsStatusMsg::STATUS_RTK_FLOAT;
+#endif
+#ifdef ROS1
             msg.status.status = GpsStatusMsg::STATUS_DGPS_FIX;
+#endif
             break;
         }
         case evMovingBaseRTKFixed:
