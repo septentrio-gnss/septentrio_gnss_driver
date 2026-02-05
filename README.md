@@ -190,7 +190,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     # For both GNSS and INS Rxs 
     auto_publish: false
     publish_only_valid: false
-	  navsatfix: false
+    navsatfix: false
     gpsfix: true
     gpgga: false
     gprmc: false
@@ -203,7 +203,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     poscovcartesian: false
     poscovgeodetic: true
     velcovcartesian: false
-	  velcovgeodetic: false
+    velcovgeodetic: false
     atteuler: true
     attcoveuler: true
     pose: false
