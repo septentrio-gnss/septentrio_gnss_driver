@@ -6,7 +6,9 @@ Changelog for package septentrio_gnss_driver
 * Improvements
     * Add Lyrical Luth to supported ROS versions.
     * Update deprecated boost and ROS functions.
-* Contributors: Thomas Emter, Tibor Dome, septentrio-users
+    * Add support for GLGSV (thanks @peci1)
+    * Fix spacing in README (thanks @benmccann)
+* Contributors: Ben McCann, Martin Pecka,Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.6 (2025-12-20)
 ------------------
