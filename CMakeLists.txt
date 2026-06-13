@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(septentrio_gnss_driver)
 
 ## Compile as C++17
@@ -16,6 +16,9 @@ endif()
 set(WARNFLAGS "-Wall -Wextra -Wpedantic -Wcast-align -Wnon-virtual-dtor -Woverloaded-virtual -Wcast-qual -Wctor-dtor-privacy")
 
 ## System dependencies are found with CMake's conventions
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
 find_package(Boost REQUIRED)
 LIST(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
@@ -256,6 +259,11 @@ elseif(ament_cmake_FOUND)
     tf2_ros::static_transform_broadcaster_node
     tf2_ros::tf2_ros
   )
+
+  if(${rosidl_cmake_VERSION} VERSION_GREATER_EQUAL 5.2.0)
+    target_compile_definitions(${library_name} PUBLIC ROS2_VER_N520)
+    target_compile_definitions(${library_name} INTERFACE ROS2_VER_N520)
+  endif()
 
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
     rosidl_target_interfaces(${library_name}

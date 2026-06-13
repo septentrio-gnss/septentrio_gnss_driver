@@ -38,8 +38,13 @@
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
 // tf2 includes
+#ifdef ROS2_VER_N520
+#include <tf2_ros/transform_broadcaster.hpp>
+#include <tf2_ros/transform_listener.hpp>
+#else
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+#endif
 #ifdef ROS2_VER_N250
 #include <tf2_eigen/tf2_eigen.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
@@ -167,9 +172,7 @@ inline TimestampRos timestampToRos(Timestamp ts) { return TimestampRos(ts); }
  * @return timestamp in nanoseconds (Unix epoch)
  */
 inline Timestamp timestampFromRos(const TimestampRos& tsr)
-{
-    return tsr.nanoseconds();
-}
+{ return tsr.nanoseconds(); }
 
 /**
  * @brief Log level for ROS logging
@@ -193,8 +196,15 @@ class ROSaicNodeBase : public rclcpp::Node
 {
 public:
     ROSaicNodeBase(const rclcpp::NodeOptions& options) :
+#ifdef ROS2_VER_N520
+        Node("septentrio_gnss", options),
+        tf2Publisher_(tf2_ros::TransformBroadcaster::RequiredInterfaces(*this)),
+        tfBuffer_(this->get_clock()),
+        tfListener_(tfBuffer_, tf2_ros::TransformListener::RequiredInterfaces(*this))
+#else
         Node("septentrio_gnss", options), tf2Publisher_(this),
-        tfBuffer_(this->get_clock()), tfListener_(tfBuffer_)
+        tfBuffer_(this->get_clock()), tfListener_(tfBuffer_, this)
+#endif
     {
     }
 

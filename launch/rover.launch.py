@@ -18,25 +18,25 @@ def generate_launch_description():
     tf_imu = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        arguments = "0 0 0 0 0 0 base_link imu".split(' ')
+        arguments = "--x 0 --y 0 --z 0 --roll 0 --pitch 0 -- yaw 0 --frame-id base_link --child-frame-id imu".split(' ')
     )
 
     tf_gnss = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        arguments = "0 0 0 0 0 0 imu gnss".split(' ')
+        arguments = "--x 0 --y 0 --z 0 --roll 0 --pitch 0 -- yaw 0 --frame-id imu --child-frame-id gnss".split(' ')
     )
 
     tf_vsm = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        arguments = "0 0 0 0 0 0 imu vsm".split(' ')
+        arguments = "--x 0 --y 0 --z 0 --roll 0 --pitch 0 -- yaw 0 --frame-id imu --child-frame-id vsm".split(' ')
     )
 
     tf_aux1 = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        arguments = "0 0 0 0 0 0 imu aux1".split(' ')
+        arguments = "--x 0 --y -1 --z 0 --roll 0 --pitch 0 -- yaw 0 --frame-id imu --child-frame-id aux1".split(' ')
     )
 
     default_file_name = 'rover.yaml'

@@ -39,7 +39,7 @@
 
 // Boost
 #include <boost/asio.hpp>
-#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -251,7 +251,7 @@ namespace io {
         {
             port_ = node_->settings()->device_tcp_port;
 
-            deadline_.expires_at(boost::posix_time::pos_infin);
+            deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             checkDeadline();
         }
 
@@ -319,7 +319,7 @@ namespace io {
                 return false;
             }
 
-            deadline_.expires_at(boost::posix_time::pos_infin);
+            deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             stream_->set_option(boost::asio::ip::tcp::no_delay(true));
             node_->log(log_level::INFO, "Connected to " +
                                             endpoints.begin()->host_name() + ":" +
@@ -332,7 +332,7 @@ namespace io {
             const boost::asio::ip::tcp::resolver::results_type& endpoints)
         {
             boost::system::error_code ec;
-            deadline_.expires_from_now(boost::posix_time::seconds(10));
+            deadline_.expires_after(std::chrono::seconds(10));
             ec = boost::asio::error::would_block;
             boost::asio::async_connect(*stream_, endpoints,
                                        boost::lambda::var(ec) = boost::lambda::_1);
@@ -344,20 +344,19 @@ namespace io {
 
         void checkDeadline()
         {
-            if (deadline_.expires_at() <=
-                boost::asio::deadline_timer::traits_type::now())
+            if (deadline_.expiry() <= std::chrono::steady_clock::now())
             {
                 boost::system::error_code ignored_ec;
                 stream_->close(ignored_ec);
 
-                deadline_.expires_at(boost::posix_time::pos_infin);
+                deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             }
             deadline_.async_wait(boost::lambda::bind(&TcpIo::checkDeadline, this));
         }
 
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_context> ioContext_;
-        boost::asio::deadline_timer deadline_;
+        boost::asio::steady_timer deadline_;
 
         std::string port_;
 

@@ -3,7 +3,7 @@
 <img src="ROSaicLogo.png" width="60%">
 
 ## Overview
-This repository hosts drivers for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Jazzy, Kilted, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. Both ROS 1 and ROS 2 are supported within one repository.
+This repository hosts drivers for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Galactic, Humble, Iron, Jazzy, Kilted, Lyrical, Rolling, and beyond) - written in C++ - that work with [mosaic](https://web.septentrio.com/GH-SSN-modules) and [AsteRx](https://web.septentrio.com/INS-SSN-Rx) - two of Septentrio's cutting-edge GNSS and GNSS/INS [receiver families](https://web.septentrio.com/GH-SSN-RX) - and beyond. Both ROS 1 and ROS 2 are supported within one repository.
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
@@ -282,7 +282,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 <details>
 <summary>ROS</summary>
 This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu) and [Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) or ROS 2 [Foxy](https://docs.ros.org/en/foxy/Installation.html), [Galactic](https://docs.ros.org/en/galactic/Installation.html), [Humble](https://docs.ros.org/en/humble/Installation.html)
-[Iron](https://docs.ros.org/en/iron/Installation.html), [Jazzy](https://docs.ros.org/en/jazzy/Installation.html), [Kilted](https://docs.ros.org/en/kilted/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, 22.04, or 24.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
+[Iron](https://docs.ros.org/en/iron/Installation.html), [Jazzy](https://docs.ros.org/en/jazzy/Installation.html), [Kilted](https://docs.ros.org/en/kilted/Installation.html), [Lyrical](https://docs.ros.org/en/lyrical/Installation.html), and [Rolling](https://docs.ros.org/en/rolling/Installation.html) (Ubuntu 18.04, 20.04, 22.04, 24.04 or 26.04 respectively). It is thus necessary to install the ROS version that has been designed for your Linux distro.</details>
 
 ### Installation via apt
 <details>
@@ -302,7 +302,7 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
   #### Dependencies for development
   Additional ROS packages have to be installed for the NMEA and GPSFix messages.<br><br>
   ROS 1: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-common`.<br><br>
-  ROS 2: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs`.<br><br>
+  ROS 2: `sudo apt install ros-$ROS_DISTRO-nmea-msgs ros-$ROS_DISTRO-gps-msgs ros-$ROS_DISTRO-gtest-vendor`.<br><br>
   The serial and TCP/IP communication interface of the ROS driver is established by means of the [Boost C++ library](https://www.boost.org/). In the unlikely event that the below installation instructions fail to install Boost on the fly, please install the Boost libraries via<br><br>
   `sudo apt install libboost-all-dev`.<br><br>
   Conversions from LLA to UTM are incorporated through [GeographicLib](https://geographiclib.sourceforge.io/). Install the necessary headers via<br><br>
