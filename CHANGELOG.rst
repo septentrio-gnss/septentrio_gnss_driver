@@ -2,7 +2,8 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.7 (upcoming)
+Forthcoming
+-----------
 * Improvements
     * Add Lyrical Luth to supported ROS versions.
     * Update deprecated boost and ROS functions.
