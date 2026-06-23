@@ -272,8 +272,6 @@ elseif(ament_cmake_FOUND)
     rosidl_get_typesupport_target(
     cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
     target_link_libraries(${library_name} "${cpp_typesupport_target}")
-    target_compile_definitions(${library_name} PUBLIC ROS2_VER_N250)
-    target_compile_definitions(${library_name} INTERFACE ROS2_VER_N250)
   endif()
 
   ## executable
