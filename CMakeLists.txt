@@ -132,6 +132,7 @@ if(catkin_FOUND)
     ${GeographicLib_LIBRARIES}
   )
   target_compile_definitions(${PROJECT_NAME}_node PUBLIC ROS1)
+  target_compile_features(${PROJECT_NAME}_node PUBLIC cxx_std_17)
  
   # Installation
   install(TARGETS ${PROJECT_NAME}_node
@@ -234,6 +235,7 @@ elseif(ament_cmake_FOUND)
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
   )
   target_compile_definitions(${library_name} PUBLIC ROS2)
+  target_compile_features(${library_name} PUBLIC cxx_std_17)
   target_include_directories(${library_name} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
     "$<INSTALL_INTERFACE:include>"
