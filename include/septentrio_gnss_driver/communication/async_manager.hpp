@@ -398,6 +398,7 @@ namespace io {
                                     (currByte == NMEA_SYNC_BYTE_3a) ||
                                     (currByte == NMEA_SYNC_BYTE_3b) ||
                                     (currByte == NMEA_SYNC_BYTE_3c) ||
+                                    (currByte == NMEA_SYNC_BYTE_3d) ||
                                     (currByte == NMEA_INS_SYNC_BYTE_3) ||
                                     (currByte == RESPONSE_SYNC_BYTE_3) ||
                                     (currByte == RESPONSE_SYNC_BYTE_3a))

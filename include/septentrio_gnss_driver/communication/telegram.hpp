@@ -59,6 +59,8 @@ static const uint8_t NMEA_SYNC_BYTE_3a = 0x4E;
 static const uint8_t NMEA_SYNC_BYTE_3b = 0x41;
 //! 0x42 is ASCII for B - 3rd byte to indicate NMEA-type ASCII message
 static const uint8_t NMEA_SYNC_BYTE_3c = 0x42;
+//! 0x4C is ASCII for L - 3rd byte to indicate NMEA-type ASCII message
+static const uint8_t NMEA_SYNC_BYTE_3d = 0x4C;
 //! 0x49 is ASCII for I - 2nd byte to indicate INS NMEA-type ASCII message
 static const uint8_t NMEA_INS_SYNC_BYTE_2 = 0x49;
 //! 0x4E is ASCII for N - 3rd byte to indicate INS NMEA-type ASCII message

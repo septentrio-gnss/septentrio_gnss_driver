@@ -2938,6 +2938,7 @@ namespace io {
                 publish<GpgsaMsg>("gpgsa", msg);
                 break;
             }
+            case 3:
             case 4:
             {
                 // Create NmeaSentence struct to pass to GpgsvParser::parseASCII

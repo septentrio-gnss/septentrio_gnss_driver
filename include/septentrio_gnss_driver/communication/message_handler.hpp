@@ -214,7 +214,7 @@ namespace io {
             {"$GBGGA", 0}, {"$GPRMC", 1}, {"$INRMC", 1}, {"$GNRMC", 1},
             {"$GARMC", 1}, {"$GBRMC", 1}, {"$GPGSA", 2}, {"$INGSA", 2},
             {"$GNGSA", 2}, {"$GAGSA", 2}, {"$GBGSA", 2}, {"$GPGSV", 3},
-            {"$INGSV", 3}, {"$GNGSV", 3}, {"$GAGSV", 3}, {"$GBGSV", 3}};
+            {"$INGSV", 3}, {"$GNGSV", 3}, {"$GAGSV", 3}, {"$GBGSV", 3}, {"$GLGSV", 3}};
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
