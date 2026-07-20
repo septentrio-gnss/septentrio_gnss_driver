@@ -2,12 +2,6 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.8 (upcoming)
-------------------
-* Fixes
-    * Fix rolling C++20 compatibility
-* Contributors: Thomas Emter, Tibor Dome, septentrio-users
-
 1.4.7 (2026-06-13)
 ------------------
 * Improvements
@@ -15,6 +9,8 @@ Changelog for package septentrio_gnss_driver
     * Update deprecated boost and ROS functions.
     * Add support for GLGSV (thanks @peci1)
     * Fix spacing in README (thanks @benmccann)
+* Fixes
+    * Fix rolling C++20 compatibility
 * Contributors: Ben McCann, Martin Pecka, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.6 (2025-12-20)
