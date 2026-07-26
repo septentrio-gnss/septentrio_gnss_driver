@@ -108,7 +108,7 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
     }
 
     bool valid = true;
-    bool to_be_ignored = false;
+    bool to_be_ignored = true;
 
     msg.position_status = sentence.get_body()[2];
     // Check to see whether this message should be ignored
@@ -156,7 +156,7 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
     valid =
         valid && parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);
     msg.mag_var_direction = sentence.get_body()[11];
-    if (sentence.get_body().size() == LEN_MAX)
+    if (sentence.get_body().size() >= LEN_MAX - 1)
     {
         msg.mode_indicator = sentence.get_body()[12];
     }

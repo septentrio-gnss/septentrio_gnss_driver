@@ -262,12 +262,12 @@ namespace parsing_utilities {
     [[nodiscard]] time_t convertUTCtoUnix(double utc_double)
     {
         time_t time_now = time(0);
-        struct tm* timeinfo;
+        struct tm timeinfo;
 
-        // The function gmtime uses the value at &time_now to fill a tm structure
+        // The function gmtime_r uses the value at &time_now to fill a tm structure
         // with the values that represent the corresponding time, expressed as a UTC
         // time.
-        timeinfo = gmtime(&time_now);
+        gmtime_r(&time_now, &timeinfo);
 
         uint32_t hours = static_cast<uint32_t>(utc_double) / 10000;
         uint32_t minutes = (static_cast<uint32_t>(utc_double) - hours * 10000) / 100;
@@ -275,21 +275,28 @@ namespace parsing_utilities {
             (static_cast<uint32_t>(utc_double) - hours * 10000 - minutes * 100);
 
         // Overwriting timeinfo with UTC time as extracted from utc_double..
-        timeinfo->tm_hour = hours;  // hours since midnight - [0,23]
-        timeinfo->tm_min = minutes; // minutes after the hour - [0,59]
-        timeinfo->tm_sec = seconds; // seconds after the minute - [0,59]
+        timeinfo.tm_hour = hours;  // hours since midnight - [0,23]
+        timeinfo.tm_min = minutes; // minutes after the hour - [0,59]
+        timeinfo.tm_sec = seconds; // seconds after the minute - [0,59]
 
         /* // If you are doing a simulation, add year, month and day here:
         uint32_t year; // year, starting from 1900
         uint32_t month; // months since January - [0,11]
         uint32_t day;  //day of the month - [1,31]
-        timeinfo->tm_year = year;
-        timeinfo->tm_mon = month;
-        timeinfo->tm_mday = day;
+        timeinfo.tm_year = year;
+        timeinfo.tm_mon = month;
+        timeinfo.tm_mday = day;
         */
 
         // Inverse of gmtime, the latter converts time_t (Unix time) to tm (UTC time)
-        return timegm(timeinfo);
+        time_t unix_time = timegm(&timeinfo);
+
+        if (unix_time > time_now + 43200)
+            unix_time -= 86400;
+        else if (unix_time < time_now - 43200)
+            unix_time += 86400;
+
+        return unix_time;
     }
 
     [[nodiscard]] std::string convertUserPeriodToRxCommand(uint32_t period_user)

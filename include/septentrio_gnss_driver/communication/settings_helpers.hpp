@@ -41,7 +41,7 @@
 namespace settings {
 
     // Check uniqueness of IPS ids
-    void checkUniquenssOfIps(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIps(ROSaicNodeBase* node, const Settings& settings)
     {
         if (!settings.tcp_ip_server.empty())
         {
@@ -82,7 +82,7 @@ namespace settings {
     }
 
     // Check uniqueness of IPS ports
-    void checkUniquenssOfIpsPorts(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsPorts(ROSaicNodeBase* node, const Settings& settings)
     {
         if (settings.tcp_port != 0)
         {
@@ -110,7 +110,7 @@ namespace settings {
     }
 
     // Check uniqueness of IPS id for VSM
-    void checkUniquenssOfIpsVsm(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsVsm(ROSaicNodeBase* node, const Settings& settings)
     {
         if (!settings.ins_vsm.ip_server.empty())
         {
@@ -136,7 +136,7 @@ namespace settings {
     }
 
     // Check uniqueness of IPS port for VSM
-    void checkUniquenssOfIpsPortsVsm(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsPortsVsm(ROSaicNodeBase* node, const Settings& settings)
     {
         if (settings.ins_vsm.ip_server_port != 0)
         {
@@ -167,7 +167,7 @@ namespace settings {
         }
     }
 
-    void autoPublish(ROSaicNodeBase* node, Settings& settings)
+    inline void autoPublish(ROSaicNodeBase* node, Settings& settings)
     {
         if (settings.auto_publish && !settings.configure_rx)
         {

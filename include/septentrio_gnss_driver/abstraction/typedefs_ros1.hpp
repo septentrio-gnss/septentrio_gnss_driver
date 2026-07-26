@@ -526,7 +526,7 @@ private:
                     std_x = string_utilities::trimDecimalPlaces(1000000.0);
                 }
             } else
-                std_x = std::to_string(1000000.0);
+                std_x = string_utilities::trimDecimalPlaces(1000000.0);
             if (settings_.ins_vsm.ros_config[1])
             {
                 if (settings_.use_ros_axis_orientation)

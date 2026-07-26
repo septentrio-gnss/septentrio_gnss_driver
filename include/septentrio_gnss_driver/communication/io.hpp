@@ -175,7 +175,11 @@ namespace io {
 
                         idx += length;
                     } else if (((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
-                                (buffer_[idx + 2] == NMEA_SYNC_BYTE_3)) ||
+                                ((buffer_[idx + 2] == NMEA_SYNC_BYTE_3) ||
+                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3a) ||
+                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3b) ||
+                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3c) ||
+                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3d))) ||
                                ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
                                 (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3)))
                     {

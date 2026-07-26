@@ -169,8 +169,6 @@ struct Settings
     uint32_t tcp_port;
     //! TCP IP server id
     std::string tcp_ip_server;
-    //! Filename
-    std::string file_name;
     //! Username for login
     std::string login_user;
     //! Password for login
