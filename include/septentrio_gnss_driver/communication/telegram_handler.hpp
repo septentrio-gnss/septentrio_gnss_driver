@@ -59,6 +59,8 @@
 #pragma once
 
 // C++ includes
+#include <atomic>
+#include <chrono>
 #include <condition_variable>
 
 // ROSaic includes
@@ -81,29 +83,49 @@ namespace io {
     class Semaphore
     {
     public:
+        enum class WaitResult
+        {
+            SIGNALLED,
+            TIMED_OUT,
+            ABANDONED
+        };
+
         Semaphore() : block_(true) {}
 
         void notify()
         {
             std::unique_lock<std::mutex> lock(mtx_);
             block_ = false;
-            cv_.notify_one();
+            cv_.notify_all();
         }
 
-        void wait()
+        void abandon()
         {
             std::unique_lock<std::mutex> lock(mtx_);
-            while (block_)
-            {
-                cv_.wait(lock);
-            }
+            abandoned_ = true;
+            cv_.notify_all();
+        }
+
+        [[nodiscard]] bool isAbandoned() const { return abandoned_; }
+
+        [[nodiscard]] WaitResult wait(std::chrono::milliseconds timeout)
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            bool signalled = cv_.wait_for(lock, timeout,
+                                          [this] { return !block_ || abandoned_; });
+            if (abandoned_)
+                return WaitResult::ABANDONED;
+            if (!signalled)
+                return WaitResult::TIMED_OUT;
             block_ = true;
+            return WaitResult::SIGNALLED;
         }
 
     private:
         std::mutex mtx_;
         std::condition_variable cv_;
         bool block_;
+        std::atomic<bool> abandoned_ = false;
     };
 
     /**
@@ -117,16 +139,25 @@ namespace io {
     public:
         TelegramHandler(ROSaicNodeBase* node) : node_(node), messageHandler_(node) {}
 
-        ~TelegramHandler()
-        {
-            cdSemaphore_.notify();
-            responseSemaphore_.notify();
-        }
+        ~TelegramHandler() { abandonSemaphores(); }
 
         void clearSemaphores()
         {
             cdSemaphore_.notify();
             responseSemaphore_.notify();
+            capabilitiesSemaphore_.notify();
+        }
+
+        void abandonSemaphores()
+        {
+            cdSemaphore_.abandon();
+            responseSemaphore_.abandon();
+            capabilitiesSemaphore_.abandon();
+        }
+
+        [[nodiscard]] bool isAbandoned() const
+        {
+            return responseSemaphore_.isAbandoned();
         }
 
         /**
@@ -138,17 +169,28 @@ namespace io {
         void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
 
         //! Returns the connection descriptor
-        [[nodiscard]] std::string getMainCd()
+        [[nodiscard]] Semaphore::WaitResult
+        getMainCd(std::chrono::milliseconds timeout, std::string& cd)
         {
-            cdSemaphore_.wait();
-            return mainConnectionDescriptor_;
+            Semaphore::WaitResult result = cdSemaphore_.wait(timeout);
+            if (result == Semaphore::WaitResult::SIGNALLED)
+                cd = mainConnectionDescriptor_;
+            return result;
         }
 
         //! Waits for response
-        void waitForResponse() { responseSemaphore_.wait(); }
+        [[nodiscard]] Semaphore::WaitResult
+        waitForResponse(std::chrono::milliseconds timeout)
+        {
+            return responseSemaphore_.wait(timeout);
+        }
 
         //! Waits for capabilities
-        void waitForCapabilities() { capabilitiesSemaphore_.wait(); }
+        [[nodiscard]] Semaphore::WaitResult
+        waitForCapabilities(std::chrono::milliseconds timeout)
+        {
+            return capabilitiesSemaphore_.wait(timeout);
+        }
 
     private:
         void handleSbf(const std::shared_ptr<Telegram>& telegram);

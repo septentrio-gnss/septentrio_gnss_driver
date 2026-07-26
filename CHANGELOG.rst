@@ -6,6 +6,7 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * Improvements
     * ENU/NED data handling
+    * Shutdown while waiting for response during setup
 * Fixes
     * Memory safety
     * Fix static transform publishers in example launch files

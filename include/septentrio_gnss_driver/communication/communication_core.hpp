@@ -164,6 +164,8 @@ namespace io {
         std::thread processingThread_;
         //! Whether connecting was successful
         bool initializedIo_ = false;
+        //! Whether shutdown of the driver has been initiated
+        std::atomic<bool> shuttingDown_ = false;
         //! Processes I/O stream data
         //! This declaration is deliberately stream-independent (Serial or TCP).
         std::unique_ptr<AsyncManagerBase> manager_;

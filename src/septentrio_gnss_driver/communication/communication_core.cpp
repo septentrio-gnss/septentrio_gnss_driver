@@ -51,6 +51,9 @@ static const int8_t ATTSTD_DEV_MIN = 0;
 static const int8_t ATTSTD_DEV_MAX = 5;
 static const int8_t POSSTD_DEV_MIN = 0;
 static const int8_t POSSTD_DEV_MAX = 100;
+static const std::chrono::seconds RESPONSE_TIMEOUT(3);
+static const std::chrono::seconds CAPABILITIES_TIMEOUT(5);
+static const uint8_t CAPABILITIES_MAX_RETRIES = 3;
 
 /**
  * @file communication_core.cpp
@@ -82,9 +85,13 @@ namespace io {
 
     void CommunicationCore::close()
     {
+        shuttingDown_ = true;
+
         telegramHandler_.clearSemaphores();
 
         resetSettings();
+
+        telegramHandler_.abandonSemaphores();
 
         if (manager_)
             manager_->close();
@@ -392,7 +399,24 @@ namespace io {
 
             // Get Rx capabilities
             send("grc \x0D");
-            telegramHandler_.waitForCapabilities();
+            uint8_t capabilitiesRetries = 0;
+            while (telegramHandler_.waitForCapabilities(CAPABILITIES_TIMEOUT) ==
+                   Semaphore::WaitResult::TIMED_OUT)
+            {
+                ++capabilitiesRetries;
+                if (shuttingDown_ ||
+                    (capabilitiesRetries > CAPABILITIES_MAX_RETRIES))
+                {
+                    node_->log(
+                        log_level::WARN,
+                        "No receiver capabilities received from Rx, continuing with default capabilities.");
+                    break;
+                }
+                node_->log(
+                    log_level::WARN,
+                    "No receiver capabilities received from Rx, resending request.");
+                send("grc \x0D");
+            }
 
             // Activate NTP server
             if (settings_->ntp_server)
@@ -1062,15 +1086,33 @@ namespace io {
         // Escape sequence (escape from correction mode), ensuring that we
         // can send our real commands afterwards... has to be sent multiple times.
         std::string cmd("\x0DSSSSSSSSSS\x0D\x0D");
-        telegramHandler_.resetWaitforMainCd();
-        manager_.get()->send(cmd);
-        std::ignore = telegramHandler_.getMainCd();
-        telegramHandler_.resetWaitforMainCd();
-        manager_.get()->send(cmd);
-        std::ignore = telegramHandler_.getMainCd();
-        telegramHandler_.resetWaitforMainCd();
-        manager_.get()->send(cmd);
-        return telegramHandler_.getMainCd();
+        std::string cd;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            for (;;)
+            {
+                telegramHandler_.resetWaitforMainCd();
+                manager_.get()->send(cmd);
+                Semaphore::WaitResult result =
+                    telegramHandler_.getMainCd(RESPONSE_TIMEOUT, cd);
+                if (result == Semaphore::WaitResult::SIGNALLED)
+                    break;
+                if (result == Semaphore::WaitResult::ABANDONED)
+                    return cd;
+                if (shuttingDown_)
+                {
+                    node_->log(
+                        log_level::WARN,
+                        "No connection descriptor received from Rx while shutting down, abandoning subsequent commands.");
+                    telegramHandler_.abandonSemaphores();
+                    return cd;
+                }
+                node_->log(
+                    log_level::WARN,
+                    "No connection descriptor received from Rx, resending escape sequence.");
+            }
+        }
+        return cd;
     }
 
     void CommunicationCore::processTelegrams()
@@ -1087,8 +1129,32 @@ namespace io {
 
     void CommunicationCore::send(const std::string& cmd)
     {
-        manager_.get()->send(cmd);
-        telegramHandler_.waitForResponse();
+        while (!telegramHandler_.isAbandoned())
+        {
+            manager_.get()->send(cmd);
+            switch (telegramHandler_.waitForResponse(RESPONSE_TIMEOUT))
+            {
+            case Semaphore::WaitResult::SIGNALLED:
+                return;
+            case Semaphore::WaitResult::ABANDONED:
+                return;
+            case Semaphore::WaitResult::TIMED_OUT:
+            {
+                if (shuttingDown_)
+                {
+                    node_->log(
+                        log_level::WARN,
+                        "No response received from Rx while shutting down, abandoning subsequent commands.");
+                    telegramHandler_.abandonSemaphores();
+                    return;
+                }
+                node_->log(log_level::WARN,
+                           "No response received from Rx to command " + cmd +
+                               ", resending.");
+                break;
+            }
+            }
+        }
     }
 
 } // namespace io
