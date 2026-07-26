@@ -125,7 +125,8 @@ namespace settings {
     {
         if (!settings.ins_vsm.ip_server.empty())
         {
-            if (!settings.tcp_ip_server.empty() &&
+            if (!settings.ins_vsm.use_stream_device &&
+                !settings.tcp_ip_server.empty() &&
                 (settings.tcp_ip_server == settings.ins_vsm.ip_server))
                 node->log(
                     log_level::ERROR,
@@ -149,7 +150,8 @@ namespace settings {
     // Check uniqueness of IPS port for VSM
     inline void checkUniquenssOfIpsPortsVsm(ROSaicNodeBase* node, const Settings& settings)
     {
-        if (settings.ins_vsm.ip_server_port != 0)
+        if ((settings.ins_vsm.ip_server_port != 0) &&
+            !settings.ins_vsm.use_stream_device)
         {
             if (std::to_string(settings.ins_vsm.ip_server_port) ==
                 settings.device_tcp_port)
