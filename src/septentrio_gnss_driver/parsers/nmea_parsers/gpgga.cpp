@@ -92,7 +92,7 @@ GpggaMsg GpggaParser::parseASCII(const NMEASentence& sentence,
             // decimal point in utc_double, i.e. in the NMEA UTC time.
             Timestamp unix_time_nanoseconds =
                 unix_time_seconds * 1000000000 +
-                (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                (static_cast<Timestamp>(utc_double * 100) % 100) * 10000000;
             msg.header.stamp = timestampToRos(unix_time_nanoseconds);
         } else
         {

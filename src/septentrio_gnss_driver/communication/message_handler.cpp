@@ -121,11 +121,11 @@ namespace io {
             {
                 // Attitude autocov
                 msg.pose.covariance[21] =
-                    convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
                 msg.pose.covariance[28] =
-                    convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
                 msg.pose.covariance[35] =
-                    convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
 
             } else
             {
@@ -257,8 +257,8 @@ namespace io {
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
         uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
         // Position of the overall-quality indicator (type 0), or size() if the block
-        // does not contain one. Must not be left indeterminate: it is compared against
-        // every index in the loop below.
+        // does not contain one. Must not be left indeterminate: it is compared
+        // against every index in the loop below.
         size_t qualityind_pos = last_qualityind_.indicators.size();
         for (uint16_t i = static_cast<uint16_t>(0);
              i < last_qualityind_.indicators.size(); ++i)
@@ -293,10 +293,11 @@ namespace io {
             gnss_status.level = DiagnosticStatusMsg::ERROR;
         }
         // Creating an array of values associated with the GNSS status
-        // The overall-quality indicator is reported through "level" above rather than
-        // as a key/value pair, so it is skipped here. Entries are appended instead of
-        // written at index i: the loop visits every indicator while only n-1 of them
-        // are emitted, so indexing by i would write past the end of the vector.
+        // The overall-quality indicator is reported through "level" above rather
+        // than as a key/value pair, so it is skipped here. Entries are appended
+        // instead of written at index i: the loop visits every indicator while only
+        // n-1 of them are emitted, so indexing by i would write past the end of the
+        // vector.
         gnss_status.values.clear();
         gnss_status.values.reserve(last_qualityind_.indicators.size());
         for (size_t i = 0; i < last_qualityind_.indicators.size(); ++i)
@@ -334,11 +335,10 @@ namespace io {
                 key = "RTK Post-Processing";
                 break;
             default:
-                node_->log(
-                    log_level::DEBUG,
-                    "Unknown quality indicator type in SBF QualityInd: " +
-                        std::to_string(last_qualityind_.indicators[i] &
-                                       indicators_type_mask));
+                node_->log(log_level::DEBUG,
+                           "Unknown quality indicator type in SBF QualityInd: " +
+                               std::to_string(last_qualityind_.indicators[i] &
+                                              indicators_type_mask));
                 continue;
             }
 
@@ -643,11 +643,11 @@ namespace io {
                     validValue(last_insnavgeod_.heading_std_dev))
                 {
                     msg.orientation_covariance[0] =
-                        convertAutoCovariance(last_insnavgeod_.roll_std_dev);
-                    msg.orientation_covariance[4] =
-                        convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
-                    msg.orientation_covariance[8] =
-                        convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                        convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
+                    msg.orientation_covariance[4] = convertAutoCovariance(
+                        square(last_insnavgeod_.pitch_std_dev));
+                    msg.orientation_covariance[8] = convertAutoCovariance(
+                        square(last_insnavgeod_.heading_std_dev));
 
                     if ((last_insnavgeod_.sb_list & 64) != 0)
                     {
@@ -973,11 +973,23 @@ namespace io {
         Eigen::Matrix3d P_pos = -Eigen::Matrix3d::Identity();
         if ((last_insnavgeod_.sb_list & 1) != 0)
         {
-            // Position autocovariance
-            P_pos(0, 0) =
+            // Position autocovariance.
+            double varLon =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.longitude_std_dev));
-            P_pos(1, 1) =
+            double varLat =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.latitude_std_dev));
+
+            if (settings_->use_ros_axis_orientation)
+            {
+                // (ENU)
+                P_pos(0, 0) = varLon;
+                P_pos(1, 1) = varLat;
+            } else
+            {
+                // (NED)
+                P_pos(0, 0) = varLat;
+                P_pos(1, 1) = varLon;
+            }
             P_pos(2, 2) =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.height_std_dev));
         }
@@ -1011,11 +1023,11 @@ namespace io {
         {
             // Attitude autocovariance
             msg.pose.covariance[21] =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
             msg.pose.covariance[28] =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
             msg.pose.covariance[35] =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
         } else
         {
             msg.pose.covariance[21] = -1.0;
@@ -1058,8 +1070,9 @@ namespace io {
 
         if ((meridian_convergence != 0.0) && (last_insnavgeod_.sb_list & 1))
         {
-            double cg = std::cos(meridian_convergence);
-            double sg = std::sin(meridian_convergence);
+            double gamma = deg2rad(meridian_convergence);
+            double cg = std::cos(gamma);
+            double sg = std::sin(gamma);
             Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
             R(0, 0) = cg;
             R(0, 1) = -sg;
@@ -1196,11 +1209,11 @@ namespace io {
         {
             // Attitude autocovariance
             covAtt_local(0, 0) =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
             covAtt_local(1, 1) =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
             covAtt_local(2, 2) =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
             covAttValid = !std::isnan(last_insnavgeod_.roll_std_dev) &&
                           !std::isnan(last_insnavgeod_.pitch_std_dev) &&
                           !std::isnan(last_insnavgeod_.heading_std_dev);
@@ -1916,15 +1929,18 @@ namespace io {
             msg.err_vert =
                 2 * std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_hgthgt));
             // motion
-            msg.err_track =
-                2 * (std::sqrt(square(1.0 / (last_pvtgeodetic_.vn +
-                                             square(last_pvtgeodetic_.ve) /
-                                                 last_pvtgeodetic_.vn)) *
-                                   last_poscovgeodetic_.cov_lonlon +
-                               square((last_pvtgeodetic_.ve) /
-                                      (square(last_pvtgeodetic_.vn) +
-                                       square(last_pvtgeodetic_.ve))) *
-                                   last_poscovgeodetic_.cov_latlat));
+            double velN = last_pvtgeodetic_.vn;
+            double velE = last_pvtgeodetic_.ve;
+            double velSqSum = square(velN) + square(velE);
+            if (velSqSum > 0.0)
+                msg.err_track =
+                    2 *
+                    rad2deg(std::sqrt(square(velN) * last_velcovgeodetic_.cov_veve +
+                                      square(velE) * last_velcovgeodetic_.cov_vnvn) /
+                            velSqSum);
+            else
+                // Track is undefined when not moving.
+                msg.err_track = -1.0;
             msg.err_speed =
                 2 * (std::sqrt(static_cast<double>(last_velcovgeodetic_.cov_vnvn) +
                                static_cast<double>(last_velcovgeodetic_.cov_veve)));
@@ -1986,7 +2002,11 @@ namespace io {
                                       square(last_insnavgeod_.ve));
 
                 msg.climb = last_insnavgeod_.vu;
-                msg.track = std::atan2(last_insnavgeod_.vn, last_insnavgeod_.ve);
+                double track =
+                    rad2deg(std::atan2(last_insnavgeod_.ve, last_insnavgeod_.vn));
+                if (track < 0.0)
+                    track += 360.0;
+                msg.track = track;
             }
             if (last_dop_.pdop == 0.0 || last_dop_.tdop == 0.0)
             {
@@ -2037,18 +2057,22 @@ namespace io {
                                    square(last_insnavgeod_.longitude_std_dev)));
                 msg.err_vert = 2 * last_insnavgeod_.height_std_dev;
             }
-            if (((last_insnavgeod_.sb_list & 8) != 0) ||
-                ((last_insnavgeod_.sb_list & 1) != 0))
+            if (((last_insnavgeod_.sb_list & 8) != 0) &&
+                ((last_insnavgeod_.sb_list & 16) != 0))
             {
-                msg.err_track =
-                    2 * (std::sqrt(square(1.0 / (last_insnavgeod_.vn +
-                                                 square(last_insnavgeod_.ve) /
-                                                     last_insnavgeod_.vn)) *
-                                       square(last_insnavgeod_.longitude_std_dev) +
-                                   square((last_insnavgeod_.ve) /
-                                          (square(last_insnavgeod_.vn) +
-                                           square(last_insnavgeod_.ve))) *
-                                       square(last_insnavgeod_.latitude_std_dev)));
+                double velN = last_insnavgeod_.vn;
+                double velE = last_insnavgeod_.ve;
+                double velSqSum = square(velN) + square(velE);
+                if (velSqSum > 0.0)
+                    msg.err_track =
+                        2 *
+                        rad2deg(
+                            std::sqrt(
+                                square(velN) * square(last_insnavgeod_.ve_std_dev) +
+                                square(velE) * square(last_insnavgeod_.vn_std_dev)) /
+                            velSqSum);
+                else
+                    msg.err_track = -1.0;
             }
             if ((last_insnavgeod_.sb_list & 8) != 0)
             {

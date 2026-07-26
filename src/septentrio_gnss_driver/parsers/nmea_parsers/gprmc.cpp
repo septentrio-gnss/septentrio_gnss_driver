@@ -96,7 +96,7 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
             // decimal point in utc_double, i.e. in the NMEA UTC time.
             Timestamp unix_time_nanoseconds =
                 unix_time_seconds * 1000000000 +
-                (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
+                (static_cast<Timestamp>(utc_double * 100) % 100) * 10000000;
             msg.header.stamp = timestampToRos(unix_time_nanoseconds);
         } else
         {
@@ -145,8 +145,8 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
         // instead of the ParseException that callers handle.
         if (date_str.size() == 6)
         {
-            msg.date = std::string("20") + date_str.substr(4, 2) +
-                       std::string("-") + date_str.substr(2, 2) + std::string("-") +
+            msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
+                       date_str.substr(2, 2) + std::string("-") +
                        date_str.substr(0, 2);
         } else
         {

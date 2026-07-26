@@ -31,6 +31,7 @@
 #pragma once
 
 // std includes
+#include <iomanip>
 #include <numeric>
 #include <unordered_map>
 // ROS includes
@@ -502,7 +503,7 @@ private:
                 v_x = string_utilities::trimDecimalPlaces(vel[0]);
                 if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_x = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm.ros_variances[0]);
+                        std::sqrt(settings_.ins_vsm.ros_variances[0]));
                 else if (var[0] > 0.0)
                     std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
                 else if (!capabilities_.has_improved_vsm_handling)
@@ -522,7 +523,7 @@ private:
                 v_y += string_utilities::trimDecimalPlaces(vel[1]);
                 if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_y = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm.ros_variances[1]);
+                        std::sqrt(settings_.ins_vsm.ros_variances[1]));
                 else if (var[1] > 0.0)
                     std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
                 else if (!capabilities_.has_improved_vsm_handling)
@@ -542,7 +543,7 @@ private:
                 v_z += string_utilities::trimDecimalPlaces(vel[2]);
                 if (settings_.ins_vsm.ros_variances_by_parameter)
                     std_z = string_utilities::trimDecimalPlaces(
-                        settings_.ins_vsm.ros_variances[2]);
+                        std::sqrt(settings_.ins_vsm.ros_variances[2]));
                 else if (var[2] > 0.0)
                     std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
                 else if (!capabilities_.has_improved_vsm_handling)
@@ -564,7 +565,8 @@ private:
                                        [](char sum, char ch) { return sum ^ ch; });
 
             std::stringstream crcss;
-            crcss << std::hex << static_cast<int32_t>(crc);
+            crcss << std::uppercase << std::hex << std::setw(2) << std::setfill('0')
+                  << static_cast<int32_t>(crc);
 
             velNmea += "*" + crcss.str() + "\r\n";
             sendVelocity(velNmea);
