@@ -608,7 +608,7 @@ namespace rosaic_node {
                                settings_.ins_vsm.ip_server_port,
                                static_cast<uint32_t>(24786));
                 param("ins_vsm/ip_server/keep_open",
-                      settings_.ins_vsm.ip_server_keep_open, !ins_use_vsm);
+                      settings_.ins_vsm.ip_server_keep_open, true);
                 this->log(
                     log_level::INFO,
                     "velocity sensor measurements via ip_server will be used.");

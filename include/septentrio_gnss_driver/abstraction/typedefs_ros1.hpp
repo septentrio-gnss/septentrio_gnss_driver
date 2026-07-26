@@ -206,10 +206,10 @@ public:
             ros::NodeHandle nh;
             if (settings_.ins_vsm.ros_source == "odometry")
                 odometrySubscriber_ = nh.subscribe<nav_msgs::Odometry>(
-                    "odometry_vsm", 10, &ROSaicNodeBase::callbackOdometry, this);
+                    "odometry_vsm", 1, &ROSaicNodeBase::callbackOdometry, this);
             else if (settings_.ins_vsm.ros_source == "twist")
                 twistSubscriber_ = nh.subscribe<TwistWithCovarianceStampedMsg>(
-                    "twist_vsm", 10, &ROSaicNodeBase::callbackTwist, this);
+                    "twist_vsm", 1, &ROSaicNodeBase::callbackTwist, this);
         } catch (const std::runtime_error& ex)
         {
             this->log(log_level::ERROR, "Subscriber initialization failed due to: " +
@@ -277,7 +277,6 @@ public:
         if (once)
         {
             switch (logLevel)
-                switch (logLevel)
                 {
                 case log_level::DEBUG:
                     ROS_DEBUG_STREAM_ONCE(ros::this_node::getName() << ": " << s);
