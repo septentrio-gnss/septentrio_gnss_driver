@@ -465,13 +465,14 @@ namespace rosaic_node {
                            ntripSettings.caster_port, static_cast<uint32_t>(0));
             param("rtk_settings/" + ntrip + "/username", ntripSettings.username,
                   std::string());
-            if (!param("rtk_settings/" + ntrip + "/password", ntripSettings.password,
-                       std::string()))
+            param("rtk_settings/" + ntrip + "/password", ntripSettings.password,
+                  std::string());
+            if (ntripSettings.password.empty())
             {
                 uint32_t pwd_tmp;
-                getUint32Param("rtk_settings/" + ntrip + "/password", pwd_tmp,
-                               static_cast<uint32_t>(0));
-                ntripSettings.password = std::to_string(pwd_tmp);
+                if (getUint32Param("rtk_settings/" + ntrip + "/password", pwd_tmp,
+                                   static_cast<uint32_t>(0)))
+                    ntripSettings.password = std::to_string(pwd_tmp);
             }
             param("rtk_settings/" + ntrip + "/mountpoint", ntripSettings.mountpoint,
                   std::string());

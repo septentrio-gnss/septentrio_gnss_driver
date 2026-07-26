@@ -275,7 +275,9 @@ public:
      * @param[out] val Storage for the retrieved value, of type T
      * @param[in] defaultVal Value to use if the server doesn't contain this
      * parameter
-     * @return True if it could be retrieved, false if not
+     * @return False if the parameter is present but not of type T, true
+     * otherwise. val is always written, with defaultVal if the parameter is
+     * absent or of the wrong type.
      */
     template <typename T>
     bool param(const std::string& name, T& val, const T& defaultVal)
@@ -289,6 +291,7 @@ public:
         } catch (std::runtime_error& e)
         {
             RCLCPP_WARN_STREAM(this->get_logger(), e.what());
+            val = defaultVal;
             return false;
         }
         return true;

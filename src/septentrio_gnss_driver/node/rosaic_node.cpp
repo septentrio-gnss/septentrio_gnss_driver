@@ -237,7 +237,8 @@ namespace rosaic_node {
             settings_.datum = "WGS84";
         param("ant_type", settings_.ant_type, std::string("Unknown"));
         param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
-        if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
+        param("ant_serial_nr", settings_.ant_serial_nr, std::string());
+        if (settings_.ant_serial_nr.empty())
         {
             uint32_t sn_tmp;
             if (getUint32Param("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -245,8 +246,8 @@ namespace rosaic_node {
             else
                 settings_.ant_serial_nr = "Unknown";
         }
-        if (!param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr,
-                   std::string()))
+        param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string());
+        if (settings_.ant_aux1_serial_nr.empty())
         {
             uint32_t sn_tmp;
             if (getUint32Param("ant_aux1_serial_nr", sn_tmp,
@@ -473,13 +474,14 @@ namespace rosaic_node {
                            ntripSettings.caster_port, static_cast<uint32_t>(0));
             param("rtk_settings." + ntrip + ".username", ntripSettings.username,
                   std::string());
-            if (!param("rtk_settings." + ntrip + ".password", ntripSettings.password,
-                       std::string()))
+            param("rtk_settings." + ntrip + ".password", ntripSettings.password,
+                  std::string());
+            if (ntripSettings.password.empty())
             {
                 uint32_t pwd_tmp;
-                getUint32Param("rtk_settings." + ntrip + ".password", pwd_tmp,
-                               static_cast<uint32_t>(0));
-                ntripSettings.password = std::to_string(pwd_tmp);
+                if (getUint32Param("rtk_settings." + ntrip + ".password", pwd_tmp,
+                                   static_cast<uint32_t>(0)))
+                    ntripSettings.password = std::to_string(pwd_tmp);
             }
             param("rtk_settings." + ntrip + ".mountpoint", ntripSettings.mountpoint,
                   std::string());
