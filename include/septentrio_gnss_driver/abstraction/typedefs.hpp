@@ -527,10 +527,18 @@ private:
         if (stamp == 0)
             stamp = getTime();
 
-        thread_local Eigen::Vector3d vel = Eigen::Vector3d::Zero();
-        thread_local Eigen::Vector3d var = Eigen::Vector3d::Zero();
-        thread_local uint64_t ctr = 0;
-        thread_local Timestamp lastStamp = 0;
+        Eigen::Vector3d& vel = vsmVel_;
+        Eigen::Vector3d& var = vsmVar_;
+        uint64_t& ctr = vsmCtr_;
+        Timestamp& lastStamp = lastVsmStamp_;
+
+        if ((lastStamp == 0) || (stamp < lastStamp))
+        {
+            vel = Eigen::Vector3d::Zero();
+            var = Eigen::Vector3d::Zero();
+            ctr = 0;
+            lastStamp = stamp;
+        }
 
         ++ctr;
         vel[0] += twist.twist.linear.x;
@@ -546,12 +554,13 @@ private:
             vel /= ctr;
             var /= ctr;
             time_t epochSeconds = stamp / 1000000000;
-            struct tm* tm_temp = std::gmtime(&epochSeconds);
+            struct tm tm_temp;
+            gmtime_r(&epochSeconds, &tm_temp);
             std::stringstream timeUtc;
             timeUtc << std::setfill('0') << std::setw(2)
-                    << std::to_string(tm_temp->tm_hour) << std::setw(2)
-                    << std::to_string(tm_temp->tm_min) << std::setw(2)
-                    << std::to_string(tm_temp->tm_sec) << "." << std::setw(3)
+                    << std::to_string(tm_temp.tm_hour) << std::setw(2)
+                    << std::to_string(tm_temp.tm_min) << std::setw(2)
+                    << std::to_string(tm_temp.tm_sec) << "." << std::setw(3)
                     << std::to_string((stamp - (stamp / 1000000000) * 1000000000) /
                                       1000000);
 
@@ -649,6 +658,14 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySubscriber_;
     //! Twist subscriber
     rclcpp::Subscription<TwistWithCovarianceStampedMsg>::SharedPtr twistSubscriber_;
+    //! Accumulated velocities of VSM
+    Eigen::Vector3d vsmVel_ = Eigen::Vector3d::Zero();
+    //! Accumulated variances of VSM
+    Eigen::Vector3d vsmVar_ = Eigen::Vector3d::Zero();
+    //! Number of accumulated VSM measurements
+    uint64_t vsmCtr_ = 0;
+    //! Timestamp of the last sent VSM measurement
+    Timestamp lastVsmStamp_ = 0;
     //! Last tf stamp
     Timestamp lastTfStamp_ = 0;
     //! tf buffer

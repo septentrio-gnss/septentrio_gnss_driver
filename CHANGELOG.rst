@@ -22,7 +22,7 @@ Changelog for package septentrio_gnss_driver
     * Reconnect and IO threading
     * TCP reconnect
     * Device regex
-    * VSM server logic
+    * VSM server logic and string malforming
 * Contributors: Mohamed Magdy, Claude, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.7 (2026-06-13)
