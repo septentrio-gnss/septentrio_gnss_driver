@@ -177,7 +177,7 @@ ins_vsm:
     variances_by_parameter: false
     variances: [0.0, 0.0, 0.0]
   ip_server:
-    id: "IP5"
+    id: "IPS5"
     port: 24786
     keep_open: true
   serial:
