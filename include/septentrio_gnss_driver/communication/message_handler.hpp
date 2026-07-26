@@ -101,7 +101,7 @@ enum TypeOfPVT_Enum
     evSBAS,
     evMovingBaseRTKFixed,
     evMovingBaseRTKFloat,
-    evPPP
+    evPPP = 10
 };
 
 enum SbfId
@@ -320,6 +320,11 @@ namespace io {
 
         //! Last reported PVT processing latency
         mutable uint64_t last_pvt_latency_ = 0;
+
+        //! Tow of the last INSNavGeod block published as pose resp. NavSatFix,
+        //! initialized to the do-not-use value so that the first block is not skipped
+        uint32_t last_pose_ins_tow_ = 4294967295u;
+        uint32_t last_navsatfix_ins_tow_ = 4294967295u;
 
         //! Current leap seconds as received, do not use value is -128
         int32_t current_leap_seconds_ = -128;

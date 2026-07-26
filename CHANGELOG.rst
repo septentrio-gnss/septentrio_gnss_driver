@@ -4,11 +4,14 @@ Changelog for package septentrio_gnss_driver
 
 1.4.8 (upcoming)
 ------------------
+* Improvements
+    * ENU/NED data handling
 * Fixes
     * Memory safety
     * Fix static transform publishers in example launch files
     * Aux1 antenna type in INS multi-antenna mode
     * Fix wrong units and ENU/NED ordering
+    * INS data handling
 * Contributors: Mohamed Magdy, Claude, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.7 (2026-06-13)

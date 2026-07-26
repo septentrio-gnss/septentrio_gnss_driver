@@ -64,15 +64,13 @@ namespace io {
         if (!settings_->publish_pose)
             return;
 
-        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
-
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
         {
             if (!validValue(last_insnavgeod_.block_header.tow) ||
-                (last_insnavgeod_.block_header.tow == last_ins_tow))
+                (last_insnavgeod_.block_header.tow == last_pose_ins_tow_))
                 return;
-            last_ins_tow = last_insnavgeod_.block_header.tow;
+            last_pose_ins_tow_ = last_insnavgeod_.block_header.tow;
 
             msg.header = last_insnavgeod_.header;
 
@@ -726,32 +724,27 @@ namespace io {
             }
 
             if (((last_insnavgeod_.sb_list & 16) != 0) &&
-                ((last_insnavgeod_.sb_list & 2) != 0) &&
                 ((last_insnavgeod_.sb_list & 8) != 0))
             {
                 Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+                const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+                const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
+                // Linear velocity covariance
+                if (validValue(last_insnavgeod_.ve_std_dev))
+                    covVel_local(iE, iE) = square(last_insnavgeod_.ve_std_dev);
+                else
+                    covVel_local(iE, iE) = -1.0;
+                if (validValue(last_insnavgeod_.vn_std_dev))
+                    covVel_local(iN, iN) = square(last_insnavgeod_.vn_std_dev);
+                else
+                    covVel_local(iN, iN) = -1.0;
+                if (validValue(last_insnavgeod_.vu_std_dev))
+                    covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
+                else
+                    covVel_local(2, 2) = -1.0;
+
                 if ((last_insnavgeod_.sb_list & 128) != 0)
                 {
-                    // Linear velocity covariance
-                    if (validValue(last_insnavgeod_.ve_std_dev))
-                        if (settings_->use_ros_axis_orientation)
-                            covVel_local(0, 0) = square(last_insnavgeod_.ve_std_dev);
-                        else
-                            covVel_local(1, 1) = square(last_insnavgeod_.ve_std_dev);
-                    else
-                        covVel_local(0, 0) = -1.0;
-                    if (validValue(last_insnavgeod_.vn_std_dev))
-                        if (settings_->use_ros_axis_orientation)
-                            covVel_local(1, 1) = square(last_insnavgeod_.vn_std_dev);
-                        else
-                            covVel_local(0, 0) = square(last_insnavgeod_.vn_std_dev);
-                    else
-                        covVel_local(1, 1) = -1.0;
-                    if (validValue(last_insnavgeod_.vu_std_dev))
-                        covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
-                    else
-                        covVel_local(2, 2) = -1.0;
-
                     if (validValue(last_insnavgeod_.ve_vn_cov))
                         covVel_local(0, 1) = covVel_local(1, 0) =
                             last_insnavgeod_.ve_vn_cov;
@@ -772,11 +765,6 @@ namespace io {
                             covVel_local(2, 1) = covVel_local(1, 2) =
                                 -last_insnavgeod_.ve_vu_cov;
                     }
-                } else
-                {
-                    covVel_local(0, 0) = -1.0;
-                    covVel_local(1, 1) = -1.0;
-                    covVel_local(2, 2) = -1.0;
                 }
 
                 msg.twist.covariance[0] = covVel_local(0, 0);
@@ -832,28 +820,25 @@ namespace io {
             if (last_velcovgeodetic_.error == 0)
             {
                 Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+                const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+                const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
                 // Linear velocity covariance in navigation frame
                 if (validValue(last_velcovgeodetic_.cov_veve))
-                    if (settings_->use_ros_axis_orientation)
-                        covVel_local(0, 0) = last_velcovgeodetic_.cov_veve;
-                    else
-                        covVel_local(1, 1) = last_velcovgeodetic_.cov_veve;
+                    covVel_local(iE, iE) = last_velcovgeodetic_.cov_veve;
                 else
-                    covVel_local(0, 0) = -1.0;
+                    covVel_local(iE, iE) = -1.0;
                 if (validValue(last_velcovgeodetic_.cov_vnvn))
-                    if (settings_->use_ros_axis_orientation)
-                        covVel_local(1, 1) = last_velcovgeodetic_.cov_vnvn;
-                    else
-                        covVel_local(0, 0) = last_velcovgeodetic_.cov_vnvn;
+                    covVel_local(iN, iN) = last_velcovgeodetic_.cov_vnvn;
                 else
-                    covVel_local(1, 1) = -1.0;
+                    covVel_local(iN, iN) = -1.0;
                 if (validValue(last_velcovgeodetic_.cov_vuvu))
                     covVel_local(2, 2) = last_velcovgeodetic_.cov_vuvu;
                 else
                     covVel_local(2, 2) = -1.0;
 
-                covVel_local(0, 1) = covVel_local(1, 0) =
-                    last_velcovgeodetic_.cov_vnve;
+                if (validValue(last_velcovgeodetic_.cov_vnve))
+                    covVel_local(0, 1) = covVel_local(1, 0) =
+                        last_velcovgeodetic_.cov_vnve;
                 if (settings_->use_ros_axis_orientation)
                 {
                     if (validValue(last_velcovgeodetic_.cov_vevu))
@@ -1145,7 +1130,7 @@ namespace io {
         msg.pose.pose.position.y = last_insnavcart_.y;
         msg.pose.pose.position.z = last_insnavcart_.z;
 
-        if ((last_insnavgeod_.sb_list & 1) != 0)
+        if ((last_insnavcart_.sb_list & 1) != 0)
         {
             // Position autocovariance
             msg.pose.covariance[0] =
@@ -1205,18 +1190,18 @@ namespace io {
         }
         Eigen::Matrix3d covAtt_local = Eigen::Matrix3d::Zero();
         bool covAttValid = true;
-        if ((last_insnavgeod_.sb_list & 4) != 0)
+        if ((last_insnavcart_.sb_list & 4) != 0)
         {
             // Attitude autocovariance
             covAtt_local(0, 0) =
-                convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
+                convertAutoCovariance(square(last_insnavcart_.roll_std_dev));
             covAtt_local(1, 1) =
-                convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
+                convertAutoCovariance(square(last_insnavcart_.pitch_std_dev));
             covAtt_local(2, 2) =
-                convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
-            covAttValid = !std::isnan(last_insnavgeod_.roll_std_dev) &&
-                          !std::isnan(last_insnavgeod_.pitch_std_dev) &&
-                          !std::isnan(last_insnavgeod_.heading_std_dev);
+                convertAutoCovariance(square(last_insnavcart_.heading_std_dev));
+            covAttValid = !std::isnan(last_insnavcart_.roll_std_dev) &&
+                          !std::isnan(last_insnavcart_.pitch_std_dev) &&
+                          !std::isnan(last_insnavcart_.heading_std_dev);
         } else
         {
             covAtt_local(0, 0) = -1.0;
@@ -1313,23 +1298,19 @@ namespace io {
             parsing_utilities::setVector3NaN(msg.twist.twist.linear);
         }
         Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+        const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+        const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
         if ((last_insnavgeod_.sb_list & 16) != 0)
         {
             // Linear velocity autocovariance
             if (validValue(last_insnavgeod_.ve_std_dev))
-                if (settings_->use_ros_axis_orientation)
-                    covVel_local(0, 0) = square(last_insnavgeod_.ve_std_dev);
-                else
-                    covVel_local(0, 0) = square(last_insnavgeod_.vn_std_dev);
+                covVel_local(iE, iE) = square(last_insnavgeod_.ve_std_dev);
             else
-                covVel_local(0, 0) = -1.0;
+                covVel_local(iE, iE) = -1.0;
             if (validValue(last_insnavgeod_.vn_std_dev))
-                if (settings_->use_ros_axis_orientation)
-                    covVel_local(1, 1) = square(last_insnavgeod_.vn_std_dev);
-                else
-                    covVel_local(1, 1) = square(last_insnavgeod_.ve_std_dev);
+                covVel_local(iN, iN) = square(last_insnavgeod_.vn_std_dev);
             else
-                covVel_local(1, 1) = -1.0;
+                covVel_local(iN, iN) = -1.0;
             if (validValue(last_insnavgeod_.vu_std_dev))
                 covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
             else
@@ -1343,17 +1324,24 @@ namespace io {
 
         if ((last_insnavgeod_.sb_list & 128) != 0)
         {
-            covVel_local(0, 1) = covVel_local(1, 0) = last_insnavgeod_.ve_vn_cov;
+            if (validValue(last_insnavgeod_.ve_vn_cov))
+                covVel_local(0, 1) = covVel_local(1, 0) = last_insnavgeod_.ve_vn_cov;
             if (settings_->use_ros_axis_orientation)
             {
-                covVel_local(0, 2) = covVel_local(2, 0) = last_insnavgeod_.ve_vu_cov;
-                covVel_local(2, 1) = covVel_local(1, 2) = last_insnavgeod_.vn_vu_cov;
+                if (validValue(last_insnavgeod_.ve_vu_cov))
+                    covVel_local(0, 2) = covVel_local(2, 0) =
+                        last_insnavgeod_.ve_vu_cov;
+                if (validValue(last_insnavgeod_.vn_vu_cov))
+                    covVel_local(2, 1) = covVel_local(1, 2) =
+                        last_insnavgeod_.vn_vu_cov;
             } else
             {
-                covVel_local(0, 2) = covVel_local(2, 0) =
-                    -last_insnavgeod_.vn_vu_cov;
-                covVel_local(2, 1) = covVel_local(1, 2) =
-                    -last_insnavgeod_.ve_vu_cov;
+                if (validValue(last_insnavgeod_.vn_vu_cov))
+                    covVel_local(0, 2) = covVel_local(2, 0) =
+                        -last_insnavgeod_.vn_vu_cov;
+                if (validValue(last_insnavgeod_.ve_vu_cov))
+                    covVel_local(2, 1) = covVel_local(1, 2) =
+                        -last_insnavgeod_.ve_vu_cov;
             }
         }
 
@@ -1466,8 +1454,6 @@ namespace io {
         if (!settings_->publish_navsatfix)
             return;
 
-        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
-
         NavSatFixMsg msg;
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -1529,40 +1515,44 @@ namespace io {
         } else if (settings_->septentrio_receiver_type == "ins")
         {
             if ((!validValue(last_insnavgeod_.block_header.tow)) ||
-                (last_insnavgeod_.block_header.tow == last_ins_tow))
+                (last_insnavgeod_.block_header.tow == last_navsatfix_ins_tow_))
             {
                 return;
             }
-            last_ins_tow = last_insnavgeod_.block_header.tow;
+            last_navsatfix_ins_tow_ = last_insnavgeod_.block_header.tow;
 
             msg.header = last_insnavgeod_.header;
 
             setStatus(last_insnavgeod_.gnss_mode, msg);
 
-            bool gps_in_pvt = false;
-            bool glo_in_pvt = false;
-            bool com_in_pvt = false;
-            bool gal_in_pvt = false;
-            uint32_t mask_2 = 1;
-            for (int bit = 0; bit != 31; ++bit)
+            if (validValue(last_pvtgeodetic_.block_header.tow))
             {
-                bool in_use = last_pvtgeodetic_.signal_info & mask_2;
-                if (bit <= 5 && in_use)
+                bool gps_in_pvt = false;
+                bool glo_in_pvt = false;
+                bool com_in_pvt = false;
+                bool gal_in_pvt = false;
+                uint32_t mask_2 = 1;
+                for (int bit = 0; bit != 31; ++bit)
                 {
-                    gps_in_pvt = true;
+                    bool in_use = last_pvtgeodetic_.signal_info & mask_2;
+                    if (bit <= 5 && in_use)
+                    {
+                        gps_in_pvt = true;
+                    }
+                    if (8 <= bit && bit <= 12 && in_use)
+                        glo_in_pvt = true;
+                    if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) &&
+                        in_use)
+                        com_in_pvt = true;
+                    if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
+                        gal_in_pvt = true;
+                    mask_2 *= 2;
                 }
-                if (8 <= bit && bit <= 12 && in_use)
-                    glo_in_pvt = true;
-                if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) && in_use)
-                    com_in_pvt = true;
-                if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
-                    gal_in_pvt = true;
-                mask_2 *= 2;
+                // Below, booleans will be promoted to integers automatically.
+                uint16_t service =
+                    gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
+                msg.status.service = service;
             }
-            // Below, booleans will be promoted to integers automatically.
-            uint16_t service =
-                gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
-            msg.status.service = service;
             msg.latitude = rad2deg(last_insnavgeod_.latitude);
             msg.longitude = rad2deg(last_insnavgeod_.longitude);
             msg.altitude = last_insnavgeod_.height;
@@ -1591,8 +1581,14 @@ namespace io {
                 msg.position_covariance[7] =
                     convertCovarianceNaN(last_insnavgeod_.latitude_height_cov);
             }
-            msg.position_covariance_type =
-                NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+            if ((last_insnavgeod_.sb_list & 1) == 0)
+                msg.position_covariance_type =
+                    NavSatFixMsg::COVARIANCE_TYPE_UNKNOWN;
+            else if ((last_insnavgeod_.sb_list & 32) != 0)
+                msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
+            else
+                msg.position_covariance_type =
+                    NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
         publish<NavSatFixMsg>("navsatfix", msg);
     };
@@ -1661,7 +1657,7 @@ namespace io {
             uint16_t reference_id = last_pvtgeodetic_.reference_id;
             // Here come the PRNs of the 4 WAAS satellites..
             if (reference_id == 131 || reference_id == 133 || reference_id == 135 ||
-                reference_id == 135)
+                reference_id == 138)
             {
                 msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
             } else
@@ -1733,7 +1729,10 @@ namespace io {
         }
 
         GpsFixMsg msg;
-        msg.status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
+        if (validValue(last_pvtgeodetic_.block_header.tow) &&
+            (last_pvtgeodetic_.nr_sv != 255))
+            msg.status.satellites_used =
+                static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
 
         // MeasEpoch Processing
         std::vector<int32_t> cno_tracked;
@@ -1915,7 +1914,7 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_pvtgeodetic_.block_header.tow) / 1000 +
-                static_cast<double>(last_pvtgeodetic_.block_header.wnc * 604800);
+                static_cast<double>(last_pvtgeodetic_.block_header.wnc) * 604800.0;
             // position
             msg.err =
                 2 *
@@ -2046,7 +2045,7 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_insnavgeod_.block_header.tow) / 1000 +
-                static_cast<double>(last_insnavgeod_.block_header.wnc * 604800);
+                static_cast<double>(last_insnavgeod_.block_header.wnc) * 604800.0;
             if ((last_insnavgeod_.sb_list & 1) != 0)
             {
                 msg.err = 2 * (std::sqrt(square(last_insnavgeod_.latitude_std_dev) +
@@ -2074,13 +2073,13 @@ namespace io {
                 else
                     msg.err_track = -1.0;
             }
-            if ((last_insnavgeod_.sb_list & 8) != 0)
+            if ((last_insnavgeod_.sb_list & 16) != 0)
             {
                 msg.err_speed = 2 * (std::sqrt(square(last_insnavgeod_.ve_std_dev) +
                                                square(last_insnavgeod_.vn_std_dev)));
                 msg.err_climb = 2 * last_insnavgeod_.vu_std_dev;
             }
-            if ((last_insnavgeod_.sb_list & 2) != 0)
+            if ((last_insnavgeod_.sb_list & 4) != 0)
             {
                 msg.err_pitch = 2 * last_insnavgeod_.pitch_std_dev;
                 msg.err_roll = 2 * last_insnavgeod_.roll_std_dev;
@@ -2142,12 +2141,18 @@ namespace io {
             if constexpr (std::is_same<INSNavCartMsg, T>::value ||
                           std::is_same<INSNavGeodMsg, T>::value)
             {
-                time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
+                if (validValue(msg.latency))
+                    time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
             } else if constexpr (std::is_same<PVTCartesianMsg, T>::value ||
                                  std::is_same<PVTGeodeticMsg, T>::value)
             {
-                last_pvt_latency_ = msg.latency * 100000ul; // from 0.0001 s to ns
-                time_obj -= last_pvt_latency_;
+                if (validValue(msg.latency))
+                {
+                    last_pvt_latency_ =
+                        msg.latency * 100000ul; // from 0.0001 s to ns
+                    time_obj -= last_pvt_latency_;
+                } else
+                    last_pvt_latency_ = 0;
             } else if constexpr (std::is_same<PosCovCartesianMsg, T>::value ||
                                  std::is_same<PosCovGeodeticMsg, T>::value ||
                                  std::is_same<VelCovCartesianMsg, T>::value ||
@@ -2529,7 +2534,7 @@ namespace io {
         }
         case VEL_SENSOR_SETUP: // Velocity sensor lever arm
         {
-            if (settings_->publish_velcovgeodetic)
+            if (settings_->publish_velsensorsetup)
             {
                 VelSensorSetupMsg msg;
 
@@ -2941,20 +2946,21 @@ namespace io {
                 }
                 if (settings_->use_gnss_time)
                 {
+                    uint32_t tow = 4294967295u;
+                    uint16_t wnc = 65535;
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                         last_pvtgeodetic_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
-                    }
-                    if (settings_->septentrio_receiver_type == "ins")
+                        tow = last_pvtgeodetic_.block_header.tow;
+                        wnc = last_pvtgeodetic_.block_header.wnc;
+                    } else if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_insnavgeod_.block_header.tow,
-                                         last_insnavgeod_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
+                        tow = last_insnavgeod_.block_header.tow;
+                        wnc = last_insnavgeod_.block_header.wnc;
                     }
+                    if (validValue(tow) && validValue(wnc) && (wnc != 0))
+                        msg.header.stamp = timestampToRos(timestampSBF(tow, wnc));
+                    else
+                        msg.header.stamp = timestampToRos(telegram->stamp);
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
                 publish<GpgsaMsg>("gpgsa", msg);
@@ -2980,21 +2986,21 @@ namespace io {
                 }
                 if (settings_->use_gnss_time)
                 {
-
+                    uint32_t tow = 4294967295u;
+                    uint16_t wnc = 65535;
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                         last_pvtgeodetic_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
-                    }
-                    if (settings_->septentrio_receiver_type == "ins")
+                        tow = last_pvtgeodetic_.block_header.tow;
+                        wnc = last_pvtgeodetic_.block_header.wnc;
+                    } else if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_insnavgeod_.block_header.tow,
-                                         last_insnavgeod_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
+                        tow = last_insnavgeod_.block_header.tow;
+                        wnc = last_insnavgeod_.block_header.wnc;
                     }
+                    if (validValue(tow) && validValue(wnc) && (wnc != 0))
+                        msg.header.stamp = timestampToRos(timestampSBF(tow, wnc));
+                    else
+                        msg.header.stamp = timestampToRos(telegram->stamp);
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
                 publish<GpgsvMsg>("gpgsv", msg);
