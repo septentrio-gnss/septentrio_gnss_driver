@@ -278,9 +278,9 @@ namespace io {
                 {
                     node_->log(log_level::ERROR,
                                "AsyncManager connection lost. Trying to reconnect.");
-                    // A previous reconnect attempt may have failed without starting a
-                    // new io thread, in which case the thread is no longer joinable
-                    // and join() would throw.
+                    // A previous reconnect attempt may have failed without starting
+                    // a new io thread, in which case the thread is no longer
+                    // joinable and join() would throw.
                     if (ioThread_.joinable())
                         ioThread_.join();
                     connected_ = ioInterface_.connect();
@@ -289,9 +289,9 @@ namespace io {
                 }
             } else if (running_ && std::is_same<TcpIo, IoType>::value)
             {
-                // Send to check if TCP connection still alive. keepAlive_ is a member
-                // so the buffer outlives this iteration; a local would be destroyed
-                // while async_write is still pending.
+                // Send to check if TCP connection still alive. keepAlive_ is a
+                // member so the buffer outlives this iteration; a local would be
+                // destroyed while async_write is still pending.
                 boost::asio::async_write(
                     *(ioInterface_.stream_),
                     boost::asio::buffer(keepAlive_.data(), keepAlive_.size()),
@@ -306,9 +306,9 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::write(const std::string& cmd)
     {
-        // cmd is owned by the handler send() posted and dies as soon as this function
-        // returns, so the buffer has to reference storage the completion handler
-        // keeps alive instead.
+        // cmd is owned by the handler send() posted and dies as soon as this
+        // function returns, so the buffer has to reference storage the completion
+        // handler keeps alive instead.
         auto buf = std::make_shared<const std::string>(cmd);
 
         boost::asio::async_write(
@@ -417,7 +417,7 @@ namespace io {
                                     (currByte == RESPONSE_SYNC_BYTE_3) ||
                                     (currByte == RESPONSE_SYNC_BYTE_3a))
                                     readString();
-                                else if (ERROR_SYNC_BYTE_3)
+                                else if (currByte == ERROR_SYNC_BYTE_3)
                                 {
                                     telegram_->type = telegram_type::ERROR_RESPONSE;
                                     readString();
@@ -480,12 +480,12 @@ namespace io {
                     {
                         uint16_t length =
                             parsing_utilities::getLength(telegram_->message);
-                        // Per the SBF spec the length field covers the header too and
-                        // is a multiple of 4. Rejecting anything shorter matters:
-                        // readSbf() computes length - SBF_HEADER_SIZE in size_t, so a
-                        // corrupted length below 8 underflows into a ~2^64-byte read
-                        // into an 8-byte buffer. An upper bound is implicit, since a
-                        // uint16_t cannot exceed MAX_SBF_SIZE.
+                        // Per the SBF spec the length field covers the header too
+                        // and is a multiple of 4. Rejecting anything shorter
+                        // matters: readSbf() computes length - SBF_HEADER_SIZE in
+                        // size_t, so a corrupted length below 8 underflows into a
+                        // ~2^64-byte read into an 8-byte buffer. An upper bound is
+                        // implicit, since a uint16_t cannot exceed MAX_SBF_SIZE.
                         if (length < SBF_HEADER_SIZE || (length % 4) != 0)
                         {
                             node_->log(
