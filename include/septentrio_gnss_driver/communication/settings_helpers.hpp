@@ -204,12 +204,11 @@ namespace settings {
             settings.publish_localization = true;
             settings.publish_localization_ecef = true;
             settings.publish_twist = true;
-            if (!settings.publish_tf_ecef)
-                settings.publish_tf = true;
         } else if (settings.auto_publish && settings.configure_rx)
         {
-            node->log(log_level::WARN,
-                      "auto_publish has no effect if configure_rx is true.");
+            node->log(
+                log_level::WARN,
+                "auto_publish has no effect if configure_rx is true. The individual publish parameters are ignored nonetheless, thus no topics will be published.");
         }
     }
 

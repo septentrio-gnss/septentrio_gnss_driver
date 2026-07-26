@@ -253,84 +253,84 @@ struct Settings
     //! Wether to publish automatically for cinfigure_rx = false
     bool auto_publish;
     //! Wether to publish only valid messages
-    bool publish_only_valid;
+    bool publish_only_valid = false;
     //! Whether or not to publish the GGA message
-    bool publish_gpgga;
+    bool publish_gpgga = false;
     //! Whether or not to publish the RMC message
-    bool publish_gprmc;
+    bool publish_gprmc = false;
     //! Whether or not to publish the GSA message
-    bool publish_gpgsa;
+    bool publish_gpgsa = false;
     //! Whether or not to publish the GSV message
-    bool publish_gpgsv;
+    bool publish_gpgsv = false;
     //! Whether or not to publish the MeasEpoch message
-    bool publish_measepoch;
+    bool publish_measepoch = false;
     //! Whether or not to publish the RFStatus and AIMPlusStatus message and
     //! diagnostics
-    bool publish_aimplusstatus;
+    bool publish_aimplusstatus = false;
     //! Whether or not to publish the GALAuthStatus message and diagnostics
-    bool publish_galauthstatus;
+    bool publish_galauthstatus = false;
     //! Whether or not to publish the PVTCartesianMsg
     //! message
-    bool publish_pvtcartesian;
+    bool publish_pvtcartesian = false;
     //! Whether or not to publish the PVTGeodeticMsg message
-    bool publish_pvtgeodetic;
+    bool publish_pvtgeodetic = false;
     //! Whether or not to publish the BaseVectorCartMsg
     //! message
-    bool publish_basevectorcart;
+    bool publish_basevectorcart = false;
     //! Whether or not to publish the BaseVectorGeodMsg message
-    bool publish_basevectorgeod;
+    bool publish_basevectorgeod = false;
     //! Whether or not to publish the PosCovCartesianMsg
     //! message
-    bool publish_poscovcartesian;
+    bool publish_poscovcartesian = false;
     //! Whether or not to publish the PosCovGeodeticMsg
     //! message
-    bool publish_poscovgeodetic;
+    bool publish_poscovgeodetic = false;
     //! Whether or not to publish the VelCovCartesianMsg
     //! message
-    bool publish_velcovcartesian;
+    bool publish_velcovcartesian = false;
     //! Whether or not to publish the VelCovGeodeticMsg
     //! message
-    bool publish_velcovgeodetic;
+    bool publish_velcovgeodetic = false;
     //! Whether or not to publish the AttEulerMsg message
-    bool publish_atteuler;
+    bool publish_atteuler = false;
     //! Whether or not to publish the AttCovEulerMsg message
-    bool publish_attcoveuler;
+    bool publish_attcoveuler = false;
     //! Whether or not to publish the INSNavCartMsg message
-    bool publish_insnavcart;
+    bool publish_insnavcart = false;
     //! Whether or not to publish the INSNavGeodMsg message
-    bool publish_insnavgeod;
+    bool publish_insnavgeod = false;
     //! Whether or not to publish the IMUSetupMsg message
-    bool publish_imusetup;
+    bool publish_imusetup = false;
     //! Whether or not to publish the VelSensorSetupMsg message
-    bool publish_velsensorsetup;
+    bool publish_velsensorsetup = false;
     //! Whether or not to publish the ExtEventINSNavGeodMsg message
-    bool publish_exteventinsnavgeod;
+    bool publish_exteventinsnavgeod = false;
     //! Whether or not to publish the ExtEventINSNavCartMsg message
-    bool publish_exteventinsnavcart;
+    bool publish_exteventinsnavcart = false;
     //! Whether or not to publish the ExtSensorMeasMsg message
-    bool publish_extsensormeas;
+    bool publish_extsensormeas = false;
     //! Whether or not to publish the TimeReferenceMsg message with GPST
-    bool publish_gpst;
+    bool publish_gpst = false;
     //! Whether or not to publish the NavSatFixMsg message
-    bool publish_navsatfix;
+    bool publish_navsatfix = false;
     //! Whether or not to publish the GpsFixMsg message
-    bool publish_gpsfix;
+    bool publish_gpsfix = false;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
-    bool publish_pose;
+    bool publish_pose = false;
     //! Whether or not to publish the DiagnosticArrayMsg message
-    bool publish_diagnostics;
+    bool publish_diagnostics = false;
     //! Whether or not to publish the ImuMsg message
-    bool publish_imu;
+    bool publish_imu = false;
     //! Whether or not to publish the LocalizationMsg message
-    bool publish_localization;
+    bool publish_localization = false;
     //! Whether or not to publish the LocalizationMsg message
-    bool publish_localization_ecef;
+    bool publish_localization_ecef = false;
     //! Whether or not to publish the TwistWithCovarianceStampedMsg message
-    bool publish_twist;
+    bool publish_twist = false;
     //! Whether or not to publish the tf of the localization
-    bool publish_tf;
+    bool publish_tf = false;
     //! Whether or not to publish the tf of the localization
-    bool publish_tf_ecef;
+    bool publish_tf_ecef = false;
     //! Wether local frame should be inserted into tf
     bool insert_local_frame = false;
     //! Frame id of the local frame to be inserted

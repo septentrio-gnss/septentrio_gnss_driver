@@ -674,7 +674,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
-    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
+    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. In this case, the individual `publish.*` parameters below are ignored. Only applicable if `configure_rx` is `false`. The parameters `publish.tf` and `publish.tf_ecef` are not affected: a tf is only published if the respective parameter is explicitly set to `true`.
     + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
