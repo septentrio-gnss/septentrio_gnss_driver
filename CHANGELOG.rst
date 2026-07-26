@@ -10,6 +10,7 @@ Changelog for package septentrio_gnss_driver
     * RTK setup logic
     * Auto publish logic
     * Update README
+    * New firmware VSM handling
 * Fixes
     * Memory safety
     * Static transform publishers in example launch files

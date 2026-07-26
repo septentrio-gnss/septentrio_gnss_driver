@@ -508,64 +508,57 @@ private:
             std::string std_x;
             std::string std_y;
             std::string std_z;
-            if (settings_.ins_vsm.ros_config[0])
-            {
-                v_x = string_utilities::trimDecimalPlaces(vel[0]);
-                if (settings_.ins_vsm.ros_variances_by_parameter)
-                    std_x = string_utilities::trimDecimalPlaces(
-                        std::sqrt(settings_.ins_vsm.ros_variances[0]));
-                else if (var[0] > 0.0)
-                    std_x = string_utilities::trimDecimalPlaces(std::sqrt(var[0]));
-                else if (!capabilities_.has_improved_vsm_handling)
+            auto assembleVsmAxis = [this](bool active, bool flipSign,
+                                          double velocity, double variance,
+                                          const std::string& axis, std::string& v,
+                                          std::string& stdDev) {
+                if (active)
                 {
-                    log(log_level::ERROR, "Invalid covariance value for v_x: " +
-                                              std::to_string(var[0]) +
-                                              ". Ignoring measurement.");
-                    v_x = "";
-                    std_x = string_utilities::trimDecimalPlaces(1000000.0);
-                }
-            } else
-                std_x = string_utilities::trimDecimalPlaces(1000000.0);
-            if (settings_.ins_vsm.ros_config[1])
-            {
-                if (settings_.use_ros_axis_orientation)
-                    v_y = "-";
-                v_y += string_utilities::trimDecimalPlaces(vel[1]);
-                if (settings_.ins_vsm.ros_variances_by_parameter)
-                    std_y = string_utilities::trimDecimalPlaces(
-                        std::sqrt(settings_.ins_vsm.ros_variances[1]));
-                else if (var[1] > 0.0)
-                    std_y = string_utilities::trimDecimalPlaces(std::sqrt(var[1]));
-                else if (!capabilities_.has_improved_vsm_handling)
-                {
-                    log(log_level::ERROR, "Invalid covariance value for v_y: " +
-                                              std::to_string(var[1]) +
-                                              ". Ignoring measurement.");
-                    v_y = "";
-                    std_y = string_utilities::trimDecimalPlaces(1000000.0);
-                }
-            } else
-                std_y = string_utilities::trimDecimalPlaces(1000000.0);
-            if (settings_.ins_vsm.ros_config[2])
-            {
-                if (settings_.use_ros_axis_orientation)
-                    v_z = "-";
-                v_z += string_utilities::trimDecimalPlaces(vel[2]);
-                if (settings_.ins_vsm.ros_variances_by_parameter)
-                    std_z = string_utilities::trimDecimalPlaces(
-                        std::sqrt(settings_.ins_vsm.ros_variances[2]));
-                else if (var[2] > 0.0)
-                    std_z = string_utilities::trimDecimalPlaces(std::sqrt(var[2]));
-                else if (!capabilities_.has_improved_vsm_handling)
-                {
-                    log(log_level::ERROR, "Invalid covariance value for v_z: " +
-                                              std::to_string(var[2]) +
-                                              ". Ignoring measurement.");
-                    v_z = "";
-                    std_z = string_utilities::trimDecimalPlaces(1000000.0);
-                }
-            } else
-                std_z = string_utilities::trimDecimalPlaces(1000000.0);
+                    if (flipSign)
+                        velocity = -velocity;
+                    v = string_utilities::trimDecimalPlaces(velocity);
+                    if (variance > 0.0)
+                    {
+                        double sd = std::sqrt(variance);
+                        if (sd < 0.25)
+                        {
+                            log(log_level::WARN,
+                                "Provided VSM standard deviation of " + axis +
+                                    " of " + std::to_string(sd) +
+                                    " m/s is smaller than the minimum of 0.25 m/s demanded by the Rx, it is clamped to 0.25 m/s.",
+                                true);
+                            sd = 0.25;
+                        }
+                        stdDev = string_utilities::trimDecimalPlaces(sd);
+                    } else if (!capabilities_.has_improved_vsm_handling)
+                    {
+                        log(log_level::ERROR, "Invalid covariance value for " +
+                                                  axis + ": " +
+                                                  std::to_string(variance) +
+                                                  ". Ignoring measurement.");
+                        v = "";
+                        stdDev = string_utilities::trimDecimalPlaces(1000000.0);
+                    }
+                } else if (!capabilities_.has_improved_vsm_handling)
+                    stdDev = string_utilities::trimDecimalPlaces(1000000.0);
+            };
+            assembleVsmAxis(settings_.ins_vsm.ros_config[0], false, vel[0],
+                            settings_.ins_vsm.ros_variances_by_parameter
+                                ? settings_.ins_vsm.ros_variances[0]
+                                : var[0],
+                            "v_x", v_x, std_x);
+            assembleVsmAxis(settings_.ins_vsm.ros_config[1],
+                            settings_.use_ros_axis_orientation, vel[1],
+                            settings_.ins_vsm.ros_variances_by_parameter
+                                ? settings_.ins_vsm.ros_variances[1]
+                                : var[1],
+                            "v_y", v_y, std_y);
+            assembleVsmAxis(settings_.ins_vsm.ros_config[2],
+                            settings_.use_ros_axis_orientation, vel[2],
+                            settings_.ins_vsm.ros_variances_by_parameter
+                                ? settings_.ins_vsm.ros_variances[2]
+                                : var[2],
+                            "v_z", v_z, std_z);
 
             std::string velNmea = "$PSSN,VSM," + timeUtc.str() + "," + v_x + "," +
                                   v_y + "," + std_x + "," + std_y + "," + v_z + "," +

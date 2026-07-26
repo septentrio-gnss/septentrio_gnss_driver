@@ -651,7 +651,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
           + default: []
         + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm.ros.variances` or the values from inside the ROS messages are used. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
           + default: false
-        + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
+        + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. If a value is not > 0.0, the velocity of the respective axis is sent without standard deviation. Standard deviations (square roots of the variances) must not be smaller than 0.25 m/s as demanded by the Rx, smaller values are clamped to 0.25 m/s with a warning. On firmware without improved VSM handling, measurements of axes without valid variance are ignored.
           + default: []
       + `ip_server`:
         + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` may be set to the same. 

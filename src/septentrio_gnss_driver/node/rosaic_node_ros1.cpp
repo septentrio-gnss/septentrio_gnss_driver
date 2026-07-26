@@ -689,11 +689,10 @@ namespace rosaic_node {
                                     (settings_.ins_vsm.ros_variances[i] <= 0.0))
                                 {
                                     this->log(
-                                        log_level::ERROR,
+                                        log_level::WARN,
                                         "ins_vsm/ros/config of element " +
                                             std::to_string(i) +
-                                            " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
-                                    settings_.ins_vsm.ros_config[i] = false;
+                                            " has been set to be used but its variance is not > 0.0 -> the velocity of this axis will be sent without standard deviation!");
                                 }
                             }
                         }
