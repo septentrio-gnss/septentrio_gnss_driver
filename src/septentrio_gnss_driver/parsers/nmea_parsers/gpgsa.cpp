@@ -81,13 +81,12 @@ GpgsaMsg GpgsaParser::parseASCII(const NMEASentence& sentence,
     // argument) is larger than sv_ids.
     msg.sv_ids.resize(12, 0);
     size_t n_svs = 0;
-    for (std::vector<std::string>::const_iterator id =
-             sentence.get_body().begin() + 3;
-         id < sentence.get_body().begin() + 15; ++id)
+    for (size_t i = 3; i < 15; ++i)
     {
-        if (!id->empty())
+        const std::string& id = sentence.get_body()[i];
+        if (!id.empty())
         {
-            if (!parsing_utilities::parseUInt8(*id, msg.sv_ids[n_svs]))
+            if (!parsing_utilities::parseUInt8(id, msg.sv_ids[n_svs]))
             {
                 std::stringstream error;
                 error << "GPGSA sv_ids parsing error.";

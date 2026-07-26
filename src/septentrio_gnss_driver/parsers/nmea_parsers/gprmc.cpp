@@ -137,11 +137,21 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
     valid =
         valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.track);
 
-    std::string date_str = sentence.get_body()[9];
+    const std::string& date_str = sentence.get_body()[9];
     if (!date_str.empty())
     {
-        msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
-                   date_str.substr(2, 2) + std::string("-") + date_str.substr(0, 2);
+        // The date field is DDMMYY, i.e. exactly 6 characters. Anything else is
+        // malformed and must not reach substr(), which would throw std::out_of_range
+        // instead of the ParseException that callers handle.
+        if (date_str.size() == 6)
+        {
+            msg.date = std::string("20") + date_str.substr(4, 2) +
+                       std::string("-") + date_str.substr(2, 2) + std::string("-") +
+                       date_str.substr(0, 2);
+        } else
+        {
+            valid = false;
+        }
     }
     valid =
         valid && parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);

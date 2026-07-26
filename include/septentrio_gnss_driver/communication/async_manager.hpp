@@ -155,6 +155,9 @@ namespace io {
         bool connected_ = false;
 
         std::array<uint8_t, 1> buf_;
+        //! Keep-alive payload for the TCP watchdog, kept as a member so it outlives
+        //! the pending async_write
+        const std::string keepAlive_ = " ";
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
         //! Telegram
@@ -275,17 +278,23 @@ namespace io {
                 {
                     node_->log(log_level::ERROR,
                                "AsyncManager connection lost. Trying to reconnect.");
-                    ioThread_.join();
+                    // A previous reconnect attempt may have failed without starting a
+                    // new io thread, in which case the thread is no longer joinable
+                    // and join() would throw.
+                    if (ioThread_.joinable())
+                        ioThread_.join();
                     connected_ = ioInterface_.connect();
                     if (connected_)
                         receive();
                 }
             } else if (running_ && std::is_same<TcpIo, IoType>::value)
             {
-                // Send to check if TCP connection still alive
-                std::string empty = " ";
+                // Send to check if TCP connection still alive. keepAlive_ is a member
+                // so the buffer outlives this iteration; a local would be destroyed
+                // while async_write is still pending.
                 boost::asio::async_write(
-                    *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
+                    *(ioInterface_.stream_),
+                    boost::asio::buffer(keepAlive_.data(), keepAlive_.size()),
                     [this](boost::system::error_code ec, std::size_t /*length*/) {
                         if (ec)
                             ioContext_->stop();
@@ -297,21 +306,26 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::write(const std::string& cmd)
     {
+        // cmd is owned by the handler send() posted and dies as soon as this function
+        // returns, so the buffer has to reference storage the completion handler
+        // keeps alive instead.
+        auto buf = std::make_shared<const std::string>(cmd);
+
         boost::asio::async_write(
-            *(ioInterface_.stream_), boost::asio::buffer(cmd.data(), cmd.size()),
-            [this, cmd](boost::system::error_code ec, std::size_t /*length*/) {
+            *(ioInterface_.stream_), boost::asio::buffer(buf->data(), buf->size()),
+            [this, buf](boost::system::error_code ec, std::size_t /*length*/) {
                 if (!ec)
                 {
                     // Prints the data that was sent
                     node_->log(log_level::DEBUG, "AsyncManager sent the following " +
-                                                     std::to_string(cmd.size()) +
-                                                     " bytes to the Rx: " + cmd);
+                                                     std::to_string(buf->size()) +
+                                                     " bytes to the Rx: " + *buf);
                 } else
                 {
                     node_->log(log_level::ERROR,
                                "AsyncManager was unable to send the following " +
-                                   std::to_string(cmd.size()) +
-                                   " bytes to the Rx: " + cmd);
+                                   std::to_string(buf->size()) +
+                                   " bytes to the Rx: " + *buf);
                 }
             });
     }
@@ -466,13 +480,19 @@ namespace io {
                     {
                         uint16_t length =
                             parsing_utilities::getLength(telegram_->message);
-                        if (length > MAX_SBF_SIZE)
+                        // Per the SBF spec the length field covers the header too and
+                        // is a multiple of 4. Rejecting anything shorter matters:
+                        // readSbf() computes length - SBF_HEADER_SIZE in size_t, so a
+                        // corrupted length below 8 underflows into a ~2^64-byte read
+                        // into an 8-byte buffer. An upper bound is implicit, since a
+                        // uint16_t cannot exceed MAX_SBF_SIZE.
+                        if (length < SBF_HEADER_SIZE || (length % 4) != 0)
                         {
                             node_->log(
                                 log_level::DEBUG,
-                                "AsyncManager SBF header read fault, length of block exceeds " +
-                                    std::to_string(MAX_SBF_SIZE) + ": " +
+                                "AsyncManager SBF header read fault, invalid block length: " +
                                     std::to_string(length));
+                            resync();
                         } else
                             readSbf(length);
                     } else

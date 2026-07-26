@@ -59,7 +59,7 @@ public:
         id_(id), body_(body)
     {
     }
-    std::vector<std::string> get_body() const { return body_; }
+    const std::vector<std::string>& get_body() const { return body_; }
 
 protected:
     std::string id_;

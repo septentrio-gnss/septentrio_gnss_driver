@@ -118,68 +118,91 @@ namespace io {
 
             if (!error && (bytes_recvd > 0))
             {
-                while ((bytes_recvd - idx) > 2)
+                // idx and bytes_recvd are size_t, so all comparisons are written
+                // additively: (bytes_recvd - idx) would underflow into a huge value if
+                // idx ever ran past bytes_recvd. Every path through the loop must also
+                // either advance idx or break, otherwise the io thread spins forever.
+                while (idx + 2 < bytes_recvd)
                 {
-                    auto telegram = std::make_shared<Telegram>();
-                    telegram->stamp = stamp;
-                    /*node_->log(log_level::DEBUG,
-                               "Buffer: " + std::string(telegram->message.begin(),
-                                                        telegram->message.end()));*/
-                    if (buffer_[idx] == SYNC_BYTE_1)
-                    {
-                        if (buffer_[idx + 1] == SBF_SYNC_BYTE_2)
-                        {
-                            if ((bytes_recvd - idx) > SBF_HEADER_SIZE)
-                            {
-                                uint16_t length = parsing_utilities::parseUInt16(
-                                    &buffer_[idx + 6]);
-                                telegram->message.assign(&buffer_[idx],
-                                                         &buffer_[idx + length]);
-                                if (crc::isValid(telegram->message))
-                                {
-                                    telegram->type = telegram_type::SBF;
-                                    telegramQueue_->push(telegram);
-                                } else
-                                    node_->log(
-                                        log_level::DEBUG,
-                                        "AsyncManager crc failed for SBF  " +
-                                            std::to_string(parsing_utilities::getId(
-                                                telegram->message)) +
-                                            ".");
-
-                                idx += length;
-                            }
-
-                        } else if ((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
-                                   (buffer_[idx + 2] == NMEA_SYNC_BYTE_3))
-                        {
-                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
-                            telegram->message.assign(&buffer_[idx],
-                                                     &buffer_[idx_end + 1]);
-                            telegram->type = telegram_type::NMEA;
-                            telegramQueue_->push(telegram);
-                            idx = idx_end + 1;
-
-                        } else if ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
-                                   (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3))
-                        {
-                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
-                            telegram->message.assign(&buffer_[idx],
-                                                     &buffer_[idx_end + 1]);
-                            telegram->type = telegram_type::NMEA_INS;
-                            telegramQueue_->push(telegram);
-                            idx = idx_end + 1;
-                        } else
-                        {
-                            node_->log(log_level::DEBUG,
-                                       "head: " +
-                                           std::string(std::string(
-                                               telegram->message.begin(),
-                                               telegram->message.begin() + 2)));
-                        }
-                    } else
+                    if (buffer_[idx] != SYNC_BYTE_1)
                     {
                         node_->log(log_level::DEBUG, "UDP msg resync.");
+                        ++idx;
+                        continue;
+                    }
+
+                    if (buffer_[idx + 1] == SBF_SYNC_BYTE_2)
+                    {
+                        if (idx + SBF_HEADER_SIZE > bytes_recvd)
+                        {
+                            // Header truncated at the end of the datagram, so no
+                            // further telegram can be framed out of this packet.
+                            break;
+                        }
+
+                        uint16_t length =
+                            parsing_utilities::parseUInt16(&buffer_[idx + 6]);
+
+                        // The length field is attacker/noise controlled. Reject
+                        // anything that is not a well-formed SBF length or that would
+                        // read past what was actually received, and rescan from the
+                        // next byte instead of trusting it.
+                        if (length < SBF_HEADER_SIZE || (length % 4) != 0 ||
+                            idx + length > bytes_recvd)
+                        {
+                            node_->log(log_level::DEBUG,
+                                       "UDP client invalid SBF block length: " +
+                                           std::to_string(length));
+                            ++idx;
+                            continue;
+                        }
+
+                        auto telegram = std::make_shared<Telegram>();
+                        telegram->stamp = stamp;
+                        telegram->message.assign(&buffer_[idx],
+                                                 &buffer_[idx] + length);
+                        if (crc::isValid(telegram->message))
+                        {
+                            telegram->type = telegram_type::SBF;
+                            telegramQueue_->push(telegram);
+                        } else
+                            node_->log(log_level::DEBUG,
+                                       "UDP client crc failed for SBF  " +
+                                           std::to_string(parsing_utilities::getId(
+                                               telegram->message)) +
+                                           ".");
+
+                        idx += length;
+                    } else if (((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
+                                (buffer_[idx + 2] == NMEA_SYNC_BYTE_3)) ||
+                               ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
+                                (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3)))
+                    {
+                        bool isIns = (buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2);
+                        size_t idx_end = findNmeaEnd(idx, bytes_recvd);
+                        if (idx_end >= bytes_recvd)
+                        {
+                            // No terminating CRLF within the datagram: the sentence is
+                            // truncated, so drop the remainder rather than reading past
+                            // the received bytes.
+                            break;
+                        }
+
+                        auto telegram = std::make_shared<Telegram>();
+                        telegram->stamp = stamp;
+                        telegram->message.assign(&buffer_[idx],
+                                                 &buffer_[idx_end] + 1);
+                        telegram->type =
+                            isIns ? telegram_type::NMEA_INS : telegram_type::NMEA;
+                        telegramQueue_->push(telegram);
+                        idx = idx_end + 1;
+                    } else
+                    {
+                        node_->log(log_level::DEBUG,
+                                   "UDP client unknown telegram header: " +
+                                       std::string(reinterpret_cast<const char*>(
+                                                       &buffer_[idx]),
+                                                   3));
                         ++idx;
                     }
                 }
@@ -216,6 +239,8 @@ namespace io {
         }
 
     private:
+        //! Returns the index of the LF terminating the sentence starting at idx, or
+        //! bytes_recvd if no CRLF was found before the end of the received data.
         size_t findNmeaEnd(size_t idx, size_t bytes_recvd)
         {
             size_t idx_end = idx + 2;
