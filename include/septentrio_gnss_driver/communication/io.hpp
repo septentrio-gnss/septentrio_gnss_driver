@@ -359,14 +359,19 @@ namespace io {
         boost::system::error_code connectInternal(
             const boost::asio::ip::tcp::resolver::results_type& endpoints)
         {
+            if (ioContext_->stopped())
+                ioContext_->restart();
+
             boost::system::error_code ec;
             deadline_.expires_after(std::chrono::seconds(10));
             ec = boost::asio::error::would_block;
             boost::asio::async_connect(*stream_, endpoints,
                                        boost::lambda::var(ec) = boost::lambda::_1);
-            do
-                ioContext_->run_one();
-            while (node_->ok() && (ec == boost::asio::error::would_block));
+            while (node_->ok() && (ec == boost::asio::error::would_block))
+            {
+                if (ioContext_->run_one() == 0)
+                    break;
+            }
             return ec;
         }
 
