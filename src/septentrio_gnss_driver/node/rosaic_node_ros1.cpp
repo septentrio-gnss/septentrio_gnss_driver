@@ -107,7 +107,7 @@ namespace rosaic_node {
               static_cast<std::string>(""));
 
         // Communication parameters
-        param("device", settings_.device, static_cast<std::string>("serial:/dev/ttyACM0"));
+        param("device", settings_.device, static_cast<std::string>("tcp://192.168.3.1:28784"));
         getUint32Param("serial/baudrate", settings_.baudrate,
                        static_cast<uint32_t>(921600));
         param("serial/hw_flow_control", settings_.hw_flow_control,

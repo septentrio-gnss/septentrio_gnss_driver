@@ -274,7 +274,12 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   activate_debug_log: false
   ```
-  In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
+  In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.launch.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
+
+  Some notes on the runtime behavior of the driver:
+  * During setup, commands to the Rx are resent with a warning if no response is received within 3 seconds, until the Rx answers. If the Rx does not report its capabilities after repeated requests, the driver continues with default capabilities and logs a warning.
+  * During shutdown, if the Rx does not respond to a command within 3 seconds, the remaining teardown commands are abandoned so that the driver still shuts down promptly.
+  * If a connection is lost or reading fails persistently (e.g. an unplugged USB device), the driver reconnects automatically once the device becomes available again.
 
 </details>
 
@@ -395,8 +400,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 
   + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. Incoming data streams of SBF blocks and NMEA sentences are recevied either via this interface or a static IP server for TCP and/or UDP. The former will be utilized if section `stream_device.tcp` and `stream_device.udp` are not configured.
     + `serial:xxx` format for serial connections,where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
-    + `file_name:path/to/file.sbf` format for publishing from an SBF log. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the sbf log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
-    + `file_name:path/to/file.pcap` format for publishing from PCAP capture. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the pcap log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
+    + `file_name:path/to/file.sbf` format for publishing from an SBF log, where the path may be absolute or relative to the node's working directory. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the sbf log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
+    + `file_name:path/to/file.pcap` format for publishing from PCAP capture, where the path may be absolute or relative to the node's working directory. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the pcap log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
@@ -535,9 +540,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   + `polling_period.pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`). Consult firmware manual for allowed periods. If the period is set to a lower value than the receiver is capable of, it will be published with the next higher period. If set to `0`, the SBF blocks are output at their natural renewal rate (`OnChange`).
     + Clearly, the publishing of composite ROS messages such as [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) or [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg) is triggered by the SBF block that arrives last among the blocks of the current epoch.
-    + default: `500` (2 Hz)
+    + default: `1000` (1 Hz)
   + `polling_period.rest`: desired period in milliseconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
-    + default: `500` (2 Hz)
+    + default: `1000` (1 Hz)
   </details>
   
   <details>
@@ -649,8 +654,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
           + default: []
       + `ip_server`:
-        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` my be set to the same. 
-            + default: "IPS5"
+        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` may be set to the same. 
+            + default: empty if `ins_vsm.ros.source` is not configured. Else the id of the TCP stream device if configured, otherwise "IPS5".
         + `port`: TCP port to receive the VSM info. When selecting a port number, make sure to avoid conflicts with other services.
           + default: 24786
         + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.

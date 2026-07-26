@@ -9,6 +9,7 @@ Changelog for package septentrio_gnss_driver
     * Shutdown while waiting for response during setup
     * RTK setup logic
     * Auto publish logic
+    * Update README
 * Fixes
     * Memory safety
     * Static transform publishers in example launch files
