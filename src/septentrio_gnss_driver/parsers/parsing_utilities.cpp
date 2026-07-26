@@ -60,6 +60,7 @@ namespace parsing_utilities {
      */
     [[nodiscard]] bool parseDouble(const std::string& string, double& value)
     {
+        value = 0.0;
         return string_utilities::toDouble(string, value) || string.empty();
     }
 
@@ -77,6 +78,7 @@ namespace parsing_utilities {
      */
     [[nodiscard]] bool parseFloat(const std::string& string, float& value)
     {
+        value = 0.0f;
         return string_utilities::toFloat(string, value) || string.empty();
     }
 
@@ -135,6 +137,7 @@ namespace parsing_utilities {
     [[nodiscard]] bool parseInt32(const std::string& string, int32_t& value,
                                   int32_t base)
     {
+        value = 0;
         return string_utilities::toInt32(string, value, base) || string.empty();
     }
 
@@ -210,6 +213,7 @@ namespace parsing_utilities {
     [[nodiscard]] bool parseUInt32(const std::string& string, uint32_t& value,
                                    int32_t base)
     {
+        value = 0;
         return string_utilities::toUInt32(string, value, base) || string.empty();
     }
 
