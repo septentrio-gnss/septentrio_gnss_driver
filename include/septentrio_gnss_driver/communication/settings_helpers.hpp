@@ -71,13 +71,18 @@ namespace settings {
                             ".id cannot use the same IP server");
             }
         }
-        if (settings.rtk.ip_server.size() == 2)
+        for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
         {
-            if (!settings.rtk.ip_server[0].id.empty() &&
-                (settings.rtk.ip_server[0].id == settings.rtk.ip_server[1].id))
-                node->log(
-                    log_level::ERROR,
-                    "rtk_settings.ip_server_1.id and rtk_settings.ip_server_2.id cannot use the same IP server");
+            for (size_t j = i + 1; j < settings.rtk.ip_server.size(); ++j)
+            {
+                if (!settings.rtk.ip_server[i].id.empty() &&
+                    (settings.rtk.ip_server[i].id == settings.rtk.ip_server[j].id))
+                    node->log(log_level::ERROR,
+                              "rtk_settings.ip_server_" + std::to_string(i + 1) +
+                                  ".id and rtk_settings.ip_server_" +
+                                  std::to_string(j + 1) +
+                                  ".id cannot use the same IP server");
+            }
         }
     }
 
@@ -99,13 +104,19 @@ namespace settings {
                                   ".port cannot be the same!");
             }
         }
-        if (settings.rtk.ip_server.size() == 2)
+        for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
         {
-            if ((settings.rtk.ip_server[0].port != 0) &&
-                (settings.rtk.ip_server[0].port == settings.rtk.ip_server[1].port))
-                node->log(
-                    log_level::ERROR,
-                    "rtk_settings.ip_server_1.port and rtk_settings.ip_server_2.port cannot be the same");
+            for (size_t j = i + 1; j < settings.rtk.ip_server.size(); ++j)
+            {
+                if ((settings.rtk.ip_server[i].port != 0) &&
+                    (settings.rtk.ip_server[i].port ==
+                     settings.rtk.ip_server[j].port))
+                    node->log(log_level::ERROR,
+                              "rtk_settings.ip_server_" + std::to_string(i + 1) +
+                                  ".port and rtk_settings.ip_server_" +
+                                  std::to_string(j + 1) +
+                                  ".port cannot be the same");
+            }
         }
     }
 
