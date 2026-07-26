@@ -11,6 +11,7 @@ Changelog for package septentrio_gnss_driver
     * Auto publish logic
     * Update README
     * New firmware VSM handling
+    * Rework VSM sample averaging
 * Fixes
     * Memory safety
     * Static transform publishers in example launch files
