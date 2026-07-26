@@ -141,7 +141,8 @@ namespace device_type {
         TCP,
         SERIAL,
         SBF_FILE,
-        PCAP_FILE
+        PCAP_FILE,
+        NONE
     };
 } // namespace device_type
 
@@ -153,7 +154,7 @@ struct Settings
     //! Device
     std::string device;
     //! Device type
-    device_type::DeviceType device_type;
+    device_type::DeviceType device_type = ::device_type::NONE;
     //! TCP IP
     std::string device_tcp_ip;
     //! TCP port

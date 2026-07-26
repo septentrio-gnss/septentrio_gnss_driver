@@ -119,9 +119,10 @@ namespace io {
             if (!error && (bytes_recvd > 0))
             {
                 // idx and bytes_recvd are size_t, so all comparisons are written
-                // additively: (bytes_recvd - idx) would underflow into a huge value if
-                // idx ever ran past bytes_recvd. Every path through the loop must also
-                // either advance idx or break, otherwise the io thread spins forever.
+                // additively: (bytes_recvd - idx) would underflow into a huge value
+                // if idx ever ran past bytes_recvd. Every path through the loop must
+                // also either advance idx or break, otherwise the io thread spins
+                // forever.
                 while (idx + 2 < bytes_recvd)
                 {
                     if (buffer_[idx] != SYNC_BYTE_1)
@@ -144,9 +145,9 @@ namespace io {
                             parsing_utilities::parseUInt16(&buffer_[idx + 6]);
 
                         // The length field is attacker/noise controlled. Reject
-                        // anything that is not a well-formed SBF length or that would
-                        // read past what was actually received, and rescan from the
-                        // next byte instead of trusting it.
+                        // anything that is not a well-formed SBF length or that
+                        // would read past what was actually received, and rescan
+                        // from the next byte instead of trusting it.
                         if (length < SBF_HEADER_SIZE || (length % 4) != 0 ||
                             idx + length > bytes_recvd)
                         {
@@ -182,9 +183,9 @@ namespace io {
                         size_t idx_end = findNmeaEnd(idx, bytes_recvd);
                         if (idx_end >= bytes_recvd)
                         {
-                            // No terminating CRLF within the datagram: the sentence is
-                            // truncated, so drop the remainder rather than reading past
-                            // the received bytes.
+                            // No terminating CRLF within the datagram: the sentence
+                            // is truncated, so drop the remainder rather than
+                            // reading past the received bytes.
                             break;
                         }
 
@@ -280,12 +281,17 @@ namespace io {
             checkDeadline();
         }
 
-        ~TcpIo() { stream_->close(); }
+        ~TcpIo()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
         void close()
         {
             deadline_.cancel();
-            stream_->close();
+            if (stream_)
+                stream_->close();
         }
 
         void setPort(const std::string& port) { port_ = port; }
@@ -318,16 +324,13 @@ namespace io {
                 boost::system::error_code ec = connectInternal(endpoints);
                 while (node_->ok() && ec)
                 {
-                    node_->log(log_level::ERROR,
-                               "TCP connection to " +
-                                   endpoints.begin()
-                                       ->endpoint()
-                                       .address()
-                                       .to_string() +
-                                   " on port " +
-                                   std::to_string(
-                                       endpoints.begin()->endpoint().port()) +
-                                   " failed: " + ec.message() + ". Retrying ...");
+                    node_->log(
+                        log_level::ERROR,
+                        "TCP connection to " +
+                            endpoints.begin()->endpoint().address().to_string() +
+                            " on port " +
+                            std::to_string(endpoints.begin()->endpoint().port()) +
+                            " failed: " + ec.message() + ". Retrying ...");
                     using namespace std::chrono_literals;
                     std::this_thread::sleep_for(1s);
                     ec = connectInternal(endpoints);
@@ -590,9 +593,19 @@ namespace io {
         {
         }
 
-        ~SbfFileIo() { stream_->close(); }
+        // stream_ stays null if connect() was never called or failed to open the
+        // file.
+        ~SbfFileIo()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
-        void close() { stream_->close(); }
+        void close()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
         [[nodiscard]] bool connect()
         {
@@ -638,16 +651,20 @@ namespace io {
         {
         }
 
-        ~PcapFileIo()
-        {
-            pcap_close(pcap_);
-            stream_->close();
-        }
+        ~PcapFileIo() { close(); }
 
+        // Called both explicitly by AsyncManager and again from the destructor, so
+        // it has to be idempotent: pcap_close() on an already-closed handle is a
+        // double free, and both members stay unset if connect() never ran or failed.
         void close()
         {
-            pcap_close(pcap_);
-            stream_->close();
+            if (pcap_ != nullptr)
+            {
+                pcap_close(pcap_);
+                pcap_ = nullptr;
+            }
+            if (stream_)
+                stream_->close();
         }
 
         [[nodiscard]] bool connect()
@@ -660,8 +677,18 @@ namespace io {
                 stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
                     *ioContext_);
 
+                // pcap_open_offline reports failure by returning NULL rather than
+                // throwing, so without this check pcap_get_selectable_fd() would be
+                // handed a null handle.
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());
+                if (pcap_ == nullptr)
+                {
+                    errBuff_.back() = '\0';
+                    node_->log(log_level::ERROR, "opening PCAP file failed: " +
+                                                     std::string(errBuff_.data()));
+                    return false;
+                }
                 stream_->assign(pcap_get_selectable_fd(pcap_));
 
             } catch (std::runtime_error& e)
@@ -676,8 +703,10 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_context> ioContext_;
-        std::array<char, 100> errBuff_;
-        pcap_t* pcap_;
+        //! pcap requires the error buffer to hold at least PCAP_ERRBUF_SIZE bytes;
+        //! anything smaller can be overrun by libpcap itself.
+        std::array<char, PCAP_ERRBUF_SIZE> errBuff_;
+        pcap_t* pcap_ = nullptr;
 
     public:
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;

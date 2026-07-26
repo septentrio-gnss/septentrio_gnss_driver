@@ -86,12 +86,13 @@ namespace io {
 
         resetSettings();
 
-        manager_->close();
+        if (manager_)
+            manager_->close();
     }
 
     void CommunicationCore::resetSettings()
     {
-        if (!manager_->connected())
+        if (!manager_ || !manager_->connected())
         {
             return;
         }
@@ -191,9 +192,12 @@ namespace io {
         boost::asio::io_context io;
         if (initializeIo())
         {
-            initializedIo_ = manager_->connect();
-            if (!initializedIo_)
-                return;
+            if (manager_)
+            {
+                initializedIo_ = manager_->connect();
+                if (!initializedIo_)
+                    return;
+            }
         }
         // If node is shut down before a connection could be established
         if (!node_->ok())
@@ -260,6 +264,7 @@ namespace io {
                 std::make_unique<AsyncManager<PcapFileIo>>(node_, &telegramQueue_);
             break;
         }
+        case device_type::NONE:
         default:
         {
             if (!client || settings_->configure_rx ||
