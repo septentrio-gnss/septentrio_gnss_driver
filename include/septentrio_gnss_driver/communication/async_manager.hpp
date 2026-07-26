@@ -58,6 +58,9 @@
 
 #pragma once
 
+// C++ includes
+#include <atomic>
+
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -152,7 +155,12 @@ namespace io {
         std::thread ioThread_;
         std::thread watchdogThread_;
 
-        bool connected_ = false;
+        static constexpr uint32_t MAX_CONSECUTIVE_READ_ERRORS = 10;
+
+        std::atomic<bool> connected_ = false;
+        //! Number of read errors without a single successfully read byte in
+        //! between, only accessed from the io thread
+        uint32_t consecutiveReadErrors_ = 0;
 
         std::array<uint8_t, 1> buf_;
         //! Keep-alive payload for the TCP watchdog, kept as a member so it outlives
@@ -191,6 +199,7 @@ namespace io {
         {
             return false;
         }
+        consecutiveReadErrors_ = 0;
         connected_ = true;
         receive();
 
@@ -202,15 +211,13 @@ namespace io {
     {
         running_ = false;
         connected_ = false;
-        ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
+        ioContext_->stop();
         if (ioThread_.joinable())
-        {
-            ioContext_->stop();
             ioThread_.join();
-        }
         if (watchdogThread_.joinable())
             watchdogThread_.join();
+        ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
 
@@ -351,6 +358,7 @@ namespace io {
 
                 if (!ec)
                 {
+                    consecutiveReadErrors_ = 0;
                     if (numBytes == 1)
                     {
                         uint8_t& currByte = telegram_->message[index];
@@ -449,12 +457,19 @@ namespace io {
                         node_->log(log_level::DEBUG,
                                    "AsyncManager sync read error: " + ec.message());
 
+                    ++consecutiveReadErrors_;
                     if ((boost::asio::error::eof == ec) ||
                         (boost::asio::error::network_unreachable == ec) ||
                         (boost::asio::error::interrupted == ec) ||
                         (boost::asio::error::bad_descriptor == ec) ||
-                        (boost::asio::error::connection_reset == ec))
+                        (boost::asio::error::connection_reset == ec) ||
+                        (consecutiveReadErrors_ >= MAX_CONSECUTIVE_READ_ERRORS))
                     {
+                        if (connected_)
+                            node_->log(
+                                log_level::ERROR,
+                                "AsyncManager persistent read error: " +
+                                    ec.message());
                         ioContext_->stop();
                     } else
                     {

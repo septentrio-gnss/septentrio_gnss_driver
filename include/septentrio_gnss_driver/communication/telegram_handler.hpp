@@ -62,6 +62,7 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <mutex>
 
 // ROSaic includes
 #ifdef ROS2
@@ -166,7 +167,11 @@ namespace io {
         void handleTelegram(const std::shared_ptr<Telegram>& telegram);
 
         //! Returns the connection descriptor
-        void resetWaitforMainCd() { mainConnectionDescriptor_ = std::string(); }
+        void resetWaitforMainCd()
+        {
+            std::lock_guard<std::mutex> lock(cdMtx_);
+            mainConnectionDescriptor_ = std::string();
+        }
 
         //! Returns the connection descriptor
         [[nodiscard]] Semaphore::WaitResult
@@ -174,7 +179,10 @@ namespace io {
         {
             Semaphore::WaitResult result = cdSemaphore_.wait(timeout);
             if (result == Semaphore::WaitResult::SIGNALLED)
+            {
+                std::lock_guard<std::mutex> lock(cdMtx_);
                 cd = mainConnectionDescriptor_;
+            }
             return result;
         }
 
@@ -207,6 +215,9 @@ namespace io {
         Semaphore cdSemaphore_;
         Semaphore responseSemaphore_;
         Semaphore capabilitiesSemaphore_;
+        //! Guards mainConnectionDescriptor_, which is written by the telegram
+        //! processing thread and read by the threads waiting in getMainCd()
+        std::mutex cdMtx_;
         std::string mainConnectionDescriptor_ = std::string();
     };
 

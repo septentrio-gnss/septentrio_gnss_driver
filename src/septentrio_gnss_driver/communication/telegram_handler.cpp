@@ -158,9 +158,11 @@ namespace io {
                                               telegram->message.end()));
         if (telegram->message.back() == CONNECTION_DESCRIPTOR_FOOTER)
         {
-            mainConnectionDescriptor_ =
-                std::string(telegram->message.begin(), telegram->message.end() - 1);
-
+            {
+                std::lock_guard<std::mutex> lock(cdMtx_);
+                mainConnectionDescriptor_ = std::string(telegram->message.begin(),
+                                                        telegram->message.end() - 1);
+            }
             cdSemaphore_.notify();
         }
     }
