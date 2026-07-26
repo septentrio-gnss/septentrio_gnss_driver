@@ -283,7 +283,18 @@ public:
     bool param(const std::string& name, T& val, const T& defaultVal)
     {
         if (this->has_parameter(name))
-            this->undeclare_parameter(name);
+        {
+            try
+            {
+                if (this->get_parameter(name, val))
+                    return true;
+            } catch (std::runtime_error& e)
+            {
+                RCLCPP_DEBUG_STREAM(this->get_logger(), e.what());
+            }
+            val = defaultVal;
+            return false;
+        }
 
         try
         {
