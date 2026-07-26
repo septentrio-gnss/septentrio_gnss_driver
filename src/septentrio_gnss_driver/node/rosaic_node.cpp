@@ -110,7 +110,7 @@ namespace rosaic_node {
               static_cast<std::string>(""));
 
         // Communication parameters
-        param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
+        param("device", settings_.device, static_cast<std::string>("serial:/dev/ttyACM0"));
         getUint32Param("serial.baudrate", settings_.baudrate,
                        static_cast<uint32_t>(921600));
         param("serial.hw_flow_control", settings_.hw_flow_control,
@@ -609,7 +609,7 @@ namespace rosaic_node {
         {
             param("ins_vsm.ros.source", settings_.ins_vsm.ros_source,
                   std::string(""));
-            std::string ipid = "IPS5";
+            std::string ipid;
 
             bool ins_use_vsm = false;
             ins_use_vsm = ((settings_.ins_vsm.ros_source == "odometry") ||
@@ -618,8 +618,13 @@ namespace rosaic_node {
                 this->log(log_level::ERROR, "unknown ins_vsm.ros.source " +
                                                 settings_.ins_vsm.ros_source +
                                                 " -> VSM input will not be used!");
-            else if (!settings_.tcp_ip_server.empty())
-                ipid = settings_.tcp_ip_server;
+            else if (ins_use_vsm)
+            {
+                if (!settings_.tcp_ip_server.empty())
+                    ipid = settings_.tcp_ip_server;
+                else
+                    ipid = "IPS5";
+            }
 
             param("ins_vsm.ip_server.id", settings_.ins_vsm.ip_server, ipid);
             if (!settings_.ins_vsm.ip_server.empty())
@@ -738,7 +743,7 @@ namespace rosaic_node {
             settings_.device_type = device_type::TCP;
         } else if (boost::regex_match(
                        settings_.device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
+                       boost::regex("(file_name):(.+\\.sbf)")))
         {
             settings_.read_from_sbf_log = true;
             settings_.use_gnss_time = true;
@@ -746,7 +751,7 @@ namespace rosaic_node {
             settings_.device_type = device_type::SBF_FILE;
         } else if (boost::regex_match(
                        settings_.device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+                       boost::regex("(file_name):(.+\\.pcap)")))
         {
             settings_.read_from_pcap = true;
             settings_.use_gnss_time = true;

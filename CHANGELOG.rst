@@ -7,12 +7,19 @@ Changelog for package septentrio_gnss_driver
 * Improvements
     * ENU/NED data handling
     * Shutdown while waiting for response during setup
+    * RTK setup logic
+    * Auto publish logic
 * Fixes
     * Memory safety
-    * Fix static transform publishers in example launch files
+    * Static transform publishers in example launch files
     * Aux1 antenna type in INS multi-antenna mode
-    * Fix wrong units and ENU/NED ordering
+    * Wrong units and ENU/NED ordering
     * INS data handling
+    * Locale independence
+    * NMEA parsers
+    * Reconnect and IO threading
+    * TCP reconnect
+    * Device regex
 * Contributors: Mohamed Magdy, Claude, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.7 (2026-06-13)
