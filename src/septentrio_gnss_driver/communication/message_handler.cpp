@@ -254,42 +254,7 @@ namespace io {
         // Constructing the "level of operation" field
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
         uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
-        // Position of the overall-quality indicator (type 0), or size() if the block
-        // does not contain one. Must not be left indeterminate: it is compared
-        // against every index in the loop below.
-        size_t qualityind_pos = last_qualityind_.indicators.size();
-        for (uint16_t i = static_cast<uint16_t>(0);
-             i < last_qualityind_.indicators.size(); ++i)
-        {
-            if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                static_cast<uint16_t>(0))
-            {
-                qualityind_pos = i;
-                if (((last_qualityind_.indicators[i] & indicators_value_mask) >>
-                     8) == static_cast<uint16_t>(0))
-                {
-                    gnss_status.level = DiagnosticStatusMsg::STALE;
-                } else if (((last_qualityind_.indicators[i] &
-                             indicators_value_mask) >>
-                            8) == static_cast<uint16_t>(1) ||
-                           ((last_qualityind_.indicators[i] &
-                             indicators_value_mask) >>
-                            8) == static_cast<uint16_t>(2))
-                {
-                    gnss_status.level = DiagnosticStatusMsg::WARN;
-                } else
-                {
-                    gnss_status.level = DiagnosticStatusMsg::OK;
-                }
-                break;
-            }
-        }
-        // If the ReceiverStatus's RxError field is not 0, then at least one error
-        // has been detected.
-        if (last_receiverstatus_.rx_error != static_cast<uint32_t>(0))
-        {
-            gnss_status.level = DiagnosticStatusMsg::ERROR;
-        }
+
         // Creating an array of values associated with the GNSS status
         // The overall-quality indicator is reported through "level" above rather
         // than as a key/value pair, so it is skipped here. Entries are appended
@@ -298,16 +263,16 @@ namespace io {
         // vector.
         gnss_status.values.clear();
         gnss_status.values.reserve(last_qualityind_.indicators.size());
+        uint8_t oaq = 0;
         for (size_t i = 0; i < last_qualityind_.indicators.size(); ++i)
         {
-            if (i == qualityind_pos)
-            {
-                continue;
-            }
-
             std::string key;
             switch (last_qualityind_.indicators[i] & indicators_type_mask)
             {
+            case 0:
+                key = "Overall quality";
+                oaq = (last_qualityind_.indicators[i] & indicators_value_mask) >> 8;
+                break;
             case 1:
                 key = "GNSS Signals, Main Antenna";
                 break;
@@ -345,11 +310,22 @@ namespace io {
             gnss_status.values.back().value = std::to_string(
                 (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
         }
+
+        if (oaq < 5)
+        {
+            gnss_status.level = DiagnosticStatusMsg::ERROR;
+        } else if (oaq < 9)
+        {
+            gnss_status.level = DiagnosticStatusMsg::WARN;
+        } else
+            gnss_status.level = DiagnosticStatusMsg::OK;
+
         gnss_status.hardware_id = serialnumber;
         gnss_status.name = "septentrio_driver: Quality indicators";
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+
         DiagnosticStatusMsg receiver_status;
         receiver_status.hardware_id = serialnumber;
         receiver_status.name = "septentrio_driver: receiver status";
@@ -612,8 +588,7 @@ namespace io {
 
         diagVsm.hardware_id = last_receiversetup_.rx_serial_number;
         diagVsm.name = "septentrio_driver: VSM";
-        diagVsm.message =
-            "Current status of the velocity sensor measurement input";
+        diagVsm.message = "Current status of the velocity sensor measurement input";
 
         diagVsm.values.resize(1);
         diagVsm.values[0].key = "VSM input";
@@ -1591,8 +1566,8 @@ namespace io {
                     mask_2 *= 2;
                 }
                 // Below, booleans will be promoted to integers automatically.
-                uint16_t service =
-                    gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
+                uint16_t service = gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 +
+                                   gal_in_pvt * 8;
                 msg.status.service = service;
             }
             msg.latitude = rad2deg(last_insnavgeod_.latitude);
@@ -1624,8 +1599,7 @@ namespace io {
                     convertCovarianceNaN(last_insnavgeod_.latitude_height_cov);
             }
             if ((last_insnavgeod_.sb_list & 1) == 0)
-                msg.position_covariance_type =
-                    NavSatFixMsg::COVARIANCE_TYPE_UNKNOWN;
+                msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_UNKNOWN;
             else if ((last_insnavgeod_.sb_list & 32) != 0)
                 msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
             else
