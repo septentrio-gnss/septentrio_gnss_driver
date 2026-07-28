@@ -591,6 +591,48 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     }
 
+    void MessageHandler::assembleVsmDiagnosticArray()
+    {
+        bool hasVsm = false;
+        bool rejected = false;
+        for (size_t i = 0; i < last_extsensmeas_.type.size(); ++i)
+        {
+            if (last_extsensmeas_.type[i] == 4)
+            {
+                hasVsm = true;
+                if (last_extsensmeas_.obs_info[i] & 32)
+                    rejected = true;
+            }
+        }
+        if (!hasVsm)
+            return;
+
+        DiagnosticArrayMsg msg;
+        DiagnosticStatusMsg diagVsm;
+
+        diagVsm.hardware_id = last_receiversetup_.rx_serial_number;
+        diagVsm.name = "septentrio_driver: VSM";
+        diagVsm.message =
+            "Current status of the velocity sensor measurement input";
+
+        diagVsm.values.resize(1);
+        diagVsm.values[0].key = "VSM input";
+        if (rejected)
+        {
+            diagVsm.values[0].value = "rejected by Rx";
+            diagVsm.level = DiagnosticStatusMsg::WARN;
+        } else
+        {
+            diagVsm.values[0].value = "accepted";
+            diagVsm.level = DiagnosticStatusMsg::OK;
+        }
+
+        msg.status.push_back(diagVsm);
+        msg.header = last_extsensmeas_.header;
+
+        publish<DiagnosticArrayMsg>("/diagnostics", msg);
+    }
+
     void MessageHandler::assembleImu()
     {
         // INS tow and extsens meas tow have the same time scale
@@ -2618,6 +2660,8 @@ namespace io {
             assembleHeader(settings_->imu_frame_id, telegram, last_extsensmeas_);
             if (settings_->publish_extsensormeas)
                 publish<ExtSensorMeasMsg>("extsensormeas", last_extsensmeas_);
+            if (settings_->publish_diagnostics)
+                assembleVsmDiagnosticArray();
             break;
         }
         case CHANNEL_STATUS:

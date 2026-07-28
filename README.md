@@ -703,7 +703,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish.gpsfix`: `true` to publish `gps_msgs/GPSFix.msg` messages into the topic `/gpsfix`
     + `publish.pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
     + `publish.twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist` and `/twist_ins` respectively 
-    + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
+    + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`. For INS with VSM, the status of the VSM input is also reported, i.e., wether it is accepted or rejected by the Rx. This requires the `ExtSensorMeas` SBF block, which is streamed if `publish.extsensormeas` or `publish.imu` is enabled.
     + `publish.insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
     + `publish.insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
     + `publish.extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`

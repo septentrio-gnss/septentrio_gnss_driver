@@ -377,6 +377,12 @@ namespace io {
 
         /**
          * @brief "Callback" function when constructing
+         * VSM DiagnosticArrayMsg messages
+         */
+        void assembleVsmDiagnosticArray();
+
+        /**
+         * @brief "Callback" function when constructing
          * ImuMsg messages
          */
         void assembleImu();
