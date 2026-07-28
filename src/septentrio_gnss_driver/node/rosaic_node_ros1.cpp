@@ -107,7 +107,8 @@ namespace rosaic_node {
               static_cast<std::string>(""));
 
         // Communication parameters
-        param("device", settings_.device, static_cast<std::string>("tcp://192.168.3.1:28784"));
+        param("device", settings_.device,
+              static_cast<std::string>("tcp://192.168.3.1:28784"));
         getUint32Param("serial/baudrate", settings_.baudrate,
                        static_cast<uint32_t>(921600));
         param("serial/hw_flow_control", settings_.hw_flow_control,
@@ -178,53 +179,44 @@ namespace rosaic_node {
         // Publishing parameters
         param("publish/auto_publish", settings_.auto_publish, false);
         param("publish/publish_only_valid", settings_.publish_only_valid, false);
-        settings::autoPublish(this, settings_);
-        if (!settings_.auto_publish)
-        {
-            param("publish/gpst", settings_.publish_gpst, false);
-            param("publish/navsatfix", settings_.publish_navsatfix, true);
-            param("publish/gpsfix", settings_.publish_gpsfix, false);
-            param("publish/pose", settings_.publish_pose, false);
-            param("publish/diagnostics", settings_.publish_diagnostics, false);
-            param("publish/aimplusstatus", settings_.publish_aimplusstatus, false);
-            param("publish/galauthstatus", settings_.publish_galauthstatus, false);
-            param("publish/gpgga", settings_.publish_gpgga, false);
-            param("publish/gprmc", settings_.publish_gprmc, false);
-            param("publish/gpgsa", settings_.publish_gpgsa, false);
-            param("publish/gpgsv", settings_.publish_gpgsv, false);
-            param("publish/measepoch", settings_.publish_measepoch, false);
-            param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
-            param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, false);
-            param("publish/basevectorcart", settings_.publish_basevectorcart,
-                  false);
-            param("publish/basevectorgeod", settings_.publish_basevectorgeod,
-                  false);
-            param("publish/poscovcartesian", settings_.publish_poscovcartesian,
-                  false);
-            param("publish/poscovgeodetic", settings_.publish_poscovgeodetic,
-                  false);
-            param("publish/velcovcartesian", settings_.publish_velcovcartesian,
-                  false);
-            param("publish/velcovgeodetic", settings_.publish_velcovgeodetic,
-                  false);
-            param("publish/atteuler", settings_.publish_atteuler, false);
-            param("publish/attcoveuler", settings_.publish_attcoveuler, false);
-            param("publish/insnavcart", settings_.publish_insnavcart, false);
-            param("publish/insnavgeod", settings_.publish_insnavgeod, false);
-            param("publish/imusetup", settings_.publish_imusetup, false);
-            param("publish/velsensorsetup", settings_.publish_velsensorsetup,
-                  false);
-            param("publish/exteventinsnavgeod",
-                  settings_.publish_exteventinsnavgeod, false);
-            param("publish/exteventinsnavcart",
-                  settings_.publish_exteventinsnavcart, false);
-            param("publish/extsensormeas", settings_.publish_extsensormeas, false);
-            param("publish/imu", settings_.publish_imu, false);
-            param("publish/localization", settings_.publish_localization, false);
-            param("publish/localization_ecef", settings_.publish_localization_ecef,
-                  false);
-            param("publish/twist", settings_.publish_twist, false);
-        }
+
+        param("publish/gpst", settings_.publish_gpst, false);
+        param("publish/navsatfix", settings_.publish_navsatfix, true);
+        param("publish/gpsfix", settings_.publish_gpsfix, false);
+        param("publish/pose", settings_.publish_pose, false);
+        param("publish/diagnostics", settings_.publish_diagnostics, false);
+        param("publish/aimplusstatus", settings_.publish_aimplusstatus, false);
+        param("publish/galauthstatus", settings_.publish_galauthstatus, false);
+        param("publish/gpgga", settings_.publish_gpgga, false);
+        param("publish/gprmc", settings_.publish_gprmc, false);
+        param("publish/gpgsa", settings_.publish_gpgsa, false);
+        param("publish/gpgsv", settings_.publish_gpgsv, false);
+        param("publish/measepoch", settings_.publish_measepoch, false);
+        param("publish/pvtcartesian", settings_.publish_pvtcartesian, false);
+        param("publish/pvtgeodetic", settings_.publish_pvtgeodetic, false);
+        param("publish/basevectorcart", settings_.publish_basevectorcart, false);
+        param("publish/basevectorgeod", settings_.publish_basevectorgeod, false);
+        param("publish/poscovcartesian", settings_.publish_poscovcartesian, false);
+        param("publish/poscovgeodetic", settings_.publish_poscovgeodetic, false);
+        param("publish/velcovcartesian", settings_.publish_velcovcartesian, false);
+        param("publish/velcovgeodetic", settings_.publish_velcovgeodetic, false);
+        param("publish/atteuler", settings_.publish_atteuler, false);
+        param("publish/attcoveuler", settings_.publish_attcoveuler, false);
+        param("publish/insnavcart", settings_.publish_insnavcart, false);
+        param("publish/insnavgeod", settings_.publish_insnavgeod, false);
+        param("publish/imusetup", settings_.publish_imusetup, false);
+        param("publish/velsensorsetup", settings_.publish_velsensorsetup, false);
+        param("publish/exteventinsnavgeod", settings_.publish_exteventinsnavgeod,
+              false);
+        param("publish/exteventinsnavcart", settings_.publish_exteventinsnavcart,
+              false);
+        param("publish/extsensormeas", settings_.publish_extsensormeas, false);
+        param("publish/imu", settings_.publish_imu, false);
+        param("publish/localization", settings_.publish_localization, false);
+        param("publish/localization_ecef", settings_.publish_localization_ecef,
+              false);
+        param("publish/twist", settings_.publish_twist, false);
+
         param("publish/tf", settings_.publish_tf, false);
         param("publish/tf_ecef", settings_.publish_tf_ecef, false);
 
@@ -235,6 +227,8 @@ namespace rosaic_node {
                 "Only one of the tfs may be published at once, just activating tf in ECEF ");
             settings_.publish_tf = false;
         }
+
+        settings::autoPublish(this, settings_);
 
         // Datum and marker-to-ARP offset
         param("datum", settings_.datum, std::string("Default"));
@@ -731,17 +725,15 @@ namespace rosaic_node {
             settings_.device_tcp_ip = match[2];
             settings_.device_tcp_port = match[3];
             settings_.device_type = device_type::TCP;
-        } else if (boost::regex_match(
-                       settings_.device, match,
-                       boost::regex("(file_name):(.+\\.sbf)")))
+        } else if (boost::regex_match(settings_.device, match,
+                                      boost::regex("(file_name):(.+\\.sbf)")))
         {
             settings_.read_from_sbf_log = true;
             settings_.use_gnss_time = true;
             settings_.device = match[2];
             settings_.device_type = device_type::SBF_FILE;
-        } else if (boost::regex_match(
-                       settings_.device, match,
-                       boost::regex("(file_name):(.+\\.pcap)")))
+        } else if (boost::regex_match(settings_.device, match,
+                                      boost::regex("(file_name):(.+\\.pcap)")))
         {
             settings_.read_from_pcap = true;
             settings_.use_gnss_time = true;
