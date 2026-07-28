@@ -305,19 +305,19 @@ namespace io {
             return;
         }
 
-        uint8_t stream = 1;
-        // Determining communication mode: TCP vs USB/Serial
-        boost::smatch match;
-        boost::regex_match(settings_->device, match,
-                           boost::regex("(tcp)://(.+):(\\d+)"));
-        std::string proto(match[1]);
-        mainConnectionPort_ = resetMainConnection();
-        node_->log(log_level::INFO,
-                   "The connection descriptor is " + mainConnectionPort_);
-        streamPort_ = mainConnectionPort_;
-
         if (settings_->configure_rx)
         {
+            uint8_t stream = 1;
+            // Determining communication mode: TCP vs USB/Serial
+            boost::smatch match;
+            boost::regex_match(settings_->device, match,
+                               boost::regex("(tcp)://(.+):(\\d+)"));
+            std::string proto(match[1]);
+            mainConnectionPort_ = resetMainConnection();
+            node_->log(log_level::INFO,
+                       "The connection descriptor is " + mainConnectionPort_);
+            streamPort_ = mainConnectionPort_;
+
             node_->log(log_level::INFO, "Setting up Rx.");
 
             std::string pvt_interval =
