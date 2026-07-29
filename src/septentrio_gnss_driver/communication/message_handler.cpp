@@ -31,6 +31,7 @@
 #include <GeographicLib/UTMUPS.hpp>
 #include <boost/tokenizer.hpp>
 #include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 #include <thread>
 
 /**
@@ -2885,6 +2886,31 @@ namespace io {
         /*node_->log(log_level::DEBUG,
                    "The NMEA message contains " + std::to_string(message.size()) +
                        " bytes and is ready to be parsed. It reads: " + message);*/
+
+        size_t checksumPos = message.find_last_of('*');
+        if ((checksumPos == std::string::npos) ||
+            (message.size() < (checksumPos + 3)))
+        {
+            node_->log(log_level::DEBUG, "NMEA sentence without checksum: " +
+                                             message.substr(0, checksumPos));
+            return;
+        }
+        uint8_t checksum = 0;
+        for (size_t i = 1; i < checksumPos; ++i)
+        {
+            checksum ^= message[i];
+        }
+        uint32_t transmittedChecksum;
+        if (!string_utilities::toUInt32(message.substr(checksumPos + 1, 2),
+                                        transmittedChecksum, 16) ||
+            (checksum != transmittedChecksum))
+        {
+            node_->log(log_level::DEBUG,
+                       "NMEA checksum failed, sentence is dropped: " +
+                           message.substr(0, checksumPos + 3));
+            return;
+        }
+
         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
         boost::tokenizer<boost::char_separator<char>> tokens(message, sep_2);
         std::vector<std::string> body;

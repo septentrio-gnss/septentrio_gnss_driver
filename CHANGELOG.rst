@@ -12,6 +12,8 @@ Changelog for package septentrio_gnss_driver
     * Update README
     * New firmware VSM handling
     * Rework VSM sample averaging
+    * Add NMEA 4.10 compatibility
+    * Checksum validation of NMEA sentences
 * Fixes
     * Memory safety
     * Static transform publishers in example launch files
