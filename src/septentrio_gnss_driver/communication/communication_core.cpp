@@ -862,18 +862,25 @@ namespace io {
                 {
                     blocks << " +GGA";
                 }
+
                 if (settings_->publish_gprmc)
                 {
                     blocks << " +RMC";
                 }
-                if (settings_->publish_gpgsa)
+
+                if (settings_->publish_gpgsa && !node_->isIns())
                 {
                     blocks << " +GSA";
-                }
-                if (settings_->publish_gpgsv)
+                } else if (settings_->publish_gpgsa && node_->isIns())
+                    node_->log(log_level::WARN,
+                               "NMEA sentence GSA is not available on INS!");
+
+                if (settings_->publish_gpgsv && !node_->isIns())
                 {
                     blocks << " +GSV";
-                }
+                } else if (settings_->publish_gpgsv && node_->isIns())
+                    node_->log(log_level::WARN,
+                               "NMEA sentence GSV is not available on INS!");
 
                 std::stringstream ss;
                 ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
