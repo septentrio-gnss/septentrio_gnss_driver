@@ -181,7 +181,7 @@ GpgsvMsg GpgsvParser::parseASCII(const NMEASentence& sentence,
         }
         msg.satellites[sat].azimuth = static_cast<uint16_t>(azimuth);
 
-        if ((index + 3) >= sentence.get_body().size() ||
+        if ((index + 3) >= (sentence.get_body().size() - 1) ||
             sentence.get_body()[index + 3].empty())
         {
             msg.satellites[sat].snr = -1;
