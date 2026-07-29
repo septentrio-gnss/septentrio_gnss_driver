@@ -47,20 +47,24 @@ const std::string GpgsaParser::getMessageID() const
  * Caution: Due to the occurrence of the throw keyword, this method ParseASCII should
  * be called within a try / catch framework... Note: This method is called from
  * within the read() method of the RxMessage class by including the checksum part in
- * the argument "sentence" here, though the checksum is never parsed: It would be
- * sentence.get_body()[18] if anybody ever needs it.
+ * the argument "sentence" here, though the checksum is never parsed: It is the last
+ * element of the body if anybody ever needs it. The system id introduced with NMEA
+ * 4.10 is not parsed either, since nmea_msgs/Gpgsa has no field for it.
  */
 GpgsaMsg GpgsaParser::parseASCII(const NMEASentence& sentence,
                                  const std::string& frame_id, bool /*use_gnss_time*/,
                                  Timestamp time_obj) noexcept(false)
 {
 
-    // Checking the length first, it should be 19 elements
-    const size_t LENGTH = 19;
-    if (sentence.get_body().size() != LENGTH)
+    // Checking the length first, it should be 19 elements, or 20 including the
+    // system id of NMEA >= 4.10
+    const size_t LEN_MIN = 19;
+    const size_t LEN_MAX = 20;
+    if (sentence.get_body().size() < LEN_MIN || sentence.get_body().size() > LEN_MAX)
     {
         std::stringstream error;
-        error << "Expected GPGSA length is " << LENGTH << ". The actual length is "
+        error << "Expected GPGSA length is between " << LEN_MIN << " and "
+              << LEN_MAX << ". The actual length is "
               << sentence.get_body().size();
         throw ParseException(error.str());
     }
