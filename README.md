@@ -681,8 +681,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
     + `publish.gpgsv`: `true` to publish `nmea_msgs/GPGSV.msg` messages into the topic `/gpgsv`
     + `publish.measepoch`: `true` to publish `septentrio_gnss_driver/MeasEpoch.msg` messages into the topic `/measepoch`
-    + `publish.galauthstatus`: `true` to publish `septentrio_gnss_driver/GALAuthStatus.msg` messages into the topic `/galauthstatus` and corresponding `/diganostics`
-    + `publish.aimplusstatus`: `true` to publish `septentrio_gnss_driver/RFStatus.msg` messages into the topic `/rfstatus`, `septentrio_gnss_driver/AIMPlusStatus.msg` messages into `/aimplusstatus` and corresponding `/diganostics`. Some information is only available with active OSNMA.
+    + `publish.galauthstatus`: `true` to publish `septentrio_gnss_driver/GALAuthStatus.msg` messages into the topic `/galauthstatus` and corresponding `/diagnostics`
+    + `publish.aimplusstatus`: `true` to publish `septentrio_gnss_driver/RFStatus.msg` messages into the topic `/rfstatus`, `septentrio_gnss_driver/AIMPlusStatus.msg` messages into `/aimplusstatus` and corresponding `/diagnostics`. Some information is only available with active OSNMA.
     + `publish.pvtcartesian`: `true` to publish `septentrio_gnss_driver/PVTCartesian.msg` messages into the topic `/pvtcartesian`
     + `publish.pvtgeodetic`: `true` to publish `septentrio_gnss_driver/PVTGeodetic.msg` messages into the topic `/pvtgeodetic`
     + `publish.basevectorcart`: `true` to publish `septentrio_gnss_driver/BaseVectorCart.msg` messages into the topic `/basevectorcart`
@@ -697,19 +697,19 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish.navsatfix`: `true` to publish `sensor_msgs/NavSatFix.msg` messages into the topic `/navsatfix`
     + `publish.gpsfix`: `true` to publish `gps_msgs/GPSFix.msg` messages into the topic `/gpsfix`
     + `publish.pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
-    + `publish.twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist` and `/twist_ins` respectively 
+    + `publish.twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist_gnss` and `/twist_ins` respectively 
     + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
     + `publish.insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
     + `publish.insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
     + `publish.extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
     + `publish.imusetup`: `true` to publish `septentrio_gnss_driver/IMUSetup.msg` message into the topic`/imusetup` 
-    + `publish.velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msgs` message into the topic`/velsensorsetup` 
-    + `publish.exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavCart.msgs` message into the topic`/exteventinsnavcart` 
-    + `publish.exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/ExtEventINSNavGeod.msgs` message into the topic`/exteventinsnavgeod`
+    + `publish.velsensorsetup`: `true` to publish `septentrio_gnss_driver/VelSensorSetup.msg` message into the topic`/velsensorsetup` 
+    + `publish.exteventinsnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/exteventinsnavcart` 
+    + `publish.exteventinsnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/exteventinsnavgeod`
     + `publish.imu`: `true` to publish `sensor_msgs/Imu.msg` message into the topic`/imu`
     + `publish.localization`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization`
     + `publish.tf`: `true` to broadcast tf of localization. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish.tf` or `publish.tf_ecef` may be `true`.   
-    + `publish.localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization` related to ECEF frame.
+    + `publish.localization_ecef`: `true` to publish `nav_msgs/Odometry.msg` message into the topic`/localization_ecef` related to ECEF frame.
     + `publish.tf_ecef`: `true` to broadcast tf of localization  related to ECEF frame. `ins_use_poi` must also be set to true to publish tf. Note that only one of `publish.tf` or `publish.tf_ecef` may be `true`.
   </details>
 
@@ -743,7 +743,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + INS case: **Beware**, in order to allow a high update rate, `ChannelStatus`, `MeasEpoch`, and `DOP` are not time aligned, i.e., they might contain outdated information.
   + `/pose`: publishes generic ROS message [`geometry_msgs/PoseWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/PoseWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic`, `PosCovGeodetic`, `AttEuler`, `AttCovEuler` (GNSS case) or `INSNavGeod` (INS case).
     + Note that GNSS provides absolute positioning, while robots are often localized within a local level cartesian frame. The pose field of this ROS message contains position with respect to the absolute ENU frame (longitude, latitude, height), i.e. not a cartesian frame, while the orientation is with respect to a vehicle-fixed (e.g. for mosaic-x5 in moving base mode via the command `setAttitudeOffset`, ...) !local! NED frame or ENU frame if `use_ros_axis_directions` is set `true`. Thus the orientation is !not! given with respect to the same frame as the position is given in. The cross-covariances are hence set to 0.
-  + `/twist`: publishes generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic` and `VelCovGeodetic`.
+  + `/twist_gnss`: publishes generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html), converted from the SBF blocks `PVTGeodetic` and `VelCovGeodetic`.
   + `/twist_ins`: publishes generic ROS message [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html), converted from SBF block `INSNavGeod`.
   + `/insnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `INSNavCart` 
   + `/insnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `INSNavGeod` 
@@ -752,12 +752,12 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/velsensorsetup`: publishes custom ROS message `septentrio_gnss_driver/VelSensorSetup.msg` corresponding to SBF block `VelSensorSetup`. 
   + `/exteventinsnavcart`: publishes custom ROS message `septentrio_gnss_driver/INSNavCart.msg`, corresponding to SBF block `ExtEventINSNavCart`. 
   + `/exteventinsnavgeod`: publishes custom ROS message `septentrio_gnss_driver/INSNavGeod.msg`, corresponding to SBF block `ExtEventINSNavGeod`. 
-  + `/diagnostics`: accepts generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros2.org/foxy/api/diagnostic_msgs/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
-  + `/imu`: accepts generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`. Angular rates and accelerations are raw IMU measurements, the orientation is from the INS solution. The max update rate of the IMU is 200 Hz but since the max rate of the INS is 100 Hz, this  message output rate is set according to the INS output rate.
+  + `/diagnostics`: publishes generic ROS message [`diagnostic_msgs/DiagnosticArray.msg`](https://docs.ros2.org/foxy/api/diagnostic_msgs/msg/DiagnosticArray.html), converted from the SBF blocks `QualityInd`, `ReceiverStatus` and `ReceiverSetup`
+  + `/imu`: publishes generic ROS message [`sensor_msgs/Imu.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html), converted from the SBF blocks `ExtSensorMeas` and `INSNavGeod`. Angular rates and accelerations are raw IMU measurements, the orientation is from the INS solution. The max update rate of the IMU is 200 Hz but since the max rate of the INS is 100 Hz, this  message output rate is set according to the INS output rate.
     + The ROS message [`sensor_msgs/Imu.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
-  + `/localization`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
+  + `/localization`: publishes generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF block `INSNavGeod` and transformed to UTM.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
-  + `/localization_ecef`: accepts generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF blocks `INSNavCart` and `INSNavGeod`.
+  + `/localization_ecef`: publishes generic ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html), converted from the SBF blocks `INSNavCart` and `INSNavGeod`.
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
 </details>
 
