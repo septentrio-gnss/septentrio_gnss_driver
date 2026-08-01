@@ -2,8 +2,8 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.8 (2026-08-01)
+------------------
 * Fixes
     * Fix Aux1 antenna type in INS multi-antenna mode (@Mh-Magdy)
     * Fix rolling C++20 compatibility (@thomasemter)
