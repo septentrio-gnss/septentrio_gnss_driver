@@ -2,6 +2,14 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixes
+    * Fix Aux1 antenna type in INS multi-antenna mode (@Mh-Magdy)
+    * Fix rolling C++20 compatibility (@thomasemter)
+    * Fix incorrect output topic names and message types in README (@vpe-ct2mc)
+* Contributors: Mohamed Magdy, @vpe-ct2mc, Thomas Emter, Tibor Dome, septentrio-users
+
 1.4.7 (2026-06-13)
 ------------------
 * Improvements
@@ -9,8 +17,6 @@ Changelog for package septentrio_gnss_driver
     * Update deprecated boost and ROS functions.
     * Add support for GLGSV (thanks @peci1)
     * Fix spacing in README (thanks @benmccann)
-* Fixes
-    * Fix rolling C++20 compatibility
 * Contributors: Ben McCann, Martin Pecka, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.6 (2025-12-20)
