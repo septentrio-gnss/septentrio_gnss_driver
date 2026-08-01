@@ -418,7 +418,8 @@ namespace io {
                 if (settings_->multi_antenna)
                 {
                     std::stringstream ss;
-                    ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
+                    // FIX: was settings_->ant_type — Aux1 must use its own ant_aux1_type
+                    ss << "sat, Aux1, \"" << settings_->ant_aux1_type << "\"" << "\x0D";
                     send(ss.str());
                 }
             } else if (settings_->septentrio_receiver_type == "gnss")
