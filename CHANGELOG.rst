@@ -2,7 +2,7 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.4.8 (upcoming)
+1.5.0 (upcoming)
 ------------------
 * Improvements
     * ENU/NED data handling
