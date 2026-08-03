@@ -190,7 +190,8 @@ namespace io {
 
     void CommunicationCore::connect()
     {
-        node_->log(log_level::INFO, "This is ROSaic driver version 1.4.8");
+        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.0");
+
         node_->log(log_level::DEBUG, "Called connect() method");
         node_->log(
             log_level::DEBUG,
@@ -447,7 +448,10 @@ namespace io {
                 if (settings_->multi_antenna)
                 {
                     std::stringstream ss;
-                    ss << "sat, Aux1, \"" << settings_->ant_type << "\"" << "\x0D";
+                    // FIX: was settings_->ant_type — Aux1 must use its own
+                    // ant_aux1_type
+                    ss << "sat, Aux1, \"" << settings_->ant_aux1_type << "\""
+                       << "\x0D";
                     send(ss.str());
                 }
             } else if (settings_->septentrio_receiver_type == "gnss")
