@@ -60,6 +60,7 @@
 
 // C++ includes
 #include <atomic>
+#include <deque>
 
 // Boost includes
 #include <boost/asio.hpp>
@@ -137,6 +138,7 @@ namespace io {
         void runConnectLoop();
         void armKeepAlive();
         void write(const std::string& cmd);
+        void doWrite();
         void resync();
         template <uint8_t index>
         void readSync();
@@ -156,6 +158,11 @@ namespace io {
         std::thread connectThread_;
 
         static constexpr uint32_t MAX_CONSECUTIVE_READ_ERRORS = 10;
+        static constexpr size_t MAX_WRITE_QUEUE_SIZE = 100;
+
+        //! Queue of pending writes, only accessed from the io thread. Writes are
+        //! sent one after another so that async_write operations never overlap.
+        std::deque<std::string> writeQueue_;
 
         std::atomic<bool> connected_ = false;
         //! Number of read errors without a single successfully read byte in
@@ -304,42 +311,57 @@ namespace io {
             if (ec)
                 return;
             // Send to check if TCP connection is still alive
-            boost::asio::async_write(
-                *(ioInterface_.stream_),
-                boost::asio::buffer(keepAlive_.data(), keepAlive_.size()),
-                [this](boost::system::error_code ec, std::size_t /*length*/) {
-                    if (ec)
-                        ioContext_->stop();
-                    else
-                        armKeepAlive();
-                });
+            write(keepAlive_);
+            armKeepAlive();
         });
     }
 
     template <typename IoType>
     void AsyncManager<IoType>::write(const std::string& cmd)
     {
-        // cmd is owned by the handler send() posted and dies as soon as this
-        // function returns, so the buffer has to reference storage the completion
-        // handler keeps alive instead.
-        auto buf = std::make_shared<const std::string>(cmd);
+        const bool writeInProgress = !writeQueue_.empty();
+        writeQueue_.push_back(cmd);
 
+        if (writeQueue_.size() > MAX_WRITE_QUEUE_SIZE)
+            node_->log(log_level::WARN,
+                       "AsyncManager write queue holds " +
+                           std::to_string(writeQueue_.size()) +
+                           " messages, the connection may be stalled.");
+
+        if (!writeInProgress)
+            doWrite();
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::doWrite()
+    {
         boost::asio::async_write(
-            *(ioInterface_.stream_), boost::asio::buffer(buf->data(), buf->size()),
-            [this, buf](boost::system::error_code ec, std::size_t /*length*/) {
-                if (!ec)
-                {
-                    // Prints the data that was sent
-                    node_->log(log_level::DEBUG, "AsyncManager sent the following " +
-                                                     std::to_string(buf->size()) +
-                                                     " bytes to the Rx: " + *buf);
-                } else
+            *(ioInterface_.stream_),
+            boost::asio::buffer(writeQueue_.front().data(),
+                                writeQueue_.front().size()),
+            [this](boost::system::error_code ec, std::size_t /*length*/) {
+                std::string sent = std::move(writeQueue_.front());
+                writeQueue_.pop_front();
+
+                if (ec)
                 {
                     node_->log(log_level::ERROR,
                                "AsyncManager was unable to send the following " +
-                                   std::to_string(buf->size()) +
-                                   " bytes to the Rx: " + *buf);
+                                   std::to_string(sent.size()) +
+                                   " bytes to the Rx: " + sent);
+                    writeQueue_.clear();
+                    ioContext_->stop();
+                    return;
                 }
+
+                if (sent != keepAlive_)
+                    node_->log(log_level::DEBUG,
+                               "AsyncManager sent the following " +
+                                   std::to_string(sent.size()) +
+                                   " bytes to the Rx: " + sent);
+
+                if (!writeQueue_.empty())
+                    doWrite();
             });
     }
 
