@@ -438,6 +438,10 @@ namespace rosaic_node {
         param("ins_initial_heading", settings_.ins_initial_heading,
               std::string("auto"));
 
+        param("ins_vehicle_application", settings_.ins_vehicle_application,
+              std::string(""));
+        settings::checkVehicleApplication(this, settings_);
+
         // ins_std_dev_mask
         param("ins_std_dev_mask/att_std_dev", settings_.att_std_dev, 5.0f);
         param("ins_std_dev_mask/pos_std_dev", settings_.pos_std_dev, 10.0f);

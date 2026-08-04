@@ -220,6 +220,8 @@ public:
 
     const Settings* settings() const { return &settings_; }
 
+    Settings* settings() { return &settings_; }
+
     void registerSubscriber()
     {
         try

@@ -242,6 +242,8 @@ struct Settings
     bool ins_use_poi;
     //! For heading computation when unit is powered-cycled
     std::string ins_initial_heading;
+    //! Vehicle application of the INS, applies according motion constraints
+    std::string ins_vehicle_application;
     //! Attitude deviation mask
     float att_std_dev;
     //! Position deviation mask

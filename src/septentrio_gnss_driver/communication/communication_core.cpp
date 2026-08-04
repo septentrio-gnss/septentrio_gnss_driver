@@ -454,6 +454,14 @@ namespace io {
                        << "\x0D";
                     send(ss.str());
                 }
+
+                // Vehicle application for motion constraints
+                if (!settings_->ins_vehicle_application.empty())
+                {
+                    std::stringstream ss;
+                    ss << "sva, " << settings_->ins_vehicle_application << "\x0D";
+                    send(ss.str());
+                }
             } else if (settings_->septentrio_receiver_type == "gnss")
             {
                 // Setting the marker-to-ARP offsets. This comes after the "sso, ...,

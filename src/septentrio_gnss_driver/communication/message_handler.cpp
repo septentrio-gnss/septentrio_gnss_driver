@@ -2786,6 +2786,22 @@ namespace io {
                             true);
                     } else
                         node_->setImprovedVsmHandling();
+
+                    static const int32_t ins_va_major = 1;
+                    static const int32_t ins_va_minor = 5;
+                    if (!settings_->ins_vehicle_application.empty() &&
+                        ((major_minor_patch[0] < ins_va_major) ||
+                         ((major_minor_patch[0] == ins_va_major) &&
+                          (major_minor_patch[1] < ins_va_minor))))
+                    {
+                        node_->log(
+                            log_level::WARN,
+                            "INS receiver has firmware version < 1.5: " +
+                                last_receiversetup_.rx_version +
+                                ", which does not support to set the vehicle application -> it will not be set!",
+                            true);
+                        node_->settings()->ins_vehicle_application = "";
+                    }
                 } else if (settings_->septentrio_receiver_type == "gnss")
                 {
                     if ((major_minor_patch[0] < 4))

@@ -183,6 +183,30 @@ namespace settings {
         }
     }
 
+    inline void checkVehicleApplication(ROSaicNodeBase* node, Settings& settings)
+    {
+        if (settings.ins_vehicle_application.empty())
+            return;
+
+        static const std::vector<std::string> validApplications = {
+            "Unknown",   "RoadVehicle",     "HaulTruck",   "Tractor",
+            "TerminalTractor", "ReachStacker", "LiftTruck", "Excavator",
+            "Loader",    "Grader",          "Dozer",       "RoadRobot",
+            "OffroadRobot", "FixedWing",    "Multirotor",  "USV",
+            "RailVehicle"};
+
+        for (const auto& application : validApplications)
+        {
+            if (settings.ins_vehicle_application == application)
+                return;
+        }
+
+        node->log(log_level::WARN,
+                  "ins_vehicle_application " + settings.ins_vehicle_application +
+                      " is not a valid choice -> vehicle application will not be set!");
+        settings.ins_vehicle_application = "";
+    }
+
     inline void autoPublish(ROSaicNodeBase* node, Settings& settings)
     {
         if (settings.auto_publish && !settings.configure_rx)

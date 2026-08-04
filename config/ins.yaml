@@ -166,6 +166,8 @@ ins_spatial_config:
 
 ins_initial_heading: auto
 
+ins_vehicle_application: "Unknown"
+
 ins_std_dev_mask:
   att_std_dev: 5.0
   pos_std_dev: 10.0

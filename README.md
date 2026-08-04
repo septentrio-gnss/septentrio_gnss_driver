@@ -45,6 +45,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
+    * INS with firmware < 1.5 does not support to set vehicle application.
     * INS does not support PTP server clock as of now.
     * Mosaic G5 with firmware < 1.0.1 is not supported.
  + Known issues:
@@ -636,6 +637,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + In case it is `auto`, the initial integrated heading is determined from GNSS measurements.
         + In case it is `stored`, the last known heading when the vehicle stopped before switching off the receiver is used as initial heading. Use if vehicle does not move when the receiver is switched off.
         + default: `auto`
+    + `ins_vehicle_application`: The application the vehicle is used in, the receiver applies according motion constraints to the INS solution. Requires INS firmware >= 1.5. If left empty, the vehicle application is not set.
+        + Valid choices are: `Unknown`, `RoadVehicle`, `HaulTruck`, `Tractor`, `TerminalTractor`, `ReachStacker`, `LiftTruck`, `Excavator`, `Loader`, `Grader`, `Dozer`, `RoadRobot`, `OffroadRobot`, `FixedWing`, `Multirotor`, `USV`, `RailVehicle`. If an invalid choice is configured, a warning is logged and the vehicle application is not set.
+        + default: "" (not set)
     + `ins_std_dev_mask`: Maximum accepted error
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
