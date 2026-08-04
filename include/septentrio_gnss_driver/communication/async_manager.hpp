@@ -134,9 +134,8 @@ namespace io {
         bool connected();
 
     private:
-        void receive();
-        void runIoContext();
-        void runWatchdog();
+        void runConnectLoop();
+        void armKeepAlive();
         void write(const std::string& cmd);
         void resync();
         template <uint8_t index>
@@ -152,8 +151,9 @@ namespace io {
         std::shared_ptr<boost::asio::io_context> ioContext_;
         IoType ioInterface_;
         std::atomic<bool> running_;
-        std::thread ioThread_;
-        std::thread watchdogThread_;
+        //! Owns the connection lifecycle: runs the io context and reconnects on
+        //! connection loss until close() is called
+        std::thread connectThread_;
 
         static constexpr uint32_t MAX_CONSECUTIVE_READ_ERRORS = 10;
 
@@ -163,9 +163,11 @@ namespace io {
         uint32_t consecutiveReadErrors_ = 0;
 
         std::array<uint8_t, 1> buf_;
-        //! Keep-alive payload for the TCP watchdog, kept as a member so it outlives
-        //! the pending async_write
+        //! Keep-alive payload for TCP, kept as a member so it outlives the pending
+        //! async_write
         const std::string keepAlive_ = " ";
+        //! Timer for the periodic TCP keep-alive
+        boost::asio::steady_timer keepAliveTimer_;
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
         //! Telegram
@@ -178,7 +180,8 @@ namespace io {
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
         node_(node), ioContext_(std::make_shared<boost::asio::io_context>()),
-        ioInterface_(node, ioContext_), telegramQueue_(telegramQueue)
+        ioInterface_(node, ioContext_), keepAliveTimer_(*ioContext_),
+        telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -199,9 +202,10 @@ namespace io {
         {
             return false;
         }
-        consecutiveReadErrors_ = 0;
         connected_ = true;
-        receive();
+
+        connectThread_ =
+            std::thread(std::bind(&AsyncManager<IoType>::runConnectLoop, this));
 
         return true;
     }
@@ -213,10 +217,8 @@ namespace io {
         connected_ = false;
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
         ioContext_->stop();
-        if (ioThread_.joinable())
-            ioThread_.join();
-        if (watchdogThread_.joinable())
-            watchdogThread_.join();
+        if (connectThread_.joinable())
+            connectThread_.join();
         ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
@@ -248,31 +250,37 @@ namespace io {
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::receive()
-    {
-        resync();
-        ioThread_ =
-            std::thread(std::bind(&AsyncManager<IoType>::runIoContext, this));
-        if (!watchdogThread_.joinable())
-            watchdogThread_ =
-                std::thread(std::bind(&AsyncManager::runWatchdog, this));
-    }
-
-    template <typename IoType>
-    void AsyncManager<IoType>::runIoContext()
-    {
-        ioContext_->restart();
-        ioContext_->run();
-        node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
-    }
-
-    template <typename IoType>
-    void AsyncManager<IoType>::runWatchdog()
+    void AsyncManager<IoType>::runConnectLoop()
     {
         while (running_)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            if (running_ && ioContext_->stopped())
+            if (!connected_)
+            {
+                connected_ = ioInterface_.connect();
+                if (!connected_)
+                {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    continue;
+                }
+            }
+            consecutiveReadErrors_ = 0;
+
+            resync();
+            if constexpr (std::is_same<TcpIo, IoType>::value)
+                armKeepAlive();
+
+            ioContext_->restart();
+            ioContext_->run();
+            node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
+
+            connected_ = false;
+            keepAliveTimer_.cancel();
+            // Flush handlers of the terminated connection so that their errors
+            // cannot stop the io context of the next one
+            ioContext_->restart();
+            ioContext_->poll();
+
+            if (running_)
             {
                 if (node_->settings()->read_from_sbf_log ||
                     node_->settings()->read_from_pcap)
@@ -281,33 +289,31 @@ namespace io {
                         log_level::INFO,
                         "AsyncManager finished reading file. Node will continue to publish queued messages.");
                     break;
-                } else
-                {
-                    node_->log(log_level::ERROR,
-                               "AsyncManager connection lost. Trying to reconnect.");
-                    // A previous reconnect attempt may have failed without starting
-                    // a new io thread, in which case the thread is no longer
-                    // joinable and join() would throw.
-                    if (ioThread_.joinable())
-                        ioThread_.join();
-                    connected_ = ioInterface_.connect();
-                    if (connected_)
-                        receive();
                 }
-            } else if (running_ && std::is_same<TcpIo, IoType>::value)
-            {
-                // Send to check if TCP connection still alive. keepAlive_ is a
-                // member so the buffer outlives this iteration; a local would be
-                // destroyed while async_write is still pending.
-                boost::asio::async_write(
-                    *(ioInterface_.stream_),
-                    boost::asio::buffer(keepAlive_.data(), keepAlive_.size()),
-                    [this](boost::system::error_code ec, std::size_t /*length*/) {
-                        if (ec)
-                            ioContext_->stop();
-                    });
+                node_->log(log_level::ERROR,
+                           "AsyncManager connection lost. Trying to reconnect.");
             }
         }
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::armKeepAlive()
+    {
+        keepAliveTimer_.expires_after(std::chrono::seconds(1));
+        keepAliveTimer_.async_wait([this](boost::system::error_code ec) {
+            if (ec)
+                return;
+            // Send to check if TCP connection is still alive
+            boost::asio::async_write(
+                *(ioInterface_.stream_),
+                boost::asio::buffer(keepAlive_.data(), keepAlive_.size()),
+                [this](boost::system::error_code ec, std::size_t /*length*/) {
+                    if (ec)
+                        ioContext_->stop();
+                    else
+                        armKeepAlive();
+                });
+        });
     }
 
     template <typename IoType>
