@@ -36,6 +36,8 @@
 // Linux
 #include <linux/input.h>
 #include <linux/serial.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
 
 // Boost
 #include <boost/asio.hpp>
@@ -353,6 +355,20 @@ namespace io {
 
             deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             stream_->set_option(boost::asio::ip::tcp::no_delay(true));
+
+            // Kernel TCP keepalive to detect silently broken links, detection
+            // time is ca. idle + intvl * cnt seconds
+            stream_->set_option(boost::asio::socket_base::keep_alive(true));
+            int keepaliveIdle = 3;
+            int keepaliveIntvl = 1;
+            int keepaliveCnt = 3;
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPIDLE,
+                       &keepaliveIdle, sizeof(keepaliveIdle));
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPINTVL,
+                       &keepaliveIntvl, sizeof(keepaliveIntvl));
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPCNT,
+                       &keepaliveCnt, sizeof(keepaliveCnt));
+
             node_->log(log_level::INFO, "Connected to " +
                                             endpoints.begin()->host_name() + ":" +
                                             endpoints.begin()->service_name() + ".");

@@ -279,7 +279,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
   Some notes on the runtime behavior of the driver:
   * During setup, commands to the Rx are resent with a warning if no response is received within 3 seconds, until the Rx answers. If the Rx does not report its capabilities after repeated requests, the driver continues with default capabilities and logs a warning.
   * During shutdown, if the Rx does not respond to a command within 3 seconds, the remaining teardown commands are abandoned so that the driver still shuts down promptly.
-  * If a connection is lost or reading fails persistently (e.g. an unplugged USB device), the driver reconnects automatically once the device becomes available again.
+  * If a connection is lost or reading fails persistently (e.g. an unplugged USB device), the driver reconnects automatically once the device becomes available again. Silently broken TCP links (e.g. an unplugged network cable) are detected via TCP keepalive within roughly 6 seconds.
 
 </details>
 

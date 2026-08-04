@@ -136,7 +136,6 @@ namespace io {
 
     private:
         void runConnectLoop();
-        void armKeepAlive();
         void write(const std::string& cmd);
         void doWrite();
         void resync();
@@ -170,11 +169,6 @@ namespace io {
         uint32_t consecutiveReadErrors_ = 0;
 
         std::array<uint8_t, 1> buf_;
-        //! Keep-alive payload for TCP, kept as a member so it outlives the pending
-        //! async_write
-        const std::string keepAlive_ = " ";
-        //! Timer for the periodic TCP keep-alive
-        boost::asio::steady_timer keepAliveTimer_;
         //! Timestamp of receiving buffer
         Timestamp recvStamp_;
         //! Telegram
@@ -187,8 +181,7 @@ namespace io {
     AsyncManager<IoType>::AsyncManager(ROSaicNodeBase* node,
                                        TelegramQueue* telegramQueue) :
         node_(node), ioContext_(std::make_shared<boost::asio::io_context>()),
-        ioInterface_(node, ioContext_), keepAliveTimer_(*ioContext_),
-        telegramQueue_(telegramQueue)
+        ioInterface_(node, ioContext_), telegramQueue_(telegramQueue)
     {
         node_->log(log_level::DEBUG, "AsyncManager created.");
     }
@@ -273,15 +266,12 @@ namespace io {
             consecutiveReadErrors_ = 0;
 
             resync();
-            if constexpr (std::is_same<TcpIo, IoType>::value)
-                armKeepAlive();
 
             ioContext_->restart();
             ioContext_->run();
             node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
 
             connected_ = false;
-            keepAliveTimer_.cancel();
             // Flush handlers of the terminated connection so that their errors
             // cannot stop the io context of the next one
             ioContext_->restart();
@@ -301,19 +291,6 @@ namespace io {
                            "AsyncManager connection lost. Trying to reconnect.");
             }
         }
-    }
-
-    template <typename IoType>
-    void AsyncManager<IoType>::armKeepAlive()
-    {
-        keepAliveTimer_.expires_after(std::chrono::seconds(1));
-        keepAliveTimer_.async_wait([this](boost::system::error_code ec) {
-            if (ec)
-                return;
-            // Send to check if TCP connection is still alive
-            write(keepAlive_);
-            armKeepAlive();
-        });
     }
 
     template <typename IoType>
@@ -354,11 +331,9 @@ namespace io {
                     return;
                 }
 
-                if (sent != keepAlive_)
-                    node_->log(log_level::DEBUG,
-                               "AsyncManager sent the following " +
-                                   std::to_string(sent.size()) +
-                                   " bytes to the Rx: " + sent);
+                node_->log(log_level::DEBUG, "AsyncManager sent the following " +
+                                                 std::to_string(sent.size()) +
+                                                 " bytes to the Rx: " + sent);
 
                 if (!writeQueue_.empty())
                     doWrite();
@@ -491,6 +466,7 @@ namespace io {
                         (boost::asio::error::interrupted == ec) ||
                         (boost::asio::error::bad_descriptor == ec) ||
                         (boost::asio::error::connection_reset == ec) ||
+                        (boost::asio::error::timed_out == ec) ||
                         (consecutiveReadErrors_ >= MAX_CONSECUTIVE_READ_ERRORS))
                     {
                         if (connected_)
