@@ -415,7 +415,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
     + default: `921600`, `USB1`, `off`
-  + `stream_device`: If left unconfigured, by default `device` is utilized for the data streams. Within `stream_device` static IP servers may be defined instead. In config mode (`configure_rx` set to `true`), TCP will be prioritized over UDP. If Rx is pre-configured, both may be set simultaneously.
+  + `stream_device`: If left unconfigured, by default `device` is utilized for the data streams. Within `stream_device` static IP servers may be defined instead. In config mode (`configure_rx` set to `true`), TCP will be prioritized over UDP. If Rx is pre-configured, both may be set simultaneously. In this case (`configure_rx` set to `false` and a stream device configured) no connection to `device` is established, since it is not needed. With `stream_device.tcp` the host address is still taken from `device`; if only `stream_device.udp` is configured, `device` may also be left empty.
     + `tcp`: specifications for static TCP server of SBF blocks and NMEA sentences.
       + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
       + `port`: UDP destination port.

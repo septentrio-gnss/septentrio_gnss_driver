@@ -276,7 +276,13 @@ namespace io {
         {
         case device_type::TCP:
         {
-            manager_ = std::make_unique<AsyncManager<TcpIo>>(node_, &telegramQueue_);
+            if (settings_->configure_rx || (!tcpClient_ && !udpClient_))
+                manager_ =
+                    std::make_unique<AsyncManager<TcpIo>>(node_, &telegramQueue_);
+            else
+                node_->log(
+                    log_level::INFO,
+                    "Not establishing the main device connection, since the Rx is pre-configured and data streams are received via a stream device.");
             break;
         }
         case device_type::SERIAL:
