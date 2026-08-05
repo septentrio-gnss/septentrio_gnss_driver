@@ -17,6 +17,7 @@ Changelog for package septentrio_gnss_driver
     * Rework VSM sample averaging
     * Add NMEA 4.10 compatibility
     * Checksum validation of NMEA sentences
+    * Reconnecting now also works on a dynamic TCP connection since it triggers a reconfiguration
 * Fixes
     * Populate GPRMC/GPGGA utc_seconds regardless of use_gnss_time (thanks @vpe-ct2mc)
     * Memory safety

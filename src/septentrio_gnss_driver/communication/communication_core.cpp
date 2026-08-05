@@ -52,6 +52,9 @@ static const int8_t ATTSTD_DEV_MAX = 5;
 static const int8_t POSSTD_DEV_MIN = 0;
 static const int8_t POSSTD_DEV_MAX = 100;
 static const std::chrono::seconds RESPONSE_TIMEOUT(3);
+//! Number of unanswered response timeouts after which the connection is
+//! considered lost or stuck and a reconnect is triggered
+static const uint32_t UNRESPONSIVE_TIMEOUTS = 6;
 static const std::chrono::seconds CAPABILITIES_TIMEOUT(5);
 static const uint8_t CAPABILITIES_MAX_RETRIES = 3;
 
@@ -87,6 +90,10 @@ namespace io {
     {
         shuttingDown_ = true;
 
+        reconfigureSemaphore_.abandon();
+        if (reconfigureThread_.joinable())
+            reconfigureThread_.join();
+
         telegramHandler_.clearSemaphores();
 
         resetSettings();
@@ -99,6 +106,9 @@ namespace io {
 
     void CommunicationCore::resetSettings()
     {
+        std::lock_guard<std::mutex> lock(configureMutex_);
+        activeConfigGeneration_ = configGeneration_.load();
+
         if (!manager_ || !manager_->connected())
         {
             return;
@@ -202,6 +212,21 @@ namespace io {
         {
             if (manager_)
             {
+                // Streams received via an IP server of the Rx survive a
+                // reconnection, only streams tied to the dynamic connection
+                // descriptor necessitate reconfiguration on reconnect
+                if (settings_->configure_rx &&
+                    (settings_->device_type == device_type::TCP) && !tcpClient_ &&
+                    !udpClient_)
+                {
+                    manager_->setReconnectedCallback([this]() {
+                        ++configGeneration_;
+                        telegramHandler_.wakeConfigWaiters();
+                        reconfigureSemaphore_.notify();
+                    });
+                    reconfigureThread_ = std::thread(
+                        std::bind(&CommunicationCore::runReconfigure, this));
+                }
                 initializedIo_ = manager_->connect();
                 if (!initializedIo_)
                     return;
@@ -299,6 +324,9 @@ namespace io {
     {
         node_->log(log_level::DEBUG, "Called configureRx() method");
 
+        std::lock_guard<std::mutex> lock(configureMutex_);
+        activeConfigGeneration_ = configGeneration_.load();
+
         if (!initializedIo_)
         {
             node_->log(log_level::DEBUG,
@@ -308,13 +336,22 @@ namespace io {
 
         if (settings_->configure_rx)
         {
+            telegramHandler_.resetSemaphores();
             uint8_t stream = 1;
+            streamsToStop_.clear();
             // Determining communication mode: TCP vs USB/Serial
             boost::smatch match;
             boost::regex_match(settings_->device, match,
                                boost::regex("(tcp)://(.+):(\\d+)"));
             std::string proto(match[1]);
             mainConnectionPort_ = resetMainConnection();
+            if (mainConnectionPort_.empty())
+            {
+                node_->log(
+                    log_level::DEBUG,
+                    "Aborting configuration, no connection descriptor could be obtained.");
+                return;
+            }
             node_->log(log_level::INFO,
                        "The connection descriptor is " + mainConnectionPort_);
             streamPort_ = mainConnectionPort_;
@@ -1106,6 +1143,9 @@ namespace io {
         // can send our real commands afterwards... has to be sent multiple times.
         std::string cmd("\x0DSSSSSSSSSS\x0D\x0D");
         std::string cd;
+        if (telegramHandler_.isAbandoned())
+            return cd;
+        uint32_t timeouts = 0;
         for (size_t i = 0; i < 3; ++i)
         {
             for (;;)
@@ -1114,7 +1154,14 @@ namespace io {
                 manager_.get()->send(cmd);
                 Semaphore::WaitResult result =
                     telegramHandler_.getMainCd(RESPONSE_TIMEOUT, cd);
-                if (result == Semaphore::WaitResult::SIGNALLED)
+                if (configGeneration_.load() != activeConfigGeneration_)
+                {
+                    node_->log(
+                        log_level::WARN,
+                        "Connection was reestablished, abandoning stale configuration run. Rx will be configured anew.");
+                    return std::string();
+                }
+                if ((result == Semaphore::WaitResult::SIGNALLED) && !cd.empty())
                     break;
                 if (result == Semaphore::WaitResult::ABANDONED)
                     return cd;
@@ -1125,6 +1172,18 @@ namespace io {
                         "No connection descriptor received from Rx while shutting down, abandoning subsequent commands.");
                     telegramHandler_.abandonSemaphores();
                     return cd;
+                }
+                if (result == Semaphore::WaitResult::TIMED_OUT)
+                {
+                    ++timeouts;
+                    if ((timeouts % UNRESPONSIVE_TIMEOUTS) == 0)
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "No connection descriptor received from Rx, connection assumed lost or stuck, reconnecting.");
+                        manager_.get()->triggerReconnect();
+                        continue;
+                    }
                 }
                 node_->log(
                     log_level::WARN,
@@ -1146,14 +1205,42 @@ namespace io {
         }
     }
 
+    void CommunicationCore::runReconfigure()
+    {
+        while (running_ && !shuttingDown_)
+        {
+            Semaphore::WaitResult result =
+                reconfigureSemaphore_.wait(std::chrono::milliseconds(1000));
+            if (result == Semaphore::WaitResult::ABANDONED)
+                break;
+            if (result != Semaphore::WaitResult::SIGNALLED)
+                continue;
+            if (shuttingDown_)
+                break;
+            node_->log(
+                log_level::INFO,
+                "Reconfiguring Rx after reconnection, since the dynamic TCP connection has received a new connection descriptor.");
+            configureRx();
+        }
+    }
+
     void CommunicationCore::send(const std::string& cmd)
     {
+        if (telegramHandler_.isAbandoned() ||
+            (configGeneration_.load() != activeConfigGeneration_))
+            return;
+
+        uint32_t timeouts = 0;
+        manager_.get()->send(cmd);
         while (!telegramHandler_.isAbandoned())
         {
-            manager_.get()->send(cmd);
             switch (telegramHandler_.waitForResponse(RESPONSE_TIMEOUT))
             {
             case Semaphore::WaitResult::SIGNALLED:
+                if (configGeneration_.load() != activeConfigGeneration_)
+                    node_->log(
+                        log_level::WARN,
+                        "Connection was reestablished, abandoning stale configuration run. Rx will be configured anew.");
                 return;
             case Semaphore::WaitResult::ABANDONED:
                 return;
@@ -1167,9 +1254,35 @@ namespace io {
                     telegramHandler_.abandonSemaphores();
                     return;
                 }
-                node_->log(log_level::WARN,
-                           "No response received from Rx to command " + cmd +
-                               ", resending.");
+                if (configGeneration_.load() != activeConfigGeneration_)
+                {
+                    node_->log(
+                        log_level::WARN,
+                        "Connection was reestablished, abandoning stale configuration run. Rx will be configured anew.");
+                    return;
+                }
+                ++timeouts;
+                if ((timeouts % UNRESPONSIVE_TIMEOUTS) == 0)
+                {
+                    node_->log(log_level::ERROR,
+                               "No response received from Rx to command " +
+                                   printable(cmd) +
+                                   ", connection assumed lost or stuck, reconnecting.");
+                    manager_.get()->triggerReconnect();
+                }
+                // Only every third timeout triggers a resend: commands altering
+                // active connections may take the Rx longer than one timeout to
+                // execute, resending would restart the execution over and over
+                else if ((timeouts % 3) == 0)
+                {
+                    node_->log(log_level::WARN,
+                               "No response received from Rx to command " +
+                                   printable(cmd) + ", resending.");
+                    manager_.get()->send(cmd);
+                } else
+                    node_->log(log_level::WARN,
+                               "No response received from Rx to command " +
+                                   printable(cmd) + " yet, keep waiting.");
                 break;
             }
             }

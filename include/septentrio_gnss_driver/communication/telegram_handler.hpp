@@ -107,6 +107,12 @@ namespace io {
             cv_.notify_all();
         }
 
+        void reset()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            block_ = true;
+        }
+
         [[nodiscard]] bool isAbandoned() const { return abandoned_; }
 
         [[nodiscard]] WaitResult wait(std::chrono::milliseconds timeout)
@@ -149,6 +155,22 @@ namespace io {
             capabilitiesSemaphore_.notify();
         }
 
+        //! Discards stale notifications latched by responses and prompts of
+        //! earlier traffic, so that the next waits pair up with fresh telegrams
+        void resetSemaphores()
+        {
+            cdSemaphore_.reset();
+            responseSemaphore_.reset();
+        }
+
+        //! Wakes threads waiting on telegrams of a lost connection so that a
+        //! stale configuration run can unwind immediately
+        void wakeConfigWaiters()
+        {
+            cdSemaphore_.notify();
+            responseSemaphore_.notify();
+        }
+
         void abandonSemaphores()
         {
             cdSemaphore_.abandon();
@@ -169,6 +191,7 @@ namespace io {
         //! Returns the connection descriptor
         void resetWaitforMainCd()
         {
+            cdSemaphore_.reset();
             std::lock_guard<std::mutex> lock(cdMtx_);
             mainConnectionDescriptor_ = std::string();
         }

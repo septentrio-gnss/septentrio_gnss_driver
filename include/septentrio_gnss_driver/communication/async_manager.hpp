@@ -59,8 +59,10 @@
 #pragma once
 
 // C++ includes
+#include <algorithm>
 #include <atomic>
 #include <deque>
+#include <functional>
 
 // Boost includes
 #include <boost/asio.hpp>
@@ -86,6 +88,13 @@
 
 namespace io {
 
+    //! Removes carriage returns for logging, since they garble the console output
+    inline std::string printable(std::string text)
+    {
+        text.erase(std::remove(text.begin(), text.end(), '\x0D'), text.end());
+        return text;
+    }
+
     /**
      * @class AsyncManagerBase
      * @brief Interface (in C++ terms), that could be used for any I/O manager,
@@ -102,6 +111,10 @@ namespace io {
         //! Sends commands to the receiver
         virtual void send(const std::string& cmd) = 0;
         virtual bool connected() = 0;
+        //! Sets a callback that is invoked after the connection was reestablished
+        virtual void setReconnectedCallback(std::function<void()> callback) = 0;
+        //! Tears down the connection and reconnects
+        virtual void triggerReconnect() = 0;
     };
 
     /**
@@ -134,8 +147,13 @@ namespace io {
 
         bool connected();
 
+        void setReconnectedCallback(std::function<void()> callback);
+
+        void triggerReconnect();
+
     private:
         void runConnectLoop();
+        void handleReadError(const boost::system::error_code& ec);
         void write(const std::string& cmd);
         void doWrite();
         void resync();
@@ -155,6 +173,8 @@ namespace io {
         //! Owns the connection lifecycle: runs the io context and reconnects on
         //! connection loss until close() is called
         std::thread connectThread_;
+        //! Invoked after the connection was reestablished
+        std::function<void()> reconnectedCallback_;
 
         static constexpr uint32_t MAX_CONSECUTIVE_READ_ERRORS = 10;
         static constexpr size_t MAX_WRITE_QUEUE_SIZE = 100;
@@ -196,6 +216,9 @@ namespace io {
     template <typename IoType>
     [[nodiscard]] bool AsyncManager<IoType>::connect()
     {
+        if (running_)
+            return connected_;
+
         running_ = true;
 
         if (!ioInterface_.connect())
@@ -250,6 +273,19 @@ namespace io {
     }
 
     template <typename IoType>
+    void AsyncManager<IoType>::setReconnectedCallback(
+        std::function<void()> callback)
+    {
+        reconnectedCallback_ = callback;
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::triggerReconnect()
+    {
+        ioContext_->stop();
+    }
+
+    template <typename IoType>
     void AsyncManager<IoType>::runConnectLoop()
     {
         while (running_)
@@ -262,6 +298,8 @@ namespace io {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     continue;
                 }
+                if (reconnectedCallback_)
+                    reconnectedCallback_();
             }
             consecutiveReadErrors_ = 0;
 
@@ -325,7 +363,7 @@ namespace io {
                     node_->log(log_level::ERROR,
                                "AsyncManager was unable to send the following " +
                                    std::to_string(sent.size()) +
-                                   " bytes to the Rx: " + sent);
+                                   " bytes to the Rx: " + printable(sent));
                     writeQueue_.clear();
                     ioContext_->stop();
                     return;
@@ -333,7 +371,8 @@ namespace io {
 
                 node_->log(log_level::DEBUG, "AsyncManager sent the following " +
                                                  std::to_string(sent.size()) +
-                                                 " bytes to the Rx: " + sent);
+                                                 " bytes to the Rx: " +
+                                                 printable(sent));
 
                 if (!writeQueue_.empty())
                     doWrite();
@@ -460,28 +499,32 @@ namespace io {
                         node_->log(log_level::DEBUG,
                                    "AsyncManager sync read error: " + ec.message());
 
-                    ++consecutiveReadErrors_;
-                    if ((boost::asio::error::eof == ec) ||
-                        (boost::asio::error::network_unreachable == ec) ||
-                        (boost::asio::error::interrupted == ec) ||
-                        (boost::asio::error::bad_descriptor == ec) ||
-                        (boost::asio::error::connection_reset == ec) ||
-                        (boost::asio::error::timed_out == ec) ||
-                        (consecutiveReadErrors_ >= MAX_CONSECUTIVE_READ_ERRORS))
-                    {
-                        if (connected_)
-                            node_->log(
-                                log_level::ERROR,
-                                "AsyncManager persistent read error: " +
-                                    ec.message());
-                        ioContext_->stop();
-                    } else
-                    {
-                        if (connected_)
-                            resync();
-                    }
+                    handleReadError(ec);
                 }
             });
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::handleReadError(const boost::system::error_code& ec)
+    {
+        ++consecutiveReadErrors_;
+        if ((boost::asio::error::eof == ec) ||
+            (boost::asio::error::network_unreachable == ec) ||
+            (boost::asio::error::interrupted == ec) ||
+            (boost::asio::error::bad_descriptor == ec) ||
+            (boost::asio::error::connection_reset == ec) ||
+            (boost::asio::error::timed_out == ec) ||
+            (consecutiveReadErrors_ >= MAX_CONSECUTIVE_READ_ERRORS))
+        {
+            if (connected_)
+                node_->log(log_level::ERROR,
+                           "AsyncManager persistent read error: " + ec.message());
+            ioContext_->stop();
+        } else
+        {
+            if (connected_)
+                resync();
+        }
     }
 
     template <typename IoType>
@@ -527,7 +570,7 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }
@@ -567,7 +610,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }
@@ -659,7 +702,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }
