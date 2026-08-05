@@ -38,6 +38,9 @@
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
 // tf2 includes
+#if __has_include(<tf2_ros/buffer.hpp>)
+#include <tf2_ros/buffer.hpp>
+#endif
 #if __has_include(<tf2_ros/transform_broadcaster.hpp>)
 #include <tf2_ros/transform_broadcaster.hpp>
 #else
