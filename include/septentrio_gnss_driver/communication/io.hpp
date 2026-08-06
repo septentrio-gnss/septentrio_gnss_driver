@@ -56,6 +56,7 @@
 #include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
 #endif
 #include <septentrio_gnss_driver/communication/telegram.hpp>
+#include <septentrio_gnss_driver/communication/telegram_parser.hpp>
 
 //! Possible baudrates for the Rx
 const static std::array<uint32_t, 21> baudrates = {
@@ -134,7 +135,9 @@ namespace io {
                         continue;
                     }
 
-                    if (buffer_[idx + 1] == SBF_SYNC_BYTE_2)
+                    const telegram_type::TelegramType candidate =
+                        telegram_parser::classifySync2(buffer_[idx + 1]);
+                    if (candidate == telegram_type::SBF)
                     {
                         if (idx + SBF_HEADER_SIZE > bytes_recvd)
                         {
@@ -144,13 +147,13 @@ namespace io {
                         }
 
                         uint16_t length =
-                            parsing_utilities::parseUInt16(&buffer_[idx + 6]);
+                            telegram_parser::getSbfLength(&buffer_[idx]);
 
                         // The length field is attacker/noise controlled. Reject
                         // anything that is not a well-formed SBF length or that
                         // would read past what was actually received, and rescan
                         // from the next byte instead of trusting it.
-                        if (length < SBF_HEADER_SIZE || (length % 4) != 0 ||
+                        if (!telegram_parser::isValidSbfLength(length) ||
                             idx + length > bytes_recvd)
                         {
                             node_->log(log_level::DEBUG,
@@ -176,16 +179,12 @@ namespace io {
                                            ".");
 
                         idx += length;
-                    } else if (((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
-                                ((buffer_[idx + 2] == NMEA_SYNC_BYTE_3) ||
-                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3a) ||
-                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3b) ||
-                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3c) ||
-                                 (buffer_[idx + 2] == NMEA_SYNC_BYTE_3d))) ||
-                               ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
-                                (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3)))
+                    } else if (((candidate == telegram_type::NMEA) &&
+                                telegram_parser::isNmeaSync3(buffer_[idx + 2])) ||
+                               ((candidate == telegram_type::NMEA_INS) &&
+                                telegram_parser::isNmeaInsSync3(buffer_[idx + 2])))
                     {
-                        bool isIns = (buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2);
+                        bool isIns = (candidate == telegram_type::NMEA_INS);
                         size_t idx_end = findNmeaEnd(idx, bytes_recvd);
                         if (idx_end >= bytes_recvd)
                         {
@@ -254,7 +253,8 @@ namespace io {
 
             while (idx_end < bytes_recvd)
             {
-                if ((buffer_[idx_end] == LF) && (buffer_[idx_end - 1] == CR))
+                if (telegram_parser::isNmeaEnd(buffer_[idx_end - 1],
+                                               buffer_[idx_end]))
                     break;
 
                 ++idx_end;

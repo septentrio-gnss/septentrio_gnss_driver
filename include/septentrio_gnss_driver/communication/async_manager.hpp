@@ -76,6 +76,7 @@
 // local includes
 #include <septentrio_gnss_driver/communication/io.hpp>
 #include <septentrio_gnss_driver/communication/telegram.hpp>
+#include <septentrio_gnss_driver/communication/telegram_parser.hpp>
 
 /**
  * @file async_manager.hpp
@@ -421,35 +422,24 @@ namespace io {
                             }
                             case 1:
                             {
-                                switch (currByte)
+                                telegram_->type =
+                                    telegram_parser::classifySync2(currByte);
+                                switch (telegram_->type)
                                 {
-                                case SBF_SYNC_BYTE_2:
+                                case telegram_type::SBF:
                                 {
-                                    telegram_->type = telegram_type::SBF;
                                     readSbfHeader();
                                     break;
                                 }
-                                case NMEA_SYNC_BYTE_2:
+                                case telegram_type::NMEA:
+                                case telegram_type::NMEA_INS:
+                                case telegram_type::RESPONSE:
                                 {
-                                    telegram_->type = telegram_type::NMEA;
-                                    readSync<2>();
-                                    break;
-                                }
-                                case NMEA_INS_SYNC_BYTE_2:
-                                {
-                                    telegram_->type = telegram_type::NMEA_INS;
-                                    readSync<2>();
-                                    break;
-                                }
-                                case RESPONSE_SYNC_BYTE_2:
-                                {
-                                    telegram_->type = telegram_type::RESPONSE;
                                     readSync<2>();
                                     break;
                                 }
                                 default:
                                 {
-                                    telegram_->type = telegram_type::UNKNOWN;
                                     readUnknown();
                                     break;
                                 }
@@ -458,16 +448,14 @@ namespace io {
                             }
                             case 2:
                             {
-                                if ((currByte == NMEA_SYNC_BYTE_3) ||
-                                    (currByte == NMEA_SYNC_BYTE_3a) ||
-                                    (currByte == NMEA_SYNC_BYTE_3b) ||
-                                    (currByte == NMEA_SYNC_BYTE_3c) ||
-                                    (currByte == NMEA_SYNC_BYTE_3d) ||
-                                    (currByte == NMEA_INS_SYNC_BYTE_3) ||
-                                    (currByte == RESPONSE_SYNC_BYTE_3) ||
-                                    (currByte == RESPONSE_SYNC_BYTE_3a))
+                                // The 3rd sync byte is deliberately not
+                                // cross-checked against the type determined by
+                                // the 2nd, any known 3rd sync byte confirms it
+                                if (telegram_parser::isNmeaSync3(currByte) ||
+                                    telegram_parser::isNmeaInsSync3(currByte) ||
+                                    telegram_parser::isResponseSync3(currByte))
                                     readString();
-                                else if (currByte == ERROR_SYNC_BYTE_3)
+                                else if (telegram_parser::isErrorSync3(currByte))
                                 {
                                     telegram_->type = telegram_type::ERROR_RESPONSE;
                                     readString();
@@ -540,15 +528,14 @@ namespace io {
                 {
                     if (numBytes == (SBF_HEADER_SIZE - 2))
                     {
-                        uint16_t length =
-                            parsing_utilities::getLength(telegram_->message);
-                        // Per the SBF spec the length field covers the header too
-                        // and is a multiple of 4. Rejecting anything shorter
-                        // matters: readSbf() computes length - SBF_HEADER_SIZE in
-                        // size_t, so a corrupted length below 8 underflows into a
-                        // ~2^64-byte read into an 8-byte buffer. An upper bound is
-                        // implicit, since a uint16_t cannot exceed MAX_SBF_SIZE.
-                        if (length < SBF_HEADER_SIZE || (length % 4) != 0)
+                        uint16_t length = telegram_parser::getSbfLength(
+                            telegram_->message.data());
+                        // Rejecting invalid lengths matters: readSbf() computes
+                        // length - SBF_HEADER_SIZE in size_t, so a corrupted
+                        // length below 8 underflows into a ~2^64-byte read into
+                        // an 8-byte buffer. An upper bound is implicit, since a
+                        // uint16_t cannot exceed MAX_SBF_SIZE.
+                        if (!telegram_parser::isValidSbfLength(length))
                         {
                             node_->log(
                                 log_level::DEBUG,
@@ -665,8 +652,10 @@ namespace io {
                         }
                         case LF:
                         {
-                            if (telegram_->message[telegram_->message.size() - 2] ==
-                                CR)
+                            if (telegram_parser::isNmeaEnd(
+                                    telegram_->message[telegram_->message.size() -
+                                                       2],
+                                    buf_[0]))
                                 telegramQueue_->push(telegram_);
                             else
                                 node_->log(
