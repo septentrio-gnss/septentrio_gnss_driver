@@ -73,6 +73,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   configure_rx: true
 
+  persist_configuration: false
+
   custom_commands_file: ""
   
   login:
@@ -445,7 +447,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Receiver Configuration</summary>
 
     + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. On the driver side communication has to set accordingly to serial, TCP or UDP (TCP and UDP may even be used simultaneously in this case). For TCP communication it is recommended to use a static TCP server (`stream_device.tcp.ip_server` and `stream_device.tcp.port`), since dynamic connections (`device` is tcp) are not guaranteed to have the same id on reconnection. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`; `PVTGeodetic`or `PVTCartesian` if latency compensation for PVT related blocks shall be used). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated with matching periods, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
-      + default: true
+      + default: `true`
+    + persist_configuration: Wether to keep the Rx configuration on driver shutdown. If set to `true`, the teardown commands on shutdown are omitted, i.e., the Rx keeps its configuration and continues to output the configured data streams. Only applicable if `configure_rx` is `true`. 
+      + default: `false`
+
   </details>
   
   <details>

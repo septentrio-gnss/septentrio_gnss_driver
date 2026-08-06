@@ -184,6 +184,8 @@ struct Settings
     std::string hw_flow_control;
     // Wether to configure Rx
     bool configure_rx;
+    // Wether to keep the Rx configuration on shutdown
+    bool persist_configuration;
     //! Datum to be used
     std::string datum;
     //! Polling period for PVT-related SBF blocks

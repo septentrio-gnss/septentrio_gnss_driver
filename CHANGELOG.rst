@@ -6,6 +6,7 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * New features
     * Add parameter to set INS motion constraint (firmware >= 1.5 required)
+    * Configured settings may be persisted
 * Improvements
     * Rework IO components
     * ENU/NED data handling

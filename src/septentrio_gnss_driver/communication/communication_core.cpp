@@ -113,8 +113,8 @@ namespace io {
         {
             return;
         }
-        if (settings_->configure_rx && !settings_->read_from_sbf_log &&
-            !settings_->read_from_pcap)
+        if (settings_->configure_rx && !settings_->persist_configuration &&
+            !settings_->read_from_sbf_log && !settings_->read_from_pcap)
         {
             resetMainConnection();
             send("sdio, " + mainConnectionPort_ + ", auto, none\x0D");
