@@ -328,17 +328,41 @@ namespace io {
             try
             {
                 boost::system::error_code ec = connectInternal(endpoints);
+                uint32_t failedAttempts = 0;
                 while (node_->ok() && ec)
                 {
-                    node_->log(
-                        log_level::ERROR,
-                        "TCP connection to " +
-                            endpoints.begin()->endpoint().address().to_string() +
-                            " on port " +
-                            std::to_string(endpoints.begin()->endpoint().port()) +
-                            " failed: " + ec.message() + ". Retrying ...");
-                    using namespace std::chrono_literals;
-                    std::this_thread::sleep_for(1s);
+                    ++failedAttempts;
+
+                    // The first failure often just races the Rx freeing the
+                    // previous session (see the abortive close and the local
+                    // port reuse in connectInternal): retry once immediately
+                    // and silently.
+                    if (failedAttempts == 1)
+                    {
+                        ec = connectInternal(endpoints);
+                        continue;
+                    }
+
+                    if ((failedAttempts == 2) ||
+                        ((failedAttempts % LOG_EVERY_NTH_RETRY) == 0))
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "TCP connection to " +
+                                endpoints.begin()
+                                    ->endpoint()
+                                    .address()
+                                    .to_string() +
+                                " on port " +
+                                std::to_string(
+                                    endpoints.begin()->endpoint().port()) +
+                                " failed: " + ec.message() +
+                                ". Retrying every " +
+                                std::to_string(CONNECT_RETRY_DELAY_MS) +
+                                " ms ...");
+                    }
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(CONNECT_RETRY_DELAY_MS));
                     ec = connectInternal(endpoints);
                 }
                 if (ec)
@@ -355,6 +379,23 @@ namespace io {
 
             deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             stream_->set_option(boost::asio::ip::tcp::no_delay(true));
+
+            // Abortive close: with SO_LINGER enabled at zero timeout, every
+            // close - the explicit one and the implicit one when stream_ is
+            // recreated on reconnect - sends a RST instead of a FIN. The Rx IP
+            // server ports accept a single client, and a FIN merely leaves the
+            // stale session in CLOSE_WAIT on the Rx, blocking reconnects until
+            // the Rx' own timeout frees the slot.
+            stream_->set_option(boost::asio::socket_base::linger(true, 0));
+
+            // Remember the local port so a reconnect can reuse the same
+            // 4-tuple, see connectInternal().
+            {
+                boost::system::error_code lec;
+                const auto localEndpoint = stream_->local_endpoint(lec);
+                if (!lec)
+                    lastLocalPort_ = localEndpoint.port();
+            }
 
             // Kernel TCP keepalive to detect silently broken links, detection
             // time is ca. idle + intvl * cnt seconds
@@ -385,8 +426,60 @@ namespace io {
             boost::system::error_code ec;
             deadline_.expires_after(std::chrono::seconds(10));
             ec = boost::asio::error::would_block;
-            boost::asio::async_connect(*stream_, endpoints,
-                                       boost::lambda::var(ec) = boost::lambda::_1);
+
+            // When reconnecting, bind to the local port of the lost connection
+            // so the new connection reuses its 4-tuple. If the Rx still holds
+            // the stale session (the RST of the abortive close never reached
+            // it, e.g. because the cable was unplugged), the SYN then hits
+            // that session instead of being refused: the Rx answers with a
+            // challenge ACK, the kernel replies with a RST that clears the
+            // stale session, and the retransmitted SYN connects - much faster
+            // than waiting for the Rx' own timeout to free its single client
+            // slot.
+            bool bound = false;
+            if (lastLocalPort_ != 0)
+            {
+                boost::system::error_code bec;
+                const auto protocol = endpoints.begin()->endpoint().protocol();
+
+                stream_->close(bec);
+                stream_->open(protocol, bec);
+                if (!bec)
+                    stream_->set_option(
+                        boost::asio::socket_base::reuse_address(true), bec);
+                if (!bec)
+                    stream_->bind(
+                        boost::asio::ip::tcp::endpoint(protocol, lastLocalPort_),
+                        bec);
+
+                if (bec)
+                {
+                    // Fall back to an ephemeral port below.
+                    node_->log(log_level::WARN,
+                               "Could not rebind local port " +
+                                   std::to_string(lastLocalPort_) + ": " +
+                                   bec.message());
+                    boost::system::error_code ignored;
+                    stream_->close(ignored);
+                } else
+                    bound = true;
+            }
+
+            if (bound)
+            {
+                // The range overload of async_connect closes and reopens the
+                // socket, which would discard the bind; connect to the first
+                // endpoint directly.
+                stream_->async_connect(endpoints.begin()->endpoint(),
+                                       boost::lambda::var(ec) =
+                                           boost::lambda::_1);
+            } else
+            {
+                boost::asio::async_connect(*stream_, endpoints,
+                                           boost::lambda::var(ec) =
+                                               boost::lambda::_1);
+            }
+
             while (node_->ok() && (ec == boost::asio::error::would_block))
             {
                 if (ioContext_->run_one() == 0)
@@ -407,11 +500,25 @@ namespace io {
             deadline_.async_wait(boost::lambda::bind(&TcpIo::checkDeadline, this));
         }
 
+        //! Fixed wait between failed connection attempts. The Rx frees a stale
+        //! session promptly once the RST of the abortive close (or the SYN on
+        //! the reused local port) reaches it, so a short constant retry
+        //! reconnects fastest.
+        static constexpr int CONNECT_RETRY_DELAY_MS = 250;
+        //! node_->log() has no throttling, so log only every Nth failed
+        //! attempt (about one line per 5 s at the retry delay above).
+        static constexpr uint32_t LOG_EVERY_NTH_RETRY = 20;
+
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_context> ioContext_;
         boost::asio::steady_timer deadline_;
 
         std::string port_;
+
+        //! Local port of the last established connection; 0 until the first
+        //! connect. Lets a reconnect reuse the previous 4-tuple, see
+        //! connectInternal(). Only accessed from the connecting thread.
+        uint16_t lastLocalPort_ = 0;
 
     public:
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;

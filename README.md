@@ -28,6 +28,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.
   + Note for serial connection: Make sure the user is part of the `dialout` group to have full access to the serial ports. If not, add it for example with `sudo adduser [username] dialout`.
+  + The usage of the dynamic IP server is not recommended for productive use, since it requires to be reconfigured after each connection loss. For TCP transport `stream_device.tcp` should be configured instead. For fastest recovery after connection loss, `stream_device.udp` is the best choice.
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
   + Note for usage of NTRIP via USB with virtual ethernet (RNDIS): RNDIS provides a virtual network connection only between the receiver and the PC. First outgoing network access via USB has to be activated, which is explained [here](https://www.youtube.com/watch?v=bUt8cL9Ue1Y). Next setup internet sharing under Linux by setting the connection of the virtual network interface (the name should be something like enx1a3202991545) to "Shared to other computers".
@@ -45,8 +46,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
+    * INS with firmware < 1.5 does not support PTP server clock.
     * INS with firmware < 1.5 does not support to set vehicle application.
-    * INS does not support PTP server clock as of now.
     * Mosaic G5 with firmware < 1.0.1 is not supported.
  + Known issues:
     * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS is fixed in 1.4.1 (released November 2023).
