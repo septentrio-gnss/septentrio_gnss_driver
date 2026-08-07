@@ -318,53 +318,28 @@ public:
      * @param[in] logLevel Log level
      * @param[in] s String to log
      */
-    void log(log_level::LogLevel logLevel, const std::string& s,
-             bool once = false) const
+    void log(log_level::LogLevel logLevel, const std::string& s) const
     {
-        if (once)
+
+        switch (logLevel)
         {
-            switch (logLevel)
-            {
-            case log_level::DEBUG:
-                RCLCPP_DEBUG_STREAM_ONCE(this->get_logger(), s);
-                break;
-            case log_level::INFO:
-                RCLCPP_INFO_STREAM_ONCE(this->get_logger(), s);
-                break;
-            case log_level::WARN:
-                RCLCPP_WARN_STREAM_ONCE(this->get_logger(), s);
-                break;
-            case log_level::ERROR:
-                RCLCPP_ERROR_STREAM_ONCE(this->get_logger(), s);
-                break;
-            case log_level::FATAL:
-                RCLCPP_FATAL_STREAM_ONCE(this->get_logger(), s);
-                break;
-            default:
-                break;
-            }
-        } else
-        {
-            switch (logLevel)
-            {
-            case log_level::DEBUG:
-                RCLCPP_DEBUG_STREAM(this->get_logger(), s);
-                break;
-            case log_level::INFO:
-                RCLCPP_INFO_STREAM(this->get_logger(), s);
-                break;
-            case log_level::WARN:
-                RCLCPP_WARN_STREAM(this->get_logger(), s);
-                break;
-            case log_level::ERROR:
-                RCLCPP_ERROR_STREAM(this->get_logger(), s);
-                break;
-            case log_level::FATAL:
-                RCLCPP_FATAL_STREAM(this->get_logger(), s);
-                break;
-            default:
-                break;
-            }
+        case log_level::DEBUG:
+            RCLCPP_DEBUG_STREAM(this->get_logger(), s);
+            break;
+        case log_level::INFO:
+            RCLCPP_INFO_STREAM(this->get_logger(), s);
+            break;
+        case log_level::WARN:
+            RCLCPP_WARN_STREAM(this->get_logger(), s);
+            break;
+        case log_level::ERROR:
+            RCLCPP_ERROR_STREAM(this->get_logger(), s);
+            break;
+        case log_level::FATAL:
+            RCLCPP_FATAL_STREAM(this->get_logger(), s);
+            break;
+        default:
+            break;
         }
     }
 
@@ -592,8 +567,7 @@ private:
                             log(log_level::WARN,
                                 "Provided VSM standard deviation of " + axis +
                                     " of " + std::to_string(sd) +
-                                    " m/s is smaller than the minimum of 0.25 m/s demanded by the Rx, it is clamped to 0.25 m/s.",
-                                true);
+                                    " m/s is smaller than the minimum of 0.25 m/s demanded by the Rx, it is clamped to 0.25 m/s.");
                             sd = 0.25;
                         }
                         stdDev = string_utilities::trimDecimalPlaces(sd);
