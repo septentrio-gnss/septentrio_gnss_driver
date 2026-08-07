@@ -204,7 +204,7 @@ namespace io {
         /**
          * @brief Pointer to settings struct
          */
-        const Settings* settings_;
+        Settings* settings_;
 
         /**
          * @brief Map of NMEA messgae IDs and uint8_t
@@ -323,7 +323,8 @@ namespace io {
         mutable uint64_t last_pvt_latency_ = 0;
 
         //! Tow of the last INSNavGeod block published as pose resp. NavSatFix,
-        //! initialized to the do-not-use value so that the first block is not skipped
+        //! initialized to the do-not-use value so that the first block is not
+        //! skipped
         uint32_t last_pose_ins_tow_ = 4294967295u;
         uint32_t last_navsatfix_ins_tow_ = 4294967295u;
 
