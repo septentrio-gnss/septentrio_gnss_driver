@@ -28,6 +28,9 @@
 //
 // *****************************************************************************
 
+#include <cmath>
+#include <ctime>
+
 #include <gtest/gtest.h>
 #include <septentrio_gnss_driver/parsers/parsing_utilities.hpp>
 
@@ -68,5 +71,16 @@ TEST(WrapTest, angle180)
         auto wrapped_val = parsing_utilities::wrapAngle180to180(val);
 
         EXPECT_EQ(wrapped_val, 90.0);
+    }
+}
+TEST(UtcToUnixTest, day_rollover_within_half_day)
+{
+    for (double utc : {0.0, 60000.0, 120000.0, 235959.0})
+    {
+        time_t now = time(0);
+        time_t converted = parsing_utilities::convertUTCtoUnix(utc);
+
+        EXPECT_LE(std::abs(difftime(converted, now)), 43201.0)
+            << "utc_double = " << utc;
     }
 }

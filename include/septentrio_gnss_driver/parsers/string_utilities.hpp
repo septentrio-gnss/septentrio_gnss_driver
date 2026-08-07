@@ -104,34 +104,6 @@ namespace string_utilities {
     [[nodiscard]] bool toUInt32(const std::string& string, uint32_t& value, int32_t base = 10);
 
     /**
-     * @brief Interprets the contents of "string" as a floating point number of
-     * whatever integer type your system has that is exactly 8 bits.
-     *
-     * It stores the "string"'s value in "value".
-     * @param[in] string The string whose content should be interpreted as a floating
-     * point number
-     * @param[out] value The int8_t variable that should be overwritten by the
-     * floating point number found in "string"
-     * @param[in] base The conversion assumes this base, here: decimal
-     * @return The value found in "string"
-     */
-    [[nodiscard]] int8_t toInt8(const std::string& string, int8_t& value, int32_t base = 10);
-
-    /**
-     * @brief Interprets the contents of "string" as a floating point number of
-     * whatever unsigned integer type your system has that is exactly 8 bits.
-     *
-     * It stores the "string"'s value in "value".
-     * @param[in] string The string whose content should be interpreted as a floating
-     * point number
-     * @param[out] value The uint8_t variable that should be overwritten by the
-     * floating point number found in "string"
-     * @param[in] base The conversion assumes this base, here: decimal
-     * @return The value found in "string"
-     */
-    [[nodiscard]] uint8_t toUInt8(const std::string& string, uint8_t& value, int32_t base = 10);
-
-    /**
      * @brief Trims decimal places to three
      * @param[in] num The double who shall be trimmed
      * @return The string

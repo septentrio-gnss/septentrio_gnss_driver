@@ -160,6 +160,7 @@ elseif(ament_cmake_FOUND)
   find_package(diagnostic_msgs REQUIRED)
   find_package(nmea_msgs REQUIRED)
   find_package(sensor_msgs REQUIRED)
+  find_package(std_msgs REQUIRED)
   find_package(geometry_msgs REQUIRED)
   find_package(gps_msgs REQUIRED)
   find_package(nav_msgs REQUIRED)
@@ -210,6 +211,7 @@ elseif(ament_cmake_FOUND)
     diagnostic_msgs
     nmea_msgs
     sensor_msgs
+    std_msgs
     geometry_msgs
     gps_msgs
     nav_msgs
@@ -225,7 +227,6 @@ elseif(ament_cmake_FOUND)
     src/septentrio_gnss_driver/communication/message_handler.cpp 
     src/septentrio_gnss_driver/communication/telegram_handler.cpp
     src/septentrio_gnss_driver/crc/crc.cpp
-    src/septentrio_gnss_driver/node/main.cpp
     src/septentrio_gnss_driver/node/rosaic_node.cpp
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 

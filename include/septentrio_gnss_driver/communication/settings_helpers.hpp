@@ -41,7 +41,7 @@
 namespace settings {
 
     // Check uniqueness of IPS ids
-    void checkUniquenssOfIps(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIps(ROSaicNodeBase* node, const Settings& settings)
     {
         if (!settings.tcp_ip_server.empty())
         {
@@ -71,18 +71,24 @@ namespace settings {
                             ".id cannot use the same IP server");
             }
         }
-        if (settings.rtk.ip_server.size() == 2)
+        for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
         {
-            if (!settings.rtk.ip_server[0].id.empty() &&
-                (settings.rtk.ip_server[0].id == settings.rtk.ip_server[1].id))
-                node->log(
-                    log_level::ERROR,
-                    "rtk_settings.ip_server_1.id and rtk_settings.ip_server_2.id cannot use the same IP server");
+            for (size_t j = i + 1; j < settings.rtk.ip_server.size(); ++j)
+            {
+                if (!settings.rtk.ip_server[i].id.empty() &&
+                    (settings.rtk.ip_server[i].id == settings.rtk.ip_server[j].id))
+                    node->log(log_level::ERROR,
+                              "rtk_settings.ip_server_" + std::to_string(i + 1) +
+                                  ".id and rtk_settings.ip_server_" +
+                                  std::to_string(j + 1) +
+                                  ".id cannot use the same IP server");
+            }
         }
     }
 
     // Check uniqueness of IPS ports
-    void checkUniquenssOfIpsPorts(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsPorts(ROSaicNodeBase* node,
+                                         const Settings& settings)
     {
         if (settings.tcp_port != 0)
         {
@@ -99,22 +105,30 @@ namespace settings {
                                   ".port cannot be the same!");
             }
         }
-        if (settings.rtk.ip_server.size() == 2)
+        for (size_t i = 0; i < settings.rtk.ip_server.size(); ++i)
         {
-            if ((settings.rtk.ip_server[0].port != 0) &&
-                (settings.rtk.ip_server[0].port == settings.rtk.ip_server[1].port))
-                node->log(
-                    log_level::ERROR,
-                    "rtk_settings.ip_server_1.port and rtk_settings.ip_server_2.port cannot be the same");
+            for (size_t j = i + 1; j < settings.rtk.ip_server.size(); ++j)
+            {
+                if ((settings.rtk.ip_server[i].port != 0) &&
+                    (settings.rtk.ip_server[i].port ==
+                     settings.rtk.ip_server[j].port))
+                    node->log(log_level::ERROR,
+                              "rtk_settings.ip_server_" + std::to_string(i + 1) +
+                                  ".port and rtk_settings.ip_server_" +
+                                  std::to_string(j + 1) +
+                                  ".port cannot be the same");
+            }
         }
     }
 
     // Check uniqueness of IPS id for VSM
-    void checkUniquenssOfIpsVsm(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsVsm(ROSaicNodeBase* node,
+                                       const Settings& settings)
     {
         if (!settings.ins_vsm.ip_server.empty())
         {
-            if (!settings.tcp_ip_server.empty() &&
+            if (!settings.ins_vsm.use_stream_device &&
+                !settings.tcp_ip_server.empty() &&
                 (settings.tcp_ip_server == settings.ins_vsm.ip_server))
                 node->log(
                     log_level::ERROR,
@@ -136,9 +150,11 @@ namespace settings {
     }
 
     // Check uniqueness of IPS port for VSM
-    void checkUniquenssOfIpsPortsVsm(ROSaicNodeBase* node, const Settings& settings)
+    inline void checkUniquenssOfIpsPortsVsm(ROSaicNodeBase* node,
+                                            const Settings& settings)
     {
-        if (settings.ins_vsm.ip_server_port != 0)
+        if ((settings.ins_vsm.ip_server_port != 0) &&
+            !settings.ins_vsm.use_stream_device)
         {
             if (std::to_string(settings.ins_vsm.ip_server_port) ==
                 settings.device_tcp_port)
@@ -167,7 +183,31 @@ namespace settings {
         }
     }
 
-    void autoPublish(ROSaicNodeBase* node, Settings& settings)
+    inline void checkVehicleApplication(ROSaicNodeBase* node, Settings& settings)
+    {
+        if (settings.ins_vehicle_application.empty())
+            return;
+
+        static const std::vector<std::string> validApplications = {
+            "Unknown",   "RoadVehicle",     "HaulTruck",   "Tractor",
+            "TerminalTractor", "ReachStacker", "LiftTruck", "Excavator",
+            "Loader",    "Grader",          "Dozer",       "RoadRobot",
+            "OffroadRobot", "FixedWing",    "Multirotor",  "USV",
+            "RailVehicle"};
+
+        for (const auto& application : validApplications)
+        {
+            if (settings.ins_vehicle_application == application)
+                return;
+        }
+
+        node->log(log_level::WARN,
+                  "ins_vehicle_application " + settings.ins_vehicle_application +
+                      " is not a valid choice -> vehicle application will not be set!");
+        settings.ins_vehicle_application = "";
+    }
+
+    inline void autoPublish(ROSaicNodeBase* node, Settings& settings)
     {
         if (settings.auto_publish && !settings.configure_rx)
         {
@@ -204,8 +244,6 @@ namespace settings {
             settings.publish_localization = true;
             settings.publish_localization_ecef = true;
             settings.publish_twist = true;
-            if (!settings.publish_tf_ecef)
-                settings.publish_tf = true;
         } else if (settings.auto_publish && settings.configure_rx)
         {
             node->log(log_level::WARN,

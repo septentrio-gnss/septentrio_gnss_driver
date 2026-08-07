@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <limits>
+#include <locale.h>
 #include <sstream>
 
 /**
@@ -45,6 +46,12 @@
  */
 
 namespace string_utilities {
+    static locale_t cLocale()
+    {
+        static locale_t loc = newlocale(LC_ALL_MASK, "C", nullptr);
+        return loc;
+    }
+
     /**
      * It checks whether an error occurred (via errno) and whether junk characters
      * exist within "string", and returns true if the latter two tests are negative
@@ -60,7 +67,7 @@ namespace string_utilities {
         char* end;
         errno = 0;
 
-        double value_new = std::strtod(string.c_str(), &end);
+        double value_new = strtod_l(string.c_str(), &end, cLocale());
 
         if (errno != 0 || end != string.c_str() + string.length())
         {
@@ -85,7 +92,7 @@ namespace string_utilities {
 
         char* end;
         errno = 0;
-        float value_new = std::strtof(string.c_str(), &end);
+        float value_new = strtof_l(string.c_str(), &end, cLocale());
 
         if (errno != 0 || end != string.c_str() + string.length())
         {
@@ -136,21 +143,21 @@ namespace string_utilities {
     [[nodiscard]] bool toUInt32(const std::string& string, uint32_t& value,
                                 int32_t base)
     {
-        if (string.empty())
+        if (string.empty() || (string.find('-') != std::string::npos))
         {
             return false;
         }
 
         char* end;
         errno = 0;
-        int64_t value_new = std::strtol(string.c_str(), &end, base);
+        uint64_t value_new = std::strtoull(string.c_str(), &end, base);
 
         if (errno != 0 || end != string.c_str() + string.length())
         {
             return false;
         }
 
-        if (value_new > std::numeric_limits<uint32_t>::max() || value_new < 0)
+        if (value_new > std::numeric_limits<uint32_t>::max())
         {
             return false;
         }
@@ -159,39 +166,12 @@ namespace string_utilities {
         return true;
     }
 
-    /**
-     * Not used as of now..
-     */
-    [[nodiscard]] int8_t toInt8(const std::string& string, int8_t& value,
-                                int32_t base)
-    {
-        char* end;
-        errno = 0;
-        int64_t value_new = std::strtol(string.c_str(), &end, base);
-
-        value = (int8_t)value_new;
-        return value;
-    }
-
-    /**
-     * Not used as of now..
-     */
-    [[nodiscard]] uint8_t toUInt8(const std::string& string, uint8_t& value,
-                                  int32_t base)
-    {
-        char* end;
-        errno = 0;
-        int64_t value_new = std::strtol(string.c_str(), &end, base);
-
-        value = (uint8_t)value_new;
-        return true;
-    }
-
     [[nodiscard]] std::string trimDecimalPlaces(double num)
     {
         num = std::round(num * 1000);
         num = num / 1000;
         std::stringstream ss;
+        ss.imbue(std::locale::classic());
         ss << std::fixed;
         ss << std::setprecision(3);
         ss << num;

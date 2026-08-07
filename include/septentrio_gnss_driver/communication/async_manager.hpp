@@ -58,6 +58,12 @@
 
 #pragma once
 
+// C++ includes
+#include <algorithm>
+#include <atomic>
+#include <deque>
+#include <functional>
+
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -70,6 +76,7 @@
 // local includes
 #include <septentrio_gnss_driver/communication/io.hpp>
 #include <septentrio_gnss_driver/communication/telegram.hpp>
+#include <septentrio_gnss_driver/communication/telegram_parser.hpp>
 
 /**
  * @file async_manager.hpp
@@ -81,6 +88,13 @@
  */
 
 namespace io {
+
+    //! Removes carriage returns for logging, since they garble the console output
+    inline std::string printable(std::string text)
+    {
+        text.erase(std::remove(text.begin(), text.end(), '\x0D'), text.end());
+        return text;
+    }
 
     /**
      * @class AsyncManagerBase
@@ -98,6 +112,10 @@ namespace io {
         //! Sends commands to the receiver
         virtual void send(const std::string& cmd) = 0;
         virtual bool connected() = 0;
+        //! Sets a callback that is invoked after the connection was reestablished
+        virtual void setReconnectedCallback(std::function<void()> callback) = 0;
+        //! Tears down the connection and reconnects
+        virtual void triggerReconnect() = 0;
     };
 
     /**
@@ -130,11 +148,15 @@ namespace io {
 
         bool connected();
 
+        void setReconnectedCallback(std::function<void()> callback);
+
+        void triggerReconnect();
+
     private:
-        void receive();
-        void runIoContext();
-        void runWatchdog();
+        void runConnectLoop();
+        void handleReadError(const boost::system::error_code& ec);
         void write(const std::string& cmd);
+        void doWrite();
         void resync();
         template <uint8_t index>
         void readSync();
@@ -149,10 +171,23 @@ namespace io {
         std::shared_ptr<boost::asio::io_context> ioContext_;
         IoType ioInterface_;
         std::atomic<bool> running_;
-        std::thread ioThread_;
-        std::thread watchdogThread_;
+        //! Owns the connection lifecycle: runs the io context and reconnects on
+        //! connection loss until close() is called
+        std::thread connectThread_;
+        //! Invoked after the connection was reestablished
+        std::function<void()> reconnectedCallback_;
 
-        bool connected_ = false;
+        static constexpr uint32_t MAX_CONSECUTIVE_READ_ERRORS = 10;
+        static constexpr size_t MAX_WRITE_QUEUE_SIZE = 100;
+
+        //! Queue of pending writes, only accessed from the io thread. Writes are
+        //! sent one after another so that async_write operations never overlap.
+        std::deque<std::string> writeQueue_;
+
+        std::atomic<bool> connected_ = false;
+        //! Number of read errors without a single successfully read byte in
+        //! between, only accessed from the io thread
+        uint32_t consecutiveReadErrors_ = 0;
 
         std::array<uint8_t, 1> buf_;
         //! Timestamp of receiving buffer
@@ -182,6 +217,9 @@ namespace io {
     template <typename IoType>
     [[nodiscard]] bool AsyncManager<IoType>::connect()
     {
+        if (running_)
+            return connected_;
+
         running_ = true;
 
         if (!ioInterface_.connect())
@@ -189,7 +227,9 @@ namespace io {
             return false;
         }
         connected_ = true;
-        receive();
+
+        connectThread_ =
+            std::thread(std::bind(&AsyncManager<IoType>::runConnectLoop, this));
 
         return true;
     }
@@ -199,15 +239,11 @@ namespace io {
     {
         running_ = false;
         connected_ = false;
-        ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager shutting down threads");
-        if (ioThread_.joinable())
-        {
-            ioContext_->stop();
-            ioThread_.join();
-        }
-        if (watchdogThread_.joinable())
-            watchdogThread_.join();
+        ioContext_->stop();
+        if (connectThread_.joinable())
+            connectThread_.join();
+        ioInterface_.close();
         node_->log(log_level::DEBUG, "AsyncManager threads stopped");
     }
 
@@ -238,31 +274,49 @@ namespace io {
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::receive()
+    void AsyncManager<IoType>::setReconnectedCallback(
+        std::function<void()> callback)
     {
-        resync();
-        ioThread_ =
-            std::thread(std::bind(&AsyncManager<IoType>::runIoContext, this));
-        if (!watchdogThread_.joinable())
-            watchdogThread_ =
-                std::thread(std::bind(&AsyncManager::runWatchdog, this));
+        reconnectedCallback_ = callback;
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::runIoContext()
+    void AsyncManager<IoType>::triggerReconnect()
     {
-        ioContext_->restart();
-        ioContext_->run();
-        node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
+        ioContext_->stop();
     }
 
     template <typename IoType>
-    void AsyncManager<IoType>::runWatchdog()
+    void AsyncManager<IoType>::runConnectLoop()
     {
         while (running_)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            if (running_ && ioContext_->stopped())
+            if (!connected_)
+            {
+                connected_ = ioInterface_.connect();
+                if (!connected_)
+                {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    continue;
+                }
+                if (reconnectedCallback_)
+                    reconnectedCallback_();
+            }
+            consecutiveReadErrors_ = 0;
+
+            resync();
+
+            ioContext_->restart();
+            ioContext_->run();
+            node_->log(log_level::DEBUG, "AsyncManager ioContext terminated.");
+
+            connected_ = false;
+            // Flush handlers of the terminated connection so that their errors
+            // cannot stop the io context of the next one
+            ioContext_->restart();
+            ioContext_->poll();
+
+            if (running_)
             {
                 if (node_->settings()->read_from_sbf_log ||
                     node_->settings()->read_from_pcap)
@@ -271,25 +325,9 @@ namespace io {
                         log_level::INFO,
                         "AsyncManager finished reading file. Node will continue to publish queued messages.");
                     break;
-                } else
-                {
-                    node_->log(log_level::ERROR,
-                               "AsyncManager connection lost. Trying to reconnect.");
-                    ioThread_.join();
-                    connected_ = ioInterface_.connect();
-                    if (connected_)
-                        receive();
                 }
-            } else if (running_ && std::is_same<TcpIo, IoType>::value)
-            {
-                // Send to check if TCP connection still alive
-                std::string empty = " ";
-                boost::asio::async_write(
-                    *(ioInterface_.stream_), boost::asio::buffer(empty.data(), 1),
-                    [this](boost::system::error_code ec, std::size_t /*length*/) {
-                        if (ec)
-                            ioContext_->stop();
-                    });
+                node_->log(log_level::ERROR,
+                           "AsyncManager connection lost. Trying to reconnect.");
             }
         }
     }
@@ -297,22 +335,48 @@ namespace io {
     template <typename IoType>
     void AsyncManager<IoType>::write(const std::string& cmd)
     {
+        const bool writeInProgress = !writeQueue_.empty();
+        writeQueue_.push_back(cmd);
+
+        if (writeQueue_.size() > MAX_WRITE_QUEUE_SIZE)
+            node_->log(log_level::WARN,
+                       "AsyncManager write queue holds " +
+                           std::to_string(writeQueue_.size()) +
+                           " messages, the connection may be stalled.");
+
+        if (!writeInProgress)
+            doWrite();
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::doWrite()
+    {
         boost::asio::async_write(
-            *(ioInterface_.stream_), boost::asio::buffer(cmd.data(), cmd.size()),
-            [this, cmd](boost::system::error_code ec, std::size_t /*length*/) {
-                if (!ec)
-                {
-                    // Prints the data that was sent
-                    node_->log(log_level::DEBUG, "AsyncManager sent the following " +
-                                                     std::to_string(cmd.size()) +
-                                                     " bytes to the Rx: " + cmd);
-                } else
+            *(ioInterface_.stream_),
+            boost::asio::buffer(writeQueue_.front().data(),
+                                writeQueue_.front().size()),
+            [this](boost::system::error_code ec, std::size_t /*length*/) {
+                std::string sent = std::move(writeQueue_.front());
+                writeQueue_.pop_front();
+
+                if (ec)
                 {
                     node_->log(log_level::ERROR,
                                "AsyncManager was unable to send the following " +
-                                   std::to_string(cmd.size()) +
-                                   " bytes to the Rx: " + cmd);
+                                   std::to_string(sent.size()) +
+                                   " bytes to the Rx: " + printable(sent));
+                    writeQueue_.clear();
+                    ioContext_->stop();
+                    return;
                 }
+
+                node_->log(log_level::DEBUG, "AsyncManager sent the following " +
+                                                 std::to_string(sent.size()) +
+                                                 " bytes to the Rx: " +
+                                                 printable(sent));
+
+                if (!writeQueue_.empty())
+                    doWrite();
             });
     }
 
@@ -337,6 +401,7 @@ namespace io {
 
                 if (!ec)
                 {
+                    consecutiveReadErrors_ = 0;
                     if (numBytes == 1)
                     {
                         uint8_t& currByte = telegram_->message[index];
@@ -357,35 +422,24 @@ namespace io {
                             }
                             case 1:
                             {
-                                switch (currByte)
+                                telegram_->type =
+                                    telegram_parser::classifySync2(currByte);
+                                switch (telegram_->type)
                                 {
-                                case SBF_SYNC_BYTE_2:
+                                case telegram_type::SBF:
                                 {
-                                    telegram_->type = telegram_type::SBF;
                                     readSbfHeader();
                                     break;
                                 }
-                                case NMEA_SYNC_BYTE_2:
+                                case telegram_type::NMEA:
+                                case telegram_type::NMEA_INS:
+                                case telegram_type::RESPONSE:
                                 {
-                                    telegram_->type = telegram_type::NMEA;
-                                    readSync<2>();
-                                    break;
-                                }
-                                case NMEA_INS_SYNC_BYTE_2:
-                                {
-                                    telegram_->type = telegram_type::NMEA_INS;
-                                    readSync<2>();
-                                    break;
-                                }
-                                case RESPONSE_SYNC_BYTE_2:
-                                {
-                                    telegram_->type = telegram_type::RESPONSE;
                                     readSync<2>();
                                     break;
                                 }
                                 default:
                                 {
-                                    telegram_->type = telegram_type::UNKNOWN;
                                     readUnknown();
                                     break;
                                 }
@@ -394,16 +448,14 @@ namespace io {
                             }
                             case 2:
                             {
-                                if ((currByte == NMEA_SYNC_BYTE_3) ||
-                                    (currByte == NMEA_SYNC_BYTE_3a) ||
-                                    (currByte == NMEA_SYNC_BYTE_3b) ||
-                                    (currByte == NMEA_SYNC_BYTE_3c) ||
-                                    (currByte == NMEA_SYNC_BYTE_3d) ||
-                                    (currByte == NMEA_INS_SYNC_BYTE_3) ||
-                                    (currByte == RESPONSE_SYNC_BYTE_3) ||
-                                    (currByte == RESPONSE_SYNC_BYTE_3a))
+                                // The 3rd sync byte is deliberately not
+                                // cross-checked against the type determined by
+                                // the 2nd, any known 3rd sync byte confirms it
+                                if (telegram_parser::isNmeaSync3(currByte) ||
+                                    telegram_parser::isNmeaInsSync3(currByte) ||
+                                    telegram_parser::isResponseSync3(currByte))
                                     readString();
-                                else if (ERROR_SYNC_BYTE_3)
+                                else if (telegram_parser::isErrorSync3(currByte))
                                 {
                                     telegram_->type = telegram_type::ERROR_RESPONSE;
                                     readString();
@@ -435,20 +487,32 @@ namespace io {
                         node_->log(log_level::DEBUG,
                                    "AsyncManager sync read error: " + ec.message());
 
-                    if ((boost::asio::error::eof == ec) ||
-                        (boost::asio::error::network_unreachable == ec) ||
-                        (boost::asio::error::interrupted == ec) ||
-                        (boost::asio::error::bad_descriptor == ec) ||
-                        (boost::asio::error::connection_reset == ec))
-                    {
-                        ioContext_->stop();
-                    } else
-                    {
-                        if (connected_)
-                            resync();
-                    }
+                    handleReadError(ec);
                 }
             });
+    }
+
+    template <typename IoType>
+    void AsyncManager<IoType>::handleReadError(const boost::system::error_code& ec)
+    {
+        ++consecutiveReadErrors_;
+        if ((boost::asio::error::eof == ec) ||
+            (boost::asio::error::network_unreachable == ec) ||
+            (boost::asio::error::interrupted == ec) ||
+            (boost::asio::error::bad_descriptor == ec) ||
+            (boost::asio::error::connection_reset == ec) ||
+            (boost::asio::error::timed_out == ec) ||
+            (consecutiveReadErrors_ >= MAX_CONSECUTIVE_READ_ERRORS))
+        {
+            if (connected_)
+                node_->log(log_level::ERROR,
+                           "AsyncManager persistent read error: " + ec.message());
+            ioContext_->stop();
+        } else
+        {
+            if (connected_)
+                resync();
+        }
     }
 
     template <typename IoType>
@@ -464,15 +528,20 @@ namespace io {
                 {
                     if (numBytes == (SBF_HEADER_SIZE - 2))
                     {
-                        uint16_t length =
-                            parsing_utilities::getLength(telegram_->message);
-                        if (length > MAX_SBF_SIZE)
+                        uint16_t length = telegram_parser::getSbfLength(
+                            telegram_->message.data());
+                        // Rejecting invalid lengths matters: readSbf() computes
+                        // length - SBF_HEADER_SIZE in size_t, so a corrupted
+                        // length below 8 underflows into a ~2^64-byte read into
+                        // an 8-byte buffer. An upper bound is implicit, since a
+                        // uint16_t cannot exceed MAX_SBF_SIZE.
+                        if (!telegram_parser::isValidSbfLength(length))
                         {
                             node_->log(
                                 log_level::DEBUG,
-                                "AsyncManager SBF header read fault, length of block exceeds " +
-                                    std::to_string(MAX_SBF_SIZE) + ": " +
+                                "AsyncManager SBF header read fault, invalid block length: " +
                                     std::to_string(length));
+                            resync();
                         } else
                             readSbf(length);
                     } else
@@ -488,7 +557,7 @@ namespace io {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF header read error: " +
                                    ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }
@@ -528,7 +597,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager SBF read error: " + ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }
@@ -583,8 +652,10 @@ namespace io {
                         }
                         case LF:
                         {
-                            if (telegram_->message[telegram_->message.size() - 2] ==
-                                CR)
+                            if (telegram_parser::isNmeaEnd(
+                                    telegram_->message[telegram_->message.size() -
+                                                       2],
+                                    buf_[0]))
                                 telegramQueue_->push(telegram_);
                             else
                                 node_->log(
@@ -620,7 +691,7 @@ namespace io {
                 {
                     node_->log(log_level::DEBUG,
                                "AsyncManager string read error: " + ec.message());
-                    resync();
+                    handleReadError(ec);
                 }
             });
     }

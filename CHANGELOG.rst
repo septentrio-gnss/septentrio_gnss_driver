@@ -2,12 +2,44 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.0 (upcoming)
+------------------
+* New features
+    * Add parameter to set INS motion constraint (firmware >= 1.5 required)
+    * Configured settings may be persisted
+* Improvements
+    * Rework IO components
+    * ENU/NED data handling
+    * Shutdown while waiting for response during setup
+    * RTK setup logic
+    * Auto publish logic
+    * Update README
+    * New firmware VSM handling
+    * Rework VSM sample averaging
+    * Add NMEA 4.10 compatibility
+    * Checksum validation of NMEA sentences
+    * Reconnecting now also works on a dynamic TCP connection since it triggers a reconfiguration
+* Fixes
+    * Populate GPRMC/GPGGA utc_seconds regardless of use_gnss_time (thanks @vpe-ct2mc)
+    * Memory safety
+    * Static transform publishers in example launch files
+    * Wrong units and ENU/NED ordering
+    * INS data handling
+    * Locale independence
+    * NMEA parsers
+    * Reconnect and IO threading
+    * TCP reconnect
+    * Device regex
+    * VSM server logic and string malforming
+* Contributors: @vpe-ct2mc, Claude, Thomas Emter, Tibor Dome, septentrio-users
+
+
 1.4.8 (2026-08-01)
 ------------------
 * Fixes
-    * Fix Aux1 antenna type in INS multi-antenna mode (@Mh-Magdy)
-    * Fix rolling C++20 compatibility (@thomasemter)
-    * Fix incorrect output topic names and message types in README (@vpe-ct2mc)
+    * Fix Aux1 antenna type in INS multi-antenna mode (thanks @Mh-Magdy)
+    * Fix rolling C++20 compatibility
+    * Fix incorrect output topic names and message types in README (thanks @vpe-ct2mc)
 * Contributors: Mohamed Magdy, @vpe-ct2mc, Thomas Emter, Tibor Dome, septentrio-users
 
 1.4.7 (2026-06-13)

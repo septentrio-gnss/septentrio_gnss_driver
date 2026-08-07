@@ -48,9 +48,9 @@
  * By ID, we mean either a standardized ID, e.g. "$GPGGA", or proprietary ID such as
  * "$PSSN,HRP". The STL Container Vector can be used to dynamically allocate arrays
  * (C++ feature). Also note that the ID of !all! (not just those defined by
- * Septentrio) proprietary NMEA messages starts with "$P". The body_ member variable
- * shall exclude the NMEA checksum (also hinted at in files that implement the
- * parsing).
+ * Septentrio) proprietary NMEA messages starts with "$P". The last element of the
+ * body_ member variable is the NMEA checksum token, which the parsers account for
+ * in their length checks but never parse.
  */
 class NMEASentence
 {
@@ -59,7 +59,7 @@ public:
         id_(id), body_(body)
     {
     }
-    std::vector<std::string> get_body() const { return body_; }
+    const std::vector<std::string>& get_body() const { return body_; }
 
 protected:
     std::string id_;

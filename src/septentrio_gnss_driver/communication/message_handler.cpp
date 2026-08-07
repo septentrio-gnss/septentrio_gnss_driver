@@ -31,6 +31,7 @@
 #include <GeographicLib/UTMUPS.hpp>
 #include <boost/tokenizer.hpp>
 #include <septentrio_gnss_driver/communication/message_handler.hpp>
+#include <septentrio_gnss_driver/parsers/string_utilities.hpp>
 #include <thread>
 
 /**
@@ -64,15 +65,13 @@ namespace io {
         if (!settings_->publish_pose)
             return;
 
-        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
-
         PoseWithCovarianceStampedMsg msg;
         if (settings_->septentrio_receiver_type == "ins")
         {
             if (!validValue(last_insnavgeod_.block_header.tow) ||
-                (last_insnavgeod_.block_header.tow == last_ins_tow))
+                (last_insnavgeod_.block_header.tow == last_pose_ins_tow_))
                 return;
-            last_ins_tow = last_insnavgeod_.block_header.tow;
+            last_pose_ins_tow_ = last_insnavgeod_.block_header.tow;
 
             msg.header = last_insnavgeod_.header;
 
@@ -121,11 +120,11 @@ namespace io {
             {
                 // Attitude autocov
                 msg.pose.covariance[21] =
-                    convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
                 msg.pose.covariance[28] =
-                    convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
                 msg.pose.covariance[35] =
-                    convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                    convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
 
             } else
             {
@@ -256,104 +255,78 @@ namespace io {
         // Constructing the "level of operation" field
         uint16_t indicators_type_mask = static_cast<uint16_t>(255);
         uint16_t indicators_value_mask = static_cast<uint16_t>(3840);
-        uint16_t qualityind_pos;
-        for (uint16_t i = static_cast<uint16_t>(0);
-             i < last_qualityind_.indicators.size(); ++i)
-        {
-            if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                static_cast<uint16_t>(0))
-            {
-                qualityind_pos = i;
-                if (((last_qualityind_.indicators[i] & indicators_value_mask) >>
-                     8) == static_cast<uint16_t>(0))
-                {
-                    gnss_status.level = DiagnosticStatusMsg::STALE;
-                } else if (((last_qualityind_.indicators[i] &
-                             indicators_value_mask) >>
-                            8) == static_cast<uint16_t>(1) ||
-                           ((last_qualityind_.indicators[i] &
-                             indicators_value_mask) >>
-                            8) == static_cast<uint16_t>(2))
-                {
-                    gnss_status.level = DiagnosticStatusMsg::WARN;
-                } else
-                {
-                    gnss_status.level = DiagnosticStatusMsg::OK;
-                }
-                break;
-            }
-        }
-        // If the ReceiverStatus's RxError field is not 0, then at least one error
-        // has been detected.
-        if (last_receiverstatus_.rx_error != static_cast<uint32_t>(0))
-        {
-            gnss_status.level = DiagnosticStatusMsg::ERROR;
-        }
+
         // Creating an array of values associated with the GNSS status
-        gnss_status.values.resize(static_cast<uint16_t>(last_qualityind_.n - 1));
-        for (uint16_t i = static_cast<uint16_t>(0);
-             i != static_cast<uint16_t>(last_qualityind_.n); ++i)
+        // The overall-quality indicator is reported through "level" above rather
+        // than as a key/value pair, so it is skipped here. Entries are appended
+        // instead of written at index i: the loop visits every indicator while only
+        // n-1 of them are emitted, so indexing by i would write past the end of the
+        // vector.
+        gnss_status.values.clear();
+        gnss_status.values.reserve(last_qualityind_.indicators.size());
+        uint8_t oaq = 0;
+        for (size_t i = 0; i < last_qualityind_.indicators.size(); ++i)
         {
-            if (i == qualityind_pos)
+            std::string key;
+            switch (last_qualityind_.indicators[i] & indicators_type_mask)
             {
+            case 0:
+                key = "Overall quality";
+                oaq = (last_qualityind_.indicators[i] & indicators_value_mask) >> 8;
+                break;
+            case 1:
+                key = "GNSS Signals, Main Antenna";
+                break;
+            case 2:
+                key = "GNSS Signals, Aux1 Antenna";
+                break;
+            case 11:
+                key = "RF Power, Main Antenna";
+                break;
+            case 12:
+                key = "RF Power, Aux1 Antenna";
+                break;
+            case 21:
+                key = "CPU Headroom";
+                break;
+            case 25:
+                key = "OCXO Stability";
+                break;
+            case 30:
+                key = "Base Station Measurements";
+                break;
+            case 31:
+                key = "RTK Post-Processing";
+                break;
+            default:
+                node_->log(log_level::DEBUG,
+                           "Unknown quality indicator type in SBF QualityInd: " +
+                               std::to_string(last_qualityind_.indicators[i] &
+                                              indicators_type_mask));
                 continue;
             }
-            if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                static_cast<uint16_t>(1))
-            {
-                gnss_status.values[i].key = "GNSS Signals, Main Antenna";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(2))
-            {
-                gnss_status.values[i].key = "GNSS Signals, Aux1 Antenna";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(11))
-            {
-                gnss_status.values[i].key = "RF Power, Main Antenna";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(12))
-            {
-                gnss_status.values[i].key = "RF Power, Aux1 Antenna";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(21))
-            {
-                gnss_status.values[i].key = "CPU Headroom";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(25))
-            {
-                gnss_status.values[i].key = "OCXO Stability";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else if ((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(30))
-            {
-                gnss_status.values[i].key = "Base Station Measurements";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            } else
-            {
-                assert((last_qualityind_.indicators[i] & indicators_type_mask) ==
-                       static_cast<uint16_t>(31));
-                gnss_status.values[i].key = "RTK Post-Processing";
-                gnss_status.values[i].value = std::to_string(
-                    (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
-            }
+
+            gnss_status.values.emplace_back();
+            gnss_status.values.back().key = key;
+            gnss_status.values.back().value = std::to_string(
+                (last_qualityind_.indicators[i] & indicators_value_mask) >> 8);
         }
+
+        if (oaq < 5)
+        {
+            gnss_status.level = DiagnosticStatusMsg::ERROR;
+        } else if (oaq < 9)
+        {
+            gnss_status.level = DiagnosticStatusMsg::WARN;
+        } else
+            gnss_status.level = DiagnosticStatusMsg::OK;
+
         gnss_status.hardware_id = serialnumber;
         gnss_status.name = "septentrio_driver: Quality indicators";
         gnss_status.message =
             "GNSS quality Indicators (from 0 for low quality to 10 for high quality, 15 if unknown)";
         msg.status.push_back(gnss_status);
+
         DiagnosticStatusMsg receiver_status;
         receiver_status.hardware_id = serialnumber;
         receiver_status.name = "septentrio_driver: receiver status";
@@ -595,6 +568,47 @@ namespace io {
         publish<DiagnosticArrayMsg>("/diagnostics", msg);
     }
 
+    void MessageHandler::assembleVsmDiagnosticArray()
+    {
+        bool hasVsm = false;
+        bool rejected = false;
+        for (size_t i = 0; i < last_extsensmeas_.type.size(); ++i)
+        {
+            if (last_extsensmeas_.type[i] == 4)
+            {
+                hasVsm = true;
+                if (last_extsensmeas_.obs_info[i] & 32)
+                    rejected = true;
+            }
+        }
+        if (!hasVsm)
+            return;
+
+        DiagnosticArrayMsg msg;
+        DiagnosticStatusMsg diagVsm;
+
+        diagVsm.hardware_id = last_receiversetup_.rx_serial_number;
+        diagVsm.name = "septentrio_driver: VSM";
+        diagVsm.message = "Current status of the velocity sensor measurement input";
+
+        diagVsm.values.resize(1);
+        diagVsm.values[0].key = "VSM input";
+        if (rejected)
+        {
+            diagVsm.values[0].value = "rejected by Rx";
+            diagVsm.level = DiagnosticStatusMsg::WARN;
+        } else
+        {
+            diagVsm.values[0].value = "accepted";
+            diagVsm.level = DiagnosticStatusMsg::OK;
+        }
+
+        msg.status.push_back(diagVsm);
+        msg.header = last_extsensmeas_.header;
+
+        publish<DiagnosticArrayMsg>("/diagnostics", msg);
+    }
+
     void MessageHandler::assembleImu()
     {
         // INS tow and extsens meas tow have the same time scale
@@ -645,11 +659,11 @@ namespace io {
                     validValue(last_insnavgeod_.heading_std_dev))
                 {
                     msg.orientation_covariance[0] =
-                        convertAutoCovariance(last_insnavgeod_.roll_std_dev);
-                    msg.orientation_covariance[4] =
-                        convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
-                    msg.orientation_covariance[8] =
-                        convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                        convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
+                    msg.orientation_covariance[4] = convertAutoCovariance(
+                        square(last_insnavgeod_.pitch_std_dev));
+                    msg.orientation_covariance[8] = convertAutoCovariance(
+                        square(last_insnavgeod_.heading_std_dev));
 
                     if ((last_insnavgeod_.sb_list & 64) != 0)
                     {
@@ -728,32 +742,27 @@ namespace io {
             }
 
             if (((last_insnavgeod_.sb_list & 16) != 0) &&
-                ((last_insnavgeod_.sb_list & 2) != 0) &&
                 ((last_insnavgeod_.sb_list & 8) != 0))
             {
                 Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+                const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+                const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
+                // Linear velocity covariance
+                if (validValue(last_insnavgeod_.ve_std_dev))
+                    covVel_local(iE, iE) = square(last_insnavgeod_.ve_std_dev);
+                else
+                    covVel_local(iE, iE) = -1.0;
+                if (validValue(last_insnavgeod_.vn_std_dev))
+                    covVel_local(iN, iN) = square(last_insnavgeod_.vn_std_dev);
+                else
+                    covVel_local(iN, iN) = -1.0;
+                if (validValue(last_insnavgeod_.vu_std_dev))
+                    covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
+                else
+                    covVel_local(2, 2) = -1.0;
+
                 if ((last_insnavgeod_.sb_list & 128) != 0)
                 {
-                    // Linear velocity covariance
-                    if (validValue(last_insnavgeod_.ve_std_dev))
-                        if (settings_->use_ros_axis_orientation)
-                            covVel_local(0, 0) = square(last_insnavgeod_.ve_std_dev);
-                        else
-                            covVel_local(1, 1) = square(last_insnavgeod_.ve_std_dev);
-                    else
-                        covVel_local(0, 0) = -1.0;
-                    if (validValue(last_insnavgeod_.vn_std_dev))
-                        if (settings_->use_ros_axis_orientation)
-                            covVel_local(1, 1) = square(last_insnavgeod_.vn_std_dev);
-                        else
-                            covVel_local(0, 0) = square(last_insnavgeod_.vn_std_dev);
-                    else
-                        covVel_local(1, 1) = -1.0;
-                    if (validValue(last_insnavgeod_.vu_std_dev))
-                        covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
-                    else
-                        covVel_local(2, 2) = -1.0;
-
                     if (validValue(last_insnavgeod_.ve_vn_cov))
                         covVel_local(0, 1) = covVel_local(1, 0) =
                             last_insnavgeod_.ve_vn_cov;
@@ -774,11 +783,6 @@ namespace io {
                             covVel_local(2, 1) = covVel_local(1, 2) =
                                 -last_insnavgeod_.ve_vu_cov;
                     }
-                } else
-                {
-                    covVel_local(0, 0) = -1.0;
-                    covVel_local(1, 1) = -1.0;
-                    covVel_local(2, 2) = -1.0;
                 }
 
                 msg.twist.covariance[0] = covVel_local(0, 0);
@@ -834,28 +838,25 @@ namespace io {
             if (last_velcovgeodetic_.error == 0)
             {
                 Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+                const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+                const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
                 // Linear velocity covariance in navigation frame
                 if (validValue(last_velcovgeodetic_.cov_veve))
-                    if (settings_->use_ros_axis_orientation)
-                        covVel_local(0, 0) = last_velcovgeodetic_.cov_veve;
-                    else
-                        covVel_local(1, 1) = last_velcovgeodetic_.cov_veve;
+                    covVel_local(iE, iE) = last_velcovgeodetic_.cov_veve;
                 else
-                    covVel_local(0, 0) = -1.0;
+                    covVel_local(iE, iE) = -1.0;
                 if (validValue(last_velcovgeodetic_.cov_vnvn))
-                    if (settings_->use_ros_axis_orientation)
-                        covVel_local(1, 1) = last_velcovgeodetic_.cov_vnvn;
-                    else
-                        covVel_local(0, 0) = last_velcovgeodetic_.cov_vnvn;
+                    covVel_local(iN, iN) = last_velcovgeodetic_.cov_vnvn;
                 else
-                    covVel_local(1, 1) = -1.0;
+                    covVel_local(iN, iN) = -1.0;
                 if (validValue(last_velcovgeodetic_.cov_vuvu))
                     covVel_local(2, 2) = last_velcovgeodetic_.cov_vuvu;
                 else
                     covVel_local(2, 2) = -1.0;
 
-                covVel_local(0, 1) = covVel_local(1, 0) =
-                    last_velcovgeodetic_.cov_vnve;
+                if (validValue(last_velcovgeodetic_.cov_vnve))
+                    covVel_local(0, 1) = covVel_local(1, 0) =
+                        last_velcovgeodetic_.cov_vnve;
                 if (settings_->use_ros_axis_orientation)
                 {
                     if (validValue(last_velcovgeodetic_.cov_vevu))
@@ -975,11 +976,23 @@ namespace io {
         Eigen::Matrix3d P_pos = -Eigen::Matrix3d::Identity();
         if ((last_insnavgeod_.sb_list & 1) != 0)
         {
-            // Position autocovariance
-            P_pos(0, 0) =
+            // Position autocovariance.
+            double varLon =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.longitude_std_dev));
-            P_pos(1, 1) =
+            double varLat =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.latitude_std_dev));
+
+            if (settings_->use_ros_axis_orientation)
+            {
+                // (ENU)
+                P_pos(0, 0) = varLon;
+                P_pos(1, 1) = varLat;
+            } else
+            {
+                // (NED)
+                P_pos(0, 0) = varLat;
+                P_pos(1, 1) = varLon;
+            }
             P_pos(2, 2) =
                 convertAutoCovarianceNaN(square(last_insnavgeod_.height_std_dev));
         }
@@ -1013,11 +1026,11 @@ namespace io {
         {
             // Attitude autocovariance
             msg.pose.covariance[21] =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.roll_std_dev));
             msg.pose.covariance[28] =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.pitch_std_dev));
             msg.pose.covariance[35] =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
+                convertAutoCovariance(square(last_insnavgeod_.heading_std_dev));
         } else
         {
             msg.pose.covariance[21] = -1.0;
@@ -1060,8 +1073,9 @@ namespace io {
 
         if ((meridian_convergence != 0.0) && (last_insnavgeod_.sb_list & 1))
         {
-            double cg = std::cos(meridian_convergence);
-            double sg = std::sin(meridian_convergence);
+            double gamma = deg2rad(meridian_convergence);
+            double cg = std::cos(gamma);
+            double sg = std::sin(gamma);
             Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
             R(0, 0) = cg;
             R(0, 1) = -sg;
@@ -1134,7 +1148,7 @@ namespace io {
         msg.pose.pose.position.y = last_insnavcart_.y;
         msg.pose.pose.position.z = last_insnavcart_.z;
 
-        if ((last_insnavgeod_.sb_list & 1) != 0)
+        if ((last_insnavcart_.sb_list & 1) != 0)
         {
             // Position autocovariance
             msg.pose.covariance[0] =
@@ -1194,18 +1208,18 @@ namespace io {
         }
         Eigen::Matrix3d covAtt_local = Eigen::Matrix3d::Zero();
         bool covAttValid = true;
-        if ((last_insnavgeod_.sb_list & 4) != 0)
+        if ((last_insnavcart_.sb_list & 4) != 0)
         {
             // Attitude autocovariance
             covAtt_local(0, 0) =
-                convertAutoCovariance(last_insnavgeod_.roll_std_dev);
+                convertAutoCovariance(square(last_insnavcart_.roll_std_dev));
             covAtt_local(1, 1) =
-                convertAutoCovariance(last_insnavgeod_.pitch_std_dev);
+                convertAutoCovariance(square(last_insnavcart_.pitch_std_dev));
             covAtt_local(2, 2) =
-                convertAutoCovariance(last_insnavgeod_.heading_std_dev);
-            covAttValid = !std::isnan(last_insnavgeod_.roll_std_dev) &&
-                          !std::isnan(last_insnavgeod_.pitch_std_dev) &&
-                          !std::isnan(last_insnavgeod_.heading_std_dev);
+                convertAutoCovariance(square(last_insnavcart_.heading_std_dev));
+            covAttValid = !std::isnan(last_insnavcart_.roll_std_dev) &&
+                          !std::isnan(last_insnavcart_.pitch_std_dev) &&
+                          !std::isnan(last_insnavcart_.heading_std_dev);
         } else
         {
             covAtt_local(0, 0) = -1.0;
@@ -1302,23 +1316,19 @@ namespace io {
             parsing_utilities::setVector3NaN(msg.twist.twist.linear);
         }
         Eigen::Matrix3d covVel_local = Eigen::Matrix3d::Zero();
+        const Eigen::Index iE = settings_->use_ros_axis_orientation ? 0 : 1;
+        const Eigen::Index iN = settings_->use_ros_axis_orientation ? 1 : 0;
         if ((last_insnavgeod_.sb_list & 16) != 0)
         {
             // Linear velocity autocovariance
             if (validValue(last_insnavgeod_.ve_std_dev))
-                if (settings_->use_ros_axis_orientation)
-                    covVel_local(0, 0) = square(last_insnavgeod_.ve_std_dev);
-                else
-                    covVel_local(0, 0) = square(last_insnavgeod_.vn_std_dev);
+                covVel_local(iE, iE) = square(last_insnavgeod_.ve_std_dev);
             else
-                covVel_local(0, 0) = -1.0;
+                covVel_local(iE, iE) = -1.0;
             if (validValue(last_insnavgeod_.vn_std_dev))
-                if (settings_->use_ros_axis_orientation)
-                    covVel_local(1, 1) = square(last_insnavgeod_.vn_std_dev);
-                else
-                    covVel_local(1, 1) = square(last_insnavgeod_.ve_std_dev);
+                covVel_local(iN, iN) = square(last_insnavgeod_.vn_std_dev);
             else
-                covVel_local(1, 1) = -1.0;
+                covVel_local(iN, iN) = -1.0;
             if (validValue(last_insnavgeod_.vu_std_dev))
                 covVel_local(2, 2) = square(last_insnavgeod_.vu_std_dev);
             else
@@ -1332,17 +1342,24 @@ namespace io {
 
         if ((last_insnavgeod_.sb_list & 128) != 0)
         {
-            covVel_local(0, 1) = covVel_local(1, 0) = last_insnavgeod_.ve_vn_cov;
+            if (validValue(last_insnavgeod_.ve_vn_cov))
+                covVel_local(0, 1) = covVel_local(1, 0) = last_insnavgeod_.ve_vn_cov;
             if (settings_->use_ros_axis_orientation)
             {
-                covVel_local(0, 2) = covVel_local(2, 0) = last_insnavgeod_.ve_vu_cov;
-                covVel_local(2, 1) = covVel_local(1, 2) = last_insnavgeod_.vn_vu_cov;
+                if (validValue(last_insnavgeod_.ve_vu_cov))
+                    covVel_local(0, 2) = covVel_local(2, 0) =
+                        last_insnavgeod_.ve_vu_cov;
+                if (validValue(last_insnavgeod_.vn_vu_cov))
+                    covVel_local(2, 1) = covVel_local(1, 2) =
+                        last_insnavgeod_.vn_vu_cov;
             } else
             {
-                covVel_local(0, 2) = covVel_local(2, 0) =
-                    -last_insnavgeod_.vn_vu_cov;
-                covVel_local(2, 1) = covVel_local(1, 2) =
-                    -last_insnavgeod_.ve_vu_cov;
+                if (validValue(last_insnavgeod_.vn_vu_cov))
+                    covVel_local(0, 2) = covVel_local(2, 0) =
+                        -last_insnavgeod_.vn_vu_cov;
+                if (validValue(last_insnavgeod_.ve_vu_cov))
+                    covVel_local(2, 1) = covVel_local(1, 2) =
+                        -last_insnavgeod_.ve_vu_cov;
             }
         }
 
@@ -1455,8 +1472,6 @@ namespace io {
         if (!settings_->publish_navsatfix)
             return;
 
-        thread_local auto last_ins_tow = last_insnavgeod_.block_header.tow;
-
         NavSatFixMsg msg;
         if (settings_->septentrio_receiver_type == "gnss")
         {
@@ -1518,40 +1533,44 @@ namespace io {
         } else if (settings_->septentrio_receiver_type == "ins")
         {
             if ((!validValue(last_insnavgeod_.block_header.tow)) ||
-                (last_insnavgeod_.block_header.tow == last_ins_tow))
+                (last_insnavgeod_.block_header.tow == last_navsatfix_ins_tow_))
             {
                 return;
             }
-            last_ins_tow = last_insnavgeod_.block_header.tow;
+            last_navsatfix_ins_tow_ = last_insnavgeod_.block_header.tow;
 
             msg.header = last_insnavgeod_.header;
 
             setStatus(last_insnavgeod_.gnss_mode, msg);
 
-            bool gps_in_pvt = false;
-            bool glo_in_pvt = false;
-            bool com_in_pvt = false;
-            bool gal_in_pvt = false;
-            uint32_t mask_2 = 1;
-            for (int bit = 0; bit != 31; ++bit)
+            if (validValue(last_pvtgeodetic_.block_header.tow))
             {
-                bool in_use = last_pvtgeodetic_.signal_info & mask_2;
-                if (bit <= 5 && in_use)
+                bool gps_in_pvt = false;
+                bool glo_in_pvt = false;
+                bool com_in_pvt = false;
+                bool gal_in_pvt = false;
+                uint32_t mask_2 = 1;
+                for (int bit = 0; bit != 31; ++bit)
                 {
-                    gps_in_pvt = true;
+                    bool in_use = last_pvtgeodetic_.signal_info & mask_2;
+                    if (bit <= 5 && in_use)
+                    {
+                        gps_in_pvt = true;
+                    }
+                    if (8 <= bit && bit <= 12 && in_use)
+                        glo_in_pvt = true;
+                    if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) &&
+                        in_use)
+                        com_in_pvt = true;
+                    if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
+                        gal_in_pvt = true;
+                    mask_2 *= 2;
                 }
-                if (8 <= bit && bit <= 12 && in_use)
-                    glo_in_pvt = true;
-                if (((13 <= bit && bit <= 14) || (28 <= bit && bit <= 30)) && in_use)
-                    com_in_pvt = true;
-                if ((bit == 17 || (19 <= bit && bit <= 22)) && in_use)
-                    gal_in_pvt = true;
-                mask_2 *= 2;
+                // Below, booleans will be promoted to integers automatically.
+                uint16_t service = gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 +
+                                   gal_in_pvt * 8;
+                msg.status.service = service;
             }
-            // Below, booleans will be promoted to integers automatically.
-            uint16_t service =
-                gps_in_pvt * 1 + glo_in_pvt * 2 + com_in_pvt * 4 + gal_in_pvt * 8;
-            msg.status.service = service;
             msg.latitude = rad2deg(last_insnavgeod_.latitude);
             msg.longitude = rad2deg(last_insnavgeod_.longitude);
             msg.altitude = last_insnavgeod_.height;
@@ -1580,8 +1599,13 @@ namespace io {
                 msg.position_covariance[7] =
                     convertCovarianceNaN(last_insnavgeod_.latitude_height_cov);
             }
-            msg.position_covariance_type =
-                NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+            if ((last_insnavgeod_.sb_list & 1) == 0)
+                msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_UNKNOWN;
+            else if ((last_insnavgeod_.sb_list & 32) != 0)
+                msg.position_covariance_type = NavSatFixMsg::COVARIANCE_TYPE_KNOWN;
+            else
+                msg.position_covariance_type =
+                    NavSatFixMsg::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         }
         publish<NavSatFixMsg>("navsatfix", msg);
     };
@@ -1650,7 +1674,7 @@ namespace io {
             uint16_t reference_id = last_pvtgeodetic_.reference_id;
             // Here come the PRNs of the 4 WAAS satellites..
             if (reference_id == 131 || reference_id == 133 || reference_id == 135 ||
-                reference_id == 135)
+                reference_id == 138)
             {
                 msg.status.status = GpsStatusMsg::STATUS_WAAS_FIX;
             } else
@@ -1722,7 +1746,10 @@ namespace io {
         }
 
         GpsFixMsg msg;
-        msg.status.satellites_used = static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
+        if (validValue(last_pvtgeodetic_.block_header.tow) &&
+            (last_pvtgeodetic_.nr_sv != 255))
+            msg.status.satellites_used =
+                static_cast<uint16_t>(last_pvtgeodetic_.nr_sv);
 
         // MeasEpoch Processing
         std::vector<int32_t> cno_tracked;
@@ -1904,7 +1931,7 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_pvtgeodetic_.block_header.tow) / 1000 +
-                static_cast<double>(last_pvtgeodetic_.block_header.wnc * 604800);
+                static_cast<double>(last_pvtgeodetic_.block_header.wnc) * 604800.0;
             // position
             msg.err =
                 2 *
@@ -1918,15 +1945,18 @@ namespace io {
             msg.err_vert =
                 2 * std::sqrt(static_cast<double>(last_poscovgeodetic_.cov_hgthgt));
             // motion
-            msg.err_track =
-                2 * (std::sqrt(square(1.0 / (last_pvtgeodetic_.vn +
-                                             square(last_pvtgeodetic_.ve) /
-                                                 last_pvtgeodetic_.vn)) *
-                                   last_poscovgeodetic_.cov_lonlon +
-                               square((last_pvtgeodetic_.ve) /
-                                      (square(last_pvtgeodetic_.vn) +
-                                       square(last_pvtgeodetic_.ve))) *
-                                   last_poscovgeodetic_.cov_latlat));
+            double velN = last_pvtgeodetic_.vn;
+            double velE = last_pvtgeodetic_.ve;
+            double velSqSum = square(velN) + square(velE);
+            if (velSqSum > 0.0)
+                msg.err_track =
+                    2 *
+                    rad2deg(std::sqrt(square(velN) * last_velcovgeodetic_.cov_veve +
+                                      square(velE) * last_velcovgeodetic_.cov_vnvn) /
+                            velSqSum);
+            else
+                // Track is undefined when not moving.
+                msg.err_track = -1.0;
             msg.err_speed =
                 2 * (std::sqrt(static_cast<double>(last_velcovgeodetic_.cov_vnvn) +
                                static_cast<double>(last_velcovgeodetic_.cov_veve)));
@@ -1988,7 +2018,11 @@ namespace io {
                                       square(last_insnavgeod_.ve));
 
                 msg.climb = last_insnavgeod_.vu;
-                msg.track = std::atan2(last_insnavgeod_.vn, last_insnavgeod_.ve);
+                double track =
+                    rad2deg(std::atan2(last_insnavgeod_.ve, last_insnavgeod_.vn));
+                if (track < 0.0)
+                    track += 360.0;
+                msg.track = track;
             }
             if (last_dop_.pdop == 0.0 || last_dop_.tdop == 0.0)
             {
@@ -2028,7 +2062,7 @@ namespace io {
             }
             msg.time =
                 static_cast<double>(last_insnavgeod_.block_header.tow) / 1000 +
-                static_cast<double>(last_insnavgeod_.block_header.wnc * 604800);
+                static_cast<double>(last_insnavgeod_.block_header.wnc) * 604800.0;
             if ((last_insnavgeod_.sb_list & 1) != 0)
             {
                 msg.err = 2 * (std::sqrt(square(last_insnavgeod_.latitude_std_dev) +
@@ -2039,26 +2073,30 @@ namespace io {
                                    square(last_insnavgeod_.longitude_std_dev)));
                 msg.err_vert = 2 * last_insnavgeod_.height_std_dev;
             }
-            if (((last_insnavgeod_.sb_list & 8) != 0) ||
-                ((last_insnavgeod_.sb_list & 1) != 0))
+            if (((last_insnavgeod_.sb_list & 8) != 0) &&
+                ((last_insnavgeod_.sb_list & 16) != 0))
             {
-                msg.err_track =
-                    2 * (std::sqrt(square(1.0 / (last_insnavgeod_.vn +
-                                                 square(last_insnavgeod_.ve) /
-                                                     last_insnavgeod_.vn)) *
-                                       square(last_insnavgeod_.longitude_std_dev) +
-                                   square((last_insnavgeod_.ve) /
-                                          (square(last_insnavgeod_.vn) +
-                                           square(last_insnavgeod_.ve))) *
-                                       square(last_insnavgeod_.latitude_std_dev)));
+                double velN = last_insnavgeod_.vn;
+                double velE = last_insnavgeod_.ve;
+                double velSqSum = square(velN) + square(velE);
+                if (velSqSum > 0.0)
+                    msg.err_track =
+                        2 *
+                        rad2deg(
+                            std::sqrt(
+                                square(velN) * square(last_insnavgeod_.ve_std_dev) +
+                                square(velE) * square(last_insnavgeod_.vn_std_dev)) /
+                            velSqSum);
+                else
+                    msg.err_track = -1.0;
             }
-            if ((last_insnavgeod_.sb_list & 8) != 0)
+            if ((last_insnavgeod_.sb_list & 16) != 0)
             {
                 msg.err_speed = 2 * (std::sqrt(square(last_insnavgeod_.ve_std_dev) +
                                                square(last_insnavgeod_.vn_std_dev)));
                 msg.err_climb = 2 * last_insnavgeod_.vu_std_dev;
             }
-            if ((last_insnavgeod_.sb_list & 2) != 0)
+            if ((last_insnavgeod_.sb_list & 4) != 0)
             {
                 msg.err_pitch = 2 * last_insnavgeod_.pitch_std_dev;
                 msg.err_roll = 2 * last_insnavgeod_.roll_std_dev;
@@ -2120,12 +2158,18 @@ namespace io {
             if constexpr (std::is_same<INSNavCartMsg, T>::value ||
                           std::is_same<INSNavGeodMsg, T>::value)
             {
-                time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
+                if (validValue(msg.latency))
+                    time_obj -= msg.latency * 100000ul; // from 0.0001 s to ns
             } else if constexpr (std::is_same<PVTCartesianMsg, T>::value ||
                                  std::is_same<PVTGeodeticMsg, T>::value)
             {
-                last_pvt_latency_ = msg.latency * 100000ul; // from 0.0001 s to ns
-                time_obj -= last_pvt_latency_;
+                if (validValue(msg.latency))
+                {
+                    last_pvt_latency_ =
+                        msg.latency * 100000ul; // from 0.0001 s to ns
+                    time_obj -= last_pvt_latency_;
+                } else
+                    last_pvt_latency_ = 0;
             } else if constexpr (std::is_same<PosCovCartesianMsg, T>::value ||
                                  std::is_same<PosCovGeodeticMsg, T>::value ||
                                  std::is_same<VelCovCartesianMsg, T>::value ||
@@ -2507,7 +2551,7 @@ namespace io {
         }
         case VEL_SENSOR_SETUP: // Velocity sensor lever arm
         {
-            if (settings_->publish_velcovgeodetic)
+            if (settings_->publish_velsensorsetup)
             {
                 VelSensorSetupMsg msg;
 
@@ -2591,6 +2635,8 @@ namespace io {
             assembleHeader(settings_->imu_frame_id, telegram, last_extsensmeas_);
             if (settings_->publish_extsensormeas)
                 publish<ExtSensorMeasMsg>("extsensormeas", last_extsensmeas_);
+            if (settings_->publish_diagnostics)
+                assembleVsmDiagnosticArray();
             break;
         }
         case CHANNEL_STATUS:
@@ -2696,103 +2742,145 @@ namespace io {
                 break;
             }
 
-            static const int32_t ins_major = 1;
-            static const int32_t ins_minor = 4;
-            static const int32_t ins_patch = 1;
-            static const int32_t gnss_major = 4;
-            static const int32_t gnss_minor = 14;
-            static const int32_t gnss_patch = 0;
-            static const int32_t gnss_g5_major = 1;
-            static const int32_t gnss_g5_minor = 0;
-            static const int32_t gnss_g5_patch = 1;
-            boost::tokenizer<> tok(last_receiversetup_.rx_version);
-            boost::tokenizer<>::iterator it = tok.begin();
-            std::vector<int32_t> major_minor_patch;
-            major_minor_patch.reserve(3);
-            for (boost::tokenizer<>::iterator it = tok.begin(); it != tok.end();
-                 ++it)
+            static thread_local bool once = true;
+            if (once)
             {
-                int32_t v = std::atoi(it->c_str());
-                major_minor_patch.push_back(v);
-            }
-            if (major_minor_patch.size() < 3)
-            {
-                node_->log(log_level::ERROR, "parse error of firmware version.");
-            } else
-            {
-                if ((settings_->septentrio_receiver_type == "ins") || node_->isIns())
+
+                static const int32_t ins_major = 1;
+                static const int32_t ins_minor = 5;
+                static const int32_t ins_patch = 0;
+                static const int32_t gnss_major = 4;
+                static const int32_t gnss_minor = 14;
+                static const int32_t gnss_patch = 0;
+                static const int32_t gnss_g5_major = 1;
+                static const int32_t gnss_g5_minor = 1;
+                static const int32_t gnss_g5_patch = 0;
+                boost::tokenizer<> tok(last_receiversetup_.rx_version);
+                boost::tokenizer<>::iterator it = tok.begin();
+                std::vector<int32_t> major_minor_patch;
+                major_minor_patch.reserve(3);
+                for (boost::tokenizer<>::iterator it = tok.begin(); it != tok.end();
+                     ++it)
                 {
-                    if ((major_minor_patch[0] < ins_major) ||
-                        ((major_minor_patch[0] == ins_major) &&
-                         (major_minor_patch[1] < ins_minor)) ||
-                        ((major_minor_patch[0] == ins_major) &&
-                         (major_minor_patch[1] == ins_minor) &&
-                         (major_minor_patch[2] < ins_patch)))
-                    {
-                        node_->log(
-                            log_level::WARN,
-                            "INS receiver has firmware version: " +
-                                last_receiversetup_.rx_version +
-                                ", which does not support all features. Please update to at least " +
-                                std::to_string(ins_major) + "." +
-                                std::to_string(ins_minor) + "." +
-                                std::to_string(ins_patch) + " or consult README.",
-                            true);
-                    } else
-                        node_->setImprovedVsmHandling();
-                } else if (settings_->septentrio_receiver_type == "gnss")
+                    int32_t v = std::atoi(it->c_str());
+                    major_minor_patch.push_back(v);
+                }
+                if (major_minor_patch.size() < 3)
                 {
-                    if ((major_minor_patch[0] < 4))
+                    node_->log(log_level::ERROR, "parse error of firmware version.");
+                } else
+                {
+                    if ((settings_->septentrio_receiver_type == "ins") ||
+                        node_->isIns())
                     {
-                        if ((major_minor_patch[0] == 1) &&
-                            (major_minor_patch[0] == 0) &&
-                            (major_minor_patch[0] == 0))
-                        {
-                            node_->log(
-                                log_level::FATAL,
-                                "GNSS G5 receiver has firmware version: 1.0.0, it must at least be updated to version 1.0.1!");
-                        } else if ((major_minor_patch[0] < gnss_g5_major) ||
-                                   ((major_minor_patch[0] == gnss_g5_major) &&
-                                    (major_minor_patch[1] < gnss_g5_minor)) ||
-                                   ((major_minor_patch[0] == gnss_g5_major) &&
-                                    (major_minor_patch[1] == gnss_g5_minor) &&
-                                    (major_minor_patch[2] < gnss_g5_patch)))
+                        if ((major_minor_patch[0] < ins_major) ||
+                            ((major_minor_patch[0] == ins_major) &&
+                             (major_minor_patch[1] < ins_minor)) ||
+                            ((major_minor_patch[0] == ins_major) &&
+                             (major_minor_patch[1] == ins_minor) &&
+                             (major_minor_patch[2] < ins_patch)))
                         {
                             node_->log(
                                 log_level::WARN,
-                                "GNSS G5 receiver has firmware version: " +
+                                "INS receiver has firmware version: " +
                                     last_receiversetup_.rx_version +
-                                    ", which may not support all features. Please update to at least " +
-                                    std::to_string(gnss_major) + "." +
-                                    std::to_string(gnss_minor) + "." +
-                                    std::to_string(gnss_patch) +
-                                    " or consult README.",
-                                true);
+                                    ", which does not support all features. Please update to at least " +
+                                    std::to_string(ins_major) + "." +
+                                    std::to_string(ins_minor) + "." +
+                                    std::to_string(ins_patch) +
+                                    " or consult README.");
                         }
-                    } else
-                    {
-                        if ((major_minor_patch[0] < gnss_major) ||
-                            ((major_minor_patch[0] == gnss_major) &&
-                             (major_minor_patch[1] < gnss_minor)) ||
-                            ((major_minor_patch[0] == gnss_major) &&
-                             (major_minor_patch[1] == gnss_minor) &&
-                             (major_minor_patch[2] < gnss_patch)))
+
+                        static const int32_t ins_iv_major = 1;
+                        static const int32_t ins_iv_minor = 4;
+                        static const int32_t ins_iv_patch = 1;
+                        if ((major_minor_patch[0] >= ins_iv_major) ||
+                            ((major_minor_patch[0] == ins_iv_major) &&
+                             (major_minor_patch[1] >= ins_iv_minor)) ||
+                            ((major_minor_patch[0] == ins_iv_major) &&
+                             (major_minor_patch[1] == ins_iv_minor) &&
+                             (major_minor_patch[2] >= ins_iv_patch)))
                         {
-                            node_->log(
-                                log_level::WARN,
-                                "GNSS receiver has firmware version: " +
-                                    last_receiversetup_.rx_version +
-                                    ", which may not support all features. Please update to at least " +
-                                    std::to_string(gnss_major) + "." +
-                                    std::to_string(gnss_minor) + "." +
-                                    std::to_string(gnss_patch) +
-                                    " or consult README.",
-                                true);
+                            node_->setImprovedVsmHandling();
+                        }
+
+                        static const int32_t ins_va_major = 1;
+                        static const int32_t ins_va_minor = 5;
+                        if (((major_minor_patch[0] < ins_va_major) ||
+                             ((major_minor_patch[0] == ins_va_major) &&
+                              (major_minor_patch[1] < ins_va_minor))))
+                        {
+                            if (settings_->ptp_server_clock)
+                            {
+                                node_->log(
+                                    log_level::WARN,
+                                    "INS receiver has firmware version < 1.5: " +
+                                        last_receiversetup_.rx_version +
+                                        ", which does not support PTP!");
+                                settings_->ptp_server_clock = false;
+                            }
+                            if (!settings_->ins_vehicle_application.empty())
+                            {
+                                node_->log(
+                                    log_level::WARN,
+                                    "INS receiver has firmware version < 1.5: " +
+                                        last_receiversetup_.rx_version +
+                                        ", which does not support to set the vehicle application -> it will not be set!");
+                                settings_->ins_vehicle_application = "";
+                            }
+                        }
+                    } else if (settings_->septentrio_receiver_type == "gnss")
+                    {
+                        if ((major_minor_patch[0] < 4))
+                        {
+                            if ((major_minor_patch[0] == 1) &&
+                                (major_minor_patch[0] == 0) &&
+                                (major_minor_patch[0] == 0))
+                            {
+                                node_->log(
+                                    log_level::FATAL,
+                                    "GNSS G5 receiver has firmware version: 1.0.0, it must at least be updated to version 1.0.1!");
+                            } else if ((major_minor_patch[0] < gnss_g5_major) ||
+                                       ((major_minor_patch[0] == gnss_g5_major) &&
+                                        (major_minor_patch[1] < gnss_g5_minor)) ||
+                                       ((major_minor_patch[0] == gnss_g5_major) &&
+                                        (major_minor_patch[1] == gnss_g5_minor) &&
+                                        (major_minor_patch[2] < gnss_g5_patch)))
+                            {
+                                node_->log(
+                                    log_level::WARN,
+                                    "GNSS G5 receiver has firmware version: " +
+                                        last_receiversetup_.rx_version +
+                                        ", which may not support all features. Please update to at least " +
+                                        std::to_string(gnss_major) + "." +
+                                        std::to_string(gnss_minor) + "." +
+                                        std::to_string(gnss_patch) +
+                                        " or consult README.");
+                            }
+                        } else
+                        {
+                            if ((major_minor_patch[0] < gnss_major) ||
+                                ((major_minor_patch[0] == gnss_major) &&
+                                 (major_minor_patch[1] < gnss_minor)) ||
+                                ((major_minor_patch[0] == gnss_major) &&
+                                 (major_minor_patch[1] == gnss_minor) &&
+                                 (major_minor_patch[2] < gnss_patch)))
+                            {
+                                node_->log(
+                                    log_level::WARN,
+                                    "GNSS receiver has firmware version: " +
+                                        last_receiversetup_.rx_version +
+                                        ", which may not support all features. Please update to at least " +
+                                        std::to_string(gnss_major) + "." +
+                                        std::to_string(gnss_minor) + "." +
+                                        std::to_string(gnss_patch) +
+                                        " or consult README.");
+                            }
                         }
                     }
                 }
+                once = false;
             }
-
             break;
         }
         case RECEIVER_TIME:
@@ -2840,6 +2928,31 @@ namespace io {
         /*node_->log(log_level::DEBUG,
                    "The NMEA message contains " + std::to_string(message.size()) +
                        " bytes and is ready to be parsed. It reads: " + message);*/
+
+        size_t checksumPos = message.find_last_of('*');
+        if ((checksumPos == std::string::npos) ||
+            (message.size() < (checksumPos + 3)))
+        {
+            node_->log(log_level::DEBUG, "NMEA sentence without checksum: " +
+                                             message.substr(0, checksumPos));
+            return;
+        }
+        uint8_t checksum = 0;
+        for (size_t i = 1; i < checksumPos; ++i)
+        {
+            checksum ^= message[i];
+        }
+        uint32_t transmittedChecksum;
+        if (!string_utilities::toUInt32(message.substr(checksumPos + 1, 2),
+                                        transmittedChecksum, 16) ||
+            (checksum != transmittedChecksum))
+        {
+            node_->log(log_level::DEBUG,
+                       "NMEA checksum failed, sentence is dropped: " +
+                           message.substr(0, checksumPos + 3));
+            return;
+        }
+
         boost::char_separator<char> sep_2(",*", "", boost::keep_empty_tokens);
         boost::tokenizer<boost::char_separator<char>> tokens(message, sep_2);
         std::vector<std::string> body;
@@ -2919,20 +3032,21 @@ namespace io {
                 }
                 if (settings_->use_gnss_time)
                 {
+                    uint32_t tow = 4294967295u;
+                    uint16_t wnc = 65535;
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                         last_pvtgeodetic_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
-                    }
-                    if (settings_->septentrio_receiver_type == "ins")
+                        tow = last_pvtgeodetic_.block_header.tow;
+                        wnc = last_pvtgeodetic_.block_header.wnc;
+                    } else if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_insnavgeod_.block_header.tow,
-                                         last_insnavgeod_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
+                        tow = last_insnavgeod_.block_header.tow;
+                        wnc = last_insnavgeod_.block_header.wnc;
                     }
+                    if (validValue(tow) && validValue(wnc) && (wnc != 0))
+                        msg.header.stamp = timestampToRos(timestampSBF(tow, wnc));
+                    else
+                        msg.header.stamp = timestampToRos(telegram->stamp);
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
                 publish<GpgsaMsg>("gpgsa", msg);
@@ -2958,21 +3072,21 @@ namespace io {
                 }
                 if (settings_->use_gnss_time)
                 {
-
+                    uint32_t tow = 4294967295u;
+                    uint16_t wnc = 65535;
                     if (settings_->septentrio_receiver_type == "gnss")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_pvtgeodetic_.block_header.tow,
-                                         last_pvtgeodetic_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
-                    }
-                    if (settings_->septentrio_receiver_type == "ins")
+                        tow = last_pvtgeodetic_.block_header.tow;
+                        wnc = last_pvtgeodetic_.block_header.wnc;
+                    } else if (settings_->septentrio_receiver_type == "ins")
                     {
-                        Timestamp time_obj =
-                            timestampSBF(last_insnavgeod_.block_header.tow,
-                                         last_insnavgeod_.block_header.wnc);
-                        msg.header.stamp = timestampToRos(time_obj);
+                        tow = last_insnavgeod_.block_header.tow;
+                        wnc = last_insnavgeod_.block_header.wnc;
                     }
+                    if (validValue(tow) && validValue(wnc) && (wnc != 0))
+                        msg.header.stamp = timestampToRos(timestampSBF(tow, wnc));
+                    else
+                        msg.header.stamp = timestampToRos(telegram->stamp);
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
                 publish<GpgsvMsg>("gpgsv", msg);

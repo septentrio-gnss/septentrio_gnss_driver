@@ -36,6 +36,8 @@
 // Linux
 #include <linux/input.h>
 #include <linux/serial.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
 
 // Boost
 #include <boost/asio.hpp>
@@ -54,6 +56,7 @@
 #include <septentrio_gnss_driver/abstraction/typedefs_ros1.hpp>
 #endif
 #include <septentrio_gnss_driver/communication/telegram.hpp>
+#include <septentrio_gnss_driver/communication/telegram_parser.hpp>
 
 //! Possible baudrates for the Rx
 const static std::array<uint32_t, 21> baudrates = {
@@ -118,68 +121,94 @@ namespace io {
 
             if (!error && (bytes_recvd > 0))
             {
-                while ((bytes_recvd - idx) > 2)
+                // idx and bytes_recvd are size_t, so all comparisons are written
+                // additively: (bytes_recvd - idx) would underflow into a huge value
+                // if idx ever ran past bytes_recvd. Every path through the loop must
+                // also either advance idx or break, otherwise the io thread spins
+                // forever.
+                while (idx + 2 < bytes_recvd)
                 {
-                    auto telegram = std::make_shared<Telegram>();
-                    telegram->stamp = stamp;
-                    /*node_->log(log_level::DEBUG,
-                               "Buffer: " + std::string(telegram->message.begin(),
-                                                        telegram->message.end()));*/
-                    if (buffer_[idx] == SYNC_BYTE_1)
-                    {
-                        if (buffer_[idx + 1] == SBF_SYNC_BYTE_2)
-                        {
-                            if ((bytes_recvd - idx) > SBF_HEADER_SIZE)
-                            {
-                                uint16_t length = parsing_utilities::parseUInt16(
-                                    &buffer_[idx + 6]);
-                                telegram->message.assign(&buffer_[idx],
-                                                         &buffer_[idx + length]);
-                                if (crc::isValid(telegram->message))
-                                {
-                                    telegram->type = telegram_type::SBF;
-                                    telegramQueue_->push(telegram);
-                                } else
-                                    node_->log(
-                                        log_level::DEBUG,
-                                        "AsyncManager crc failed for SBF  " +
-                                            std::to_string(parsing_utilities::getId(
-                                                telegram->message)) +
-                                            ".");
-
-                                idx += length;
-                            }
-
-                        } else if ((buffer_[idx + 1] == NMEA_SYNC_BYTE_2) &&
-                                   (buffer_[idx + 2] == NMEA_SYNC_BYTE_3))
-                        {
-                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
-                            telegram->message.assign(&buffer_[idx],
-                                                     &buffer_[idx_end + 1]);
-                            telegram->type = telegram_type::NMEA;
-                            telegramQueue_->push(telegram);
-                            idx = idx_end + 1;
-
-                        } else if ((buffer_[idx + 1] == NMEA_INS_SYNC_BYTE_2) &&
-                                   (buffer_[idx + 2] == NMEA_INS_SYNC_BYTE_3))
-                        {
-                            size_t idx_end = findNmeaEnd(idx, bytes_recvd);
-                            telegram->message.assign(&buffer_[idx],
-                                                     &buffer_[idx_end + 1]);
-                            telegram->type = telegram_type::NMEA_INS;
-                            telegramQueue_->push(telegram);
-                            idx = idx_end + 1;
-                        } else
-                        {
-                            node_->log(log_level::DEBUG,
-                                       "head: " +
-                                           std::string(std::string(
-                                               telegram->message.begin(),
-                                               telegram->message.begin() + 2)));
-                        }
-                    } else
+                    if (buffer_[idx] != SYNC_BYTE_1)
                     {
                         node_->log(log_level::DEBUG, "UDP msg resync.");
+                        ++idx;
+                        continue;
+                    }
+
+                    const telegram_type::TelegramType candidate =
+                        telegram_parser::classifySync2(buffer_[idx + 1]);
+                    if (candidate == telegram_type::SBF)
+                    {
+                        if (idx + SBF_HEADER_SIZE > bytes_recvd)
+                        {
+                            // Header truncated at the end of the datagram, so no
+                            // further telegram can be framed out of this packet.
+                            break;
+                        }
+
+                        uint16_t length =
+                            telegram_parser::getSbfLength(&buffer_[idx]);
+
+                        // The length field is attacker/noise controlled. Reject
+                        // anything that is not a well-formed SBF length or that
+                        // would read past what was actually received, and rescan
+                        // from the next byte instead of trusting it.
+                        if (!telegram_parser::isValidSbfLength(length) ||
+                            idx + length > bytes_recvd)
+                        {
+                            node_->log(log_level::DEBUG,
+                                       "UDP client invalid SBF block length: " +
+                                           std::to_string(length));
+                            ++idx;
+                            continue;
+                        }
+
+                        auto telegram = std::make_shared<Telegram>();
+                        telegram->stamp = stamp;
+                        telegram->message.assign(&buffer_[idx],
+                                                 &buffer_[idx] + length);
+                        if (crc::isValid(telegram->message))
+                        {
+                            telegram->type = telegram_type::SBF;
+                            telegramQueue_->push(telegram);
+                        } else
+                            node_->log(log_level::DEBUG,
+                                       "UDP client crc failed for SBF  " +
+                                           std::to_string(parsing_utilities::getId(
+                                               telegram->message)) +
+                                           ".");
+
+                        idx += length;
+                    } else if (((candidate == telegram_type::NMEA) &&
+                                telegram_parser::isNmeaSync3(buffer_[idx + 2])) ||
+                               ((candidate == telegram_type::NMEA_INS) &&
+                                telegram_parser::isNmeaInsSync3(buffer_[idx + 2])))
+                    {
+                        bool isIns = (candidate == telegram_type::NMEA_INS);
+                        size_t idx_end = findNmeaEnd(idx, bytes_recvd);
+                        if (idx_end >= bytes_recvd)
+                        {
+                            // No terminating CRLF within the datagram: the sentence
+                            // is truncated, so drop the remainder rather than
+                            // reading past the received bytes.
+                            break;
+                        }
+
+                        auto telegram = std::make_shared<Telegram>();
+                        telegram->stamp = stamp;
+                        telegram->message.assign(&buffer_[idx],
+                                                 &buffer_[idx_end] + 1);
+                        telegram->type =
+                            isIns ? telegram_type::NMEA_INS : telegram_type::NMEA;
+                        telegramQueue_->push(telegram);
+                        idx = idx_end + 1;
+                    } else
+                    {
+                        node_->log(log_level::DEBUG,
+                                   "UDP client unknown telegram header: " +
+                                       std::string(reinterpret_cast<const char*>(
+                                                       &buffer_[idx]),
+                                                   3));
                         ++idx;
                     }
                 }
@@ -216,13 +245,16 @@ namespace io {
         }
 
     private:
+        //! Returns the index of the LF terminating the sentence starting at idx, or
+        //! bytes_recvd if no CRLF was found before the end of the received data.
         size_t findNmeaEnd(size_t idx, size_t bytes_recvd)
         {
             size_t idx_end = idx + 2;
 
             while (idx_end < bytes_recvd)
             {
-                if ((buffer_[idx_end] == LF) && (buffer_[idx_end - 1] == CR))
+                if (telegram_parser::isNmeaEnd(buffer_[idx_end - 1],
+                                               buffer_[idx_end]))
                     break;
 
                 ++idx_end;
@@ -255,12 +287,17 @@ namespace io {
             checkDeadline();
         }
 
-        ~TcpIo() { stream_->close(); }
+        ~TcpIo()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
         void close()
         {
             deadline_.cancel();
-            stream_->close();
+            if (stream_)
+                stream_->close();
         }
 
         void setPort(const std::string& port) { port_ = port; }
@@ -291,20 +328,41 @@ namespace io {
             try
             {
                 boost::system::error_code ec = connectInternal(endpoints);
+                uint32_t failedAttempts = 0;
                 while (node_->ok() && ec)
                 {
-                    node_->log(log_level::ERROR,
-                               "TCP connection to " +
-                                   endpoints.begin()
-                                       ->endpoint()
-                                       .address()
-                                       .to_string() +
-                                   " on port " +
-                                   std::to_string(
-                                       endpoints.begin()->endpoint().port()) +
-                                   " failed: " + ec.message() + ". Retrying ...");
-                    using namespace std::chrono_literals;
-                    std::this_thread::sleep_for(1s);
+                    ++failedAttempts;
+
+                    // The first failure often just races the Rx freeing the
+                    // previous session (see the abortive close and the local
+                    // port reuse in connectInternal): retry once immediately
+                    // and silently.
+                    if (failedAttempts == 1)
+                    {
+                        ec = connectInternal(endpoints);
+                        continue;
+                    }
+
+                    if ((failedAttempts == 2) ||
+                        ((failedAttempts % LOG_EVERY_NTH_RETRY) == 0))
+                    {
+                        node_->log(
+                            log_level::ERROR,
+                            "TCP connection to " +
+                                endpoints.begin()
+                                    ->endpoint()
+                                    .address()
+                                    .to_string() +
+                                " on port " +
+                                std::to_string(
+                                    endpoints.begin()->endpoint().port()) +
+                                " failed: " + ec.message() +
+                                ". Retrying every " +
+                                std::to_string(CONNECT_RETRY_DELAY_MS) +
+                                " ms ...");
+                    }
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(CONNECT_RETRY_DELAY_MS));
                     ec = connectInternal(endpoints);
                 }
                 if (ec)
@@ -321,6 +379,37 @@ namespace io {
 
             deadline_.expires_at(boost::asio::steady_timer::time_point::max());
             stream_->set_option(boost::asio::ip::tcp::no_delay(true));
+
+            // Abortive close: with SO_LINGER enabled at zero timeout, every
+            // close - the explicit one and the implicit one when stream_ is
+            // recreated on reconnect - sends a RST instead of a FIN. The Rx IP
+            // server ports accept a single client, and a FIN merely leaves the
+            // stale session in CLOSE_WAIT on the Rx, blocking reconnects until
+            // the Rx' own timeout frees the slot.
+            stream_->set_option(boost::asio::socket_base::linger(true, 0));
+
+            // Remember the local port so a reconnect can reuse the same
+            // 4-tuple, see connectInternal().
+            {
+                boost::system::error_code lec;
+                const auto localEndpoint = stream_->local_endpoint(lec);
+                if (!lec)
+                    lastLocalPort_ = localEndpoint.port();
+            }
+
+            // Kernel TCP keepalive to detect silently broken links, detection
+            // time is ca. idle + intvl * cnt seconds
+            stream_->set_option(boost::asio::socket_base::keep_alive(true));
+            int keepaliveIdle = 3;
+            int keepaliveIntvl = 1;
+            int keepaliveCnt = 3;
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPIDLE,
+                       &keepaliveIdle, sizeof(keepaliveIdle));
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPINTVL,
+                       &keepaliveIntvl, sizeof(keepaliveIntvl));
+            setsockopt(stream_->native_handle(), IPPROTO_TCP, TCP_KEEPCNT,
+                       &keepaliveCnt, sizeof(keepaliveCnt));
+
             node_->log(log_level::INFO, "Connected to " +
                                             endpoints.begin()->host_name() + ":" +
                                             endpoints.begin()->service_name() + ".");
@@ -331,14 +420,71 @@ namespace io {
         boost::system::error_code connectInternal(
             const boost::asio::ip::tcp::resolver::results_type& endpoints)
         {
+            if (ioContext_->stopped())
+                ioContext_->restart();
+
             boost::system::error_code ec;
             deadline_.expires_after(std::chrono::seconds(10));
             ec = boost::asio::error::would_block;
-            boost::asio::async_connect(*stream_, endpoints,
-                                       boost::lambda::var(ec) = boost::lambda::_1);
-            do
-                ioContext_->run_one();
-            while (node_->ok() && (ec == boost::asio::error::would_block));
+
+            // When reconnecting, bind to the local port of the lost connection
+            // so the new connection reuses its 4-tuple. If the Rx still holds
+            // the stale session (the RST of the abortive close never reached
+            // it, e.g. because the cable was unplugged), the SYN then hits
+            // that session instead of being refused: the Rx answers with a
+            // challenge ACK, the kernel replies with a RST that clears the
+            // stale session, and the retransmitted SYN connects - much faster
+            // than waiting for the Rx' own timeout to free its single client
+            // slot.
+            bool bound = false;
+            if (lastLocalPort_ != 0)
+            {
+                boost::system::error_code bec;
+                const auto protocol = endpoints.begin()->endpoint().protocol();
+
+                stream_->close(bec);
+                stream_->open(protocol, bec);
+                if (!bec)
+                    stream_->set_option(
+                        boost::asio::socket_base::reuse_address(true), bec);
+                if (!bec)
+                    stream_->bind(
+                        boost::asio::ip::tcp::endpoint(protocol, lastLocalPort_),
+                        bec);
+
+                if (bec)
+                {
+                    // Fall back to an ephemeral port below.
+                    node_->log(log_level::WARN,
+                               "Could not rebind local port " +
+                                   std::to_string(lastLocalPort_) + ": " +
+                                   bec.message());
+                    boost::system::error_code ignored;
+                    stream_->close(ignored);
+                } else
+                    bound = true;
+            }
+
+            if (bound)
+            {
+                // The range overload of async_connect closes and reopens the
+                // socket, which would discard the bind; connect to the first
+                // endpoint directly.
+                stream_->async_connect(endpoints.begin()->endpoint(),
+                                       boost::lambda::var(ec) =
+                                           boost::lambda::_1);
+            } else
+            {
+                boost::asio::async_connect(*stream_, endpoints,
+                                           boost::lambda::var(ec) =
+                                               boost::lambda::_1);
+            }
+
+            while (node_->ok() && (ec == boost::asio::error::would_block))
+            {
+                if (ioContext_->run_one() == 0)
+                    break;
+            }
             return ec;
         }
 
@@ -354,11 +500,25 @@ namespace io {
             deadline_.async_wait(boost::lambda::bind(&TcpIo::checkDeadline, this));
         }
 
+        //! Fixed wait between failed connection attempts. The Rx frees a stale
+        //! session promptly once the RST of the abortive close (or the SYN on
+        //! the reused local port) reaches it, so a short constant retry
+        //! reconnects fastest.
+        static constexpr int CONNECT_RETRY_DELAY_MS = 250;
+        //! node_->log() has no throttling, so log only every Nth failed
+        //! attempt (about one line per 5 s at the retry delay above).
+        static constexpr uint32_t LOG_EVERY_NTH_RETRY = 20;
+
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_context> ioContext_;
         boost::asio::steady_timer deadline_;
 
         std::string port_;
+
+        //! Local port of the last established connection; 0 until the first
+        //! connect. Lets a reconnect reuse the previous 4-tuple, see
+        //! connectInternal(). Only accessed from the connecting thread.
+        uint16_t lastLocalPort_ = 0;
 
     public:
         std::unique_ptr<boost::asio::ip::tcp::socket> stream_;
@@ -565,9 +725,19 @@ namespace io {
         {
         }
 
-        ~SbfFileIo() { stream_->close(); }
+        // stream_ stays null if connect() was never called or failed to open the
+        // file.
+        ~SbfFileIo()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
-        void close() { stream_->close(); }
+        void close()
+        {
+            if (stream_)
+                stream_->close();
+        }
 
         [[nodiscard]] bool connect()
         {
@@ -613,16 +783,20 @@ namespace io {
         {
         }
 
-        ~PcapFileIo()
-        {
-            pcap_close(pcap_);
-            stream_->close();
-        }
+        ~PcapFileIo() { close(); }
 
+        // Called both explicitly by AsyncManager and again from the destructor, so
+        // it has to be idempotent: pcap_close() on an already-closed handle is a
+        // double free, and both members stay unset if connect() never ran or failed.
         void close()
         {
-            pcap_close(pcap_);
-            stream_->close();
+            if (pcap_ != nullptr)
+            {
+                pcap_close(pcap_);
+                pcap_ = nullptr;
+            }
+            if (stream_)
+                stream_->close();
         }
 
         [[nodiscard]] bool connect()
@@ -635,8 +809,18 @@ namespace io {
                 stream_ = std::make_unique<boost::asio::posix::stream_descriptor>(
                     *ioContext_);
 
+                // pcap_open_offline reports failure by returning NULL rather than
+                // throwing, so without this check pcap_get_selectable_fd() would be
+                // handed a null handle.
                 pcap_ = pcap_open_offline(node_->settings()->device.c_str(),
                                           errBuff_.data());
+                if (pcap_ == nullptr)
+                {
+                    errBuff_.back() = '\0';
+                    node_->log(log_level::ERROR, "opening PCAP file failed: " +
+                                                     std::string(errBuff_.data()));
+                    return false;
+                }
                 stream_->assign(pcap_get_selectable_fd(pcap_));
 
             } catch (std::runtime_error& e)
@@ -651,8 +835,10 @@ namespace io {
     private:
         ROSaicNodeBase* node_;
         std::shared_ptr<boost::asio::io_context> ioContext_;
-        std::array<char, 100> errBuff_;
-        pcap_t* pcap_;
+        //! pcap requires the error buffer to hold at least PCAP_ERRBUF_SIZE bytes;
+        //! anything smaller can be overrun by libpcap itself.
+        std::array<char, PCAP_ERRBUF_SIZE> errBuff_;
+        pcap_t* pcap_ = nullptr;
 
     public:
         std::unique_ptr<boost::asio::posix::stream_descriptor> stream_;

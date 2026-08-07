@@ -101,7 +101,7 @@ enum TypeOfPVT_Enum
     evSBAS,
     evMovingBaseRTKFixed,
     evMovingBaseRTKFloat,
-    evPPP
+    evPPP = 10
 };
 
 enum SbfId
@@ -204,17 +204,18 @@ namespace io {
         /**
          * @brief Pointer to settings struct
          */
-        const Settings* settings_;
+        Settings* settings_;
 
         /**
          * @brief Map of NMEA messgae IDs and uint8_t
          */
         std::unordered_map<std::string, uint8_t> nmeaMap_{
             {"$GPGGA", 0}, {"$INGGA", 0}, {"$GNGGA", 0}, {"$GAGGA", 0},
-            {"$GBGGA", 0}, {"$GPRMC", 1}, {"$INRMC", 1}, {"$GNRMC", 1},
-            {"$GARMC", 1}, {"$GBRMC", 1}, {"$GPGSA", 2}, {"$INGSA", 2},
-            {"$GNGSA", 2}, {"$GAGSA", 2}, {"$GBGSA", 2}, {"$GPGSV", 3},
-            {"$INGSV", 3}, {"$GNGSV", 3}, {"$GAGSV", 3}, {"$GBGSV", 3}, {"$GLGSV", 3}};
+            {"$GBGGA", 0}, {"$GLGGA", 0}, {"$GPRMC", 1}, {"$INRMC", 1},
+            {"$GNRMC", 1}, {"$GARMC", 1}, {"$GBRMC", 1}, {"$GLRMC", 1},
+            {"$GPGSA", 2}, {"$INGSA", 2}, {"$GNGSA", 2}, {"$GAGSA", 2},
+            {"$GBGSA", 2}, {"$GLGSA", 2}, {"$GPGSV", 3}, {"$INGSV", 3},
+            {"$GNGSV", 3}, {"$GAGSV", 3}, {"$GBGSV", 3}, {"$GLGSV", 3}};
 
         /**
          * @brief Since NavSatFix etc. need PVTGeodetic, incoming PVTGeodetic blocks
@@ -321,6 +322,12 @@ namespace io {
         //! Last reported PVT processing latency
         mutable uint64_t last_pvt_latency_ = 0;
 
+        //! Tow of the last INSNavGeod block published as pose resp. NavSatFix,
+        //! initialized to the do-not-use value so that the first block is not
+        //! skipped
+        uint32_t last_pose_ins_tow_ = 4294967295u;
+        uint32_t last_navsatfix_ins_tow_ = 4294967295u;
+
         //! Current leap seconds as received, do not use value is -128
         int32_t current_leap_seconds_ = -128;
 
@@ -368,6 +375,12 @@ namespace io {
          * RFStatus DiagnosticArrayMsg messages
          */
         void assembleAimAndDiagnosticArray();
+
+        /**
+         * @brief "Callback" function when constructing
+         * VSM DiagnosticArrayMsg messages
+         */
+        void assembleVsmDiagnosticArray();
 
         /**
          * @brief "Callback" function when constructing

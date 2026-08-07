@@ -19,6 +19,8 @@ stream_device:
 
 configure_rx: true
 
+persist_configuration: false
+
 login:
   user: ""
   password: ""
@@ -78,7 +80,6 @@ latency_compensation: true
 
 # RTK
 rtk_settings:
-  keep_open: true
   ntrip_1:
     id: ""
     caster: ""
@@ -91,16 +92,19 @@ rtk_settings:
     fingerprint: ""
     rtk_standard: "auto"
     send_gga: "auto"
+    keep_open: true
   ip_server_1:
     id: ""
     port: 0
     rtk_standard: "auto"
     send_gga: "auto"
+    keep_open: true
   serial_1:
     port: ""
     baud_rate: 115200
     rtk_standard: "auto"
     send_gga: "auto"
+    keep_open: true
 
 publish:
   # For both GNSS and INS Rxs
@@ -164,6 +168,8 @@ ins_spatial_config:
 
 ins_initial_heading: auto
 
+ins_vehicle_application: "Unknown"
+
 ins_std_dev_mask:
   att_std_dev: 5.0
   pos_std_dev: 10.0
@@ -177,7 +183,7 @@ ins_vsm:
     variances_by_parameter: false
     variances: [0.0, 0.0, 0.0]
   ip_server:
-    id: "IP5"
+    id: "IPS5"
     port: 24786
     keep_open: true
   serial:
