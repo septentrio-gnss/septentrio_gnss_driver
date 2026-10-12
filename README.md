@@ -7,7 +7,7 @@ This repository hosts drivers for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Ga
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
-- Supports serial, TCP, UDP and USB connections, the latter being compatible with both serial (RNDIS) and TCP/IP protocols
+- Supports serial, TCP, UDP and USB connections, the latter being compatible with both serial and TCP/IP (RNDIS) protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
