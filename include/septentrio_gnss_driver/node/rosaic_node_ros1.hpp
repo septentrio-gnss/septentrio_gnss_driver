@@ -82,7 +82,7 @@ namespace rosaic_node {
      * @class ROSaicNode
      * @brief This class represents the ROsaic node, to be extended..
      */
-    class ROSaicNode : ROSaicNodeBase
+    class ROSaicNode : public ROSaicNodeBase
     {
     public:
         //! The constructor initializes and runs the ROSaic node, if everything works

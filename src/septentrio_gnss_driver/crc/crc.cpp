@@ -70,16 +70,28 @@ namespace crc {
 
     bool isValid(const std::vector<uint8_t>& message)
     {
-        // We need all of the message except for the first 4 bytes (Sync and CRC),
-        // i.e. we start at the address of ID.
-        uint16_t length = parsing_utilities::getLength(message);
-        if (length > 4)
-        {
-            uint16_t crc = compute16CCITT(message.data() + 4, length - 4);
-            return (crc == parsing_utilities::getCrc(message));
-        } else
+        // Size of the SBF header, i.e. the smallest possible block. getLength() and
+        // getCrc() read the length and CRC fields inside it, so the buffer has to be
+        // at least this large before either is called.
+        constexpr size_t headerSize = 8;
+
+        if (message.size() < headerSize)
         {
             return false;
         }
+
+        // We need all of the message except for the first 4 bytes (Sync and CRC),
+        // i.e. we start at the address of ID.
+        uint16_t length = parsing_utilities::getLength(message);
+
+        // The length field is attacker/noise controlled, so never scan beyond what
+        // was actually received.
+        if (length < headerSize || length > message.size())
+        {
+            return false;
+        }
+
+        uint16_t crc = compute16CCITT(message.data() + 4, length - 4);
+        return (crc == parsing_utilities::getCrc(message));
     }
 } // namespace crc

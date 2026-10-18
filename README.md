@@ -7,7 +7,7 @@ This repository hosts drivers for ROS 1 (Melodic and Noetic) and ROS 2 (Foxy, Ga
 
 Main Features:
 - Supports Septentrio's single antenna GNSS, dual antenna GNSS and INS receivers
-- Supports serial, TCP, UDP and USB connections, the latter being compatible with both serial (RNDIS) and TCP/IP protocols
+- Supports serial, TCP, UDP and USB connections, the latter being compatible with both serial and TCP/IP (RNDIS) protocols
 - Supports several ASCII (including key NMEA ones) messages and SBF (Septentrio Binary Format) blocks
 - Reports status of AIM+ (Advanced Interference Mitigation including OSNMA) anti-jamming and anti-spoofing.
 - Can publish `nav_msgs/Odometry` message for INS receivers
@@ -20,6 +20,17 @@ Main Features:
 
 Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitHub]%20ROSaic) of your success or failure in using the driver with other devices so we can update this page appropriately. If you need help, reach out to [Septentrio Support](https://customersupport.septentrio.com/s/).
 
+## Build farm status:
+
+| Distro | Dev | Source | Binary (amd64) | Binary (arm64) |
+|---|---|---|---|---|
+| Humble | [![Hdev](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FHdev__septentrio_gnss_driver__ubuntu_jammy_amd64)](https://build.ros2.org/job/Hdev__septentrio_gnss_driver__ubuntu_jammy_amd64/) | [![Hsrc](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FHsrc_uJ__septentrio_gnss_driver__ubuntu_jammy__source)](https://build.ros2.org/job/Hsrc_uJ__septentrio_gnss_driver__ubuntu_jammy__source/) | [![Hbin](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FHbin_uJ64__septentrio_gnss_driver__ubuntu_jammy_amd64__binary)](https://build.ros2.org/job/Hbin_uJ64__septentrio_gnss_driver__ubuntu_jammy_amd64__binary/) | [![Hbin_arm64](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FHbin_ujv8_uJv8__septentrio_gnss_driver__ubuntu_jammy_arm64__binary)](https://build.ros2.org/job/Hbin_ujv8_uJv8__septentrio_gnss_driver__ubuntu_jammy_arm64__binary/) |
+| Jazzy | [![Jdev](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FJdev__septentrio_gnss_driver__ubuntu_noble_amd64)](https://build.ros2.org/job/Jdev__septentrio_gnss_driver__ubuntu_noble_amd64/) | [![Jsrc](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FJsrc_uN__septentrio_gnss_driver__ubuntu_noble__source)](https://build.ros2.org/job/Jsrc_uN__septentrio_gnss_driver__ubuntu_noble__source/) | [![Jbin](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FJbin_uN64__septentrio_gnss_driver__ubuntu_noble_amd64__binary)](https://build.ros2.org/job/Jbin_uN64__septentrio_gnss_driver__ubuntu_noble_amd64__binary/) | [![Jbin_arm64](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FJbin_unv8_uNv8__septentrio_gnss_driver__ubuntu_noble_arm64__binary)](https://build.ros2.org/job/Jbin_unv8_uNv8__septentrio_gnss_driver__ubuntu_noble_arm64__binary/) |
+| Kilted | [![Kdev](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FKdev__septentrio_gnss_driver__ubuntu_noble_amd64)](https://build.ros2.org/job/Kdev__septentrio_gnss_driver__ubuntu_noble_amd64/) | [![Ksrc](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FKsrc_uN__septentrio_gnss_driver__ubuntu_noble__source)](https://build.ros2.org/job/Ksrc_uN__septentrio_gnss_driver__ubuntu_noble__source/) | [![Kbin](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FKbin_uN64__septentrio_gnss_driver__ubuntu_noble_amd64__binary)](https://build.ros2.org/job/Kbin_uN64__septentrio_gnss_driver__ubuntu_noble_amd64__binary/) | [![Kbin_arm64](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FKbin_unv8_uNv8__septentrio_gnss_driver__ubuntu_noble_arm64__binary)](https://build.ros2.org/job/Kbin_unv8_uNv8__septentrio_gnss_driver__ubuntu_noble_arm64__binary/) |
+| Lyrical | [![Ldev](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FLdev__septentrio_gnss_driver__ubuntu_resolute_amd64)](https://build.ros2.org/job/Ldev__septentrio_gnss_driver__ubuntu_resolute_amd64/) | [![Lsrc](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FLsrc_uR__septentrio_gnss_driver__ubuntu_resolute__source)](https://build.ros2.org/job/Lsrc_uR__septentrio_gnss_driver__ubuntu_resolute__source/) | [![Lbin](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FLbin_uR64__septentrio_gnss_driver__ubuntu_resolute_amd64__binary)](https://build.ros2.org/job/Lbin_uR64__septentrio_gnss_driver__ubuntu_resolute_amd64__binary/) | [![Lbin_arm64](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FLbin_armv8_uRv8__septentrio_gnss_driver__ubuntu_resolute_arm64__binary)](https://build.ros2.org/job/Lbin_armv8_uRv8__septentrio_gnss_driver__ubuntu_resolute_arm64__binary/) |
+| Rolling | [![Rdev](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FRdev__septentrio_gnss_driver__ubuntu_resolute_amd64)](https://build.ros2.org/job/Rdev__septentrio_gnss_driver__ubuntu_resolute_amd64/) | [![Rsrc](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FRsrc_uR__septentrio_gnss_driver__ubuntu_resolute__source)](https://build.ros2.org/job/Rsrc_uR__septentrio_gnss_driver__ubuntu_resolute__source/) | [![Rbin](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FRbin_uR64__septentrio_gnss_driver__ubuntu_resolute_amd64__binary)](https://build.ros2.org/job/Rbin_uR64__septentrio_gnss_driver__ubuntu_resolute_amd64__binary/) | [![Rbin_arm64](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fbuild.ros2.org%2Fjob%2FRbin_unv8_uRv8__septentrio_gnss_driver__ubuntu_resolute_arm64__binary)](https://build.ros2.org/job/Rbin_unv8_uRv8__septentrio_gnss_driver__ubuntu_resolute_arm64__binary/) |
+
+
 ## Usage
 
 ### Important notes
@@ -28,6 +39,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   + The driver assumes that our anonymous access to the Rx grants us full control rights. This should be the case by default, and can otherwise be changed with the `setDefaultAccessLevel` command. If user control is in place user credentials can be given by parameters `login.user` and `login.password`.
   + Note for serial connection: Make sure the user is part of the `dialout` group to have full access to the serial ports. If not, add it for example with `sudo adduser [username] dialout`.
+  + The usage of the dynamic IP server is not recommended for productive use, since it requires to be reconfigured after each connection loss. For TCP transport `stream_device.tcp` should be configured instead. For fastest recovery after connection loss, `stream_device.udp` is the best choice.
   + Note for setting hw_flow_control: This is a string parameter, setting it to off without quotes leads to the fact that it is not read in correctly.
   + Note for setting ant_(aux1)_serial_nr: This is a string parameter, numeric only serial numbers should be put in quotes. If this is not done a warning will be issued and the driver tries to parse it as integer.
   + Note for usage of NTRIP via USB with virtual ethernet (RNDIS): RNDIS provides a virtual network connection only between the receiver and the PC. First outgoing network access via USB has to be activated, which is explained [here](https://www.youtube.com/watch?v=bUt8cL9Ue1Y). Next setup internet sharing under Linux by setting the connection of the virtual network interface (the name should be something like enx1a3202991545) to "Shared to other computers".
@@ -36,7 +48,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
   ROS 2: Launch as composition with `ros2 launch septentrio_gnss_driver rover.launch.py` to use `rover.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Alternatively launch as node with `ros2 launch septentrio_gnss_driver rover_node.launch.py` to use `rover_node.yaml` or add  `file_name:=xxx.yaml` to use a custom config. Specify the communication parameters, the ROS messages to be published, the frequency at which the latter should happen etc.
   + Besides the aforementioned config file `rover.yaml` containing all parameters, specialized launch files for GNSS `config/gnss.yaml` and INS `config/ins.yaml` respectively contain only the relevant parameters in each case.
   - NOTE: Unless `configure_rx` is set to `false`, this driver will overwrite the previous values of the parameters, even if the value is left to zero in the "yaml" file.
-  + The driver was developed and tested with firmware versions >= 4.10.0 for GNSS and >= 1.3.2 for INS. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
+  + The driver was developed and tested with firmware versions >= 4.14.0 for GNSS and >= 1.5.0 for INS. RB3 GNSS with firmware >= 2.0.0 has not been tested so fra, but should be supported. Receivers with older firmware versions are supported but some features may not be available. Known limitations are:
     * GNSS with firmware < 4.10.0 does not support IP over USB.    
     * GNSS with firmware < 4.12.1 does not support OSNMA.
     * GNSS with firmware < 4.14 does not support PTP server clock.
@@ -45,7 +57,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     * INS with firmware < 1.3.2 does not support NTP.
     * INS with firmware < 1.4 does not support OSNMA.
     * INS with firmware < 1.4.1 does not support improved VSM handling allowing for unknown variances.
-    * INS does not support PTP server clock as of now.
+    * INS with firmware < 1.5 does not support PTP server clock.
+    * INS with firmware < 1.5 does not support to set vehicle application.
     * Mosaic G5 with firmware < 1.0.1 is not supported.
  + Known issues:
     * UDP over USB: Blocks are sent twice on GNSS with firmware <= 4.12.1 and INS with firmware <= 1.4. For GNSS it is fixed in version 4.14 (released on June 15th 2023), for INS is fixed in 1.4.1 (released November 2023).
@@ -71,6 +84,8 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
       unicast_ip: ""
 
   configure_rx: true
+
+  persist_configuration: false
 
   custom_commands_file: ""
   
@@ -106,6 +121,10 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
   use_ros_axis_orientation: true
   
   receiver_type: gnss
+
+  multi_antenna: true
+
+  ppp: false
 
   datum: Default
 
@@ -190,6 +209,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     # For both GNSS and INS Rxs 
     auto_publish: false
     publish_only_valid: false
+    nmea_sentence: false
     navsatfix: false
     gpsfix: true
     gpgga: false
@@ -274,7 +294,13 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
 
   activate_debug_log: false
   ```
-  In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
+  In order to launch ROSaic, the launch command for ROS 1 reads `roslaunch septentrio_gnss_driver rover.launch param_file_name:=rover` and for ROS 2 reads `ros2 launch septentrio_gnss_driver rover.launch.py file_name:=rover.yaml`. If multiple port are utilized for RTK corrections and/or VSM, which shall be closed after driver shutdown (`keep_open: false`), make sure to give the driver enough time to gracefully shutdown as closing the ports takes a few seconds. For ROS 2, this can be accomplished in the launch files by increasing the timeout of SIGTERM (e.g. `sigterm_timeout = '10',`), see example launch files`rover.launch.py`and `rover_node.launch.py` respectively.
+
+  Some notes on the runtime behavior of the driver:
+  * During setup, if the Rx does not respond to a command, a warning is logged every 3 seconds and the command is resent after three unanswered waits. After six unanswered waits the connection is considered lost or stuck and is torn down and reestablished. If the Rx does not report its capabilities after repeated requests, the driver continues with default capabilities and logs a warning.
+  * During shutdown, if the Rx does not respond to a command within 3 seconds, the remaining teardown commands are abandoned so that the driver still shuts down promptly.
+  * If a connection is lost or reading fails persistently (e.g. an unplugged USB device), the driver reconnects automatically once the device becomes available again. Silently broken TCP links (e.g. an unplugged network cable) are detected via TCP keepalive within roughly 6 seconds. 
+  * If `device` is a TCP connection, `configure_rx` is `true`, and the data streams are received via this connection, the Rx is reconfigured automatically after each reconnection, since such dynamic connections are assigned a new connection descriptor by the Rx. Data streams received via a static IP server (`stream_device.tcp` or `stream_device.udp`) survive reconnections, no reconfiguration takes place, and the stream device is left untouched. The static IP server setup is recommended for production use, as it avoids the reconfiguration disruption entirely.
 
 </details>
 
@@ -383,7 +409,7 @@ This driver functions on ROS 1 [Melodic](https://wiki.ros.org/melodic/Installati
     - Specify the IMU-antenna lever arm in the vehicle reference frame. This is the vector starting from the IMU reference point to the ARP of the main GNSS antenna. This can be done by means of the `ins_spatial_config.ant_lever_arm` parameter.
     - Specify `ins_spatial_config.vsm_lever_arm` if measurements of a velocity sensor is available.
     - Alternatively the lever arms may be specified via tf. Set `get_spatial_config_from_tf`to `true` in this case.
-    - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_solution/poi_lever_arm` parameter.
+    - If the point of interest is neither the IMU nor the ARP of the main GNSS antenna, the vector between the IMU and the point of interest can be provided with the `ins_spatial_config.poi_lever_arm` parameter.
     
   - For further more information about Septentrio receivers, visit Septentrio [support resources](https://www.septentrio.com/en/supportresources) or check out the [user manual](https://www.septentrio.com/system/files/support/asterx_sbi3_user_manual_v1.0_0.pdf) and [reference guide](https://www.septentrio.com/system/files/support/asterx_sbi3_pro_firmware_v1.3.0_reference_guide.pdf) of the AsteRx SBi3 receiver.
 
@@ -395,8 +421,8 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
 
   + `device`: location of main device connection. This interface will be used for setup communication and VSM data for INS. Incoming data streams of SBF blocks and NMEA sentences are recevied either via this interface or a static IP server for TCP and/or UDP. The former will be utilized if section `stream_device.tcp` and `stream_device.udp` are not configured.
     + `serial:xxx` format for serial connections,where xxx is the device node, e.g. `serial:/dev/ttyS0`. If using serial over USB, it is recommended to specify the port by ID as the Rx may get a different ttyXXX on reconnection, e.g. `serial:/dev/serial/by-id/usb-Septentrio_Septentrio_USB_Device_xyz`.
-    + `file_name:path/to/file.sbf` format for publishing from an SBF log. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the sbf log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
-    + `file_name:path/to/file.pcap` format for publishing from PCAP capture. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the pcap log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
+    + `file_name:path/to/file.sbf` format for publishing from an SBF log, where the path may be absolute or relative to the node's working directory. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the sbf log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
+    + `file_name:path/to/file.pcap` format for publishing from PCAP capture, where the path may be absolute or relative to the node's working directory. When reading from a file, `use_gnss_time` is automatically set to true, since constructing the time stamps from ROS time would not match the data. If the pcap log does not contain `ReceiverTime`, parameter`leap_seconds` must be set manually.
       + Regarding the file path, ROS_HOME=\`pwd\` in front of `roslaunch septentrio...` might be useful to specify that the node should be started using the executable's directory as its working-directory.
     + `tcp://host:port` format for TCP/IP connections
       + `28784` should be used as the default (command) port for TCP/IP connections. If another port is specified, the receiver needs to be (re-)configured via the Web Interface before ROSaic can be used.
@@ -404,11 +430,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + default: `tcp://192.168.3.1:28784 `
   + `serial`: specifications for serial communication
     + `baudrate`: serial baud rate to be used in a serial connection. Ensure the provided rate is sufficient for the chosen SBF blocks. For example, activating MeasEpoch (also necessary for /gpsfix) may require up to almost 400 kBit/s.
-    + `rx_serial_port`: determines to which (virtual) serial port of the Rx we want to get connected to, e.g. USB1 or COM1
     + `hw_flow_control`: specifies whether the serial (the Rx's COM ports, not USB1 or USB2) connection to the Rx should have UART hardware flow control enabled or not
       + `off` to disable UART hardware flow control, `RTS|CTS` to enable it
-    + default: `921600`, `USB1`, `off`
-  + `stream_device`: If left unconfigured, by default `device` is utilized for the data streams. Within `stream_device` static IP servers may be defined instead. In config mode (`configure_rx` set to `true`), TCP will be prioritized over UDP. If Rx is pre-configured, both may be set simultaneously.
+    + default: `921600`, `off`
+  + `stream_device`: If left unconfigured, by default `device` is utilized for the data streams. Within `stream_device` static IP servers may be defined instead. In config mode (`configure_rx` set to `true`), TCP will be prioritized over UDP. If Rx is pre-configured, both may be set simultaneously. In this case (`configure_rx` set to `false` and a stream device configured) no connection to `device` is established, since it is not needed. With `stream_device.tcp` the host address is still taken from `device`; if only `stream_device.udp` is configured, `device` may also be left empty.
     + `tcp`: specifications for static TCP server of SBF blocks and NMEA sentences.
       + `ip_server`: IP server of Rx to be used, e.g. “IPS1”.
       + `port`: UDP destination port.
@@ -438,7 +463,10 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <summary>Receiver Configuration</summary>
 
     + configure_rx: Wether to configure the Rx according to the config file. If set to `false`, the Rx has to be configured via the web interface and the settings must be saved. On the driver side communication has to set accordingly to serial, TCP or UDP (TCP and UDP may even be used simultaneously in this case). For TCP communication it is recommended to use a static TCP server (`stream_device.tcp.ip_server` and `stream_device.tcp.port`), since dynamic connections (`device` is tcp) are not guaranteed to have the same id on reconnection. It should also be ensured that obligatory SBF blocks are activated (as of now: ReceiverTime if `use_gnss_time` is set to `true`; `PVTGeodetic`or `PVTCartesian` if latency compensation for PVT related blocks shall be used). Further, if ROS messages compiled from multiple SBF blocks, it should be ensured that all necessary blocks are activated with matching periods, details can be found in section [ROS Topic Publications](#ros-topic-publications). The messages that shall be published still have to be set to `true` in the *NMEA/SBF Messages to be Published* section. Also, parameters concerning the connection and node setup are still relevant (sections: *Connectivity Specs*, *receiver type*, *Frame IDs*, *UTM Zone Locking*, *Time Systems*, *Logger*).
-      + default: true
+      + default: `true`
+    + persist_configuration: Wether to keep the Rx configuration on driver shutdown. If set to `true`, the teardown commands on shutdown are omitted, i.e., the Rx keeps its configuration and continues to output the configured data streams. Only applicable if `configure_rx` is `true`. 
+      + default: `false`
+
   </details>
   
   <details>
@@ -535,9 +563,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
   + `polling_period.pvt`: desired period in milliseconds between the polling of two consecutive `PVTGeodetic`, `PosCovGeodetic`, `PVTCartesian` and `PosCovCartesian` blocks and - if published - between the publishing of two of the corresponding ROS messages (e.g. `septentrio_gnss_driver/PVTGeodetic.msg`). Consult firmware manual for allowed periods. If the period is set to a lower value than the receiver is capable of, it will be published with the next higher period. If set to `0`, the SBF blocks are output at their natural renewal rate (`OnChange`).
     + Clearly, the publishing of composite ROS messages such as [`sensor_msgs/NavSatFix.msg`](https://docs.ros2.org/foxy/api/sensor_msgs/msg/NavSatFix.html) or [`gps_msgs/GPSFix.msg`](https://github.com/swri-robotics/gps_umd/blob/ros2-devel/gps_msgs/msg/GPSFix.msg) is triggered by the SBF block that arrives last among the blocks of the current epoch.
-    + default: `500` (2 Hz)
+    + default: `1000` (1 Hz)
   + `polling_period.rest`: desired period in milliseconds between the polling of all other SBF blocks and NMEA sentences not addressed by the previous parameter, and - if published - between the publishing of all other ROS messages
-    + default: `500` (2 Hz)
+    + default: `1000` (1 Hz)
   </details>
   
   <details>
@@ -567,7 +595,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `caster`: is the hostname or IP address of the NTRIP caster to connect to.
         + default: ""
       + `caster_port`: IP port of the NTRIP caster.
-        + default: 2021
+        + default: 2101
       + `username`: user name for the NTRIP caster.
         + default: ""
       + `pasword`: password for the NTRIP caster. The receiver encrypts the password so that it cannot be read back with the command "getNtripSettings".
@@ -592,7 +620,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `port`: its port number of the connection that ROSaic establishes on the receiver. When selecting a port number, make sure to avoid conflicts with other services.
         + default: 0
       + `rtk_standard`: determines the RTK standard, options are `auto`, `RTCMv2`, `RTCMv3`, or `CMRv2`.
-        + default: ""
+        + default: "auto"
       + `send_gga`: specifies whether or not to send NMEA GGA messages to the NTRIP caster, and at which rate. It must be one of `auto`, `off`, `sec1`, `sec5`, `sec10` or `sec60`. In `auto` mode, the receiver sends with `sec1`.
         + default: "auto"
       + `keep_open`: determines wether this connection shall be kept open. If set to `true` the Rx will still be able to receive RTK corrections to improve precision after driver is shut down.
@@ -609,7 +637,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
       + `keep_open`: determines wether this connection shall be kept open. If set to `true` the Rx will still be able to receive RTK corrections to improve precision after driver is shut down.
         + default: true
   </details>
-  
+
   <details>
   <summary>INS Specs</summary>
 
@@ -631,13 +659,16 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
         + In case it is `auto`, the initial integrated heading is determined from GNSS measurements.
         + In case it is `stored`, the last known heading when the vehicle stopped before switching off the receiver is used as initial heading. Use if vehicle does not move when the receiver is switched off.
         + default: `auto`
+    + `ins_vehicle_application`: The application the vehicle is used in, the receiver applies according motion constraints to the INS solution. Requires INS firmware >= 1.5. If left empty, the vehicle application is not set.
+        + Valid choices are: `Unknown`, `RoadVehicle`, `HaulTruck`, `Tractor`, `TerminalTractor`, `ReachStacker`, `LiftTruck`, `Excavator`, `Loader`, `Grader`, `Dozer`, `RoadRobot`, `OffroadRobot`, `FixedWing`, `Multirotor`, `USV`, `RailVehicle`. If an invalid choice is configured, a warning is logged and the vehicle application is not set.
+        + default: "" (not set)
     + `ins_std_dev_mask`: Maximum accepted error
       + `att_std_dev`: Configures an output limit on standard deviation of the attitude angles (max error accepted: 5 degrees)
       + `pos_std_dev`: Configures an output limit on standard deviation of the position (max error accepted: 100 meters)
       + default: `5` degrees, `10` meters    
     + `ins_use_poi`: Whether or not to use the POI defined in `ins_spatial_config.poi_lever_arm`
       + If true, the point at which the INS navigation solution (e.g. in `insnavgeod` ROS topic) is calculated will be the POI as defined above (`poi_frame_id`), otherwise it'll be the main GNSS antenna (`frame_id`). Has to be set to `true` if tf shall be published.
-      + default: `true`
+      + default: `false`
     + `ins_vsm`: Configuration of the velocity sensor measurements. IP server may be used to receive velocity information from ROS or from an external device. Serial connection may be used to receive velocity information from an external device only.
       + `ros`: VSM info received from ROS msgs
         + `source`: Specifies which ROS message type shall be used, options are `odometry` or `twist`. Accordingly, a subscriber is established of the type [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) or [`geometry_msgs/TwistWithCovarianceStamped.msg`](https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistWithCovarianceStamped.html) listening on the topics `odometry_vsm` or `twist_vsm` respectively. Only linear velocities are evaluated. Measurements have to be with respect to the frame aligned with the vehicle and defined by `ins_spatial_config.vsm_lever_arm` or tf-frame `vsm_frame_id`, see also comment in [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) that twist should be specified in `child_frame_id`. VSM data is sent to the receiver via TCP as set in the sub parameter `ip_server`.
@@ -646,11 +677,11 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
           + default: []
         + `variances_by_parameter`: Wether variances shall be entered by parameter `ins_vsm.ros.variances` or the values from inside the ROS messages are used. Only has to be set if `ins_vsm.source`is set to `odometry` or `twist`.
           + default: false
-        + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. Values must be > 0.0, else measurements cannot not be used.
+        + `variances`: Variances of the respective axes. Only have to be set if `ins_vsm.variances_by_parameter` is set to `true`. If a value is not > 0.0, the velocity of the respective axis is sent without standard deviation. Standard deviations (square roots of the variances) must not be smaller than 0.25 m/s as demanded by the Rx, smaller values are clamped to 0.25 m/s with a warning. On firmware without improved VSM handling, measurements of axes without valid variance are ignored.
           + default: []
       + `ip_server`:
-        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` my be set to the same. 
-            + default: "IPS5"
+        + `id`: IP server to receive the VSM info (e.g. `IPS1`). If a TCP stream device (`device.stream_device.tcp`) is set up, this device may be used here, i.e, `id` may be set to the same. 
+            + default: empty if `ins_vsm.ros.source` is not configured. Else the id of the TCP stream device if configured, otherwise "IPS5".
         + `port`: TCP port to receive the VSM info. When selecting a port number, make sure to avoid conflicts with other services.
           + default: 24786
         + `keep_open` determines wether this connections to receive VSM shall be kept open on driver shutdown. If set to `true` the Rx will still be able to use external VSM info to improve its localization.
@@ -674,8 +705,9 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   <details>
   <summary>NMEA/SBF Messages to be Published</summary>
   
-    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
+    + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. In this case, the individual `publish.*` parameters below are ignored. Only applicable if `configure_rx` is `false`. The parameters `publish.tf` and `publish.tf_ecef` are not affected: a tf is only published if the respective parameter is explicitly set to `true`.
     + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
+    + `publish.nmea_sentence`: `true` to additionally publish every received NMEA sentence (GGA, RMC, GSA, GSV) as raw `nmea_msgs/Sentence` into the topic `/nmea_sentence`. The header is the same as that of the corresponding typed message (so `use_gnss_time` applies), and the trailing CR LF is stripped.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
@@ -698,7 +730,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
     + `publish.gpsfix`: `true` to publish `gps_msgs/GPSFix.msg` messages into the topic `/gpsfix`
     + `publish.pose`: `true` to publish `geometry_msgs/PoseWithCovarianceStamped.msg` messages into the topic `/pose`
     + `publish.twist`: `true` to publish `geometry_msgs/TwistWithCovarianceStamped.msg` messages into the topics `/twist_gnss` and `/twist_ins` respectively 
-    + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`
+    + `publish.diagnostics`: `true` to publish `diagnostic_msgs/DiagnosticArray.msg` messages into the topic `/diagnostics`. For INS with VSM, the status of the VSM input is also reported, i.e., wether it is accepted or rejected by the Rx. This requires the `ExtSensorMeas` SBF block, which is streamed if `publish.extsensormeas` or `publish.imu` is enabled.
     + `publish.insnavcart`: `true` to publish `septentrio_gnss_driver/INSNavCart.msg` message into the topic`/insnavcart` 
     + `publish.insnavgeod`: `true` to publish `septentrio_gnss_driver/INSNavGeod.msg` message into the topic`/insnavgeod`  
     + `publish.extsensormeas`: `true` to publish `septentrio_gnss_driver/ExtSensorMeas.msg` message into the topic`/extsensormeas`
@@ -722,6 +754,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC.
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
+  + `/nmea_sentence`: publishes [`nmea_msgs/Sentence.msg`](https://docs.ros.org/en/api/nmea_msgs/html/msg/Sentence.html) - the raw NMEA sentences GGA, RMC, GSA and GSV, if `publish.nmea_sentence` is `true`.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.  
   + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
   + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, compiled from the SBF block `RFStatus`.

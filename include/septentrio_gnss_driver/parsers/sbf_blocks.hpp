@@ -393,6 +393,42 @@ template <typename It, typename Hdr>
 }
 
 /**
+ * @brief Validates one sub-block against the bytes left in the telegram
+ *
+ * Sub-block counts and lengths are read straight off the wire, so every iteration has
+ * to be checked before it is parsed: the trailing "it > itEnd" guards in the block
+ * parsers only run once all sub-blocks have been consumed, i.e. after an overread has
+ * already happened. A length below the fixed part is rejected too, since the padding
+ * skip would otherwise advance the iterator backwards.
+ *
+ * @param[in] sbLength Sub-block length as announced by the block
+ * @param[in] minLength Size of the sub-block's fixed part
+ */
+template <typename It>
+[[nodiscard]] bool validSubBlock(ROSaicNodeBase* node, It it, It itEnd,
+                                 uint8_t sbLength, size_t minLength,
+                                 const std::string& name)
+{
+    if (sbLength < minLength)
+    {
+        node->log(log_level::ERROR,
+                  "Parse error: " + name + " sub-block length " +
+                      std::to_string(sbLength) + " is below the fixed part of " +
+                      std::to_string(minLength) + " bytes.");
+        return false;
+    }
+    if (std::distance(it, itEnd) <
+        static_cast<typename std::iterator_traits<It>::difference_type>(sbLength))
+    {
+        node->log(log_level::ERROR, "Parse error: " + name +
+                                        " sub-block extends past the end of the SBF "
+                                        "block.");
+        return false;
+    }
+    return true;
+}
+
+/**
  * ChannelStateInfoParser
  * @brief Qi based parser for the SBF sub-block "ChannelStateInfo"
  */
@@ -412,10 +448,13 @@ void ChannelStateInfoParser(It& it, ChannelStateInfo& msg, uint8_t sb2_length)
  * @brief Qi based parser or the SBF sub-block "ChannelSatInfo"
  */
 template <typename It>
-[[nodiscard]] bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it,
+[[nodiscard]] bool ChannelSatInfoParser(ROSaicNodeBase* node, It& it, It itEnd,
                                         ChannelSatInfo& msg, uint8_t sb1_length,
                                         uint8_t sb2_length)
 {
+    if (!validSubBlock(node, it, itEnd, sb1_length, 12, "ChannelSatInfo"))
+        return false;
+
     qiLittleEndianParser(it, msg.sv_id);
     qiLittleEndianParser(it, msg.freq_nr);
     std::advance(it, 2); // reserved
@@ -435,6 +474,8 @@ template <typename It>
     msg.stateInfo.resize(msg.n2);
     for (auto& stateInfo : msg.stateInfo)
     {
+        if (!validSubBlock(node, it, itEnd, sb2_length, 8, "ChannelStateInfo"))
+            return false;
         ChannelStateInfoParser(it, stateInfo, sb2_length);
     }
     return true;
@@ -469,7 +510,8 @@ template <typename It>
     msg.satInfo.resize(msg.n);
     for (auto& satInfo : msg.satInfo)
     {
-        if (!ChannelSatInfoParser(node, it, satInfo, msg.sb1_length, msg.sb2_length))
+        if (!ChannelSatInfoParser(node, it, itEnd, satInfo, msg.sb1_length,
+                                  msg.sb2_length))
             return false;
     }
     if (it > itEnd)
@@ -542,11 +584,14 @@ void MeasEpochChannelType2Parser(It& it, MeasEpochChannelType2Msg& msg,
  * @brief Qi based parser for the SBF sub-block "MeasEpochChannelType1"
  */
 template <typename It>
-[[nodiscard]] bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it,
+[[nodiscard]] bool MeasEpochChannelType1Parser(ROSaicNodeBase* node, It& it, It itEnd,
                                                MeasEpochChannelType1Msg& msg,
                                                uint8_t sb1_length,
                                                uint8_t sb2_length)
 {
+    if (!validSubBlock(node, it, itEnd, sb1_length, 20, "MeasEpochChannelType1"))
+        return false;
+
     qiLittleEndianParser(it, msg.rx_channel);
     qiLittleEndianParser(it, msg.type);
     qiLittleEndianParser(it, msg.sv_id);
@@ -569,6 +614,9 @@ template <typename It>
     msg.type2.resize(msg.n2);
     for (auto& type2 : msg.type2)
     {
+        if (!validSubBlock(node, it, itEnd, sb2_length, 12,
+                           "MeasEpochChannelType2"))
+            return false;
         MeasEpochChannelType2Parser(it, type2, sb2_length);
     }
     return true;
@@ -606,7 +654,7 @@ template <typename It>
     msg.type1.resize(msg.n);
     for (auto& type1 : msg.type1)
     {
-        if (!MeasEpochChannelType1Parser(node, it, type1, msg.sb1_length,
+        if (!MeasEpochChannelType1Parser(node, it, itEnd, type1, msg.sb1_length,
                                          msg.sb2_length))
             return false;
     }
@@ -684,6 +732,8 @@ template <typename It>
     msg.rfband.resize(msg.n);
     for (auto& rfband : msg.rfband)
     {
+        if (!validSubBlock(node, it, itEnd, msg.sb_length, 7, "RFBand"))
+            return false;
         RfBandParser(it, rfband, msg.sb_length);
     }
     if (it > itEnd)
@@ -1027,6 +1077,8 @@ template <typename It>
     msg.vector_info_cart.resize(msg.n);
     for (auto& vector_info_cart : msg.vector_info_cart)
     {
+        if (!validSubBlock(node, it, itEnd, msg.sb_length, 52, "VectorInfoCart"))
+            return false;
         VectorInfoCartParser(it, vector_info_cart, msg.sb_length);
     }
     if (it > itEnd)
@@ -1089,6 +1141,8 @@ template <typename It>
     msg.vector_info_geod.resize(msg.n);
     for (auto& vector_info_geod : msg.vector_info_geod)
     {
+        if (!validSubBlock(node, it, itEnd, msg.sb_length, 52, "VectorInfoGeod"))
+            return false;
         VectorInfoGeodParser(it, vector_info_geod, msg.sb_length);
     }
     if (it > itEnd)
@@ -1403,9 +1457,11 @@ template <typename It>
     }
     ++it; // reserved
     msg.indicators.resize(msg.n);
-    std::vector<uint16_t> indicators;
     for (auto& indicators : msg.indicators)
     {
+        if (!validSubBlock(node, it, itEnd, sizeof(uint16_t), sizeof(uint16_t),
+                           "QualityInd"))
+            return false;
         qiLittleEndianParser(it, indicators);
     }
     if (it > itEnd)
@@ -1421,7 +1477,7 @@ template <typename It>
  * @brief Struct for the SBF sub-block "AGCState"
  */
 template <typename It>
-void AgcStateParser(It it, AgcState& msg, uint8_t sb_length)
+void AgcStateParser(It& it, AgcState& msg, uint8_t sb_length)
 {
     qiLittleEndianParser(it, msg.frontend_id);
     qiLittleEndianParser(it, msg.gain);
@@ -1464,6 +1520,8 @@ template <typename It>
     msg.agc_state.resize(msg.n);
     for (auto& agc_state : msg.agc_state)
     {
+        if (!validSubBlock(node, it, itEnd, msg.sb_length, 4, "AGCState"))
+            return false;
         AgcStateParser(it, agc_state, msg.sb_length);
     }
     if (it > itEnd)
@@ -1769,6 +1827,12 @@ ExtSensorMeasParser(ROSaicNodeBase* node, It it, It itEnd, ExtSensorMeasMsg& msg
     hasImuMeas = false;
     for (size_t i = 0; i < msg.n; i++)
     {
+        // msg.n itself is unbounded on the wire; every branch below consumes exactly
+        // sb_length bytes, so checking the remaining bytes per iteration bounds n by
+        // the block's real length.
+        if (!validSubBlock(node, it, itEnd, msg.sb_length, 28, "ExtSensorMeas"))
+            return false;
+
         qiLittleEndianParser(it, msg.source[i]);
         qiLittleEndianParser(it, msg.sensor_model[i]);
         qiLittleEndianParser(it, msg.type[i]);

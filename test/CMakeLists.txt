@@ -13,3 +13,11 @@ ament_add_gtest(test_parsing_utilities
 target_link_libraries(test_parsing_utilities
   ${library_name}
 )
+
+ament_add_gtest(test_telegram_parser
+  test_telegram_parser.cpp
+)
+
+target_link_libraries(test_telegram_parser
+  ${library_name}
+)

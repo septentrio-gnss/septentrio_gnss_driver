@@ -117,7 +117,8 @@ GpgsvMsg GpgsvParser::parseASCII(const NMEASentence& sentence,
     // Checking that the sentence is the right length for the number of satellites
     size_t expected_length = MIN_LENGTH + 4 * n_sats_in_sentence + 1;
     // Note that we add +1 due to the checksum data being part of the argument
-    // "sentence".
+    // "sentence". The signal id of NMEA >= 4.10 may add one more element, which is
+    // not parsed since nmea_msgs/Gpgsv has no field for it.
     if (n_sats_in_sentence == 0)
     {
         // Even if the number of sats is 0, the message will still have enough
@@ -129,8 +130,8 @@ GpgsvMsg GpgsvParser::parseASCII(const NMEASentence& sentence,
     // msg.n_satellites, msg.n_satellites % static_cast<uint8_t>(4),
     // msg.msg_number
     // == msg.n_msgs ? "true" : "false", n_sats_in_sentence);
-    if (sentence.get_body().size() != expected_length &&
-        sentence.get_body().size() != expected_length - 1)
+    if ((sentence.get_body().size() < expected_length - 1) ||
+        (sentence.get_body().size() > expected_length + 1))
     {
         std::stringstream ss;
         for (size_t i = 0; i < sentence.get_body().size(); ++i)
@@ -180,7 +181,7 @@ GpgsvMsg GpgsvParser::parseASCII(const NMEASentence& sentence,
         }
         msg.satellites[sat].azimuth = static_cast<uint16_t>(azimuth);
 
-        if ((index + 3) >= sentence.get_body().size() ||
+        if ((index + 3) >= (sentence.get_body().size() - 1) ||
             sentence.get_body()[index + 3].empty())
         {
             msg.satellites[sat].snr = -1;
