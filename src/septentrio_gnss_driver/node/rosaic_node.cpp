@@ -105,22 +105,24 @@ namespace rosaic_node {
         param("lock_utm_zone", settings_.lock_utm_zone, true);
         param("leap_seconds", settings_.leap_seconds, -128);
         param("configure_rx", settings_.configure_rx, true);
+        param("persist_configuration", settings_.persist_configuration, false);
 
         param("custom_commands_file", settings_.custom_commands_file,
               static_cast<std::string>(""));
 
         // Communication parameters
-        param("device", settings_.device, static_cast<std::string>("/dev/ttyACM0"));
+        param("device", settings_.device,
+              static_cast<std::string>("tcp://192.168.3.1:28784"));
         getUint32Param("serial.baudrate", settings_.baudrate,
                        static_cast<uint32_t>(921600));
         param("serial.hw_flow_control", settings_.hw_flow_control,
               static_cast<std::string>("off"));
-        getUint32Param("stream_device.tcp.port", settings_.tcp_port,
-                       static_cast<uint32_t>(0));
+        getPortParam("stream_device.tcp.port", settings_.tcp_port,
+                     static_cast<uint16_t>(0));
         param("stream_device.tcp.ip_server", settings_.tcp_ip_server,
               static_cast<std::string>(""));
-        getUint32Param("stream_device.udp.port", settings_.udp_port,
-                       static_cast<uint32_t>(0));
+        getPortParam("stream_device.udp.port", settings_.udp_port,
+                     static_cast<uint16_t>(0));
         param("stream_device.udp.unicast_ip", settings_.udp_unicast_ip,
               static_cast<std::string>(""));
         param("stream_device.udp.ip_server", settings_.udp_ip_server,
@@ -183,6 +185,7 @@ namespace rosaic_node {
         // Publishing parameters
         param("publish.auto_publish", settings_.auto_publish, false);
         param("publish.publish_only_valid", settings_.publish_only_valid, false);
+
         param("publish.gpst", settings_.publish_gpst, false);
         param("publish.navsatfix", settings_.publish_navsatfix, true);
         param("publish.gpsfix", settings_.publish_gpsfix, false);
@@ -220,6 +223,7 @@ namespace rosaic_node {
         param("publish.localization_ecef", settings_.publish_localization_ecef,
               false);
         param("publish.twist", settings_.publish_twist, false);
+
         param("publish.tf", settings_.publish_tf, false);
         param("publish.tf_ecef", settings_.publish_tf_ecef, false);
 
@@ -238,7 +242,8 @@ namespace rosaic_node {
             settings_.datum = "WGS84";
         param("ant_type", settings_.ant_type, std::string("Unknown"));
         param("ant_aux1_type", settings_.ant_aux1_type, std::string("Unknown"));
-        if (!param("ant_serial_nr", settings_.ant_serial_nr, std::string()))
+        param("ant_serial_nr", settings_.ant_serial_nr, std::string());
+        if (settings_.ant_serial_nr.empty())
         {
             uint32_t sn_tmp;
             if (getUint32Param("ant_serial_nr", sn_tmp, static_cast<uint32_t>(0)))
@@ -246,8 +251,8 @@ namespace rosaic_node {
             else
                 settings_.ant_serial_nr = "Unknown";
         }
-        if (!param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr,
-                   std::string()))
+        param("ant_aux1_serial_nr", settings_.ant_aux1_serial_nr, std::string());
+        if (settings_.ant_aux1_serial_nr.empty())
         {
             uint32_t sn_tmp;
             if (getUint32Param("ant_aux1_serial_nr", sn_tmp,
@@ -442,6 +447,11 @@ namespace rosaic_node {
         param("ins_initial_heading", settings_.ins_initial_heading,
               std::string("auto"));
 
+        // ins_vehicle_application param
+        param("ins_vehicle_application", settings_.ins_vehicle_application,
+              std::string(""));
+        settings::checkVehicleApplication(this, settings_);
+
         // ins_std_dev_mask
         param("ins_std_dev_mask.att_std_dev", settings_.att_std_dev, 5.0f);
         param("ins_std_dev_mask.pos_std_dev", settings_.pos_std_dev, 10.0f);
@@ -449,7 +459,8 @@ namespace rosaic_node {
         // INS solution reference point
         param("ins_use_poi", settings_.ins_use_poi, false);
 
-        if (settings_.publish_tf && !settings_.ins_use_poi)
+        if ((settings_.publish_tf || settings_.publish_tf_ecef) &&
+            !settings_.ins_use_poi)
         {
             this->log(
                 log_level::ERROR,
@@ -470,17 +481,18 @@ namespace rosaic_node {
 
             param("rtk_settings." + ntrip + ".caster", ntripSettings.caster,
                   std::string());
-            getUint32Param("rtk_settings." + ntrip + ".caster_port",
-                           ntripSettings.caster_port, static_cast<uint32_t>(0));
+            getPortParam("rtk_settings." + ntrip + ".caster_port",
+                         ntripSettings.caster_port, static_cast<uint16_t>(2101));
             param("rtk_settings." + ntrip + ".username", ntripSettings.username,
                   std::string());
-            if (!param("rtk_settings." + ntrip + ".password", ntripSettings.password,
-                       std::string()))
+            param("rtk_settings." + ntrip + ".password", ntripSettings.password,
+                  std::string());
+            if (ntripSettings.password.empty())
             {
                 uint32_t pwd_tmp;
-                getUint32Param("rtk_settings." + ntrip + ".password", pwd_tmp,
-                               static_cast<uint32_t>(0));
-                ntripSettings.password = std::to_string(pwd_tmp);
+                if (getUint32Param("rtk_settings." + ntrip + ".password", pwd_tmp,
+                                   static_cast<uint32_t>(0)))
+                    ntripSettings.password = std::to_string(pwd_tmp);
             }
             param("rtk_settings." + ntrip + ".mountpoint", ntripSettings.mountpoint,
                   std::string());
@@ -511,8 +523,8 @@ namespace rosaic_node {
             if (ipSettings.id.empty())
                 continue;
 
-            getUint32Param("rtk_settings." + ips + ".port", ipSettings.port,
-                           static_cast<uint32_t>(0));
+            getPortParam("rtk_settings." + ips + ".port", ipSettings.port,
+                         static_cast<uint16_t>(0));
             param("rtk_settings." + ips + ".rtk_standard", ipSettings.rtk_standard,
                   std::string("auto"));
             param("rtk_settings." + ips + ".send_gga", ipSettings.send_gga,
@@ -597,7 +609,7 @@ namespace rosaic_node {
         {
             param("ins_vsm.ros.source", settings_.ins_vsm.ros_source,
                   std::string(""));
-            std::string ipid = "IPS5";
+            std::string ipid;
 
             bool ins_use_vsm = false;
             ins_use_vsm = ((settings_.ins_vsm.ros_source == "odometry") ||
@@ -606,15 +618,29 @@ namespace rosaic_node {
                 this->log(log_level::ERROR, "unknown ins_vsm.ros.source " +
                                                 settings_.ins_vsm.ros_source +
                                                 " -> VSM input will not be used!");
-            else if (!settings_.tcp_ip_server.empty())
-                ipid = settings_.tcp_ip_server;
+            else if (ins_use_vsm)
+            {
+                if (!settings_.tcp_ip_server.empty())
+                    ipid = settings_.tcp_ip_server;
+                else
+                    ipid = "IPS5";
+            }
 
             param("ins_vsm.ip_server.id", settings_.ins_vsm.ip_server, ipid);
+            if (!settings_.ins_vsm.ip_server.empty() &&
+                (settings_.ins_vsm.ip_server == settings_.tcp_ip_server) &&
+                !ins_use_vsm)
+            {
+                this->log(
+                    log_level::ERROR,
+                    "ins_vsm.ip_server.id is the stream device, which is already in use by the node and cannot serve an external VSM source -> VSM input will not be used!");
+                settings_.ins_vsm.ip_server = "";
+            }
             if (!settings_.ins_vsm.ip_server.empty())
             {
-                getUint32Param("ins_vsm.ip_server.port",
-                               settings_.ins_vsm.ip_server_port,
-                               static_cast<uint32_t>(24786));
+                getPortParam("ins_vsm.ip_server.port",
+                             settings_.ins_vsm.ip_server_port,
+                             static_cast<uint16_t>(24786));
                 param("ins_vsm.ip_server.keep_open",
                       settings_.ins_vsm.ip_server_keep_open, true);
                 this->log(
@@ -681,11 +707,10 @@ namespace rosaic_node {
                                     (settings_.ins_vsm.ros_variances[i] <= 0.0))
                                 {
                                     this->log(
-                                        log_level::ERROR,
+                                        log_level::WARN,
                                         "ins_vsm.ros.config of element " +
                                             std::to_string(i) +
-                                            " has been set to be used but its variance is not > 0.0 -> its VSM input will not be used!");
-                                    settings_.ins_vsm.ros_config[i] = false;
+                                            " has been set to be used but its variance is not > 0.0 -> the velocity of this axis will be sent without standard deviation!");
                                 }
                             }
                         }
@@ -724,17 +749,15 @@ namespace rosaic_node {
             settings_.device_tcp_ip = match[2];
             settings_.device_tcp_port = match[3];
             settings_.device_type = device_type::TCP;
-        } else if (boost::regex_match(
-                       settings_.device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.sbf)")))
+        } else if (boost::regex_match(settings_.device, match,
+                                      boost::regex("(file_name):(.+\\.sbf)")))
         {
             settings_.read_from_sbf_log = true;
             settings_.use_gnss_time = true;
             settings_.device = match[2];
             settings_.device_type = device_type::SBF_FILE;
-        } else if (boost::regex_match(
-                       settings_.device, match,
-                       boost::regex("(file_name):(/|(?:/[\\w-]+)+.pcap)")))
+        } else if (boost::regex_match(settings_.device, match,
+                                      boost::regex("(file_name):(.+\\.pcap)")))
         {
             settings_.read_from_pcap = true;
             settings_.use_gnss_time = true;
@@ -768,9 +791,10 @@ namespace rosaic_node {
             settings::checkUniquenssOfIpsPortsVsm(this, settings_);
         }
 
+        // To be implemented: RTCM, raw data settings, PPP, SBAS ...
+
         settings::autoPublish(this, settings_);
 
-        // To be implemented: RTCM, raw data settings, PPP, SBAS ...
         this->log(log_level::DEBUG, "Finished getROSParams() method");
         return true;
     }
@@ -792,7 +816,7 @@ namespace rosaic_node {
                                   TransformStampedMsg& T_s_t) const
     {
         bool found = false;
-        while (!found)
+        while (!found && this->ok())
         {
             try
             {

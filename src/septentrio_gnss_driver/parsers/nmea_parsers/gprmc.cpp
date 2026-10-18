@@ -77,38 +77,37 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
 
     msg.message_id = sentence.get_body()[0];
 
+    double utc_double = 0.0;
+    bool utc_ok = string_utilities::toDouble(sentence.get_body()[1], utc_double);
+    if (utc_ok)
+    {
+        msg.utc_seconds = parsing_utilities::convertUTCDoubleToSeconds(utc_double);
+    }
+
     if (!use_gnss_time || sentence.get_body()[1].empty() ||
         sentence.get_body()[1] == "0")
     {
         msg.header.stamp = timestampToRos(time_obj);
+    } else if (!utc_ok)
+    {
+        throw ParseException(
+            "Error parsing UTC seconds in GPRMC"); // E.g. if one of the
+                                                   // fields of the NMEA UTC
+                                                   // string is empty
     } else
     {
-        double utc_double;
-        if (string_utilities::toDouble(sentence.get_body()[1], utc_double))
-        {
-            msg.utc_seconds =
-                parsing_utilities::convertUTCDoubleToSeconds(utc_double);
-
-            // The Header's Unix Epoch time stamp
-            time_t unix_time_seconds =
-                parsing_utilities::convertUTCtoUnix(utc_double);
-            // The following assumes that there are two digits after the
-            // decimal point in utc_double, i.e. in the NMEA UTC time.
-            Timestamp unix_time_nanoseconds =
-                unix_time_seconds * 1000000000 +
-                (static_cast<Timestamp>(utc_double * 100) % 100) * 10000;
-            msg.header.stamp = timestampToRos(unix_time_nanoseconds);
-        } else
-        {
-            throw ParseException(
-                "Error parsing UTC seconds in GPRMC"); // E.g. if one of the
-                                                       // fields of the NMEA UTC
-                                                       // string is empty
-        }
+        // The Header's Unix Epoch time stamp
+        time_t unix_time_seconds = parsing_utilities::convertUTCtoUnix(utc_double);
+        // The following assumes that there are two digits after the
+        // decimal point in utc_double, i.e. in the NMEA UTC time.
+        Timestamp unix_time_nanoseconds =
+            unix_time_seconds * 1000000000 +
+            (static_cast<Timestamp>(utc_double * 100) % 100) * 10000000;
+        msg.header.stamp = timestampToRos(unix_time_nanoseconds);
     }
 
     bool valid = true;
-    bool to_be_ignored = false;
+    bool to_be_ignored = true;
 
     msg.position_status = sentence.get_body()[2];
     // Check to see whether this message should be ignored
@@ -137,16 +136,26 @@ GprmcMsg GprmcParser::parseASCII(const NMEASentence& sentence,
     valid =
         valid && parsing_utilities::parseFloat(sentence.get_body()[8], msg.track);
 
-    std::string date_str = sentence.get_body()[9];
+    const std::string& date_str = sentence.get_body()[9];
     if (!date_str.empty())
     {
-        msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
-                   date_str.substr(2, 2) + std::string("-") + date_str.substr(0, 2);
+        // The date field is DDMMYY, i.e. exactly 6 characters. Anything else is
+        // malformed and must not reach substr(), which would throw std::out_of_range
+        // instead of the ParseException that callers handle.
+        if (date_str.size() == 6)
+        {
+            msg.date = std::string("20") + date_str.substr(4, 2) + std::string("-") +
+                       date_str.substr(2, 2) + std::string("-") +
+                       date_str.substr(0, 2);
+        } else
+        {
+            valid = false;
+        }
     }
     valid =
         valid && parsing_utilities::parseFloat(sentence.get_body()[10], msg.mag_var);
     msg.mag_var_direction = sentence.get_body()[11];
-    if (sentence.get_body().size() == LEN_MAX)
+    if (sentence.get_body().size() >= LEN_MAX - 1)
     {
         msg.mode_indicator = sentence.get_body()[12];
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>septentrio_gnss_driver</name>
-  <version>1.4.8</version>
+  <version>1.5.0</version>
   <description>ROSaic: C++ driver for Septentrio's GNSS and INS receivers</description>
 
   <!-- Maintainers -->
@@ -42,6 +42,7 @@
   <depend>diagnostic_msgs</depend>
   <depend>nmea_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend condition="$ROS_VERSION == 2">gps_msgs</depend>
   <depend condition="$ROS_VERSION == 1">gps_common</depend>

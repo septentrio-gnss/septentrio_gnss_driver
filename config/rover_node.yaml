@@ -20,6 +20,8 @@ septentrio_gnss_driver:
 
     configure_rx: true
 
+    persist_configuration: false
+
     custom_commands_file: ""  
 
     osnma:
@@ -169,6 +171,8 @@ septentrio_gnss_driver:
         vsm_z: 0.0
 
     ins_initial_heading: auto
+
+    ins_vehicle_application: "Unknown"
 
     ins_std_dev_mask:
       att_std_dev: 5.0

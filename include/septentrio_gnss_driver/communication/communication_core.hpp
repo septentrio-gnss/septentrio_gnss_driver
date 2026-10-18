@@ -64,6 +64,7 @@
 // C++ library includes
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <sstream>
 // ROSaic includes
 #include <septentrio_gnss_driver/communication/async_manager.hpp>
@@ -147,6 +148,12 @@ namespace io {
         void processTelegrams();
 
         /**
+         * @brief Reruns configureRx() each time the dynamic TCP connection was
+         * reestablished, since the Rx assigns a new connection descriptor
+         */
+        void runReconfigure();
+
+        /**
          * @brief Hands over to the send() method of manager_
          * @param cmd The command to hand over
          */
@@ -162,8 +169,23 @@ namespace io {
         TelegramHandler telegramHandler_;
         //! Processing thread
         std::thread processingThread_;
+        //! Reconfigures the Rx after a reconnection of the dynamic TCP connection
+        std::thread reconfigureThread_;
+        //! Signals that the dynamic TCP connection was reestablished
+        Semaphore reconfigureSemaphore_;
+        //! Serializes configureRx() and resetSettings(), which may be entered
+        //! concurrently by the setup and the reconfigure threads
+        std::mutex configureMutex_;
+        //! Incremented on each reconnection of the dynamic TCP connection so that
+        //! a configuration run of a previous connection can detect it is stale
+        std::atomic<uint32_t> configGeneration_ = 0;
+        //! Generation the currently running configuration belongs to, only
+        //! accessed under configureMutex_
+        uint32_t activeConfigGeneration_ = 0;
         //! Whether connecting was successful
         bool initializedIo_ = false;
+        //! Whether shutdown of the driver has been initiated
+        std::atomic<bool> shuttingDown_ = false;
         //! Processes I/O stream data
         //! This declaration is deliberately stream-independent (Serial or TCP).
         std::unique_ptr<AsyncManagerBase> manager_;

@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(septentrio_gnss_driver)
 
-## Compile as C++17
-add_compile_options(-std=c++17)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 message(STATUS "Setting build type to Release as none was specified.")
@@ -13,7 +12,7 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
   "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(WARNFLAGS "-Wall -Wextra -Wpedantic -Wcast-align -Wnon-virtual-dtor -Woverloaded-virtual -Wcast-qual -Wctor-dtor-privacy")
+set(WARNFLAGS -Wall -Wextra -Wpedantic -Wcast-align -Wnon-virtual-dtor -Woverloaded-virtual -Wcast-qual -Wctor-dtor-privacy)
 
 ## System dependencies are found with CMake's conventions
 if(POLICY CMP0167)
@@ -39,6 +38,8 @@ find_package(catkin QUIET)
 if(catkin_FOUND)
   ## ROS 1 -----------------------------------------------------------------------------------------------  
   set(ENV{ROS_VERSION} "1")
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
   ## Dependencies
   find_package(catkin REQUIRED COMPONENTS
@@ -133,6 +134,7 @@ if(catkin_FOUND)
   )
   target_compile_definitions(${PROJECT_NAME}_node PUBLIC ROS1)
   target_compile_features(${PROJECT_NAME}_node PUBLIC cxx_std_17)
+  target_compile_options(${PROJECT_NAME}_node PRIVATE ${WARNFLAGS})
  
   # Installation
   install(TARGETS ${PROJECT_NAME}_node
@@ -149,6 +151,14 @@ elseif(ament_cmake_FOUND)
   ## ROS 2 -----------------------------------------------------------------------------------------------
   set(ENV{ROS_VERSION} "2")
 
+  if("$ENV{ROS_DISTRO}" MATCHES "^(foxy|galactic|humble|iron|jazzy)$")
+    set(ROS2_CXX_STANDARD 17)
+  else()
+    set(ROS2_CXX_STANDARD 20)
+  endif()
+  set(CMAKE_CXX_STANDARD ${ROS2_CXX_STANDARD})
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
   unset(CATKIN_INSTALL_INTO_PREFIX_ROOT)
   unset(CATKIN_SYMLINK_INSTALL)
 
@@ -160,6 +170,7 @@ elseif(ament_cmake_FOUND)
   find_package(diagnostic_msgs REQUIRED)
   find_package(nmea_msgs REQUIRED)
   find_package(sensor_msgs REQUIRED)
+  find_package(std_msgs REQUIRED)
   find_package(geometry_msgs REQUIRED)
   find_package(gps_msgs REQUIRED)
   find_package(nav_msgs REQUIRED)
@@ -210,6 +221,7 @@ elseif(ament_cmake_FOUND)
     diagnostic_msgs
     nmea_msgs
     sensor_msgs
+    std_msgs
     geometry_msgs
     gps_msgs
     nav_msgs
@@ -225,7 +237,6 @@ elseif(ament_cmake_FOUND)
     src/septentrio_gnss_driver/communication/message_handler.cpp 
     src/septentrio_gnss_driver/communication/telegram_handler.cpp
     src/septentrio_gnss_driver/crc/crc.cpp
-    src/septentrio_gnss_driver/node/main.cpp
     src/septentrio_gnss_driver/node/rosaic_node.cpp
     src/septentrio_gnss_driver/parsers/nmea_parsers/gpgga.cpp 
     src/septentrio_gnss_driver/parsers/nmea_parsers/gprmc.cpp 
@@ -235,7 +246,8 @@ elseif(ament_cmake_FOUND)
     src/septentrio_gnss_driver/parsers/string_utilities.cpp 
   )
   target_compile_definitions(${library_name} PUBLIC ROS2)
-  target_compile_features(${library_name} PUBLIC cxx_std_17)
+  target_compile_features(${library_name} PUBLIC cxx_std_${ROS2_CXX_STANDARD})
+  target_compile_options(${library_name} PRIVATE ${WARNFLAGS})
   target_include_directories(${library_name} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
     "$<INSTALL_INTERFACE:include>"
@@ -283,6 +295,7 @@ elseif(ament_cmake_FOUND)
   target_link_libraries(${executable_name}
     ${library_name}
   )
+  target_compile_options(${executable_name} PRIVATE ${WARNFLAGS})
 
   rclcpp_components_register_nodes(${library_name} "rosaic_node::ROSaicNode")
 
