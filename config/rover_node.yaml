@@ -111,6 +111,7 @@ septentrio_gnss_driver:
       # For both GNSS and INS Rxs
       auto_publish: false
       publish_only_valid: false
+      nmea_sentence: false
       navsatfix: false
       gpsfix: true
       gpgga: false

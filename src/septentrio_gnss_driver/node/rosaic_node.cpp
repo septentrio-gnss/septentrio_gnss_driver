@@ -194,6 +194,7 @@ namespace rosaic_node {
         param("publish.gprmc", settings_.publish_gprmc, false);
         param("publish.gpgsa", settings_.publish_gpgsa, false);
         param("publish.gpgsv", settings_.publish_gpgsv, false);
+        param("publish.nmea_sentence", settings_.publish_nmea_sentence, false);
         param("publish.measepoch", settings_.publish_measepoch, false);
         param("publish.pvtcartesian", settings_.publish_pvtcartesian, false);
         param("publish.pvtgeodetic", settings_.publish_pvtgeodetic, false);

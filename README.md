@@ -190,6 +190,7 @@ Please [let the maintainers know](mailto:githubuser@septentrio.com?subject=[GitH
     # For both GNSS and INS Rxs 
     auto_publish: false
     publish_only_valid: false
+    nmea_sentence: false
     navsatfix: false
     gpsfix: true
     gpgga: false
@@ -676,6 +677,7 @@ The following is a list of ROSaic parameters found in the `config/rover.yaml` fi
   
     + `publish.auto_publish`: `true` to automatically publish messages for which SBF blocks and NMEA sentences are available. Only applicable if `conigure_rx` is `false`. If `tf_ecef` shall be published, this must be explicitily set to true, else tf in UTM is published if available.
     + `publish.publish_only_valid`: `true` to publish SBF blocks only if timestamp (TOW) is valid.
+    + `publish.nmea_sentence`: `true` to additionally publish every received NMEA sentence (GGA, RMC, GSA, GSV) as raw `nmea_msgs/Sentence` into the topic `/nmea_sentence`. The header is the same as that of the corresponding typed message (so `use_gnss_time` applies), and the trailing CR LF is stripped.
     + `publish.gpgga`: `true` to publish `nmea_msgs/GPGGA.msg` messages into the topic `/gpgga`
     + `publish.gprmc`: `true` to publish `nmea_msgs/GPRMC.msg` messages into the topic `/gprmc`
     + `publish.gpgsa`: `true` to publish `nmea_msgs/GPGSA.msg` messages into the topic `/gpgsa`
@@ -722,6 +724,7 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
   + `/gprmc`: publishes [`nmea_msgs/Gprmc.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gprmc.html) - converted from the NMEA sentence RMC.
   + `/gpgsa`: publishes [`nmea_msgs/Gpgsa.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsa.html) - converted from the NMEA sentence GSA.
   + `/gpgsv`: publishes [`nmea_msgs/Gpgsv.msg`](https://docs.ros.org/api/nmea_msgs/html/msg/Gpgsv.html) - converted from the NMEA sentence GSV.
+  + `/nmea_sentence`: publishes [`nmea_msgs/Sentence.msg`](https://docs.ros.org/en/api/nmea_msgs/html/msg/Sentence.html) - the raw NMEA sentences GGA, RMC, GSA and GSV, if `publish.nmea_sentence` is `true`.
   + `/measepoch`: publishes custom ROS message `septentrio_gnss_driver/MeasEpoch.msg`, corresponding to the SBF block `MeasEpoch`.  
   + `/galauthstatus`: publishes custom ROS message `septentrio_gnss_driver/GALAuthStatus.msg`, corresponding to the SBF block `GALAuthStatus`.
   + `/rfstatus`: publishes custom ROS message `septentrio_gnss_driver/RFStatus.msg`, compiled from the SBF block `RFStatus`.

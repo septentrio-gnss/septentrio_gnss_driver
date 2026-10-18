@@ -2211,6 +2211,18 @@ namespace io {
         }
     }
 
+    template <typename M>
+    void MessageHandler::publishNmeaSentence(const std::string& message, const M& msg)
+    {
+        if (!settings_->publish_nmea_sentence)
+            return;
+
+        NmeaSentenceMsg sentence_msg;
+        sentence_msg.header = msg.header;
+        sentence_msg.sentence = message.substr(0, message.find_last_not_of("\r\n") + 1);
+        publish<NmeaSentenceMsg>("nmea_sentence", sentence_msg);
+    }
+
     /**
      * If GNSS time is used, Publishing is only done with valid leap seconds
      */
@@ -2877,6 +2889,7 @@ namespace io {
                                "GpggaMsg: " + std::string(e.what()));
                     break;
                 }
+                publishNmeaSentence(message, msg);
                 publish<GpggaMsg>("gpgga", msg);
                 break;
             }
@@ -2897,6 +2910,7 @@ namespace io {
                                "GprmcMsg: " + std::string(e.what()));
                     break;
                 }
+                publishNmeaSentence(message, msg);
                 publish<GprmcMsg>("gprmc", msg);
                 break;
             }
@@ -2935,6 +2949,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
+                publishNmeaSentence(message, msg);
                 publish<GpgsaMsg>("gpgsa", msg);
                 break;
             }
@@ -2975,6 +2990,7 @@ namespace io {
                     }
                 } else
                     msg.header.stamp = timestampToRos(telegram->stamp);
+                publishNmeaSentence(message, msg);
                 publish<GpgsvMsg>("gpgsv", msg);
                 break;
             }

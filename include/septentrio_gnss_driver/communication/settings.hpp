@@ -263,6 +263,8 @@ struct Settings
     bool publish_gpgsa;
     //! Whether or not to publish the GSV message
     bool publish_gpgsv;
+    //! Whether or not to additionally publish NMEA messages as raw `nmea_msgs/Sentence`
+    bool publish_nmea_sentence;
     //! Whether or not to publish the MeasEpoch message
     bool publish_measepoch;
     //! Whether or not to publish the RFStatus and AIMPlusStatus message and

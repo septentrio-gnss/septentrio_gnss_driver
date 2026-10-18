@@ -97,6 +97,7 @@
 #include <nmea_msgs/msg/gpgsa.hpp>
 #include <nmea_msgs/msg/gpgsv.hpp>
 #include <nmea_msgs/msg/gprmc.hpp>
+#include <nmea_msgs/msg/sentence.hpp>
 // INS msg includes
 #include <septentrio_gnss_driver/msg/ext_sensor_meas.hpp>
 #include <septentrio_gnss_driver/msg/imu_setup.hpp>
@@ -157,6 +158,7 @@ typedef nmea_msgs::msg::Gpgga GpggaMsg;
 typedef nmea_msgs::msg::Gpgsa GpgsaMsg;
 typedef nmea_msgs::msg::Gpgsv GpgsvMsg;
 typedef nmea_msgs::msg::Gprmc GprmcMsg;
+typedef nmea_msgs::msg::Sentence NmeaSentenceMsg;
 
 // Septentrio INS+GNSS SBF messages
 typedef septentrio_gnss_driver::msg::INSNavCart INSNavCartMsg;

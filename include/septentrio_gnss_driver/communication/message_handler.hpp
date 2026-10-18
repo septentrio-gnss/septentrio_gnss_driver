@@ -190,6 +190,14 @@ namespace io {
         void publish(const std::string& topic, const M& msg);
 
         /**
+         * @brief Publishes the raw NMEA sentence if enabled
+         * @param[in] message NMEA sentence as received, including CR LF
+         * @param[in] msg Parsed NMEA ROS message whose header is reused
+         */
+        template <typename M>
+        void publishNmeaSentence(const std::string& message, const M& msg);
+
+        /**
          * @brief Publishing function
          * @param[in] msg Localization message
          */
