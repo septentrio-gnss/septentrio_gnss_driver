@@ -360,6 +360,10 @@ namespace io {
 
             node_->log(log_level::INFO, "Setting up Rx.");
 
+            // resetSettings() disables output on the main port at shutdown, so
+            // re-enable it here or no SBF/NMEA reaches the driver on restart.
+            send("sdio, " + mainConnectionPort_ + ", auto, SBF+NMEA\x0D");
+
             std::string pvt_interval =
                 parsing_utilities::convertUserPeriodToRxCommand(
                     settings_->polling_period_pvt);
