@@ -30,6 +30,7 @@
 
 // Eigen include
 #include <Eigen/Geometry>
+#include <limits>
 #include <septentrio_gnss_driver/communication/settings_helpers.hpp>
 #include <septentrio_gnss_driver/node/rosaic_node_ros1.hpp>
 
@@ -102,7 +103,7 @@ namespace rosaic_node {
         param("leap_seconds", settings_.leap_seconds, -128);
 
         param("configure_rx", settings_.configure_rx, true);
-        param("persist_configuration", settings_.persist_configuration, false);
+        param("persist_configuration", settings_.persist_configuration, true);
 
         param("custom_commands_file", settings_.custom_commands_file,
               static_cast<std::string>(""));

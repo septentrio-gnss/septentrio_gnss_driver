@@ -19,7 +19,7 @@ stream_device:
 
 configure_rx: true
 
-persist_configuration: false
+persist_configuration: true
 
 custom_commands_file: ""
 

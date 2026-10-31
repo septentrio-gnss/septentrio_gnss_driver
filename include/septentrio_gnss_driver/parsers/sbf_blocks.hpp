@@ -66,6 +66,8 @@ static const uint8_t SBF_SYNC_2 = 0x40;
 // C++
 #include <algorithm>
 #include <type_traits>
+#include <array>
+#include <limits>
 // Boost
 #include <boost/spirit/include/qi.hpp>
 // ROSaic

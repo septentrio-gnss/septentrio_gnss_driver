@@ -2,6 +2,15 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.1 (Upcoming)
+------------------
+* Changes
+    * Make persist configuration the default
+* Fixes
+    * Add direct includes to be robust against transitive changes
+    * Reactivate SBF and NMEA outputs on start (thanks @Hermiodth)
+* Contributors: @Hermiodth, Claude, Thomas Emter, Tibor Dome, septentrio-users
+
 1.5.0 (2026-10-18)
 ------------------
 * New features
