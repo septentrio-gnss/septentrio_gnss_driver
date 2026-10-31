@@ -203,7 +203,7 @@ namespace io {
 
     void CommunicationCore::connect()
     {
-        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.0");
+        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.1");
 
         node_->log(log_level::DEBUG, "Called connect() method");
         node_->log(
