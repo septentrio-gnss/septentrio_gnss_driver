@@ -31,6 +31,7 @@
 #pragma once
 
 // C++ library includes
+#include <limits>
 #include <cmath>   // C++ header, corresponds to <math.h> in C
 #include <cstdint> // C++ header, corresponds to <stdint.h> in C
 #include <ctime>   // C++ header, corresponds to <time.h> in C

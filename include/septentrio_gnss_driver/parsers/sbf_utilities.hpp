@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include <type_traits>
 

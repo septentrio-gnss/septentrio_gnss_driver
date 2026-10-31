@@ -60,7 +60,9 @@
 
 // C++ includes
 #include <algorithm>
+#include <array>
 #include <atomic>
+#include <chrono>
 #include <deque>
 #include <functional>
 #include <mutex>

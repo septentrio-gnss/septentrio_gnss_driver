@@ -203,7 +203,7 @@ namespace io {
 
     void CommunicationCore::connect()
     {
-        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.0");
+        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.1");
 
         node_->log(log_level::DEBUG, "Called connect() method");
         node_->log(
@@ -378,6 +378,10 @@ namespace io {
                     send("login, " + settings_->login_user + ", " +
                          settings_->login_password + " \x0D");
             }
+
+            // resetSettings() disables output on the main port at shutdown, so
+            // re-enable it here or no SBF/NMEA reaches the driver on restart.
+            send("sdio, " + mainConnectionPort_ + ", auto, SBF+NMEA\x0D");
 
             // Turning off all current SBF/NMEA output
             send("sso, all, none, none, off \x0D");
