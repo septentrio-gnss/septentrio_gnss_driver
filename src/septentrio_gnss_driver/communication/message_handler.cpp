@@ -60,6 +60,36 @@ using parsing_utilities::square;
 
 namespace io {
 
+    void MessageHandler::assembleHeading()
+    {
+        if (!settings_->publish_heading)
+            return;
+
+        const auto& attitude = last_atteuler_;
+        const auto& covariance = last_attcoveuler_;
+        if (!validValue(attitude.block_header.tow) ||
+            !validValue(attitude.block_header.wnc) ||
+            attitude.block_header.tow != covariance.block_header.tow ||
+            attitude.block_header.wnc != covariance.block_header.wnc ||
+            attitude.error != 0 || covariance.error != 0 ||
+            !std::isfinite(attitude.heading) ||
+            !std::isfinite(covariance.cov_headhead) ||
+            covariance.cov_headhead <= 0.0)
+            return;
+
+        // AttEuler includes receiver offsets and ROS axis conversion.
+        ImuMsg msg;
+        msg.header = attitude.header;
+        msg.orientation =
+            convertEulerToQuaternionMsg(0.0, 0.0, deg2rad(attitude.heading));
+        msg.orientation_covariance[0] = 1e6;
+        msg.orientation_covariance[4] = 1e6;
+        msg.orientation_covariance[8] = deg2radSq(covariance.cov_headhead);
+        msg.angular_velocity_covariance[0] = -1.0;
+        msg.linear_acceleration_covariance[0] = -1.0;
+        publish<ImuMsg>("heading", msg);
+    }
+
     void MessageHandler::assemblePoseWithCovarianceStamped()
     {
         if (!settings_->publish_pose)
@@ -2429,6 +2459,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_atteuler_);
             if (settings_->publish_atteuler)
                 publish<AttEulerMsg>("atteuler", last_atteuler_);
+            assembleHeading();
             assemblePoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();
@@ -2446,6 +2477,7 @@ namespace io {
             assembleHeader(settings_->frame_id, telegram, last_attcoveuler_);
             if (settings_->publish_attcoveuler)
                 publish<AttCovEulerMsg>("attcoveuler", last_attcoveuler_);
+            assembleHeading();
             assemblePoseWithCovarianceStamped();
             if (settings_->septentrio_receiver_type == "gnss")
                 assembleGpsFix();

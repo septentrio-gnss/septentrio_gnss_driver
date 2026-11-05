@@ -365,6 +365,9 @@ namespace io {
          */
         void assemblePoseWithCovarianceStamped();
 
+        //! Assemble the GNSS heading Imu message.
+        void assembleHeading();
+
         /**
          * @brief "Callback" function when constructing
          * DiagnosticArrayMsg messages

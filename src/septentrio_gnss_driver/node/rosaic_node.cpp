@@ -190,6 +190,7 @@ namespace rosaic_node {
         param("publish.navsatfix", settings_.publish_navsatfix, true);
         param("publish.gpsfix", settings_.publish_gpsfix, false);
         param("publish.pose", settings_.publish_pose, false);
+        param("publish.heading", settings_.publish_heading, false);
         param("publish.diagnostics", settings_.publish_diagnostics, false);
         param("publish.aimplusstatus", settings_.publish_aimplusstatus, false);
         param("publish.galauthstatus", settings_.publish_galauthstatus, false);
@@ -266,6 +267,15 @@ namespace rosaic_node {
         param("poi_to_arp.delta_u", settings_.delta_u, 0.0f);
 
         param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
+        if (settings_.publish_heading &&
+            (settings_.septentrio_receiver_type != "gnss" ||
+             !settings_.use_ros_axis_orientation))
+        {
+            this->log(log_level::FATAL,
+                      "publish.heading requires receiver_type=gnss and "
+                      "use_ros_axis_orientation=true.");
+            return false;
+        }
 
         // INS Spatial Configuration
         bool getConfigFromTf;
@@ -593,13 +603,13 @@ namespace rosaic_node {
                     "Deprecation warning: parameter ntrip_settings.rx_input_corrections_serial has been removed, see README under section rtk_settings.");
         }
 
-        if (settings_.publish_atteuler)
+        if (settings_.publish_atteuler || settings_.publish_heading)
         {
             if (!settings_.multi_antenna)
             {
                 this->log(
                     log_level::WARN,
-                    "AttEuler needs multi-antenna receiver. Multi-antenna setting automatically activated. Deactivate publishing of AttEuler if multi-antenna operation is not available.");
+                    "Attitude output needs a multi-antenna receiver. Multi-antenna setting automatically activated.");
                 settings_.multi_antenna = true;
             }
         }

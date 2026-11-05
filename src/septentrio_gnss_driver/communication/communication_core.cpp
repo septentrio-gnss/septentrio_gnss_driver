@@ -997,7 +997,7 @@ namespace io {
                 {
                     blocks << " +VelCovGeodetic";
                 }
-                if (settings_->publish_atteuler ||
+                if (settings_->publish_atteuler || settings_->publish_heading ||
                     (settings_->publish_gpsfix &&
                      (settings_->septentrio_receiver_type == "gnss")) ||
                     (settings_->publish_pose &&
@@ -1005,7 +1005,7 @@ namespace io {
                 {
                     blocks << " +AttEuler";
                 }
-                if (settings_->publish_attcoveuler ||
+                if (settings_->publish_attcoveuler || settings_->publish_heading ||
                     (settings_->publish_gpsfix &&
                      (settings_->septentrio_receiver_type == "gnss")) ||
                     (settings_->publish_pose &&
