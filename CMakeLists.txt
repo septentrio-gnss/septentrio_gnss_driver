@@ -274,11 +274,6 @@ elseif(ament_cmake_FOUND)
     tf2_ros::tf2_ros
   )
 
-  if(${rosidl_cmake_VERSION} VERSION_GREATER_EQUAL 5.2.0)
-    target_compile_definitions(${library_name} PUBLIC ROS2_VER_N520)
-    target_compile_definitions(${library_name} INTERFACE ROS2_VER_N520)
-  endif()
-
   if(${rosidl_cmake_VERSION} VERSION_LESS 2.5.0)
     rosidl_target_interfaces(${library_name}
     ${PROJECT_NAME} "rosidl_typesupport_cpp")
