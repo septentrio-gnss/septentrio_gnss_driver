@@ -844,24 +844,23 @@ namespace io {
             }
 
             // OSNMA
+            std::stringstream ss;
+            ss << "sou, " << settings_->osnma.mode << " \x0D";
+            send(ss.str());
+
             if (settings_->osnma.mode == "loose" ||
                 settings_->osnma.mode == "strict")
             {
-                std::stringstream ss;
-                ss << "sou, " << settings_->osnma.mode << " \x0D";
-                send(ss.str());
-
                 if (!settings_->osnma.ntp_server.empty())
                 {
                     std::stringstream ss;
                     ss << "snc, on, " << settings_->osnma.ntp_server << " \x0D";
                     send(ss.str());
-                } else
+                } else if (settings_->osnma.mode == "strict")
                 {
-                    if (settings_->osnma.mode == "strict")
-                        node_->log(
-                            log_level::ERROR,
-                            "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
+                    node_->log(
+                        log_level::ERROR,
+                        "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
                 }
             }
 
