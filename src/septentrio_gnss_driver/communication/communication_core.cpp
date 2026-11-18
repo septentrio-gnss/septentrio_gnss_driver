@@ -465,10 +465,14 @@ namespace io {
             // Activate NTP server
             if (settings_->ntp_server)
                 send("sntp, on \x0D");
+            else
+                send("sntp, off \x0D");
 
             // Activate PTP server clock
             if (settings_->ptp_server_clock)
                 send("sptp, on \x0D");
+            else
+                send("sptp, off \x0D");
 
             // Setting the datum to be used by the Rx (not the NMEA output though,
             // which only provides MSL and undulation (by default with respect to
