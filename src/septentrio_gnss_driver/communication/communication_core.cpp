@@ -188,10 +188,17 @@ namespace io {
                     send(ss.str());
                 }
             }
-            for (auto stream : streamsToStop_)
+            for (auto stream : streamsNmeaToStop_)
             {
                 std::stringstream ss;
                 ss << "sno, Stream" << std::to_string(stream)
+                   << ", none, none, off \x0D";
+                send(ss.str());
+            }
+            for (auto stream : streamsSbfToStop_)
+            {
+                std::stringstream ss;
+                ss << "sso, Stream" << std::to_string(stream)
                    << ", none, none, off \x0D";
                 send(ss.str());
             }
@@ -344,7 +351,7 @@ namespace io {
         {
             telegramHandler_.resetSemaphores();
             uint8_t stream = 1;
-            streamsToStop_.clear();
+            streamsNmeaToStop_.clear();
 
             mainConnectionPort_ = resetMainConnection();
             if (mainConnectionPort_.empty())
@@ -598,7 +605,7 @@ namespace io {
                         ss << "sno, Stream" << std::to_string(stream) << ", "
                            << ip_server.id << ", GGA, " << rate << " \x0D";
                         if (!ip_server.keep_open)
-                            streamsToStop_.push_back(stream);
+                            streamsNmeaToStop_.push_back(stream);
                         ++stream;
                         send(ss.str());
                     }
@@ -627,7 +634,7 @@ namespace io {
                         ss << "sno, Stream" << std::to_string(stream) << ", "
                            << serial.port << ", GGA, " << rate << " \x0D";
                         if (!serial.keep_open)
-                            streamsToStop_.push_back(stream);
+                            streamsNmeaToStop_.push_back(stream);
                         ++stream;
                         send(ss.str());
                     }
@@ -903,6 +910,7 @@ namespace io {
                 ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << rest_interval << "\x0D";
                 send(ss.str());
+                streamsSbfToStop_.push_back(stream);
                 ++stream;
             }
 
@@ -945,6 +953,7 @@ namespace io {
                 ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << pvt_interval << "\x0D";
                 send(ss.str());
+                streamsNmeaToStop_.push_back(stream);
                 ++stream;
             }
 
@@ -1065,6 +1074,7 @@ namespace io {
                 ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << pvt_interval << "\x0D";
                 send(ss.str());
+                streamsSbfToStop_.push_back(stream);
                 ++stream;
             }
 
