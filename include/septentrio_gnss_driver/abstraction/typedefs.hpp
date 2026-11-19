@@ -32,9 +32,17 @@
 
 // std includes
 #include <any>
+#include <cmath>
+#include <ctime>
+#include <functional>
 #include <iomanip>
+#include <numeric>
 #include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
 // tf2 includes
@@ -202,6 +210,61 @@ namespace log_level {
 } // namespace log_level
 
 /**
+ * @brief Compatibility helpers for the node argument of tf2_ros constructors
+ *
+ * tf2_ros >= 0.45 (ROS 2 Lyrical) takes Tf2RosT::RequiredInterfaces and
+ * deprecates the node pointer constructors, later versions remove them. Older
+ * versions only accept the node pointer.
+ */
+namespace tf2_ros_compat {
+    template <typename Tf2RosT, typename = void>
+    struct HasRequiredInterfaces : std::false_type
+    {
+    };
+
+    template <typename Tf2RosT>
+    struct HasRequiredInterfaces<Tf2RosT,
+                                 std::void_t<typename Tf2RosT::RequiredInterfaces>> :
+        std::true_type
+    {
+    };
+
+    /**
+     * @brief Node argument for the constructor of the tf2_ros class Tf2RosT
+     * @param[in] node Pointer to the node
+     * @return Tf2RosT::RequiredInterfaces if available, else the node pointer
+     */
+    template <typename Tf2RosT, typename NodeT>
+    auto tf2RosNode(NodeT* node)
+    {
+        if constexpr (HasRequiredInterfaces<Tf2RosT>::value)
+            return typename Tf2RosT::RequiredInterfaces(*node);
+        else
+            return node;
+    }
+
+    /**
+     * @brief Node argument for the constructor of tf2_ros::TransformBroadcaster
+     * @param[in] node Pointer to the node
+     */
+    template <typename NodeT>
+    auto transformBroadcasterNode(NodeT* node)
+    {
+        return tf2RosNode<tf2_ros::TransformBroadcaster>(node);
+    }
+
+    /**
+     * @brief Node argument for the constructor of tf2_ros::TransformListener
+     * @param[in] node Pointer to the node
+     */
+    template <typename NodeT>
+    auto transformListenerNode(NodeT* node)
+    {
+        return tf2RosNode<tf2_ros::TransformListener>(node);
+    }
+} // namespace tf2_ros_compat
+
+/**
  * @class ROSaicNodeBase
  * @brief This class is the base class for abstraction
  */
@@ -210,12 +273,8 @@ class ROSaicNodeBase : public rclcpp::Node
 public:
     ROSaicNodeBase(const rclcpp::NodeOptions& options) :
         Node("septentrio_gnss", options), tfBuffer_(this->get_clock()),
-#ifdef ROS2_VER_N520
-        tf2Publisher_(tf2_ros::TransformBroadcaster::RequiredInterfaces(*this)),
-        tfListener_(tfBuffer_, tf2_ros::TransformListener::RequiredInterfaces(*this))
-#else
-        tf2Publisher_(this), tfListener_(tfBuffer_, this)
-#endif
+        tf2Publisher_(tf2_ros_compat::transformBroadcasterNode(this)),
+        tfListener_(tfBuffer_, tf2_ros_compat::transformListenerNode(this))
     {
     }
 

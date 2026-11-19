@@ -31,9 +31,16 @@
 #pragma once
 
 // std includes
+#include <cmath>
+#include <ctime>
 #include <iomanip>
+#include <memory>
 #include <numeric>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
+#include <utility>
 // ROS includes
 #include <ros/ros.h>
 // tf2 includes

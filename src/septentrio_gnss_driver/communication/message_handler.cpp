@@ -32,6 +32,8 @@
 #include <boost/tokenizer.hpp>
 #include <septentrio_gnss_driver/communication/message_handler.hpp>
 #include <septentrio_gnss_driver/parsers/string_utilities.hpp>
+#include <bitset>
+#include <chrono>
 #include <thread>
 
 /**

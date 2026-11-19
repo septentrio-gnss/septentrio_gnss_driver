@@ -32,6 +32,7 @@
 
 // C++ library includes
 #include <stdexcept>
+#include <string>
 // The C++ Standard library provides a base class specifically designed to declare
 // objects to be thrown as exceptions. It is called std::exception and is defined in
 // the <exception> header. This class has a virtual member function called what that

@@ -2,6 +2,19 @@
 Changelog for package septentrio_gnss_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.1 (Upcoming)
+------------------
+* New features
+    * Option to publish heading as IMU message (thanks @benmccann)
+* Changes
+    * Make persist configuration the default
+* Fixes
+    * Add explicit includes to be robust against transitive changes
+    * Reactivate SBF and NMEA outputs on main connection on startup (thanks @Hermiodth)
+    * NTP, PTP, and OSNMA were not set to off according to parameter
+    * Disabling of streams when persist_configuration is false
+* Contributors: @Hermiodth, @benmccann, Claude, Thomas Emter, Tibor Dome, septentrio-users
+
 1.5.0 (2026-10-18)
 ------------------
 * New features
