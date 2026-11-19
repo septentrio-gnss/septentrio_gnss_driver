@@ -267,15 +267,6 @@ namespace rosaic_node {
         param("poi_to_arp.delta_u", settings_.delta_u, 0.0f);
 
         param("use_ros_axis_orientation", settings_.use_ros_axis_orientation, true);
-        if (settings_.publish_heading &&
-            (settings_.septentrio_receiver_type != "gnss" ||
-             !settings_.use_ros_axis_orientation))
-        {
-            this->log(log_level::FATAL,
-                      "publish.heading requires receiver_type=gnss and "
-                      "use_ros_axis_orientation=true.");
-            return false;
-        }
 
         // INS Spatial Configuration
         bool getConfigFromTf;

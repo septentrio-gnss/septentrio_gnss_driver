@@ -77,7 +77,8 @@ namespace io {
             covariance.cov_headhead <= 0.0)
             return;
 
-        // AttEuler includes receiver offsets and ROS axis conversion.
+        // AttEuler includes receiver offsets and uses the axis convention selected
+        // by use_ros_axis_orientation (ENU if true, NED if false).
         ImuMsg msg;
         msg.header = attitude.header;
         msg.orientation =

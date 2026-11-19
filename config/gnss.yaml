@@ -115,6 +115,7 @@ publish:
   atteuler: true
   attcoveuler: true
   pose: true
+  heading: false
   twist: false
   diagnostics: true
   aimplusstatus: true
