@@ -326,6 +326,8 @@ struct Settings
     bool publish_gpsfix = false;
     //! Whether or not to publish the PoseWithCovarianceStampedMsg message
     bool publish_pose = false;
+    //! Whether to publish the GNSS heading Imu message
+    bool publish_heading = false;
     //! Whether or not to publish the DiagnosticArrayMsg message
     bool publish_diagnostics = false;
     //! Whether or not to publish the ImuMsg message

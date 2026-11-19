@@ -131,6 +131,7 @@ septentrio_gnss_driver:
       atteuler: true
       attcoveuler: true
       pose: false
+      heading: false
       twist: false
       diagnostics: false
       aimplusstatus: true

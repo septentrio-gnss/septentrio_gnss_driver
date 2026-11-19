@@ -33,6 +33,7 @@
 // std includes
 #include <any>
 #include <iomanip>
+#include <numeric>
 #include <sstream>
 #include <unordered_map>
 // ROS includes
