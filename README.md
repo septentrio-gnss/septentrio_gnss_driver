@@ -794,6 +794,44 @@ A selection of NMEA sentences, the majority being standardized sentences, and pr
     + The ROS message [`nav_msgs/Odometry.msg`](https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html) can be fed directly into the [`robot_localization`](https://docs.ros.org/en/api/robot_localization/html/preparing_sensor_data.html) of the ROS navigation stack. Note that `use_ros_axis_orientation` should be set to `true` to adhere to the ENU convention.
 </details>
 
+### Handling of PVT solution type
+The `mode` field of `PVTCartesian`, `PVTGeodetic`, `PosCovCartesian`, `PosCovGeodetic`, `VelCovCartesian`, `VelCovGeodetic`, `VectorInfoCart` and `VectorInfoGeod`, and the `gnss_mode` field of `INSNavCart` and `INSNavGeod`, are bitfields: bits 0-3 hold the type of PVT solution, while the upper bits are reserved or carry independent flags.
+
+For the eight non-INS blocks listed above:
+
+| Bits | Meaning |
+| ---- | ------- |
+| 0-3 | Type of PVT solution |
+| 4-5 | Reserved |
+| 6 | Set if the command `setPVTMode, Static, , auto` was entered and the receiver is still in the process of determining its fixed position |
+| 7 | 2D/3D flag, set in 2D mode (height assumed constant and not computed) |
+
+For `INSNavCart` and `INSNavGeod` bits 0-3 are the same, but the upper bits follow `AttEuler`:
+
+| Bits | Meaning |
+| ---- | ------- |
+| 0-3 | Type of PVT solution |
+| 4-6 | Reserved |
+| 7 | Set when GNSS-based attitude is not requested by the user; in that case all the other bits are zero |
+
+Because of the upper bits, the natural `msg.mode == 4` test for an RTK fixed solution fails whenever the receiver is in 2D mode, since the byte is then 132. The type of PVT solution must therefore be masked out before it is compared. Each of these messages carries named constants for this purpose, so applications do not have to re-derive the mapping from the SBF Reference Guide:
+
+```c++
+if ((msg.mode & PVTGeodetic::MODE_TYPE_MASK) == PVTGeodetic::MODE_RTK_FIXED)
+{
+  // ...
+}
+```
+
+The available values are `MODE_NO_PVT`, `MODE_STANDALONE`, `MODE_DGNSS`, `MODE_FIXED_LOCATION`, `MODE_RTK_FIXED`, `MODE_RTK_FLOAT`, `MODE_SBAS`, `MODE_MOVING_BASE_RTK_FIXED`, `MODE_MOVING_BASE_RTK_FLOAT` and `MODE_PPP`. The flags in the upper bits are exposed as constants as well, `MODE_FLAG_BASE_AUTO` and `MODE_FLAG_2D` for the non-INS blocks and `MODE_FLAG_GNSS_ATTITUDE_NOT_REQUESTED` for the INS blocks, and are tested directly:
+
+```c++
+if (msg.mode & PVTGeodetic::MODE_FLAG_2D)
+{
+  // ...
+}
+```
+
 ## Suggestions for Improvements
 <details>
   <summary>Some Ideas</summary>
