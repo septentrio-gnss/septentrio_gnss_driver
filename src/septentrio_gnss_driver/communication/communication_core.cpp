@@ -547,7 +547,10 @@ namespace io {
             }
 
             // Configure all modes allowed
-            send("spm, Rover, all, auto \x0D");
+            if (node_->isIns())
+                send("spm, Rover, all \x0D");
+            else
+                send("spm, Rover, all, auto \x0D");
 
             // Configuring the corrections connection
             for (auto ntrip : settings_->rtk.ntrip)

@@ -14,6 +14,7 @@ Changelog for package septentrio_gnss_driver
     * Reactivate SBF and NMEA outputs on main connection on startup (thanks @Hermiodth)
     * NTP, PTP, and OSNMA were not set to off according to parameter
     * Disabling of streams when persist_configuration is false
+    * SetPVT mode signature for INS
 * Contributors: @Petrigh, @Hermiodth, @benmccann, Claude, Thomas Emter, Tibor Dome, septentrio-users
 
 1.5.0 (2026-10-18)
