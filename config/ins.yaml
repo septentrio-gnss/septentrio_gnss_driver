@@ -76,6 +76,7 @@ polling_period:
 # time
 use_gnss_time: false
 ntp_server: true
+ptp_server_clock: false
 latency_compensation: true
 
 # RTK
