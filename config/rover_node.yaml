@@ -20,7 +20,7 @@ septentrio_gnss_driver:
 
     configure_rx: true
 
-    persist_configuration: false
+    persist_configuration: true
 
     custom_commands_file: ""  
 

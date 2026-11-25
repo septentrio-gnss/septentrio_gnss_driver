@@ -196,7 +196,8 @@ namespace io {
         std::unique_ptr<AsyncManager<TcpIo>> tcpVsm_;
 
         bool nmeaActivated_ = false;
-        std::vector<uint8_t> streamsToStop_;
+        std::vector<uint8_t> streamsNmeaToStop_;
+        std::vector<uint8_t> streamsSbfToStop_;
 
         //! Indicator for threads to run
         std::atomic<bool> running_;

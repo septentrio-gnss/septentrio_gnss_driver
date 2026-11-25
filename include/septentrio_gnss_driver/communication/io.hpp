@@ -31,7 +31,9 @@
 #pragma once
 
 // C++
+#include <array>
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <memory>
 #include <mutex>

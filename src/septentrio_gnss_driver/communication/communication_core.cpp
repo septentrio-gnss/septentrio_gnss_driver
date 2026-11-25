@@ -188,10 +188,17 @@ namespace io {
                     send(ss.str());
                 }
             }
-            for (auto stream : streamsToStop_)
+            for (auto stream : streamsNmeaToStop_)
             {
                 std::stringstream ss;
                 ss << "sno, Stream" << std::to_string(stream)
+                   << ", none, none, off \x0D";
+                send(ss.str());
+            }
+            for (auto stream : streamsSbfToStop_)
+            {
+                std::stringstream ss;
+                ss << "sso, Stream" << std::to_string(stream)
                    << ", none, none, off \x0D";
                 send(ss.str());
             }
@@ -203,7 +210,7 @@ namespace io {
 
     void CommunicationCore::connect()
     {
-        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.0");
+        node_->log(log_level::INFO, "This is ROSaic driver version 1.5.1");
 
         node_->log(log_level::DEBUG, "Called connect() method");
         node_->log(
@@ -344,7 +351,7 @@ namespace io {
         {
             telegramHandler_.resetSemaphores();
             uint8_t stream = 1;
-            streamsToStop_.clear();
+            streamsNmeaToStop_.clear();
 
             mainConnectionPort_ = resetMainConnection();
             if (mainConnectionPort_.empty())
@@ -378,6 +385,10 @@ namespace io {
                     send("login, " + settings_->login_user + ", " +
                          settings_->login_password + " \x0D");
             }
+
+            // resetSettings() disables output on the main port at shutdown, so
+            // re-enable it here or no SBF/NMEA reaches the driver on restart.
+            send("sdio, " + mainConnectionPort_ + ", auto, SBF+NMEA\x0D");
 
             // Turning off all current SBF/NMEA output
             send("sso, all, none, none, off \x0D");
@@ -461,10 +472,14 @@ namespace io {
             // Activate NTP server
             if (settings_->ntp_server)
                 send("sntp, on \x0D");
+            else
+                send("sntp, off \x0D");
 
             // Activate PTP server clock
             if (settings_->ptp_server_clock)
                 send("sptp, on \x0D");
+            else
+                send("sptp, off \x0D");
 
             // Setting the datum to be used by the Rx (not the NMEA output though,
             // which only provides MSL and undulation (by default with respect to
@@ -532,7 +547,10 @@ namespace io {
             }
 
             // Configure all modes allowed
-            send("spm, Rover, all, auto \x0D");
+            if (node_->isIns())
+                send("spm, Rover, all \x0D");
+            else
+                send("spm, Rover, all, auto \x0D");
 
             // Configuring the corrections connection
             for (auto ntrip : settings_->rtk.ntrip)
@@ -590,7 +608,7 @@ namespace io {
                         ss << "sno, Stream" << std::to_string(stream) << ", "
                            << ip_server.id << ", GGA, " << rate << " \x0D";
                         if (!ip_server.keep_open)
-                            streamsToStop_.push_back(stream);
+                            streamsNmeaToStop_.push_back(stream);
                         ++stream;
                         send(ss.str());
                     }
@@ -619,7 +637,7 @@ namespace io {
                         ss << "sno, Stream" << std::to_string(stream) << ", "
                            << serial.port << ", GGA, " << rate << " \x0D";
                         if (!serial.keep_open)
-                            streamsToStop_.push_back(stream);
+                            streamsNmeaToStop_.push_back(stream);
                         ++stream;
                         send(ss.str());
                     }
@@ -840,24 +858,23 @@ namespace io {
             }
 
             // OSNMA
+            std::stringstream ss;
+            ss << "sou, " << settings_->osnma.mode << " \x0D";
+            send(ss.str());
+
             if (settings_->osnma.mode == "loose" ||
                 settings_->osnma.mode == "strict")
             {
-                std::stringstream ss;
-                ss << "sou, " << settings_->osnma.mode << " \x0D";
-                send(ss.str());
-
                 if (!settings_->osnma.ntp_server.empty())
                 {
                     std::stringstream ss;
                     ss << "snc, on, " << settings_->osnma.ntp_server << " \x0D";
                     send(ss.str());
-                } else
+                } else if (settings_->osnma.mode == "strict")
                 {
-                    if (settings_->osnma.mode == "strict")
-                        node_->log(
-                            log_level::ERROR,
-                            "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
+                    node_->log(
+                        log_level::ERROR,
+                        "OSNMA mode set to strict but no NTP server provided. In Strict mode an NTP server is mandatory!");
                 }
             }
 
@@ -896,6 +913,7 @@ namespace io {
                 ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << rest_interval << "\x0D";
                 send(ss.str());
+                streamsSbfToStop_.push_back(stream);
                 ++stream;
             }
 
@@ -938,6 +956,7 @@ namespace io {
                 ss << "sno, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << pvt_interval << "\x0D";
                 send(ss.str());
+                streamsNmeaToStop_.push_back(stream);
                 ++stream;
             }
 
@@ -1058,6 +1077,7 @@ namespace io {
                 ss << "sso, Stream" << std::to_string(stream) << ", " << streamPort_
                    << "," << blocks.str() << ", " << pvt_interval << "\x0D";
                 send(ss.str());
+                streamsSbfToStop_.push_back(stream);
                 ++stream;
             }
 
