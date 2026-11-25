@@ -7,6 +7,26 @@ std_msgs/Header header
 BlockHeader block_header
 
 uint8       gnss_mode
+# Type of PVT solution in bits 0-3 of gnss_mode. Bits 4-6 are reserved and bit 7
+# carries an independent flag, so gnss_mode must be masked with MODE_TYPE_MASK
+# before it is compared against these values. 9, 11 and 12 are reserved by the
+# SBF spec.
+#------------------------------------------------------------------------------
+uint8 MODE_TYPE_MASK             = 15
+uint8 MODE_NO_PVT                = 0
+uint8 MODE_STANDALONE            = 1
+uint8 MODE_DGNSS                 = 2
+uint8 MODE_FIXED_LOCATION        = 3
+uint8 MODE_RTK_FIXED             = 4
+uint8 MODE_RTK_FLOAT             = 5
+uint8 MODE_SBAS                  = 6
+uint8 MODE_MOVING_BASE_RTK_FIXED = 7
+uint8 MODE_MOVING_BASE_RTK_FLOAT = 8
+uint8 MODE_PPP                   = 10
+# Independent flag. Bit 7 is set when GNSS-based attitude is not requested by the
+# user; in that case all the other bits are zero.
+uint8 MODE_FLAG_GNSS_ATTITUDE_NOT_REQUESTED = 128
+#------------------------------------------------------------------------------
 uint8       error
 uint16      info
 uint16      gnss_age   # 0.01 s
