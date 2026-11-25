@@ -6,6 +6,7 @@ Changelog for package septentrio_gnss_driver
 ------------------
 * New features
     * Option to publish heading as IMU message (thanks @benmccann)
+    * Add PVT mode constants to the messages carrying the GNSS PVT mode bitfield (thanks @Petrigh)
 * Changes
     * Make persist configuration the default
 * Fixes
@@ -13,7 +14,7 @@ Changelog for package septentrio_gnss_driver
     * Reactivate SBF and NMEA outputs on main connection on startup (thanks @Hermiodth)
     * NTP, PTP, and OSNMA were not set to off according to parameter
     * Disabling of streams when persist_configuration is false
-* Contributors: @Hermiodth, @benmccann, Claude, Thomas Emter, Tibor Dome, septentrio-users
+* Contributors: @Petrigh, @Hermiodth, @benmccann, Claude, Thomas Emter, Tibor Dome, septentrio-users
 
 1.5.0 (2026-10-18)
 ------------------
